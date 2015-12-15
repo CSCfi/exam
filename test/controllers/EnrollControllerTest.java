@@ -57,7 +57,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
     public void setUp() throws Exception {
         super.setUp();
         Ebean.delete(Ebean.find(ExamEnrolment.class).findList());
-        exam = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED).findList().get(0);
+        exam = Ebean.find(Exam.class, 1);
         user = Ebean.find(User.class, userId);
         enrolment = new ExamEnrolment();
         enrolment.setExam(exam);

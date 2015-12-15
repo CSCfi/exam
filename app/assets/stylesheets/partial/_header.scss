@@ -1,8 +1,8 @@
 #sitnet-header {
 
   .header-wrapper {
-    height:2em;
-    margin:1em 0;
+    height: 2em;
+    margin: 1em 0;
     padding: 0 2em 0 0;
   }
 
@@ -14,6 +14,16 @@
     letter-spacing: 1px;
     padding-left: 1em;
   }
+
+  .compact-header-text {
+    font-size: 1.8em;
+    font-family: $sitnet-family-opensans-light;
+    color: $sitnet-text;
+    font-weight: 300;
+    letter-spacing: 1px;
+    padding: 0;
+  }
+
   min-height: $sitnet-header-height;
   background-color: #e6e6e6;
 
@@ -36,16 +46,16 @@
     letter-spacing: 1px;
     text-transform: uppercase;
     background-color: $sitnet-theme;
-    border:0;
+    border: 0;
     color: $sitnet-background;
-    min-width:3em;
+    min-width: 3em;
     text-align: center;
-    font-size:0.8em;
-    padding:0.5em 1.2em 0.5em 1.2em;
+    font-size: 0.8em;
+    padding: 0.5em 1.2em 0.5em 1.2em;
     @include border-radius(5px);
   }
   .header-button > i {
-    margin-left:0.2em;
+    margin-left: 0.2em;
     padding-right: 2em;
   }
 
@@ -67,6 +77,18 @@
     font-family: $sitnet-family-opensans-bold;
     color: $sitnet-common-medium;
     margin-right: 1em;
+  }
+
+  @media screen {
+    .print-only {
+      display: none !important;
+    }
+  }
+
+  @media print {
+    .no-print {
+      display: none !important;
+    }
   }
 
 }

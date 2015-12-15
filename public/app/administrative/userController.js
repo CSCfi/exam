@@ -11,6 +11,17 @@
                     {type: 'STUDENT', name: 'sitnet_student', icon: 'fa-graduation-cap'}
                 ];
 
+                UserRes.permissions.query(function(permissions) {
+                    permissions.forEach(function(p) {
+                        if (p.type === 'CAN_INSPECT_LANGUAGE') {
+                            p.name = 'sitnet_can_inspect_language';
+                            p.icon = 'fa-pencil';
+                        }
+                    });
+                    $scope.permissions = permissions;
+                });
+
+
                 $scope.loader = {
                     loading: false
                 };
@@ -27,6 +38,17 @@
                             user.availableRoles.push(angular.copy(role));
                         } else {
                             user.removableRoles.push(angular.copy(role));
+                        }
+                    });
+                    user.availablePermissions = [];
+                    user.removablePermissions = [];
+                    $scope.permissions.forEach(function (permission) {
+                        if (user.permissions.map(function (p) {
+                                return p.type;
+                            }).indexOf(permission.type) === -1) {
+                            user.availablePermissions.push(angular.copy(permission));
+                        } else {
+                            user.removablePermissions.push(angular.copy(permission));
                         }
                     });
                 };
@@ -60,9 +82,21 @@
                     });
                 };
 
-                $scope.applyFilter = function (role) {
+                $scope.hasPermission = function (user, permission) {
+                    return user.permissions.some(function (p) {
+                        return p.type === permission;
+                    });
+                };
+
+                $scope.applyRoleFilter = function (role) {
                     $scope.roles.forEach(function (r) {
                         r.filtered = r.type === role.type ? !r.filtered : false;
+                    });
+                };
+
+                $scope.applyPermissionFilter = function (permission) {
+                    $scope.permissions.forEach(function (p) {
+                        p.filtered = p.type === permission.type ? !p.filtered : false;
                     });
                 };
 
@@ -80,6 +114,17 @@
                                 result = false;
                             }
                         });
+                    if (!result) {
+                        return result;
+                    }
+                    $scope.permissions.filter(
+                        function (permission) {
+                            return permission.filtered;
+                        }).forEach(function (permission) {
+                            if (!$scope.hasPermission(user, permission.type)) {
+                                result = false;
+                            }
+                        });
                     return result;
                 };
 
@@ -90,12 +135,29 @@
                     })
                 };
 
+                $scope.addPermission = function (user, permission) {
+                    UserRes.permissions.add({id: user.id, permission: permission.type}, function () {
+                        user.permissions.push({type: permission.type});
+                        updateEditOptions(user);
+                    })
+                };
+
                 $scope.removeRole = function (user, role) {
                     UserRes.userRoles.remove({id: user.id, role: role.type}, function () {
                         var i = user.roles.map(function (r) {
                             return r.name
                         }).indexOf(role.type);
                         user.roles.splice(i, 1);
+                        updateEditOptions(user);
+                    })
+                };
+
+                $scope.removePermission = function (user, permission) {
+                    UserRes.permissions.remove({id: user.id, permission: permission.type}, function () {
+                        var i = user.permissions.map(function (p) {
+                            return p.type;
+                        }).indexOf(permission.type);
+                        user.permissions.splice(i, 1);
                         updateEditOptions(user);
                     })
                 };

@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
+import play.data.DynamicForm;
+import play.data.Form;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
@@ -19,9 +21,47 @@ import java.util.stream.Collectors;
 public class UserController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
+    public Result listPermissions() {
+        return ok(Ebean.find(Permission.class).findList());
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public Result grantUserPermission() {
+        DynamicForm df = Form.form().bindFromRequest();
+        String permissionString = df.get("permission");
+        User user = Ebean.find(User.class, df.get("id"));
+        if (user.getPermissions().stream().noneMatch(p -> p.getValue().equals(permissionString))) {
+            Permission.Type type;
+            try {
+                type = Permission.Type.valueOf(permissionString);
+            } catch (IllegalArgumentException e) {
+                return badRequest();
+            }
+            Permission permission = Ebean.find(Permission.class).where().eq("type", type).findUnique();
+            user.getPermissions().add(permission);
+            user.save();
+        }
+        return ok();
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public Result revokeUserPermission() {
+        DynamicForm df = Form.form().bindFromRequest();
+        String permissionString = df.get("permission");
+        User user = Ebean.find(User.class, df.get("id"));
+        if (user.getPermissions().stream().anyMatch(p -> p.getValue().equals(permissionString))) {
+            Permission permission = Ebean.find(Permission.class).where()
+                    .eq("type", Permission.Type.valueOf(permissionString))
+                    .findUnique();
+            user.getPermissions().remove(permission);
+            user.save();
+        }
+        return ok();
+    }
+
+    @Restrict({@Group("ADMIN")})
     public Result getUser(Long id) {
         User user = Ebean.find(User.class).fetch("roles", "name").fetch("language").where().idEq(id).findUnique();
-
         if (user == null) {
             return notFound();
         }
@@ -30,27 +70,12 @@ public class UserController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
     public Result findUsers(F.Option<String> filter) {
-        Query<User> query = Ebean.find(User.class).fetch("roles");
+        Query<User> query = Ebean.find(User.class).fetch("roles").fetch("permissions");
         List<User> results;
         if (filter.isDefined() && !filter.get().isEmpty()) {
-            String rawFilter = filter.get().replaceAll(" +", " ").trim();
-            String condition = String.format("%%%s%%", rawFilter);
             ExpressionList<User> el = query.where().disjunction();
-            if (rawFilter.contains(" ")) {
-                // Possible that user provided us two names. Lets try out some combinations of first and last names
-                String name1 = rawFilter.split(" ")[0];
-                String name2 = rawFilter.split(" ")[1];
-                el = el.disjunction().conjunction()
-                        .ilike("firstName", String.format("%%%s%%", name1))
-                        .ilike("lastName", String.format("%%%s%%", name2))
-                        .endJunction().conjunction()
-                        .ilike("firstName", String.format("%%%s%%", name2))
-                        .ilike("lastName", String.format("%%%s%%", name1))
-                        .endJunction().endJunction();
-            } else {
-                el = el.ilike("firstName", condition)
-                        .ilike("lastName", condition);
-            }
+            el = applyUserFilter(null, el, filter.get());
+            String condition = String.format("%%%s%%", filter.get());
             results = el.ilike("email", condition)
                     .ilike("userIdentifier", condition)
                     .ilike("employeeNumber", condition)
@@ -130,23 +155,9 @@ public class UserController extends BaseController {
         return array;
     }
 
-    private static List<User> findUsersByRoleAndName(String role, String nameFilter) {
+    private List<User> findUsersByRoleAndName(String role, String nameFilter) {
         ExpressionList<User> el = Ebean.find(User.class).where().eq("roles.name", role).disjunction();
-        if (nameFilter.contains(" ")) {
-            // Possible that user provided us two names. Lets try out some combinations of first and last names
-            String name1 = nameFilter.split(" ")[0];
-            String name2 = nameFilter.split(" ")[1];
-            el = el.disjunction().conjunction()
-                    .icontains("firstName", name1)
-                    .icontains("lastName", name2)
-                    .endJunction().conjunction()
-                    .icontains("firstName", name2)
-                    .icontains("lastName", name1)
-                    .endJunction().endJunction();
-        } else {
-            el = el.icontains("firstName", nameFilter)
-                    .icontains("lastName", nameFilter);
-        }
+        el = applyUserFilter(null, el, nameFilter);
         return el.endJunction().findList();
     }
 

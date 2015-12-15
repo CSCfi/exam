@@ -54,6 +54,18 @@
                     limitQuestions();
                 };
 
+
+                $scope.applyOwnerSearchFilter = function () {
+                    if ($scope.filter.owner) {
+                        $scope.filteredQuestions = $scope.questions.filter(function (question) {
+                            var re = new RegExp($scope.filter.owner, 'i');
+                            var owner = question.creator.firstName + " " + question.creator.lastName;
+                            return owner.match(re);
+                        });
+                    }
+                };
+
+
                 $scope.showMore = function () {
                     $scope.maxVisible = $scope.maxVisible + step;
                     limitQuestions();
@@ -78,8 +90,6 @@
                         angular.element(input).prop("checked", isSelected);
                     });
                 };
-
-                //$scope.newTeacher = {};
 
                 $scope.onTeacherSelect = function ($item, $model, $label) {
                     $scope.newTeacher = $item;
@@ -194,7 +204,21 @@
                             item.icon = icon;
                             return item;
                         });
-                        $scope.questions = $scope.filteredQuestions = data;
+                        $scope.questions = $scope.filteredQuestions = questionService.applyFilter(data);
+
+                        $scope.questions.forEach(function(q) {
+                            if (q.evaluationType ==="Points" || q.type === 'MultipleChoiceQuestion') {
+                                q.displayedMaxScore = q.maxScore;
+                            } else if (q.evaluationType ==="Select") {
+                                q.displayedMaxScore = 'sitnet_evaluation_select';
+                            } else if (q.type ==="WeightedMultipleChoiceQuestion") {
+                                q.displayedMaxScore = $scope.calculateMaxPoints(q);
+                            }
+                            q.typeOrd = ['EssayQuestion',
+                                'MultipleChoiceQuestion',
+                                'WeightedMultipleChoiceQuestion'].indexOf(q.type);
+                            q.ownerAggregate = q.creator.lastName + q.creator.firstName;
+                        });
                         $scope.currentPage = 0;
                         limitQuestions();
                     });
@@ -251,7 +275,7 @@
                         $scope.tags = union($scope.tags, data);
                         var examSections = [];
                         $scope.exams.forEach(function (exam) {
-                            examSections = examSections.concat(exam.examSections.filter(function(es) {
+                            examSections = examSections.concat(exam.examSections.filter(function (es) {
                                 return es.name;
                             }).map(function (section) {
                                 section.isSectionTag = true;
@@ -362,5 +386,6 @@
 
                 query();
 
-            }]);
+            }
+        ]);
 }());

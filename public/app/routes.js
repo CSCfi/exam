@@ -22,7 +22,7 @@
             $routeProvider.when('/exams/:examId/section/:sectionId/edit/:editId', { templateUrl: tmpl + 'question/editor/question.html'});
 
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
-            $routeProvider.when('/exams/course/:id', { templateUrl: tmpl + 'exam/editor/exam_section_general_course_new.html', controller: 'ExamController'});
+            $routeProvider.when('/exams/course/:id', { templateUrl: tmpl + 'exam/editor/exam_new.html', controller: 'ExamController'});
             $routeProvider.when('/exampreview/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
 
             $routeProvider.when('/calendar/:id', { templateUrl: tmpl + 'reservation/calendar.html'});
@@ -66,6 +66,10 @@
 
             /* Print */
             $routeProvider.when('/print/exam/:id', { templateUrl: tmpl + 'review/print/fullReview.html', controller: 'ExamReviewController'});
+
+            /* Language inspectors */
+            $routeProvider.when('/inspections', { templateUrl: tmpl + 'maturity/dashboard.html', controller: 'LanguageInspectionCtrl'});
+            $routeProvider.when('/inspections/reports', { templateUrl: tmpl + 'maturity/monthly_report.html', controller: 'LanguageInspectionCtrl'});
 
             $routeProvider.otherwise({redirectTo: '/'});
         }]);

@@ -9,7 +9,6 @@ import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Singleton;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +26,7 @@ public class ExamAutoSaver implements Runnable {
 
     @Override
     public void run() {
-        Logger.info("Checking for ongoing exams ...");
+        Logger.debug("Checking for ongoing exams ...");
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
                 .fetch("reservation")
@@ -38,7 +37,7 @@ public class ExamAutoSaver implements Runnable {
                 .findList();
 
         if (participations == null || participations.isEmpty()) {
-            Logger.info(" -> none found.");
+            Logger.debug("... none found.");
             return;
         }
         markEnded(participations);
@@ -69,14 +68,7 @@ public class ExamAutoSaver implements Runnable {
                     recipients.addAll(exam.getParent().getExamOwners());
                     recipients.addAll(exam.getExamInspections().stream().map(
                             ExamInspection::getUser).collect(Collectors.toSet()));
-                    for (User r : recipients) {
-                        try {
-                            emailComposer.composePrivateExamEnded(r, exam);
-                            Logger.info("Email sent to {}", r.getEmail());
-                        } catch (IOException e) {
-                            Logger.error("Failed to send email", e);
-                        }
-                    }
+                    AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer);
                 }
             } else {
                 Logger.info(" -> exam {} is ongoing until {}", exam.getId(), participationTimeLimit);

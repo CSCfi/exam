@@ -4,6 +4,10 @@
         .factory("UserRes", ['$resource', function ($resource) {
             return {
                 users: $resource("/users"),
+                permissions: $resource("/permissions", {}, {
+                    "add": {method: "POST"},
+                    "remove": {method: "DELETE"}
+                }),
                 userRoles: $resource("/users/:id/roles/:role", {
                         id: "@id", role: "@role"
 

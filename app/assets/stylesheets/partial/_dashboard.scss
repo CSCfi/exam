@@ -36,6 +36,20 @@
     padding-top: 1em;
   }
 
+  .top-row-narrow {
+    @extend .top-row;
+    padding-left: 0;
+    padding-right: 0;
+    margin: 0 -15px 0 -15px;
+  }
+
+  .bottom-row-narrow {
+    @extend .bottom-row;
+    padding-left: 0;
+    padding-right: 0;
+    margin: 0 -15px 0 -15px;
+  }
+
   .main-row {
     @extend .detail-row;
     padding-top: 1em;
@@ -217,6 +231,10 @@
     font-style: italic;
   }
 
+  .review-html-container {
+    padding-left: 1em;
+  }
+
   // fade in/out animations for list items
 
   .list-item.ng-enter,
@@ -261,6 +279,25 @@
   .library-question-header-inactive:hover {
     background-color: $sitnet-theme;
     cursor: move;
+  }
+
+  .sorted-column {
+
+    i {
+      color: black;
+    }
+  }
+
+  @media print {
+
+    a[href]:after {
+      content: none !important;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+
   }
 
 }

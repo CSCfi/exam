@@ -13,5 +13,5 @@ import java.util.List;
 @ImplementedBy(Interfaces.class)
 public interface ExternalAPI {
     F.Promise<Collection<String>> getPermittedCourses(User user) throws MalformedURLException;
-    F.Promise<List<Course>> getCourseInfoByCode(String code) throws MalformedURLException;
+    F.Promise<List<Course>> getCourseInfoByCode(User user, String code) throws MalformedURLException;
 }

@@ -29,6 +29,7 @@
 
         <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/bootstrap.css")">
         <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/font-awesome.min.css")">
+        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/jquery-ui.min.css")">
         <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/toastr.min.css")">
         <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/jquery-ui.min.css")">
         <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/fullcalendar.min.css")">
@@ -48,6 +49,7 @@
         <script src="@routes.Assets.at("components/vendor/calendar.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/angular-cookies.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/angular-route.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/angular-promise-extras.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/angular-resource.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/angular-sanitize.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/http-auth-interceptor.js")" type="text/javascript"></script>
@@ -107,6 +109,7 @@
             <script src="@routes.Assets.at("app/administrative/userController.js")" type="text/javascript"></script>
 
                 <!-- common -->
+            <script src="@routes.Assets.at("app/common/dashboardService.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/common/sessionService.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/common/userResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/common/sessionController.js")" type="text/javascript"> </script>
@@ -138,7 +141,7 @@
             <script src="@routes.Assets.at("app/exam/editor/examEnrolmentController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/examService.js")" type="text/javascript"></script>
 
-            <!-- facility -->
+                 <!-- facility -->
             <script src="@routes.Assets.at("app/facility/roomResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/facility/softwareResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/facility/examMachineResource.js")" type="text/javascript"></script>
@@ -157,6 +160,7 @@
 
                 <!-- reservation -->
             <script src="@routes.Assets.at("app/reservation/reservationResource.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/reservation/reservationService.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/reservation/calendarController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/reservation/calendarResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/reservation/reservationController.js")" type="text/javascript"></script>
@@ -164,6 +168,10 @@
                 <!-- review -->
             <script src="@routes.Assets.at("app/review/examReviewController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/review/reviewListingController.js")" type="text/javascript"></script>
+
+                <!-- maturity -->
+            <script src="@routes.Assets.at("app/maturity/languageInspectionController.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/maturity/languageInspectionResource.js")" type="text/javascript"></script>
 
                 <!-- utility -->
             <script src="@routes.Assets.at("app/utility/dateService.js")" type="text/javascript"></script>
@@ -178,73 +186,75 @@
 
     <body ng-controller="SessionCtrl">
         <div ng-controller="NavigationCtrl" ng-init="minimizeNavigation = !canDisplayFullNavbar()">
-            <div ng-hide="examStarted" id="vmenu" >
-                <div ng-class="minimizeNavigation ? 'minimize' : ''">
-                    <div class="nav-header">
-                        @*Logo*@
-                        <div class="logo">
-                            <div ng-hide="minimizeNavigation">
-                                <img src="@routes.Assets.at("assets/images/exam-logo-black-small.png")" alt="exam" />
-                            </div>
-                            <div ng-hide="!minimizeNavigation">
-                                @*<img src="@routes.Assets.at("assets/images/Exam_logo_vert.png")" alt="exam" />*@
-                                <img width="50" height="90" src="@routes.Assets.at("assets/images/exam-logo-black-small-v.png")" alt="exam" />
-                            </div>
-                        </div>
-                            @*Version number*@
-                        <div ng-hide="minimizeNavigation || !appVersion" >
-                            <div class="app-version">
-                                <strong>v. {{ appVersion }}</strong>
-                            </div>
-                        </div>
-                            @*Language selection*@
-                        <div ng-hide="minimizeNavigation">
-                            <div class="locale-bar">
-                                <span class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></span>
-                                <span class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></span>
-                                <span class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></span>
-                            </div>
-                        </div>
-                        <div ng-hide="!minimizeNavigation">
-                            <div class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></div>
-                            <div class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></div>
-                            <div class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></div>
-                        </div>
-                            @*User info*@
-                        <div ng-hide="minimizeNavigation" >
-                            <div class="user">
-                                <div class="user-name">
-                                    <p>{{user.firstname}}<br>{{user.lastname}}&nbsp;</p>
+            <div ng-hide="examStarted" id="vmenu">
+                <div class="nav-container">
+                    <div ng-class="minimizeNavigation ? 'minimize' : ''">
+                        <div class="nav-header">
+                            @*Logo*@
+                            <div class="logo">
+                                <div ng-hide="minimizeNavigation">
+                                    <img src="@routes.Assets.at("assets/images/exam-logo-black-small.png")" alt="exam" />
+                                </div>
+                                <div ng-hide="!minimizeNavigation">
+                                    @*<img src="@routes.Assets.at("assets/images/Exam_logo_vert.png")" alt="exam" />*@
+                                    <img width="50" height="90" src="@routes.Assets.at("assets/images/exam-logo-black-small-v.png")" alt="exam" />
                                 </div>
                             </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                    @*Menu items*@
-                <div ng-class="minimizeNavigation ? 'minimize' : ''">
-                    <div class="nav-body">
-                        <nav ng-class="minimizeNavigation ? 'minimize' : ''">
-                            <ul class="links">
-                                <li ng-class="{selected: isActive(link)}" ng-repeat="link in links" ng-show="{{link.visible}}">
-                                    <a href="{{link.href}}">
-                                        <i class="fa fa-2x fa-fw {{link.class}}"></i>
-                                        <span class="menu-item">{{ link.name | translate }}</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-                <div ng-class="minimizeNavigation ? 'minimize' : ''">
-                    <div class="nav-footer">
-                        <div ng-click="minimizeNavigation = !minimizeNavigation" class="minify">
+                                @*Version number*@
+                            <div ng-hide="minimizeNavigation || !appVersion" >
+                                <div class="app-version">
+                                    <strong>v. {{ appVersion }}</strong>
+                                </div>
+                            </div>
+                                @*Language selection*@
                             <div ng-hide="minimizeNavigation">
-                                <i class="fa fa-3x fa-chevron-left hit"></i>
+                                <div class="locale-bar">
+                                    <span class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></span>
+                                    <span class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></span>
+                                    <span class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></span>
+                                </div>
                             </div>
                             <div ng-hide="!minimizeNavigation">
-                                <i class="fa fa-3x fa-chevron-right hit"></i>
+                                <div class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></div>
+                                <div class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></div>
+                                <div class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></div>
+                            </div>
+                                @*User info*@
+                            <div ng-hide="minimizeNavigation" >
+                                <div class="user">
+                                    <div class="user-name">
+                                        <p>{{user.firstname}}<br>{{user.lastname}}&nbsp;</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                        @*Menu items*@
+                    <div ng-class="minimizeNavigation ? 'minimize' : ''">
+                        <div class="nav-body">
+                            <nav ng-class="minimizeNavigation ? 'minimize' : ''">
+                                <ul class="links">
+                                    <li ng-class="{selected: isActive(link)}" ng-repeat="link in links" ng-show="{{link.visible}}">
+                                        <a href="{{link.href}}">
+                                            <i class="fa fa-2x fa-fw {{link.class}}"></i>
+                                            <span class="menu-item">{{ link.name | translate }}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    <div ng-class="minimizeNavigation ? 'minimize' : ''">
+                        <div class="nav-footer">
+                            <div ng-click="minimizeNavigation = !minimizeNavigation" class="minify">
+                                <div ng-hide="minimizeNavigation">
+                                    <i class="pointer fa fa-3x fa-chevron-left hit"></i>
+                                </div>
+                                <div ng-hide="!minimizeNavigation">
+                                    <i class="pointer fa fa-3x fa-chevron-right hit"></i>
+                                </div>
                             </div>
                         </div>
                     </div>

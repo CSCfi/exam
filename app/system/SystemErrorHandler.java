@@ -12,6 +12,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
+import javax.persistence.OptimisticLockException;
+
 public class SystemErrorHandler implements HttpErrorHandler {
 
     @Override
@@ -46,6 +48,9 @@ public class SystemErrorHandler implements HttpErrorHandler {
                 if (cause instanceof IllegalArgumentException) {
                     return Results.badRequest(Json.toJson(new ApiError(errorMessage)));
                 }
+            }
+            if (exception instanceof OptimisticLockException) {
+                return Results.badRequest("sitnet_error_data_has_changed");
             }
             return Results.internalServerError(Json.toJson(new ApiError(errorMessage)));
         });

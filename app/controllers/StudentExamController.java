@@ -12,7 +12,6 @@ import models.questions.Answer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.joda.time.DateTime;
-import play.Logger;
 import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -24,7 +23,6 @@ import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -74,7 +72,7 @@ public class StudentExamController extends BaseController {
 
 
     @Restrict({@Group("STUDENT")})
-    public Result getFinishedExams(Long uid) {
+    public Result getFinishedExams() {
         User user = getLoggedUser();
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .select("ended")
@@ -87,6 +85,7 @@ public class StudentExamController extends BaseController {
                 .isNotNull("exam.parent")
                 .ne("exam.state", Exam.State.STUDENT_STARTED)
                 .ne("exam.state", Exam.State.ABORTED)
+                .ne("exam.state", Exam.State.DELETED)
                 .eq("exam.creator", user)
                 .findList();
         return ok(participations);
@@ -121,15 +120,19 @@ public class StudentExamController extends BaseController {
                 .fetch("course", "code, name, credits")
                 .fetch("grade")
                 .fetch("gradeScale")
+                .fetch("executionType")
                 .fetch("examFeedback")
                 .fetch("examFeedback.attachment")
                 .fetch("gradedByUser", "firstName, lastName")
                 .fetch("examInspections.user", "firstName, lastName")
                 .fetch("parent.examOwners", "firstName, lastName")
+                .fetch("languageInspection.statement")
+                .fetch("languageInspection.statement.attachment")
                 .where()
                 .eq("id", id)
                 .eq("creator", getLoggedUser())
                 .disjunction()
+                .eq("state", Exam.State.REJECTED)
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .eq("state", Exam.State.ARCHIVED)
                 .endJunction()
@@ -309,12 +312,13 @@ public class StudentExamController extends BaseController {
                 .fetch("creator", "id")
                 .fetch("course", "id, code, name, credits, institutionName, department")
                 .fetch("examType", "id, type")
+                .fetch("executionType")
                 .fetch("examSections", "id, name")
                 .fetch("examSections.sectionQuestions", "sequenceNumber")
                 .fetch("examSections.sectionQuestions.question", "id, type, question, instruction, maxScore, maxCharacters, evaluationType, expanded")
                 .fetch("examSections.sectionQuestions.question.options", "id, option")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-                .fetch("examSections.sectionQuestions.question.answer", "id, type, answer")
+                .fetch("examSections.sectionQuestions.question.answer", "id, type, answer, objectVersion")
                 .fetch("examSections.sectionQuestions.question.answer.options", "id, option")
                 .fetch("examSections.sectionQuestions.question.answer.attachment", "fileName")
                 .fetch("examLanguages", "code")
@@ -362,7 +366,7 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result saveAnswersAndExit(String hash) {
+    public Result turnExam(String hash) {
         User user = getLoggedUser();
         Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findUnique();
 
@@ -438,27 +442,26 @@ public class StudentExamController extends BaseController {
             return failure;
         }
         DynamicForm df = Form.form().bindFromRequest();
-        String answer = df.get("answer");
-
-        Logger.debug(answer);
+        String essayAnswer = df.get("answer");
         Question question = Ebean.find(Question.class, questionId);
         if (question == null) {
             return forbidden();
         }
-        Answer previousAnswer = question.getAnswer();
 
-        if (previousAnswer == null) {
-            previousAnswer = new Answer();
-            previousAnswer.setType(Answer.Type.EssayAnswer);
+        Answer answer = question.getAnswer();
+        if (answer == null) {
+            answer = new Answer();
+            answer.setType(Answer.Type.EssayAnswer);
+        } else {
+            long objectVersion = Long.parseLong(df.get("objectVersion"));
+            answer.setObjectVersion(objectVersion);
         }
+        answer.setAnswer(essayAnswer);
+        answer.save();
 
-        previousAnswer.setAnswer(answer);
-        previousAnswer.save();
-
-        question.setAnswer(previousAnswer);
+        question.setAnswer(answer);
         question.save();
-        Logger.debug(question.getAnswer().getAnswer());
-        return ok("success");
+        return ok(answer);
     }
 
     @Restrict({@Group("STUDENT")})
@@ -534,14 +537,7 @@ public class StudentExamController extends BaseController {
         recipients.addAll(exam.getExamInspections().stream().map(
                 ExamInspection::getUser).collect(Collectors.toSet()));
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            for (User r : recipients) {
-                try {
-                    emailComposer.composePrivateExamEnded(r, exam);
-                    Logger.info("Email sent to {}", r.getEmail());
-                } catch (IOException e) {
-                    Logger.error("Failed to send email", e);
-                }
-            }
+            AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer);
         }, actor.dispatcher());
     }
 

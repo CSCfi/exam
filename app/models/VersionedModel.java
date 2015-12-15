@@ -1,7 +1,6 @@
 package models;
 
 import com.avaje.ebean.Model;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
@@ -10,7 +9,13 @@ import javax.persistence.Version;
 public abstract class VersionedModel extends Model {
 
     @Version
-    @JsonIgnore
     protected long objectVersion;
 
+    public long getObjectVersion() {
+        return objectVersion;
+    }
+
+    public void setObjectVersion(long objectVersion) {
+        this.objectVersion = objectVersion;
+    }
 }

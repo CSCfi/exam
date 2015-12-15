@@ -61,8 +61,8 @@
                             return response;
                         },
                         'responseError': function (response) {
-                            var deferred = $q.defer();
                             if (typeof response.data === "string" || response.data instanceof String) {
+                                var deferred = $q.defer();
                                 if (response.data.match(/^".*"$/g)) {
                                     response.data = response.data.slice(1, response.data.length - 1)
                                 }
@@ -78,7 +78,7 @@
                                 });
                                 return deferred.promise;
                             }
-                            return deferred.reject(response);
+                            return $q.reject(response);
                         }
                     }
                 }

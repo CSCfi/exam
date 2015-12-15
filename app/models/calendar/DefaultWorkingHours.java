@@ -24,7 +24,7 @@ public class DefaultWorkingHours extends GeneratedIdentityModel {
 
     private int timezoneOffset;
 
-    private String day;
+    private String weekday;
 
     @ManyToOne
     @JsonBackReference
@@ -54,12 +54,12 @@ public class DefaultWorkingHours extends GeneratedIdentityModel {
         this.endTime = endTime;
     }
 
-    public String getDay() {
-        return day;
+    public String getWeekday() {
+        return weekday;
     }
 
-    public void setDay(String day) {
-        this.day = day;
+    public void setWeekday(String weekday) {
+        this.weekday = weekday;
     }
 
     public int getTimezoneOffset() {

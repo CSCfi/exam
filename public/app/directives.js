@@ -406,6 +406,26 @@
                 '</div>'
             };
         }])
+        .directive('sort', [function () {
+            return {
+                restrict: 'A',
+                template: '<span ng-class="predicate === by ? \'sorted-column\' : \'\'" class="pointer"' +
+                'ng-click="predicate = by; reverse = !reverse">{{ title | translate }}&nbsp;' +
+                '<i class="fa" ng-class="getSortClass()"></i>' +
+                '</span>',
+                scope: {
+                    predicate: '=',
+                    by: '@by',
+                    title: '@title',
+                    reverse: '='
+                }, link: function (scope, element, attrs) {
+                    scope.getSortClass = function () {
+                        return scope.predicate === scope.by ?
+                            (scope.reverse ? 'fa-sort-down' : 'fa-sort-up') : 'fa-sort';
+                    }
+                }
+            }
+        }])
         .directive('teacherList', [function () {
             return {
                 restrict: 'E',

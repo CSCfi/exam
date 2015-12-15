@@ -48,12 +48,37 @@
                 return text ? decodeHtml(text) : "";
             };
 
+            var _filter;
+
+            var setFilter = function (filter) {
+                switch (filter) {
+                    case "MultipleChoiceQuestion":
+                    case "WeightedMultipleChoiceQuestion":
+                    case "EssayQuestion":
+                        _filter = filter;
+                        break;
+                    default:
+                        _filter = undefined;
+                }
+            };
+
+            var applyFilter = function(questions) {
+                if (!_filter) {
+                    return questions;
+                }
+                return questions.filter(function(q) {
+                   return q.type === _filter;
+                });
+            };
+
             return {
                 createQuestion: createQuestion,
                 calculateMaxPoints: calculateMaxPoints,
                 decodeHtml: decodeHtml,
                 longTextIfNotMath: longTextIfNotMath,
-                shortText: shortText
+                shortText: shortText,
+                setFilter: setFilter,
+                applyFilter: applyFilter
             };
 
         }]);

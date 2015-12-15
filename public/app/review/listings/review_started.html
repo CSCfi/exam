@@ -1,0 +1,85 @@
+<div class="main-row">
+            <span class="col-md-12">
+                <a ng-click="toggleUnreviewed()" class="header-icon fa-stack fa-lg">
+                    <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+                    <i ng-show="!toggleReviews" class="fa fa-chevron-right fa-stack-1x"></i>
+                    <i ng-show="toggleReviews" class="fa fa-chevron-down fa-stack-1x"></i>
+                </a>
+                <span class="exams-list-title-text pointer">
+                    {{ 'sitnet_exam_in_review' | translate }}
+                </span>
+            </span>
+</div>
+
+<div class="indented-row" ng-show="examReviews.length === 0">
+    <div class="col-md-12 text">N/A</div>
+</div>
+
+<div class="detail-row" ng-show="toggleReviews && examReviews.length > 0">
+    <div class="col-md-12">
+        <table class="table table-bordered table-striped exams-table">
+            <thead ng-init="reviewPredicate = 'deadline'">
+            <tr>
+                <th sort by="user.lastName" title="sitnet_student" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="user.email" title="sitnet_email" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="started" title="sitnet_exam_duration" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="deadline" title="sitnet_review_deadline" predicate="reviewPredicate" reverse="reverse"></th>
+                <th>{{'sitnet_inspection_status' | translate}}</th>
+                <th>{{'sitnet_exam_state' | translate}}</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr ng-repeat="review in examReviews | orderBy:reviewPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize">
+                <td class="table-column-15 table-column-bold">
+                    <a class="pointer" ng-click="go(review.exam)">
+                        {{review.user.firstName}} {{review.user.lastName}}
+                        <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
+                    </a>
+                </td>
+                <td class="table-column-15"><a class="pointer"
+                                               href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+                </td>
+                <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                    {{'sitnet_clock_short' |
+                    translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                    {{review.ended | adjustdst | date: 'HH:mm'}}
+                    ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
+                </td>
+                <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
+                        ng-bind-html="review.deadline | diffInDaysToNow"></span>)
+                </td>
+                <td class="table-column-teachers">
+                    <div ng-repeat="inspection in review.inspections">
+                                    <span ng-class="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
+                                        <span ng-class="isOwner(inspection.user, review.exam.examOwners) ? 'bold' : ''">
+                                            {{inspection.user.firstName}} {{inspection.user.lastName}}
+                                        </span>
+                                    </span>
+                    </div>
+                </td>
+                <td class="table-column-15"
+                    ng-class="review.exam.state !== 'ABORTED' ? 'sitnet-text-ready' : 'sitnet-text-aborted'">
+                    {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
+                </td>
+            </tr>
+            <!--Fill if page not full-->
+            <tr ng-repeat="r in [] | pagefill: examReviews.length:currentPage:pageSize">
+                <td class="table-column-examname">&nbsp;</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="detail-row" ng-show="toggleReviews">
+    <div col-md-12 ng-show="examReviews.length > pageSize">
+        <paginator items="examReviews" page-size="pageSize" current-page="currentPage"/>
+    </div>
+</div>
+

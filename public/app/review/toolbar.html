@@ -1,0 +1,24 @@
+<!-- Bottom toolbar -->
+<div class="detail-row bottom-padding-2">
+    <div class="col-md-1">
+            <span ng-show="!isReadOnly()">
+                <button ng-disabled="isReadOnly()"
+                        ng-click="updateExam(exam)" class="btn btn-primary">
+                    {{'sitnet_save' | translate}}
+                </button>
+            </span>
+            <span ng-show="isReadOnly() || (!isOwnerOrAdmin() && isGraded())" class="row">
+                <a href="#/exams/reviews/{{ exam.parent.id }}" class="row">
+                    <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
+                </a>
+            </span>
+    </div>
+    <div class="col-md-2">
+        <span ng-show="!isReadOnly()">
+            <button class="btn btn-primary"
+                    ng-disabled="isReadOnly() || !isOwnerOrAdmin() || !examForm.$valid"
+                    ng-click="saveExamRecord(exam)">{{'sitnet_send_result_to_registry' | translate}}
+            </button>
+        </span>
+    </div>
+</div>

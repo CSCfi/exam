@@ -107,7 +107,15 @@ public class SessionController extends BaseController {
         return src.substring(src.lastIndexOf(":") + 1);
     }
 
+    private static Organisation findOrganisation(String attribute) {
+        if (attribute == null) {
+            return null;
+        }
+        return Ebean.find(Organisation.class).where().eq("code", attribute).findUnique();
+    }
+
     private static void updateUser(User user) throws AddressException {
+        user.setOrganisation(findOrganisation(parse(request().getHeader("homeOrganisation"))));
         user.setUserIdentifier(parseUserIdentifier(parse(request().getHeader("schacPersonalUniqueCode"))));
         user.setEmail(validateEmail(parse(request().getHeader("mail"))));
         user.setLastName(parse(request().getHeader("sn")));
@@ -144,6 +152,7 @@ public class SessionController extends BaseController {
         result.put("lastname", user.getLastName());
         result.put("lang", user.getLanguage().getCode());
         result.set("roles", Json.toJson(user.getRoles()));
+        result.set("permissions", Json.toJson(user.getPermissions()));
         result.put("userAgreementAccepted", user.isUserAgreementAccepted());
         result.put("userIdentifier", user.getUserIdentifier());
         return ok(result);
@@ -249,9 +258,7 @@ public class SessionController extends BaseController {
         }
         DateTime expirationTime = session.getSince().plusMinutes(SITNET_TIMEOUT_MINUTES);
         DateTime alarmTime = expirationTime.minusMinutes(2);
-
         Logger.debug("Session expiration due at {}", expirationTime);
-
         if (expirationTime.isBeforeNow()) {
             Logger.info("Session has expired");
             return ok("no_session");

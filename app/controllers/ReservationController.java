@@ -54,6 +54,24 @@ public class ReservationController extends BaseController {
         return ok(examRooms);
     }
 
+    private ArrayNode asJson(List<User> users) {
+        ArrayNode array = JsonNodeFactory.instance.arrayNode();
+        for (User u : users) {
+            String name = String.format("%s %s", u.getFirstName(), u.getLastName());
+            if (u.getUserIdentifier() != null) {
+                name += String.format(" (%s)", u.getUserIdentifier());
+            }
+            ObjectNode part = Json.newObject();
+            part.put("id", u.getId());
+            part.put("firstName", u.getFirstName());
+            part.put("lastName", u.getLastName());
+            part.put("userIdentifier", u.getUserIdentifier());
+            part.put("name", name);
+            array.add(part);
+        }
+        return array;
+    }
+
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result getStudents() {
 
@@ -61,39 +79,18 @@ public class ReservationController extends BaseController {
                 .where()
                 .eq("roles.name", "STUDENT")
                 .findList();
-
-        ArrayNode array = JsonNodeFactory.instance.arrayNode();
-        for (User u : students) {
-            ObjectNode part = Json.newObject();
-            part.put("id", u.getId());
-            part.put("firstName", u.getFirstName());
-            part.put("lastName", u.getLastName());
-            part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
-            array.add(part);
-        }
-
-        return ok(Json.toJson(array));
+        return ok(Json.toJson(asJson(students)));
     }
 
     @Restrict({@Group("ADMIN")})
     public Result getTeachers() {
 
-        List<User> students = Ebean.find(User.class)
+        List<User> teachers = Ebean.find(User.class)
                 .where()
                 .eq("roles.name", "TEACHER")
                 .findList();
 
-        ArrayNode array = JsonNodeFactory.instance.arrayNode();
-        for (User u : students) {
-            ObjectNode part = Json.newObject();
-            part.put("id", u.getId());
-            part.put("firstName", u.getFirstName());
-            part.put("lastName", u.getLastName());
-            part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
-            array.add(part);
-        }
-
-        return ok(Json.toJson(array));
+        return ok(Json.toJson(asJson(teachers)));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -148,6 +145,7 @@ public class ReservationController extends BaseController {
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state")
+                .fetch("exam.course", "code")
                 .fetch("exam.examOwners", "id, firstName, lastName")
                 .fetch("exam.parent.examOwners", "id, firstName, lastName")
                 .fetch("exam.examInspections.user", "id, firstName, lastName")

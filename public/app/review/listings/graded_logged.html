@@ -1,0 +1,104 @@
+<div class="main-row">
+    <span class="col-md-12">
+        <a ng-click="toggleLogged()" class="header-icon fa-stack fa-lg">
+            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+            <i ng-show="!toggleLoggedReviews" class="fa fa-chevron-right fa-stack-1x"></i>
+            <i ng-show="toggleLoggedReviews" class="fa fa-chevron-down fa-stack-1x"></i>
+        </a>
+        <span class="exams-list-title-text pointer">
+            {{ 'sitnet_exam_graded_logged' | translate }}
+        </span>
+    </span>
+</div>
+
+<div class="indented-row" ng-show="gradedLoggedReviews.length === 0">
+    <div class="col-md-12 text">N/A</div>
+</div>
+
+<div class="detail-row" ng-show="toggleLoggedReviews && gradedLoggedReviews.length > 0">
+    <div class="col-md-12">
+        <table class="table table-bordered table-striped exams-table">
+            <thead ng-init="gradedLoggedPredicate = 'exam.gradedTime'">
+            <tr>
+                <th class="dropdown" dropdown>
+                    <button class="btn btn-xs btn-default" data-toggle="dropdown" dropdown-toggle>
+                        <i class="fa fa-square-o"></i>&nbsp;<i class="fa fa-angle-down"></i>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="presentation" ng-class="selections.gradedLogged.page ? 'active': ''">
+                            <a role="menuitem" class="pointer"
+                               ng-click="selectPage('gradedLogged', gradedLoggedReviews, 'gradedLoggedBox')">
+                                {{'sitnet_choose_visible' | translate}}
+                            </a>
+                        </li>
+                        <li role="presentation" ng-class="selections.gradedLogged.all ? 'active': ''">
+                            <a role="menuitem" class="pointer" ng-click="selectAll('gradedLogged', gradedLoggedReviews)">
+                                {{'sitnet_choose_all' | translate}}
+                            </a>
+                        </li>
+                    </ul>
+                </th>
+                <th sort by="user.lastName" title="sitnet_student" predicate="gradedLoggedPredicate" reverse="reverse"></th>
+                <th sort by="user.email" title="sitnet_email" predicate="gradedLoggedPredicate" reverse="reverse"></th>
+                <th sort by="started" title="sitnet_exam_duration" predicate="gradedLoggedPredicate" reverse="reverse"></th>
+                <th sort by="displayedGrade" title="sitnet_grade" predicate="gradedLoggedPredicate" reverse="reverse"></th>
+                <th sort by="displayedCredit" title="sitnet_exam_credit" predicate="gradedLoggedPredicate" reverse="reverse"></th>
+                <th sort by="exam.gradedTime" title="sitnet_graded" predicate="gradedLoggedPredicate" reverse="reverse"></th
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr ng-repeat="review in gradedLoggedReviews | orderBy:gradedLoggedPredicate:reverse | offset: currentPageGradedLogged*pageSize | limitTo: pageSize">
+                <td class="table-column-checkbox">
+                    <input type="checkbox" ng-model="review.selected" class="gradedLoggedBox" value="{{review.exam.id}}"/>
+                </td>
+                <td class="table-column-13 table-column-bold">
+                    <a class="pointer" ng-click="go(review.exam)">
+                        {{review.user.firstName}} {{review.user.lastName}}
+                        <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
+                    </a>
+                </td>
+                <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+                </td>
+                <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                    {{'sitnet_clock_short' |
+                    translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                    {{review.ended | adjustdst | date: 'HH:mm'}}
+                    ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
+                </td>
+                <td class="table-column-25">{{translateGrade(review.exam)}}</td>
+                <td class="table-column-10">
+                    {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
+                </td>
+                <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+            </tr>
+            <!--Fill if page not full-->
+            <tr ng-repeat="r in [] | pagefill: gradedLoggedReviews.length:currentPageGradedLogged:pageSize">
+                <td class="table-column-examname">&nbsp;</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="detail-row">
+    <div col-md-12 ng-show="toggleLoggedReviews && gradedLoggedReviews.length > pageSize">
+        <paginator items="gradedLoggedReviews" page-size="pageSize" current-page="currentPageGradedLogged"/>
+    </div>
+</div>
+
+<div class="main-row" ng-show="toggleLoggedReviews && gradedLoggedReviews.length > 0">
+    <span class="col-md-12">
+        <a class="btn btn-primary" ng-click="printSelected()">{{'sitnet_print_selected_to_file' |
+            translate}}</a>
+         <a class="btn btn-primary" ng-click="printSelected(true)">{{'sitnet_print_selected_to_excel' |
+             translate}}</a>
+        <a class="btn btn-primary" ng-click="archiveSelected()">{{'sitnet_archive_selected' | translate}}</a>
+    </span>
+</div>

@@ -220,7 +220,7 @@
                                 $scope.times = times;
                                 room.defaultWorkingHours.forEach(function (daySlot) {
                                     var timeSlots = slotToTimes(daySlot);
-                                    setSelected(daySlot.day, timeSlots);
+                                    setSelected(daySlot.weekday, timeSlots);
                                 });
                                 $scope.roomInstance = room;
                                 if (!isAnyExamMachines()) {

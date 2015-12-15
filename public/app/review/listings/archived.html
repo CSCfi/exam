@@ -1,0 +1,59 @@
+<div class="main-row">
+            <span class="col-md-12">
+                <span class="exams-list-title-text pointer">
+                    {{'sitnet_archived_exams' | translate}}
+                </span>
+            </span>
+</div>
+<div class="indented-row" ng-show="archivedReviews.length === 0">
+    <div class="col-md-12 text">N/A</div>
+</div>
+<div class="col-md-12" ng-show="archivedReviews.length > 0">
+    <table class="table table-bordered table-striped exams-table">
+        <thead ng-init="archivedPredicate = 'exam.gradedTime'">
+        <tr>
+            <th sort by="user.lastName" title="sitnet_student" predicate="archivedPredicate" reverse="reverse"></th>
+            <th sort by="user.email" title="sitnet_email" predicate="archivedPredicate" reverse="reverse"></th>
+            <th sort by="started" title="sitnet_exam_duration" predicate="archivedPredicate" reverse="reverse"></th>
+            <th sort by="displayedGrade" title="sitnet_grade" predicate="archivedPredicate" reverse="reverse"></th>
+            <th sort by="displayedCredit" title="sitnet_exam_credit" predicate="archivedPredicate" reverse="reverse"></th>
+            <th sort by="exam.gradedTime" title="sitnet_graded" predicate="archivedPredicate" reverse="reverse"></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr ng-repeat="review in archivedReviews | orderBy:archivedPredicate:reverse| offset: currentPageArchived*pageSize | limitTo: pageSize">
+            <td class="table-column-13 table-column-bold">
+                <a class="pointer" ng-click="go(review.exam)">
+                    {{review.user.firstName}} {{review.user.lastName}}
+                    <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
+                </a>
+            </td>
+            <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+            </td>
+            <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                {{'sitnet_clock_short' |
+                translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                {{review.ended | adjustdst | date: 'HH:mm'}}
+                ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
+            </td>
+            <td class="table-column-25">{{translateGrade(review.exam)}}</td>
+            <td class="table-column-10">
+                {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
+            </td>
+            <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+        </tr>
+        <!--Fill if page not full-->
+        <tr ng-repeat="r in [] | pagefill: archivedReviews.length:currentPageArchived:pageSize">
+            <td class="table-column-examname">&nbsp;</td>
+            <td colspan="5"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="detail-row">
+    <div col-md-12 ng-show="archivedReviews.length > pageSize">
+        <paginator items="archivedReviews" page-size="pageSize" current-page="currentPageArchived"/>
+    </div>
+</div>

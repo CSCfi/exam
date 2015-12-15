@@ -32,10 +32,10 @@
                 <i class="sitnet-white fa fa-cog fa-1x"></i>
             </a>
             <ul class="dropdown-menu">
+                <li><a ng-href="#/exams/{{ newExam.id }}/section/{{ section.id }}/edit/{{ sectionQuestion.question.id }}">
+                    {{'sitnet_edit' | translate}}</a>
+                </li>
                 <li><a ng-click="removeQuestion(section, sectionQuestion)">{{'sitnet_remove' | translate}}</a></li>
-                <li>
-                    <a ng-href="#/exams/{{ newExam.id }}/section/{{ section.id }}/edit/{{ sectionQuestion.question.id }}">{{'sitnet_edit'
-                        | translate}}</a></li>
             </ul>
         </div>
         <div class="detail-row">

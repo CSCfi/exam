@@ -25,20 +25,22 @@
                     <span class="header col-md-4">{{'sitnet_exam_credit' | translate}}:</span>
                     <span class="text col-md-8">{{ reviewedExam.credit }}</span>
                 </div>
-                <div class="info-row col-md-12 info-column" ng-if="reviewedExam.maxScore != (reviewedExam.approvedAnswerCount + reviewedExam.rejectedAnswerCount)">
-                    <span class="header col-md-4">{{'sitnet_total_score' | translate}}:</span>
-                    <span class="text col-md-8">{{ scores.totalScore}} / {{scores.maxScore}}</span>
-                </div>
-                <div class="info-row col-md-12 info-column"
-                     ng-if="(reviewedExam.approvedAnswerCount && reviewedExam.approvedAnswerCount > 0) ||
-                      (reviewedExam.rejectedAnswerCount && reviewedExam.rejectedAnswerCount > 0)">
-                    <span class="header col-md-4">{{'sitnet_approved' | translate}}:</span>
-                    <span class="text col-md-8">{{ scores.approvedAnswerCount}}</span>
-                </div>
-                <div class="info-row col-md-12 info-column" ng-if="(reviewedExam.approvedAnswerCount && reviewedExam.approvedAnswerCount > 0) ||
-                      (reviewedExam.rejectedAnswerCount && reviewedExam.rejectedAnswerCount > 0)">
-                    <span class="header col-md-4">{{'sitnet_rejected' | translate}}:</span>
-                    <span class="text col-md-8">{{ scores.rejectedAnswerCount}}</span>
+                <div ng-hide="reviewedExam.executionType.type === 'MATURITY'">
+                    <div class="info-row col-md-12 info-column" ng-if="reviewedExam.maxScore != (reviewedExam.approvedAnswerCount + reviewedExam.rejectedAnswerCount)">
+                        <span class="header col-md-4">{{'sitnet_total_score' | translate}}:</span>
+                        <span class="text col-md-8">{{ scores.totalScore}} / {{scores.maxScore}}</span>
+                    </div>
+                    <div class="info-row col-md-12 info-column"
+                         ng-if="(reviewedExam.approvedAnswerCount && reviewedExam.approvedAnswerCount > 0) ||
+                          (reviewedExam.rejectedAnswerCount && reviewedExam.rejectedAnswerCount > 0)">
+                        <span class="header col-md-4">{{'sitnet_approved' | translate}}:</span>
+                        <span class="text col-md-8">{{ scores.approvedAnswerCount}}</span>
+                    </div>
+                    <div class="info-row col-md-12 info-column" ng-if="(reviewedExam.approvedAnswerCount && reviewedExam.approvedAnswerCount > 0) ||
+                          (reviewedExam.rejectedAnswerCount && reviewedExam.rejectedAnswerCount > 0)">
+                        <span class="header col-md-4">{{'sitnet_rejected' | translate}}:</span>
+                        <span class="text col-md-8">{{ scores.rejectedAnswerCount}}</span>
+                    </div>
                 </div>
                 <div class="info-row col-md-12 info-column">
                     <span class="header col-md-4">{{'sitnet_exam_grade' | translate}}:</span>
@@ -57,6 +59,17 @@
                     <div class="header col-md-4">{{'sitnet_feedback_attachment' | translate}}:</div>
                     <a class="link-text pointer col-md-8" ng-click="downloadFeedbackAttachment(reviewedExam)">
                         {{reviewedExam.examFeedback.attachment.fileName}}
+                    </a>
+                </div>
+                <div class="top-padding-2 info-row col-md-12 info-column" ng-if="reviewedExam.languageInspection">
+                    <div class="header col-md-4">{{'sitnet_inspector_statement' | translate}}:</div>
+                    <div class="text col-md-8" ng-bind-html="reviewedExam.languageInspection.statement.comment"></div>
+                </div>
+                <div class="info-row col-md-12 info-column" ng-controller="AttachmentController"
+                     ng-if="reviewedExam.languageInspection.statement.attachment">
+                    <div class="header col-md-4">{{'sitnet_statement_attachment' | translate}}:</div>
+                    <a class="link-text pointer col-md-8" ng-click="downloadStatementAttachment(reviewedExam)">
+                        {{reviewedExam.languageInspection.statement.attachment.fileName}}
                     </a>
                 </div>
                 <div class="col-md-12 top-padding-2">

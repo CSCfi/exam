@@ -1,0 +1,73 @@
+<div class="main-row" ng-show="reviewsInLanguageInspection.length > 0">
+            <span class="col-md-12">
+                <a ng-click="toggleInLanguageInspection()" class="header-icon fa-stack fa-lg">
+                    <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+                    <i ng-show="!toggleReviewsInLanguageInspection" class="fa fa-chevron-right fa-stack-1x"></i>
+                    <i ng-show="toggleReviewsInLanguageInspection" class="fa fa-chevron-down fa-stack-1x"></i>
+                </a>
+                <span class="exams-list-title-text pointer">
+                    {{ 'sitnet_await_inspection' | translate }}
+                </span>
+            </span>
+</div>
+
+<div class="detail-row" ng-show="toggleReviewsInLanguageInspection">
+    <div class="col-md-12">
+        <table class="table table-bordered table-striped exams-table">
+            <thead ng-init="inspectionPredicate = 'deadline'">
+            <tr>
+                <th sort by="user.lastName" title="sitnet_student" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="user.email" title="sitnet_email" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="started" title="sitnet_exam_duration" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="deadline" title="sitnet_review_deadline" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="displayedGrade" title="sitnet_grade" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="displayedCredit" title="sitnet_exam_credit" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="exam.gradedTime" title="sitnet_graded" predicate="inspectionPredicate" reverse="reverse"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="review in reviewsInLanguageInspection | orderBy:inspectionPredicate:reverse | offset: currentPageInspected*pageSize | limitTo: pageSize">
+                <td class="table-column-13 table-column-bold">
+                    <a class="pointer" ng-click="go(review.exam)">
+                        {{review.user.firstName}} {{review.user.lastName}}
+                        <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
+                    </a>
+                </td>
+                <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+                </td>
+                <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                    {{'sitnet_clock_short' |
+                    translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                    {{review.ended | adjustdst | date: 'HH:mm'}}
+                    ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
+                </td>
+                <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
+                        ng-bind-html="review.deadline | diffInDaysToNow"></span>)
+                </td>
+                <td class="table-column-15">{{translateGrade(review.exam)}}</td>
+                <td class="table-column-10">
+                    {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
+                </td>
+                <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+            </tr>
+            <!--Fill if page not full-->
+            <tr ng-repeat="r in [] | pagefill: reviewsInLanguageInspection.length:currentPageInspected:pageSize">
+                <td class="table-column-examname">&nbsp;</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="detail-row" ng-show="toggleReviewsInLanguageInspection">
+    <div col-md-12 ng-show="reviewsInLanguageInspection.length > pageSize">
+        <paginator items="reviewsInLanguageInspection" page-size="pageSize" current-page="currentPageInspected"/>
+    </div>
+</div>
+

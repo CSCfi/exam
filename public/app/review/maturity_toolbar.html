@@ -1,0 +1,33 @@
+<!-- Bottom toolbar -->
+<div class="detail-row bottom-padding-2" ng-show="isOwnerOrAdmin() || isUnderLanguageInspection()">
+    <span class="col-md-12">
+        <span ng-hide="isUnderLanguageInspection()">
+            <span ng-show="!isReadOnly()">
+                <button ng-click="updateExam(exam)" ng-disabled="!examForm.$valid" class="btn btn-primary">
+                    {{'sitnet_save' | translate}}
+                </button>
+            </span>
+            <span ng-show="isReadOnly()" class="row">
+                <a href="#/exams/reviews/{{ exam.parent.id }}" class="row">
+                    <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
+                </a>
+            </span>
+        </span>
+        <span ng-show="!isReadOnly()">
+            <button class="btn"
+                    ng-class="getNextMaturityState().warn ? 'btn-danger' : 'btn-primary'"
+                    ng-disabled="!getNextMaturityState().canProceed || !examForm.$valid ||
+                        (getNextMaturityState().validate && !getNextMaturityState().validate())"
+                    ng-click="proceedWithMaturity()">{{ getNextMaturityState().text | translate}}
+            </button>
+        </span>
+        <span ng-show="!isReadOnly() && getNextMaturityState().alternateState">
+            <button class="btn"
+                    ng-class="getNextMaturityState().alternateState.warn ? 'btn-danger' : 'btn-primary'"
+                    ng-disabled="!getNextMaturityState().alternateState.canProceed || !examForm.$valid ||
+                        (getNextMaturityState().alternateState.validate && !getNextMaturityState().alternateState.validate())"
+                    ng-click="proceedWithMaturity(true)">{{ getNextMaturityState().alternateState.text | translate}}
+            </button>
+        </span>
+    </span>
+</div>

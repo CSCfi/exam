@@ -15,7 +15,7 @@
         <!-- Start & End time datepickers -->
         <div class="row">
             <div class="col-md-6">
-                <div class="sitnet-info-text">{{'sitnet_start_time' | translate}}</div>
+                <div class="sitnet-info-text">{{'sitnet_start_time' | translate}}:</div>
                 <div class="input-group">
                     <input type="text" class="form-control" datepicker-popup="{{format}}"
                            date-fix="{{format}}" ng-model="newExam.examActiveStartDate"
@@ -36,7 +36,7 @@
             </div>
 
             <div class="col-md-6">
-                <div class="sitnet-info-text">{{'sitnet_end_time' | translate}}</div>
+                <div class="sitnet-info-text">{{'sitnet_end_time' | translate}}:</div>
                 <div class="input-group">
                     <input type="text" class="form-control" datepicker-popup="{{format}}"
                            date-fix="{{format}}" ng-model="newExam.examActiveEndDate"
@@ -65,13 +65,17 @@
 
     <!-- Course -->
     <div class="row">
-        <div ng-include="templates.selectCourse"/>
+        <div ng-include="templates.course"/>
     </div>
 
     <!-- Exam owners -->
     <div class="row">
         <div class="col-md-12">
-            <div class="sitnet-info-text">{{'sitnet_exam_owners' | translate}}:</div>
+            <div class="sitnet-info-text">{{'sitnet_exam_owners' | translate}}:
+                &nbsp;
+                <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
+                   popover="{{'sitnet_exam_owner_description' | translate}}"></i>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -94,31 +98,38 @@
     </div>
 
     <!-- Exam inspectors -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:</div>
+    <div ng-hide="newExam.executionType.type==='MATURITY'">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:
+                    &nbsp;
+                    <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
+                       popover="{{'sitnet_exam_instructor_description' | translate}}"></i>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-3">
-            <button class="btn btn-default" ng-click="openExamUserModal('inspector')">
-                {{'sitnet_add_exam_examiner' | translate}}
-            </button>
-        </div>
-        <div class="col-md-9">
-            <ul class="list-inline">
-                <li>
-                    <button ng-repeat="inspection in inspectors" class="btn btn-primary btn-xs" style="margin: 0.2em"
-                            title="{{'sitnet_remove' | translate}}" ng-click="removeInspector(inspection.id)">
-                        {{inspection.user.firstName }} {{ inspection.user.lastName }}
-                    </button>
-                </li>
-            </ul>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-default" ng-click="openExamUserModal('inspector')">
+                    {{'sitnet_add_exam_examiner' | translate}}
+                </button>
+            </div>
+            <div class="col-md-9">
+                <ul class="list-inline">
+                    <li>
+                        <button ng-repeat="inspection in inspectors" class="btn btn-primary btn-xs"
+                                style="margin: 0.2em"
+                                title="{{'sitnet_remove' | translate}}" ng-click="removeInspector(inspection.id)">
+                            {{inspection.user.firstName }} {{ inspection.user.lastName }}
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 
     <!-- Exam participants -->
-    <div ng-show="newExam.executionType.type==='PRIVATE'">
+    <div ng-hide="newExam.executionType.type==='PUBLIC'">
         <div class="row">
             <div class="col-md-12">
                 <div ng-if="newExam.state !== 'PUBLISHED'" class="sitnet-info-text">{{'sitnet_exam_participants' |
@@ -167,7 +178,7 @@
         </div>
 
         <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_exam_language' | translate}}</div>
+            <div class="sitnet-info-text">{{'sitnet_exam_language' | translate}}:</div>
             <multiselect data-multiple="true"
                          ng-model="newExam.examLanguages"
                          ms-header="{{'sitnet_select' | translate}}"
@@ -195,12 +206,12 @@
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_exam_credit_type' | translate}}:</div>
             <span ng-repeat="examType in examTypes">
-                <button class="btn btn-default" ng-class="checkType(examType.type)"
+                <button ng-disabled="examTypes.length < 2" class="btn btn-default" ng-class="checkType(examType.type)"
                         ng-click="setExamType(examType.type)">{{examType.name}}
                 </button>&nbsp;
             </span>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6" ng-hide="newExam.executionType.type==='MATURITY'">
             <div class="sitnet-info-text">{{'sitnet_exam_trial_count' | translate}}:&nbsp;
                 <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
                    popover="{{'sitnet_exam_trial_count_description' | translate}}"></i></div>
@@ -220,8 +231,12 @@
 
     <div class="row">
         <!-- Exam software -->
-        <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
+        <div class="col-md-6" ng-hide="newExam.executionType.type==='MATURITY'">
+            <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}:
+                &nbsp;
+                <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
+                   popover="{{'sitnet_exam_software_description' | translate}}"></i>
+            </div>
             <multiselect data-multiple="true"
                          ng-model="newExam.softwares"
                          ms-header="{{'sitnet_select' | translate}}"
@@ -235,43 +250,50 @@
         <!--Attachment file-->
         <div class="col-md-6">
             <div class="sitnet-info-text">
-                {{'sitnet_exam_attachment' | translate}}
+                {{'sitnet_exam_attachment' | translate}}:
             </div>
             <div ng-show="newExam.attachment" ng-controller="AttachmentController">
                 <a class="pointer" ng-click="downloadExamAttachment(newExam)">{{newExam.attachment.fileName}} </a>
                 <span class="sitnet-red pointer" ng-click="removeExamAttachment(newExam)"> <i class="fa fa-times"
                                                                                               title="{{'sitnet_remove_attachment' | translate }}"></i></span>
             </div>
-            <button type="button" class="btn btn-default" ng-click="selectFile()">{{'sitnet_attach_file' | translate}}</button>
+            <button type="button" class="btn btn-default" ng-click="selectFile()">{{'sitnet_attach_file' | translate}}
+            </button>
         </div>
     </div>
 
-    <!-- Exam instruction -->
-    <div class="row top-margin-1">
-        <div class="col-md-12">
-            <h4>
-                {{'sitnet_instruction' | translate}}
-            </h4>
+    <!-- INSTRUCTIONS -->
+    <div ng-hide="newExam.executionType.type==='MATURITY'">
 
-            <div class="sitnet-info-text">
-                {{'sitnet_exam_instruction' | translate}}
+
+        <div class="row top-margin-1">
+            <h4 class="col-md-12">{{'sitnet_instruction' | translate}}</h4>
+        </div>
+
+        <!-- Exam instruction -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="sitnet-info-text">
+                    {{'sitnet_exam_instruction' | translate}}:
+                </div>
+            <textarea class="form-control" rows="4" cols="150" ng-model="newExam.instruction"
+                      ui-change="updateExam()"
+                      placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
+            </textarea>
             </div>
-            <div class="input-group exam-info">
-                <textarea class="form-control" rows="4" cols="150" ng-model="newExam.instruction"
-                          ui-change="updateExam()"
-                          placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
-                </textarea>
-            </div>
-            <!--Enrolment info-->
-            <div class="sitnet-info-text">
-                {{'sitnet_enroll_instruction' | translate}}
-            </div>
-            <div class="input-group exam-info">
-                <textarea class="form-control" rows="4" cols="150" ng-model="newExam.enrollInstruction"
-                          ui-change="updateExam()"
-                          placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
-                </textarea>
+        </div>
+        <!--Enrolment info-->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="sitnet-info-text">
+                    {{'sitnet_enroll_instruction' | translate}}:
+                </div>
+            <textarea class="form-control" rows="4" cols="150" ng-model="newExam.enrollInstruction"
+                      ui-change="updateExam()"
+                      placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
+            </textarea>
             </div>
         </div>
     </div>
+
 </div>

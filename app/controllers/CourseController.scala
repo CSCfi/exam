@@ -19,10 +19,10 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
   override val sessionCache = cache
   val CriteriaLengthLimiter = 2
 
-  def _getCourses(filterType: Option[String], criteria: Option[String]) = {
+  def _getCourses(filterType: Option[String], criteria: Option[String], user: User) = {
     (filterType, criteria) match {
       case (Some("code"), Some(x)) =>
-        externalApi.getCourseInfoByCode(x).wrapped.map(i => java2Response(i))
+        externalApi.getCourseInfoByCode(user, x).wrapped.map(i => java2Response(i))
       case (Some("name"), Some(x)) if x.length >= CriteriaLengthLimiter =>
         val courses = Future {
           Ebean.find(classOf[Course]).where
@@ -67,7 +67,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
     request => request.headers.get(getKey).map { token =>
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>
-          _getCourses(filterType, criteria)
+          _getCourses(filterType, criteria, user)
         case _ =>
           Future.successful(Unauthorized("Unauthorized"))
       }

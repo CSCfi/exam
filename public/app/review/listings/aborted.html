@@ -1,0 +1,53 @@
+
+<div class="main-row">
+            <span class="col-md-12">
+                <span class="exams-list-title-text pointer">
+                    {{'sitnet_aborted_exams' | translate}}
+                </span>
+            </span>
+</div>
+<div class="indented-row" ng-show="abortedExams.length === 0">
+    <div class="col-md-12 text">N/A</div>
+</div>
+<div class="col-md-12" ng-show="abortedExams.length > 0">
+    <table class="table table-bordered table-striped exams-table">
+        <thead ng-init="abortedPredicate = 'started'">
+        <tr>
+            <th sort by="user.lastName" title="sitnet_student" predicate="abortedPredicate" reverse="reverse"></th>
+            <th sort by="user.email" title="sitnet_email" predicate="abortedPredicate" reverse="reverse"></th>
+            <th sort by="started" title="sitnet_exam_duration" predicate="abortedPredicate" reverse="reverse"></th>
+            <th>{{'sitnet_exam_state' | translate}}</th>
+            <th>{{'sitnet_trial' | translate}}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr ng-repeat="review in abortedExams | orderBy:abortedPredicate:reverse">
+            <td class="table-column-examname">
+                <a ng-click="go(review.exam)">
+                    {{review.user.firstName}}&nbsp;{{review.user.lastName}}
+                    <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
+                </a>
+            </td>
+            <td class="table-column-25"><a class="pointer" href="mailto:{{review.user.email}}">
+                {{review.user.email}}</a></td>
+            <td class="table-column-25">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                {{'sitnet_clock_short' |
+                translate}} {{review.started | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date:
+                'HH:mm'}}
+                ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
+            </td>
+            <td class="table-column-15" class="sitnet-text-aborted">
+                {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
+            </td>
+            <td class="table-column-10" class="sitnet-text-aborted">
+                <button ng-disabled="!review.exam.trialCount || !review.reservation || review.reservation.retrialPermitted"
+                        ng-click="permitRetrial(review.reservation)"
+                        class="btn btn-sm btn-primary">
+                    {{'sitnet_permit_retrial' | translate}}
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

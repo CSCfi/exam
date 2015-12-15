@@ -112,6 +112,16 @@
 
                         ReservationResource.reservations.query(params,
                             function (enrolments) {
+                                enrolments.forEach(function (e) {
+                                    e.userAggregate = e.user.lastName + e.user.firstName;
+                                    var exam = e.exam.parent || e.exam;
+                                    e.teacherAggregate = exam.examOwners.map(function (o) {
+                                        return o.lastName + o.firstName;
+                                    }).join();
+                                    var state = $scope.printExamState(e);
+                                    e.stateOrd = ['PUBLISHED', 'NO_SHOW', 'STUDENT_STARTED', 'ABORTED', 'REVIEW',
+                                        'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'ARCHIVED'].indexOf(state);
+                                });
                                 $scope.enrolments = enrolments;
                             }, function (error) {
                                 toastr.error(error.data);

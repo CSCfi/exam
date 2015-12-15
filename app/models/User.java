@@ -10,6 +10,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "app_user")
@@ -216,6 +217,10 @@ public class User extends GeneratedIdentityModel implements Subject {
 
     public boolean hasRole(String name, Session session) {
         return session != null && session.getLoginRole() != null && name.equals(session.getLoginRole());
+    }
+
+    public boolean hasPermission(Permission.Type type) {
+        return permissions.stream().map(Permission::getType).collect(Collectors.toList()).contains(type);
     }
 
     @Override

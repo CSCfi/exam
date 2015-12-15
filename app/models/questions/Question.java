@@ -7,6 +7,7 @@ import models.Attachment;
 import models.ExamSectionQuestion;
 import models.OwnedModel;
 import models.Tag;
+import models.api.AttachmentContainer;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.springframework.beans.BeanUtils;
 
@@ -14,7 +15,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-public class Question extends OwnedModel {
+public class Question extends OwnedModel implements AttachmentContainer {
 
     @EnumMapping(integerType = true, nameValuePairs = "MultipleChoiceQuestion=1, EssayQuestion=2, WeightedMultipleChoiceQuestion=3")
     public enum Type { MultipleChoiceQuestion, EssayQuestion, WeightedMultipleChoiceQuestion }
@@ -137,10 +138,12 @@ public class Question extends OwnedModel {
         this.evaluationCriterias = evaluationCriterias;
     }
 
+    @Override
     public Attachment getAttachment() {
         return attachment;
     }
 
+    @Override
     public void setAttachment(Attachment attachment) {
         this.attachment = attachment;
     }

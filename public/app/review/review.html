@@ -26,17 +26,17 @@
             <span class="pull-right">{{'sitnet_inspection_status' | translate}}:</span>
         </span>
         <span class="pull-right horizontal-padding-1 col-sm-12">
-            <span ng-if="examToBeReviewed.state === 'ABORTED'"
+            <span ng-if="exam.state === 'ABORTED'"
                   class="pull-right sitnet-text-alarm small">{{'sitnet_aborted_exam' | translate}}
             </span>
-            <span ng-if="examToBeReviewed.state ==='REVIEW' || examToBeReviewed.state === 'REVIEW_STARTED'  || examToBeReviewed.state === 'STUDENT_STARTED'"
-                  class="pull-right text-success small">{{'sitnet_exam_status_' + examToBeReviewed.state | lowercase | translate}}
+            <span ng-if="exam.state ==='REVIEW' || exam.state === 'REVIEW_STARTED'  || exam.state === 'STUDENT_STARTED'"
+                  class="pull-right text-success small">{{'sitnet_exam_status_' + exam.state | lowercase | translate}}
             </span>
-            <span ng-if="examToBeReviewed.state === 'GRADED'" class="pull-right text-info small">
-                {{'sitnet_exam_status_' + examToBeReviewed.state | lowercase | translate}}
+            <span ng-if="exam.state === 'GRADED'" class="pull-right text-info small">
+                {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
             </span>
-            <span ng-if="examToBeReviewed.state === 'GRADED_LOGGED'" class="pull-right text-muted small">
-                {{'sitnet_exam_status_' + examToBeReviewed.state | lowercase | translate}}
+            <span ng-if="exam.state === 'GRADED_LOGGED'" class="pull-right text-muted small">
+                {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
             </span>
         </span>
     </div>
@@ -46,7 +46,7 @@
     <div class="main-row">
         <div class="col-sm-12">
             <h4>
-                {{examToBeReviewed.course.code}} - {{examToBeReviewed.name}}, {{examToBeReviewed.course.credits}} op
+                {{exam.course.code}} - {{exam.name}}, {{exam.course.credits}} op
             </h4>
         </div>
     </div>
@@ -59,12 +59,12 @@
     </div>
 
     <!-- Sections -->
-    <div ng-include="reviewSectionPath" ng-repeat="section in examToBeReviewed.examSections"></div>
+    <div ng-include="reviewSectionPath" ng-repeat="section in exam.examSections"></div>
 
     <!-- Grading -->
     <div ng-include="gradingPath"></div>
 
     <!-- Floating feedback window -->
-    <div ng-include="feedbackWindowPath" ng-hide="(isGraded && !isCreatorOrOwnerOrAdmin()) || isReadOnly"></div>
+    <div ng-include="feedbackWindowPath"></div>
 
 </div>

@@ -6,7 +6,6 @@ import play.Logger;
 import util.java.EmailComposer;
 
 import javax.inject.Singleton;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +23,7 @@ public class ReservationPoller implements Runnable {
 
     @Override
     public void run() {
-        Logger.info("Running no-show check ...");
+        Logger.debug("Running no-show check ...");
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .where()
@@ -34,7 +33,7 @@ public class ReservationPoller implements Runnable {
                 .findList();
 
         if (enrolments.isEmpty()) {
-            Logger.info(" -> none found.");
+            Logger.debug("... none found.");
         } else {
             handleNoShows(enrolments, emailComposer);
         }
@@ -65,12 +64,8 @@ public class ReservationPoller implements Runnable {
             recipients.addAll(exam.getExamInspections().stream().map(
                     ExamInspection::getUser).collect(Collectors.toSet()));
             for (User r : recipients) {
-                try {
-                    composer.composeNoShowMessage(r, enrolment.getUser(), exam);
-                    Logger.info("Email sent to {}", r.getEmail());
-                } catch (IOException e) {
-                    Logger.error("Failed to send email", e);
-                }
+                composer.composeNoShowMessage(r, enrolment.getUser(), exam);
+                Logger.info("Email sent to {}", r.getEmail());
             }
         }
     }
@@ -78,7 +73,7 @@ public class ReservationPoller implements Runnable {
     public static void handleNoShows(List<ExamEnrolment> noShows, EmailComposer composer) {
         for (ExamEnrolment enrolment : noShows) {
             handleNoShow(enrolment, composer);
-            Logger.info(" -> marked reservation {} as no-show", enrolment.getReservation().getId());
+            Logger.info("... marked reservation {} as no-show", enrolment.getReservation().getId());
         }
     }
 

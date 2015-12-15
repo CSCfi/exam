@@ -20,9 +20,12 @@ POST          /users/:id/roles/:rname                                controllers
 DELETE        /users/:id/roles/:rname                                controllers.UserController.removeRole(id: Long, rname: String)
 PUT           /users/:id/roles/:rname                                controllers.SessionController.setLoginRole(id: Long, rname: String)
 GET           /students/:eid                                         controllers.UserController.getUnenrolledStudents(eid: Long, q: String)
+GET           /permissions                                           controllers.UserController.listPermissions
+POST          /permissions                                           controllers.UserController.grantUserPermission
+DELETE        /permissions                                           controllers.UserController.revokeUserPermission
 
 ############### Exam interface ###############
-GET           /exams                                                 controllers.ExamController.getExams
+GET           /exams                                                 controllers.ExamController.getExams(filter: play.libs.F.Option[java.lang.String])
 GET           /exams/:id                                             controllers.ExamController.getExam(id: Long)
 GET           /exampreview/:id                                       controllers.ExamController.getExamPreview(id: Long)
 DELETE        /exams/:id                                             controllers.ExamController.deleteExam(id: Long)
@@ -51,6 +54,7 @@ GET           /examparticipations/:eid/:uid                          controllers
 POST          /exam/record                                           controllers.ExamRecordController.addExamRecord
 GET           /exam/record                                           controllers.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
 GET           /exam/record/export/:id                                controllers.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long)
+GET           /exam/record/export/report/:id                         controllers.ExamRecordController.exportSelectedExamRecordsAsExcel(id: Long)
 
 GET           /examsearch                                            controllers.ExamController.listExams(courseIds: play.libs.F.Option[LongList], sectionIds: play.libs.F.Option[LongList], tagIds: play.libs.F.Option[LongList])
 
@@ -82,15 +86,16 @@ DELETE        /exam/:eid/languages                                   controllers
 GET           /exam/:eid/attachments                                 controllers.ExamController.getArchivedAttachments(eid: Long, start: play.libs.F.Option[String], end: play.libs.F.Option[String])
 
 GET           /examtypes                                             controllers.ExamController.getExamTypes
+GET           /executiontypes                                        controllers.ExamController.getExamExecutionTypes
 GET           /gradescales                                           controllers.ExamController.getExamGradeScales
 
 GET           /student/exam/:eid                                     controllers.StudentExamController.getExam(eid: Long)
 GET           /student/exams                                         controllers.StudentExamController.listAvailableExams(filter: play.libs.F.Option[String])
 GET           /student/inspectors/exam/:id                           controllers.StudentExamController.getExamInspectors(id: Long)
-GET           /student/finishedexams/:uid                            controllers.StudentExamController.getFinishedExams(uid: Long)
+GET           /student/finishedexams                                 controllers.StudentExamController.getFinishedExams
 GET           /feedback/exams/:eid                                   controllers.StudentExamController.getExamGeneralInfo(eid: Long)
 GET           /feedback/exams/:eid/score                             controllers.StudentExamController.getExamScore(eid: Long)
-PUT           /student/exams/:hash                                   controllers.StudentExamController.saveAnswersAndExit(hash: String)
+PUT           /student/exams/:hash                                   controllers.StudentExamController.turnExam(hash: String)
 PUT           /student/exam/abort/:hash                              controllers.StudentExamController.abortExam(hash: String)
 GET           /student/doexam/:hash                                  controllers.StudentExamController.startExam(hash: String)
 GET           /enrolments                                            controllers.StudentExamController.getEnrolmentsForUser
@@ -100,6 +105,12 @@ PUT           /enrolments/:eid                                       controllers
 POST          /student/exams/:hash/question/:qid/option/:oids        controllers.StudentExamController.answerMultiChoice(hash: String, qid: Long, oids: String)
 POST          /student/exams/:hash/question/:questionId              controllers.StudentExamController.answerEssay(hash: String, questionId: Long)
 
+############### Language inspection interface ###############
+GET           /inspections                                           controllers.LanguageInspectionController.listInspections(month: play.libs.F.Option[String])
+POST          /inspection                                            controllers.LanguageInspectionController.createInspection
+PUT           /inspection/:id                                        controllers.LanguageInspectionController.assignInspection(id: Long)
+PUT           /inspection/:id/approval                               controllers.LanguageInspectionController.setApproval(id: Long)
+PUT           /inspection/:id/statement                              controllers.LanguageInspectionController.setStatement(id: Long)
 
 ############### Enrolment interface ###############
 
@@ -208,6 +219,10 @@ POST          /attachment/exam/:id/feedback                          controllers
 DELETE        /attachment/exam/:id/feedback                          controllers.AttachmentController.deleteFeedbackAttachment(id: Long)
 GET           /attachment/exam/:id/feedback                          controllers.AttachmentController.downloadFeedbackAttachment(id: Long)
 
+POST          /attachment/exam/:id/statement                         controllers.AttachmentController.addStatementAttachment(id: Long)
+DELETE        /attachment/exam/:id/statement                         controllers.AttachmentController.deleteStatementAttachment(id: Long)
+GET           /attachment/exam/:id/statement                         controllers.AttachmentController.downloadStatementAttachment(id: Long)
+
 
 #### integration ####
 GET           /integration/record/:startDate                         controllers.Interfaces.getNewRecords(startDate: String)
@@ -225,7 +240,7 @@ DELETE        /calendar/reservation/:id                              controllers
 ################# Language interface ##################
 GET           /languages                                             controllers.LanguageController.getSupportedLanguages
 
-################# Language interface ##################
+################# Tag interface ##################
 GET           /tags                                                  controllers.TagController.listTags(filter: play.libs.F.Option[String], examIds: play.libs.F.Option[LongList], courseIds: play.libs.F.Option[LongList], sectionIds: play.libs.F.Option[LongList])
 POST          /tags                                                  controllers.TagController.createTag
 DELETE        /tags/:tid                                             controllers.TagController.deleteTag(tid: Long)
@@ -247,6 +262,7 @@ GET           /settings/enrolmentPermissionCheck                     controllers
 GET           /settings/environment                                  controllers.SettingsController.isProd
 GET           /settings/maxfilesize                                  controllers.SettingsController.getMaxFilesize
 GET           /settings/appVersion                                   controllers.SettingsController.getAppVersion
+GET           /settings/maturityInstructions                         controllers.SettingsController.getMaturityInstructions(lang: String)
 
 ################# Statistics interface ##################
 

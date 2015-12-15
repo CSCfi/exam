@@ -1,0 +1,75 @@
+<div class="detail-row">
+    <strong class="col-md-11">{{'sitnet_student_and_exam_info' | translate}}:</strong>
+    <div class="col-md-1 pull-right">
+        <a class="fa-stack fa-lg pointer-hand" ng-click="hideGeneralInfo = !hideGeneralInfo">
+            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+            <i class="fa fa-stack-1x" ng-class="hideGeneralInfo ? 'fa-caret-right' : 'fa-caret-down'">
+            </i>
+        </a>
+    </div>
+</div>
+<div ng-hide="hideGeneralInfo">
+    <div class="detail-row">
+        <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_name' | translate}}:</div>
+        <div class="col-md-4 sitnet-info-text-compact">{{userInfo.user.firstName}} {{userInfo.user.lastName}}
+            <span ng-if="userInfo.user.userIdentifier">&nbsp;({{userInfo.user.userIdentifier}})</span>
+        </div>
+        <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_email' | translate}}:</div>
+        <div class="col-md-4 sitnet-info-text-compact">
+            <a href="mailto:{{userInfo.user.email}}">{{userInfo.user.email}}</a>
+        </div>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_time_of_exam_participation' | translate}}:</div>
+        <div class="col-md-4 sitnet-info-text-compact">{{userInfo.started | adjustdst |date:'dd.MM.yyyy HH:mm'}} -
+            {{userInfo.ended | adjustdst | date:'HH:mm'}}
+        </div>
+        <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_exam_duration' | translate}}:</div>
+        <div class="col-md-4 sitnet-info-text-compact">{{userInfo.duration}}</div>
+    </div>
+    <div class="detail-row" ng-show="enrolment && enrolment.information">
+        <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_student_enrolment_info' | translate }}:</div>
+        <div class="col-md-10 sitnet-info-text-compact">{{enrolment.information}}</div>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_examination_location' | translate}}:</div>
+        <div class="col-md-4 sitnet-info-text-compact" ng-if="reservation && reservation.room">
+            {{reservation.room.name}} ({{reservation.room.roomCode}})
+        </div>
+        <div class="col-md-4 sitnet-info-text-compact" ng-if="!reservation || !reservation.room">N/A</div>
+        <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_exam_machine' | translate}}:</div>
+        <div class="col-md-4 sitnet-info-text-compact" ng-if="reservation">{{reservation.name}}</div>
+        <div class="col-md-4 sitnet-info-text-compact" ng-if="!reservation">N/A</div>
+    </div>
+
+    <div class="top-row">
+        <div class="col-md-12">
+            <strong>{{'sitnet_previous_exam_participations' | translate}}:</strong>
+        </div>
+    </div>
+    <div class="detail-row">
+        <p ng-hide="previousParticipations" class="col-md-1 col-md-offset-1 sitnet-info-text-compact">N/A</p>
+
+        <div ng-include="previousParticipationPath" ng-repeat="participation in previousParticipations"></div>
+    </div>
+    <div class="top-row" ng-show="exam.instruction">
+        <div class="col-md-12">
+            <strong>{{'sitnet_exam_instruction' | translate}}:</strong>
+        </div>
+    </div>
+    <div class="detail-row" ng-show="exam.instruction">
+        <div class="col-md-12 sitnet-info-text-compact">
+            <p mathjax ng-bind-html="exam.instruction"></p>
+        </div>
+    </div>
+    <div class="top-row" ng-show="exam.attachment">
+        <div class="col-md-12">
+            <strong>{{'sitnet_exam_attachment' | translate}}:</strong>
+        </div>
+    </div>
+    <div class="detail-row" ng-show="exam.attachment" ng-controller="AttachmentController">
+        <div class="col-md-12 sitnet-info-text-compact">
+            <a class="pointer" ng-click="downloadExamAttachment(exam)">{{exam.attachment.fileName}}</a>
+        </div>
+    </div>
+</div>

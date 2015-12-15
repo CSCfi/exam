@@ -5,9 +5,7 @@ import base.RunAsStudent;
 import base.RunAsTeacher;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
-import models.Course;
-import models.Grade;
-import models.GradeScale;
+import models.*;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -32,15 +30,13 @@ public class CourseInfoImportTest extends IntegrationTestCase {
 
     public static class CourseInfoServlet extends HttpServlet {
 
-        private File jsonFile = new File("test/resources/courseUnitInfo.json");
-        private File expiredJsonFile = new File("test/resources/courseUnitInfoExpired.json");
-        private static boolean SEND_EXPIRED_COURSE;
+        private static File jsonFile;
 
         @Override
         protected void doGet(HttpServletRequest request, HttpServletResponse response) {
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
-            File file = SEND_EXPIRED_COURSE ? expiredJsonFile : jsonFile;
+            File file = jsonFile;
             try (FileInputStream fis = new FileInputStream(file); ServletOutputStream sos = response.getOutputStream()) {
                 IOUtils.copy(fis, sos);
                 sos.flush();
@@ -56,14 +52,26 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         server.setStopAtShutdown(true);
         ServletHandler handler = new ServletHandler();
         handler.addServletWithMapping(CourseInfoServlet.class, "/courseUnitInfo");
+        handler.addServletWithMapping(CourseInfoServlet.class, "/courseUnitInfo/oulu");
         server.setHandler(handler);
         server.start();
     }
 
+    public void setUserOrg(String code) {
+        User user = Ebean.find(User.class).where().eq("eppn", "maikaope@funet.fi").findUnique();
+        Organisation org = null;
+        if (code != null) {
+            org = Ebean.find(Organisation.class).where().eq("code", code).findUnique();
+        }
+        user.setOrganisation(org);
+        user.update();
+    }
+
     @Test
     @RunAsTeacher
-    public void testGetCourse() throws Exception {
-        CourseInfoServlet.SEND_EXPIRED_COURSE = false;
+    public void testGetCourseDefaultOrganisation() throws Exception {
+        setUserOrg(null);
+        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo.json");
         Result result = get("/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
@@ -79,16 +87,38 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     }
 
     @Test
+    @RunAsTeacher
+    public void testGetCourseOfAnotherOrganisation() throws Exception {
+        setUserOrg("oulu.fi");
+
+        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo2.json");
+        Result result = get("/courses?filter=code&q=2121220");
+        assertThat(result.status()).isEqualTo(200);
+        JsonNode node = Json.parse(contentAsString(result));
+        assertThat(node).hasSize(1);
+        Course course = deserialize(Course.class, node.get(0));
+        assertThat(course.getCode()).isEqualTo("2121220");
+        assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.OTHER);
+        assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
+        assertThat(course.getGradeScale().getExternalRef()).isEqualTo(9);
+        List<Grade> grades = Ebean.find(Grade.class).where()
+                .eq("gradeScale.id", course.getGradeScale().getId()).findList();
+        assertThat(grades).hasSize(7);
+    }
+
+    @Test
     @RunAsStudent
     public void testGetCourseUnauthorized() throws Exception {
-        CourseInfoServlet.SEND_EXPIRED_COURSE = false;
+        setUserOrg(null);
+        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo.json");
         Result result = get("/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(401);
     }
 
     @Test
     public void testGetCourseUnauthenticated() throws Exception {
-        CourseInfoServlet.SEND_EXPIRED_COURSE = false;
+        setUserOrg(null);
+        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo.json");
         Result result = get("/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(401);
     }
@@ -96,7 +126,8 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     @Test
     @RunAsTeacher
     public void testGetExpiredCourse() throws Exception {
-        CourseInfoServlet.SEND_EXPIRED_COURSE = true;
+        setUserOrg(null);
+        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfoExpired.json");
         Result result = get("/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));

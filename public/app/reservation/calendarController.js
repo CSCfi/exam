@@ -2,9 +2,9 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'dateService',
-            '$locale', 'StudentExamRes', 'dialogs', 'SettingsResource', 'CalendarRes', 'uiCalendarConfig',
+            '$locale', 'StudentExamRes', 'reservationService', 'dialogs', 'SettingsResource', 'CalendarRes', 'uiCalendarConfig',
             function ($scope, $http, $location, $translate, $modal, $routeParams, dateService, $locale, StudentExamRes,
-                      dialogs, SettingsResource, CalendarRes, uiCalendarConfig) {
+                      reservationService, dialogs, SettingsResource, CalendarRes, uiCalendarConfig) {
 
                 $scope.limitations = {};
                 $scope.rooms = [];
@@ -16,7 +16,7 @@
                 };
                 $scope.eventSources = [];
 
-                StudentExamRes.examInfo.get({eid: $routeParams.id}, function(info) {
+                StudentExamRes.examInfo.get({eid: $routeParams.id}, function (info) {
                     $scope.examInfo = info;
                     uiCalendarConfig.calendars.myCalendar.fullCalendar('gotoDate', moment.max(moment(),
                         moment($scope.examInfo.examActiveStartDate)));
@@ -37,29 +37,6 @@
                     return $translate.instant('sitnet_description_reservation_window')
                             .replace('{}', $scope.reservationWindowSize) + ' (' +
                         $scope.reservationWindowEndDate.format('DD.MM.YYYY') + ')';
-                };
-
-                var renderCalendarTitle = function () {
-                    // Fix date range format in title
-                    var selector = $(".fc-toolbar .fc-center > h2");
-                    var title = selector.text();
-                    var newTitle = '';
-                    var separator = ' — ';
-                    var endPart = title.split(separator)[1];
-                    var startFragments = title.split(separator)[0].split('.').filter(function (x) {
-                        // ignore empty fragments (introduced if title already correctly formatted)
-                        return x;
-                    });
-                    if (startFragments.length < 3) {
-                        startFragments.forEach(function (f) {
-                            newTitle += f;
-                            if (f && f[f.length - 1] != '.') {
-                                newTitle += '.';
-                            }
-                        })
-                    }
-                    newTitle += separator + endPart;
-                    selector.text(newTitle);
                 };
 
                 $scope.selectedRoom = function () {
@@ -150,7 +127,7 @@
                                     toastr.error($translate.instant('sitnet_no_suitable_enrolment_found'));
                                 }
                             });
-                        $scope.exceptionHours = getExceptionHours();
+                        $scope.exceptionHours = reservationService.getExceptionHours();
                     }
                 };
 
@@ -173,8 +150,8 @@
                         function (item) {
                             return item.filtered;
                         }).map(function (item) {
-                            return item.id;
-                        });
+                        return item.id;
+                    });
                     $http.post('calendar/reservation', slot).then(function () {
                         $location.path('#/home');
                     }, function (error) {
@@ -240,94 +217,6 @@
                     return dateService.printExamDuration(exam);
                 };
 
-                // Opening & exception hours display helpers ->
-
-                var getWeekdayNames = function () {
-                    var lang = $translate.use();
-                    var locale = lang.toLowerCase() + "-" + lang.toUpperCase();
-                    var options = {weekday: 'short'};
-                    var weekday = dateService.getDateForWeekday;
-                    return {
-                        SUNDAY: {ord: 7, name: weekday(0).toLocaleDateString(locale, options)},
-                        MONDAY: {ord: 1, name: weekday(1).toLocaleDateString(locale, options)},
-                        TUESDAY: {ord: 2, name: weekday(2).toLocaleDateString(locale, options)},
-                        WEDNESDAY: {ord: 3, name: weekday(3).toLocaleDateString(locale, options)},
-                        THURSDAY: {ord: 4, name: weekday(4).toLocaleDateString(locale, options)},
-                        FRIDAY: {ord: 5, name: weekday(5).toLocaleDateString(locale, options)},
-                        SATURDAY: {ord: 6, name: weekday(6).toLocaleDateString(locale, options)}
-                    };
-                };
-
-                var findOpeningHours = function (obj, items) {
-                    var found = undefined;
-                    items.some(function (item) {
-                        if (item.ref === obj.day) {
-                            found = item;
-                            return true;
-                        }
-                    });
-                    return found;
-                };
-
-                var processOpeningHours = function () {
-                    if (!$scope.selectedRoom()) {
-                        return;
-                    }
-                    var weekdayNames = getWeekdayNames();
-                    var room = $scope.selectedRoom();
-                    var openingHours = [];
-
-                    room.defaultWorkingHours.forEach(function (dwh) {
-                        if (!findOpeningHours(dwh, openingHours)) {
-                            var obj = {
-                                name: weekdayNames[dwh.day].name,
-                                ref: dwh.day,
-                                ord: weekdayNames[dwh.day].ord,
-                                periods: []
-                            };
-                            openingHours.push(obj);
-                        }
-                        var hours = findOpeningHours(dwh, openingHours);
-                        hours.periods.push(
-                            moment(dwh.startTime).format('HH:mm') + " - " +
-                            moment(dwh.endTime).format('HH:mm'));
-                    });
-                    openingHours.forEach(function (oh) {
-                        oh.periods = oh.periods.sort().join(', ');
-                    });
-                    return openingHours.sort(function (a, b) {
-                        return a.ord > b.ord;
-                    });
-                };
-
-                var formatExceptionEvent = function (event) {
-                    var startDate = moment(event.startDate);
-                    var endDate = moment(event.endDate);
-                    var offset = moment().isDST() ? -1 : 0;
-                    startDate.add(offset, 'hour');
-                    endDate.add(offset, 'hour');
-                    event.start = startDate.format('DD.MM.YYYY HH:mm');
-                    event.end = endDate.format('DD.MM.YYYY HH:mm');
-                    event.description = event.outOfService ? 'sitnet_closed' : 'sitnet_open';
-                };
-
-                var getExceptionHours = function () {
-                    if (!$scope.selectedRoom()) {
-                        return;
-                    }
-                    var room = $scope.selectedRoom();
-                    var start = moment.max(moment(),
-                        uiCalendarConfig.calendars.myCalendar.fullCalendar('getView').start);
-                    var end = uiCalendarConfig.calendars.myCalendar.fullCalendar('getView').end;
-                    var events = room.calendarExceptionEvents.filter(function (e) {
-                        return (moment(e.startDate) > start && moment(e.endDate) < end);
-                    });
-                    events.forEach(formatExceptionEvent);
-                    return events;
-                };
-
-                // <--
-
                 $scope.selectRoom = function (room) {
                     if (!room.outOfService) {
                         $scope.rooms.forEach(function (room) {
@@ -335,12 +224,24 @@
                         });
                         room.filtered = true;
                         uiCalendarConfig.calendars.myCalendar.fullCalendar('refetchEvents');
-                        $scope.openingHours = processOpeningHours();
+                        $scope.openingHours = reservationService.processOpeningHours(room);
+                        var minTime = reservationService.getEarliestOpening(room);
+                        var maxTime = reservationService.getLatestClosing(room);
+                        var hiddenDays = reservationService.getClosedWeekdays(room);
+                        var cal = $("#calendar");
+                        cal.fullCalendar('destroy');
+                        cal.fullCalendar(
+                            $.extend($scope.calendarConfig, {
+                                minTime: minTime,
+                                maxTime: maxTime,
+                                scrollTime: minTime,
+                                hiddenDays: hiddenDays
+                            })
+                        );
                     }
                 };
 
                 $scope.calendarConfig = {
-                    aspectRatio: 3,
                     editable: false,
                     selectable: false,
                     selectHelper: false,
@@ -357,16 +258,13 @@
                     buttonText: {
                         today: $translate.instant('sitnet_today')
                     },
-                    minTime: '00:00:00',
-                    maxTime: '24:00:00',
-                    scrollTime: '08:00:00',
                     header: {
                         left: '',
                         center: 'title',
                         right: 'prev, next today'
                     },
                     events: function (start, end, timezone, callback) {
-                        renderCalendarTitle();
+                        reservationService.renderCalendarTitle();
                         refresh(start, callback);
                     },
                     eventClick: function (event) {

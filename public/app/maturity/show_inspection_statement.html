@@ -1,0 +1,15 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4 class="sitnet-white"><i class="fa fa-star-o"></i>&nbsp;&nbsp;{{'sitnet_statement' | translate}}</i></h4>
+    </div>
+    <div class="modal-body">
+        <p mathjax ng-bind-html="statement"></p>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-12 text-center">
+            <button class="btn btn-sm btn-primary" ng-click="ok()">
+                {{'sitnet_button_ok' | translate}}
+            </button>
+        </div>
+    </div>
+</div>

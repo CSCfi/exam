@@ -134,16 +134,29 @@
                 </div>
 
                 <!-- INSTRUCTIONS -->
-                <div class="col-md-12 toolbar-item">
+                <div class="col-md-12 toolbar-item" ng-hide="doexam.executionType.type==='MATURITY'">
                     <div class="row pointer" popover-placement="left" popover-trigger="click"
                          popover="{{ currentLanguageText }}">
                         <a class="col-md-1 fa-stack">
                             <i class="fa fa-stop fa-stack-2x"></i>
                             <i class="fa fa-info-circle sitnet-white fa-stack-1x"/>
                         </a>
-
                         <div class="col-md-11 vcenter">
                             {{'sitnet_room_guidance' | translate}}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MATURITY INSTRUCTIONS -->
+                <div class="col-md-12 toolbar-item" ng-click="showMaturityInstructions(doexam)"
+                     ng-show="doexam.executionType.type==='MATURITY'">
+                    <div class="row pointer">
+                        <a class="col-md-1 fa-stack">
+                            <i class="fa fa-stop fa-stack-2x"></i>
+                            <i class="fa fa-info-circle sitnet-white fa-stack-1x"/>
+                        </a>
+                        <div class="col-md-11 vcenter">
+                            {{'sitnet_maturity_instructions' | translate}}
                         </div>
                     </div>
                 </div>

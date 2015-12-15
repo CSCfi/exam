@@ -1,0 +1,122 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{'sitnet_language_inspections' | translate}}</span>
+    </div>
+</div>
+<div id="dashboard">
+    <div class="top-row">
+        <div class="col-md-12">
+            <h3>{{'sitnet_ongoing_language_inspections' | translate }}&nbsp;<small>{{ getOngoingInspectionsDetails() }}</small></h3>
+        </div>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>{{ 'sitnet_course_code' | translate }}</th>
+                    <th>{{ 'sitnet_exam_name' | translate }}</th>
+                    <th>{{ 'sitnet_teachers' | translate }}</th>
+                    <th>{{ 'sitnet_arrived' | translate }}</th>
+                    <th>{{ 'sitnet_student' | translate }}</th>
+                    <th>{{ 'sitnet_finished' | translate }}</th>
+                    <th>{{ 'sitnet_language_inspector' | translate }}</th>
+                    <th>{{ 'sitnet_language_inspections' | translate }}</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr ng-repeat="inspection in ongoingInspections">
+                    <td>{{ inspection.exam.course.code }}</td>
+                    <td>{{ inspection.exam.name }}</td>
+                    <td>
+                        <span ng-repeat="owner in inspection.exam.parent.examOwners">
+                            {{ owner.firstName }} {{ owner.lastName}} {{ $last ? '' : ', ' }}
+                        </span>
+                    </td>
+                    <td>{{ inspection.created | date:'dd.MM.yyyy' }}</td>
+                    <td>
+                        <span>{{ inspection.exam.creator.firstName }} {{ inspection.exam.creator.lastName }}</span>
+                        <span ng-if="inspection.exam.creator.userIdentifier">&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
+                        <span><br /><a href="mailto:{{ inspection.exam.creator.email }}">{{ inspection.exam.creator.email }}</a></span>
+                    </td>
+                    <td>{{ inspection.exam.created | date:'dd.MM.yyyy' }}</td>
+                    <td ng-if="inspection.assignee">
+                        <span>{{ inspection.assignee.firstName }} {{ inspection.assignee.lastName }} </span>
+                        <span><br /><a href="mailto:{{ inspection.assignee.email }}">{{ inspection.assignee.email }}</a></span>
+                    </td>
+                    <td ng-if="!inspection.assignee">
+                        <span class="text-danger">{{'sitnet_undefined' | translate }}</span>
+                    </td>
+                    <td ng-if="inspection.assignee">
+                        <a class="pointer" href="#/exams/review/{{inspection.exam.id}}">{{ 'sitnet_view' | translate }}</a>
+                    </td>
+                    <td ng-if="!inspection.assignee">
+                        <a class="pointer" ng-click="assignInspection(inspection)">{{ 'sitnet_assign_to_me' | translate }}</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="top-row">
+        <div class="col-md-12">
+            <h3>{{'sitnet_processed_language_inspections' | translate }}&nbsp;<small>{{ getProcessedInspectionsDetails() }},&nbsp;
+                <a href="#/inspections/reports">{{'sitnet_language_inspection_report_link' | translate}}</a></small>
+            </h3>
+        </div>
+    </div>
+
+    <div class="bottom-row">
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>{{ 'sitnet_course_code' | translate }}</th>
+                    <th>{{ 'sitnet_exam_name' | translate }}</th>
+                    <th>{{ 'sitnet_teachers' | translate }}</th>
+                    <th>{{ 'sitnet_arrived' | translate }}</th>
+                    <th>{{ 'sitnet_student' | translate }}</th>
+                    <th>{{ 'sitnet_finished' | translate }}</th>
+                    <th>{{ 'sitnet_language_inspector' | translate }}</th>
+                    <th>{{ 'sitnet_inspection_finished' | translate }}</th>
+                    <th>{{ 'sitnet_language_inspections' | translate }}</th>
+                    <th>{{ 'sitnet_feedback' | translate }}</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr ng-repeat="inspection in processedInspections | limitTo: 20">
+                    <td>{{ inspection.exam.course.code }}</td>
+                    <td>{{ inspection.exam.name }}</td>
+                    <td>
+                        <span ng-repeat="owner in inspection.exam.parent.examOwners">
+                            {{ owner.firstName }} {{ owner.lastName}} {{ $last ? '' : ', ' }}
+                        </span>
+                    </td>
+                    <td>{{ inspection.created | date:'dd.MM.yyyy' }}</td>
+                    <td>
+                        <span>{{ inspection.exam.creator.firstName }} {{ inspection.exam.creator.lastName }}</span>
+                        <span ng-if="inspection.exam.creator.userIdentifier">&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
+                        <span><br /><a href="mailto:{{ inspection.exam.creator.email }}">{{ inspection.exam.creator.email }}</a></span>
+                    </td>
+                    <td>{{ inspection.exam.created | date:'dd.MM.yyyy' }}</td>
+                    <td ng-if="inspection.assignee">
+                        <span>{{ inspection.assignee.firstName }} {{ inspection.assignee.lastName }} </span>
+                        <span><br /><a href="mailto:{{ inspection.assignee.email }}">{{ inspection.assignee.email }}</a></span>
+                    </td>
+                    <td>{{ inspection.finishedAt | date:'dd.MM.yyyy' }}</td>
+                    <td>
+                        <a  ng-class="inspection.approved ? 'text-success' : 'text-danger'" href="#/exams/review/{{inspection.exam.id}}">
+                            <strong>{{ inspection.approved ? 'sitnet_approved' : 'sitnet_rejected' | translate }}</strong>
+                        </a>
+                    </td>
+                    <td><a class="pointer" ng-click="showStatement(inspection.statement)">{{ 'sitnet_view' | translate }}</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+

@@ -38,8 +38,7 @@
                                    close-text="{{'sitnet_close' | translate}}"
                                    current-text="{{'sitnet_today' | translate}}"
                                    toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                                   clear-text="{{'sitnet_clear' | translate}}" required ng-change="query()"
-                                   ng-init="modifyDay('end', 1)">
+                                   clear-text="{{'sitnet_clear' | translate}}" required ng-change="query()">
 
                             <span class="input-group-btn">
                                 <button class="btn btn-default" ng-click="openEndDate($event)">
@@ -55,7 +54,7 @@
                         <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                                 ng-model="selection.ownerId" ng-change="query()">
                             <option value="">&dash;</option>
-                            <option ng-repeat="teacher in examOwners" value="{{teacher.id}}">{{teacher.firstName}}
+                            <option ng-repeat="teacher in examOwners | orderBy: '[lastName, firstName]'" value="{{teacher.id}}">{{teacher.firstName}}
                                 {{teacher.lastName}}
                             </option>
                         </select>
@@ -75,9 +74,7 @@
                         <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                                 ng-model="selection.studentId" ng-change="query()">
                             <option value="">&dash;</option>
-                            <option ng-repeat="student in students" value="{{student.id}}">{{student.firstName}}
-                                {{student.lastName}}
-                            </option>
+                            <option ng-repeat="student in students | orderBy: '[lastName, firstName]'" value="{{student.id}}">{{student.name}}</option>
                         </select>
                     </div>
                 </div>
@@ -108,7 +105,7 @@
                         <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                                 ng-model="selection.examId" ng-change="query()">
                             <option value="">&dash;</option>
-                            <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.name}}</option>
+                            <option ng-repeat="exam in examnames | orderBy: 'name'" value="{{exam.id}}">{{exam.name}}</option>
                         </select>
                     </div>
                 </div>

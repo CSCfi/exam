@@ -31,7 +31,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     public void setUp() throws Exception {
         super.setUp();
         Ebean.delete(Ebean.find(ExamEnrolment.class).findList());
-        exam = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED).findList().get(0);
+        exam = Ebean.find(Exam.class, 1);
         user = Ebean.find(User.class, userId);
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);
         machine = room.getExamMachines().get(0);

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import models.*;
@@ -34,7 +35,7 @@ import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-public class Interfaces extends BaseController implements ExternalAPI  {
+public class Interfaces extends BaseController implements ExternalAPI {
 
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
@@ -68,8 +69,25 @@ public class Interfaces extends BaseController implements ExternalAPI  {
         return new URL(url);
     }
 
-    private static URL parseUrl(String courseCode) throws MalformedURLException {
-        String url = ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url");
+    private static URL parseUrl(User user, String courseCode) throws MalformedURLException {
+        String urlConfigPrefix = "sitnet.integration.courseUnitInfo.url";
+        Config config = ConfigFactory.load();
+        String configPath = null;
+        if (user.getOrganisation() != null && user.getOrganisation().getCode() != null) {
+            String path = String.format("%s.%s", urlConfigPrefix, user.getOrganisation().getCode());
+            if (config.hasPath(path)) {
+                configPath = path;
+            }
+        }
+        if (configPath == null) {
+            String path = String.format("%s.%s", urlConfigPrefix, "default");
+            if (config.hasPath(path)) {
+                configPath = path;
+            } else {
+                throw new RuntimeException("sitnet.integration.courseUnitInfo.url holds no suitable URL for user");
+            }
+        }
+        String url = ConfigFactory.load().getString(configPath);
         if (url == null || !url.contains(COURSE_CODE_PLACEHOLDER)) {
             throw new RuntimeException("sitnet.integration.courseUnitInfo.url is malformed");
         }
@@ -113,7 +131,7 @@ public class Interfaces extends BaseController implements ExternalAPI  {
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public F.Promise<List<Course>> getCourseInfoByCode(String code) throws MalformedURLException {
+    public F.Promise<List<Course>> getCourseInfoByCode(User user, String code) throws MalformedURLException {
         final List<Course> courses = Ebean.find(Course.class).where()
                 .ilike("code", code + "%")
                 .disjunction()
@@ -129,7 +147,7 @@ public class Interfaces extends BaseController implements ExternalAPI  {
             // we already have it or we don't want to fetch it
             return F.Promise.promise(() -> courses);
         }
-        URL url = parseUrl(code);
+        URL url = parseUrl(user, code);
         WSRequest request = WS.url(url.toString().split("\\?")[0]);
         if (url.getQuery() != null) {
             request = request.setQueryString(url.getQuery());
@@ -227,7 +245,7 @@ public class Interfaces extends BaseController implements ExternalAPI  {
     private static List<ExamScore> getScores(String startDate) {
         DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(startDate);
         List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
-                .select("exam_score")
+                .fetch("examScore")
                 .where()
                 .gt("time_stamp", start.toDate())
                 .findList();
