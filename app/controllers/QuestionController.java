@@ -57,7 +57,10 @@ public class QuestionController extends BaseController {
         User user = getLoggedUser();
         ExpressionList<Question> query = Ebean.find(Question.class).where().idEq(id);
         if (user.hasRole("TEACHER", getSession())) {
-            query = query.eq("creator", user);
+            query = query.disjunction()
+                    .eq("creator", user)
+                    .eq("examSectionQuestion.examSection.exam.examOwners", user)
+                    .endJunction();
         }
         Question question = query.findUnique();
         if (question == null) {
@@ -326,7 +329,7 @@ public class QuestionController extends BaseController {
         tag.getQuestions().remove(question);
         tag.update();
 
-        if (tag.getQuestions() == null || tag.getQuestions().size() == 0) {
+        if (tag.getQuestions() == null || tag.getQuestions().isEmpty()) {
             tag.delete();
         }
     }

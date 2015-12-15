@@ -957,6 +957,18 @@ public class ExamController extends BaseController {
         return forbidden("sitnet_error_access_forbidden");
     }
 
+    private void updateSequences(ExamSection section, int ordinal) {
+        // Increase sequences for the entries above the inserted one
+        for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+            int sequenceNumber = esq.getSequenceNumber();
+            if (sequenceNumber >= ordinal) {
+                esq.setSequenceNumber(sequenceNumber + 1);
+                esq.update();
+            }
+        }
+    }
+
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertQuestion(Long eid, Long sid, Integer seq, Long qid) {
         Exam exam = Ebean.find(Exam.class, eid);
@@ -985,21 +997,9 @@ public class ExamController extends BaseController {
             Question clone = clone(question.getId());
 
             // Assert that the sequence number provided is within limits
-            if (seq < 0) {
-                seq = 0;
-            }
-            if (seq > section.getSectionQuestions().size()) {
-                seq = section.getSectionQuestions().size();
-            }
+            seq = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
+            updateSequences(section, seq);
 
-            // Increase sequences for the entries above the inserted one
-            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                int sequenceNumber = esq.getSequenceNumber();
-                if (sequenceNumber >= seq) {
-                    esq.setSequenceNumber(sequenceNumber + 1);
-                    esq.update();
-                }
-            }
             // Insert new section question
             ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
             sectionQuestion.setExamSection(section);
@@ -1032,21 +1032,9 @@ public class ExamController extends BaseController {
                 }
 
                 // Assert that the sequence number provided is within limits
-                if (seq < 0) {
-                    seq = 0;
-                }
-                if (seq > section.getSectionQuestions().size()) {
-                    seq = section.getSectionQuestions().size();
-                }
+                seq = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
+                updateSequences(section, seq);
 
-                // Increase sequences for the entries above the inserted one
-                for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                    int sequenceNumber = esq.getSequenceNumber();
-                    if (sequenceNumber >= seq) {
-                        esq.setSequenceNumber(sequenceNumber + 1);
-                        esq.update();
-                    }
-                }
                 // Insert new section question
                 ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
                 sectionQuestion.setExamSection(section);
