@@ -141,7 +141,7 @@
                         controller: modalController,
                         resolve: {
                             enrolment: function () {
-                                return $scope.enrolment;
+                                return enrolment;
                             }
                         }
                     });
