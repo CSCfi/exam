@@ -92,10 +92,10 @@ GET           /gradescales                                           controllers
 GET           /student/exam/:eid                                     controllers.StudentExamController.getExam(eid: Long)
 GET           /student/exams                                         controllers.StudentExamController.listAvailableExams(filter: play.libs.F.Option[String])
 GET           /student/inspectors/exam/:id                           controllers.StudentExamController.getExamInspectors(id: Long)
-GET           /student/finishedexams                                 controllers.StudentExamController.getFinishedExams()
+GET           /student/finishedexams                                 controllers.StudentExamController.getFinishedExams
 GET           /feedback/exams/:eid                                   controllers.StudentExamController.getExamGeneralInfo(eid: Long)
 GET           /feedback/exams/:eid/score                             controllers.StudentExamController.getExamScore(eid: Long)
-PUT           /student/exams/:hash                                   controllers.StudentExamController.saveAnswersAndExit(hash: String)
+PUT           /student/exams/:hash                                   controllers.StudentExamController.turnExam(hash: String)
 PUT           /student/exam/abort/:hash                              controllers.StudentExamController.abortExam(hash: String)
 GET           /student/doexam/:hash                                  controllers.StudentExamController.startExam(hash: String)
 GET           /enrolments                                            controllers.StudentExamController.getEnrolmentsForUser

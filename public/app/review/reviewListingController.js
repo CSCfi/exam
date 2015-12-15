@@ -165,11 +165,11 @@
                             //$route.reload();
                             $scope.gradedReviews.splice($scope.gradedReviews.indexOf(review), 1);
                             $scope.gradedLoggedReviews.push(review);
-                            return deferred.resolve({success: true});
+                            deferred.resolve();
                         });
                     } else {
                         toastr.error($translate.instant('sitnet_failed_to_record_review'));
-                        deferred.reject({success: false});
+                        deferred.reject();
                     }
                     return deferred.promise;
                 };
@@ -185,13 +185,8 @@
                         selection.forEach(function (r) {
                             promises.push(send(r));
                         });
-                        $q.all(promises).then(function (resolutions) {
-                            var hasErrors = resolutions.some(function (data) {
-                                return !data.success;
-                            });
-                            if (!hasErrors) {
-                                toastr.info($translate.instant('sitnet_results_send_ok'));
-                            }
+                        $q.all(promises).then(function () {
+                            toastr.info($translate.instant('sitnet_results_send_ok'));
                         });
                     });
                 };

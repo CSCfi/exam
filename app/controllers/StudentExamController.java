@@ -12,7 +12,6 @@ import models.questions.Answer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.joda.time.DateTime;
-import play.Logger;
 import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -319,7 +318,7 @@ public class StudentExamController extends BaseController {
                 .fetch("examSections.sectionQuestions.question", "id, type, question, instruction, maxScore, maxCharacters, evaluationType, expanded")
                 .fetch("examSections.sectionQuestions.question.options", "id, option")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-                .fetch("examSections.sectionQuestions.question.answer", "id, type, answer")
+                .fetch("examSections.sectionQuestions.question.answer", "id, type, answer, objectVersion")
                 .fetch("examSections.sectionQuestions.question.answer.options", "id, option")
                 .fetch("examSections.sectionQuestions.question.answer.attachment", "fileName")
                 .fetch("examLanguages", "code")
@@ -367,7 +366,7 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result saveAnswersAndExit(String hash) {
+    public Result turnExam(String hash) {
         User user = getLoggedUser();
         Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findUnique();
 
@@ -443,27 +442,26 @@ public class StudentExamController extends BaseController {
             return failure;
         }
         DynamicForm df = Form.form().bindFromRequest();
-        String answer = df.get("answer");
-
-        Logger.debug(answer);
+        String essayAnswer = df.get("answer");
         Question question = Ebean.find(Question.class, questionId);
         if (question == null) {
             return forbidden();
         }
-        Answer previousAnswer = question.getAnswer();
 
-        if (previousAnswer == null) {
-            previousAnswer = new Answer();
-            previousAnswer.setType(Answer.Type.EssayAnswer);
+        Answer answer = question.getAnswer();
+        if (answer == null) {
+            answer = new Answer();
+            answer.setType(Answer.Type.EssayAnswer);
+        } else {
+            long objectVersion = Long.parseLong(df.get("objectVersion"));
+            answer.setObjectVersion(objectVersion);
         }
+        answer.setAnswer(essayAnswer);
+        answer.save();
 
-        previousAnswer.setAnswer(answer);
-        previousAnswer.save();
-
-        question.setAnswer(previousAnswer);
+        question.setAnswer(answer);
         question.save();
-        Logger.debug(question.getAnswer().getAnswer());
-        return ok("success");
+        return ok(answer);
     }
 
     @Restrict({@Group("STUDENT")})

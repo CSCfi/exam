@@ -14,6 +14,7 @@
             'ngRoute',
             'ngSanitize',
             'ngStorage',
+            'ngPromiseExtras',
             'http-auth-interceptor',
             'ui.bootstrap',
             'ui.calendar',
