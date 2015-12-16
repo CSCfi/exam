@@ -7,7 +7,13 @@
 
             self.getReviewablesCount = function (exam) {
                 return exam.children.filter(function (child) {
-                    return child.state === 'REVIEW' || child.state === 'REVIEW_STARTED'
+                    return child.state === 'REVIEW' || child.state === 'REVIEW_STARTED';
+                }).length;
+            };
+
+            self.getGradedCount = function (exam) {
+                return exam.children.filter(function (child) {
+                    return child.state === 'GRADED';
                 }).length;
             };
 

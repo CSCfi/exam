@@ -306,6 +306,7 @@ public class ExamController extends BaseController {
                 .eq("state", Exam.State.REVIEW_STARTED)
                 .eq("state", Exam.State.GRADED)
                 .eq("state", Exam.State.GRADED_LOGGED)
+                .eq("state", Exam.State.REJECTED)
                 .eq("state", Exam.State.ARCHIVED)
                 .endJunction()
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")

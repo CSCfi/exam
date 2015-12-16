@@ -64,6 +64,7 @@
                             });
                             scope.activeExams.forEach(function (ae) {
                                 ae.unassessedCount = examService.getReviewablesCount(ae);
+                                ae.unfinishedCount = examService.getGradedCount(ae);
                                 ae.reservationCount = reservationService.getReservationCount(ae);
                                 ae.ownerAggregate = ae.examOwners.map(function (o) {
                                     return o.firstName + " " + o.lastName;
@@ -74,6 +75,7 @@
                             });
                             scope.finishedExams.forEach(function (fe) {
                                 fe.unassessedCount = examService.getReviewablesCount(fe);
+                                fe.unfinishedCount = examService.getGradedCount(fe);
                                 fe.ownerAggregate = fe.examOwners.map(function (o) {
                                     return o.firstName + " " + o.lastName;
                                 }).join();

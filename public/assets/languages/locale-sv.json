@@ -632,5 +632,7 @@
   "sitnet_exam_software_description": "Valitsemalla ohjelmistoja ja resursseja tästä valikosta, ohjaat opiskelijat tietyille tenttikoneille SV",
   "sitnet_missing_statement": "Palaute puuttuu SV",
   "sitnet_error_data_has_changed": "Tallentamasi tieto ei ole ajan tasalla. Tieto on päivittynyt palvelimella sen jälkeen kun se on haettu selaimeen. Ota talteen tieto jota olet muokkaamassa esimerkiksi leikepöydälle, päivitä selainikkuna ja yritä uudelleen. SV",
-  "sitnet_exam_status_rejected": "Hylätty SV"
+  "sitnet_exam_status_rejected": "Hylätty SV",
+  "sitnet_exam_rejected": "Hylätyt tenttivastaukset SV",
+  "sitnet_participation_unfinished": "Odottaa loppuunarviointia SV"
 }

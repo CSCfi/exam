@@ -22,6 +22,7 @@
                     languageInspectionPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/language_inspection.html",
                     gradedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/graded.html",
                     gradedLoggedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/graded_logged.html",
+                    rejectedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/rejected.html",
                     archivedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/archived.html"
                 };
 
@@ -210,7 +211,7 @@
                 // Reviews
                 ExamRes.examReviews.query({
                         eid: $routeParams.id,
-                        statuses: ['ABORTED', 'REVIEW', 'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'ARCHIVED']
+                        statuses: ['ABORTED', 'REVIEW', 'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'REJECTED', 'ARCHIVED']
                     },
                     function (reviews) {
                         reviews.forEach(function (r) {
@@ -250,6 +251,10 @@
                             return r.exam.state === 'GRADED_LOGGED';
                         });
                         $scope.toggleLoggedReviews = $scope.gradedLoggedReviews.length > 0;
+                        $scope.rejectedReviews = reviews.filter(function (r) {
+                            return r.exam.state === 'REJECTED';
+                        });
+                        $scope.toggleRejectedReviews = $scope.rejectedReviews.length > 0;
                         $scope.archivedReviews = reviews.filter(function (r) {
                             return r.exam.state === 'ARCHIVED';
                         });
@@ -327,6 +332,12 @@
                 $scope.toggleLogged = function () {
                     if ($scope.gradedLoggedReviews && $scope.gradedLoggedReviews.length > 0) {
                         $scope.toggleLoggedReviews = !$scope.toggleLoggedReviews;
+                    }
+                };
+
+                $scope.toggleRejected = function () {
+                    if ($scope.rejectedReviews && $scope.rejectedReviews.length > 0) {
+                        $scope.toggleRejectedReviews = !$scope.toggleRejectedReviews;
                     }
                 };
 

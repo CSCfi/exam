@@ -1,32 +1,32 @@
-<div class="main-row" ng-show="reviewsInLanguageInspection.length > 0">
+<div class="main-row" ng-show="rejectedReviews.length > 0">
     <span class="col-md-12">
-        <a ng-click="toggleInLanguageInspection()" class="header-icon fa-stack fa-lg">
+        <a ng-click="toggleRejected()" class="header-icon fa-stack fa-lg">
             <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-            <i ng-show="!toggleReviewsInLanguageInspection" class="fa fa-chevron-right fa-stack-1x"></i>
-            <i ng-show="toggleReviewsInLanguageInspection" class="fa fa-chevron-down fa-stack-1x"></i>
+            <i ng-show="!toggleRejectedReviews" class="fa fa-chevron-right fa-stack-1x"></i>
+            <i ng-show="toggleRejectedReviews" class="fa fa-chevron-down fa-stack-1x"></i>
         </a>
         <span class="exams-list-title-text pointer">
-            {{ 'sitnet_await_inspection' | translate }}
+            {{ 'sitnet_exam_rejected' | translate }}
         </span>
     </span>
 </div>
 
-<div class="detail-row" ng-show="toggleReviewsInLanguageInspection">
+<div class="detail-row" ng-show="toggleRejectedReviews">
     <div class="col-md-12">
         <table class="table table-bordered table-striped exams-table">
-            <thead ng-init="inspectionPredicate = 'deadline'">
+            <thead ng-init="rejectedPredicate = 'exam.gradedTime'">
             <tr>
-                <th sort by="user.lastName" title="sitnet_student" predicate="inspectionPredicate" reverse="reverse"></th>
-                <th sort by="user.email" title="sitnet_email" predicate="inspectionPredicate" reverse="reverse"></th>
-                <th sort by="started" title="sitnet_exam_duration" predicate="inspectionPredicate" reverse="reverse"></th>
-                <th sort by="deadline" title="sitnet_review_deadline" predicate="inspectionPredicate" reverse="reverse"></th>
-                <th sort by="displayedGrade" title="sitnet_grade" predicate="inspectionPredicate" reverse="reverse"></th>
-                <th sort by="displayedCredit" title="sitnet_exam_credit" predicate="inspectionPredicate" reverse="reverse"></th>
-                <th sort by="exam.gradedTime" title="sitnet_graded" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="user.lastName" title="sitnet_student" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort by="user.email" title="sitnet_email" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort by="started" title="sitnet_exam_duration" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort by="deadline" title="sitnet_review_deadline" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort by="displayedGrade" title="sitnet_grade" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort by="displayedCredit" title="sitnet_exam_credit" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort by="exam.gradedTime" title="sitnet_graded" predicate="rejectedPredicate" reverse="reverse"></th>
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="review in reviewsInLanguageInspection | orderBy:inspectionPredicate:reverse | offset: currentPageInspected*pageSize | limitTo: pageSize">
+            <tr ng-repeat="review in rejectedReviews | orderBy:rejectedPredicate:reverse | offset: currentPageRejected*pageSize | limitTo: pageSize">
                 <td class="table-column-13 table-column-bold">
                     <a class="pointer" ng-click="go(review.exam)">
                         {{review.user.firstName}} {{review.user.lastName}}
@@ -51,7 +51,7 @@
                 <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
             </tr>
             <!--Fill if page not full-->
-            <tr ng-repeat="r in [] | pagefill: reviewsInLanguageInspection.length:currentPageInspected:pageSize">
+            <tr ng-repeat="r in [] | pagefill: rejectedReviews.length:currentPageRejected:pageSize">
                 <td class="table-column-examname">&nbsp;</td>
                 <td></td>
                 <td></td>
@@ -65,9 +65,9 @@
     </div>
 </div>
 
-<div class="detail-row" ng-show="toggleReviewsInLanguageInspection">
-    <div col-md-12 ng-show="reviewsInLanguageInspection.length > pageSize">
-        <paginator items="reviewsInLanguageInspection" page-size="pageSize" current-page="currentPageInspected"/>
+<div class="detail-row" ng-show="toggleRejectedReviews">
+    <div col-md-12 ng-show="rejectedReviews.length > pageSize">
+        <paginator items="rejectedReviews" page-size="pageSize" current-page="currentPageRejected"/>
     </div>
 </div>
 

@@ -21,6 +21,7 @@
                     <th sort by="executionType.id" title="sitnet_exam_credit_type" predicate="finishedPredicate" reverse="reverse"></th>
                     <th sort by="examActiveEndDate" title="sitnet_exam_validity" predicate="finishedPredicate" reverse="reverse"></th>
                     <th sort by="unassessedCount" title="sitnet_participation_unreviewed" predicate="finishedPredicate" reverse="reverse"></th>
+                    <th sort by="unfinishedCount" title="sitnet_participation_unfinished" predicate="finishedPredicate" reverse="reverse"></th>
                     <th sort by="ownerAggregate" title="sitnet_teachers" predicate="finishedPredicate" reverse="reverse"></th>
                 </tr>
                 </thead>
@@ -37,8 +38,8 @@
                     <td class="table-column-open-until">{{ exam.examActiveStartDate | date:'dd.MM.yyyy' }} -
                         {{ exam.examActiveEndDate | date:'dd.MM.yyyy' }}
                     </td>
-                    <td class="table-column-enroll-participation">{{ exam.unassessedCount }}
-                    </td>
+                    <td class="table-column-enroll-participation">{{exam.unassessedCount}}</td>
+                    <td class="table-column-enroll-participation">{{exam.unfinishedCount}}</td>
                     <td class="table-column-teachers"><teacher-list exam="exam" /></td>
                 </tr>
                 </tbody>

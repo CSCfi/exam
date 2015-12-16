@@ -38,6 +38,9 @@
             <span ng-if="exam.state === 'GRADED_LOGGED'" class="pull-right text-muted small">
                 {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
             </span>
+            <span ng-if="exam.state === 'REJECTED'" class="pull-right sitnet-text-alarm small">
+                {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+            </span>
         </span>
     </div>
 </div>
