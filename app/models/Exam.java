@@ -81,7 +81,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
-    private List<ExamInspection> examInspections;
+    private Set<ExamInspection> examInspections;
 
     @OneToOne(mappedBy = "exam")
     private ExamRecord examRecord;
@@ -199,9 +199,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                             evaluatedScore = answer.getOptions().stream().map(MultipleChoiceOption::getScore)
                                     .reduce(0.0, (sum, x) -> sum += x);
                             // ATM minimum score is zero
-                            if (evaluatedScore < 0) {
-                                evaluatedScore = 0.0;
-                            }
+                            evaluatedScore = Math.max(0.0, evaluatedScore);
                         }
                         break;
                 }
@@ -528,11 +526,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.children = children;
     }
 
-    public List<ExamInspection> getExamInspections() {
+    public Set<ExamInspection> getExamInspections() {
         return examInspections;
     }
 
-    public void setExamInspections(List<ExamInspection> examInspections) {
+    public void setExamInspections(Set<ExamInspection> examInspections) {
         this.examInspections = examInspections;
     }
 

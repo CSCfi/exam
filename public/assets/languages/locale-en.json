@@ -631,5 +631,6 @@
   "sitnet_exam_instructor_description": "Arvioijalla on oikeus arvioida tenttivastauksia EN",
   "sitnet_exam_software_description": "Valitsemalla ohjelmistoja ja resursseja tästä valikosta, ohjaat opiskelijat tietyille tenttikoneille EN",
   "sitnet_missing_statement": "Lausunto puuttuu EN",
-  "sitnet_error_data_has_changed": "Tallentamasi tieto ei ole ajan tasalla. Tieto on päivittynyt palvelimella sen jälkeen kun se on haettu selaimeen. Ota talteen tieto jota olet muokkaamassa esimerkiksi leikepöydälle, päivitä selainikkuna ja yritä uudelleen. EN"
+  "sitnet_error_data_has_changed": "Tallentamasi tieto ei ole ajan tasalla. Tieto on päivittynyt palvelimella sen jälkeen kun se on haettu selaimeen. Ota talteen tieto jota olet muokkaamassa esimerkiksi leikepöydälle, päivitä selainikkuna ja yritä uudelleen. EN",
+  "sitnet_exam_status_rejected": "Hylätty EN"
 }

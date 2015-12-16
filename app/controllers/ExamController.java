@@ -423,11 +423,13 @@ public class ExamController extends BaseController {
         if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)) {
             exam.setGradedTime(new Date());
             exam.setGradedByUser(getLoggedUser());
+            if (exam.hasState(Exam.State.REJECTED)) {
+                // inform student
+                notifyPartiesAboutPrivateExamRejection(exam);
+            }
         }
         exam.generateHash();
         exam.update();
-
-        notifyPartiesAboutPrivateExamRejection(exam);
 
         return ok();
     }

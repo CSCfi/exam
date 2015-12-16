@@ -2,6 +2,8 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.api.CountsAsTrial;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
@@ -101,5 +103,20 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     @Transient
     public boolean isProcessed() {
         return reservation == null || !reservation.isNoShow();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof ExamEnrolment)) {
+            return false;
+        }
+        ExamEnrolment otherEnrolment = (ExamEnrolment) other;
+        return new EqualsBuilder().append(id, otherEnrolment.id).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).build();
     }
 }

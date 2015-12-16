@@ -1,6 +1,8 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -48,7 +50,7 @@ public class ExamInspection extends GeneratedIdentityModel {
 	public void setExam(Exam exam) {
 		this.exam = exam;
 	}
-	
+
 	public void setUser(User user) {
 		this.user = user;
 	}
@@ -62,4 +64,20 @@ public class ExamInspection extends GeneratedIdentityModel {
     public void setComment(Comment comment) {
         this.comment = comment;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof ExamInspection)) {
+            return false;
+        }
+        ExamInspection otherInspection = (ExamInspection) other;
+        return new EqualsBuilder().append(id, otherInspection.id).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).build();
+    }
+
 }

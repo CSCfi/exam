@@ -79,6 +79,7 @@
                     'REVIEW_STARTED',
                     'GRADED',
                     'GRADED_LOGGED',
+                    'REJECTED',
                     'ARCHIVED',
                     'STUDENT_STARTED',
                     'PUBLISHED',
@@ -90,7 +91,7 @@
                     return enrolment.reservation.noShow ? 'NO_SHOW' : enrolment.exam.state;
                 };
 
-                function initQuery() {
+                $scope.query = function () {
                     // Teacher not required to specify time ranges
                     if (!$scope.isAdminView() || ($scope.dateService.startDate && $scope.dateService.endDate)) {
                         var params = $scope.selection;
@@ -120,19 +121,13 @@
                                     }).join();
                                     var state = $scope.printExamState(e);
                                     e.stateOrd = ['PUBLISHED', 'NO_SHOW', 'STUDENT_STARTED', 'ABORTED', 'REVIEW',
-                                        'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'ARCHIVED'].indexOf(state);
+                                        'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'REJECTED', 'ARCHIVED'].indexOf(state);
                                 });
                                 $scope.enrolments = enrolments;
                             }, function (error) {
                                 toastr.error(error.data);
                             });
                     }
-                }
-
-                $timeout(initQuery, 500);
-
-                $scope.query = function () {
-                    initQuery();
                 };
 
                 $scope.removeReservation = function (enrolment) {

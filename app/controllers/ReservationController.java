@@ -4,13 +4,13 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.FetchConfig;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import models.*;
 import org.joda.time.DateTime;
-import play.Logger;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 
 public class ReservationController extends BaseController {
@@ -146,8 +147,8 @@ public class ReservationController extends BaseController {
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state")
                 .fetch("exam.course", "code")
-                .fetch("exam.examOwners", "id, firstName, lastName")
-                .fetch("exam.parent.examOwners", "id, firstName, lastName")
+                .fetch("exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
+                .fetch("exam.parent.examOwners", "id, firstName, lastName",  new FetchConfig().query())
                 .fetch("exam.examInspections.user", "id, firstName, lastName")
                 .fetch("reservation", "startAt, endAt, noShow")
                 .fetch("reservation.machine", "id, name, ipAddress, otherIdentifier")
@@ -203,19 +204,7 @@ public class ReservationController extends BaseController {
             Long userId = ownerId.get();
             query = query.disjunction().eq("exam.examOwners.id", userId).eq("exam.parent.examOwners.id", userId).endJunction();
         }
-
-        List<ExamEnrolment> enrolments = query.orderBy("reservation.startAt").findList();
-        // FIXME: This is so dumb. Ebean won't prefetch the parent exam owners even we requested it to do so. Have to
-        // FIXME: loop through so they get fetched. Find a better way, sure there is one?
-        for (ExamEnrolment ee : enrolments) {
-            Exam e = ee.getExam();
-            if (e.getParent() != null) {
-                for (User u : e.getParent().getExamOwners()) {
-                    Logger.trace(String.format("parent owner is %s %s %d", u.getFirstName(), u.getLastName(), u.getId()));
-                }
-            }
-        }
-
+        Set<ExamEnrolment> enrolments = query.orderBy("reservation.startAt").findSet();
         return ok(enrolments);
     }
 }
