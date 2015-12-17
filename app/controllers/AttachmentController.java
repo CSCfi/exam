@@ -101,7 +101,7 @@ public class AttachmentController extends BaseController {
         Attachment attachment = createNew(filePart, newFilePath);
         answer.setAttachment(attachment);
         answer.save();
-        return ok(attachment);
+        return ok(answer);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -166,8 +166,9 @@ public class AttachmentController extends BaseController {
             answer.save();
             AppUtil.removeAttachmentFile(aa.getFilePath());
             aa.delete();
+            return ok(answer);
         }
-        return redirect("/#/student/doexam/" + hash);
+        return notFound();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

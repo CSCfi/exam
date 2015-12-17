@@ -4,7 +4,7 @@
         .factory('fileService', ['$q', '$http', '$translate', '$timeout', '$cookies', 'SettingsResource',
             function ($q, $http, $translate, $timeout, $cookies, SettingsResource) {
                 var _supportsBlobUrls;
-                var _maxFileSize
+                var _maxFileSize;
 
                 var svg = new Blob(
                     ["<svg xmlns='http://www.w3.org/2000/svg'></svg>"],
@@ -36,12 +36,12 @@
 
                 var download = function (url, filename, params) {
                     $http.get(url, {params: params}).
-                        success(function (data) {
-                            saveFile(data, filename);
-                        }).
-                        error(function (error) {
-                            toastr.error(error.data || error);
-                        });
+                    success(function (data) {
+                        saveFile(data, filename);
+                    }).
+                    error(function (error) {
+                        toastr.error(error.data || error);
+                    });
                 };
 
                 var getMaxFilesize = function () {
@@ -61,7 +61,7 @@
                     return deferred.promise;
                 };
 
-                var upload = function (url, file, params, parent, modal) {
+                var doUpload = function (url, file, params, parent, modal, callback) {
                     if (file.size > _maxFileSize) {
                         toastr.error($translate.instant('sitnet_file_too_large'));
                         return;
@@ -76,20 +76,37 @@
                     var csrfToken = $cookies.get('csrfToken');
                     console.log('xsrf token: ' + csrfToken);
                     $http.post(url + "?csrfToken=" + csrfToken, fd, {
-                        transformRequest: angular.identity,
-                        headers: {'Content-Type': undefined}
-                    })
-                        .success(function (attachment) {
-                            modal.dismiss();
-                            parent.attachment = attachment;
+                            transformRequest: angular.identity,
+                            headers: {'Content-Type': undefined}
                         })
+                        .success(callback)
                         .error(function (error) {
                             modal.dismiss();
                             toastr.error(error);
                         });
                 };
 
-                return {download: download, upload: upload, getMaxFilesize: getMaxFilesize};
+                var upload = function (url, file, params, parent, modal) {
+                    doUpload(url, file, params, parent, modal, function (attachment) {
+                        modal.dismiss();
+                        parent.attachment = attachment;
+                    });
+                };
+
+                var uploadAnswerAttachment = function (url, file, params, parent, modal) {
+                    doUpload(url, file, params, parent, modal, function (answer) {
+                        modal.dismiss();
+                        parent.objectVersion = answer.objectVersion;
+                        parent.attachment = answer.attachment;
+                    });
+                };
+
+                return {
+                    download: download,
+                    upload: upload,
+                    uploadAnswerAttachment: uploadAnswerAttachment,
+                    getMaxFilesize: getMaxFilesize
+                };
             }]);
 }());
 

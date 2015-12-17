@@ -168,9 +168,7 @@
                     <th sort by="displayedMaxScore" title="sitnet_max_score" predicate="questionsPredicate" reverse="reverse"></th>
                     <th sort by="typeOrd" title="sitnet_question_type" predicate="questionsPredicate" reverse="reverse"></th>
                     <th sort by="attachment.fileName" title="sitnet_attachment" predicate="questionsPredicate" reverse="reverse"></th>
-                    <div ng-show="user.isAdmin">
-                        <th sort by="ownerAggregate" title="sitnet_owner" predicate="questionsPredicate" reverse="reverse"></th>
-                    </div>
+                    <th ng-show="user.isAdmin" sort by="ownerAggregate" title="sitnet_owner" predicate="questionsPredicate" reverse="reverse"></th>
                     <th>{{ 'sitnet_copy' | translate }}</th>
                     <th>{{ 'sitnet_exam_remove' | translate }}</th>
                 </tr>

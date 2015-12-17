@@ -479,7 +479,7 @@
                         }).map(function (sq) {
                             return sq.question;
                         }).forEach(function (question) {
-                            promises.push($scope.saveEssay(question, question.answer.answer));
+                            promises.push($scope.saveEssay(question, question.answer.answer, true));
                         });
                     });
                     $q.all(promises).then(function () {
@@ -579,18 +579,18 @@
 
                     var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
 
-                        $scope.questionTemp = question;
+                        $scope.question = question;
                         fileService.getMaxFilesize().then(function (data) {
                             $scope.maxFileSize = data.filesize;
                         });
 
 
                         $scope.submit = function () {
-                            fileService.upload("attachment/question/answer", $scope.attachmentFile,
+                            fileService.uploadAnswerAttachment("attachment/question/answer", $scope.attachmentFile,
                                 {
-                                    questionId: $scope.questionTemp.id,
-                                    answerId: $scope.questionTemp.answer.id
-                                }, $scope.questionTemp.answer, $modalInstance);
+                                    questionId: $scope.question.id,
+                                    answerId: $scope.question.answer.id
+                                }, $scope.question.answer, $modalInstance);
                         };
 
                         $scope.cancel = function () {
@@ -606,7 +606,7 @@
                         controller: ctrl,
                         resolve: {
                             question: function () {
-                                return $scope.questionTemp;
+                                return $scope.question;
                             }
                         }
                     });

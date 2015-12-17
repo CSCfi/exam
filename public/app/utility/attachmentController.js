@@ -25,9 +25,10 @@
                     dialog.result.then(function (btn) {
                         AttachmentRes.questionAnswerAttachment.remove({qid: question.id, hash: hash},
 
-                            function () {
+                            function (answer) {
                                 toastr.info($translate.instant("sitnet_attachment_removed"));
-                                question.answer.attachment = null;
+                                question.answer.objectVersion = answer.objectVersion;
+                                delete question.answer.attachment;
 
                             }, function (error) {
                                 toastr.error(error.data);
