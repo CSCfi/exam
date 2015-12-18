@@ -50,6 +50,9 @@ email.template.exam.returned.subject=Henkilökohtainen tentti on palautettu
 email.template.exam.returned.message=Opiskelija {0} on palauttanut tentin {1} arvioitavaksi.
 email.template.noshow.subject=Opiskelija ei saapunut henkilökohtaiseen tenttiin
 email.template.noshow.message=Opiskelija {0} ei käyttänyt tenttiin {1} varaamaansa aikaa, no-show.
+ical.reservation.summary=Tenttivaraus
+ical.reservation.filename=varaus{0}
+ical.reservation.room.info=Paikkatiedot: {0}
 email.template.language.inspection.subject=Kielentarkastus on valmistunut
 email.template.language.inspection.approved=HYVÄKSYTTY
 email.template.language.inspection.rejected=HYLÄTTY
@@ -57,7 +60,3 @@ email.template.language.inspection.student=Opiskelija: {0}
 email.template.language.inspection.done=Tenttisuoritus on käynyt läpi kielentarkastuksen seuraavin tiedoin.
 email.template.language.inspection.statement.title=Lausunto
 email.template.language.inspection.result=Tulos: {0}
-ical.reservation.summary=Tenttivaraus
-ical.reservation.filename=varaus{0}
-ical.reservation.room.info=Paikkatiedot: {0}
-
