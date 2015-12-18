@@ -262,7 +262,8 @@
                         isLoggedOut: false,
                         token: user.token,
                         userAgreementAccepted: user.userAgreementAccepted,
-                        userNo: user.userIdentifier
+                        userNo: user.userIdentifier,
+                        permissions: user.permissions
                     };
                     _user.isAdmin = hasRole(_user, 'ADMIN');
                     _user.isStudent = hasRole(_user, 'STUDENT');
