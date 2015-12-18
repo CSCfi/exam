@@ -464,13 +464,14 @@
                 };
 
                 var getReviewUpdate = function (exam, state) {
+                    var creditType = exam.creditType || $scope.selections.type;
                     return {
                         "id": exam.id,
                         "state": state || exam.state,
                         "grade": exam.grade && exam.grade.id ? exam.grade.id : undefined,
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
-                        "creditType": exam.creditType && exam.creditType.type ? exam.creditType.type : undefined,
+                        "creditType": creditType ? creditType.type : undefined,
                         "answerLanguage": $scope.selections.language ? $scope.selections.language.code : undefined,
                         "additionalInfo": exam.additionalInfo
                     };
