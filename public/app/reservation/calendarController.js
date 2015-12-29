@@ -137,7 +137,7 @@
 
                 $scope.$on('$localeChangeSuccess', function () {
                     $scope.calendarConfig.buttonText.today = $translate.instant('sitnet_today');
-                    $scope.openingHours = processOpeningHours();
+                    $scope.openingHours = reservationService.processOpeningHours();
                 });
 
                 var reserve = function (start, end) {
@@ -223,14 +223,11 @@
                             delete room.filtered;
                         });
                         room.filtered = true;
-                        uiCalendarConfig.calendars.myCalendar.fullCalendar('refetchEvents');
                         $scope.openingHours = reservationService.processOpeningHours(room);
                         var minTime = reservationService.getEarliestOpening(room);
                         var maxTime = reservationService.getLatestClosing(room);
                         var hiddenDays = reservationService.getClosedWeekdays(room);
-                        var cal = $("#calendar");
-                        cal.fullCalendar('destroy');
-                        cal.fullCalendar(
+                        $("#calendar").fullCalendar(
                             $.extend($scope.calendarConfig, {
                                 minTime: minTime,
                                 maxTime: maxTime,

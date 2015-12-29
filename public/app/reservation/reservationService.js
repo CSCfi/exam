@@ -45,10 +45,10 @@
                             if (f && f[f.length - 1] != '.') {
                                 newTitle += '.';
                             }
-                        })
+                        });
+                        newTitle += separator + endPart;
+                        selector.text(newTitle);
                     }
-                    newTitle += separator + endPart;
-                    selector.text(newTitle);
                 };
 
                 var getWeekdayNames = function () {
