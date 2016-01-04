@@ -36,6 +36,7 @@ import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -162,15 +163,15 @@ public class IntegrationTestCase {
     }
 
     protected void loginAsStudent() {
-        login("saulistu@funet.fi");
+        login("student@funet.fi");
     }
 
     protected void loginAsTeacher() {
-        login("maikaope@funet.fi");
+        login("teacher@funet.fi");
     }
 
     protected void loginAsAdmin() {
-        login("sitnetad@funet.fi");
+        login("admin@funet.fi");
     }
 
     protected void login(String eppn) {
@@ -246,6 +247,27 @@ public class IntegrationTestCase {
         return path.contains("..") || path.contains("?(") || path.matches(".*(\\d+ *,)+.*");
     }
 
+    private static void addTestUsers(Map<String, List<Object>> sources) {
+        sources.get("users").stream().map(User.class::cast).collect(Collectors.toList()).forEach(u -> {
+            String uname = u.getEppn().split("@")[0];
+            Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findUnique();
+            Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findUnique();
+            Role admin = Ebean.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findUnique();
+            switch (uname) {
+                case "student":
+                    u.getRoles().add(student);
+                    break;
+                case "teacher":
+                    u.getRoles().add(teacher);
+                    break;
+                case "admin":
+                    u.getRoles().add(admin);
+                    break;
+            }
+            u.save();
+        });
+    }
+
     @Transactional(type = TxType.REQUIRES_NEW)
     @SuppressWarnings("unchecked")
     public static void addTestData() {
@@ -258,13 +280,14 @@ public class IntegrationTestCase {
         }
         if (userCount == 0) {
             Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
-            Ebean.save(all.get("user-roles"));
             if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
                 Ebean.save(all.get("languages"));
             }
             Ebean.save(all.get("organisations"));
             Ebean.save(all.get("attachments"));
-            Ebean.save(all.get("users"));
+
+            addTestUsers(all);
+
             if (Ebean.find(GradeScale.class).findRowCount() == 0) { // Might already be inserted by evolution
                 Ebean.save(all.get("grade-scales"));
             }
@@ -276,14 +299,12 @@ public class IntegrationTestCase {
             Ebean.save(all.get("softwares"));
             Ebean.save(all.get("courses"));
             Ebean.save(all.get("comments"));
-            Ebean.save(all.get("exam-types"));
             for (Object o : all.get("exams")) {
                 Exam e = (Exam) o;
                 e.setExecutionType(Ebean.find(ExamExecutionType.class, 1));
                 e.generateHash();
                 e.save();
             }
-            Ebean.save(all.get("exams"));
             Ebean.save(all.get("exam-sections"));
             Ebean.save(all.get("section-questions"));
             Ebean.save(all.get("exam-participations"));

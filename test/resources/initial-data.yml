@@ -1,40 +1,3 @@
-######################################################################
-#
-#
-#
-# - !!models.Exam  // - !! stands for List
-#   !!models.Exam  // without '-' stand for one object
-#
-#
-# To reference an Object you must have right annotaions
-# for example: Exam has reference to a Course (without @ManyToOne it wont work)
-#
-#
-#@Entity
-#public class Exam extends SitnetModel {
-#
-#  // Tentti liittyy Opintojaksoon
-#  @Constraints.Required
-#  @ManyToOne
-#  private Course course;
-#
-######################################################################
-
-# 2014-04-03 20:32:04.575
-
-# Users
-user-roles:
-    - &role-admin !!models.Role
-      name: ADMIN
-
-    - &role-student !!models.Role
-      name: STUDENT
-
-    - &role-teacher !!models.Role
-      name: TEACHER
-
-######################################################################
-
 organisations:
 
     - &OulunYliopisto !!models.Organisation
@@ -60,70 +23,40 @@ languages:
 users:
 
     - !!models.User
-      email:      sitnetad@funet.fi
-      eppn:       sitnetad@funet.fi
+      email:      admin@funet.fi
+      eppn:       admin@funet.fi
       firstName:  Admin
       lastName:   Instrator
       password:   c74626d3eca0613f356cd34ecd1301c5  #sitnetad
-      roles:
-            - *role-admin
       language: *fi
       organisation: *OulunYliopisto
 
-    - &maika !!models.User
-      email:      maikaope@funet.fi
-      eppn:       maikaope@funet.fi
-      firstName:  Maika
+    - &olli !!models.User
+      email:      teacher@funet.fi
+      eppn:       teacher@funet.fi
+      firstName:  Olli
       lastName:   Opettaja
       password:   1d0ebf168b86f79a0c34e81eb1fd70cd  # maikaope
-      roles:
-            - *role-teacher
       language: *fi
 
-
     - &sauli !!models.User
-      email:      saulistu@funet.fi
-      eppn:       saulistu@funet.fi
+      email:      student@funet.fi
+      eppn:       student@funet.fi
       firstName:  Sauli
       lastName:   Student
       password:   72e6570dbfeb95d5df59e08f1fa6302f   # saulistu
-      roles:
-            - *role-student
       language: *fi
       organisation: *OulunYliopisto
 
     - &arvo !!models.User
-      email:      arvo@funet.fi
-      eppn:       arvo@funet.fi
+      email:      teacher@b.funet.fi
+      eppn:       teacher@b.funet.fi
       firstName:  Arvon
       lastName:   Penaali
       password:   f9ba22fb1ff25fd8f83d48f361aea0a4  # arvo
-      roles:
-            - *role-teacher
       language: *fi
       organisation: *OulunYliopisto
 
-    - &soikkeli !!models.User
-      email:      soikkeli@funet.fi
-      eppn:       soikkeli@funet.fi
-      firstName:  Höylä
-      lastName:   Soikkeli
-      password:   f64213ef053bffe8011e3623543ad9e9  # soikkeli
-      roles:
-            - *role-teacher
-      language: *fi
-      organisation: *OulunYliopisto
-
-    - &orville !!models.User
-      email:      oppilas@funet.fi
-      eppn:       oppilas@funet.fi
-      firstName:  Orville
-      lastName:   Oates
-      password:   2664274e7f6f56c565470797478cb406  #oppilas
-      roles:
-            - *role-student
-      language: *fi
-      organisation: *OulunYliopisto
 
 ################################################################
 grade-scales:
@@ -226,7 +159,7 @@ question_essay:
 
   - &essay1 !!models.questions.Question
     type: EssayQuestion
-    creator: *maika
+    creator: *olli
     created: 2014-04-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
     instruction:
@@ -239,7 +172,7 @@ question_essay:
 
   - &essay2 !!models.questions.Question
     type: EssayQuestion
-    creator: *maika
+    creator: *olli
     created: 2014-03-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
     instruction:
@@ -424,7 +357,7 @@ question_multiple_choice:
 # Multiple choice questions
   - &multi1 !!models.questions.Question
     type: MultipleChoiceQuestion
-    creator: *maika
+    creator: *olli
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     attachment: *att1
@@ -441,7 +374,7 @@ question_multiple_choice:
   - &multi2 !!models.questions.Question
     type: MultipleChoiceQuestion
     question: Mikä on ikuisen elämän salaisuus?
-    creator: *maika
+    creator: *olli
     created: 2014-01-03 12:40:05.123
    #materials:
     maxScore: 5
@@ -457,7 +390,7 @@ question_multiple_choice:
   - &multi3 !!models.questions.Question
     type: MultipleChoiceQuestion
     question: Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?
-    creator: *maika
+    creator: *olli
     created: 2014-01-01 12:10:05.123
    #materials:
     maxScore: 5
@@ -503,7 +436,7 @@ question_multiple_choice:
   - &avaruus1 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
-    creator: *maika
+    creator: *olli
     created: 2014-01-07 12:30:05.123
    #materials:
     maxScore: 5
@@ -517,7 +450,7 @@ question_multiple_choice:
   - &avaruus2 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:  Auringon fuusioreaktiot tapahtuvat
-    creator: *maika
+    creator: *olli
     created: 2014-01-08 12:30:05.123
    #materials:
     maxScore: 5
@@ -531,7 +464,7 @@ question_multiple_choice:
   - &avaruus3 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   AU mittaa
-    creator: *maika
+    creator: *olli
     created: 2014-01-09 12:30:05.123
    #materials:
     maxScore: 5
@@ -545,7 +478,7 @@ question_multiple_choice:
   - &avaruus4 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Ekliptika on
-    creator: *maika
+    creator: *olli
     created: 2014-01-10 12:30:05.123
    #materials:
     maxScore: 5
@@ -559,7 +492,7 @@ question_multiple_choice:
   - &avaruus5 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Tähdenlento eli
-    creator: *maika
+    creator: *olli
     created: 2014-01-11 12:30:05.123
    #materials:
     maxScore: 5
@@ -574,7 +507,7 @@ question_multiple_choice:
   - &avaruus6 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
-    creator: *maika
+    creator: *olli
     created: 2014-01-12 12:30:05.123
    #materials:
     maxScore: 5
@@ -588,7 +521,7 @@ question_multiple_choice:
   - &avaruus7 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
-    creator: *maika
+    creator: *olli
     created: 2014-01-13 12:30:05.123
    #materials:
     maxScore: 5
@@ -603,7 +536,7 @@ question_multiple_choice:
   - &avaruus8 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   The Great Red Spot tarkoittaa
-    creator: *maika
+    creator: *olli
     created: 2014-01-14 12:30:05.123
    #materials:
     maxScore: 5
@@ -618,7 +551,7 @@ question_multiple_choice:
   - &avaruus9 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Vuodenajat aiheutuvat
-    creator: *maika
+    creator: *olli
     created: 2014-01-15 12:30:05.123
    #materials:
     maxScore: 5
@@ -633,7 +566,7 @@ question_multiple_choice:
   - &avaruus10 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Uudenkuun aikaan
-    creator: *maika
+    creator: *olli
     created: 2014-01-16 12:30:05.123
    #materials:
     maxScore: 5
@@ -648,7 +581,7 @@ question_multiple_choice:
   - &avaruus11 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Vuoksen ja luoteen aiheuttavat pääasiassa
-    creator: *maika
+    creator: *olli
     created: 2014-01-17 12:30:05.123
    #materials:
     maxScore: 5
@@ -946,17 +879,6 @@ comments:
 
 ################################################################
 
-exam-types:
-
-  - &partial !!models.ExamType
-    type: PARTIAL
-
-  - &final !!models.ExamType
-    type: FINAL
-
-
-################################################################
-
 softwares:
   - &Matematica !!models.Software
     name: Matematica
@@ -979,7 +901,7 @@ softwares:
 exams:
 
   - &alkeidenperusteetGraded !!models.Exam
-    creator: *maika
+    creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *alkeet
     name: Johdatus alkeiden perusteisiin
@@ -1025,7 +947,7 @@ exams:
       - *en
 
   - &astronomianPerusteet !!models.Exam
-    creator: *maika
+    creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *765104P
     name: Astronomian perusteet
@@ -1043,7 +965,7 @@ exams:
       - *sv
 
   - &tietokannat2013 !!models.Exam
-    creator: *maika
+    creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
     name: Tietokantojen perusteet, syksy 2013
@@ -1060,7 +982,7 @@ exams:
       - *fi
 
   - &tietokannat2014 !!models.Exam
-    creator: *maika
+    creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
     name: Tietokantojen perusteet, kevät 2014
@@ -1077,7 +999,7 @@ exams:
       - *fi
 
   - &algoritmit !!models.Exam
-    creator: *maika
+    creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *811386A
     name: Algoritmit, 2013
@@ -1094,7 +1016,7 @@ exams:
       - *de
 
   - &ooad !!models.Exam
-    creator: *maika
+    creator: *olli
     created: 2014-01-01 12:30:05.123
     course: *812346A
     name: OOAD, 2013
@@ -1455,11 +1377,11 @@ exam-participations:
 exam-inspections:
 
   - !!models.ExamInspection
-    user: *maika
+    user: *olli
     exam: *alkeidenperusteetReview
 
   - !!models.ExamInspection
-    user: *maika
+    user: *olli
     exam: *alkeidenperusteetGraded
 
   - !!models.ExamInspection
@@ -1483,7 +1405,7 @@ exam-inspections:
     exam: *tietokannat2014
 
   - !!models.ExamInspection
-    user: *maika
+    user: *olli
     exam: *ooad
 
 ############### Tilavaraus ###############
@@ -1610,11 +1532,6 @@ exam-enrolments:
     user: *sauli
     exam: *astronomianPerusteet
     enrolledOn: 2014-04-03 20:32:04.575
-
-  - &enrolment4 !!models.ExamEnrolment
-    user: *orville
-    exam: *ooad
-    enrolledOn: 2014-05-03 20:32:04.575
 
   - &enrolment5 !!models.ExamEnrolment
     user: *sauli
