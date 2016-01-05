@@ -61,7 +61,7 @@
                         <button ng-hide="newExam.state === 'PUBLISHED'" ng-click="saveAndPublishExam()"
                                 class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}
                         </button>
-                        <button ng-show="newExam.state === 'PUBLISHED' && newExam.examType.type==='PUBLIC'"
+                        <button ng-show="newExam.state === 'PUBLISHED' && newExam.executionType.type==='PUBLIC'"
                                 ng-click="unpublishExam()"
                                 class="btn btn-warning">{{'sitnet_unpublish_exam' | translate }}
                         </button>
