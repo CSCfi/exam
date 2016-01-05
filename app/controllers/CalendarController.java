@@ -226,17 +226,18 @@ public class CalendarController extends BaseController {
                 return notFound();
             }
             // users reservations starting from now
+            User user = getLoggedUser();
             List<Reservation> reservations = Ebean.find(Reservation.class)
                     .fetch("enrolment.exam")
                     .where()
-                    .eq("user", getLoggedUser())
+                    .eq("user", user)
                     .gt("startAt", searchDate.toDate())
                     .findList();
             // Resolve eligible machines based on software and accessibility requirements
             List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
             LocalDate endOfSearch = getEndSearchDate(exam, searchDate);
             while (!searchDate.isAfter(endOfSearch)) {
-                Set<TimeSlot> timeSlots = getExamSlots(room, exam, searchDate, reservations, machines);
+                Set<TimeSlot> timeSlots = getExamSlots(user, room, exam, searchDate, reservations, machines);
                 if (!timeSlots.isEmpty()) {
                     slots.addAll(timeSlots);
                 }
@@ -250,7 +251,8 @@ public class CalendarController extends BaseController {
      * Queries for slots for given room and day
      */
     private Set<TimeSlot> getExamSlots(
-            ExamRoom room, Exam exam, LocalDate date, List<Reservation> reservations, List<ExamMachine> machines) {
+            User user, ExamRoom room, Exam exam, LocalDate date, List<Reservation> reservations,
+            List<ExamMachine> machines) {
 
         Set<TimeSlot> slots = new LinkedHashSet<>();
         // Resolve the opening hours for room and day
@@ -299,7 +301,7 @@ public class CalendarController extends BaseController {
             }
             // Check machine availability
             int availableMachineCount = machines.stream()
-                    .filter(m -> !isReservedByOthersDuring(m, slot))
+                    .filter(m -> !isReservedByOthersDuring(m, slot, user))
                     .collect(Collectors.toList())
                     .size();
             slots.add(new TimeSlot(slot, availableMachineCount, null));
@@ -421,10 +423,10 @@ public class CalendarController extends BaseController {
                 .anyMatch(r -> interval.overlaps(r.toInterval()));
     }
 
-    private boolean isReservedByOthersDuring(ExamMachine machine, Interval interval) {
+    private boolean isReservedByOthersDuring(ExamMachine machine, Interval interval, User user) {
         return machine.getReservations()
                 .stream()
-                .filter(r -> !r.getUser().equals(getLoggedUser()))
+                .filter(r -> !r.getUser().equals(user))
                 .anyMatch(r -> interval.overlaps(r.toInterval()));
     }
 
@@ -434,6 +436,8 @@ public class CalendarController extends BaseController {
 
     private static List<ExamMachine> getEligibleMachines(ExamRoom room, Collection<Integer> access, Exam exam) {
         List<ExamMachine> candidates = Ebean.find(ExamMachine.class)
+                .fetch("reservations")
+                .fetch("reservations.user")
                 .where()
                 .eq("room.id", room.getId())
                 .ne("outOfService", true)
