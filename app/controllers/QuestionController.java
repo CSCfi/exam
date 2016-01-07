@@ -16,8 +16,11 @@ import play.mvc.Result;
 import util.AppUtil;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class QuestionController extends BaseController {
 
@@ -164,54 +167,6 @@ public class QuestionController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateQuestionOwner(Long uid) {
-
-        final User teacher = Ebean.find(User.class, uid);
-
-        if (teacher == null) {
-            return notFound();
-        }
-
-        final DynamicForm df = Form.form().bindFromRequest();
-        final String questionIds = df.data().get("questionIds");
-
-        if (questionIds == null || questionIds.length() < 1) {
-            return notFound();
-        }
-
-        // get new teacher tags
-        List<Tag> teacherTags = Ebean.find(Tag.class)
-                .where()
-                .eq("creator.id", teacher.getId())
-                .findList();
-
-        User originalUser = getLoggedUser();
-
-        for (String s : questionIds.split(",")) {
-            final Question question = Ebean.find(Question.class, Integer.parseInt(s));
-
-            if (question != null) {
-
-                handleTags(question, teacherTags, teacher); // handle question tags
-                AppUtil.setCreator(question, teacher);
-                AppUtil.setModifier(question, originalUser);
-                question.update();
-
-                if (question.getChildren() != null && question.getChildren().size() > 0) {
-                    for (Question childQuestion : question.getChildren()) {
-                        handleTags(childQuestion, teacherTags, teacher); // handle question tags
-                        AppUtil.setCreator(childQuestion, teacher);
-                        AppUtil.setModifier(childQuestion, originalUser);
-                        childQuestion.update();
-                    }
-                }
-            }
-        }
-
-        return ok();
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateOption(Long oid) {
         MultipleChoiceOption form = bindForm(MultipleChoiceOption.class);
         MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, oid);
@@ -278,49 +233,65 @@ public class QuestionController extends BaseController {
                 .fetch("children.examSectionQuestion.examSection.exam.course", "code");
     }
 
-    private static void handleTags(Question question, List<Tag> teacherTags, User teacher) {
-        if (question != null && question.getTags() != null) {
-            List<Tag> tags = question.getTags();
-            for (Tag tag : tags) {
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result updateQuestionOwner(Long uid) {
 
-                // create new tag and add it to question if current user has no tags ->
-                if (teacherTags == null) {
-                    addNewTag(tag, question, teacher);
-                    removeOldTag(tag, question);
-                    continue;
+        User teacher = Ebean.find(User.class, uid);
+        if (teacher == null) {
+            return notFound();
+        }
+        final DynamicForm df = Form.form().bindFromRequest();
+        final String questionIds = df.data().get("questionIds");
+        if (questionIds == null || questionIds.isEmpty()) {
+            return badRequest();
+        }
+
+        List<Tag> tagsOfNewOwner = Ebean.find(Tag.class)
+                .where()
+                .eq("creator.id", teacher.getId())
+                .findList();
+
+        User originalUser = getLoggedUser();
+        List<Long> ids = Stream.of(questionIds.split(",")).map(Long::parseLong).collect(Collectors.toList());
+        Ebean.find(Question.class).where().idIn(ids).findList().forEach(q -> {
+            changeOwnership(q, originalUser, teacher, tagsOfNewOwner);
+            q.getChildren()
+                    .forEach(cq -> changeOwnership(cq, originalUser, teacher, tagsOfNewOwner));
+        });
+        return ok();
+    }
+
+    private static void changeOwnership(Question question, User oldOwner, User newOwner, List<Tag> tagsOfNewOwner) {
+        AppUtil.setCreator(question, newOwner);
+        AppUtil.setModifier(question, oldOwner);
+        question.update();
+        handleTags(question, tagsOfNewOwner, newOwner); // handle question tags
+    }
+
+    private static void handleTags(Question question, List<Tag> tagsOfNewOwner, User teacher) {
+        for (Tag tag : question.getTags()) {
+            int index = tagsOfNewOwner.indexOf(tag);
+            if (index > -1) {
+                Tag existingTag = tagsOfNewOwner.get(index);
+                // Replace with existing tag
+                if (!existingTag.getQuestions().contains(question)) {
+                    existingTag.getQuestions().add(question);
+                    existingTag.update();
                 }
-
-                // check if user has tag with same name ->
-                Boolean add = true;
-                for (Tag userTag : teacherTags) {
-
-                    // if user has a tag with same name ->
-                    // remove question old user's tag and add new user's own tag to question
-                    if (userTag.getName().equalsIgnoreCase(tag.getName())) { // case insensitive !!!
-                        add = false;
-                        if (!userTag.getQuestions().contains(question)) {
-                            userTag.getQuestions().add(question);
-                            userTag.update();
-                        }
-                        removeOldTag(tag, question);
-
-                        break;
-                    }
-                }
-
-                // if user does not have a tag with same name -> add
-                if (add) {
-                    addNewTag(tag, question, teacher);
-                    removeOldTag(tag, question);
-                }
+                removeOldTag(tag, question);
+            } else {
+                // Create new
+                addNewTag(tag.getName(), question, teacher);
+                removeOldTag(tag, question);
             }
         }
     }
 
-    private static void addNewTag(Tag tag, Question question, User teacher) {
+    private static void addNewTag(String name, Question question, User teacher) {
         Tag newTag = new Tag();
-        newTag.setName(tag.getName());
+        newTag.setName(name);
         newTag.setCreator(teacher);
+        newTag.setCreated(new Date());
         newTag.getQuestions().add(question);
         newTag.save();
     }
@@ -328,8 +299,7 @@ public class QuestionController extends BaseController {
     private static void removeOldTag(Tag tag, Question question) {
         tag.getQuestions().remove(question);
         tag.update();
-
-        if (tag.getQuestions() == null || tag.getQuestions().isEmpty()) {
+        if (tag.getQuestions().isEmpty()) {
             tag.delete();
         }
     }

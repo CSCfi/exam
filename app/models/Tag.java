@@ -2,6 +2,8 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.questions.Question;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 import java.util.List;
@@ -32,5 +34,21 @@ public class Tag extends OwnedModel {
     public void setQuestions(List<Question> questions) {
         this.questions = questions;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof Tag)) {
+            return false;
+        }
+        Tag otherTag = (Tag) other;
+        return new EqualsBuilder().append(name, otherTag.name).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(name).build();
+    }
+
 
 }
