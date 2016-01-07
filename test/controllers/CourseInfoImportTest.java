@@ -58,7 +58,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     }
 
     public void setUserOrg(String code) {
-        User user = Ebean.find(User.class).where().eq("eppn", "maikaope@funet.fi").findUnique();
+        User user = Ebean.find(User.class).where().eq("eppn", "student@funet.fi").findUnique();
         Organisation org = null;
         if (code != null) {
             org = Ebean.find(Organisation.class).where().eq("code", code).findUnique();
