@@ -168,10 +168,9 @@
                 // Here's the party
                 refreshExamTypes();
                 refreshGradeScales();
-                if (!$routeParams.id && $scope.user.isTeacher) {
-                    doSearch();
-                } else {
-                    initializeExam();
+                if ($scope.user.isTeacher) {
+                    var action = $routeParams.id ? initializeExam : doSearch;
+                    action();
                 }
 
                 $scope.search = function () {
