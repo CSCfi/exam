@@ -634,5 +634,7 @@
   "sitnet_error_data_has_changed": "Invalid data. You might have used second browser window or tab when saving the exam. Please copy your previous data, refresh browser and try again.",
   "Rejected": "Rejected",
   "sitnet_exam_rejected": "Test is rejected",
-  "sitnet_participation_unfinished": "Waiting for final assessment"
+  "sitnet_participation_unfinished": "Waiting for final assessment",
+  "sitnet_unsaved_data_may_be_lost": "Tallentamaton tieto saattaa hävitä päivityksen yhteydessä. EN",
+  "sitnet_connection_refused": "Palvelimeen ei saada yhteyttä, todennäköisesti ongelmia verkossa. EN"
 }

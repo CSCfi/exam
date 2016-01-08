@@ -269,8 +269,8 @@ public class QuestionController extends BaseController {
     }
 
     private static void handleTags(Question question, List<Tag> tagsOfNewOwner, User teacher) {
-        for (Tag tag : question.getTags()) {
-            int index = tagsOfNewOwner.indexOf(tag);
+        for (Tag oldTag : question.getTags()) {
+            int index = tagsOfNewOwner.indexOf(oldTag);
             if (index > -1) {
                 Tag existingTag = tagsOfNewOwner.get(index);
                 // Replace with existing tag
@@ -278,12 +278,11 @@ public class QuestionController extends BaseController {
                     existingTag.getQuestions().add(question);
                     existingTag.update();
                 }
-                removeOldTag(tag, question);
             } else {
                 // Create new
-                addNewTag(tag.getName(), question, teacher);
-                removeOldTag(tag, question);
+                addNewTag(oldTag.getName(), question, teacher);
             }
+            removeOldTag(oldTag, question);
         }
     }
 

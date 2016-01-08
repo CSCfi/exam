@@ -1,3 +1,4 @@
+@import "fonts";
 @import "partial/defines";
 @import "partial/vmenu";
 @import "partial/header";
@@ -23,12 +24,19 @@
 }
 
 html {
-  font-family: $font;
+  font-family: $sitnet-family-opensans;
 }
 
 body {
   background-color: $sitnet-background;
-  font-family: $font;
+  font-family: $sitnet-family-opensans;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $sitnet-family-opensans;
+}
+p, div {
+  font-family: $sitnet-family-opensans;
 }
 
 .vmenu-on {
