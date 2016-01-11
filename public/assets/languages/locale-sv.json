@@ -634,5 +634,7 @@
   "sitnet_error_data_has_changed": "Problem med att spara informationen. Du kan t.ex. ha haft två webbläsare öppna och informationen kan ha sparats automatiskt från det andra fönstret. Kopiera texten som du redigerar t.ex. till klippbordet, refresha ditt webbläsarfönster och klistra in din text.",
   "sitnet_exam_status_rejected": "Underkänd",
   "sitnet_exam_rejected": "Underkända tentamenssvar",
-  "sitnet_participation_unfinished": "Väntar på slutlig bedömning"
+  "sitnet_participation_unfinished": "Väntar på slutlig bedömning",
+  "sitnet_unsaved_data_may_be_lost": "Uppdatering av sidan kommer att förkasta alla osparade ändringar.",
+  "sitnet_connection_refused": "Misslyckades att kontakta servern. Sannolikt att en problem med nätverkanslutning uppstod."
 }

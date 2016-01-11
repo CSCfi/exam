@@ -1,5 +1,3 @@
-
-$font: "Open Sans", Helvetica, Arial;
 $sitnet-dark-green: #63aa92;
 $sitnet-green: #2bb9a8;
 $sitnet-blue: #27b9ca;
@@ -38,66 +36,17 @@ $sitnet-blue-highlight: #66afe9;
 
 $sitnet-essay-review-background: #f4f9fc;
 
-// ##### leiskasta fontit ##########################################
-$sitnet-family-opensans-light: $font;
-$sitnet-family-opensans-light-italic: $font;
-$sitnet-family-opensans: $font;
-$sitnet-family-opensans-italic: $font;
-$sitnet-family-opensans-semibold: $font;
-$sitnet-family-opensans-semibold-italic: $font;
-$sitnet-family-opensans-bold: $font;
-$sitnet-family-opensans-bold-italic: $font;
-
 $sitnet-family-georgia: Georgia, Helvetica, Arial;
 
-@font-face {
-    font-family: $sitnet-family-opensans-light;
-    src: url('/assets/fonts/OpenSans-Light.ttf') format('truetype');
-    font-weight: 200;
-    font-style: normal;
-}
-@font-face {
-    font-family: $sitnet-family-opensans-light-italic;
-    src: url('/assets/fonts/OpenSans-LightItalic.ttf') format('truetype');
-    font-weight: 200;
-    font-style: italic;
-}
-@font-face {
-    font-family: $sitnet-family-opensans;
-    src: url('/assets/fonts/OpenSans-Regular.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
-}
-@font-face {
-    font-family: $sitnet-family-opensans-italic;
-    src: url('/assets/fonts/OpenSans-Regular.ttf') format('truetype');
-    font-style: italic;
-    font-weight: 400;
-}
-@font-face {
-    font-family: $sitnet-family-opensans-semibold;
-    src: url('/assets/fonts/OpenSans-Semibold.ttf') format('truetype');
-    font-weight: 600;
-    font-style: normal;
-}
-@font-face {
-    font-family: $sitnet-family-opensans-semibold-italic;
-    src: url('/assets/fonts/OpenSans-SemiboldItalic.ttf') format('truetype');
-    font-weight: 600;
-    font-style: italic;
-}
-@font-face {
-    font-family: $sitnet-family-opensans-bold;
-    src: url('/assets/fonts/OpenSans-Bold.ttf') format('truetype');
-    font-weight: 700;
-    font-style: normal;
-}
-@font-face {
-    font-family: $sitnet-family-opensans-bold-italic;
-    src: url('/assets/fonts/OpenSans-BoldItalic.ttf') format('truetype');
-    font-weight: 700;
-    font-style: italic;
-}
+$sitnet-family-opensans-light: os-light, Arial, Helvetica, sans-serif;
+$sitnet-family-opensans-light-italic: os-light-italic, Arial, Helvetica, sans-serif;
+$sitnet-family-opensans: os-regular, Arial, Helvetica, sans-serif;
+$sitnet-family-opensans-italic: os-regular-italic, Arial, Helvetica, sans-serif;
+$sitnet-family-opensans-semibold: os-semibold, Arial, Helvetica, sans-serif;
+$sitnet-family-opensans-semibold-italic: os-semibold-italic, Arial, Helvetica, sans-serif;
+$sitnet-family-opensans-bold: os-bold, Arial, Helvetica, sans-serif;
+$sitnet-family-opensans-bold-italic: os-bold-italic, Arial, Helvetica, sans-serif;
+
 
 // #### layout colors ############################################
 $sitnet-alarm: #C0001F;
@@ -312,7 +261,7 @@ $sitnet-icon-size: 32px;
 .info-column {
   padding-right:1em;
   font-size: 1em;
-  font: $sitnet-family-opensans-bold;
+  font-family: os-bold, Helvetica, Arial, sans-serif;
   padding-left:0;
   margin-left:0;
 
