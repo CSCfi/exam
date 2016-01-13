@@ -172,6 +172,9 @@
                     var action = $routeParams.id ? initializeExam : doSearch;
                     action();
                 }
+                if ($scope.user.isAdmin && $routeParams.id) {
+                    initializeExam();
+                }
 
                 $scope.search = function () {
                     // add a bit of delay so we don't hit the server that often
