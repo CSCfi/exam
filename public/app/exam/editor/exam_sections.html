@@ -11,7 +11,7 @@
 
 <div class="col-md-12" ng-show="sectionTemplate.visible">
     <div class="section-border" ng-include="templates.section" ng-model="newExam.examSections"
-         ng-repeat="section in newExam.examSections">
+         ng-repeat="section in newExam.examSections | orderBy: 'created'">
     </div>
     <div class="row col-md-12 create-new-section">
         <div class="col-md-1 fa-stack fa-lg">
