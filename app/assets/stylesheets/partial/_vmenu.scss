@@ -63,6 +63,18 @@
     overflow-y: auto;
     width: 230px;
     z-index: -1;
+
+  }
+
+  .links {
+    li {
+      a:hover {
+        color: $sitnet-blue-highlight;
+        .menu-item {
+          color: $sitnet-blue-highlight;
+        }
+      }
+    }
   }
 
   .nav-footer {
@@ -90,7 +102,6 @@
   }
 
   .menu-item {
-    display: inline-block;
     margin: 0;
     padding-top: 1em;
     padding-bottom: 1em;
@@ -105,16 +116,7 @@
     a {
       background-color: $sitnet-white;
       color: $sitnet-blue;
-    }
-
-    .submenu {
-      margin-left: 30px;
-      font-size: 0.8em;
-
-      a {
-        background-color: $sitnet-light-grey;
-        color: $sitnet-dark-grey;
-      }
+      text-decoration: none;
     }
   }
 
