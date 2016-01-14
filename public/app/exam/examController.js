@@ -50,9 +50,7 @@
                     questionService.setFilter(null);
                 });
 
-                var searching;
-
-                var doSearch = function () {
+                var search = function () {
                     $scope.loader.loading = true;
                     ExamRes.exams.query({filter: $scope.filter.text}, function (exams) {
                         exams.forEach(function (e) {
@@ -68,7 +66,6 @@
                             }
                         });
                         $scope.exams = exams;
-                        searching = false;
                         $scope.loader.loading = false;
                     }, function (err) {
                         $scope.loader.loading = false;
@@ -169,16 +166,15 @@
                 refreshExamTypes();
                 refreshGradeScales();
                 if ($scope.user.isTeacher) {
-                    var action = $routeParams.id ? initializeExam : doSearch;
+                    var action = $routeParams.id ? initializeExam : search;
                     action();
+                }
+                if ($scope.user.isAdmin && $routeParams.id) {
+                    initializeExam();
                 }
 
                 $scope.search = function () {
-                    // add a bit of delay so we don't hit the server that often
-                    if (!searching && $scope.filter) {
-                        $timeout(doSearch, 200);
-                        searching = true;
-                    }
+                    search();
                 };
 
                 $scope.hostname = SettingsResource.hostname.get();

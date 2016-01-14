@@ -32,7 +32,8 @@
     <div class="detail-row" ng-show="user.isAdmin">
         <div class="col-md-4">
             <div class="form-group input-group">
-                <input ng-change="search()" ng-model="filter.text" type="text" class="form-control"
+                <input ng-change="search()" ng-model="filter.text"
+                       ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text" class="form-control"
                        placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
                        popover-trigger="mouseenter" popover="{{ 'sitnet_exam_search_description' | translate }}">
 

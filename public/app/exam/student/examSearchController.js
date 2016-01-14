@@ -11,9 +11,8 @@
                 };
 
                 $scope.examPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/exam.html";
-                var searching;
 
-                var doSearch = function () {
+                var search = function () {
                     StudentExamRes.exams.query({filter: $scope.filter.text}, function (exams) {
                         exams.forEach(function (exam) {
                             exam.languages = exam.examLanguages.map(function (lang) {
@@ -21,7 +20,6 @@
                             });
                         });
                         $scope.exams = exams;
-                        searching = false;
                         $scope.loader.loading = false;
                     }, function (err) {
                         $scope.loader.loading = false;
@@ -40,10 +38,8 @@
                 }
 
                 $scope.search = function () {
-                    // add a bit of delay so we don't hit the server that often
-                    if (!searching && $scope.permissionCheck.active === false) {
-                        $timeout(doSearch, 200);
-                        searching = true;
+                    if ($scope.permissionCheck.active === false) {
+                        search();
                     }
                 };
 
