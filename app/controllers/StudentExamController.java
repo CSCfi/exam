@@ -243,7 +243,6 @@ public class StudentExamController extends BaseController {
     }
 
     private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
-        Collections.sort(prototype.getExamSections(), (o1, o2) -> (int) (o1.getId() - o2.getId()));
         Exam studentExam = prototype.copy(user, true);
         studentExam.setState(Exam.State.STUDENT_STARTED);
         studentExam.setCreator(user);

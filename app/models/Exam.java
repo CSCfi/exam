@@ -558,6 +558,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             inspection.setExam(clone);
             inspection.save();
         }
+        Collections.sort(examSections, (o1, o2) -> (int) (o1.getId() - o2.getId()));
         for (ExamSection es : examSections) {
             ExamSection esCopy = es.copy(clone, produceStudentExam);
             AppUtil.setCreator(esCopy, user);

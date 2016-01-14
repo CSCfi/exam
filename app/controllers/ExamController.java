@@ -788,7 +788,6 @@ public class ExamController extends BaseController {
         if (prototype == null) {
             return notFound("sitnet_exam_not_found");
         }
-        Collections.sort(prototype.getExamSections(), (o1, o2) -> (int) (o1.getId() - o2.getId()));
         Exam copy = prototype.copy(user, false);
         copy.setName(String.format("**COPY**%s", copy.getName()));
         copy.setState(Exam.State.DRAFT);
