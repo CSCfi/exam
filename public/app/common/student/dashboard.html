@@ -77,8 +77,8 @@
                             </div>
                             <div class="col-md-9" ng-if="enrolment.reservation">
                                 {{enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}}
-                                {{enrolment.reservation.startAt | adjustdst | date:'HH:mm'}} -
-                                {{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}
+                                {{enrolment.reservation.occasion.startAt}} -
+                                {{enrolment.reservation.occasion.endAt}} ({{enrolment.reservation.machine.room.localTimezone}})
                             </div>
                             <div class="col-md-9" ng-if="enrolment.reservationCanceled">
                                 {{ 'sitnet_canceled' | translate }}

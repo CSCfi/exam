@@ -30,11 +30,33 @@
                     return templates;
                 };
 
+                var setOccasion = function(reservation) {
+                    var tz = reservation.machine.room.localTimezone;
+                    var start = moment.tz(reservation.startAt, tz);
+                    var end = moment.tz(reservation.endAt, tz);
+                    if (start.isDST()) {
+                        start.add(-1, 'hour');
+                    }
+                    if (end.isDST())
+                    {
+                        end.add(-1, 'hour');
+                    }
+                    reservation.occasion = {
+                        startAt: start.format("HH:mm"),
+                        endAt: end.format("HH:mm")
+                    };
+                };
+
                 var showStudentDashboard = function () {
                     var scope = {};
                     var deferred = $q.defer();
 
                     StudentExamRes.enrolments.query(function (enrolments) {
+                            enrolments.forEach(function(e) {
+                                if (e.reservation) {
+                                    setOccasion(e.reservation);
+                                }
+                            });
                             scope.userEnrolments = enrolments;
                             StudentExamRes.finishedExams.query(
                                 function (participations) {

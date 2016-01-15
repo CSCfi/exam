@@ -55,7 +55,7 @@
     </div>
     <div class="detail-row">
         <div class="col-md-3 header text">{{ 'sitnet_reservation_time' | translate }}:</div>
-        <strong class="col-md-9 text">{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} {{enrolment.reservation.startAt | adjustdst | date:'HH:mm'}} - {{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}</strong>
+        <strong class="col-md-9 text">{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} {{enrolment.reservation.occasion.startAt }} - {{enrolment.reservation.occasion.endAt }} ({{enrolment.reservation.machine.room.localTimezone}})</strong>
     </div>
     <div class="detail-row" ng-show="enrolment.exam.enrollInstruction">
         <div class="col-md-3 header text">{{ 'sitnet_instructions' | translate }}:</div>

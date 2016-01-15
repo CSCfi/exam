@@ -131,7 +131,7 @@
             <strong>{{'sitnet_room_default_working_hours' | translate }}:</strong>&nbsp;
             <small><span ng-repeat="oh in openingHours">
                 {{oh.name}}: {{oh.periods}} {{ $last ? '' : '| ';}}
-            </span></small>
+            </span><span>({{ selectedRoom().localTimezone }})</span></small>
         </span>
         <span class="col-md-12" ng-show="exceptionHours.length > 0">
             <strong>{{'sitnet_exception_datetimes' | translate }}:</strong>&nbsp;
