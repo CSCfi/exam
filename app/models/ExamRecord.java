@@ -18,7 +18,6 @@ public class ExamRecord extends GeneratedIdentityModel {
     private User student;
     @OneToOne
     private Exam exam;
-
     @OneToOne
     private ExamScore examScore;
 

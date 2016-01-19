@@ -2,15 +2,20 @@ package models.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import models.Exam;
+import models.ExamRecord;
 import models.GeneratedIdentityModel;
 import models.User;
 
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 
 @Entity
 public class ExamScore extends GeneratedIdentityModel {
+
+    @OneToOne(mappedBy = "examScore")
+    private ExamRecord examRecord;
 
     private String studentId;
     private String student;
@@ -31,6 +36,10 @@ public class ExamScore extends GeneratedIdentityModel {
     private String courseImplementation;
     private String additionalInfo;
     private String lecturerEmployeeNumber;
+
+    public ExamRecord getExamRecord() {
+        return examRecord;
+    }
 
     public String getCourseImplementation() {
         return courseImplementation;
