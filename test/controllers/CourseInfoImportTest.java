@@ -86,13 +86,14 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         assertThat(grades).hasSize(7);
     }
 
+
     @Test
     @RunAsTeacher
     public void testGetCourseOfAnotherOrganisation() throws Exception {
         setUserOrg("oulu.fi");
 
         CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo2.json");
-        Result result = get("/courses?filter=code&q=2121220");
+        Result result = get("/courses?filter=code&q=t7");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(1);
@@ -104,6 +105,23 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         List<Grade> grades = Ebean.find(Grade.class).where()
                 .eq("gradeScale.id", course.getGradeScale().getId()).findList();
         assertThat(grades).hasSize(7);
+    }
+
+    @Test
+    @RunAsTeacher
+    public void testGetCourseMultiple() throws Exception {
+        setUserOrg(null);
+        CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfoMultiple.json");
+        Result result = get("/courses?filter=code&q=2121219");
+        assertThat(result.status()).isEqualTo(200);
+        JsonNode node = Json.parse(contentAsString(result));
+        assertThat(node).hasSize(8);
+        Course course = deserialize(Course.class, node.get(6));
+        assertThat(course.getCode()).isEqualTo("T701203");
+        assertThat(course.getIdentifier()).isEqualTo("AAAWMhAALAAAmaRAAE");
+        assertThat(course.getCredits()).isEqualTo(3);
+        assertThat(course.getName()).isEqualTo("Ohjelmoinnin jatkokurssi");
+        assertThat(course.getOrganisation().getName()).isEqualTo("Oamk");
     }
 
     @Test
