@@ -11,8 +11,8 @@
                     {type: 'STUDENT', name: 'sitnet_student', icon: 'fa-graduation-cap'}
                 ];
 
-                UserRes.permissions.query(function(permissions) {
-                    permissions.forEach(function(p) {
+                UserRes.permissions.query(function (permissions) {
+                    permissions.forEach(function (p) {
                         if (p.type === 'CAN_INSPECT_LANGUAGE') {
                             p.name = 'sitnet_can_inspect_language';
                             p.icon = 'fa-pencil';
@@ -25,8 +25,6 @@
                 $scope.loader = {
                     loading: false
                 };
-
-                var searching;
 
                 var updateEditOptions = function (user) {
                     user.availableRoles = [];
@@ -53,13 +51,12 @@
                     });
                 };
 
-                var doSearch = function () {
+                var search = function () {
                     UserRes.users.query({filter: $scope.filter.text}, function (users) {
                         $scope.users = users;
                         $scope.users.forEach(function (user) {
                             updateEditOptions(user);
                         });
-                        searching = false;
                         $scope.loader.loading = false;
                     }, function (err) {
                         $scope.loader.loading = false;
@@ -68,12 +65,8 @@
                 };
 
                 $scope.search = function () {
-                    // add a bit of delay so we don't hit the server that often
-                    if (!searching) {
-                        $scope.loader.loading = true;
-                        $timeout(doSearch, 200);
-                        searching = true;
-                    }
+                    $scope.loader.loading = true;
+                    search();
                 };
 
                 $scope.hasRole = function (user, role) {
@@ -110,10 +103,10 @@
                         function (role) {
                             return role.filtered;
                         }).forEach(function (role) {
-                            if (!$scope.hasRole(user, role.type)) {
-                                result = false;
-                            }
-                        });
+                        if (!$scope.hasRole(user, role.type)) {
+                            result = false;
+                        }
+                    });
                     if (!result) {
                         return result;
                     }
@@ -121,10 +114,10 @@
                         function (permission) {
                             return permission.filtered;
                         }).forEach(function (permission) {
-                            if (!$scope.hasPermission(user, permission.type)) {
-                                result = false;
-                            }
-                        });
+                        if (!$scope.hasPermission(user, permission.type)) {
+                            result = false;
+                        }
+                    });
                     return result;
                 };
 
@@ -161,8 +154,6 @@
                         updateEditOptions(user);
                     })
                 };
-
-                $scope.search();
             }
         ]);
 })();
