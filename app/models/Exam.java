@@ -538,6 +538,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return languageInspection;
     }
 
+    public ExamRecord getExamRecord() { return examRecord; }
+
     public void setLanguageInspection(LanguageInspection languageInspection) {
         this.languageInspection = languageInspection;
     }

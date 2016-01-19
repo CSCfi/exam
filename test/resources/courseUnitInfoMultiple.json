@@ -1,0 +1,62 @@
+{
+  "status": "OK",
+  "description": "description",
+  "CourseUnitInfo": [
+    {
+      "identifier": "AAAWMhAALAAACg4AAH",
+      "courseUnitCode": "T700203D",
+      "courseUnitTitle": "Tietokonetekniikan perusteet",
+      "credits": 3,
+      "institutionName": "Oamk"
+    },
+    {
+      "identifier": "AAAWMhAALAAAmbNAAH",
+      "courseUnitCode": "T700403",
+      "courseUnitTitle": "Sähkötekniikka ja -turvallisuus",
+      "credits": 3,
+      "institutionName": "Oamk"
+    },
+    {
+      "identifier": "AAAWMhAALAAAmd8AAA",
+      "courseUnitCode": "T700404",
+      "courseUnitTitle": "Sähkötekniikan ja -turvallisuuden perusteet",
+      "credits": 5,
+      "institutionName": "Oamk"
+    },
+    {
+      "identifier": "AAAWMhAALAAAmdsAAF",
+      "courseUnitCode": "T700504",
+      "courseUnitTitle": "Elektroniikka",
+      "credits": 3,
+      "institutionName": "Oamk"
+    },
+    {
+      "identifier": "AAAWMhAALAAAma/AAA",
+      "courseUnitCode": "T700905",
+      "courseUnitTitle": "Johdatus ohjelmointiin",
+      "credits": 5,
+      "institutionName": "Oamk"
+    },
+    {
+      "identifier": "AAAWMhAALAAAmdYAAB",
+      "courseUnitCode": "T701103",
+      "courseUnitTitle": "Johdatus ohjelmointiin",
+      "credits": 3,
+      "institutionName": "Oamk"
+    },
+    {
+      "identifier": "AAAWMhAALAAAmaRAAE",
+      "courseUnitCode": "T701203",
+      "courseUnitTitle": "Ohjelmoinnin jatkokurssi",
+      "credits": 3,
+      "institutionName": "Oamk"
+    },
+    {
+      "identifier": "AAAWMhAALAAAmaBAAD",
+      "courseUnitCode": "T702003",
+      "courseUnitTitle": "Digitaalisen tiedonsiirron perusteet",
+      "credits": 3,
+      "institutionName": "Oamk"
+    }
+  ]
+}

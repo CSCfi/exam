@@ -520,7 +520,7 @@
 
                 // Called when the save feedback button is clicked
                 $scope.saveFeedback = function (withoutNotice) {
-
+                    var deferred = $q.defer();
                     var examFeedback = {
                         "comment": $scope.exam.examFeedback.comment
                     };
@@ -534,8 +534,10 @@
                             if (!withoutNotice) {
                                 toastr.info($translate.instant("sitnet_comment_updated"));
                             }
+                            deferred.resolve();
                         }, function (error) {
                             toastr.error(error.data);
+                            deferred.reject();
                         });
                         // Insert new comment
                     } else {
@@ -547,10 +549,13 @@
                                 toastr.info($translate.instant("sitnet_comment_added"));
                             }
                             $scope.exam.examFeedback = comment;
+                            deferred.resolve();
                         }, function (error) {
                             toastr.error(error.data);
+                            deferred.reject();
                         });
                     }
+                    return deferred.promise;
                 };
 
                 $scope.saveInspectionStatement = function () {
@@ -584,22 +589,23 @@
 
                 var doUpdate = function (newState, review, messages, exam) {
                     ExamRes.review.update({id: review.id}, review, function () {
-                        $scope.saveFeedback(true);
-                        if (newState === 'REVIEW_STARTED') {
-                            messages.forEach(function (msg) {
-                                toastr.warning($translate.instant(msg));
-                            });
-                            $timeout(function () {
-                                toastr.info($translate.instant('sitnet_review_saved'));
-                            }, 1000);
-                        } else {
-                            toastr.info($translate.instant("sitnet_review_graded"));
-                            if ($scope.user.isAdmin) {
-                                $location.path("/");
+                        $scope.saveFeedback(true).then(function () {
+                            if (newState === 'REVIEW_STARTED') {
+                                messages.forEach(function (msg) {
+                                    toastr.warning($translate.instant(msg));
+                                });
+                                $timeout(function () {
+                                    toastr.info($translate.instant('sitnet_review_saved'));
+                                }, 1000);
                             } else {
-                                $location.path("exams/reviews/" + exam.parent.id);
+                                toastr.info($translate.instant("sitnet_review_graded"));
+                                if ($scope.user.isAdmin) {
+                                    $location.path("/");
+                                } else {
+                                    $location.path("exams/reviews/" + exam.parent.id);
+                                }
                             }
-                        }
+                        });
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -632,12 +638,13 @@
                     if (!$scope.isOwnerOrAdmin()) {
                         if (exam.state !== 'GRADED') {
                             // Just save feedback and leave
-                            $scope.saveFeedback(true);
-                            toastr.info($translate.instant('sitnet_saved'));
-                            $location.path("exams/reviews/" + exam.parent.id);
+                            $scope.saveFeedback(true).then(function () {
+                                toastr.info($translate.instant('sitnet_saved'));
+                                $location.path("exams/reviews/" + exam.parent.id);
+                            });
                         }
                     } else if ($scope.isUnderLanguageInspection()) {
-                        saveFeedback();
+                        $scope.saveFeedback();
                     }
                     else {
                         if (!checkCredit()) {
@@ -715,27 +722,28 @@
                         var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                             examService.getRecordReviewConfirmationDialogContent(reviewedExam.examFeedback.comment));
                         dialog.result.then(function () {
-                            $scope.saveFeedback(true);
-                            var examToRecord = getReviewUpdate(reviewedExam, 'GRADED');
-                            examToRecord.additionalInfo = $scope.additionalInfo;
+                            $scope.saveFeedback(true).then(function() {
+                                var examToRecord = getReviewUpdate(reviewedExam, 'GRADED');
+                                examToRecord.additionalInfo = $scope.additionalInfo;
 
-                            ExamRes.review.update({id: examToRecord.id}, examToRecord, function () {
-                                if (reviewedExam.state !== 'GRADED') {
-                                    toastr.info($translate.instant("sitnet_review_graded"));
-                                }
-                                examToRecord.state = 'GRADED_AND_LOGGED';
-                                ExamRes.saveRecord.add(examToRecord, function (exam) {
-                                    toastr.info($translate.instant('sitnet_review_recorded'));
-                                    if ($scope.user.isAdmin) {
-                                        $location.path("/");
-                                    } else {
-                                        $location.path("exams/reviews/" + reviewedExam.parent.id);
+                                ExamRes.review.update({id: examToRecord.id}, examToRecord, function () {
+                                    if (reviewedExam.state !== 'GRADED') {
+                                        toastr.info($translate.instant("sitnet_review_graded"));
                                     }
+                                    examToRecord.state = 'GRADED_LOGGED';
+                                    ExamRes.saveRecord.add(examToRecord, function (exam) {
+                                        toastr.info($translate.instant('sitnet_review_recorded'));
+                                        if ($scope.user.isAdmin) {
+                                            $location.path("/");
+                                        } else {
+                                            $location.path("exams/reviews/" + reviewedExam.parent.id);
+                                        }
+                                    }, function (error) {
+                                        toastr.error(error.data);
+                                    });
                                 }, function (error) {
                                     toastr.error(error.data);
                                 });
-                            }, function (error) {
-                                toastr.error(error.data);
                             });
                         });
                     }
@@ -811,13 +819,11 @@
                 MATURITY_STATES.LANGUAGE_INSPECT.alternateState = MATURITY_STATES.SEND_TO_REGISTRY;
 
                 var isMaturityReviewed = function () {
-                    return $scope.exam.grade &&
-                        !$scope.isUnderLanguageInspection();
+                    return $scope.exam.grade && !$scope.isUnderLanguageInspection();
                 };
 
                 var isMissingStatement = function () {
-                    return $scope.exam.examFeedback && $scope.exam.examFeedback.comment &&
-                        !$scope.isUnderLanguageInspection();
+                    return $scope.exam.examFeedback && $scope.exam.examFeedback.comment && !$scope.isUnderLanguageInspection();
                 };
 
                 $scope.getNextMaturityState = function () {
@@ -848,17 +854,18 @@
                 };
 
                 var doRejectMaturity = function () {
-                    $scope.saveFeedback(true);
-                    var params = getReviewUpdate($scope.exam, 'REJECTED');
-                    ExamRes.review.update({id: $scope.exam.id}, params, function () {
-                        toastr.info($translate.instant('sitnet_maturity_rejected'));
-                        if ($scope.user.isAdmin) {
-                            $location.path("/");
-                        } else {
-                            $location.path("exams/reviews/" + $scope.exam.parent.id);
-                        }
-                    }, function (error) {
-                        toastr.error(error.data);
+                    $scope.saveFeedback(true).then(function() {
+                        var params = getReviewUpdate($scope.exam, 'REJECTED');
+                        ExamRes.review.update({id: $scope.exam.id}, params, function () {
+                            toastr.info($translate.instant('sitnet_maturity_rejected'));
+                            if ($scope.user.isAdmin) {
+                                $location.path("/");
+                            } else {
+                                $location.path("exams/reviews/" + $scope.exam.parent.id);
+                            }
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
                     });
                 };
 
@@ -878,19 +885,20 @@
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                         $translate.instant('sitnet_confirm_maturity_approval'));
                     dialog.result.then(function () {
-                        $scope.saveFeedback(true);
-                        var params = getReviewUpdate($scope.exam, 'GRADED');
-                        ExamRes.review.update({id: $scope.exam.id}, params, function () {
-                            LanguageInspectionRes.inspection.add({examId: $scope.exam.id}, function () {
-                                toastr.info($translate.instant('sitnet_sent_for_language_inspection'));
-                                if ($scope.user.isAdmin) {
-                                    $location.path("/");
-                                } else {
-                                    $location.path("exams/reviews/" + $scope.exam.parent.id);
-                                }
+                        $scope.saveFeedback(true).then(function () {
+                            var params = getReviewUpdate($scope.exam, 'GRADED');
+                            ExamRes.review.update({id: $scope.exam.id}, params, function () {
+                                LanguageInspectionRes.inspection.add({examId: $scope.exam.id}, function () {
+                                    toastr.info($translate.instant('sitnet_sent_for_language_inspection'));
+                                    if ($scope.user.isAdmin) {
+                                        $location.path("/");
+                                    } else {
+                                        $location.path("exams/reviews/" + $scope.exam.parent.id);
+                                    }
+                                });
+                            }, function (error) {
+                                toastr.error(error.data);
                             });
-                        }, function (error) {
-                            toastr.error(error.data);
                         });
                     });
                 };

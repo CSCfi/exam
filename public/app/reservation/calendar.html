@@ -49,7 +49,7 @@
     </div>
 
     <div class="detail-row">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label for="filters">{{'sitnet_search' | translate}}</label>
 
             <div id="filters" class="form-group">
@@ -131,7 +131,7 @@
             <strong>{{'sitnet_room_default_working_hours' | translate }}:</strong>&nbsp;
             <small><span ng-repeat="oh in openingHours">
                 {{oh.name}}: {{oh.periods}} {{ $last ? '' : '| ';}}
-            </span></small>
+            </span><span>({{ selectedRoom().localTimezone }})</span></small>
         </span>
         <span class="col-md-12" ng-show="exceptionHours.length > 0">
             <strong>{{'sitnet_exception_datetimes' | translate }}:</strong>&nbsp;

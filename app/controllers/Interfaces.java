@@ -155,7 +155,7 @@ public class Interfaces extends BaseController implements ExternalAPI {
         return request.get().map(wsResponse -> {
             int status = wsResponse.getStatus();
             if (status == HttpServletResponse.SC_OK) {
-                return parseCourse(wsResponse.asJson());
+                return parseCourses(wsResponse.asJson());
             }
             Logger.info("Non-OK response received {}", status);
             throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, wsResponse.getStatusText()));
@@ -252,65 +252,80 @@ public class Interfaces extends BaseController implements ExternalAPI {
         return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
     }
 
-    private static List<Course> parseCourse(JsonNode response) throws ParseException {
-        List<Course> results = new ArrayList<>();
-        if (response.get("status").asText().equals("OK")) {
-            for (JsonNode node : response) {
-                // check that this is a course node, response can also contain error messages and so on
-                if (node.has("identifier") && node.has("courseUnitCode") && node.has("courseUnitTitle") && node.has("institutionName")) {
-                    Course course = new Course();
-                    if (node.has("endDate")) {
-                        Date endDate = DF.parse(node.get("endDate").asText());
-                        if (endDate.before(new Date())) {
-                            continue;
-                        }
-                        course.setEndDate(endDate);
-                    }
-                    if (node.has("startDate")) {
-                        Date startDate = DF.parse(node.get("startDate").asText());
-                        if (startDate.after(new Date())) {
-                            continue;
-                        }
-                        course.setStartDate(startDate);
-                    }
-                    course.setId(0L); // FIXME: smells like a hack
-                    course.setIdentifier(node.get("identifier").asText());
-                    course.setName(node.get("courseUnitTitle").asText());
-                    course.setCode(node.get("courseUnitCode").asText());
-                    if (node.has("courseUnitLevel")) {
-                        course.setLevel(node.get("courseUnitLevel").asText());
-                    }
-                    if (node.has("courseUnitType")) {
-                        course.setCourseUnitType(node.get("courseUnitType").asText());
-                    }
-                    if (node.has("courseImplementation")) {
-                        course.setCourseImplementation(node.get("courseImplementation").asText());
-                    }
-                    if (node.has("credits")) {
-                        course.setCredits(node.get("credits").asDouble());
-                    }
-                    String name = node.get("institutionName").asText();
-                    Organisation organisation = Ebean.find(Organisation.class).where().ieq("name", name).findUnique();
-                    // TODO: organisations should preexist or not? As a safeguard, lets create these for now if not found.
-                    if (organisation == null) {
-                        organisation = new Organisation();
-                        organisation.setName(name);
-                        organisation.save();
-                    }
-                    course.setOrganisation(organisation);
-                    List<GradeScale> scales = getGradeScales(node);
-                    if (!scales.isEmpty()) {
-                        // For now support just a single scale per course
-                        course.setGradeScale(scales.get(0));
-                    }
+    private static Course parseCourse(JsonNode node) throws ParseException  {
+        Course course = null;
+        // check that this is a course node, response can also contain error messages and so on
+        if (node.has("identifier") && node.has("courseUnitCode") && node.has("courseUnitTitle") && node.has("institutionName")) {
+            course = new Course();
+            if (node.has("endDate")) {
+                Date endDate = DF.parse(node.get("endDate").asText());
+                if (endDate.before(new Date())) {
+                    return null;
+                }
+                course.setEndDate(endDate);
+            }
+            if (node.has("startDate")) {
+                Date startDate = DF.parse(node.get("startDate").asText());
+                if (startDate.after(new Date())) {
+                    return null;
+                }
+                course.setStartDate(startDate);
+            }
+            course.setId(0L); // FIXME: smells like a hack
+            course.setIdentifier(node.get("identifier").asText());
+            course.setName(node.get("courseUnitTitle").asText());
+            course.setCode(node.get("courseUnitCode").asText());
+            if (node.has("courseUnitLevel")) {
+                course.setLevel(node.get("courseUnitLevel").asText());
+            }
+            if (node.has("courseUnitType")) {
+                course.setCourseUnitType(node.get("courseUnitType").asText());
+            }
+            if (node.has("courseImplementation")) {
+                course.setCourseImplementation(node.get("courseImplementation").asText());
+            }
+            if (node.has("credits")) {
+                course.setCredits(node.get("credits").asDouble());
+            }
+            String name = node.get("institutionName").asText();
+            Organisation organisation = Ebean.find(Organisation.class).where().ieq("name", name).findUnique();
+            // TODO: organisations should preexist or not? As a safeguard, lets create these for now if not found.
+            if (organisation == null) {
+                organisation = new Organisation();
+                organisation.setName(name);
+                organisation.save();
+            }
+            course.setOrganisation(organisation);
+            List<GradeScale> scales = getGradeScales(node);
+            if (!scales.isEmpty()) {
+                // For now support just a single scale per course
+                course.setGradeScale(scales.get(0));
+            }
+            // in array form
+            course.setCampus(getFirstChildNameValue(node, "campus"));
+            course.setDegreeProgramme(getFirstChildNameValue(node, "degreeProgramme"));
+            course.setDepartment(getFirstChildNameValue(node, "department"));
+            course.setLecturerResponsible(getFirstChildNameValue(node, "lecturerResponsible"));
+            course.setLecturer(getFirstChildNameValue(node, "lecturer"));
+            course.setCreditsLanguage(getFirstChildNameValue(node, "creditsLanguage"));
+        }
+        return course;
+    }
 
-                    // in array form
-                    course.setCampus(getFirstChildNameValue(node, "campus"));
-                    course.setDegreeProgramme(getFirstChildNameValue(node, "degreeProgramme"));
-                    course.setDepartment(getFirstChildNameValue(node, "department"));
-                    course.setLecturerResponsible(getFirstChildNameValue(node, "lecturerResponsible"));
-                    course.setLecturer(getFirstChildNameValue(node, "lecturer"));
-                    course.setCreditsLanguage(getFirstChildNameValue(node, "creditsLanguage"));
+    private static List<Course> parseCourses(JsonNode response) throws ParseException {
+        List<Course> results = new ArrayList<>();
+        if (response.get("status").asText().equals("OK") && response.has("CourseUnitInfo")) {
+            JsonNode root = response.get("CourseUnitInfo");
+            if (root.isArray()) {
+                for (JsonNode node : root) {
+                    Course course = parseCourse(node);
+                    if (course != null) {
+                        results.add(course);
+                    }
+                }
+            } else {
+                Course course = parseCourse(root);
+                if (course != null) {
                     results.add(course);
                 }
             }

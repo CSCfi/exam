@@ -32,7 +32,7 @@
                         $scope.permissionCheck = setting;
                         if (setting.active === true) {
                             $scope.loader.loading = true;
-                            doSearch();
+                            search();
                         }
                     });
                 }

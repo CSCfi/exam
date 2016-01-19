@@ -1,8 +1,9 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('reservationService', ['$q', '$modal', '$http', '$routeParams', '$translate', '$location', 'dialogs', 'dateService',
-            function ($q, $modal, $http, $routeParams, $translate, $location, dialogs, dateService) {
+        .service('reservationService', ['$q', '$modal', '$http', '$routeParams', '$translate', '$location', 'dialogs',
+            'dateService', 'sessionService',
+            function ($q, $modal, $http, $routeParams, $translate, $location, dialogs, dateService, sessionService) {
 
                 var self = this;
 
@@ -52,7 +53,7 @@
                 };
 
                 var getWeekdayNames = function () {
-                    var lang = $translate.use();
+                    var lang = sessionService.getUser().lang;
                     var locale = lang.toLowerCase() + "-" + lang.toUpperCase();
                     var options = {weekday: 'short'};
                     var weekday = dateService.getDateForWeekday;
@@ -84,6 +85,7 @@
                     }
                     var weekdayNames = getWeekdayNames();
                     var openingHours = [];
+                    var tz = room.localTimezone;
 
                     room.defaultWorkingHours.forEach(function (dwh) {
                         if (!findOpeningHours(dwh, openingHours)) {
@@ -97,8 +99,8 @@
                         }
                         var hours = findOpeningHours(dwh, openingHours);
                         hours.periods.push(
-                            moment(dwh.startTime).format('HH:mm') + " - " +
-                            moment(dwh.endTime).format('HH:mm'));
+                            moment.tz(dwh.startTime, tz).format('HH:mm') + " - " +
+                            moment.tz(dwh.endTime, tz).format('HH:mm'));
                     });
                     openingHours.forEach(function (oh) {
                         oh.periods = oh.periods.sort().join(', ');
@@ -108,10 +110,10 @@
                     });
                 };
 
-                var formatExceptionEvent = function (event) {
-                    var startDate = moment(event.startDate);
-                    var endDate = moment(event.endDate);
-                    var offset = moment().isDST() ? -1 : 0;
+                var formatExceptionEvent = function (event, tz) {
+                    var startDate = moment.tz(event.startDate, tz);
+                    var endDate = moment.tz(event.endDate, tz);
+                    var offset = moment.tz(tz).isDST() ? -1 : 0;
                     startDate.add(offset, 'hour');
                     endDate.add(offset, 'hour');
                     event.start = startDate.format('DD.MM.YYYY HH:mm');
@@ -129,14 +131,15 @@
                     var events = room.calendarExceptionEvents.filter(function (e) {
                         return (moment(e.startDate) > start && moment(e.endDate) < end);
                     });
-                    events.forEach(formatExceptionEvent);
+                    events.forEach(formatExceptionEvent.call(this, room.localTimezone));
                     return events;
                 };
 
                 self.getEarliestOpening = function (room) {
+                    var tz = room.localTimezone;
                     var openings = room.defaultWorkingHours.map(function (dwh) {
-                        var offset = moment().isDST() ? -1 : 0;
-                        var start = moment(dwh.startTime);
+                        var offset = moment.tz(tz).isDST() ? -1 : 0;
+                        var start = moment.tz(dwh.startTime, tz);
                         start.add(offset, 'hour');
                         return start;
                     });
@@ -144,9 +147,10 @@
                 };
 
                 self.getLatestClosing = function (room) {
+                    var tz = room.localTimezone;
                     var closings = room.defaultWorkingHours.map(function (dwh) {
-                        var offset = moment().isDST() ? -1 : 0;
-                        var end = moment(dwh.endTime);
+                        var offset = moment.tz(tz).isDST() ? -1 : 0;
+                        var end = moment.tz(dwh.endTime, tz);
                         end.add(offset, 'hour');
                         return end;
                     });

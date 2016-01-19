@@ -19,10 +19,10 @@
             <div class="col-md-4">
                 <div class="form-group input-group">
                     <input ng-change="search()" ng-model="filter.text" type="text" class="form-control"
+                           ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
                            placeholder="{{'sitnet_search' | translate }}" popover-placement="top"
                            popover-popup-delay="500"
                            popover-trigger="mouseenter" popover="{{ 'sitnet_user_search_description' | translate }}">
-
                     <div class="input-group-addon">
                         <i class="fa fa-search fa-fw"></i>
                     </div>

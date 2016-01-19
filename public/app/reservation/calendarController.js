@@ -60,13 +60,14 @@
                     $scope.accessibilities = data;
                 });
 
-                var adjust = function (date) {
-                    date = moment(date);
+                var adjust = function (date, tz) {
+                    date = moment.tz(date, tz);
                     var offset = date.isDST() ? -1 : 0;
                     return date.add(offset, 'hour').format();
                 };
 
-                var adjustBack = function (date) {
+                var adjustBack = function (date, tz) {
+                    date = moment.tz(date, tz);
                     var offset = date.isDST() ? 1 : 0;
                     return moment.utc(date.add(offset, 'hour')).format();
                 };
@@ -108,12 +109,13 @@
                                 aids: accessibility
                             },
                             function (slots) {
+                                var tz = room.localTimezone;
                                 var events = slots.map(function (slot) {
                                     return {
                                         title: getTitle(slot),
                                         color: getColor(slot),
-                                        start: adjust(slot.start),
-                                        end: adjust(slot.end),
+                                        start: adjust(slot.start, tz),
+                                        end: adjust(slot.end, tz),
                                         availableMachines: slot.availableMachines
                                     };
                                 });
@@ -137,13 +139,14 @@
 
                 $scope.$on('$localeChangeSuccess', function () {
                     $scope.calendarConfig.buttonText.today = $translate.instant('sitnet_today');
-                    $scope.openingHours = reservationService.processOpeningHours();
+                    $scope.openingHours = reservationService.processOpeningHours($scope.selectedRoom());
                 });
 
                 var reserve = function (start, end) {
+                    var tz = $scope.selectedRoom().localTimezone;
                     var slot = {};
-                    slot.start = adjustBack(start);
-                    slot.end = adjustBack(end);
+                    slot.start = adjustBack(start, tz);
+                    slot.end = adjustBack(end, tz);
                     slot.examId = $routeParams.id;
                     slot.roomId = $scope.selectedRoom().id;
                     slot.aids = $scope.accessibilities.filter(
@@ -162,6 +165,7 @@
                 $scope.createReservation = function (start, end) {
                     var text = $translate.instant('sitnet_about_to_reserve') + "<br/>"
                         + start.format("DD.MM.YYYY HH:mm") + " - " + end.format("HH:mm") + " "
+                        + "(" + $scope.selectedRoom().localTimezone + ") "
                         + $translate.instant('sitnet_at_room') + " "
                         + $scope.selectedRoom().name + ".<br/>"
                         + $translate.instant('sitnet_confirm_reservation');
@@ -229,6 +233,7 @@
                         var hiddenDays = reservationService.getClosedWeekdays(room);
                         $("#calendar").fullCalendar(
                             $.extend($scope.calendarConfig, {
+                                timezone: room.localTimezone,
                                 minTime: minTime,
                                 maxTime: maxTime,
                                 scrollTime: minTime,
@@ -246,7 +251,6 @@
                     allDaySlot: false,
                     weekNumbers: false,
                     firstDay: 1,
-                    timezone: 'local',
                     timeFormat: 'H:mm',
                     columnFormat: 'ddd D.M',
                     titleFormat: 'D.M.YYYY',
