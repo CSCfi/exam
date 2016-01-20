@@ -94,6 +94,7 @@ public class StudentExamController extends BaseController {
     @Restrict({@Group("STUDENT")})
     public Result getExamScore(Long eid) {
         Exam exam = Ebean.find(Exam.class)
+                .fetch("examSections.sectionQuestions.question")
                 .where()
                 .eq("id", eid)
                 .eq("creator", getLoggedUser())

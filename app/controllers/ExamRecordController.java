@@ -199,7 +199,7 @@ public class ExamRecordController extends BaseController {
         } else {
             score.setCredits(exam.getCustomCredit().toString());
         }
-        score.setExamScore(exam.getTotalScore().toString()); // FIXME: HYV/HYL -> null
+        score.setExamScore(Double.toString(exam.getTotalScore()));
         score.setLecturer(record.getTeacher().getEppn());
         score.setLecturerId(record.getTeacher().getUserIdentifier());
         score.setLecturerEmployeeNumber(record.getTeacher().getEmployeeNumber());
@@ -214,7 +214,7 @@ public class ExamRecordController extends BaseController {
         score.setCourseUnitLevel(exam.getCourse().getLevel());
         score.setCourseUnitType(exam.getCourse().getCourseUnitType());
         score.setCreditLanguage(getLanguageCode(exam.getAnswerLanguage()));
-        score.setCreditType(exam.getCreditType().getType()); // FIXME: check Virta/etc
+        score.setCreditType(exam.getCreditType().getType());
         score.setIdentifier(exam.getCourse().getIdentifier());
         GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
         if (scale.getExternalRef() != null) {
