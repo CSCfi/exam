@@ -26,7 +26,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
       case (Some("name"), Some(x)) if x.length >= CriteriaLengthLimiter =>
         val courses = Future {
           Ebean.find(classOf[Course]).where
-            .ilike("name", s"$x%")
+            .ilike("name", s"%$x%")
             .orderBy("code")
             .findList
         }

@@ -20,6 +20,7 @@
                     <input type="text" class="form-control ng-pristine ng-valid"
                            ng-disabled="!user.isAdmin && newExam.hasEnrolmentsInEffect"
                            ng-model="newExam.course.code"
+                           ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
                            placeholder="{{'sitnet_search_course_by_code' | translate}}"
                            typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
                            typeahead="c as c.code for c in getCourses('code', $viewValue)"
@@ -40,6 +41,7 @@
                     <input type="text" class="form-control ng-pristine ng-valid"
                            ng-disabled="!user.isAdmin && newExam.hasEnrolmentsInEffect"
                            ng-model="newExam.course.name"
+                           ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
                            typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
                            typeahead="c as c.name for c in getCourses('name', $viewValue)"
                            typeahead-wait-ms="200"
@@ -60,7 +62,6 @@
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_course_scope' | translate}}:</div>
                 <div class="input-group">
-                    <!-- placeholder="opintopistettä" -->
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits" disabled>
                             <span class="input-group-addon">
                                 <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_scope' | translate}}"></i>
