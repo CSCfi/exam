@@ -484,7 +484,7 @@ public class StudentExamController extends BaseController {
         Answer answer = question.getAnswer();
         if (answer == null) {
             answer = new Answer();
-            answer.setType(Answer.Type.MultipleChoiceAnswer);
+            answer.setType(question.getType());
             answer.save();
             question.setAnswer(answer);
             question.update();

@@ -293,6 +293,37 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
                 && evaluatedScore == 1;
     }
 
+    @Transient
+    @Override
+    public String validate() {
+        String reason = null;
+        switch (type) {
+            case EssayQuestion:
+                break;
+            case MultipleChoiceQuestion:
+                if (options.size() < 2) {
+                    reason = "sitnet_minimum_of_two_options_required";
+                }
+                else if (!hasCorrectOption()) {
+                    reason = "sitnet_correct_option_required";
+                }
+                break;
+            case WeightedMultipleChoiceQuestion:
+                if (options.size() < 2) {
+                    reason = "sitnet_minimum_of_two_options_required";
+                }
+                break;
+            default:
+                reason = "unknown question type";
+        }
+        return reason;
+    }
+
+    @Transient
+    public boolean hasCorrectOption() {
+        return options.stream().anyMatch(MultipleChoiceOption::isCorrectOption);
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {

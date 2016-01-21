@@ -25,6 +25,20 @@ public class Answer extends OwnedModel implements AttachmentContainer {
         this.type = type;
     }
 
+    public void setType(Question.Type questionType) {
+        switch (questionType) {
+            case EssayQuestion:
+                type = Type.EssayAnswer;
+                break;
+            case MultipleChoiceQuestion:
+                type = Type.MultipleChoiceAnswer;
+                break;
+            case WeightedMultipleChoiceQuestion:
+                type = Type.WeightedMultipleChoiceAnswer;
+                break;
+        }
+    }
+
     @Column(columnDefinition = "TEXT")
     private String answer;
 
