@@ -62,7 +62,7 @@
                     if (!_env) {
                         settingsRes().environment.get(function (data) {
                             _env = data;
-                            return deferred.resolve();
+                            deferred.resolve();
                         });
                     } else {
                         deferred.resolve();
@@ -134,9 +134,6 @@
                             $modalInstance.dismiss();
                             if ($location.url() === '/login' || $location.url() === '/logout') {
                                 $location.path("/");
-                            }
-                            if ($location.url() === '/login' || $location.url() === '/logout') {
-                                $location.path("/");
                             } else {
                                 route().reload();
                             }
@@ -205,6 +202,14 @@
                     });
                 };
 
+                var redirect = function () {
+                    if (_user.isLanguageInspector) {
+                        $location.path("/inspections")
+                    } else {
+                        $location.path("/");
+                    }
+                };
+
                 var onLoginSuccess = function () {
                     $rootScope.$broadcast('userUpdated');
                     var welcome = function () {
@@ -215,13 +220,8 @@
                         self.openRoleSelectModal(_user);
                     } else if (_user.isStudent && !_user.userAgreementAccepted) {
                         self.openEulaModal(_user);
-                    } else if ($location.url() === '/login' || $location.url() === '/logout') {
-                        if (_user.isLanguageInspector) {
-                            $location.path("/inspections")
-                        } else {
-                            $location.path("/");
-                        }
                     } else {
+                        redirect();
                         route().reload();
                     }
                 };
@@ -301,14 +301,14 @@
                     }
                 };
 
-                var checkSession = function() {
+                var checkSession = function () {
                     http().get('/checkSession').success(function (data) {
                         if (data === "alarm") {
                             toastr.options = {
                                 timeOut: "0",
                                 preventDuplicates: true,
-                                onclick: function() {
-                                    http().put('/extendSession', {}).success(function() {
+                                onclick: function () {
+                                    http().put('/extendSession', {}).success(function () {
                                         toastr.info($translate.instant("sitnet_session_extended"));
                                     });
                                 }
