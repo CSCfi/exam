@@ -84,7 +84,7 @@ public final class ExamSection extends OwnedModel {
         Collections.shuffle(questions);
         sectionQuestions = new HashSet<>(questions.subList(0, lotteryItemCount));
     }
-	
+
     public ExamSection copy(Exam exam, boolean produceStudentExamSection)
     {
         ExamSection section = new ExamSection();
@@ -103,6 +103,7 @@ public final class ExamSection extends OwnedModel {
     public double getTotalScore() {
         return sectionQuestions.stream()
                 .map(sq -> sq.getQuestion().getAssessedScore())
+                .filter(s -> s != null)
                 .reduce(0.0, (sum, x) -> sum += x);
     }
 
@@ -110,6 +111,7 @@ public final class ExamSection extends OwnedModel {
     public double getMaxScore() {
         return sectionQuestions.stream()
                 .map(sq -> sq.getQuestion().getMaxAssessedScore())
+                .filter(s -> s != null)
                 .reduce(0.0, (sum, x) -> sum += x);
     }
 

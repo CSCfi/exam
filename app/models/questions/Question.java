@@ -228,7 +228,7 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
 
     @Transient
     @Override
-    public double getAssessedScore() {
+    public Double getAssessedScore() {
         switch (type) {
             case EssayQuestion:
                 if (evaluationType != null && evaluationType.equals("Points")) {
@@ -255,7 +255,7 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
 
     @Transient
     @Override
-    public double getMaxAssessedScore() {
+    public Double getMaxAssessedScore() {
         switch (type) {
             case EssayQuestion:
                 if (evaluationType != null && evaluationType.equals("Points")) {

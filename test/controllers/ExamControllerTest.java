@@ -165,7 +165,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     }
 
     private String[] getExamSectionFieldsOfExam(String index) {
-        String[] fields = {"name", "totalScore", "id", "expanded", "lotteryOn", "lotteryItemCount"};
+        String[] fields = {"name", "id", "expanded", "lotteryOn", "lotteryItemCount"};
         for (int i = 0; i < fields.length; ++i) {
             fields[i] = "examSections[" + index + "]." + fields[i];
         }

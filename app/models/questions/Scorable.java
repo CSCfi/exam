@@ -3,8 +3,8 @@ package models.questions;
 
 public interface Scorable {
 
-    double getAssessedScore();
-    double getMaxAssessedScore();
+    Double getAssessedScore();
+    Double getMaxAssessedScore();
     boolean isRejected();
     boolean isApproved();
     String validate();
