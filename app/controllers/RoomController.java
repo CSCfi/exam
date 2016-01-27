@@ -53,6 +53,9 @@ public class RoomController extends BaseController {
     @Restrict(@Group("ADMIN"))
     public Result getExamRoom(Long id) {
         ExamRoom examRoom = ExamRoom.find.ref(id);
+        if (examRoom == null) {
+            return notFound("room not found");
+        }
         return ok(Json.toJson(examRoom));
     }
 

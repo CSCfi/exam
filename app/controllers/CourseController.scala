@@ -57,7 +57,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
       query = query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get.asJava)
     }
     val results = query.orderBy("name desc").findList
-    Ok(Json.toJson(results).toString).withHeaders(CONTENT_TYPE -> "application/json")
+    wrapAsJson(Ok(Json.toJson(results).toString))
   }
 
 
@@ -69,10 +69,10 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
         case user: Any =>
           _getCourses(filterType, criteria, user)
         case _ =>
-          Future.successful(Unauthorized("Unauthorized"))
+          Future.successful(forbid())
       }
     }.getOrElse {
-      Future.successful(Unauthorized("Unauthorized"))
+      Future.successful(forbid())
     }
   }
 
@@ -81,12 +81,12 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>
           val results = Ebean.find(classOf[Course], id)
-          Ok(Json.toJson(results).toString).withHeaders(CONTENT_TYPE -> "application/json")
+          wrapAsJson(Ok(Json.toJson(results).toString))
         case _ =>
-          Unauthorized("Unauthorized")
+          forbid()
       }
     }.getOrElse {
-      Unauthorized("Unauthorized")
+      forbid()
     }
   }
 
@@ -96,10 +96,10 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
         case user: Any =>
           _listUsersCourses(user, examIds, sectionIds, tagIds, token)
         case _ =>
-          Unauthorized("Unauthorized")
+          forbid()
       }
     }.getOrElse {
-      Unauthorized("Unauthorized")
+      forbid()
     }
   }
 

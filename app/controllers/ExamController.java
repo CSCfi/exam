@@ -589,9 +589,16 @@ public class ExamController extends BaseController {
         return isStartDate ? oldDate.before(newDate) : newDate.before(oldDate);
     }
 
+    private long parseExamDate(String date) {
+        if (date == null) {
+            return 0;
+        }
+        return Long.parseLong(date);
+    }
+
     private Result updateTemporalFieldsAndValidate(Exam exam, DynamicForm df, User user) {
-        Long start = new Long(df.get("examActiveStartDate"));
-        Long end = new Long(df.get("examActiveEndDate"));
+        Long start = parseExamDate(df.get("examActiveStartDate"));
+        Long end = parseExamDate(df.get("examActiveEndDate"));
         String duration = df.get("duration");
         boolean hasFutureReservations = hasFutureReservations(exam);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
