@@ -1,26 +1,35 @@
-Sitnet Quickstart
+EXAM Quickstart for developers
 =====================================
 
-#### 1. Clone codes from Git ####
+1.  Create postgresql database
+
+        $ createdb sitnet --owner=sitnet
+
+    Requires that you have postgres installed, appropriate user created, pg_hba.conf set up to accept local connections etc)
+    Note that you can configure database related parameters (and others) in the dev config file (conf/dev.conf)
+
+2.  Install SBT, for example from Homebrew
+
+        $ brew install sbt
+
+3.  Install SASS
+        $ gem install sass
+
+    Requires that you have ruby and ruby gem installed.
+
+4.  Start sbt console
+        
+        $ sbt -Dconfig.resource=dev.conf -jvm-debug 9999
+
+    This opens up a debug port at 9999.
+
+5.  Start the app
+
+        [exam] $ run
+
+6.  Navigate to http://localhost:9000
+    Accept the database migrations in case you see a prompt.
 
 
-#### 2. Install Activator, for example from Homebrew ####
-```
-$ brew install typesafe-activator
-```
-(using .zip distribution is ok as well)
 
-
-#### 3. Install SASS ####
-```
-$ gem install sass
-```
-(needs to have Ruby in system)
-
-#### 4. Change to project directory and run ####
-```
-$ activator run
-```
-
-#### 5. Head to http://localhost:9000 ####
-Accept schema evaluations in the first page
+For more information see [official installation instructions](https://confluence.csc.fi/display/EXAM/Asennusohjeet) (in Finnish only)
