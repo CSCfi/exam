@@ -41,8 +41,13 @@ public class ExamRecordController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addExamRecord() throws IOException {
         DynamicForm df = Form.form().bindFromRequest();
-        final Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator")
-                .where().eq("id", Long.parseLong(df.get("id"))).findUnique();
+        final Exam exam = Ebean.find(Exam.class)
+                .fetch("parent")
+                .fetch("parent.creator")
+                .fetch("examSections.sectionQuestions.question")
+                .where()
+                .idEq(Long.parseLong(df.get("id")))
+                .findUnique();
         Result failure = validateExamState(exam);
         if (failure != null) {
             return failure;

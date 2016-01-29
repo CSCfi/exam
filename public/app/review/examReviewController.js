@@ -353,23 +353,10 @@
                         var question = sectionQuestion.question;
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
-                                if (question.answer === null) {
-                                    return 0;
-                                }
-                                if (question.answer.options.length != 1) {
-                                    console.error("multiple options selected for a MultiChoice answer!");
-                                }
-                                if (question.answer.options[0].correctOption === true) {
-                                    score += question.maxScore;
-                                }
+                                score += $scope.scoreMultipleChoiceAnswer(sectionQuestion);
                                 break;
                             case "WeightedMultipleChoiceQuestion":
-                                if (question.answer === null) {
-                                    return 0;
-                                }
-                                score += Math.max(0, question.answer.options.reduce(function (a, b) {
-                                    return a + b.score;
-                                }, 0));
+                                score += $scope.scoreWeightedMultipleChoiceAnswer(question);
                                 break;
                             case "EssayQuestion":
                                 if (question.evaluatedScore && question.evaluationType === 'Points') {
