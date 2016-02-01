@@ -364,12 +364,7 @@
                                 }
                                 break;
                             case "WeightedMultipleChoiceQuestion":
-                                if (question.answer === null) {
-                                    return 0;
-                                }
-                                score += Math.max(0, question.answer.options.reduce(function (a, b) {
-                                    return a + b.score;
-                                }, 0));
+                                score += $scope.scoreWeightedMultipleChoiceAnswer(question);
                                 break;
                             case "EssayQuestion":
                                 if (question.evaluatedScore && question.evaluationType === 'Points') {
