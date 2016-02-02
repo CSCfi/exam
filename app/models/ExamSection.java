@@ -6,6 +6,7 @@ import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 public final class ExamSection extends OwnedModel {
@@ -19,8 +20,6 @@ public final class ExamSection extends OwnedModel {
     @ManyToOne
     @JsonBackReference
     private Exam exam;
-
-    private Long totalScore;
 
     // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
@@ -38,14 +37,6 @@ public final class ExamSection extends OwnedModel {
 
     public void setSectionQuestions(Set<ExamSectionQuestion> sectionQuestions) {
         this.sectionQuestions = sectionQuestions;
-    }
-
-    public Long getTotalScore() {
-        return totalScore;
-    }
-
-    public void setTotalScore(Long totalScore) {
-        this.totalScore = totalScore;
     }
 
     public String getName() {
@@ -108,4 +99,33 @@ public final class ExamSection extends OwnedModel {
         return section;
     }
 
+    @Transient
+    public double getTotalScore() {
+        return sectionQuestions.stream()
+                .map(sq -> sq.getQuestion().getAssessedScore())
+                .filter(s -> s != null)
+                .reduce(0.0, (sum, x) -> sum += x);
+    }
+
+    @Transient
+    public double getMaxScore() {
+        return sectionQuestions.stream()
+                .map(sq -> sq.getQuestion().getMaxAssessedScore())
+                .filter(s -> s != null)
+                .reduce(0.0, (sum, x) -> sum += x);
+    }
+
+    @Transient
+    public int getRejectedCount() {
+        return sectionQuestions.stream()
+                .filter(sq -> sq.getQuestion().isRejected())
+                .collect(Collectors.toList()).size();
+    }
+
+    @Transient
+    public int getApprovedCount() {
+        return sectionQuestions.stream()
+                .filter(sq -> sq.getQuestion().isApproved())
+                .collect(Collectors.toList()).size();
+    }
 }

@@ -124,9 +124,6 @@ public class QuestionController extends BaseController {
         question.update();
     }
 
-    private static boolean hasCorrectOption(Question question) {
-        return question.getOptions().stream().anyMatch(MultipleChoiceOption::isCorrectOption);
-    }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateQuestion(Long id) {
@@ -136,34 +133,16 @@ public class QuestionController extends BaseController {
             return notFound("question not found");
         }
         User user = getLoggedUser();
-        switch (question.getType()) {
-            case EssayQuestion:
-                if (df.get("maxCharacters") != null) {
-                    question.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
-                }
-                if (df.get("evaluationType") != null) {
-                    question.setEvaluationType(df.get("evaluationType"));
-                }
-                doUpdateQuestion(question, df, user);
-                return ok(Json.toJson(question));
-            case MultipleChoiceQuestion:
-                if (question.getOptions().size() < 2) {
-                    return forbidden("sitnet_minimum_of_two_options_required");
-                }
-                if (!hasCorrectOption(question)) {
-                    return forbidden("sitnet_correct_option_required");
-                }
-                doUpdateQuestion(question, df, user);
-                return ok(Json.toJson(question));
-            case WeightedMultipleChoiceQuestion:
-                if (question.getOptions().size() < 2) {
-                    return forbidden("sitnet_minimum_of_two_options_required");
-                }
-                doUpdateQuestion(question, df, user);
-                return ok(Json.toJson(question));
-            default:
-                return badRequest();
+        if (df.get("maxCharacters") != null) {
+            question.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
         }
+        question.setEvaluationType(df.get("evaluationType"));
+        String validationResult = question.validate();
+        if (validationResult != null) {
+            return forbidden(validationResult);
+        }
+        doUpdateQuestion(question, df, user);
+        return ok(Json.toJson(question));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

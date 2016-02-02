@@ -353,15 +353,7 @@
                         var question = sectionQuestion.question;
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
-                                if (question.answer === null) {
-                                    return 0;
-                                }
-                                if (question.answer.options.length != 1) {
-                                    console.error("multiple options selected for a MultiChoice answer!");
-                                }
-                                if (question.answer.options[0].correctOption === true) {
-                                    score += question.maxScore;
-                                }
+                                score += $scope.scoreMultipleChoiceAnswer(sectionQuestion);
                                 break;
                             case "WeightedMultipleChoiceQuestion":
                                 score += $scope.scoreWeightedMultipleChoiceAnswer(question);

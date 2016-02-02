@@ -41,8 +41,13 @@ public class ExamRecordController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addExamRecord() throws IOException {
         DynamicForm df = Form.form().bindFromRequest();
-        final Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator")
-                .where().eq("id", Long.parseLong(df.get("id"))).findUnique();
+        final Exam exam = Ebean.find(Exam.class)
+                .fetch("parent")
+                .fetch("parent.creator")
+                .fetch("examSections.sectionQuestions.question")
+                .where()
+                .idEq(Long.parseLong(df.get("id")))
+                .findUnique();
         Result failure = validateExamState(exam);
         if (failure != null) {
             return failure;
@@ -199,7 +204,7 @@ public class ExamRecordController extends BaseController {
         } else {
             score.setCredits(exam.getCustomCredit().toString());
         }
-        score.setExamScore(exam.getTotalScore().toString()); // FIXME: HYV/HYL -> null
+        score.setExamScore(Double.toString(exam.getTotalScore()));
         score.setLecturer(record.getTeacher().getEppn());
         score.setLecturerId(record.getTeacher().getUserIdentifier());
         score.setLecturerEmployeeNumber(record.getTeacher().getEmployeeNumber());
@@ -214,7 +219,7 @@ public class ExamRecordController extends BaseController {
         score.setCourseUnitLevel(exam.getCourse().getLevel());
         score.setCourseUnitType(exam.getCourse().getCourseUnitType());
         score.setCreditLanguage(getLanguageCode(exam.getAnswerLanguage()));
-        score.setCreditType(exam.getCreditType().getType()); // FIXME: check Virta/etc
+        score.setCreditType(exam.getCreditType().getType());
         score.setIdentifier(exam.getCourse().getIdentifier());
         GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
         if (scale.getExternalRef() != null) {

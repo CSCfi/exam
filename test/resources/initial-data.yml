@@ -1038,67 +1038,54 @@ exam-sections:
   - &alkeet_mv_osio1 !!models.ExamSection
     name: Monivalinnat 1
     exam: *alkeidenperusteetGraded
-    totalScore:
 
   - &alkeet_mv_osio2 !!models.ExamSection
     name: Monivalinnat 2
     exam: *alkeidenperusteetGraded
-    totalScore:
 
   - &alkeet_essay !!models.ExamSection
     name: Essee kysymykset
     exam: *alkeidenperusteetGraded
-    totalScore:
 
   - &alkeet_mv_osio1b !!models.ExamSection
     name: Monivalinnat 1
     exam: *alkeidenperusteetReview
-    totalScore:
 
   - &alkeet_mv_osio2b !!models.ExamSection
     name: Monivalinnat 2
     exam: *alkeidenperusteetReview
-    totalScore:
 
   - &alkeet_essayb !!models.ExamSection
     name: Essee kysymykset
     exam: *alkeidenperusteetReview
-    totalScore:
 
   - &osio2 !!models.ExamSection
     name: Monivalinnat 2
     exam: *tietokannat2013
-    totalScore:
 
   - &osio1_algo !!models.ExamSection
     name: Monivalinnat 1
     exam: *algoritmit
-    totalScore:
 
   - &osio2_algo !!models.ExamSection
     name: Essee 1
     exam: *algoritmit
-    totalScore:
 
   - &osio4 !!models.ExamSection
     name: Monivalinnat 4
     exam: *ooad
-    totalScore:
 
   - &osio5 !!models.ExamSection
     name: Monivalinnat 5
     exam: *ooad
-    totalScore:
 
   - &astro1 !!models.ExamSection
     name: Astronomian Monivalinnat
     exam: *astronomianPerusteet
-    totalScore:
 
   - &ooadessay !!models.ExamSection
     name: Essee kysymykset
     exam: *ooad
-    totalScore:
 
 ######################################################################
 

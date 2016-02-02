@@ -166,16 +166,7 @@ public class EmailComposerImpl implements EmailComposer {
         String teacherName;
 
         if (!exam.getExamOwners().isEmpty()) {
-            Iterator<User> it = exam.getExamOwners().iterator();
-            StringBuilder sb = new StringBuilder();
-            while (it.hasNext()) {
-                User teacher = it.next();
-                sb.append(teacher.getFirstName()).append(" ").append(teacher.getLastName());
-                if (it.hasNext()) {
-                    sb.append(", ");
-                }
-            }
-            teacherName = sb.toString();
+            teacherName = getTeachers(exam);
         } else {
             teacherName = String.format("%s %s", exam.getCreator().getFirstName(), exam.getCreator().getLastName());
         }
@@ -290,6 +281,13 @@ public class EmailComposerImpl implements EmailComposer {
         emailSender.send(toUser.getEmail(), fromUser.getEmail(), subject, template);
     }
 
+    private String getTeachersAsText(Exam exam) {
+        List<String> owners = exam.getExamOwners().stream()
+                .map(eo -> String.format("%s %s", eo.getFirstName(), eo.getLastName()))
+                .collect(Collectors.toList());
+        return String.join(", ", owners);
+    }
+
     public void composeReservationCancellationNotification(User student, Reservation reservation, String message,
                                                            Boolean isStudentUser, ExamEnrolment enrolment) {
 
@@ -314,19 +312,10 @@ public class EmailComposerImpl implements EmailComposer {
             String time = String.format("%s - %s", DTF.print(adjustDST(reservation.getStartAt(), TZ)),
                     DTF.print(adjustDST(reservation.getEndAt(), TZ)));
             Exam source = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent() : enrolment.getExam();
-            StringBuilder teachers = new StringBuilder();
-            Iterator<User> it = source.getExamOwners().iterator();
-            while (it.hasNext()) {
-                User owner = it.next();
-                teachers.append(owner.getFirstName()).append(" ").append(owner.getLastName());
-                if (it.hasNext()) {
-                    teachers.append(", ");
-                }
-            }
             stringValues.put("message", Messages.get(lang, "email.template.reservation.cancel.message.student"));
             stringValues.put("exam", Messages.get(lang, "email.template.reservation.exam",
                     enrolment.getExam().getName() + " (" + enrolment.getExam().getCourse().getCode() + ")"));
-            stringValues.put("teacher", Messages.get(lang, "email.template.reservation.teacher", teachers.toString()));
+            stringValues.put("teacher", Messages.get(lang, "email.template.reservation.teacher", getTeachersAsText(source)));
             stringValues.put("time", Messages.get(lang, "email.template.reservation.date", time));
             stringValues.put("place", Messages.get(lang, "email.template.reservation.room", room));
             stringValues.put("new_time", Messages.get(lang, "email.template.reservation.cancel.message.student.new.time"));

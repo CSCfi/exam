@@ -4,11 +4,12 @@ import com.avaje.ebean.Ebean
 import com.typesafe.config.ConfigFactory
 import models.{Session, User}
 import play.api.cache.CacheApi
+import play.api.mvc.Results
 
 
 trait Authenticator {
 
-  val LOGIN_TYPE = ConfigFactory.load.getString("sitnet.login");
+  val LOGIN_TYPE = ConfigFactory.load.getString("sitnet.login")
 
   val SITNET_CACHE_KEY = "user.session."
 
@@ -23,6 +24,10 @@ trait Authenticator {
     sessionCache.getOrElse[Session](SITNET_CACHE_KEY + token) {
       null
     }
+  }
+
+  def forbid() = {
+    Results.Unauthorized("Unauthorized")
   }
 
   def getLoggedUser(token: String): User = getSession(token) match {

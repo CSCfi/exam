@@ -10,6 +10,7 @@ import models.*;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 import util.AppUtil;
 
@@ -107,6 +108,15 @@ public class SessionController extends BaseController {
         return src.substring(src.lastIndexOf(":") + 1);
     }
 
+    private static String parseGivenName(Http.Request request) {
+        String givenName = parse(request.getHeader("givenName"));
+        if (givenName == null) {
+            String displayName = parse(request.getHeader("displayName"));
+            givenName = displayName.substring(displayName.lastIndexOf(" ") + 1);
+        }
+        return givenName;
+    }
+
     private static Organisation findOrganisation(String attribute) {
         if (attribute == null) {
             return null;
@@ -119,7 +129,7 @@ public class SessionController extends BaseController {
         user.setUserIdentifier(parseUserIdentifier(parse(request().getHeader("schacPersonalUniqueCode"))));
         user.setEmail(validateEmail(parse(request().getHeader("mail"))));
         user.setLastName(parse(request().getHeader("sn")));
-        user.setFirstName(parse(request().getHeader("displayName")));
+        user.setFirstName(parseGivenName(request()));
         user.setEmployeeNumber(parse(request().getHeader("employeeNumber")));
         user.setLogoutUrl(parse(request().getHeader("logouturl")));
     }

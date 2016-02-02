@@ -4,8 +4,6 @@ import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.api.AttachmentContainer;
-import models.questions.Answer;
-import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -165,6 +163,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.gradedByUser = gradedByUser;
     }
 
+    public Set<User> getExamOwners() {
+        return examOwners;
+    }
+
+    public void setExamOwners(Set<User> examOwners) {
+        this.examOwners = examOwners;
+    }
+
     // Aggregate properties, required as fields by Ebean
     private Double totalScore;
     private Double maxScore;
@@ -176,133 +182,42 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     @Transient
     public Double getTotalScore() {
-        double total = 0;
-        for (ExamSection section : examSections) {
-            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                Question question = esq.getQuestion();
-                Double evaluatedScore = null;
-                switch (question.getType()) {
-                    case EssayQuestion:
-                        if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
-                            evaluatedScore = question.getEvaluatedScore();
-                        }
-                        break;
-                    case MultipleChoiceQuestion:
-                        if (question.getAnswer() != null) {
-                            Answer answer = question.getAnswer();
-                            evaluatedScore = answer.getOptions().get(0).isCorrectOption() ? question.getMaxScore() : 0;
-                        }
-                        break;
-                    case WeightedMultipleChoiceQuestion:
-                        if (question.getAnswer() != null) {
-                            Answer answer = question.getAnswer();
-                            evaluatedScore = answer.getOptions().stream().map(MultipleChoiceOption::getScore)
-                                    .reduce(0.0, (sum, x) -> sum += x);
-                            // ATM minimum score is zero
-                            evaluatedScore = Math.max(0.0, evaluatedScore);
-                        }
-                        break;
-                }
-                if (evaluatedScore != null) {
-                    total += evaluatedScore;
-                }
-            }
-        }
-        return total;
-    }
-
-    public Set<User> getExamOwners() {
-        return examOwners;
-    }
-
-    public void setExamOwners(Set<User> examOwners) {
-        this.examOwners = examOwners;
+        return examSections.stream()
+                .map(ExamSection::getTotalScore)
+                .reduce(0.0, (sum, x) -> sum += x);
     }
 
     @Transient
     public Double getMaxScore() {
-        double total = 0;
-        for (ExamSection section : examSections) {
-            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                Question question = esq.getQuestion();
-                double maxScore = 0;
-                switch (question.getType()) {
-                    case EssayQuestion:
-                        if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
-                            maxScore = question.getMaxScore();
-                        }
-                        break;
-                    case MultipleChoiceQuestion:
-                        maxScore = question.getMaxScore();
-                        break;
-                    case WeightedMultipleChoiceQuestion:
-                        maxScore = question.getOptions().stream()
-                                .map(MultipleChoiceOption::getScore)
-                                .filter(o -> o > 0)
-                                .reduce(0.0, (sum, x) -> sum += x);
-                        break;
-                }
-                total += maxScore;
-            }
-        }
-        return total;
+        return examSections.stream()
+                .map(ExamSection::getMaxScore)
+                .reduce(0.0, (sum, x) -> sum += x);
     }
 
     @Transient
     public int getApprovedAnswerCount() {
-        int total = 0;
-        for (ExamSection section : examSections) {
-            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                Question question = esq.getQuestion();
-                if (question.getType() == Question.Type.EssayQuestion) {
-                    if (question.getEvaluationType() != null &&
-                            question.getEvaluationType().equals("Select")
-                            && question.getEvaluatedScore() != null
-                            && question.getEvaluatedScore() == 1) {
-                        total++;
-                    }
-                }
-            }
-        }
-        return total;
+        return examSections.stream()
+                .map(ExamSection::getApprovedCount)
+                .reduce(0, (sum, x) -> sum += x);
     }
 
     @Transient
     public int getRejectedAnswerCount() {
-        int total = 0;
-        for (ExamSection section : examSections) {
-            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                Question question = esq.getQuestion();
-                if (question.getType() == Question.Type.EssayQuestion) {
-                    if (question.getEvaluationType() != null &&
-                            question.getEvaluationType().equals("Select") &&
-                            question.getEvaluatedScore() != null
-                            && question.getEvaluatedScore() == 0) {
-                        total++;
-                    }
-                }
-            }
-        }
-        return total;
+        return examSections.stream()
+                .map(ExamSection::getRejectedCount)
+                .reduce(0, (sum, x) -> sum += x);
     }
 
-
-    // This is dumb, required to be explicitly set by EBean
+    // These are dumb, required to be explicitly set by EBean
     public void setTotalScore() {
         totalScore = getTotalScore();
     }
-
-    // This is dumb, required to be explicitly set by EBean
     public void setMaxScore() {
         maxScore = getMaxScore();
     }
-
-    // This is dumb, required to be explicitly set by EBean
     public void setRejectedAnswerCount() {
         rejectedAnswerCount = getRejectedAnswerCount();
     }
-
-    // This is dumb, required to be explicitly set by EBean
     public void setApprovedAnswerCount() {
         approvedAnswerCount = getApprovedAnswerCount();
     }

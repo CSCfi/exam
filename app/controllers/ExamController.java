@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.questions.Answer;
-import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -590,9 +589,16 @@ public class ExamController extends BaseController {
         return isStartDate ? oldDate.before(newDate) : newDate.before(oldDate);
     }
 
+    private long parseExamDate(String date) {
+        if (date == null) {
+            return 0;
+        }
+        return Long.parseLong(date);
+    }
+
     private Result updateTemporalFieldsAndValidate(Exam exam, DynamicForm df, User user) {
-        Long start = new Long(df.get("examActiveStartDate"));
-        Long end = new Long(df.get("examActiveEndDate"));
+        Long start = parseExamDate(df.get("examActiveStartDate"));
+        Long end = parseExamDate(df.get("examActiveEndDate"));
         String duration = df.get("duration");
         boolean hasFutureReservations = hasFutureReservations(exam);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
@@ -919,9 +925,9 @@ public class ExamController extends BaseController {
         }
     }
 
-    private Question clone(Long id) {
+    private Question clone(Question blueprint) {
         User user = getLoggedUser();
-        Question question = Ebean.find(Question.class, id).copy();
+        Question question = blueprint.copy();
         AppUtil.setCreator(question, user);
         AppUtil.setModifier(question, user);
         question.save();
@@ -980,22 +986,11 @@ public class ExamController extends BaseController {
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             Question question = Ebean.find(Question.class, qid);
-            switch (question.getType()) {
-                case MultipleChoiceQuestion:
-                    if (question.getOptions().size() < 2) {
-                        return forbidden("sitnet_minimum_of_two_options_required");
-                    }
-                    if (!question.getOptions().stream().anyMatch(MultipleChoiceOption::isCorrectOption)) {
-                        return forbidden("sitnet_correct_option_required");
-                    }
-                    break;
-                case WeightedMultipleChoiceQuestion:
-                    if (question.getOptions().size() < 2) {
-                        return forbidden("sitnet_minimum_of_two_options_required");
-                    }
-                    break;
+            String validationResult = question.validate();
+            if (validationResult != null) {
+                return forbidden(validationResult);
             }
-            Question clone = clone(question.getId());
+            Question clone = clone(question);
 
             // Assert that the sequence number provided is within limits
             seq = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
@@ -1027,7 +1022,7 @@ public class ExamController extends BaseController {
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             for (String s : questions.split(",")) {
                 Question question = Ebean.find(Question.class, Long.parseLong(s));
-                Question clone = clone(question.getId());
+                Question clone = clone(question);
                 if (clone == null) {
                     return notFound("Question type not specified");
                 }

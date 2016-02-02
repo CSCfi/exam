@@ -94,6 +94,7 @@ public class StudentExamController extends BaseController {
     @Restrict({@Group("STUDENT")})
     public Result getExamScore(Long eid) {
         Exam exam = Ebean.find(Exam.class)
+                .fetch("examSections.sectionQuestions.question")
                 .where()
                 .eq("id", eid)
                 .eq("creator", getLoggedUser())
@@ -483,7 +484,7 @@ public class StudentExamController extends BaseController {
         Answer answer = question.getAnswer();
         if (answer == null) {
             answer = new Answer();
-            answer.setType(Answer.Type.MultipleChoiceAnswer);
+            answer.setType(question.getType());
             answer.save();
             question.setAnswer(answer);
             question.update();

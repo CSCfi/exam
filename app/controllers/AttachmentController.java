@@ -73,17 +73,7 @@ public class AttachmentController extends BaseController {
         }
         if (question.getAnswer() == null) {
             Answer answer = new Answer();
-            switch (question.getType()) {
-                case EssayQuestion:
-                    answer.setType(Answer.Type.EssayAnswer);
-                    break;
-                case MultipleChoiceQuestion:
-                    answer.setType(Answer.Type.MultipleChoiceAnswer);
-                    break;
-                case WeightedMultipleChoiceQuestion:
-                    answer.setType(Answer.Type.WeightedMultipleChoiceAnswer);
-                    break;
-            }
+            answer.setType(question.getType());
             question.setAnswer(answer);
             question.save();
         }
