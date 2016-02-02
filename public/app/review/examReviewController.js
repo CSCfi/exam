@@ -346,6 +346,16 @@
                     return input;
                 };
 
+                $scope.toggleFeedbackVisibility = function () {
+                    var selector = $(".body");
+                    if ($scope.hideEditor) {
+                        selector.show();
+                    } else {
+                        selector.hide();
+                    }
+                    $scope.hideEditor = !$scope.hideEditor;
+                };
+
                 $scope.getSectionTotalScore = function (section) {
                     var score = 0;
 
