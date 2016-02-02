@@ -259,19 +259,22 @@ public class QuestionController extends BaseController {
                 }
             } else {
                 // Create new
-                addNewTag(oldTag.getName(), question, teacher);
+                Tag newTag = addNewTag(oldTag.getName(), question, teacher);
+                tagsOfNewOwner.add(newTag);
+
             }
             removeOldTag(oldTag, question);
         }
     }
 
-    private static void addNewTag(String name, Question question, User teacher) {
+    private static Tag addNewTag(String name, Question question, User teacher) {
         Tag newTag = new Tag();
         newTag.setName(name);
         newTag.setCreator(teacher);
         newTag.setCreated(new Date());
         newTag.getQuestions().add(question);
         newTag.save();
+        return newTag;
     }
 
     private static void removeOldTag(Tag tag, Question question) {
