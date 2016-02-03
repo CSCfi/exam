@@ -324,36 +324,6 @@
                     enrolmentService.showMaturityInstructions({exam: exam});
                 };
 
-                // Called when the save and exit button is clicked
-                $scope.saveExam = function (doexam) {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_turn_exam'));
-                    dialog.result.then(function () {
-                        saveAllEssays().then(function () {
-                            StudentExamRes.exams.update({hash: doexam.hash}, function () {
-                                toastr.info($translate.instant('sitnet_exam_returned'), {timeOut: 5000});
-                                $timeout.cancel($scope.remainingTimePoller);
-                                cancelAutosavers();
-                                $location.path("/student/logout/finished");
-                            }, function (error) {
-                                toastr.error($translate.instant(error));
-                            });
-                        });
-                    });
-                };
-
-                // Called when the abort button is clicked
-                $scope.abortExam = function (doexam) {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
-                    dialog.result.then(function (btn) {
-                        StudentExamRes.exam.abort({hash: doexam.hash}, {data: doexam}, function () {
-                            toastr.info($translate.instant('sitnet_exam_aborted'), {timeOut: 5000});
-                            $timeout.cancel($scope.remainingTimePoller);
-                            cancelAutosavers();
-                            $location.path("/student/logout/aborted");
-                        });
-                    });
-                };
-
                 $scope.multiOptionSelected = function (doexam, question) {
                     var ids = [];
                     var boxes = angular.element(".optionBox");
@@ -522,9 +492,43 @@
                     }
                 };
 
+                var logout = function(msg) {
+                    StudentExamRes.exams.update({hash: $scope.doexam.hash}, function () {
+                        toastr.info($translate.instant(msg), {timeOut: 5000});
+                        $timeout.cancel($scope.remainingTimePoller);
+                        cancelAutosavers();
+                        window.onbeforeunload = null;
+                        $location.path("/student/logout/finished");
+                    }, function (error) {
+                        toastr.error($translate.instant(error));
+                    });
+                };
+
+                // Called when the save and exit button is clicked
+                $scope.saveExam = function (doexam) {
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_turn_exam'));
+                    dialog.result.then(function () {
+                        saveAllEssays().then(function () {
+                            logout('sitnet_exam_returned');
+                        });
+                    });
+                };
+
+                // Called when the abort button is clicked
+                $scope.abortExam = function (doexam) {
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
+                    dialog.result.then(function (btn) {
+                        StudentExamRes.exam.abort({hash: doexam.hash}, {data: doexam}, function () {
+                            toastr.info($translate.instant('sitnet_exam_aborted'), {timeOut: 5000});
+                            $timeout.cancel($scope.remainingTimePoller);
+                            cancelAutosavers();
+                            window.onbeforeunload = null;
+                            $location.path("/student/logout/aborted");
+                        });
+                    });
+                };
+
                 function onTimeout() {
-                    $timeout.cancel($scope.remainingTimePoller);
-                    cancelAutosavers();
                     // Loop through all essay questions in the active section
                     var promises = [];
                     if (!$scope.guide) {
@@ -538,11 +542,10 @@
                         });
                         // Finally turn the exam (regardless of whether every essay saved successfully) and logout
                         $q.allSettled(promises).then(function () {
-                            StudentExamRes.exams.update({hash: $scope.doexam.hash}, function () {
-                                toastr.info($translate.instant("sitnet_exam_time_is_up"), {timeOut: 5000});
-                                $location.path("/student/logout");
-                            });
+                            logout("sitnet_exam_time_is_up");
                         });
+                    } else {
+                        logout("sitnet_exam_time_is_up");
                     }
                 }
 
