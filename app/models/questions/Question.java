@@ -295,7 +295,7 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
 
     @Transient
     @Override
-    public String validate() {
+    public String getValidationResult() {
         String reason = null;
         switch (type) {
             case EssayQuestion:

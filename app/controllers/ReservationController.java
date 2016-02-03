@@ -5,6 +5,8 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
+import com.avaje.ebean.Query;
+import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -31,9 +33,10 @@ public class ReservationController extends BaseController {
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result getExams() {
         User user = getLoggedUser();
-        ExpressionList<Exam> el = Ebean.find(Exam.class)
-                .select("id, name")
-                .where()
+        PathProperties props = PathProperties.parse("(id, name)");
+        Query<Exam> q = Ebean.createQuery(Exam.class);
+        props.apply(q);
+        ExpressionList<Exam> el = q.where()
                 .isNull("parent") // only Exam prototypes
                 .eq("state", Exam.State.PUBLISHED);
         if (user.hasRole("TEACHER", getSession())) {
@@ -45,7 +48,7 @@ public class ReservationController extends BaseController {
                     .eq("shared", true)
                     .endJunction();
         }
-        return ok(el.findList());
+        return ok(el.findList(), props);
     }
 
     @Restrict({@Group("ADMIN")})

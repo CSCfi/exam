@@ -137,7 +137,7 @@ public class QuestionController extends BaseController {
             question.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
         }
         question.setEvaluationType(df.get("evaluationType"));
-        String validationResult = question.validate();
+        String validationResult = question.getValidationResult();
         if (validationResult != null) {
             return forbidden(validationResult);
         }

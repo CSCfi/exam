@@ -4,6 +4,7 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.*;
+import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -166,21 +167,25 @@ public class ExamController extends BaseController {
     @Restrict(@Group("TEACHER"))
     public Result getTeachersExams() {
         // Get list of exams that user is assigned to inspect or is creator of
-        List<Exam> exams = Ebean.find(Exam.class)
-                .fetch("children", "id, state")
-                .fetch("examOwners")
-                .fetch("executionType")
-                .fetch("children.examInspections.user", "id")
-                .fetch("examInspections.user", "id, firstName, lastName")
-                .fetch("examEnrolments.user", "id")
-                .fetch("examEnrolments.reservation", "id, endAt")
-                .fetch("course")
+        PathProperties props = PathProperties.parse("(*, course(id, code), " +
+                "children(id, state, examInspections(user(id, firstName, lastName))), " +
+                "examOwners(id, firstName, lastName), executionType(type), " +
+                "examInspections(id, user(id, firstName, lastName)), " +
+                "examEnrolments(id, user(id), reservation(id, endAt)))");
+        Query<Exam> query = Ebean.createQuery(Exam.class);
+        props.apply(query);
+        User user = getLoggedUser();
+        List<Exam> exams = query
                 .where()
                 .eq("state", Exam.State.PUBLISHED)
+                .disjunction()
+                .eq("examInspections.user", user)
+                .eq("creator", user)
+                .eq("examOwners", user)
+                .endJunction()
                 .isNull("parent")
                 .orderBy("created").findList();
-        // This ad-hoc handling is for optimization. Using a query for this takes 5 times longer.
-        return ok(filterByViewability(getLoggedUser(), exams));
+        return ok(exams);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -986,7 +991,7 @@ public class ExamController extends BaseController {
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             Question question = Ebean.find(Question.class, qid);
-            String validationResult = question.validate();
+            String validationResult = question.getValidationResult();
             if (validationResult != null) {
                 return forbidden(validationResult);
             }

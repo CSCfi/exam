@@ -2,6 +2,7 @@ package controllers;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.text.PathProperties;
 import com.google.inject.Inject;
 import com.typesafe.config.ConfigFactory;
 import exceptions.MalformedDataException;
@@ -40,6 +41,11 @@ public class BaseController extends Controller {
 
     protected Result ok(Object object) {
         String body = Ebean.json().toJson(object);
+        return ok(body).as("application/json");
+    }
+
+    protected Result ok(Object object, PathProperties props) {
+        String body = Ebean.json().toJson(object, props);
         return ok(body).as("application/json");
     }
 
