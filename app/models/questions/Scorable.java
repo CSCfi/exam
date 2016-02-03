@@ -7,6 +7,6 @@ public interface Scorable {
     Double getMaxAssessedScore();
     boolean isRejected();
     boolean isApproved();
-    String validate();
+    String getValidationResult();
 
 }
