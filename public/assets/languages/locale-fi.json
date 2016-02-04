@@ -636,5 +636,6 @@
   "sitnet_exam_rejected": "Hylätyt tenttivastaukset",
   "sitnet_participation_unfinished": "Odottaa loppuarviointia",
   "sitnet_unsaved_data_may_be_lost": "Tallentamaton tieto häviää päivityksen yhteydessä.",
-  "sitnet_connection_refused": "Palvelimeen ei saada yhteyttä, todennäköisesti ongelmia verkkoyhteydessä."
+  "sitnet_connection_refused": "Palvelimeen ei saada yhteyttä, todennäköisesti ongelmia verkkoyhteydessä.",
+  "sitnet_change_reservation_machine": "Muuta konevarausta"
 }

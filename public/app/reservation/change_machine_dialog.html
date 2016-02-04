@@ -1,0 +1,24 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4 class="sitnet-white"><i class="fa fa-info-circle"></i>&nbsp;&nbsp;{{'sitnet_change_reservation_machine' | translate}}</i></h4>
+    </div>
+    <div class="modal-body">
+        <strong>{{'sitnet_exam_machine' | translate}}</strong>
+        <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
+                ng-model="selection.machineId" ng-change="query()">
+            <option value="">&dash;</option>
+            <option ng-repeat="machine in availableMachines" value="{{machine.id}}">{{machine.name}}</option>
+        </select>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-primary" ng-click="ok()" ng-disabled="!selection.machineId">
+                {{'sitnet_button_save' | translate}}
+            </button>
+        </div>
+    </div>
+</div>

@@ -636,5 +636,6 @@
   "sitnet_exam_rejected": "Underkända tentamenssvar",
   "sitnet_participation_unfinished": "Väntar på slutlig bedömning",
   "sitnet_unsaved_data_may_be_lost": "Uppdatering av sidan kommer att förkasta alla osparade ändringar.",
-  "sitnet_connection_refused": "Misslyckades att kontakta servern. Sannolikt att en problem med nätverkanslutning uppstod."
+  "sitnet_connection_refused": "Misslyckades att kontakta servern. Sannolikt att en problem med nätverkanslutning uppstod.",
+  "sitnet_change_reservation_machine": "Muuta konevarausta SV"
 }

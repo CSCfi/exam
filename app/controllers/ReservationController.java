@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import models.*;
 import org.joda.time.DateTime;
+import play.data.DynamicForm;
+import play.data.Form;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
@@ -21,6 +23,7 @@ import util.java.EmailComposer;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -143,6 +146,53 @@ public class ReservationController extends BaseController {
         return ok("removed");
     }
 
+    @Restrict({@Group("ADMIN")})
+    public Result findAvailableMachines(Long reservationId) {
+        Reservation reservation = Ebean.find(Reservation.class, reservationId);
+        PathProperties props = PathProperties.parse("(id, name)");
+        Query<ExamMachine> query = Ebean.createQuery(ExamMachine.class);
+        props.apply(query);
+
+        List<ExamMachine> candidates = query.where()
+                .eq("room", reservation.getMachine().getRoom())
+                .ne("outOfService", true)
+                .ne("archived", true)
+                .findList();
+
+        Iterator<ExamMachine> it = candidates.listIterator();
+        while (it.hasNext()) {
+            ExamMachine machine = it.next();
+            if (!machine.hasRequiredSoftware(reservation.getEnrolment().getExam())) {
+                it.remove();
+            }
+            if (machine.isReservedDuring(reservation.toInterval())) {
+                it.remove();
+            }
+        }
+        return ok(candidates, props);
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public Result updateMachine(Long reservationId) {
+        Reservation reservation = Ebean.find(Reservation.class, reservationId);
+        DynamicForm df = Form.form().bindFromRequest();
+        Long machineId = Long.parseLong(df.get("machineId"));
+        PathProperties props = PathProperties.parse("(id, name, room(id, name))");
+        Query<ExamMachine> query = Ebean.createQuery(ExamMachine.class);
+        props.apply(query);
+        ExamMachine machine = query.where().idEq(machineId).findUnique();
+        if (!machine.getRoom().equals(reservation.getMachine().getRoom())) {
+            return forbidden("Not allowed to change to use a machine from a different room");
+        }
+        if (!machine.hasRequiredSoftware(reservation.getEnrolment().getExam()) ||
+                machine.isReservedDuring(reservation.toInterval())) {
+            return forbidden("Machine not eligible for choosing");
+        }
+        reservation.setMachine(machine);
+        reservation.update();
+        return ok(machine, props);
+    }
+
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result getReservations(F.Option<String> state, F.Option<Long> ownerId, F.Option<Long> studentId, F.Option<Long> roomId, F.Option<Long> machineId,
                                   F.Option<Long> examId, F.Option<Long> start, F.Option<Long> end) {
@@ -151,7 +201,7 @@ public class ReservationController extends BaseController {
                 .fetch("exam", "id, name, state")
                 .fetch("exam.course", "code")
                 .fetch("exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
-                .fetch("exam.parent.examOwners", "id, firstName, lastName",  new FetchConfig().query())
+                .fetch("exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
                 .fetch("exam.examInspections.user", "id, firstName, lastName")
                 .fetch("reservation", "startAt, endAt, noShow")
                 .fetch("reservation.machine", "id, name, ipAddress, otherIdentifier")

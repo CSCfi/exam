@@ -2,8 +2,9 @@
     'use strict';
     angular.module('exam.services')
         .service('reservationService', ['$q', '$modal', '$http', '$routeParams', '$translate', '$location', 'dialogs',
-            'dateService', 'sessionService',
-            function ($q, $modal, $http, $routeParams, $translate, $location, dialogs, dateService, sessionService) {
+            'dateService', 'sessionService', 'ReservationResource', 'EXAM_CONF',
+            function ($q, $modal, $http, $routeParams, $translate, $location, dialogs, dateService, sessionService,
+                      ReservationRes, EXAM_CONF) {
 
                 var self = this;
 
@@ -164,6 +165,41 @@
                     });
                     return [0, 1, 2, 3, 4, 5, 6].filter(function (x) {
                         return openedDays.indexOf(x) === -1
+                    });
+                };
+
+                self.changeMachine = function (reservation) {
+                    var modalController = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                        $scope.selection = {};
+                        $scope.availableMachines = ReservationRes.availableMachines.query({id: reservation.id});
+                        $scope.ok = function () {
+                            ReservationRes.machine.update({
+                                id: reservation.id,
+                                machineId: $scope.selection.machineId
+                            }, function (machine) {
+                                toastr.info($translate.instant("sitnet_updated"));
+                                reservation.machine = machine;
+                                $modalInstance.close("Accepted");
+                            }, function (msg) {
+                                toastr.error(msg);
+                            });
+                        };
+
+                        $scope.cancel = function () {
+                            $modalInstance.close("Dismissed");
+                        };
+
+                    }];
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/change_machine_dialog.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: modalController
+                    });
+
+                    modalInstance.result.then(function () {
+                        console.log("closed");
                     });
                 };
 

@@ -198,7 +198,7 @@ public class CalendarController extends BaseController {
         Collections.shuffle(machines);
         Interval wantedTime = new Interval(start, end);
         for (ExamMachine machine : machines) {
-            if (!isReservedDuring(machine, wantedTime)) {
+            if (!machine.isReservedDuring(wantedTime)) {
                 return machine;
             }
         }
@@ -415,12 +415,6 @@ public class CalendarController extends BaseController {
         return intervals;
     }
 
-    private boolean isReservedDuring(ExamMachine machine, Interval interval) {
-        return machine.getReservations()
-                .stream()
-                .anyMatch(r -> interval.overlaps(r.toInterval()));
-    }
-
     private boolean isReservedByOthersDuring(ExamMachine machine, Interval interval, User user) {
         return machine.getReservations()
                 .stream()
@@ -445,7 +439,7 @@ public class CalendarController extends BaseController {
             if (!isMachineAccessibilitySatisfied(machine, access)) {
                 it.remove();
             }
-            if (!hasRequiredSoftware(machine, exam)) {
+            if (!machine.hasRequiredSoftware(exam)) {
                 it.remove();
             }
         }
@@ -471,10 +465,6 @@ public class CalendarController extends BaseController {
                 .map(accessibility -> accessibility.getId().intValue())
                 .collect(Collectors.toList())
                 .containsAll(wanted);
-    }
-
-    private static boolean hasRequiredSoftware(ExamMachine machine, Exam exam) {
-        return machine.getSoftwareInfo().containsAll(exam.getSoftwareInfo());
     }
 
     private static DateTime nextStartingTime(DateTime instant, List<ExamStartingHour> startingHours, int offset) {

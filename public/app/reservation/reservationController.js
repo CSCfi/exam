@@ -2,8 +2,8 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('ReservationCtrl', ['ExamRes', '$scope', '$location', '$http', 'EXAM_CONF',
-            'ReservationResource', 'dateService', 'examService', '$timeout', '$routeParams', '$translate',
-            function (ExamRes, $scope, $location, $http, EXAM_CONF, ReservationResource, dateService, examService,
+            'ReservationResource', 'reservationService', 'dateService', 'examService', '$timeout', '$routeParams', '$translate',
+            function (ExamRes, $scope, $location, $http, EXAM_CONF, ReservationResource, reservationService, dateService, examService,
                       $timeout, $routeParams, $translate) {
 
                 $scope.dateService = dateService;
@@ -138,6 +138,10 @@
                         }, function (error) {
                             toastr.error(error.data);
                         });
+                };
+
+                $scope.changeReservationMachine = function (reservation) {
+                    reservationService.changeMachine(reservation);
                 };
 
                 $scope.permitRetrial = function (reservation) {

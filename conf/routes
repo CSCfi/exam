@@ -184,6 +184,9 @@ GET           /reservations/exams                                    controllers
 GET           /reservations                                          controllers.ReservationController.getReservations(state: play.libs.F.Option[java.lang.String], ownerId: play.libs.F.Option[java.lang.Long], studentId: play.libs.F.Option[java.lang.Long], roomId: play.libs.F.Option[java.lang.Long], machineId: play.libs.F.Option[java.lang.Long], examId: play.libs.F.Option[java.lang.Long], start: play.libs.F.Option[java.lang.Long], end: play.libs.F.Option[java.lang.Long])
 DELETE        /reservations/:id                                      controllers.ReservationController.removeReservation(id: Long)
 PUT           /reservations/:id                                      controllers.ReservationController.permitRetrial(id: Long)
+GET           /reservations/:id/machines                             controllers.ReservationController.findAvailableMachines(id: Long)
+PUT           /reservations/:id/machine                              controllers.ReservationController.updateMachine(id: Long)
+
 
 ############### ExamMachines interface ###############
 
