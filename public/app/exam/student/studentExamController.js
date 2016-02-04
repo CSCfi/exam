@@ -20,10 +20,6 @@
                 $scope.previousButton = {};
                 $scope.nextButton = {};
 
-                window.onbeforeunload = function() {
-                    return $translate.instant('sitnet_unsaved_data_may_be_lost');
-                };
-
                 var isPreview = function () {
                     return $location.path().match(/preview/) && $routeParams.id;
                 };
@@ -33,6 +29,9 @@
                 } else {
                     $scope.guide = true;
                     $scope.hash = $routeParams.hash;
+                    window.onbeforeunload = function() {
+                        return $translate.instant('sitnet_unsaved_data_may_be_lost');
+                    };
                 }
 
                 $scope.isPreview = function () {
