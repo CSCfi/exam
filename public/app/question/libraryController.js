@@ -219,6 +219,13 @@
                                 'WeightedMultipleChoiceQuestion'].indexOf(q.type);
                             q.ownerAggregate = q.creator.lastName + q.creator.firstName;
                         });
+                        var filters = {
+                            exams: $scope.exams,
+                            courses: $scope.courses,
+                            tags: $scope.tags,
+                            text: $scope.filter.text
+                        };
+                        questionService.storeQuestions($scope.questions, filters);
                         $scope.currentPage = 0;
                         limitQuestions();
                     });
@@ -384,7 +391,19 @@
 
                 };
 
-                query();
+                var storedData = questionService.loadQuestions();
+                if (storedData.questions) {
+                    $scope.questions = $scope.filteredQuestions = storedData.questions;
+                    $scope.exams = storedData.filters.exams;
+                    $scope.courses = storedData.filters.courses;
+                    $scope.tags = storedData.filters.tags;
+                    $scope.filter.text = storedData.filters.text;
+                    $scope.currentPage = 0;
+                    limitQuestions();
+                    $scope.applyFreeSearchFilter();
+                } else {
+                    query();
+                }
 
             }
         ]);

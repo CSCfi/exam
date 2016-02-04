@@ -1,85 +1,94 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .factory('questionService', ['$translate', '$location', 'QuestionRes', function ($translate, $location, QuestionRes) {
+        .service('questionService', ['$translate', '$location', '$sessionStorage', 'QuestionRes',
+            function ($translate, $location, $sessionStorage, QuestionRes) {
 
-            var createQuestion = function (type) {
-                QuestionRes.questions.create({type: type},
-                    function (response) {
-                        toastr.info($translate.instant('sitnet_question_added'));
-                        $location.path("/questions/" + response.id);
+                var self = this;
+
+                self.createQuestion = function (type) {
+                    QuestionRes.questions.create({type: type},
+                        function (response) {
+                            toastr.info($translate.instant('sitnet_question_added'));
+                            $location.path("/questions/" + response.id);
+                        }
+                    );
+                };
+
+                self.calculateMaxPoints = function (question) {
+                    return (question.options.filter(function (option) {
+                        return option.score > 0;
+                    }).reduce(function (a, b) {
+                        return a + b.score;
+                    }, 0));
+                };
+
+                self.decodeHtml = function (html) {
+                    var txt = document.createElement("textarea");
+                    txt.innerHTML = html;
+                    return txt.value;
+                };
+
+                self.longTextIfNotMath = function (text) {
+                    if (text && text.length > 0 && text.indexOf("math-tex") === -1) {
+                        // remove HTML tags
+                        var str = String(text).replace(/<[^>]+>/gm, '');
+                        // shorten string
+                        return self.decodeHtml(str);
                     }
-                );
-            };
+                    return "";
+                };
 
-            var calculateMaxPoints = function (question) {
-                return (question.options.filter(function (option) {
-                    return option.score > 0;
-                }).reduce(function (a, b) {
-                    return a + b.score;
-                }, 0));
-            };
+                self.shortText = function (text, maxLength) {
 
-            var decodeHtml = function (html) {
-                var txt = document.createElement("textarea");
-                txt.innerHTML = html;
-                return txt.value;
-            };
+                    if (text && text.length > 0 && text.indexOf("math-tex") === -1) {
+                        // remove HTML tags
+                        var str = String(text).replace(/<[^>]+>/gm, '');
+                        // shorten string
+                        str = self.decodeHtml(str);
+                        return str.length + 3 > maxLength ? str.substr(0, maxLength) + "..." : str;
+                    }
+                    return text ? self.decodeHtml(text) : "";
+                };
 
-            var longTextIfNotMath = function (text) {
-                if (text && text.length > 0 && text.indexOf("math-tex") === -1) {
-                    // remove HTML tags
-                    var str = String(text).replace(/<[^>]+>/gm, '');
-                    // shorten string
-                    return decodeHtml(str);
+                var _filter;
+
+                self.setFilter = function (filter) {
+                    switch (filter) {
+                        case "MultipleChoiceQuestion":
+                        case "WeightedMultipleChoiceQuestion":
+                        case "EssayQuestion":
+                            _filter = filter;
+                            break;
+                        default:
+                            _filter = undefined;
+                    }
+                };
+
+                self.applyFilter = function (questions) {
+                    if (!_filter) {
+                        return questions;
+                    }
+                    return questions.filter(function (q) {
+                        return q.type === _filter;
+                    });
+                };
+
+                self.loadQuestions = function () {
+                    if ($sessionStorage.libraryQuestions) {
+                        return JSON.parse($sessionStorage.libraryQuestions);
+                    }
+                    return {};
+                };
+
+                self.storeQuestions = function (questions, filters) {
+                    var data = { questions : questions, filters: filters};
+                    $sessionStorage.libraryQuestions = JSON.stringify(data);
+                };
+
+                self.clearQuestions = function () {
+                    delete $sessionStorage.libraryQuestions;
                 }
-                return "";
-            };
 
-            var shortText = function (text, maxLength) {
-
-                if (text && text.length > 0 && text.indexOf("math-tex") === -1) {
-                    // remove HTML tags
-                    var str = String(text).replace(/<[^>]+>/gm, '');
-                    // shorten string
-                    str = decodeHtml(str);
-                    return str.length + 3 > maxLength ? str.substr(0, maxLength) + "..." : str;
-                }
-                return text ? decodeHtml(text) : "";
-            };
-
-            var _filter;
-
-            var setFilter = function (filter) {
-                switch (filter) {
-                    case "MultipleChoiceQuestion":
-                    case "WeightedMultipleChoiceQuestion":
-                    case "EssayQuestion":
-                        _filter = filter;
-                        break;
-                    default:
-                        _filter = undefined;
-                }
-            };
-
-            var applyFilter = function(questions) {
-                if (!_filter) {
-                    return questions;
-                }
-                return questions.filter(function(q) {
-                   return q.type === _filter;
-                });
-            };
-
-            return {
-                createQuestion: createQuestion,
-                calculateMaxPoints: calculateMaxPoints,
-                decodeHtml: decodeHtml,
-                longTextIfNotMath: longTextIfNotMath,
-                shortText: shortText,
-                setFilter: setFilter,
-                applyFilter: applyFilter
-            };
-
-        }]);
+            }]);
 }());
