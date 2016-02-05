@@ -87,34 +87,34 @@
 
                         <div id="metaInfo">
                             <div class="row">
-                                <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_added_to_exams' | translate}}:
+                                <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_added_to_exams' | translate}}:
                                 </div>
-                                <div class="col-md-10">
+                                <div class="col-md-9">
                                     <div ng-repeat="name in examNames">
                                         <span class="sitnet-badge pull-left inline">{{ name }}</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_added_to_sections' | translate}}:
+                                <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_added_to_sections' | translate}}:
                                 </div>
-                                <div class="col-md-10">
+                                <div class="col-md-9">
                                     <div ng-repeat="name in sectionNames">
                                         <span class="sitnet-badge pull-left inline">{{ name }}</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_added_to_categories' | translate}}:
+                                <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_added_to_categories' | translate}}:
                                 </div>
-                                <div ng-show="newQuestion.parent" class="col-md-10">
+                                <div ng-show="newQuestion.parent" class="col-md-9">
                                     <div ng-repeat="tag in newQuestion.parent.tags">
                                         <span class="sitnet-badge pull-left inline">
                                             {{ tag.name }}
                                         </span>
                                     </div>
                                 </div>
-                                <div ng-hide="newQuestion.parent" class="col-md-10">
+                                <div ng-hide="newQuestion.parent" class="col-md-9">
                                     <div ng-repeat="tag in newQuestion.tags">
                                         <span class="pointer sitnet-badge pull-left inline"
                                               popover-placement="top" popover-popup-delay="500" popover-trigger="mouseenter"

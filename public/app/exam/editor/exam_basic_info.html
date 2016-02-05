@@ -132,12 +132,7 @@
     <div ng-hide="newExam.executionType.type==='PUBLIC'">
         <div class="row">
             <div class="col-md-12">
-                <div ng-if="newExam.state !== 'PUBLISHED'" class="sitnet-info-text">{{'sitnet_exam_participants' |
-                    translate}}:
-                </div>
-                <div ng-if="newExam.state === 'PUBLISHED'" class="sitnet-info-text">{{'sitnet_exam_participants_left' |
-                    translate}}:
-                </div>
+                <div class="sitnet-info-text">{{'sitnet_exam_participants' | translate}}:</div>
             </div>
         </div>
         <div class="row">
@@ -150,11 +145,18 @@
             <div class="col-md-9">
                 <ul class="list-inline">
                     <li>
+                        <!-- Students not having finished the exam -->
                         <button ng-repeat="enrolment in newExam.examEnrolments"
-                                ng-disabled="newExam.state === 'PUBLISHED'" class="btn btn-primary btn-xs"
+                                ng-disabled="newExam.state === 'PUBLISHED'" class="btn btn-default btn-xs"
                                 style="margin: 0.2em" ng-click="removeParticipant(enrolment.id)"
                                 title="{{'sitnet_remove' | translate}}">
                             {{enrolment.user.firstName }} {{ enrolment.user.lastName }}
+                        </button>
+                        <!-- Students that have finished the exam -->
+                        <button ng-repeat="participant in newExam.participants"
+                                ng-disabled="newExam.state === 'PUBLISHED'" class="btn btn-success btn-xs"
+                                style="margin: 0.2em">
+                            {{ participant.user.firstName }} {{ participant.user.lastName }}
                         </button>
                     </li>
                 </ul>

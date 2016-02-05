@@ -90,6 +90,8 @@
                 var onLogoutSuccess = function (data) {
                     $rootScope.$broadcast('userUpdated');
                     toastr.success($translate.instant("sitnet_logout_success"));
+                    $sessionStorage.$reset();
+                    window.onbeforeunload = null;
                     var localLogout = window.location.protocol + "//" + window.location.host + "/Shibboleth.sso/Logout";
                     if (data && data.logoutUrl) {
                         window.location.href = data.logoutUrl + "?return=" + localLogout;

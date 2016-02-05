@@ -127,6 +127,15 @@
 
                 };
 
+                var getParticipations = function () {
+                    // go through child exams and read in the enrolments
+                    var x = [];
+                    $scope.newExam.children.forEach(function (c) {
+                        x = x.concat(c.examEnrolments);
+                    });
+                    return x;
+                };
+
                 var initializeExam = function () {
                     ExamRes.exams.get({id: $routeParams.id},
                         function (exam) {
@@ -146,6 +155,10 @@
                                 }).length > 0) {
                                 // Enrolments/reservations in effect
                                 $scope.newExam.hasEnrolmentsInEffect = true;
+                            }
+                            if ($scope.newExam.executionType.type !== 'PUBLIC') {
+                                // Students that have taken this exam
+                                $scope.newExam.participants = getParticipations();
                             }
                             if ($scope.newExam.executionType.type === 'MATURITY') {
                                 // Show only essay questions in the question library
@@ -384,7 +397,6 @@
                 };
 
                 $scope.setExamDuration = function (duration) {
-                    // Todo: should make proper time selector in UI
                     $scope.newExam.duration = duration;
                     $scope.updateExam();
                 };

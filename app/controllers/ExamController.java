@@ -288,6 +288,7 @@ public class ExamController extends BaseController {
 
     private static Exam doGetExam(Long id) {
         return createQuery()
+                .fetch("children.examEnrolments.user")
                 .where()
                 .idEq(id)
                 .disjunction()
