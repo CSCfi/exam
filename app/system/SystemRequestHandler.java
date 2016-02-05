@@ -42,10 +42,7 @@ public class SystemRequestHandler implements HttpRequestHandler {
         Session session = cache.get(BaseController.SITNET_CACHE_KEY + token);
         User user = session == null ? null : Ebean.find(User.class, session.getUserId());
         AuditLogger.log(request, user);
-        if (session == null) {
-            Logger.info("Session with token {} not found", token);
-            return propagateAction();
-        }
+
         Action validationAction = validateSession(session, token);
         if (validationAction != null) {
             return validationAction;
@@ -68,7 +65,14 @@ public class SystemRequestHandler implements HttpRequestHandler {
     }
 
     private Action validateSession(Session session, String token) {
-        if (!session.isValid()) {
+        if (session == null) {
+            if (token == null) {
+                Logger.debug("User not logged in");
+            } else {
+                Logger.info("Session with token {} not found", token);
+            }
+            return propagateAction();
+        } else if (!session.isValid()) {
             Logger.warn("Session #{} is marked as invalid", token);
             return new Action.Simple() {
                 public F.Promise<Result> call(final Http.Context ctx) throws Throwable {
@@ -79,8 +83,9 @@ public class SystemRequestHandler implements HttpRequestHandler {
                     );
                 }
             };
+        } else {
+            return null;
         }
-        return null;
     }
 
     private Action processAction(Http.Request request, User user) {

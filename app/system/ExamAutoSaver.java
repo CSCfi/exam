@@ -26,7 +26,7 @@ public class ExamAutoSaver implements Runnable {
 
     @Override
     public void run() {
-        Logger.debug("Checking for ongoing exams ...");
+        Logger.debug("{}: Checking for ongoing exams ...", getClass().getCanonicalName());
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
                 .fetch("reservation")
@@ -37,7 +37,7 @@ public class ExamAutoSaver implements Runnable {
                 .findList();
 
         if (participations == null || participations.isEmpty()) {
-            Logger.debug("... none found.");
+            Logger.debug("{}: ... none found.", getClass().getCanonicalName());
             return;
         }
         markEnded(participations);
@@ -52,14 +52,15 @@ public class ExamAutoSaver implements Runnable {
             DateTime now = AppUtil.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
             if (participationTimeLimit.isBefore(now)) {
                 participation.setEnded(now.toDate());
-                participation.setDuration(new Date(participation.getEnded().getTime() - participation.getStarted().getTime()));
+                participation.setDuration(
+                        new Date(participation.getEnded().getTime() - participation.getStarted().getTime()));
                 GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
                 int deadlineDays = Integer.parseInt(settings.getValue());
                 Date deadline = new DateTime(participation.getEnded()).plusDays(deadlineDays).toDate();
                 participation.setDeadline(deadline);
 
                 participation.save();
-                Logger.info(" -> setting exam {} state to REVIEW", exam.getId());
+                Logger.info("{}: ... setting exam {} state to REVIEW", getClass().getCanonicalName(), exam.getId());
                 exam.setState(Exam.State.REVIEW);
                 exam.save();
                 if (exam.isPrivate()) {
@@ -71,7 +72,8 @@ public class ExamAutoSaver implements Runnable {
                     AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer);
                 }
             } else {
-                Logger.info(" -> exam {} is ongoing until {}", exam.getId(), participationTimeLimit);
+                Logger.info("{}: ... exam {} is ongoing until {}", getClass().getCanonicalName(), exam.getId(),
+                        participationTimeLimit);
             }
         }
     }

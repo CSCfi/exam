@@ -28,11 +28,11 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class SystemInitializer {
 
-    public static final int EXAM_AUTO_SAVER_START_AFTER_MINUTES = 1;
+    public static final int EXAM_AUTO_SAVER_START_AFTER_SECONDS = 20;
     public static final int EXAM_AUTO_SAVER_INTERVAL_MINUTES = 1;
-    public static final int RESERVATION_POLLER_START_AFTER_MINUTES = 1;
+    public static final int RESERVATION_POLLER_START_AFTER_SECONDS = 40;
     public static final int RESERVATION_POLLER_INTERVAL_HOURS = 1;
-    public static final int EXAM_EXPIRY_POLLER_START_AFTER_MINUTES = 1;
+    public static final int EXAM_EXPIRY_POLLER_START_AFTER_SECONDS = 60;
     public static final int EXAM_EXPIRY_POLLER_INTERVAL_DAYS = 1;
 
 
@@ -63,19 +63,19 @@ public class SystemInitializer {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         DateTimeZone.setDefault(DateTimeZone.forID("UTC"));
         autosaver = actor.scheduler().schedule(
-                Duration.create(EXAM_AUTO_SAVER_START_AFTER_MINUTES, TimeUnit.MINUTES),
+                Duration.create(EXAM_AUTO_SAVER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(EXAM_AUTO_SAVER_INTERVAL_MINUTES, TimeUnit.MINUTES),
                 new ExamAutoSaver(composer),
                 actor.dispatcher()
         );
         reservationPoller = actor.scheduler().schedule(
-                Duration.create(RESERVATION_POLLER_START_AFTER_MINUTES, TimeUnit.MINUTES),
+                Duration.create(RESERVATION_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(RESERVATION_POLLER_INTERVAL_HOURS, TimeUnit.HOURS),
                 new ReservationPoller(composer),
                 actor.dispatcher()
         );
         examExpirationPoller = actor.scheduler().schedule(
-                Duration.create(EXAM_EXPIRY_POLLER_START_AFTER_MINUTES, TimeUnit.MINUTES),
+                Duration.create(EXAM_EXPIRY_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(EXAM_EXPIRY_POLLER_INTERVAL_DAYS, TimeUnit.DAYS),
                 new ExamExpiryPoller(),
                 actor.dispatcher()
@@ -99,6 +99,7 @@ public class SystemInitializer {
         DateTime nextRun = now.withHourOfDay(scheduledHour)
                 .withMinuteOfHour(0)
                 .withSecondOfMinute(0)
+                .withMillisOfSecond(0)
                 .plusWeeks(now.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1)
                 .withDayOfWeek(DateTimeConstants.MONDAY);
         if (nextRun.isBefore(now)) {
@@ -141,7 +142,7 @@ public class SystemInitializer {
 
     private void cancelReportSender() {
         if (reportTask != null && !reportTask.isCancelled()) {
-            Logger.info("Canceling report sender returned: {}", reportTask.cancel());
+            reportTask.cancel();
         }
     }
 

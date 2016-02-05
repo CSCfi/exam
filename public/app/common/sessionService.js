@@ -168,7 +168,7 @@
                                 $modalInstance.dismiss();
                                 $rootScope.$broadcast('userUpdated');
                                 if (user.isStudent && !user.userAgreementAccepted) {
-                                    openEulaModal(user);
+                                    self.openEulaModal(user);
                                 } else if ($location.url() === '/login' || $location.url() === '/logout') {
                                     $location.path("/");
                                 } else {

@@ -15,7 +15,7 @@ public class ExamExpiryPoller implements Runnable {
 
     @Override
     public void run() {
-        Logger.debug("Running exam expiration check ...");
+        Logger.debug("{}: Running exam expiration check ...", getClass().getCanonicalName());
         List<Exam> exams = Ebean.find(Exam.class)
                 .where()
                 .disjunction()
@@ -31,10 +31,10 @@ public class ExamExpiryPoller implements Runnable {
                     exam.getExamParticipations().get(0).getEnded() : exam.getGradedTime();
             if (AppUtil.getExamExpirationDate(expirationDate).before(now)) {
                 cleanExamData(exam);
-                Logger.info("... Marked exam {} as expired", exam.getId());
+                Logger.info("{}: ... Marked exam {} as expired", getClass().getCanonicalName(), exam.getId());
             }
         }
-        Logger.debug("... Done");
+        Logger.debug("{}: ... Done", getClass().getCanonicalName());
     }
 
     /**
