@@ -147,7 +147,7 @@
                     <li>
                         <!-- Students not having finished the exam -->
                         <button ng-repeat="enrolment in newExam.examEnrolments"
-                                ng-disabled="newExam.state === 'PUBLISHED'" class="btn btn-default btn-xs"
+                                ng-disabled="newExam.state === 'PUBLISHED'" class="btn btn-primary btn-xs"
                                 style="margin: 0.2em" ng-click="removeParticipant(enrolment.id)"
                                 title="{{'sitnet_remove' | translate}}">
                             {{enrolment.user.firstName }} {{ enrolment.user.lastName }}
