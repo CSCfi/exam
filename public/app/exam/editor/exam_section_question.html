@@ -21,13 +21,12 @@
             <span ng-if="sectionQuestion.question.evaluationType === 'Points'
              || sectionQuestion.question.type === 'MultipleChoiceQuestion'">({{ sectionQuestion.question.maxScore }} {{ 'sitnet_unit_points' | translate }})</span>
             <span ng-if="sectionQuestion.question.evaluationType === 'Select'">({{ 'sitnet_evaluation_select' | translate }})</span>
-            <span ng-if="sectionQuestion.question.evaluationType === 'WeightedMultipleChoiceQuestion'">
+            <span ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
                 ({{ calculateMaxPoints(sectionQuestion.question) }} {{ 'sitnet_unit_points' | translate }})</span>
         </div>
 
         <!-- Cog icon -->
-        <div ng-click="editQuestion(sectionQuestion.question)"
-             class="col-md-1 pull-right dropdown pointer-hand single-question-icon" dropdown>
+        <div class="col-md-1 pull-right dropdown pointer-hand single-question-icon" dropdown>
             <a href class="pull-right dropdown-toggle" dropdown-toggle>
                 <i class="sitnet-white fa fa-cog fa-1x"></i>
             </a>
