@@ -43,6 +43,11 @@ public class SystemRequestHandler implements HttpRequestHandler {
         User user = session == null ? null : Ebean.find(User.class, session.getUserId());
         AuditLogger.log(request, user);
 
+        // logout, no further processing
+        if (request.path().equals("logout")) {
+            return propagateAction();
+        }
+
         Action validationAction = validateSession(session, token);
         if (validationAction != null) {
             return validationAction;
@@ -50,7 +55,7 @@ public class SystemRequestHandler implements HttpRequestHandler {
 
         updateSession(request, session, token);
 
-        if (user == null || !user.hasRole("STUDENT", session) || request.path().equals("/logout")) {
+        if (user == null || !user.hasRole("STUDENT", session)) {
             // propagate further right away
             return propagateAction();
         } else {

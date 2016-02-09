@@ -114,7 +114,7 @@
                         _user = undefined;
                         onLogoutSuccess(data);
                     }).error(function (error) {
-                        toastr(error.data);
+                        toastr.error(error.data);
                     });
                 };
 

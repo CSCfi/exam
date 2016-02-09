@@ -320,21 +320,11 @@
                 };
 
                 $scope.scoreMultipleChoiceAnswer = function (sectionQuestion) {
-                    var score = 0;
                     var question = sectionQuestion.question;
                     if (question.type !== 'MultipleChoiceQuestion') {
                         return 0;
                     }
-                    if (question.answer === null) {
-                        return 0;
-                    }
-                    if (question.answer.options.length != 1) {
-                        console.error("multiple options selected for a MultiChoice answer!");
-                    }
-                    if (question.answer.options[0].correctOption === true) {
-                        score = question.maxScore;
-                    }
-                    return score;
+                    return questionService.scoreMultipleChoiceAnswer(question);
                 };
 
                 $scope.range = function (min, max, step) {
@@ -356,83 +346,16 @@
                     $scope.hideEditor = !$scope.hideEditor;
                 };
 
-                $scope.getSectionTotalScore = function (section) {
-                    var score = 0;
-
-                    angular.forEach(section.sectionQuestions, function (sectionQuestion) {
-                        var question = sectionQuestion.question;
-                        switch (question.type) {
-                            case "MultipleChoiceQuestion":
-                                score += $scope.scoreMultipleChoiceAnswer(sectionQuestion);
-                                break;
-                            case "WeightedMultipleChoiceQuestion":
-                                score += $scope.scoreWeightedMultipleChoiceAnswer(question);
-                                break;
-                            case "EssayQuestion":
-                                if (question.evaluatedScore && question.evaluationType === 'Points') {
-                                    var number = parseFloat(question.evaluatedScore);
-                                    if (angular.isNumber(number)) {
-                                        score += number;
-                                    }
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    });
-                    return score;
-                };
-
                 $scope.calculateMaxPoints = function (question) {
                     return questionService.calculateMaxPoints(question);
                 };
 
-                $scope.getSectionMaxScore = function (section) {
-                    var score = 0;
-
-                    angular.forEach(section.sectionQuestions, function (sectionQuestion) {
-                        var question = sectionQuestion.question;
-                        switch (question.type) {
-                            case "MultipleChoiceQuestion":
-                                score += question.maxScore;
-                                break;
-                            case "WeightedMultipleChoiceQuestion":
-                                score += questionService.calculateMaxPoints(question);
-                                break;
-                            case "EssayQuestion":
-                                if (question.evaluationType == 'Points') {
-                                    score += question.maxScore;
-                                }
-                                break;
-
-                            default:
-                                toastr.error($translate.instant('sitnet_unknown_question_type') + ": " + question.type);
-                                break;
-                        }
-                    });
-                    return score;
-                };
-
                 $scope.getExamMaxPossibleScore = function (exam) {
-                    if (exam) {
-                        var total = 0;
-                        angular.forEach(exam.examSections, function (section) {
-                            total += $scope.getSectionMaxScore(section);
-                        });
-
-                        return total;
-                    }
+                    return examService.getMaxScore(exam);
                 };
 
                 $scope.getExamTotalScore = function (exam) {
-                    if (exam) {
-                        var total = 0;
-                        angular.forEach(exam.examSections, function (section) {
-                            total += $scope.getSectionTotalScore(section);
-                        });
-                        $scope.exam.totalScore = total;
-                        return total;
-                    }
+                    return examService.getTotalScore(exam);
                 };
 
                 var refreshRejectedAcceptedCounts = function () {
@@ -719,7 +642,7 @@
                         var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                             examService.getRecordReviewConfirmationDialogContent(reviewedExam.examFeedback.comment));
                         dialog.result.then(function () {
-                            $scope.saveFeedback(true).then(function() {
+                            $scope.saveFeedback(true).then(function () {
                                 var examToRecord = getReviewUpdate(reviewedExam, 'GRADED');
                                 examToRecord.additionalInfo = $scope.additionalInfo;
 
@@ -851,7 +774,7 @@
                 };
 
                 var doRejectMaturity = function () {
-                    $scope.saveFeedback(true).then(function() {
+                    $scope.saveFeedback(true).then(function () {
                         var params = getReviewUpdate($scope.exam, 'REJECTED');
                         ExamRes.review.update({id: $scope.exam.id}, params, function () {
                             toastr.info($translate.instant('sitnet_maturity_rejected'));

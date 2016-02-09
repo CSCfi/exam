@@ -802,6 +802,10 @@
                     });
                 };
 
+                $scope.calculateExamMaxScore = function (exam) {
+                    return examService.getMaxScore(exam);
+                };
+
                 $scope.moveQuestion = function (section, from, to) {
                     console.log("moving question #" + from + " to #" + to);
                     if (from >= 0 && to >= 0 && from != to) {

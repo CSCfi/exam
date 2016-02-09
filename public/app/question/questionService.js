@@ -15,12 +15,26 @@
                     );
                 };
 
+                // For weighted mcq
                 self.calculateMaxPoints = function (question) {
                     return (question.options.filter(function (option) {
                         return option.score > 0;
                     }).reduce(function (a, b) {
                         return a + b.score;
                     }, 0));
+                };
+
+                // For non-weighted mcq
+                self.scoreMultipleChoiceAnswer = function (question) {
+                    if (!question.answer) {
+                        return 0;
+                    }
+                    if (question.answer.options.length != 1) {
+                        console.error("multiple options selected for a MultiChoice answer!");
+                    }
+                    if (question.answer.options[0].correctOption === true) {
+                        return question.maxScore;
+                    }
                 };
 
                 self.decodeHtml = function (html) {

@@ -64,8 +64,12 @@
     color: $sitnet-dark-grey;
     border: 2px dashed $sitnet-teacher-turquoise-dark-inactive;
     padding: 1em;
-    margin-bottom: 1em;
-    margin-top: 1em;
+    margin: 1em 6px 1em 46px;
+
+    a > i {
+      margin-right: 1em;
+      vertical-align: middle;
+    }
   }
 
   .create-new:hover {
@@ -78,11 +82,28 @@
   }
 
   .create-new-section {
-    padding: 2em 0 3em 0;
+    padding: 2em 0 3em 1em;
+
+    span {
+      vertical-align: middle;
+    }
+
+    a {
+      vertical-align: middle;
+    }
+  }
+
+  .total-score {
+    padding: 2em 1em 3em 0;
+
+    span {
+      padding-top: 0.6em;
+      vertical-align: middle;
+    }
   }
 
   .create-new-section-button, .create-new-section-button:hover {
-    padding: 0.6em 1em 0.7em 1em;
+    padding: 0.6em 1em 0.6em 1em;
     color: $sitnet-white;
     background-color: $sitnet-theme;
     text-decoration: none;

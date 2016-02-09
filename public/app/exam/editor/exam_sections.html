@@ -13,13 +13,20 @@
     <div class="section-border" ng-include="templates.section" ng-model="newExam.examSections"
          ng-repeat="section in newExam.examSections | orderBy: 'created'">
     </div>
-    <div class="row col-md-12 create-new-section">
-        <div class="col-md-1 fa-stack fa-lg">
-            <i class="fa icon-theme fa-stop fa-stack-2x"></i>
-            <i class="fa sitnet-white fa-plus fa-stack-1x"></i>
+    <div class="row">
+        <div class="col-md-8 create-new-section">
+            <span class="fa-stack fa-lg">
+                <i class="fa icon-theme fa-stop fa-stack-2x"></i>
+                <i class="fa sitnet-white fa-plus fa-stack-1x"></i>
+            </span>
+            <a ng-click="addNewSection()" class="create-new-section-button">
+                {{'sitnet_section_add' | translate}}
+            </a>
         </div>
-        <a ng-click="addNewSection()" class="create-new-section-button">
-            {{'sitnet_section_add' | translate}}
-        </a>
+        <div class="col-md-4 total-score">
+            <span class="pull-right">
+                <strong>{{'sitnet_total_score' | translate }}: {{ calculateExamMaxScore(newExam) }}</strong>
+            </span>
+        </div>
     </div>
 </div>
