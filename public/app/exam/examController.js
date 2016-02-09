@@ -509,6 +509,10 @@
                     });
                 };
 
+                $scope.calculateMaxPoints = function(question) {
+                    return questionService.calculateMaxPoints(question);
+                };
+
                 var getUpdate = function (overrides) {
                     var update = {
                         "id": $scope.newExam.id,
