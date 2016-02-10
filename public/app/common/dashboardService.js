@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('dashboardService', ['$q', '$location', '$modal', 'sessionService', 'examService', 'reservationService',
-            'StudentExamRes', 'ExamRes', 'EXAM_CONF',
-            function ($q, $location, $modal, sessionService, examService, reservationService, StudentExamRes, ExamRes, EXAM_CONF) {
+        .service('dashboardService', ['$q', 'sessionService', 'examService', 'reservationService', 'StudentExamRes',
+            'ExamRes', 'EXAM_CONF',
+            function ($q, sessionService, examService, reservationService, StudentExamRes, ExamRes, EXAM_CONF) {
 
                 var self = this;
 

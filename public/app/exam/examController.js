@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$filter', '$rootScope', '$q', '$sce', '$anchorScroll', '$modal', 'sessionService', 'examService',
+        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$filter', '$rootScope', '$q', '$sce', '$anchorScroll', '$uibModal', 'sessionService', 'examService',
             '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
             'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes',
             function (dialogs, $scope, $timeout, $filter, $rootScope, $q, $sce, $anchorScroll, $modal, sessionService, examService,
@@ -985,7 +985,7 @@
 
                     var exam = $scope.newExam;
 
-                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
 
                         $scope.newExam = exam;
                         $scope.isTeacherModal = true;

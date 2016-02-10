@@ -1,8 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'sessionService', '$location', '$modal', '$http', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'EXAM_CONF', 'dateService', '$translate', '$route',
-            function (dialogs, $scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource, RoomResource, ExamMachineResource, EXAM_CONF, dateService, $translate, $route) {
+        .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'sessionService', '$location', '$uibModal', '$http',
+            'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'EXAM_CONF', 'dateService', '$translate', '$route',
+            function (dialogs, $scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource,
+                      RoomResource, ExamMachineResource, EXAM_CONF, dateService, $translate, $route) {
 
                 $scope.dateService = dateService;
 
@@ -577,7 +579,6 @@
                     arr.splice(index, 1);
                 };
 
-
                 $scope.deleteException = function (exception) {
 
                     RoomResource.exception.remove({id: exception.id},
@@ -604,37 +605,44 @@
 
                 $scope.addException = function () {
 
+                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        var now = new Date();
+                        now.setMinutes(0);
+                        now.setSeconds(0);
+                        now.setMilliseconds(0);
+                        $scope.dateOptions = {
+                            'starting-day': 1
+                        };
+                        $scope.dateFormat = 'dd.MM.yyyy';
+
+                        $scope.exception = {startDate: now, endDate: angular.copy(now), outOfService: true};
+
+                        $scope.ok = function () {
+
+                            var hourOffset = moment().isDST() ? 1 : 0;
+                            var start = moment($scope.exception.startDate).add(hourOffset, 'hour');
+                            var end = moment($scope.exception.endDate).add(hourOffset, 'hour');
+                            if (end <= start) {
+                                toastr.error($translate.instant('sitnet_endtime_before_starttime'))
+                            } else {
+                                $modalInstance.close({
+                                    "startDate": start,
+                                    "endDate": end,
+                                    "outOfService": $scope.exception.outOfService
+                                });
+                            }
+                        };
+
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss('cancel');
+                        };
+                    }];
+
                     var modalInstance = $modal.open({
                         templateUrl: EXAM_CONF.TEMPLATES_PATH + 'facility/exception.html',
                         backdrop: 'static',
                         keyboard: true,
-                        controller: function ($scope, $modalInstance) {
-                            var now = new Date();
-                            now.setMinutes(0);
-                            now.setSeconds(0);
-                            now.setMilliseconds(0);
-                            $scope.exception = {startDate: now, endDate: angular.copy(now), outOfService: true};
-
-                            $scope.ok = function () {
-
-                                var hourOffset = moment().isDST() ? 1 : 0;
-                                var start = moment($scope.exception.startDate).add(hourOffset, 'hour');
-                                var end = moment($scope.exception.endDate).add(hourOffset, 'hour');
-                                if (end <= start) {
-                                    toastr.error($translate.instant('sitnet_endtime_before_starttime'))
-                                } else {
-                                    $modalInstance.close({
-                                        "startDate": start,
-                                        "endDate": end,
-                                        "outOfService": $scope.exception.outOfService
-                                    });
-                                }
-                            };
-
-                            $scope.cancel = function () {
-                                $modalInstance.dismiss('cancel');
-                            };
-                        }
+                        controller: modalController
                     });
 
                     modalInstance.result.then(function (exception) {

@@ -1,7 +1,8 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('MachineModalController', ['$scope', '$translate', '$filter', 'sessionService', '$modalInstance', 'params','EnrollRes',
+        .controller('MachineModalController', ['$scope', '$translate', '$filter', 'sessionService', '$uibModalInstance',
+            'params','EnrollRes',
             function ($scope, $translate, $filter, sessionService, $modalInstance, params, EnrollRes) {
 
                 $scope.machine = params.machine;

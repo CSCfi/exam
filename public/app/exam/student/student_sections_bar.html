@@ -9,7 +9,7 @@
     </li>
     <li class="row pointer" ng-repeat="section in doexam.examSections" ng-click="setActiveSection(section.name)"
         popover-placement="left" popover-popup-delay="1000" popover-trigger="mouseenter"
-        popover="{{section.name}}: {{'sitnet_question_status_answered' | translate}}
+        uib-popover="{{section.name}}: {{'sitnet_question_status_answered' | translate}}
                  {{getQuestionAmount(section,'answered')}}, {{'sitnet_questions_total' | translate}}
                  {{ getQuestionAmount(section,'total') }}">
         <div class="fa-stack col-md-1">

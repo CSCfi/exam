@@ -13,7 +13,7 @@
                     <div class="col-md-6" ng-conroller="DatepickerCtrl">
                         <strong>{{'sitnet_begin' | translate}}</strong>
                         <div class="input-group">
-                            <input type="text" class="form-control" datepicker-popup="{{format}}"
+                            <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
                                    ng-model="dateService.startDate"
                                    is-open="startDateOpened" datepicker-options="dateOptions"
                                    close-text="{{'sitnet_close' | translate}}"
@@ -32,7 +32,7 @@
                     <div class="col-md-6" ng-controller="DatepickerCtrl">
                         <strong>{{'sitnet_end' | translate}}</strong>
                         <div class="input-group">
-                            <input type="text" class="form-control" datepicker-popup="{{format}}"
+                            <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
                                    ng-model="dateService.endDate"
                                    is-open="endDateOpened" datepicker-options="dateOptions"
                                    close-text="{{'sitnet_close' | translate}}"

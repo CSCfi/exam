@@ -74,8 +74,8 @@
                             <div ng-controller="TagTypeaheadCtrl">
                                 <input id="newTag" name="newTag" type="text" maxlength="30" lowercase class="form-control"
                                        ng-model="newQuestion.newTag"
+                                       uib-typeahead="t as t.name for t in getTags($viewValue, newQuestion)"
                                        typeahead-on-select="onTagSelect($item, newQuestion)"
-                                       typeahead="t as t.name for t in getTags($viewValue, newQuestion)"
                                        typeahead-min-length="2"/>
                             </div>
                         </div>
@@ -118,7 +118,7 @@
                                     <div ng-repeat="tag in newQuestion.tags">
                                         <span class="pointer sitnet-badge pull-left inline"
                                               popover-placement="top" popover-popup-delay="500" popover-trigger="mouseenter"
-                                              popover="{{ 'sitnet_remove' | translate }}" ng-click="removeTag(tag)">
+                                              uib-popover="{{ 'sitnet_remove' | translate }}" ng-click="removeTag(tag)">
                                             {{ tag.name }}
                                         </span>
                                     </div>

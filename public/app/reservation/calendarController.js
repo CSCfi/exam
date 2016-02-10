@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'dateService',
+        .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$routeParams', 'dateService',
             '$locale', 'StudentExamRes', 'reservationService', 'dialogs', 'SettingsResource', 'CalendarRes', 'uiCalendarConfig',
-            function ($scope, $http, $location, $translate, $modal, $routeParams, dateService, $locale, StudentExamRes,
+            function ($scope, $http, $location, $translate, $routeParams, dateService, $locale, StudentExamRes,
                       reservationService, dialogs, SettingsResource, CalendarRes, uiCalendarConfig) {
 
                 $scope.limitations = {};

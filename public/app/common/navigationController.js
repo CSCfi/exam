@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('NavigationCtrl', ['$scope', '$rootScope', '$modal', '$location', 'sessionService', 'waitingRoomService', 'SettingsResource',
+        .controller('NavigationCtrl', ['$scope', '$rootScope', '$uibModal', '$location', 'sessionService', 'waitingRoomService', 'SettingsResource',
             function ($scope, $rootScope, $modal, $location, sessionService, waitingRoomService, SettingsResource) {
 
                 $scope.isActive = function (link) {

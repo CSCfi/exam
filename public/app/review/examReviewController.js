@@ -2,8 +2,9 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('ExamReviewController', ['dialogs', '$document', '$q', '$scope', 'sessionService',
-            'examService', 'questionService', '$routeParams', '$http', '$modal', '$location', '$translate',
-            '$timeout', '$sce', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'LanguageInspectionRes', 'QuestionRes', 'dateService', 'fileService',
+            'examService', 'questionService', '$routeParams', '$http', '$uibModal', '$location', '$translate',
+            '$timeout', '$sce', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'LanguageInspectionRes', 'QuestionRes',
+            'dateService', 'fileService',
             function (dialogs, $document, $q, $scope, sessionService, examService, questionService,
                       $routeParams, $http, $modal, $location, $translate, $timeout, $sce, EXAM_CONF, ExamRes, LanguageRes,
                       LanguageInspectionRes, QuestionRes, dateService, fileService) {
@@ -672,7 +673,7 @@
                 $scope.selectFile = function (isStatement) {
 
                     var exam = $scope.exam;
-                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.exam = exam;
                         var urlSuffix = isStatement ? 'statement' : 'feedback';
                         var parent = isStatement ? $scope.exam.languageInspection.statement : $scope.exam.examFeedback;

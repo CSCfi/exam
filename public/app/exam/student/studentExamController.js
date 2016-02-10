@@ -2,7 +2,7 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$filter', '$q', '$interval',
-            '$routeParams', '$sce', '$http', '$modal', '$location', '$translate', '$timeout', 'EXAM_CONF',
+            '$routeParams', '$sce', '$http', '$uibModal', '$location', '$translate', '$timeout', 'EXAM_CONF',
             'StudentExamRes', 'dateService', 'examService', 'questionService', 'fileService', 'sessionService',
             'enrolmentService',
             function (dialogs, $rootScope, $scope, $filter, $q, $interval, $routeParams, $sce, $http, $modal, $location,
@@ -583,7 +583,7 @@
                         return;
                     }
 
-                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
 
                         $scope.question = question;
                         fileService.getMaxFilesize().then(function (data) {

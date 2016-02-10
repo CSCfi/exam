@@ -21,7 +21,7 @@
                 };
                 var $modal;
                 var modal = function () {
-                    return $modal = $modal || $injector.get('$modal');
+                    return $modal = $modal || $injector.get('$uibModal');
                 };
                 var $route;
                 var route = function () {
@@ -90,7 +90,6 @@
                 var onLogoutSuccess = function (data) {
                     $rootScope.$broadcast('userUpdated');
                     toastr.success($translate.instant("sitnet_logout_success"));
-                    $sessionStorage.$reset();
                     window.onbeforeunload = null;
                     var localLogout = window.location.protocol + "//" + window.location.host + "/Shibboleth.sso/Logout";
                     if (data && data.logoutUrl) {
@@ -124,7 +123,7 @@
                 };
 
                 self.openEulaModal = function (user) {
-                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.ok = function () {
                             // OK button
                             userRes().updateAgreementAccepted.update(function () {
@@ -157,7 +156,7 @@
                 };
 
                 self.openRoleSelectModal = function (user) {
-                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.user = user;
                         $scope.ok = function (role) {
                             userRes().userRoles.update({id: user.id, role: role.name}, function () {

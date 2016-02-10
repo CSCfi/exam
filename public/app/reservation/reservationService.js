@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('reservationService', ['$q', '$modal', '$http', '$routeParams', '$translate', '$location', 'dialogs',
+        .service('reservationService', ['$q', '$uibModal', '$http', '$routeParams', '$translate', '$location', 'dialogs',
             'dateService', 'sessionService', 'ReservationResource', 'EXAM_CONF',
             function ($q, $modal, $http, $routeParams, $translate, $location, dialogs, dateService, sessionService,
                       ReservationRes, EXAM_CONF) {
@@ -169,7 +169,7 @@
                 };
 
                 self.changeMachine = function (reservation) {
-                    var modalController = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.selection = {};
                         $scope.availableMachines = ReservationRes.availableMachines.query({id: reservation.id});
                         $scope.ok = function () {

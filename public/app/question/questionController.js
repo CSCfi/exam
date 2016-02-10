@@ -9,7 +9,7 @@
             };
         })
 
-        .controller('QuestionCtrl', ['dialogs', '$rootScope', '$scope', '$q', '$http', '$modal', '$routeParams',
+        .controller('QuestionCtrl', ['dialogs', '$rootScope', '$scope', '$q', '$http', '$uibModal', '$routeParams',
             '$location', '$translate', 'focus', 'QuestionRes', 'questionService', 'ExamRes', 'TagRes', 'EXAM_CONF',
             'fileService',
             function (dialogs, $rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus,
@@ -326,7 +326,7 @@
 
                     var question = $scope.newQuestion;
 
-                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
 
                         $scope.newQuestion = question;
                         $scope.isTeacherModal = true;

@@ -273,7 +273,7 @@
                 };
 
                 self.getMaxScore = function (exam) {
-                    if (!exam) {
+                    if (!exam || !exam.examSections) {
                         return 0;
                     }
                     var total = 0;
@@ -284,7 +284,7 @@
                 };
 
                 self.getTotalScore = function (exam) {
-                    if (!exam) {
+                    if (!exam || !exam.examSections) {
                         return 0;
                     }
                     var total = 0;

@@ -9,7 +9,7 @@
     <div id="draggable" data-spy="affix" data-offset-top="50" class="wrapper">
         <div class="row" ng-init="hideEditor=false">
             <div class="col-md-1" popover-placement="right" popover-popup-delay="500" popover-trigger="mouseenter"
-                 popover="{{hideEditor ? 'sitnet_show' : 'sitnet_hide' | translate}}">
+                 uib-popover="{{hideEditor ? 'sitnet_show' : 'sitnet_hide' | translate}}">
                 <i ng-click="hideEditor = !hideEditor" class="pointer fa fa-2x vcenter"
                    ng-class="hideEditor ? 'fa-chevron-circle-right sitnet-green' : 'fa-chevron-circle-down sitnet-red'">
                 </i>

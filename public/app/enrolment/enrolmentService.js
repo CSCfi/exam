@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('enrolmentService', ['$translate', '$q', '$location', '$modal', 'dialogs', 'EnrollRes', 'SettingsResource',
+        .service('enrolmentService', ['$translate', '$q', '$location', '$uibModal', 'dialogs', 'EnrollRes', 'SettingsResource',
             'StudentExamRes', 'EXAM_CONF',
             function ($translate, $q, $location, $modal, dialogs, EnrollRes, SettingsResource, StudentExamRes, EXAM_CONF) {
 
@@ -116,7 +116,7 @@
                 };
 
                 self.addEnrolmentInformation = function (enrolment) {
-                    var modalController = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.enrolment = angular.copy(enrolment);
                         $scope.ok = function () {
                             $modalInstance.close("Accepted");
@@ -152,7 +152,7 @@
                 };
 
                 self.showInstructions = function (enrolment) {
-                    var modalController = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.title = 'sitnet_instruction';
                         $scope.instructions = enrolment.exam.enrollInstruction;
                         $scope.ok = function () {
@@ -178,7 +178,7 @@
                 };
 
                 self.showMaturityInstructions = function (enrolment) {
-                    var modalController = ["$scope", "$modalInstance", "SettingsResource", function ($scope, $modalInstance, SettingsResource) {
+                    var modalController = ["$scope", "$uibModalInstance", "SettingsResource", function ($scope, $modalInstance, SettingsResource) {
                         if (enrolment.exam.examLanguages.length !== 1) {
                             console.warn("Exam has no exam languages or it has several!");
                         }

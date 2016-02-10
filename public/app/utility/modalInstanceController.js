@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ModalInstanceCtrl', ['$scope', '$modalInstance',
+        .controller('ModalInstanceCtrl', ['$scope', '$uibModalInstance',
             function ($scope, $modalInstance) {
 
                 // Ok button is pressed in the modal dialog

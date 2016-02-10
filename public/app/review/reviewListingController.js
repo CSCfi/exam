@@ -2,7 +2,7 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('ReviewListingController', ['$filter', 'dialogs', '$scope', '$q', '$route', '$routeParams',
-            '$location', '$translate', 'ExamRes', 'dateService', 'examService', 'fileService', '$modal', 'EXAM_CONF',
+            '$location', '$translate', 'ExamRes', 'dateService', 'examService', 'fileService', '$uibModal', 'EXAM_CONF',
             function ($filter, dialogs, $scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService,
                       examService, fileService, $modal, EXAM_CONF) {
 

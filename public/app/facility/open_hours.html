@@ -18,7 +18,8 @@
         <tbody>
            <tr ng-repeat="slot in timerange()">
                 <td ng-repeat="day in getWeekdays()" class='selectable {{ getType(day, slot) }}' ng-click='select(day, slot)'>
-                    <div class="fullsize" tooltip-placement="right" tooltip-animation="false" tooltip-popup-delay="50" tooltip="{{calculateTime(slot)}}"></div>
+                    <div class="fullsize" tooltip-placement="right" tooltip-animation="false" tooltip-popup-delay="50"
+                         uib-tooltip="{{calculateTime(slot)}}"></div>
                 </td>
             </tr>
         </tbody>

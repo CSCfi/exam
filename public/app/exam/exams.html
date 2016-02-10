@@ -13,8 +13,8 @@
             <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
         </span>
 
-            <div class="dropdown" dropdown>
-                <a class="header-top-link dropdown-toggle" data-toggle="dropdown" dropdown-toggle>
+            <div class="dropdown" uib-dropdown>
+                <a class="header-top-link dropdown-toggle" data-toggle="dropdown" uib-dropdown-toggle>
                     {{'sitnet_toolbar_new_exam' | translate}}
                 </a>
                 <ul class="dropdown-menu" role="menu">
@@ -35,7 +35,7 @@
                 <input ng-change="search()" ng-model="filter.text"
                        ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text" class="form-control"
                        placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
-                       popover-trigger="mouseenter" popover="{{ 'sitnet_exam_search_description' | translate }}">
+                       popover-trigger="mouseenter" uib-popover="{{ 'sitnet_exam_search_description' | translate }}">
 
                 <div class="input-group-addon">
                     <i class="fa fa-search fa-fw"></i>
