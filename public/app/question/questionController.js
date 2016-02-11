@@ -179,6 +179,8 @@
                             toastr.info($translate.instant('sitnet_question_removed'));
                             if ($routeParams.examId === undefined) {
                                 $location.path("/questions/");
+                                // Clear cache to trigger a refresh now that there is a new entry
+                                questionService.clearQuestions();
                             } else {
                                 $location.path("/exams/" + $routeParams.examId);
                             }
@@ -218,13 +220,12 @@
                                 $location.path(returnUrl);
                             }, function (error) {
                                 toastr.error(error.data);
-                                //$location.search(query);
-                                //$location.path(returnUrl);
                             });
                         }
+                        // Clear cache to trigger a refresh now that there is a new entry
+                        questionService.clearQuestions();
                     }, function () {
                         toastr.error(error.data);
-                        //$location.path(returnUrl);
                     });
                 };
 

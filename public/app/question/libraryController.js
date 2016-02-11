@@ -363,6 +363,8 @@
                         QuestionRes.questions.delete({id: question.id}, function () {
                             $scope.questions.splice($scope.questions.indexOf(question), 1);
                             toastr.info($translate.instant('sitnet_question_removed'));
+                            // Clear cache to trigger a refresh now that there is a new entry
+                            questionService.clearQuestions();
                         });
                     });
                 };
