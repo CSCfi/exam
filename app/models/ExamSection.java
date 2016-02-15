@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-public final class ExamSection extends OwnedModel {
+public final class ExamSection extends OwnedModel implements Comparable<ExamSection>{
 
     private String name;
 
@@ -127,5 +127,10 @@ public final class ExamSection extends OwnedModel {
         return sectionQuestions.stream()
                 .filter(sq -> sq.getQuestion().isApproved())
                 .collect(Collectors.toList()).size();
+    }
+
+    @Override
+    public int compareTo(ExamSection o) {
+        return id.intValue() - o.id.intValue();
     }
 }
