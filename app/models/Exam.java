@@ -60,7 +60,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     // An ExamSection may be used only in one Exam
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
-    private List<ExamSection> examSections;
+    private Set<ExamSection> examSections;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     protected Exam parent;
@@ -266,11 +266,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.examType = examType;
     }
 
-    public List<ExamSection> getExamSections() {
+    public Set<ExamSection> getExamSections() {
         return examSections;
     }
 
-    public void setExamSections(List<ExamSection> examSections) {
+    public void setExamSections(Set<ExamSection> examSections) {
         this.examSections = examSections;
     }
 
@@ -478,8 +478,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             inspection.setExam(clone);
             inspection.save();
         }
-        Collections.sort(examSections, (o1, o2) -> (int) (o1.getId() - o2.getId()));
-        for (ExamSection es : examSections) {
+        Set<ExamSection> sections = new TreeSet<>();
+        sections.addAll(examSections);
+        for (ExamSection es : sections) {
             ExamSection esCopy = es.copy(clone, produceStudentExam);
             AppUtil.setCreator(esCopy, user);
             AppUtil.setModifier(esCopy, user);
@@ -498,7 +499,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             BeanUtils.copyProperties(attachment, copy, "id");
             clone.setAttachment(copy);
         }
-        Collections.sort(clone.getExamSections(), (o1, o2) -> (int) (o1.getId() - o2.getId()));
+        // do we need this at all?
+        clone.setExamSections(new TreeSet<>(clone.getExamSections()));
         return clone;
     }
 

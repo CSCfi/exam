@@ -41,11 +41,20 @@
                     <input type="number" class="form-control pull-right"
                            ng-model="ae.percentage"
                            min="0" max="100"
-                           required
-                    />
+                           required unique-value items="newExam.autoEvaluations" property="percentage">
                 </div>
-                <div class="col-md-8">&percnt;</div>
+                <div class="col-md-2">
+                    &percnt;
+                </div>
+                <div class="col-md-6 pull-right">
+                    ({{ calculatePointLimit(ae) }} {{'sitnet_unit_points' | translate}})
+                </div>
             </div>
         </div>
+        <!--div ng-show="hasDuplicatePercentages(newExam)" class="bottom-row">
+            <div class="col-md-12 text-danger">
+                this is bad
+            </div>
+        </div-->
     </form>
 </div>

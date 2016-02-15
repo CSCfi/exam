@@ -643,5 +643,6 @@
   "sitnet_in_use": "Käytössä SV",
   "sitnet_not_in_use": "Ei käytössä SV",
   "sitnet_autoevaluation_instructions": "Määrittele arvostelukriteerit antamalla prosenttiosuus kokonaispisteistä, joka vaaditaan arvosanan saavuttamiseksi. SV",
-  "sitnet_percentage": "Prosenttia kokonaispistemäärästä SV"
+  "sitnet_percentage": "Prosenttia kokonaispistemäärästä SV",
+  "sitnet_autoevaluation_percentages_not_unique": "Prosenttiosuuksien pitää olla uniikkeja SV"
 }

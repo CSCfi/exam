@@ -690,7 +690,7 @@ public class ExamController extends BaseController {
                     exam.setExamType(eType);
                 }
             }
-            if (node.has("evaluations") && !node.get("evaluations").isNull()) {
+            if (node.has("evaluations")) {
                 exam.getAutoEvaluations().clear();
                 exam.update();
                 for (JsonNode evaluation : node.get("evaluations")) {
@@ -1007,6 +1007,11 @@ public class ExamController extends BaseController {
             String validationResult = question.getValidationResult();
             if (validationResult != null) {
                 return forbidden(validationResult);
+            }
+            if (question.getType().equals(Question.Type.EssayQuestion)) {
+                // disable auto evaluation for this exam
+                exam.getAutoEvaluations().clear();
+                exam.update();
             }
             Question clone = clone(question);
 

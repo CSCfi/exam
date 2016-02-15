@@ -573,9 +573,9 @@
                 var onUpdate = function (exam, overrideEvaluations) {
                     exam.hasEnrolmentsInEffect = $scope.newExam.hasEnrolmentsInEffect;
                     exam.examSections.forEach(function (es) {
-                       es.sectionQuestions.sort(function (a, b) {
-                           return a.sequenceNumber - b.sequenceNumber;
-                       })
+                        es.sectionQuestions.sort(function (a, b) {
+                            return a.sequenceNumber - b.sequenceNumber;
+                        })
                     });
                     $scope.newExam = exam;
                     resetGradeScale(exam);
@@ -785,6 +785,10 @@
                     }
                     if (exam.executionType.type === 'PRIVATE' && exam.examEnrolments.length < 1) {
                         errors.participants = $translate.instant('sitnet_no_participants');
+                    }
+
+                    if ($scope.autoevaluation.enabled && hasDuplicatePercentages(exam)) {
+                        errors.autoevaluation = $translate.instant('sitnet_autoevaluation_percentages_not_unique');
                     }
 
                     return errors;
@@ -1050,6 +1054,26 @@
                 $scope.canBeAutoEvaluated = function () {
                     return examService.hasQuestions($scope.newExam) && !examService.hasEssayQuestions($scope.newExam) &&
                         $scope.newExam.gradeScale;
+                };
+
+                $scope.calculatePointLimit = function (evaluation) {
+                    var max = $scope.calculateExamMaxScore($scope.newExam);
+                    if (evaluation.percentage == 0 || isNaN(evaluation.percentage)) {
+                        return 0;
+                    }
+                    return Math.ceil(max / 100 * evaluation.percentage);
+                };
+
+                var hasDuplicatePercentages = function(exam) {
+                    var percentages = exam.autoEvaluations.map(function (ae) {
+                        return ae.percentage;
+                    }).sort();
+                    for (var i = 0; i < percentages.length - 1; ++i) {
+                        if (percentages[i + 1] == percentages[i]) {
+                            return true;
+                        }
+                    }
+                    return false;
                 }
 
             }]);

@@ -32,6 +32,31 @@
             }
         })
 
+        .directive('uniqueValue', function () {
+            return {
+                require: 'ngModel',
+                scope: {
+                    items: "=",
+                    property: "@property"
+                },
+                link: function (scope, elem, attrs, ngModel) {
+                    function validate(value) {
+                        var values = !scope.items ? [] : scope.items.map(function (i) {
+                            return i[scope.property];
+                        }).filter(function (i) {
+                            return i == value;
+                        });
+                        ngModel.$setValidity('uniqueness', values.length < 2);
+                    }
+
+                    scope.$watch('items', function (items) {
+                        validate(ngModel.$viewValue);
+                    }, true);
+
+                }
+            }
+        })
+
         .directive('datetimepicker', [
             function () {
 
