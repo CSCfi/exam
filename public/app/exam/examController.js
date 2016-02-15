@@ -572,6 +572,11 @@
 
                 var onUpdate = function (exam, overrideEvaluations) {
                     exam.hasEnrolmentsInEffect = $scope.newExam.hasEnrolmentsInEffect;
+                    exam.examSections.forEach(function (es) {
+                       es.sectionQuestions.sort(function (a, b) {
+                           return a.sequenceNumber - b.sequenceNumber;
+                       })
+                    });
                     $scope.newExam = exam;
                     resetGradeScale(exam);
                     resetAutoEvaluations(overrideEvaluations);

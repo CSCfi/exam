@@ -25,18 +25,6 @@ public class ExamRecord extends GeneratedIdentityModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date timeStamp;
 
-    // the moment this record was exported to Education administration system
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date recordedOn;
-
-    public Date getRecordedOn() {
-        return recordedOn;
-    }
-
-    public void setRecordedOn(Date recordedOn) {
-        this.recordedOn = recordedOn;
-    }
-
     public User getTeacher() {
         return teacher;
     }

@@ -247,7 +247,7 @@ public class Interfaces extends BaseController implements ExternalAPI {
         List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
                 .fetch("examScore")
                 .where()
-                .gt("time_stamp", start.toDate())
+                .gt("timeStamp", start.toDate())
                 .findList();
         return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
     }
