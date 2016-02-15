@@ -1,0 +1,51 @@
+<div class="row exam-general-information-header">
+    <div class="col-md-1">
+        <a class="pointer pull-left fa-stack fa-lg" popover-placement="left" popover-popup-delay="1000"
+           popover-trigger="mouseenter" uib-popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
+           ng-click="autoevaluationDisplay.visible = !autoevaluationDisplay.visible">
+            <i ng-class="autoevaluationDisplay.visible ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-right fa-stack-1x'"></i>
+        </a>
+    </div>
+    <div class="col-md-11 exams-generic-info-title" ng-class="autoevaluation.enabled ? 'text' : 'text-muted'">
+        {{'sitnet_exam_autoevaluation' | translate}}
+        <small ng-if="autoevaluation.enabled">({{'sitnet_in_use' | translate}})</small>
+        <small ng-if="!autoevaluation.enabled">({{'sitnet_not_in_use' | translate}})</small>
+    </div>
+</div>
+
+<div ng-show="autoevaluationDisplay.visible">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="checkbox-inline">
+                <input type="checkbox" ng-model="autoevaluation.enabled" ng-value="true">{{'sitnet_use_autoevaluation' |
+                translate}}
+            </div>
+        </div>
+    </div>
+    <div class="main-row">
+        <div class="col-md-12">
+            {{'sitnet_autoevaluation_instructions' | translate}}
+        </div>
+    </div>
+    <div class="top-row">
+        <div class="col-md-2"><strong>{{'sitnet_exam_grade' | translate}}</strong></div>
+        <div class="col-md-10"><strong>{{'sitnet_percentage' | translate}}</strong></div>
+    </div>
+    <form role="form">
+        <div ng-repeat="ae in newExam.autoEvaluations | orderBy: ae.grade.id">
+            <div class="top-row">
+                <div class="col-md-2">
+                    {{ getGradeDisplayName(ae.grade) }}
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control pull-right"
+                           ng-model="ae.percentage"
+                           min="0" max="100"
+                           required
+                    />
+                </div>
+                <div class="col-md-8">&percnt;</div>
+            </div>
+        </div>
+    </form>
+</div>

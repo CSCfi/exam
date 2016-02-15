@@ -357,6 +357,7 @@ public class EmailComposerImpl implements EmailComposer {
         String examDuration = Messages.get(lang, "email.template.participant.notification.exam.duration",
                 exam.getDuration());
         String reservationInfo = Messages.get(lang, "email.template.participant.notification.please.reserve");
+        String bookingLink = String.format("%s/#/calendar/%d", HOSTNAME, exam.getId());
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("title", title);
         stringValues.put("exam_info", examInfo);
@@ -364,7 +365,7 @@ public class EmailComposerImpl implements EmailComposer {
         stringValues.put("exam_period", examPeriod);
         stringValues.put("exam_duration", examDuration);
         stringValues.put("reservation_info", reservationInfo);
-        stringValues.put("main_system_url", BASE_SYSTEM_URL);
+        stringValues.put("booking_link", bookingLink);
         String content = replaceAll(template, stringValues);
         emailSender.send(student.getEmail(), fromUser.getEmail(), subject, content);
     }

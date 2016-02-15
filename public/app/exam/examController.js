@@ -9,14 +9,16 @@
                       SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes) {
 
                 $scope.newExam = {};
-                $scope.sectionTemplate = {visible: true};
+                $scope.sectionDisplay = {visible: true};
+                $scope.autoevaluationDisplay = {visible: true};
                 $scope.templates = {
                     basicInfo: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_basic_info.html",
                     section: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section.html",
                     question: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_question.html",
                     library: EXAM_CONF.TEMPLATES_PATH + "question/library.html",
                     course: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_course.html",
-                    sections: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_sections.html"
+                    sections: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_sections.html",
+                    autoEvaluation: EXAM_CONF.TEMPLATES_PATH + "exam/editor/autoevaluation.html"
                 };
 
                 $scope.examTypes = [];
@@ -25,6 +27,7 @@
                 $scope.loader = {
                     loading: false
                 };
+                $scope.autoevaluation = {enabled: false};
 
                 $scope.user = sessionService.getUser();
                 if ($scope.user.isStudent) {
@@ -127,6 +130,16 @@
 
                 };
 
+                var resetAutoEvaluations = function (overwrite) {
+                    var exam = $scope.newExam;
+                    $scope.autoevaluation.enabled = exam.autoEvaluations.length > 0;
+                    if ((overwrite || exam.autoEvaluations.length == 0) && $scope.newExam.gradeScale) {
+                        exam.autoEvaluations = $scope.newExam.gradeScale.grades.map(function (g) {
+                            return {grade: angular.copy(g), percentage: 0}
+                        });
+                    }
+                };
+
                 var getParticipations = function () {
                     // go through child exams and read in the enrolments
                     var x = [];
@@ -147,6 +160,7 @@
                             initialLanguages = exam.examLanguages.length;
                             initialSoftware = exam.softwares.length;
                             resetGradeScale(exam);
+                            resetAutoEvaluations();
                             $scope.reindexNumbering();
                             getInspectors();
                             getExamOwners();
@@ -361,6 +375,11 @@
 
                 };
 
+
+                $scope.getGradeDisplayName = function (grade) {
+                    return examService.getExamGradeDisplayName(grade.name);
+                };
+
                 $scope.reindexNumbering = function () {
                     // set sections and question numbering
                     angular.forEach($scope.newExam.examSections, function (section, index) {
@@ -437,7 +456,7 @@
 
                 $scope.setExamGradeScale = function (grading) {
                     $scope.newExam.gradeScale = grading;
-                    $scope.updateExam();
+                    $scope.updateExam(true);
                 };
 
                 $scope.setExamType = function (type) {
@@ -521,7 +540,7 @@
                     });
                 };
 
-                $scope.calculateMaxPoints = function(question) {
+                $scope.calculateMaxPoints = function (question) {
                     return questionService.calculateMaxPoints(question);
                 };
 
@@ -539,6 +558,7 @@
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.gradeScale ? $scope.newExam.gradeScale.id : undefined,
                         "expanded": $scope.newExam.expanded,
+                        "evaluations": $scope.autoevaluation.enabled ? $scope.newExam.autoEvaluations : null,
                         "trialCount": $scope.newExam.trialCount,
                         "objectVersion": $scope.newExam.objectVersion
                     };
@@ -550,24 +570,25 @@
                     return update;
                 };
 
-                var onUpdate = function (exam) {
+                var onUpdate = function (exam, overrideEvaluations) {
                     exam.hasEnrolmentsInEffect = $scope.newExam.hasEnrolmentsInEffect;
                     $scope.newExam = exam;
                     resetGradeScale(exam);
+                    resetAutoEvaluations(overrideEvaluations);
                     $scope.newExam.examLanguages.forEach(function (language) {
                         // Use front-end language names always to allow for i18n etc
                         language.name = getLanguageNativeName(language.code);
                     });
                 };
 
-                $scope.updateExam = function (newExam) {
+                $scope.updateExam = function (overrideEvaluations) {
 
                     var examToSave = getUpdate();
 
                     ExamRes.exams.update({id: $scope.newExam.id}, examToSave,
                         function (exam) {
                             toastr.info($translate.instant("sitnet_exam_saved"));
-                            onUpdate(exam);
+                            onUpdate(exam, overrideEvaluations);
                         }, function (error) {
                             if (error.data) {
                                 var msg = error.data.message || error.data;
@@ -658,10 +679,10 @@
                             templateUrl: EXAM_CONF.TEMPLATES_PATH + 'exam/editor/exam_publish_questions.html',
                             backdrop: 'static',
                             keyboard: true,
-                            controller: function ($scope, $modalInstance, errors) {
+                            controller: function ($scope, $uibModalInstance, errors) {
                                 $scope.errors = errors;
                                 $scope.ok = function () {
-                                    $modalInstance.dismiss();
+                                    $uibModalInstance.dismiss();
                                 };
                             },
                             resolve: {
@@ -1017,21 +1038,14 @@
                     });
                 };
 
-                $scope.removeExamRoom = function () {
-                    $scope.newExam.room = null;
-                    $scope.updateExam($scope.newExam);
-                };
-
-                $scope.getSectionId = function (id) {
-
-                    if (document.getElementById(id)) {
-                        return document.getElementById(id).select();
-                    }
-                };
-
                 $scope.shortText = function (text, limit) {
                     return questionService.shortText(text, limit);
                 };
+
+                $scope.canBeAutoEvaluated = function () {
+                    return examService.hasQuestions($scope.newExam) && !examService.hasEssayQuestions($scope.newExam) &&
+                        $scope.newExam.gradeScale;
+                }
 
             }]);
 }());

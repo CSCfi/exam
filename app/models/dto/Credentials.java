@@ -1,4 +1,4 @@
-package models;
+package models.dto;
 
 public class Credentials {
 

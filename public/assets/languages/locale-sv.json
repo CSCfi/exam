@@ -637,5 +637,11 @@
   "sitnet_participation_unfinished": "Väntar på slutlig bedömning",
   "sitnet_unsaved_data_may_be_lost": "Uppdatering av sidan kommer att förkasta alla osparade ändringar.",
   "sitnet_connection_refused": "Misslyckades att kontakta servern. Sannolikt att en problem med nätverkanslutning uppstod.",
-  "sitnet_change_reservation_machine": "Muuta konevarausta SV"
+  "sitnet_change_reservation_machine": "Muuta konevarausta SV",
+  "sitnet_exam_autoevaluation": "Automaattinen arviointi SV",
+  "sitnet_use_autoevaluation": "Ota käyttöön SV",
+  "sitnet_in_use": "Käytössä SV",
+  "sitnet_not_in_use": "Ei käytössä SV",
+  "sitnet_autoevaluation_instructions": "Määrittele arvostelukriteerit antamalla prosenttiosuus kokonaispisteistä, joka vaaditaan arvosanan saavuttamiseksi. SV",
+  "sitnet_percentage": "Prosenttia kokonaispistemäärästä SV"
 }

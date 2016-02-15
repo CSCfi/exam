@@ -272,6 +272,26 @@
                     return score;
                 };
 
+                self.hasQuestions = function (exam) {
+                    if (!exam || !exam.examSections) {
+                        return false;
+                    }
+                    return exam.examSections.reduce(function (a, b) {
+                        return a + b.sectionQuestions.length;
+                    }, 0) > 0;
+                };
+
+                self.hasEssayQuestions = function (exam) {
+                    if (!exam || !exam.examSections) {
+                        return false;
+                    }
+                    return exam.examSections.filter(function(es) {
+                        return es.sectionQuestions.some(function (sq) {
+                            return sq.question.type === "EssayQuestion";
+                        });
+                    }).length > 0;
+                };
+
                 self.getMaxScore = function (exam) {
                     if (!exam || !exam.examSections) {
                         return 0;

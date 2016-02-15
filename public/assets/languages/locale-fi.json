@@ -637,5 +637,12 @@
   "sitnet_participation_unfinished": "Odottaa loppuarviointia",
   "sitnet_unsaved_data_may_be_lost": "Tallentamaton tieto häviää päivityksen yhteydessä.",
   "sitnet_connection_refused": "Palvelimeen ei saada yhteyttä, todennäköisesti ongelmia verkkoyhteydessä.",
-  "sitnet_change_reservation_machine": "Muuta konevarausta"
+  "sitnet_change_reservation_machine": "Muuta konevarausta",
+  "sitnet_exam_autoevaluation": "Automaattinen arviointi",
+  "sitnet_use_autoevaluation": "Ota käyttöön",
+  "sitnet_in_use": "käytössä",
+  "sitnet_not_in_use": "ei käytössä",
+  "sitnet_autoevaluation_instructions": "Määrittele arvostelukriteerit antamalla prosenttiosuus kokonaispisteistä, joka vaaditaan arvosanan saavuttamiseksi.",
+  "sitnet_percentage": "Prosenttia kokonaispistemäärästä"
+
 }

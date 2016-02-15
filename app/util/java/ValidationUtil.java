@@ -1,33 +1,30 @@
 package util.java;
 
-import play.data.DynamicForm;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Date;
 
-/**
- * Created by Mikko Katajamaki on 05/12/14.
- */
 public class ValidationUtil {
 
-    public static String validateExamForm(DynamicForm df) {
+    public static String validateExamForm(JsonNode node) {
 
         Long start, end, now = new Date().getTime();
         long day = 1000 * 60 * 60 * 24;
 
-        String examName = df.get("name");
+        String examName = node.has("name") ? node.get("name").asText() : null;
 
         if(examName == null || examName.isEmpty()) {
             return "sitnet_error_exam_empty_name";
         }
 
         try {
-            start = new Long(df.get("examActiveStartDate"));
+            start = node.get("examActiveStartDate").asLong();
         } catch(Exception e) {
             return "sitnet_error_start_date";
         }
 
         try {
-            end = new Long(df.get("examActiveEndDate"));
+            end = node.get("examActiveEndDate").asLong();
         } catch(Exception e) {
             return "sitnet_error_end_date";
         }
@@ -40,6 +37,6 @@ public class ValidationUtil {
             return "sitnet_error_end_sooner_than_now";
         }
 
-        return "OK";
+        return null;
     }
 }

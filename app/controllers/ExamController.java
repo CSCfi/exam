@@ -258,6 +258,8 @@ public class ExamController extends BaseController {
                 .fetch("parent.gradeScale.grades", new FetchConfig().query())
                 .fetch("parent.examOwners", new FetchConfig().query())
                 .fetch("examType")
+                .fetch("autoEvaluations")
+                .fetch("autoEvaluations.grade")
                 .fetch("executionType")
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions")
@@ -350,7 +352,7 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result getExamGradeScales() {
-        List<GradeScale> scales = Ebean.find(GradeScale.class).findList();
+        List<GradeScale> scales = Ebean.find(GradeScale.class).fetch("grades").findList();
         return ok(scales);
     }
 
@@ -563,14 +565,14 @@ public class ExamController extends BaseController {
         }, actor.dispatcher());
     }
 
-    private Result updateStateAndValidate(Exam exam, DynamicForm df) {
-        Exam.State state = df.get("state") == null ? null : Exam.State.valueOf(df.get("state"));
+    private Result updateStateAndValidate(Exam exam, JsonNode node) {
+        Exam.State state = node.has("state") ? null : Exam.State.valueOf(node.get("state").asText());
         if (state != null) {
             if (exam.hasState(Exam.State.SAVED, Exam.State.DRAFT) && state == Exam.State.PUBLISHED) {
                 // Exam is about to be published
-                String str = ValidationUtil.validateExamForm(df);
+                String str = ValidationUtil.validateExamForm(node);
                 // invalid data
-                if (!str.equalsIgnoreCase("OK")) {
+                if (str != null) {
                     return badRequest(str);
                 }
                 // no sections named
@@ -595,17 +597,10 @@ public class ExamController extends BaseController {
         return isStartDate ? oldDate.before(newDate) : newDate.before(oldDate);
     }
 
-    private long parseExamDate(String date) {
-        if (date == null) {
-            return 0;
-        }
-        return Long.parseLong(date);
-    }
-
-    private Result updateTemporalFieldsAndValidate(Exam exam, DynamicForm df, User user) {
-        Long start = parseExamDate(df.get("examActiveStartDate"));
-        Long end = parseExamDate(df.get("examActiveEndDate"));
-        String duration = df.get("duration");
+    private Result updateTemporalFieldsAndValidate(Exam exam, JsonNode node, User user) {
+        Long start = node.get("examActiveStartDate").asLong();
+        Long end = node.get("examActiveEndDate").asLong();
+        Integer newDuration = node.get("duration").asInt();
         boolean hasFutureReservations = hasFutureReservations(exam);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
         if (start != 0) {
@@ -624,8 +619,7 @@ public class ExamController extends BaseController {
                 return forbidden("sitnet_error_future_reservations_exist");
             }
         }
-        if (duration != null) {
-            int newDuration = Integer.valueOf(duration);
+        if (newDuration != 0) {
             if (newDuration == exam.getDuration() || !hasFutureReservations || isAdmin) {
                 exam.setDuration(newDuration);
             } else {
@@ -636,9 +630,14 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateExam(Long id) {
+    public Result updateAutoEvaluations(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
 
+        return ok();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result updateExam(Long id) {
         Exam exam = createQuery().where().idEq(id).findUnique();
 
         if (exam == null) {
@@ -646,22 +645,23 @@ public class ExamController extends BaseController {
         }
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || getLoggedUser().hasRole("ADMIN", getSession())) {
-            Result result = updateTemporalFieldsAndValidate(exam, df, user);
+            JsonNode node = request().body().asJson();
+            Result result = updateTemporalFieldsAndValidate(exam, node, user);
             if (result != null) {
                 return result;
             }
-            result = updateStateAndValidate(exam, df);
+            result = updateStateAndValidate(exam, node);
             if (result != null) {
                 return result;
             }
-            String examName = df.get("name");
-            Boolean shared = Boolean.parseBoolean(df.get("shared"));
-            Integer grading = df.get("grading") == null ? null : Integer.parseInt(df.get("grading"));
-            String answerLanguage = df.get("answerLanguage");
-            String instruction = df.get("instruction");
-            String enrollInstruction = df.get("enrollInstruction");
-            Integer trialCount = df.get("trialCount") == null ? null : Integer.parseInt(df.get("trialCount"));
-            boolean expanded = Boolean.parseBoolean(df.get("expanded"));
+            String examName = node.get("name").asText();
+            Boolean shared = node.has("shared") && node.get("shared").asBoolean(false);
+            Integer grading = node.has("grading") ?  node.get("grading").asInt() : null;
+            String answerLanguage = node.has("answerLanguage") ? node.get("answerLanguage").asText() : null;
+            String instruction = node.has("instruction") ? node.get("instruction").asText() : null;
+            String enrollInstruction = node.has("enrollInstruction") ? node.get("enrollInstruction").asText() : null;
+            Integer trialCount = node.has("trialCount") ? node.get("trialCount").asInt()  : null;
+            Boolean expanded = node.has("expanded") && node.get("expanded").asBoolean(false);
             if (examName != null) {
                 exam.setName(examName);
             }
@@ -679,8 +679,8 @@ public class ExamController extends BaseController {
             if (enrollInstruction != null) {
                 exam.setEnrollInstruction(enrollInstruction);
             }
-            if (df.get("examType.type") != null) {
-                String examType = df.get("examType.type");
+            if (node.has("examType")) {
+                String examType = node.get("examType").get("type").asText();
                 ExamType eType = Ebean.find(ExamType.class)
                         .where()
                         .eq("type", examType)
@@ -690,12 +690,24 @@ public class ExamController extends BaseController {
                     exam.setExamType(eType);
                 }
             }
+            if (node.has("evaluations") && !node.get("evaluations").isNull()) {
+                exam.getAutoEvaluations().clear();
+                exam.update();
+                for (JsonNode evaluation : node.get("evaluations")) {
+                    AutoEvaluation autoEvaluation = new AutoEvaluation();
+                    Grade grade = Ebean.find(Grade.class, evaluation.get("grade").get("id").asInt());
+                    if (grade != null) {
+                        autoEvaluation.setGrade(grade);
+                        autoEvaluation.setPercentage(evaluation.get("percentage").asInt());
+                        autoEvaluation.setExam(exam);
+                        autoEvaluation.save();
+                        exam.getAutoEvaluations().add(autoEvaluation);
+                    }
+                }
+            }
             exam.setTrialCount(trialCount);
             exam.generateHash();
-
-            if (df.get("expanded") != null) {
-                exam.setExpanded(expanded);
-            }
+            exam.setExpanded(expanded);
             exam.save();
             return ok(exam);
         } else {
@@ -707,9 +719,9 @@ public class ExamController extends BaseController {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
         boolean canOverrideGrading = AppUtil.isCourseGradeScaleOverridable();
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
-            GradeScale scale = Ebean.find(GradeScale.class, grading);
+            GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findUnique();
             if (scale != null) {
-                exam.setGradeScale(Ebean.find(GradeScale.class, grading));
+                exam.setGradeScale(scale);
             } else {
                 Logger.warn("Grade scale not found for ID {}. Not gonna update exam with it", grading);
             }

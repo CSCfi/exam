@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import exceptions.NotFoundException;
 import models.*;
+import models.dto.Credentials;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.Json;

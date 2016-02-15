@@ -1,25 +1,15 @@
 <script>
-    $(document).ready(function () {
 
-        /*
-         * Clamped-width.
-         * Usage:
-         *  <div data-clampedwidth=".myParent">This long content will force clamped width</div>
-         *
-         * Author: LV
-         */
+    var initResize = function() {
         $('[data-clampedwidth]').each(function () {
             var elem = $(this);
-            var parentPanel = elem.data('clampedwidth');
             var resizeFn = function () {
-                var affixWidth = $(parentPanel).width() -
-                        parseInt(elem.css('paddingLeft')) -
-                        parseInt(elem.css('paddingRight')) -
-                        parseInt(elem.css('marginLeft')) -
-                        parseInt(elem.css('marginRight')) -
-                        parseInt(elem.css('borderLeftWidth')) -
-                        parseInt(elem.css('borderRightWidth'));
-                elem.css('width', affixWidth);
+                var containerWidth = $("#lib-wrapper").width();
+                var padding = Math.max(parseInt(elem.css('paddingLeft')) +
+                        parseInt(elem.css('paddingRight')), 15);
+                console.log("lib container width: " + containerWidth);
+                console.log("padding: " + padding);
+                elem.css('width', containerWidth - padding);
             };
 
             // add some timeout so that the UI can settle before calculating widths
@@ -28,13 +18,16 @@
                 $(window).resize(resizeFn);
             }, 200);
         });
+    };
 
-
+    $(document).ready(function () {
+        console.log("on doc ready");
+        initResize();
         $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function (e) {
             e.stopPropagation();
         });
-
     });
+
 </script>
 
 <div id="library">
