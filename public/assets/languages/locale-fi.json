@@ -644,5 +644,13 @@
   "sitnet_not_in_use": "ei käytössä",
   "sitnet_autoevaluation_instructions": "Määrittele arvostelukriteerit antamalla prosenttiosuus kokonaispisteistä, joka vaaditaan arvosanan saavuttamiseksi.",
   "sitnet_percentage": "Prosenttia kokonaispistemäärästä",
-  "sitnet_autoevaluation_percentages_not_unique": "Prosenttiosuuksien pitää olla uniikkeja"
+  "sitnet_autoevaluation_percentages_not_unique": "Prosenttiosuuksien pitää olla uniikkeja",
+  "sitnet_autoevaluation_release_type": "Ajankohta, jolloin automaattisen arvioinnin tulos julkaistaan opiskelijalle",
+  "sitnet_autoevaluation_release_type_immediate": "Välittömästi tenttisuorituksen palautuksen jälkeen",
+  "sitnet_autoevaluation_release_type_given_date": "Tiettynä päivämääränä",
+  "sitnet_autoevaluation_release_type_given_days": "Päivää tenttisuorituksen palautuksen jälkeen",
+  "sitnet_autoevaluation_release_type_period": "Tenttiperiodin päätyttyä",
+  "sitnet_autoevaluation_release_type_never": "Ei automaattista ilmoitusta",
+  "sitnet_autoevaluation_release_date": "Tulosten julkaisupäivä",
+  "sitnet_autoevaluation_release_after_days": "Kuinka monen päivän kuluttua suorituksen palautuksesta tulos julkaistaan"
 }

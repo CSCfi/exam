@@ -2,6 +2,8 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.avaje.ebean.Model;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 
@@ -41,6 +43,21 @@ public class Grade extends Model {
 
     public void setGradeScale(GradeScale gradeScale) {
         this.gradeScale = gradeScale;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof Grade)) {
+            return false;
+        }
+        Grade otherGrade = (Grade) other;
+        return new EqualsBuilder().append(id, otherGrade.id).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).build();
     }
 
 }

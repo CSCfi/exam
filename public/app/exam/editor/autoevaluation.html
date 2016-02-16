@@ -32,29 +32,77 @@
         <div class="col-md-10"><strong>{{'sitnet_percentage' | translate}}</strong></div>
     </div>
     <form role="form">
-        <div ng-repeat="ae in newExam.autoEvaluations | orderBy: ae.grade.id">
+        <div ng-repeat="ge in newExam.autoEvaluationConfig.gradeEvaluations | orderBy: ge.grade.id">
             <div class="top-row">
                 <div class="col-md-2">
-                    {{ getGradeDisplayName(ae.grade) }}
+                    {{ getGradeDisplayName(ge.grade) }}
                 </div>
                 <div class="col-md-2">
                     <input type="number" class="form-control pull-right"
-                           ng-model="ae.percentage"
+                           ng-model="ge.percentage"
                            min="0" max="100"
-                           required unique-value items="newExam.autoEvaluations" property="percentage">
+                           required unique-value items="newExam.autoEvaluationConfig.gradeEvaluations" property="percentage">
                 </div>
                 <div class="col-md-2">
                     &percnt;
                 </div>
                 <div class="col-md-6 pull-right">
-                    ({{ calculatePointLimit(ae) }} {{'sitnet_unit_points' | translate}})
+                    ({{ calculatePointLimit(ge) }} {{'sitnet_unit_points' | translate}})
                 </div>
             </div>
         </div>
-        <!--div ng-show="hasDuplicatePercentages(newExam)" class="bottom-row">
-            <div class="col-md-12 text-danger">
-                this is bad
+    </form>
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="sitnet-info-text">{{'sitnet_autoevaluation_release_type' | translate}}:</div>
+            <div class="dropdown" uib-dropdown>
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"
+                        uib-dropdown-toggle
+                        aria-expanded="true">
+                    {{ selectedReleaseType().translation | translate}}&nbsp;<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li ng-repeat="type in autoevaluation.releaseTypes" role="presentation"
+                        ng-class="type.filtered ? 'active': ''" ng-click="applyFilter(type)">
+                        <a role="menuitem" class="pointer">
+                            {{type.translation | translate}}
+                        </a>
+                    </li>
+                </ul>
             </div>
-        </div-->
+        </div>
+    </div>
+    <form role="form">
+        <div class="bottom-row" ng-if="selectedReleaseType().name === 'GIVEN_DATE'">
+            <div class="col-md-6" ng-controller="DatepickerCtrl">
+                <div class="sitnet-info-text">{{'sitnet_autoevaluation_release_date' | translate}}:</div>
+                <div class="input-group">
+                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
+                           ng-model="newExam.autoEvaluationConfig.releaseDate"
+                           is-open="startDateOpened" minDate="new Date()"
+                           datepicker-options="dateOptions"
+                           close-text="{{'sitnet_close' | translate}}"
+                           current-text="{{'sitnet_today' | translate}}"
+                           toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                           clear-text="{{'sitnet_clear' | translate}}" date-validator
+                           required>
+
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" ng-click="openStartDate($event)">
+                                <i class="fa fa-calendar"></i>
+                            </button>
+                        </span>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-row" ng-if="selectedReleaseType().name === 'GIVEN_AMOUNT_DAYS'">
+            <div class="col-md-12">
+                <div class="sitnet-info-text">{{'sitnet_autoevaluation_release_after_days' | translate}}:</div>
+                <input type="number" class="form-control"
+                       ng-model="newExam.autoEvaluationConfig.amountDays"
+                       min="1" max="60"
+                       required>
+            </div>
+        </div>
     </form>
 </div>

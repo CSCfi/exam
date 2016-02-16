@@ -84,6 +84,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @OneToOne(mappedBy = "exam")
     private ExamRecord examRecord;
 
+    @OneToOne(mappedBy = "exam", cascade = CascadeType.ALL)
+    private AutoEvaluationConfig autoEvaluationConfig;
+
     @OneToOne(mappedBy = "exam")
     private LanguageInspection languageInspection;
 
@@ -103,9 +106,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     @ManyToOne
     private GradeScale gradeScale;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
-    private Set<AutoEvaluation> autoEvaluations;
 
     // Custom course credit - if teachers changes course credit
     private Double customCredit;
@@ -536,12 +536,12 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.executionType = executionType;
     }
 
-    public Set<AutoEvaluation> getAutoEvaluations() {
-        return autoEvaluations;
+    public AutoEvaluationConfig getAutoEvaluationConfig() {
+        return autoEvaluationConfig;
     }
 
-    public void setAutoEvaluations(Set<AutoEvaluation> autoEvaluations) {
-        this.autoEvaluations = autoEvaluations;
+    public void setAutoEvaluationConfig(AutoEvaluationConfig autoEvaluationConfig) {
+        this.autoEvaluationConfig = autoEvaluationConfig;
     }
 
     @Transient

@@ -258,8 +258,8 @@ public class ExamController extends BaseController {
                 .fetch("parent.gradeScale.grades", new FetchConfig().query())
                 .fetch("parent.examOwners", new FetchConfig().query())
                 .fetch("examType")
-                .fetch("autoEvaluations")
-                .fetch("autoEvaluations.grade")
+                .fetch("autoEvaluationConfig")
+                .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
                 .fetch("executionType")
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions")
@@ -630,13 +630,6 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateAutoEvaluations(Long id) {
-        DynamicForm df = Form.form().bindFromRequest();
-
-        return ok();
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateExam(Long id) {
         Exam exam = createQuery().where().idEq(id).findUnique();
 
@@ -656,11 +649,11 @@ public class ExamController extends BaseController {
             }
             String examName = node.get("name").asText();
             Boolean shared = node.has("shared") && node.get("shared").asBoolean(false);
-            Integer grading = node.has("grading") ?  node.get("grading").asInt() : null;
+            Integer grading = node.has("grading") ? node.get("grading").asInt() : null;
             String answerLanguage = node.has("answerLanguage") ? node.get("answerLanguage").asText() : null;
             String instruction = node.has("instruction") ? node.get("instruction").asText() : null;
             String enrollInstruction = node.has("enrollInstruction") ? node.get("enrollInstruction").asText() : null;
-            Integer trialCount = node.has("trialCount") ? node.get("trialCount").asInt()  : null;
+            Integer trialCount = node.has("trialCount") ? node.get("trialCount").asInt() : null;
             Boolean expanded = node.has("expanded") && node.get("expanded").asBoolean(false);
             if (examName != null) {
                 exam.setName(examName);
@@ -690,21 +683,7 @@ public class ExamController extends BaseController {
                     exam.setExamType(eType);
                 }
             }
-            if (node.has("evaluations")) {
-                exam.getAutoEvaluations().clear();
-                exam.update();
-                for (JsonNode evaluation : node.get("evaluations")) {
-                    AutoEvaluation autoEvaluation = new AutoEvaluation();
-                    Grade grade = Ebean.find(Grade.class, evaluation.get("grade").get("id").asInt());
-                    if (grade != null) {
-                        autoEvaluation.setGrade(grade);
-                        autoEvaluation.setPercentage(evaluation.get("percentage").asInt());
-                        autoEvaluation.setExam(exam);
-                        autoEvaluation.save();
-                        exam.getAutoEvaluations().add(autoEvaluation);
-                    }
-                }
-            }
+            updateAutoEvaluationConfig(exam, node);
             exam.setTrialCount(trialCount);
             exam.generateHash();
             exam.setExpanded(expanded);
@@ -712,6 +691,76 @@ public class ExamController extends BaseController {
             return ok(exam);
         } else {
             return forbidden("sitnet_error_access_forbidden");
+        }
+    }
+
+    private static void updateGradeEvaluations(AutoEvaluationConfig config, JsonNode node) {
+        Map<Integer, GradeEvaluation> gradeMap = config.asGradeMap();
+        List<Integer> handledEvaluations = new ArrayList<>();
+        // Handle proposed entries, persist new ones where necessary
+        for (JsonNode evaluation : node.get("gradeEvaluations")) {
+            Grade grade = Ebean.find(Grade.class, evaluation.get("grade").get("id").asInt());
+            if (grade != null) {
+                GradeEvaluation ge = gradeMap.get(grade.getId());
+                if (ge == null) {
+                    ge = new GradeEvaluation();
+                    ge.setGrade(grade);
+                    ge.setAutoEvaluationConfig(config);
+                    config.getGradeEvaluations().add(ge);
+                }
+                ge.setPercentage(evaluation.get("percentage").asInt());
+                ge.save();
+                handledEvaluations.add(grade.getId());
+            } else {
+                throw new IllegalArgumentException("unknown grade");
+            }
+        }
+        // Remove obsolete entries
+        for (Map.Entry<Integer, GradeEvaluation> entry : gradeMap.entrySet()) {
+            if (!handledEvaluations.contains(entry.getKey())) {
+                entry.getValue().delete();
+                config.getGradeEvaluations().remove(entry.getValue());
+            }
+        }
+    }
+
+    private static void updateAutoEvaluationConfig(Exam exam, JsonNode node) {
+        if (node.has("evaluationConfig")) {
+            JsonNode jsonConfig = node.get("evaluationConfig");
+            AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
+            if (jsonConfig.isNull()) {
+                // User wishes to disable the config
+                if (config != null) {
+                    config.delete();
+                    exam.setAutoEvaluationConfig(null);
+                }
+            } else {
+                if (config == null) {
+                    config = new AutoEvaluationConfig();
+                    config.setExam(exam);
+                }
+                AutoEvaluationConfig.ReleaseType releaseType =
+                        AutoEvaluationConfig.ReleaseType.valueOf(jsonConfig.get("releaseType").asText());
+                config.setReleaseType(releaseType);
+                switch (releaseType) {
+                    case GIVEN_AMOUNT_DAYS:
+                        config.setAmountDays(jsonConfig.get("amountDays").asInt());
+                        config.setReleaseDate(null);
+                        break;
+                    case GIVEN_DATE:
+                        Long releaseDateMs = jsonConfig.get("releaseDate").asLong();
+                        config.setReleaseDate(new Date(releaseDateMs));
+                        config.setAmountDays(null);
+                        break;
+                    default:
+                        config.setReleaseDate(null);
+                        config.setAmountDays(null);
+                        break;
+                }
+                config.save();
+                updateGradeEvaluations(config, jsonConfig);
+                exam.setAutoEvaluationConfig(config);
+            }
         }
     }
 
@@ -1010,8 +1059,9 @@ public class ExamController extends BaseController {
             }
             if (question.getType().equals(Question.Type.EssayQuestion)) {
                 // disable auto evaluation for this exam
-                exam.getAutoEvaluations().clear();
-                exam.update();
+                if (exam.getAutoEvaluationConfig() != null) {
+                    exam.getAutoEvaluationConfig().delete();
+                }
             }
             Question clone = clone(question);
 

@@ -27,7 +27,22 @@
                 $scope.loader = {
                     loading: false
                 };
-                $scope.autoevaluation = {enabled: false};
+                $scope.autoevaluation = {
+                    enabled: false, releaseTypes: [
+                        {name: 'IMMEDIATE', translation: 'sitnet_autoevaluation_release_type_immediate', filtered: true},
+                        {name: 'GIVEN_DATE', translation: 'sitnet_autoevaluation_release_type_given_date'},
+                        {name: 'GIVEN_AMOUNT_DAYS', translation: 'sitnet_autoevaluation_release_type_given_days'},
+                        {name: 'AFTER_EXAM_PERIOD', translation: 'sitnet_autoevaluation_release_type_period'},
+                        {name: 'NEVER', translation: 'sitnet_autoevaluation_release_type_never'}
+                    ]
+                };
+
+                var getReleaseTypeByName = function(name) {
+                    var matches = $scope.autoevaluation.releaseTypes.filter(function (rt) {
+                        return rt.name === name;
+                    });
+                    return matches.length > 0 ? matches[0] : null;
+                };
 
                 $scope.user = sessionService.getUser();
                 if ($scope.user.isStudent) {
@@ -130,13 +145,19 @@
 
                 };
 
-                var resetAutoEvaluations = function (overwrite) {
+                var resetAutoEvaluationConfig = function (overwrite) {
                     var exam = $scope.newExam;
-                    $scope.autoevaluation.enabled = exam.autoEvaluations.length > 0;
-                    if ((overwrite || exam.autoEvaluations.length == 0) && $scope.newExam.gradeScale) {
-                        exam.autoEvaluations = $scope.newExam.gradeScale.grades.map(function (g) {
-                            return {grade: angular.copy(g), percentage: 0}
-                        });
+                    $scope.autoevaluation.enabled = !!exam.autoEvaluationConfig;
+                    if ((overwrite || !exam.autoEvaluationConfig) && $scope.newExam.gradeScale) {
+                        exam.autoEvaluationConfig = {
+                            releaseType: $scope.selectedReleaseType().name || $scope.autoevaluation.releaseTypes[0].name,
+                            gradeEvaluations: $scope.newExam.gradeScale.grades.map(function (g) {
+                                return {grade: angular.copy(g), percentage: 0}
+                            })
+                        };
+                    }
+                    if (exam.autoEvaluationConfig) {
+                        $scope.applyFilter(getReleaseTypeByName(exam.autoEvaluationConfig.releaseType));
                     }
                 };
 
@@ -160,7 +181,7 @@
                             initialLanguages = exam.examLanguages.length;
                             initialSoftware = exam.softwares.length;
                             resetGradeScale(exam);
-                            resetAutoEvaluations();
+                            resetAutoEvaluationConfig();
                             $scope.reindexNumbering();
                             getInspectors();
                             getExamOwners();
@@ -558,7 +579,12 @@
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.gradeScale ? $scope.newExam.gradeScale.id : undefined,
                         "expanded": $scope.newExam.expanded,
-                        "evaluations": $scope.autoevaluation.enabled ? $scope.newExam.autoEvaluations : null,
+                        "evaluationConfig": $scope.autoevaluation.enabled ? {
+                                releaseType: $scope.selectedReleaseType().name,
+                                releaseDate: new Date($scope.newExam.autoEvaluationConfig.releaseDate).getTime(),
+                                amountDays: $scope.newExam.autoEvaluationConfig.amountDays,
+                                gradeEvaluations: $scope.newExam.autoEvaluationConfig.gradeEvaluations
+                            } : null,
                         "trialCount": $scope.newExam.trialCount,
                         "objectVersion": $scope.newExam.objectVersion
                     };
@@ -579,7 +605,7 @@
                     });
                     $scope.newExam = exam;
                     resetGradeScale(exam);
-                    resetAutoEvaluations(overrideEvaluations);
+                    resetAutoEvaluationConfig(overrideEvaluations);
                     $scope.newExam.examLanguages.forEach(function (language) {
                         // Use front-end language names always to allow for i18n etc
                         language.name = getLanguageNativeName(language.code);
@@ -1061,12 +1087,13 @@
                     if (evaluation.percentage == 0 || isNaN(evaluation.percentage)) {
                         return 0;
                     }
-                    return Math.ceil(max / 100 * evaluation.percentage);
+                    var ratio = max * evaluation.percentage;
+                    return Math.ceil(ratio / 100);
                 };
 
-                var hasDuplicatePercentages = function(exam) {
-                    var percentages = exam.autoEvaluations.map(function (ae) {
-                        return ae.percentage;
+                var hasDuplicatePercentages = function (exam) {
+                    var percentages = exam.autoEvaluationConfig.gradeEvaluations.map(function (e) {
+                        return e.percentage;
                     }).sort();
                     for (var i = 0; i < percentages.length - 1; ++i) {
                         if (percentages[i + 1] == percentages[i]) {
@@ -1074,6 +1101,24 @@
                         }
                     }
                     return false;
+                };
+
+                $scope.applyFilter = function (type) {
+                    $scope.autoevaluation.releaseTypes.forEach(function (rt) {
+                        rt.filtered = false;
+                    });
+                    type.filtered = !type.filtered;
+                };
+
+                $scope.selectedReleaseType = function () {
+                    var type = undefined;
+                    $scope.autoevaluation.releaseTypes.some(function (rt) {
+                        if (rt.filtered) {
+                            type = rt;
+                            return true;
+                        }
+                    });
+                    return type;
                 }
 
             }]);
