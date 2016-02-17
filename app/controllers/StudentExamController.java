@@ -591,6 +591,7 @@ public class StudentExamController extends BaseController {
             } else {
                 throw new RuntimeException("No exam language found!");
             }
+            exam.setState(Exam.State.GRADED);
             exam.update();
         }
     }

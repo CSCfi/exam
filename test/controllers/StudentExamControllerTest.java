@@ -179,6 +179,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
         studentExam = Ebean.find(Exam.class, studentExam.getId());
         assertThat(studentExam.getGrade()).isNotNull();
+        assertThat(studentExam.getState()).isEqualTo(Exam.State.GRADED);
     }
 
 
