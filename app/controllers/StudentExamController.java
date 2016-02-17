@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
@@ -12,6 +13,7 @@ import models.questions.Answer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.joda.time.DateTime;
+import play.Logger;
 import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -310,6 +312,8 @@ public class StudentExamController extends BaseController {
 
         return Ebean.find(Exam.class)
                 .select("id, name, instruction, shared, hash, examActiveStartDate, examActiveEndDate, duration, answerLanguage, state, expanded, cloned")
+                .fetch("autoEvaluationConfig")
+                .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
                 .fetch("creator", "id")
                 .fetch("course", "id, code, name, credits, institutionName, department")
                 .fetch("examType", "id, type")
@@ -369,7 +373,12 @@ public class StudentExamController extends BaseController {
     @Restrict({@Group("STUDENT")})
     public Result turnExam(String hash) {
         User user = getLoggedUser();
-        Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findUnique();
+        Exam exam = Ebean.find(Exam.class)
+                .fetch("examSections.sectionQuestions.question")
+                .where()
+                .eq("creator", user)
+                .eq("hash", hash)
+                .findUnique();
 
         ExamParticipation p = Ebean.find(ExamParticipation.class)
                 .where()
@@ -392,6 +401,10 @@ public class StudentExamController extends BaseController {
             exam.update();
             if (exam.isPrivate()) {
                 notifyTeachers(exam);
+            }
+            if (exam.getAutoEvaluationConfig() != null) {
+                // Grade automatically
+                autoEvaluate(exam);
             }
             return ok("Exam sent for review");
         } else {
@@ -530,6 +543,56 @@ public class StudentExamController extends BaseController {
         }
         List<Exam> exams = query.orderBy("course.code").findList();
         return ok(exams);
+    }
+
+    private Grade getGradeBasedOnScore(Exam exam) {
+        Double totalScore = exam.getTotalScore();
+        Double maxScore = exam.getMaxScore();
+        Double percentage = maxScore == 0 ? 0 : totalScore * 100 / maxScore;
+        List<GradeEvaluation> gradeEvaluations = new ArrayList<>(exam.getAutoEvaluationConfig().getGradeEvaluations());
+        gradeEvaluations.sort((o1, o2) -> o1.getPercentage() - o2.getPercentage());
+        Grade grade = null;
+        Iterator<GradeEvaluation> it = gradeEvaluations.iterator();
+        GradeEvaluation prev = null;
+        while (it.hasNext()) {
+            GradeEvaluation ge = it.next();
+            int threshold = 0;
+            if (ge.getPercentage() >= percentage) {
+                grade = prev == null ? ge.getGrade() : prev.getGrade();
+                threshold = prev == null ? ge.getPercentage() : prev.getPercentage();
+            }
+            if (!it.hasNext()) {
+                // Highest possible grade
+                grade = ge.getGrade();
+                threshold = ge.getPercentage();
+            }
+            if (grade != null) {
+                Logger.info("Automatically grading exam #{}, {}/{} points ({}%) graded as {} using percentage threshold {}",
+                        exam.getId(), totalScore, maxScore, percentage, grade.getName(), threshold);
+                break;
+            }
+            prev = ge;
+        }
+        if (!exam.getGradeScale().getGrades().contains(grade)) {
+            throw new RuntimeException("Grade in auto evaluation configuration not found in exam grade scale!");
+        }
+        return grade;
+    }
+
+    private void autoEvaluate(Exam exam) {
+        Grade grade = getGradeBasedOnScore(exam);
+        if (grade != null) {
+            exam.setGrade(grade);
+            exam.setGradedTime(new Date());
+            exam.setCreditType(exam.getExamType());
+            // NOTE: do not set graded by person here, one who makes a record will get the honor
+            if (!exam.getExamLanguages().isEmpty()) {
+                exam.setAnswerLanguage(exam.getExamLanguages().get(0).getCode());
+            } else {
+                throw new RuntimeException("No exam language found!");
+            }
+            exam.update();
+        }
     }
 
     private void notifyTeachers(Exam exam) {

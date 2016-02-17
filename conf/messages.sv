@@ -11,6 +11,7 @@ email.template.inspection.done={0} har bedömt sin del av tentamenssvaret som g�
 email.template.inspection.comment=Feedback
 email.template.link.to.review=Länk till feedback
 email.template.review.ready=Din tentamen {0} är bedömd. Läs den preliminära bedömningen här
+email.template.review.autoevaluated = Arvosana on laskettu automaattisesti. Huomioithan, että tentaattoreilla on vielä mahdollisuus muokata sitä halutessaan SV.
 email.template.main.system.info=Det slutliga vitsordet hittar du i studentregistret
 email.template.inspector.new={0} har markerat dig som bedömare för tentamen
 email.template.participation=Tentamen har {0} obedömda prestationer

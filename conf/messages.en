@@ -11,6 +11,7 @@ email.template.inspection.done={0} has done their part of the exam assessment, c
 email.template.inspection.comment=Assessment feedback
 email.template.link.to.review=Link to feedback
 email.template.review.ready=Your answer to the exam {0} has been assessed. You can read the preliminary feedback and assessment here
+email.template.review.autoevaluated = Arvosana on laskettu automaattisesti. Huomioithan, että tentaattoreilla on vielä mahdollisuus muokata sitä halutessaan.
 email.template.main.system.info=You will find the final grade in the student information system
 email.template.inspector.new={0} has marked you as evaluator for the exam
 email.template.participation=The number of exam papers waiting for your assessment is {0}

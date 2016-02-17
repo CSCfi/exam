@@ -3,12 +3,14 @@ package models;
 import com.avaje.ebean.annotation.EnumMapping;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Entity
@@ -79,14 +81,18 @@ public class AutoEvaluationConfig extends GeneratedIdentityModel {
 
     @Transient
     public Map<Integer, GradeEvaluation> asGradeMap() {
-        Map<Integer, GradeEvaluation> map = new HashMap<>();
-        if (gradeEvaluations == null) {
-            return map;
+        return gradeEvaluations.stream()
+                .collect(Collectors.toMap(ge -> ge.getGrade().getId(), Function.identity()));
+    }
+
+    @Transient
+    public AutoEvaluationConfig copy() {
+        AutoEvaluationConfig clone = new AutoEvaluationConfig();
+        BeanUtils.copyProperties(this, clone, "id", "exam", "gradeEvaluations");
+        for (GradeEvaluation ge : gradeEvaluations) {
+            clone.getGradeEvaluations().add(ge.copy());
         }
-        for (GradeEvaluation ge: gradeEvaluations) {
-            map.put(ge.getGrade().getId(), ge);
-        }
-        return map;
+        return clone;
     }
 
     @Override

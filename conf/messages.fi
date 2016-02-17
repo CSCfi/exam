@@ -11,6 +11,7 @@ email.template.inspection.done={0} on tehnyt oman osansa arvioinnista. Arviointi
 email.template.inspection.comment=Arvioinnin palaute
 email.template.link.to.review=Arviointiin
 email.template.review.ready=Vastauksesi tenttiin {0} on arvioitu. Voit lukea alustavan arvioinnin ja palautteen täältä
+email.template.review.autoevaluated = Arvosana on laskettu automaattisesti. Huomioithan, että tentaattoreilla on halutessaan vielä mahdollisuus muokata arviontia.
 email.template.main.system.info=Lopullisen arvosanan näet opintohallinnon järjestelmästä
 email.template.inspector.new={0} on merkinnyt sinut arvioijaksi seuraavalle tentille
 email.template.participation=Tentissä on {0} arvioitavaa suoritusta.

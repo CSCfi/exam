@@ -566,7 +566,7 @@ public class ExamController extends BaseController {
     }
 
     private Result updateStateAndValidate(Exam exam, JsonNode node) {
-        Exam.State state = node.has("state") ? null : Exam.State.valueOf(node.get("state").asText());
+        Exam.State state = node.has("state") ? Exam.State.valueOf(node.get("state").asText()) : null;
         if (state != null) {
             if (exam.hasState(Exam.State.SAVED, Exam.State.DRAFT) && state == Exam.State.PUBLISHED) {
                 // Exam is about to be published
@@ -578,6 +578,9 @@ public class ExamController extends BaseController {
                 // no sections named
                 if (exam.getExamSections().stream().anyMatch((section) -> section.getName() == null)) {
                     return badRequest("sitnet_exam_contains_unnamed_sections");
+                }
+                if (exam.getExamLanguages().isEmpty()) {
+                    return badRequest("no exam languages specified");
                 }
                 if (exam.isPrivate()) {
                     // No participants added, this is not good.
@@ -660,8 +663,18 @@ public class ExamController extends BaseController {
             }
             exam.setShared(shared);
 
+            // Scale and auto evaluation are intermingled, if scale changed then the auto evaluation needs be reset
+            boolean gradeScaleChanged = false;
             if (grading != null) {
-                updateGrading(exam, grading);
+                gradeScaleChanged = updateGrading(exam, grading);
+            }
+            if (gradeScaleChanged) {
+                if (exam.getAutoEvaluationConfig() != null) {
+                    exam.getAutoEvaluationConfig().delete();
+                    exam.setAutoEvaluationConfig(null);
+                }
+            } else {
+                updateAutoEvaluationConfig(exam, node);
             }
             if (answerLanguage != null) {
                 exam.setAnswerLanguage(answerLanguage);
@@ -683,7 +696,7 @@ public class ExamController extends BaseController {
                     exam.setExamType(eType);
                 }
             }
-            updateAutoEvaluationConfig(exam, node);
+
             exam.setTrialCount(trialCount);
             exam.generateHash();
             exam.setExpanded(expanded);
@@ -694,13 +707,14 @@ public class ExamController extends BaseController {
         }
     }
 
-    private static void updateGradeEvaluations(AutoEvaluationConfig config, JsonNode node) {
+    private static void updateGradeEvaluations(Exam exam, JsonNode node) {
+        AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
         Map<Integer, GradeEvaluation> gradeMap = config.asGradeMap();
         List<Integer> handledEvaluations = new ArrayList<>();
         // Handle proposed entries, persist new ones where necessary
         for (JsonNode evaluation : node.get("gradeEvaluations")) {
             Grade grade = Ebean.find(Grade.class, evaluation.get("grade").get("id").asInt());
-            if (grade != null) {
+            if (grade != null && exam.getGradeScale().getGrades().contains(grade)) {
                 GradeEvaluation ge = gradeMap.get(grade.getId());
                 if (ge == null) {
                     ge = new GradeEvaluation();
@@ -737,7 +751,9 @@ public class ExamController extends BaseController {
             } else {
                 if (config == null) {
                     config = new AutoEvaluationConfig();
+                    config.setGradeEvaluations(new HashSet<>());
                     config.setExam(exam);
+                    exam.setAutoEvaluationConfig(config);
                 }
                 AutoEvaluationConfig.ReleaseType releaseType =
                         AutoEvaluationConfig.ReleaseType.valueOf(jsonConfig.get("releaseType").asText());
@@ -758,23 +774,26 @@ public class ExamController extends BaseController {
                         break;
                 }
                 config.save();
-                updateGradeEvaluations(config, jsonConfig);
+                updateGradeEvaluations(exam, jsonConfig);
                 exam.setAutoEvaluationConfig(config);
             }
         }
     }
 
-    private static void updateGrading(Exam exam, int grading) {
+    private static boolean updateGrading(Exam exam, int grading) {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
         boolean canOverrideGrading = AppUtil.isCourseGradeScaleOverridable();
+        boolean changed = false;
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
             GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findUnique();
             if (scale != null) {
+                changed = !exam.getGradeScale().equals(scale);
                 exam.setGradeScale(scale);
             } else {
                 Logger.warn("Grade scale not found for ID {}. Not gonna update exam with it", grading);
             }
         }
+        return changed;
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

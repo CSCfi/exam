@@ -3,7 +3,6 @@ package system;
 
 import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
-import akka.actor.Scheduler;
 import com.avaje.ebean.Ebean;
 import models.User;
 import net.sf.ehcache.CacheManager;
@@ -21,19 +20,23 @@ import util.java.EmailComposer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class SystemInitializer {
 
-    public static final int EXAM_AUTO_SAVER_START_AFTER_SECONDS = 20;
+    public static final int EXAM_AUTO_SAVER_START_AFTER_SECONDS = 15;
     public static final int EXAM_AUTO_SAVER_INTERVAL_MINUTES = 1;
-    public static final int RESERVATION_POLLER_START_AFTER_SECONDS = 40;
+    public static final int RESERVATION_POLLER_START_AFTER_SECONDS = 30;
     public static final int RESERVATION_POLLER_INTERVAL_HOURS = 1;
-    public static final int EXAM_EXPIRY_POLLER_START_AFTER_SECONDS = 60;
+    public static final int EXAM_EXPIRY_POLLER_START_AFTER_SECONDS = 45;
     public static final int EXAM_EXPIRY_POLLER_INTERVAL_DAYS = 1;
+    public static final int AUTO_EVALUATION_NOTIFIER_START_AFTER_SECONDS = 60;
+    public static final int AUTO_EVALUATION_NOTIFIER_INTERVAL_MINUTES = 15;
 
 
     protected ApplicationLifecycle lifecycle;
@@ -41,11 +44,7 @@ public class SystemInitializer {
     protected ActorSystem actor;
     protected Database database;
 
-    private Scheduler reportSender;
-    private Cancellable autosaver;
-    private Cancellable reservationPoller;
-    private Cancellable reportTask;
-    private Cancellable examExpirationPoller;
+    private Map<String, Cancellable> tasks = new HashMap<>();
 
     @Inject
     public SystemInitializer(ActorSystem actor, ApplicationLifecycle lifecycle, EmailComposer composer, Database database) {
@@ -53,6 +52,7 @@ public class SystemInitializer {
         this.lifecycle = lifecycle;
         this.composer = composer;
         this.database = database;
+
         String encoding = System.getProperty("file.encoding");
         if (!encoding.equals("UTF-8")) {
             Logger.warn("Default encoding is other than UTF-8 ({}). " +
@@ -62,32 +62,36 @@ public class SystemInitializer {
         System.setProperty("user.timezone", "UTC");
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         DateTimeZone.setDefault(DateTimeZone.forID("UTC"));
-        autosaver = actor.scheduler().schedule(
+
+        tasks.put("AUTO_SAVER", actor.scheduler().schedule(
                 Duration.create(EXAM_AUTO_SAVER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(EXAM_AUTO_SAVER_INTERVAL_MINUTES, TimeUnit.MINUTES),
                 new ExamAutoSaver(composer),
                 actor.dispatcher()
-        );
-        reservationPoller = actor.scheduler().schedule(
+        ));
+        tasks.put("RESERVATION_POLLER", actor.scheduler().schedule(
                 Duration.create(RESERVATION_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(RESERVATION_POLLER_INTERVAL_HOURS, TimeUnit.HOURS),
                 new ReservationPoller(composer),
                 actor.dispatcher()
-        );
-        examExpirationPoller = actor.scheduler().schedule(
+        ));
+        tasks.put("EXPIRY_POLLER", actor.scheduler().schedule(
                 Duration.create(EXAM_EXPIRY_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(EXAM_EXPIRY_POLLER_INTERVAL_DAYS, TimeUnit.DAYS),
                 new ExamExpiryPoller(),
                 actor.dispatcher()
-        );
-        reportSender = actor.scheduler();
+        ));
+        tasks.put("AUTOEVALUATION_NOTIFIER", actor.scheduler().schedule(
+                Duration.create(AUTO_EVALUATION_NOTIFIER_START_AFTER_SECONDS, TimeUnit.SECONDS),
+                Duration.create(AUTO_EVALUATION_NOTIFIER_INTERVAL_MINUTES, TimeUnit.MINUTES),
+                new AutoEvaluationNotificationPoller(composer),
+                actor.dispatcher()
+        ));
+
         scheduleWeeklyReport();
 
         lifecycle.addStopHook(() -> {
-            cancelReportSender();
-            cancelAutosaver();
-            cancelReservationPoller();
-            cancelExpirationPoller();
+            cancelTasks();
             database.shutdown();
             CacheManager.getInstance().removeCache("play");
             return null;
@@ -115,13 +119,13 @@ public class SystemInitializer {
     }
 
     private void scheduleWeeklyReport() {
-        // TODO: store the time of last dispatch in db so we know if scheduler was not run and send an extra report
-        // in that case?
-
         // Every Monday at 5AM UTC
         FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(5), TimeUnit.SECONDS);
-        cancelReportSender();
-        reportTask = reportSender.scheduleOnce(delay, () -> {
+        Cancellable reportTask = tasks.get("REPORT_SENDER");
+        if (reportTask != null && !reportTask.isCancelled()) {
+            reportTask.cancel();
+        }
+        tasks.put("REPORT_SENDER", actor.scheduler().scheduleOnce(delay, () -> {
             Logger.info("Running weekly email report");
             List<User> teachers = Ebean.find(User.class)
                     .fetch("language")
@@ -137,30 +141,10 @@ public class SystemInitializer {
             });
             // Reschedule
             scheduleWeeklyReport();
-        }, actor.dispatcher());
+        }, actor.dispatcher()));
     }
 
-    private void cancelReportSender() {
-        if (reportTask != null && !reportTask.isCancelled()) {
-            reportTask.cancel();
-        }
-    }
-
-    private void cancelAutosaver() {
-        if (autosaver != null && !autosaver.isCancelled()) {
-            autosaver.cancel();
-        }
-    }
-
-    private void cancelReservationPoller() {
-        if (reservationPoller != null && !reservationPoller.isCancelled()) {
-            reservationPoller.cancel();
-        }
-    }
-
-    private void cancelExpirationPoller() {
-        if (examExpirationPoller != null && !examExpirationPoller.isCancelled()) {
-            examExpirationPoller.cancel();
-        }
+    private void cancelTasks() {
+        tasks.values().stream().filter(Cancellable::isCancelled).forEach(Cancellable::cancel);
     }
 }

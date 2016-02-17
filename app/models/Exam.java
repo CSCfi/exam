@@ -465,12 +465,19 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     public Exam copy(User user, boolean produceStudentExam) {
         Exam clone = new Exam();
         BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipations",
-                "examInspections", "creator", "created", produceStudentExam ? "examOwners" : "none");
+                "examInspections", "autoEvaluationConfig", "creator", "created", produceStudentExam ? "examOwners" : "none");
         clone.setParent(this);
         AppUtil.setCreator(clone, user);
         AppUtil.setModifier(clone, user);
         clone.generateHash();
         clone.save();
+
+        if (autoEvaluationConfig != null) {
+            AutoEvaluationConfig configClone = autoEvaluationConfig.copy();
+            configClone.setExam(clone);
+            configClone.save();
+            clone.setAutoEvaluationConfig(configClone);
+        }
 
         for (ExamInspection ei : examInspections) {
             ExamInspection inspection = new ExamInspection();

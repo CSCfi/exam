@@ -4,7 +4,9 @@ import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
+import models.questions.Answer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.joda.time.DateTime;
@@ -13,6 +15,8 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+
+import java.util.HashSet;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -32,6 +36,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         super.setUp();
         Ebean.delete(Ebean.find(ExamEnrolment.class).findList());
         exam = Ebean.find(Exam.class, 1);
+
         user = Ebean.find(User.class, userId);
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);
         machine = room.getExamMachines().get(0);
@@ -46,6 +51,20 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         enrolment.setUser(user);
         enrolment.setReservation(reservation);
         enrolment.save();
+    }
+
+    private void setAutoEvaluationConfig() {
+        AutoEvaluationConfig config = new AutoEvaluationConfig();
+        config.setReleaseType(AutoEvaluationConfig.ReleaseType.IMMEDIATE);
+        config.setGradeEvaluations(new HashSet<>());
+        exam.getGradeScale().getGrades().forEach(g -> {
+            GradeEvaluation ge = new GradeEvaluation();
+            ge.setGrade(g);
+            ge.setPercentage(20 * Integer.parseInt(g.getName()));
+            config.getGradeEvaluations().add(ge);
+        });
+        config.setExam(exam);
+        config.save();
     }
 
     @Test
@@ -123,6 +142,43 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         result = request(Helpers.POST, String.format("/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
                 question.getId(), option.getId()), null);
         assertThat(result.status()).isEqualTo(403);
+    }
+
+
+    @Test
+    @RunAsStudent
+    public void testDoExamAndAutoEvaluate() throws Exception {
+        setAutoEvaluationConfig();
+        Result result = get("/student/doexam/" + exam.getHash());
+        JsonNode node = Json.parse(contentAsString(result));
+        Exam studentExam = deserialize(Exam.class, node);
+        for (ExamSection es : studentExam.getExamSections()) {
+            for (ExamSectionQuestion esq : es.getSectionQuestions()) {
+                Question question = esq.getQuestion();
+                switch (question.getType()) {
+                    case EssayQuestion:
+                        ObjectNode body = Json.newObject().put("answer", "this is my answer");
+                        Answer answer = question.getAnswer();
+                        if (answer != null && answer.getObjectVersion() > 0) {
+                            body.put("objectVersion", answer.getObjectVersion());
+                        }
+                        result = request(Helpers.POST, String.format("/student/exams/%s/question/%d",
+                                studentExam.getHash(), question.getId()), body);
+                        assertThat(result.status()).isEqualTo(200);
+                        break;
+                    default:
+                        MultipleChoiceOption option = question.getOptions().get(0);
+                        result = request(Helpers.POST, String.format("/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
+                                question.getId(), option.getId()), null);
+                        assertThat(result.status()).isEqualTo(200);
+                        break;
+                }
+            }
+        }
+        result = request(Helpers.PUT, String.format("/student/exams/%s", studentExam.getHash()), null);
+        assertThat(result.status()).isEqualTo(200);
+        studentExam = Ebean.find(Exam.class, studentExam.getId());
+        assertThat(studentExam.getGrade()).isNotNull();
     }
 
 
