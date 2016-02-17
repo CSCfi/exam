@@ -72,11 +72,17 @@ public class EmailComposerImpl implements EmailComposer {
         stringValues.put("main_system_info", Messages.get(lang, "email.template.main.system.info"));
         stringValues.put("main_system_url", BASE_SYSTEM_URL);
 
+        if (reviewer == null && exam.getAutoEvaluationConfig() != null) {
+            // graded automatically
+            stringValues.put("review_autoevaluated", Messages.get(lang, "email.template.review.autoevaluated"));
+        }
+
         //Replace template strings
         template = replaceAll(template, stringValues);
 
         //Send notification
-        emailSender.send(student.getEmail(), reviewer.getEmail(), subject, template);
+        String senderEmail = reviewer != null ? reviewer.getEmail() : SYSTEM_ACCOUNT;
+        emailSender.send(student.getEmail(), senderEmail, subject, template);
     }
 
     /**

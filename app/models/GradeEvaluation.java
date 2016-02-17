@@ -2,9 +2,11 @@ package models;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.beans.BeanUtils;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 
 @Entity
@@ -40,6 +42,13 @@ public class GradeEvaluation extends GeneratedIdentityModel {
 
     public void setPercentage(Integer percentage) {
         this.percentage = percentage;
+    }
+
+    @Transient
+    public GradeEvaluation copy() {
+        GradeEvaluation clone = new GradeEvaluation();
+        BeanUtils.copyProperties(this, clone, "id");
+        return clone;
     }
 
     @Override

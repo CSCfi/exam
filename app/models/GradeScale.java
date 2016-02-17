@@ -1,6 +1,8 @@
 package models;
 
 import com.avaje.ebean.Model;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 import java.util.List;
@@ -95,6 +97,21 @@ public class GradeScale extends Model {
 
     public void setGrades(List<Grade> grades) {
         this.grades = grades;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof GradeScale)) {
+            return false;
+        }
+        GradeScale otherScale = (GradeScale) other;
+        return new EqualsBuilder().append(id, otherScale.id).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).build();
     }
 
 }

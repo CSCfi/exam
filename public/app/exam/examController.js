@@ -157,6 +157,9 @@
                         };
                     }
                     if (exam.autoEvaluationConfig) {
+                        exam.autoEvaluationConfig.gradeEvaluations.sort(function(a, b) {
+                            return a.grade.id - b.grade.id;
+                        });
                         $scope.applyFilter(getReleaseTypeByName(exam.autoEvaluationConfig.releaseType));
                     }
                 };

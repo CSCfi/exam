@@ -143,6 +143,10 @@ public class ExamRecordController extends BaseController {
         if (!exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("You are not allowed to modify this object");
         }
+        if (exam.getGradedByUser() == null && exam.getAutoEvaluationConfig() != null) {
+            // Automatically graded by system, set graded by user at this point.
+            exam.setGradedByUser(user);
+        }
         if (exam.getGrade() == null || exam.getCreditType() == null || exam.getAnswerLanguage() == null ||
                 exam.getGradedByUser() == null) {
             return forbidden("not yet graded by anyone!");

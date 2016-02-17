@@ -288,6 +288,11 @@
     }
   }
 
+  .waitingroom-jumbotron {
+    @extend .jumbotron;
+    background-color: white;
+  }
+
   @media print {
 
     a[href]:after {
