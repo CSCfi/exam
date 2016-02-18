@@ -198,12 +198,13 @@
                 <span class="header col-md-12">{{ 'sitnet_teachers_comment' | translate }}:</span><br/>
                 <span class="light-text col-md-12">
                     <span ng-if="participation.exam.state === 'GRADED_LOGGED' || participation.exam.state === 'REJECTED'
-                            || participation.exam.state === 'ARCHIVED'" popover-placement="top"
-                          popover-popup-delay="1000" popover-trigger="mouseenter"
+                            || participation.exam.state === 'ARCHIVED' ||
+                            (participation.exam.state === 'GRADED' && participation.exam.autoEvaluationNotified)"
+                          popover-placement="top" popover-popup-delay="1000" popover-trigger="mouseenter"
                           uib-popover="{{ 'sitnet_show' | translate }}" ng-click="showFeedback(participation.exam.id)"
                           class="pointer text-info">{{'sitnet_comments' | translate}}</span>
-                    <span ng-if="participation.exam.state === 'GRADED' || participation.exam.state === 'REVIEW'
-                                    || participation.exam.state === 'REVIEW_STARTED'"
+                    <span ng-if="(participation.exam.state === 'GRADED' && !participation.exam.autoEvaluationNotified) ||
+                        participation.exam.state === 'REVIEW'|| participation.exam.state === 'REVIEW_STARTED'"
                           class="text-muted">{{'sitnet_no_comments' | translate}}</span>
                 </span>
             </div>

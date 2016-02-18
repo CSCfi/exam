@@ -2,7 +2,7 @@ package system;
 
 import com.avaje.ebean.Ebean;
 import models.AutoEvaluationConfig;
-import models.ExamParticipation;
+import models.Exam;
 import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
@@ -25,15 +25,14 @@ public class AutoEvaluationNotificationPoller implements Runnable {
     @Override
     public void run() {
         Logger.debug("{}: Running auto evaluation notification check ...", getClass().getCanonicalName());
-        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
+        List<Exam> participations = Ebean.find(Exam.class)
                 .fetch("exam.autoEvaluationConfig")
                 .where()
-                .isNotNull("exam.autoEvaluationConfig")
-                .isNotNull("ended")
-                .isNotNull("exam.grade")
-                .isNotNull("exam.creditType")
-                .isNotNull("exam.gradedTime")
-                .isNotNull("exam.answerLanguage")
+                .isNotNull("gradedTime")
+                .isNotNull("autoEvaluationConfig")
+                .isNotNull("grade")
+                .isNotNull("creditType")
+                .isNotNull("answerLanguage")
                 .isNull("autoEvaluationNotified")
                 .findList();
 
@@ -48,9 +47,9 @@ public class AutoEvaluationNotificationPoller implements Runnable {
         return AppUtil.adjustDST(date.withHourOfDay(5).withMinuteOfHour(0).withSecondOfMinute(0));
     }
 
-    private boolean isPastReleaseDate(ExamParticipation participation) {
+    private boolean isPastReleaseDate(Exam exam) {
         DateTime releaseDate;
-        AutoEvaluationConfig config = participation.getExam().getAutoEvaluationConfig();
+        AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
         switch (config.getReleaseType()) {
             case IMMEDIATE:
                 releaseDate = DateTime.now();
@@ -60,10 +59,10 @@ public class AutoEvaluationNotificationPoller implements Runnable {
                 releaseDate = adjustReleaseDate(new DateTime(config.getReleaseDate()));
                 break;
             case GIVEN_AMOUNT_DAYS:
-                releaseDate = adjustReleaseDate(new DateTime(participation.getEnded()).plusDays(config.getAmountDays()));
+                releaseDate = adjustReleaseDate(new DateTime(exam.getGradedTime()).plusDays(config.getAmountDays()));
                 break;
             case AFTER_EXAM_PERIOD:
-                releaseDate = adjustReleaseDate(new DateTime(participation.getExam().getExamActiveEndDate()));
+                releaseDate = adjustReleaseDate(new DateTime(exam.getExamActiveEndDate()));
                 break;
             case NEVER:
             default:
@@ -73,13 +72,13 @@ public class AutoEvaluationNotificationPoller implements Runnable {
         return releaseDate != null && releaseDate.isBeforeNow();
     }
 
-    private void notifyStudent(ExamParticipation participation) {
-        User student = participation.getUser();
+    private void notifyStudent(Exam exam) {
+        User student = exam.getCreator();
         try {
-            emailComposer.composeInspectionReady(student, null, participation.getExam());
+            emailComposer.composeInspectionReady(student, null, exam);
             Logger.debug("{}: ... Mail sent to {}", getClass().getCanonicalName(), student.getEmail());
-            participation.setAutoEvaluationNotified(new Date());
-            participation.update();
+            exam.setAutoEvaluationNotified(new Date());
+            exam.update();
         } catch (RuntimeException e) {
             Logger.error("{}: ... Sending email to {} failed", getClass().getCanonicalName(), student.getEmail());
         }

@@ -158,6 +158,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @OneToOne(cascade = CascadeType.ALL)
     private Attachment attachment;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date autoEvaluationNotified;
+
     public User getGradedByUser() {
         return gradedByUser;
     }
@@ -549,6 +552,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setAutoEvaluationConfig(AutoEvaluationConfig autoEvaluationConfig) {
         this.autoEvaluationConfig = autoEvaluationConfig;
+    }
+
+    public Date getAutoEvaluationNotified() {
+        return autoEvaluationNotified;
+    }
+
+    public void setAutoEvaluationNotified(Date autoEvaluationNotified) {
+        this.autoEvaluationNotified = autoEvaluationNotified;
     }
 
     @Transient

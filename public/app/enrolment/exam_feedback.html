@@ -5,6 +5,13 @@
 </div>
 <div id="dashboard">
 
+    <div class="main-row" ng-show="reviewedExam.state === 'GRADED'">
+        <div class="col-md-12 alert-warning exams-table-title-area" style="padding-bottom: 1em; padding-top: 1em; padding-left: 15px">
+            <p class="col-md-12 exams-list-title-text">{{'sitnet_autoevaluation_release_description' | translate}}
+            </p>
+        </div>
+    </div>
+
     <div class="col-md-12 pull-left bottom-padding-2 top-padding-2" id="student_feedback">
         <div class="col-md-7 pull-left">
             <div class="info-row col-md-12 pull-left">

@@ -32,9 +32,6 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
     @Temporal(TemporalType.TIMESTAMP)
     private Date deadline;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date autoEvaluationNotified;
-
     public Date getDeadline() {
         return deadline;
     }
@@ -89,14 +86,6 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
 
     public void setDuration(Date duration) {
         this.duration = duration;
-    }
-
-    public Date getAutoEvaluationNotified() {
-        return autoEvaluationNotified;
-    }
-
-    public void setAutoEvaluationNotified(Date autoEvaluationNotified) {
-        this.autoEvaluationNotified = autoEvaluationNotified;
     }
 
     @Override

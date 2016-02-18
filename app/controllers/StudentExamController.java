@@ -103,6 +103,11 @@ public class StudentExamController extends BaseController {
                 .disjunction()
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .eq("state", Exam.State.ARCHIVED)
+                .conjunction()
+                .eq("state", Exam.State.GRADED)
+                .isNotNull("autoEvaluationConfig")
+                .isNotNull("autoEvaluationNotified")
+                .endJunction()
                 .endJunction()
                 .findUnique();
         if (exam == null) {
@@ -138,6 +143,11 @@ public class StudentExamController extends BaseController {
                 .eq("state", Exam.State.REJECTED)
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .eq("state", Exam.State.ARCHIVED)
+                .conjunction()
+                .eq("state", Exam.State.GRADED)
+                .isNotNull("autoEvaluationConfig")
+                .isNotNull("autoEvaluationNotified")
+                .endJunction()
                 .endJunction()
                 .findUnique();
         if (exam == null) {
