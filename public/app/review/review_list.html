@@ -27,9 +27,17 @@
     </div>
     <div class="detail-row" ng-if="view.filter === 'IN_PROGRESS'">
         <div class="col-md-12">
-            <i class="fa fa-undo text-warning"></i>
+            <i class="fa fa-frown-o text-warning"></i>
             <a target="_self" class="pointer" ng-click="view.filter = 'NO_SHOW'">
                 {{'sitnet_no_shows' | translate}} ({{noShows.length}})
+            </a>
+        </div>
+    </div>
+    <div class="detail-row" ng-if="view.filter === 'IN_PROGRESS'">
+        <div class="col-md-12">
+            <i class="fa fa-fast-forward text-info"></i>
+            <a target="_self" class="pointer" ng-click="view.filter = 'SPEED_REVIEW'">
+                {{'sitnet_speed_review' | translate}} ({{examReviews.length}})
             </a>
         </div>
     </div>
@@ -41,7 +49,8 @@
             </a>
         </div>
     </div>
-    <div class="detail-row" ng-if="view.filter === 'ABORTED' || view.filter === 'ARCHIVED' || view.filter === 'NO_SHOW'">
+    <div class="detail-row" ng-if="view.filter === 'ABORTED' || view.filter === 'ARCHIVED' || view.filter === 'NO_SHOW'
+        || view.filter === 'SPEED_REVIEW'">
         <div class="col-md-12">
             <i class="fa fa-close text-info"></i>
             <a target="_self" class="pointer" ng-click="view.filter = 'IN_PROGRESS'">
@@ -59,6 +68,11 @@
     <!-- No-show -->
     <div class="detail-row" ng-if="view.filter === 'NO_SHOW'">
         <div ng-include="templates.noShowPath" />
+    </div>
+
+    <!-- Speed review -->
+    <div class="detail-row" ng-if="view.filter === 'SPEED_REVIEW'">
+        <div ng-include="templates.speedReviewPath" />
     </div>
 
     <!-- Visible by default -->

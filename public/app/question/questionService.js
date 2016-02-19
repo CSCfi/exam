@@ -15,6 +15,26 @@
                     );
                 };
 
+                self.getQuestionAmounts = function (exam) {
+                    var data = {accepted: 0, rejected: 0, hasEssays: false};
+                    angular.forEach(exam.examSections, function (section) {
+                        angular.forEach(section.sectionQuestions, function (sectionQuestion) {
+                            var question = sectionQuestion.question;
+                            if (question.type === "EssayQuestion") {
+                                if (question.evaluationType === "Select") {
+                                    if (question.evaluatedScore == 1) {
+                                        data.accepted++;
+                                    } else if (question.evaluatedScore == 0) {
+                                        data.rejected++;
+                                    }
+                                }
+                                data.hasEssays = true;
+                            }
+                        });
+                    });
+                    return data;
+                };
+
                 // For weighted mcq
                 self.calculateMaxPoints = function (question) {
                     return (question.options.filter(function (option) {
@@ -22,6 +42,15 @@
                     }).reduce(function (a, b) {
                         return a + b.score;
                     }, 0));
+                };
+
+                self.scoreWeightedMultipleChoiceAnswer = function (question) {
+                    var score = question.options.filter(function (o) {
+                        return o.answer;
+                    }).reduce(function (a, b) {
+                        return a + b.score;
+                    }, 0);
+                    return Math.max(0, score)
                 };
 
                 // For non-weighted mcq
@@ -35,6 +64,7 @@
                     if (question.answer.options[0].correctOption === true) {
                         return question.maxScore;
                     }
+                    return 0;
                 };
 
                 self.decodeHtml = function (html) {
@@ -96,13 +126,22 @@
                 };
 
                 self.storeQuestions = function (questions, filters) {
-                    var data = { questions : questions, filters: filters};
+                    var data = {questions: questions, filters: filters};
                     $sessionStorage.libraryQuestions = JSON.stringify(data);
                 };
 
                 self.clearQuestions = function () {
                     delete $sessionStorage.libraryQuestions;
-                }
+                };
+
+                self.range = function (min, max, step) {
+                    step |= 1;
+                    var input = [];
+                    for (var i = min; i <= max; i += step) {
+                        input.push(i);
+                    }
+                    return input;
+                };
 
             }]);
 }());

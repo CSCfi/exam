@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('examService', ['$translate', '$q', '$location', 'ExamRes', 'questionService',
-            function ($translate, $q, $location, ExamRes, questionService) {
+        .service('examService', ['$translate', '$q', '$location', 'ExamRes', 'questionService', 'sessionService',
+            function ($translate, $q, $location, ExamRes, questionService, sessionService) {
 
                 var self = this;
 
@@ -179,13 +179,6 @@
                     return text;
                 };
 
-                // Defining markup outside templates is not advisable, but creating a working custom dialog template for this
-                // proved to be a bit too much of a hassle. Lets live with this.
-                self.getRecordReviewConfirmationDialogContent = function (feedback) {
-                    return '<h4>' + $translate.instant('sitnet_teachers_comment') + '</h4>'
-                        + feedback + '<br/><strong>' + $translate.instant('sitnet_confirm_record_review') + '</strong>';
-                };
-
                 self.listExecutionTypes = function () {
                     var deferred = $q.defer();
                     ExamRes.executionTypes.query(function (types) {
@@ -313,6 +306,17 @@
                     });
                     return total;
                 };
+
+                self.isOwner = function (exam) {
+                    var user = sessionService.getUser();
+                    return exam && exam.parent.examOwners.filter(function (o) {
+                            return o.id === user.id;
+                        }).length > 0;
+                };
+
+                self.isOwnerOrAdmin = function (exam) {
+                    return exam && (sessionService.getUser().isAdmin || self.isOwner(exam));
+                }
 
             }]);
 }());

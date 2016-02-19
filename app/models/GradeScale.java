@@ -5,7 +5,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 public class GradeScale extends Model {
@@ -57,7 +57,7 @@ public class GradeScale extends Model {
     private String displayName;
 
     @OneToMany(mappedBy = "gradeScale", cascade = CascadeType.ALL)
-    private List<Grade> grades;
+    private Set<Grade> grades;
 
     public int getId() {
         return id;
@@ -91,11 +91,11 @@ public class GradeScale extends Model {
         this.displayName = displayName;
     }
 
-    public List<Grade> getGrades() {
+    public Set<Grade> getGrades() {
         return grades;
     }
 
-    public void setGrades(List<Grade> grades) {
+    public void setGrades(Set<Grade> grades) {
         this.grades = grades;
     }
 

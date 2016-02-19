@@ -653,5 +653,9 @@
   "sitnet_autoevaluation_release_type_never": "Ei automaattista ilmoitusta EN",
   "sitnet_autoevaluation_release_date": "Tulosten julkaisupäivä EN",
   "sitnet_autoevaluation_release_after_days": "Kuinka monen päivän kuluttua suorituksen palautuksesta tulos julkaistaan EN",
-  "sitnet_autoevaluation_release_description": "Arvosana on laskettu automaattisesti eikä ole lopullinen. Tentaattoreilla on halutessaan vielä mahdollisuus muokata arviontia. EN"
+  "sitnet_autoevaluation_release_description": "Arvosana on laskettu automaattisesti eikä ole lopullinen. Tentaattoreilla on halutessaan vielä mahdollisuus muokata arviontia. EN",
+  "sitnet_speed_review": "Pika-arviointi EN",
+  "sitnet_speed_review_incomplete_info_or_no_permission": "Puutteelliset tiedot tai ei arviointioikeutta EN",
+  "sitnet_none_modified": "Ei päivitettävää EN",
+  "sitnet_grade_exams": "Tallenna arvioinnit EN"
 }

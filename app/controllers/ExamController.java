@@ -382,9 +382,13 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result reviewExam(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
-        Exam exam = Ebean.find(Exam.class, id);
+        Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator").where().idEq(id).findUnique();
         if (exam == null) {
             return notFound("sitnet_exam_not_found");
+        }
+        User user = getLoggedUser();
+        if (!exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
+            return forbidden("You are not allowed to modify this object");
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden("Not allowed to update grading of this exam");
@@ -448,13 +452,24 @@ public class ExamController extends BaseController {
         statuses.remove(Exam.State.STUDENT_STARTED.toString());
         User user = getLoggedUser();
         List<Exam.State> states = statuses.stream().map(Exam.State::valueOf).collect(Collectors.toList());
-        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
+        Set<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
-                .fetch("exam", "id, name, state, gradedTime, customCredit, answerLanguage, trialCount")
-                .fetch("exam.course", "code, credits")
+                .fetch("exam", "id, name, state, gradedTime, customCredit, creditType, answerLanguage, trialCount")
                 .fetch("exam.grade", "id, name")
+                .fetch("exam.gradeScale")
+                .fetch("exam.gradeScale.grades")
                 .fetch("exam.creditType")
+                .fetch("exam.examType")
+                .fetch("exam.examFeedback")
                 .fetch("exam.languageInspection")
+                .fetch("exam.examSections.sectionQuestions.question")
+                .fetch("exam.examLanguages")
+                .fetch("exam.course", "code, credits")
+                .fetch("exam.course.gradeScale")
+                .fetch("exam.course.gradeScale.grades", new FetchConfig().query())
+                .fetch("exam.parent.gradeScale")
+                .fetch("exam.parent.examOwners")
+                .fetch("exam.parent.gradeScale.grades", new FetchConfig().query())
                 .fetch("reservation", "retrialPermitted")
                 .where()
                 .eq("exam.parent.id", eid)
@@ -463,7 +478,13 @@ public class ExamController extends BaseController {
                 .eq("exam.parent.examOwners", user)
                 .eq("exam.examInspections.user", user)
                 .endJunction()
-                .findList();
+                .findSet();
+        participations.stream().map(ExamParticipation::getExam).forEach(exam -> {
+            exam.setMaxScore();
+            exam.setApprovedAnswerCount();
+            exam.setRejectedAnswerCount();
+            exam.setTotalScore();
+        });
         return ok(participations);
     }
 

@@ -2,9 +2,9 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('ReviewListingController', ['$filter', 'dialogs', '$scope', '$q', '$route', '$routeParams',
-            '$location', '$translate', 'ExamRes', 'dateService', 'examService', 'fileService', '$uibModal', 'EXAM_CONF',
+            '$location', '$translate', 'ExamRes', 'dateService', 'examService', 'examReviewService', 'fileService', '$uibModal', 'EXAM_CONF',
             function ($filter, dialogs, $scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService,
-                      examService, fileService, $modal, EXAM_CONF) {
+                      examService, examReviewService, fileService, $modal, EXAM_CONF) {
 
                 $scope.reviewPredicate = 'examReview.deadline';
                 $scope.abortedPredicate = 'examReview.user.lastName';
@@ -19,6 +19,7 @@
                     noShowPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/no_show.html",
                     abortedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/aborted.html",
                     reviewStartedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/review_started.html",
+                    speedReviewPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/speed_review.html",
                     languageInspectionPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/language_inspection.html",
                     gradedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/graded.html",
                     gradedLoggedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/graded_logged.html",
@@ -38,6 +39,110 @@
                         return;
                     }
                     return examService.getExamGradeDisplayName(exam.grade.name);
+                };
+
+                $scope.showFeedbackEditor = function (exam) {
+                    examReviewService.showFeedbackEditor(exam);
+                };
+
+                $scope.isAllowedToGrade = function (exam) {
+                    return examService.isOwnerOrAdmin(exam);
+                };
+
+                var getErrors = function(exam) {
+                    var messages = [];
+                    if (!$scope.isAllowedToGrade(exam)) {
+                        messages.push('sitnet_error_unauthorized');
+                    }
+                    if (!exam.creditType && !exam.examType) {
+                        messages.push('sitnet_exam_choose_credit_type');
+                    }
+                    if (!exam.answerLanguage && exam.examLanguages.length != 1) {
+                        messages.push('sitnet_exam_choose_response_language');
+                    }
+                    return messages;
+                };
+
+                var gradeExam = function (review) {
+                    var deferred = $q.defer();
+                    var exam = review.exam;
+                    var messages = getErrors(exam);
+                    if (!exam.selectedGrade.id && !exam.grade.id) {
+                        messages.push('sitnet_participation_unreviewed');
+                    }
+                    messages.forEach(function (msg) {
+                        toastr.warning($translate.instant(msg));
+                    });
+                    if (messages.length == 0) {
+                        var grade = exam.selectedGrade.id ? exam.selectedGrade : exam.grade;
+                        var data = {
+                            "id": exam.id,
+                            "state": "GRADED",
+                            "grade": grade.id,
+                            "customCredit": exam.customCredit,
+                            "creditType": exam.creditType ? exam.creditType.type : exam.examType.type,
+                            "answerLanguage": exam.answerLanguage ? exam.answerLanguage.code : exam.examLanguages[0].code
+                        };
+                        ExamRes.review.update({id: exam.id}, data, function () {
+                            $scope.examReviews.splice($scope.examReviews.indexOf(review), 1);
+                            exam.gradedTime = new Date().getTime();
+                            exam.grade = grade;
+                            $scope.gradedReviews.push(review);
+                            deferred.resolve();
+                        }, function (error) {
+                            toastr.error(error.data);
+                            deferred.reject();
+                        });
+                    } else {
+                        deferred.reject();
+                    }
+                    return deferred.promise;
+                };
+
+                var setGrade = function (exam) {
+                    if (!exam.grade || !exam.grade.id) {
+                        exam.grade = {};
+                    }
+                    if (!exam.selectedGrade) {
+                        exam.selectedGrade = {};
+                    }
+                    var scale = exam.gradeScale || exam.parent.gradeScale || exam.course.gradeScale;
+                    scale.grades = scale.grades || [];
+                    exam.selectableGrades = scale.grades.map(function (grade) {
+                        grade.type = grade.name;
+                        grade.name = examService.getExamGradeDisplayName(grade.name);
+                        if (exam.grade && exam.grade.id === grade.id) {
+                            exam.grade.type = grade.type;
+                            exam.selectedGrade = grade;
+                        }
+                        return grade;
+                    });
+                };
+
+                $scope.isGradeable = function (exam) {
+                    return exam && getErrors(exam).length == 0;
+                };
+
+                $scope.hasModifications = function() {
+                    return $scope.examReviews.filter(function (r) {
+                        return r.exam.selectedGrade && r.exam.selectedGrade.id && $scope.isGradeable(r.exam);
+                    }).length > 0;
+                };
+
+                $scope.gradeExams = function () {
+                    var reviews = $scope.examReviews.filter(function (r) {
+                        return r.exam.selectedGrade && r.exam.selectedGrade.id && $scope.isGradeable(r.exam);
+                    });
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_grade_review'));
+                    dialog.result.then(function (btn) {
+                        var promises = [];
+                        reviews.forEach(function (r) {
+                            promises.push(gradeExam(r));
+                        });
+                        $q.all(promises).then(function () {
+                            toastr.info($translate.instant('sitnet_saved'));
+                        });
+                    });
                 };
 
                 ExamRes.exams.get({id: $routeParams.id}, function (exam) {
@@ -203,6 +308,7 @@
                 };
 
                 var handleOngoingReviews = function (review) {
+                    setGrade(review.exam);
                     ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
                         review.inspections = inspections;
                     });
@@ -227,6 +333,7 @@
                             return r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED';
                         });
                         $scope.examReviews.forEach(handleOngoingReviews);
+
                         $scope.toggleReviews = $scope.examReviews.length > 0;
 
                         $scope.gradedReviews = reviews.filter(function (r) {

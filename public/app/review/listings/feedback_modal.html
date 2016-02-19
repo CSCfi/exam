@@ -1,0 +1,28 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4 class="sitnet-white"><i class="fa fa-info"></i>&nbsp;&nbsp;{{'sitnet_give_feedback' |
+            translate}}</i></h4>
+    </div>
+
+    <div class='modal-body'>
+
+        <div class="row">
+            <div class="col-md-12">
+                <textarea ck-editor rows="10" ng-model="exam.examFeedback.comment"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-primary" ng-click="ok()">
+                {{'sitnet_button_save' | translate}}
+            </button>
+        </div>
+    </div>
+
+</div>
+
