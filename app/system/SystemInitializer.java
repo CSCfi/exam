@@ -99,9 +99,10 @@ public class SystemInitializer {
         DateTime nextRun = now.withHourOfDay(scheduledHour)
                 .withMinuteOfHour(0)
                 .withSecondOfMinute(0)
+                .withMillisOfSecond(0)
                 .plusWeeks(now.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1)
                 .withDayOfWeek(DateTimeConstants.MONDAY);
-        if (nextRun.isBefore(now)) {
+        if (!nextRun.isAfter(now)) {
             nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
         }
         // Check if default TZ has daylight saving in effect by next run, need to adjust the hour offset in that case
