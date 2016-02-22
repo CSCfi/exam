@@ -106,7 +106,7 @@ public class SystemInitializer {
                 .withMillisOfSecond(0)
                 .plusWeeks(now.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1)
                 .withDayOfWeek(DateTimeConstants.MONDAY);
-        if (nextRun.isBefore(now)) {
+        if (!nextRun.isAfter(now)) {
             nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
         }
         // Check if default TZ has daylight saving in effect by next run, need to adjust the hour offset in that case
@@ -121,8 +121,8 @@ public class SystemInitializer {
     private void scheduleWeeklyReport() {
         // Every Monday at 5AM UTC
         FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(5), TimeUnit.SECONDS);
-        Cancellable reportTask = tasks.get("REPORT_SENDER");
-        if (reportTask != null && !reportTask.isCancelled()) {
+        Cancellable reportTask = tasks.remove("REPORT_SENDER");
+        if (reportTask != null) {
             reportTask.cancel();
         }
         tasks.put("REPORT_SENDER", actor.scheduler().scheduleOnce(delay, () -> {
@@ -146,7 +146,6 @@ public class SystemInitializer {
 
     private void cancelTasks() {
         tasks.values().stream()
-                .filter(c -> !c.isCancelled())
                 .forEach(Cancellable::cancel);
     }
 }
