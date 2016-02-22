@@ -25,9 +25,10 @@ public class AutoEvaluationNotificationPoller implements Runnable {
     @Override
     public void run() {
         Logger.debug("{}: Running auto evaluation notification check ...", getClass().getCanonicalName());
-        List<Exam> participations = Ebean.find(Exam.class)
+        List<Exam> exams = Ebean.find(Exam.class)
                 .fetch("autoEvaluationConfig")
                 .where()
+                .eq("state", Exam.State.GRADED)
                 .isNotNull("gradedTime")
                 .isNotNull("autoEvaluationConfig")
                 .isNotNull("grade")
@@ -36,7 +37,7 @@ public class AutoEvaluationNotificationPoller implements Runnable {
                 .isNull("autoEvaluationNotified")
                 .findList();
 
-        participations.stream()
+        exams.stream()
                 .filter(this::isPastReleaseDate)
                 .forEach(this::notifyStudent);
 
@@ -52,7 +53,8 @@ public class AutoEvaluationNotificationPoller implements Runnable {
         AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
         switch (config.getReleaseType()) {
             case IMMEDIATE:
-                releaseDate = DateTime.now();
+                // This subtraction is to avoid a race condition
+                releaseDate = DateTime.now().minusSeconds(1);
                 break;
             // Put some delay in these dates to avoid sending stuff in the middle of the night
             case GIVEN_DATE:
