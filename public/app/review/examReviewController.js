@@ -113,7 +113,7 @@
                             }
                         });
                     });
-                    if ($scope.exam && !$scope.exam.customCredit) {
+                    if ($scope.exam && $scope.exam.course && !$scope.exam.customCredit) {
                         $scope.exam.customCredit = $scope.exam.course.credits;
                     }
                 };

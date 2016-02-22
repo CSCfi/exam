@@ -1,11 +1,13 @@
 package util.java;
 
 import com.typesafe.config.ConfigFactory;
+import play.Logger;
 import play.api.libs.mailer.MailerClient;
 import play.libs.mailer.Attachment;
 import play.libs.mailer.Email;
 
 import javax.inject.Inject;
+import javax.management.RuntimeErrorException;
 
 public class EmailSenderImpl implements EmailSender {
 
@@ -25,6 +27,11 @@ public class EmailSenderImpl implements EmailSender {
         for (Attachment a : attachments) {
             email.addAttachment(a.getName(), a.getFile(), a.getMimetype(), a.getDisposition());
         }
-        mailer.send(email);
+        try {
+            mailer.send(email);
+        } catch (RuntimeErrorException e) {
+            Logger.error("Sending mail failed. Stacktrace follows");
+            e.printStackTrace();
+        }
     }
 }

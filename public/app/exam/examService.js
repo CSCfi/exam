@@ -223,7 +223,7 @@
                                 score += questionService.scoreMultipleChoiceAnswer(question);
                                 break;
                             case "WeightedMultipleChoiceQuestion":
-                                score += questionService.calculateMaxPoints(question);
+                                score += questionService.scoreWeightedMultipleChoiceAnswer(question);
                                 break;
                             case "EssayQuestion":
                                 if (question.evaluatedScore && question.evaluationType === 'Points') {
