@@ -26,7 +26,7 @@ public class AutoEvaluationNotificationPoller implements Runnable {
     public void run() {
         Logger.debug("{}: Running auto evaluation notification check ...", getClass().getCanonicalName());
         List<Exam> participations = Ebean.find(Exam.class)
-                .fetch("exam.autoEvaluationConfig")
+                .fetch("autoEvaluationConfig")
                 .where()
                 .isNotNull("gradedTime")
                 .isNotNull("autoEvaluationConfig")
