@@ -22,9 +22,11 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.F;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
+import util.java.CsvBuilder;
 import util.java.EmailComposer;
 import util.java.ValidationUtil;
 
@@ -1693,6 +1695,25 @@ public class ExamController extends BaseController {
             }
         }
         createSummaryFile(aos, start, end, prototype, questions);
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public Result importGrades() {
+        Http.MultipartFormData body = request().body().asMultipartFormData();
+        Http.MultipartFormData.FilePart filePart = body.getFile("file");
+        if (filePart == null) {
+            return notFound();
+        }
+        File file = filePart.getFile();
+        User user = getLoggedUser();
+        try {
+            CsvBuilder.parseGrades(file, user, user.hasRole(Role.Name.ADMIN.toString(), getSession()));
+        } catch (IOException e) {
+            Logger.error("Failed to parse CSV file. Stack trace follows");
+            e.printStackTrace();
+            return internalServerError("sitnet_internal_error");
+        }
+        return ok();
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})

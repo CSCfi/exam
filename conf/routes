@@ -83,6 +83,7 @@ PUT           /exam/:eid/software                                    controllers
 PUT           /exam/:eid/language/:code                              controllers.ExamController.addExamLanguage(eid: Long, code: String)
 DELETE        /exam/:eid/languages                                   controllers.ExamController.resetExamLanguages(eid: Long)
 
+POST          /gradeimport                                           controllers.ExamController.importGrades
 GET           /exam/:eid/attachments                                 controllers.ExamController.getArchivedAttachments(eid: Long, start: play.libs.F.Option[String], end: play.libs.F.Option[String])
 
 GET           /examtypes                                             controllers.ExamController.getExamTypes

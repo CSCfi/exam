@@ -10,6 +10,7 @@ import models.*;
 import models.dto.Credentials;
 import org.joda.time.DateTime;
 import play.Logger;
+import play.Play;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -62,6 +63,9 @@ public class SessionController extends BaseController {
     }
 
     private Result devLogin() {
+        if (!Play.isDev()) {
+            return unauthorized();
+        }
         Credentials credentials = bindForm(Credentials.class);
         Logger.debug("User login with username: {}", credentials.getUsername() + "@funet.fi");
         if (credentials.getPassword() == null || credentials.getUsername() == null) {
@@ -76,7 +80,7 @@ public class SessionController extends BaseController {
             return unauthorized("sitnet_error_unauthenticated");
         }
         user.setLastLogin(new Date());
-        user.save();
+        user.update();
         return createSession(user);
     }
 

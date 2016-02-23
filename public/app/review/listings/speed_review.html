@@ -113,8 +113,13 @@
 </div>
 
 <div class="main-row">
-    <div class="col-md-12">
+    <div class="col-md-6">
         <button class="btn btn-primary" ng-click="gradeExams()" ng-disabled="!hasModifications()">{{'sitnet_grade_exams' | translate}}</button>
+    </div>
+</div>
+<div class="main-row">
+    <div class="col-md-6">
+        <a class="pointer" ng-click="importGrades()">{{'sitnet_import_grades_from_csv' | translate}}</a>
     </div>
 </div>
 

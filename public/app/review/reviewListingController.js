@@ -455,6 +455,32 @@
                     });
                 };
 
+                $scope.importGrades = function () {
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        fileService.getMaxFilesize().then(function (data) {
+                            $scope.maxFileSize = data.filesize;
+                        });
+                        $scope.submit = function () {
+                            fileService.upload("gradeimport", $scope.attachmentFile, {}, null, $modalInstance);
+                        };
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss('Canceled');
+                        };
+                    }];
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: ctrl
+                    });
+
+                    modalInstance.result.then(function () {
+                        // OK button
+                        console.log("closed");
+                    });
+                };
+
                 $scope.getAnswerAttachments = function () {
 
                     var modalInstance = $modal.open({

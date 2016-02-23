@@ -39,7 +39,7 @@ public class UserController extends BaseController {
             }
             Permission permission = Ebean.find(Permission.class).where().eq("type", type).findUnique();
             user.getPermissions().add(permission);
-            user.save();
+            user.update();
         }
         return ok();
     }
@@ -54,7 +54,7 @@ public class UserController extends BaseController {
                     .eq("type", Permission.Type.valueOf(permissionString))
                     .findUnique();
             user.getPermissions().remove(permission);
-            user.save();
+            user.update();
         }
         return ok();
     }
@@ -100,7 +100,7 @@ public class UserController extends BaseController {
                 return notFound("sitnet_role_not_found");
             }
             user.getRoles().add(role);
-            user.save();
+            user.update();
         }
         return ok();
     }
@@ -117,7 +117,7 @@ public class UserController extends BaseController {
                 return notFound("sitnet_role_not_found");
             }
             user.getRoles().remove(role);
-            user.save();
+            user.update();
         }
         return ok();
     }
@@ -203,8 +203,7 @@ public class UserController extends BaseController {
             result = notFound();
         } else {
             user.setUserAgreementAccepted(true);
-            user.save();
-            Ebean.update(user);
+            user.update();
             result = ok(user);
         }
         return result;
