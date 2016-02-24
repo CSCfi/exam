@@ -1,5 +1,11 @@
 #mainView {
 
+  .wide-container-fluid {
+    @extend .container-fluid;
+    padding: 0;
+    overflow: auto;
+  }
+
   @media print {
     margin: 0 15px;
     max-width: 1000px;

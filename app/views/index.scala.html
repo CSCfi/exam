@@ -27,7 +27,7 @@
         <meta name="msapplication-TileColor" content="#000000">
         <meta name="msapplication-TileImage" content="images//mstile-144x144.png">
 
-        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/bootstrap.css")">
+        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/bootstrap/bootstrap.css")">
         <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/font-awesome.min.css")">
         <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/jquery-ui.min.css")">
         <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/toastr.min.css")">
@@ -263,7 +263,7 @@
                 </div>
             </div>
             @*App content*@
-            <div id="mainView" class="container-fluid" ng-class="examStarted ? '' : minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
+            <div id="mainView" class="wide-container-fluid" ng-class="examStarted ? '' : minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
                 <div ng-view />
             </div>
         </div>

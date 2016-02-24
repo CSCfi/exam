@@ -18,39 +18,39 @@
     </div>
 
     <div class="main-row wide-column">
-        <div class="col-md-12 wide-column">
-            <div ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'" class="wide-column">
-                <div ng-show="newExam.hasEnrolmentsInEffect">
-                    <div class="alert-warning" style="padding: 1em;">
-                        <p class="exams-list-title-text">{{'sitnet_upcoming_reservations_exist' | translate}}</p>
-                    </div>
+        <div ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'" class="wide-column">
+            <div ng-show="newExam.hasEnrolmentsInEffect">
+                <div class="alert-warning" style="padding: 1em;">
+                    <p class="exams-list-title-text">{{'sitnet_upcoming_reservations_exist' | translate}}</p>
                 </div>
+            </div>
+            <div class="col-md-12">
+                <div class="sitnet-info-text">{{'sitnet_exam_name' | translate}}:</div>
                 <div class="row">
-                    <div class="sitnet-info-text">{{'sitnet_exam_name' | translate}}:</div>
-                    <div class="row">
-                        <div class="col-md-9">
-                            <input type="text" class="form-control ng-pristine ng-valid "
-                                   ng-model="newExam.name"
-                                   ui-change="updateExam()" style="font-size: 1.5em"/>
-                        </div>
-                        <div class="col-md-3">
-                            <button ng-click="saveExam()" class="btn btn-primary pull-right">
-                                {{'sitnet_save' | translate}}
-                            </button>
-                        </div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control ng-pristine ng-valid "
+                               ng-model="newExam.name"
+                               ui-change="updateExam()" style="font-size: 1.5em"/>
+                    </div>
+                    <div class="col-md-3">
+                        <button ng-click="saveExam()" class="btn btn-primary pull-right">
+                            {{'sitnet_save' | translate}}
+                        </button>
                     </div>
                 </div>
-                <div id="exam">
-                    <div class="row top-margin-1">
-                        <!-- General Information -->
-                        <div class="bottom-padding-2" ng-include="templates.basicInfo"></div>
-                        <!-- Sections & Questions -->
-                        <div class="bottom-padding-2" ng-include="templates.sections"></div>
-                        <!-- Autoevaluation -->
-                        <div class="bottom-padding-2" ng-show="canBeAutoEvaluated()" ng-include="templates.autoEvaluation"></div>
-                    </div>
+            </div>
+            <div id="exam">
+                <div class="col-md-12 top-margin-1">
+                    <!-- General Information -->
+                    <div class="bottom-padding-2" ng-include="templates.basicInfo"></div>
+                    <!-- Sections & Questions -->
+                    <div class="bottom-padding-2" ng-include="templates.sections"></div>
+                    <!-- Autoevaluation -->
+                    <div class="bottom-padding-2" ng-show="canBeAutoEvaluated()"
+                         ng-include="templates.autoEvaluation"></div>
                 </div>
-                <div class="row col-md-12 bottom-padding-2">
+            </div>
+            <div class="col-md-12 bottom-padding-2">
                     <span>
                         <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
                         <button ng-show="newExam.state === 'DRAFT'" ng-click="cancelNewExam(newExam)"
@@ -68,10 +68,11 @@
                                 class="btn btn-warning">{{'sitnet_unpublish_exam' | translate }}
                         </button>
                     </span>
-                </div>
             </div>
-            <div id="lib-wrapper" ng-include="templates.library" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"
-                 class="wide-column"></div>
         </div>
+        <div id="lib-wrapper" ng-include="templates.library"
+             ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"
+             class="wide-column"></div>
     </div>
+
 </div>
