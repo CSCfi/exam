@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.dto.ExamScore;
 
 import javax.persistence.Entity;
@@ -19,6 +20,7 @@ public class ExamRecord extends GeneratedIdentityModel {
     @OneToOne
     private Exam exam;
     @OneToOne
+    @JsonManagedReference
     private ExamScore examScore;
 
     // what timestamp is this? The moments teacher marked Exam as recorded

@@ -1,5 +1,6 @@
 package models.dto;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import models.Exam;
 import models.ExamRecord;
@@ -15,6 +16,7 @@ import javax.persistence.Transient;
 public class ExamScore extends GeneratedIdentityModel {
 
     @OneToOne(mappedBy = "examScore")
+    @JsonBackReference
     private ExamRecord examRecord;
 
     private String studentId;
