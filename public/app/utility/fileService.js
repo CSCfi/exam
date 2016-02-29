@@ -89,7 +89,9 @@
                 var upload = function (url, file, params, parent, modal) {
                     doUpload(url, file, params, parent, modal, function (attachment) {
                         modal.dismiss();
-                        parent.attachment = attachment;
+                        if (parent) {
+                            parent.attachment = attachment;
+                        }
                     });
                 };
 

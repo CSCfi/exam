@@ -658,5 +658,6 @@
   "sitnet_speed_review_incomplete_info_or_no_permission": "Puutteelliset tiedot tai ei arviointioikeutta EN",
   "sitnet_none_modified": "Ei päivitettävää EN",
   "sitnet_grade_exams": "Tallenna arvioinnit EN",
-  "sitnet_import_grades_from_csv": "Tuo arvosanat CSV-tiedostosta EN"
+  "sitnet_import_grades_from_csv": "Tuo arvosanat CSV-tiedostosta EN",
+  "sitnet_grade_import_file_descripion": "CSV-tiedoston rivien tulee olla muodossa <tenttisuorituksen id>,<arvosanan nimi> (esim: 1234, 2) EN"
 }

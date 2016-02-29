@@ -460,8 +460,10 @@
                         fileService.getMaxFilesize().then(function (data) {
                             $scope.maxFileSize = data.filesize;
                         });
+                        $scope.title = 'sitnet_import_grades_from_csv';
                         $scope.submit = function () {
                             fileService.upload("gradeimport", $scope.attachmentFile, {}, null, $modalInstance);
+                            $route.reload();
                         };
                         $scope.cancel = function () {
                             $modalInstance.dismiss('Canceled');

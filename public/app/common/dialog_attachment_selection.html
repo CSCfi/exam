@@ -17,7 +17,9 @@
 
 <div id="sitnet-dialog">
     <div class="terms-dialog-header">
-        <h4 class="sitnet-white"><i class="fa fa-upload"></i>&nbsp;&nbsp;{{'sitnet_attachment_selection' | translate}}
+        <h4 class="sitnet-white"><i class="fa fa-upload"></i>&nbsp;&nbsp;
+            <span ng-if="!title">{{'sitnet_attachment_selection' | translate}}</span>
+            <span ng-if="title">{{ title | translate }}</span>
         </h4>
     </div>
     <div class="modal-body">
