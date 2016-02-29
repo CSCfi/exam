@@ -49,7 +49,7 @@
                     return examService.isOwnerOrAdmin(exam);
                 };
 
-                var getErrors = function(exam) {
+                var getErrors = function (exam) {
                     var messages = [];
                     if (!$scope.isAllowedToGrade(exam)) {
                         messages.push('sitnet_error_unauthorized');
@@ -123,10 +123,10 @@
                     return exam && getErrors(exam).length == 0;
                 };
 
-                $scope.hasModifications = function() {
+                $scope.hasModifications = function () {
                     return $scope.examReviews.filter(function (r) {
-                        return r.exam.selectedGrade && r.exam.selectedGrade.id && $scope.isGradeable(r.exam);
-                    }).length > 0;
+                            return r.exam.selectedGrade && r.exam.selectedGrade.id && $scope.isGradeable(r.exam);
+                        }).length > 0;
                 };
 
                 $scope.gradeExams = function () {
@@ -462,8 +462,8 @@
                         });
                         $scope.title = 'sitnet_import_grades_from_csv';
                         $scope.submit = function () {
-                            fileService.upload("gradeimport", $scope.attachmentFile, {}, null, $modalInstance);
-                            $route.reload();
+                            fileService.upload("gradeimport", $scope.attachmentFile, {}, null, $modalInstance,
+                                $route.reload);
                         };
                         $scope.cancel = function () {
                             $modalInstance.dismiss('Canceled');
@@ -481,6 +481,24 @@
                         // OK button
                         console.log("closed");
                     });
+                };
+
+                $scope.createGradingTemplate = function () {
+                    var content = $scope.examReviews.map(function (r) {
+                        var printUser = function (user) {
+                            var fields = [user.firstName, user.lastName];
+                            if (user.userIdentifier) {
+                                fields.push("(" + user.userIdentifier + ")");
+                            }
+                            return fields.join(" ");
+                        };
+                        return [r.exam.id, '', '', printUser(r.exam.creator)].join() + ",\n";
+                    }).reduce(function (a, b) {
+                        return a + b;
+                    }, "");
+                    content = "exam id,grade,feedback,student\n" + content;
+                    var blob = new Blob([content], {type: "text/csv;charset=utf-8"});
+                    saveAs(blob, "grading.csv");
                 };
 
                 $scope.getAnswerAttachments = function () {

@@ -86,11 +86,14 @@
                         });
                 };
 
-                var upload = function (url, file, params, parent, modal) {
+                var upload = function (url, file, params, parent, modal, callback) {
                     doUpload(url, file, params, parent, modal, function (attachment) {
                         modal.dismiss();
                         if (parent) {
                             parent.attachment = attachment;
+                        }
+                        if (callback) {
+                            callback();
                         }
                     });
                 };

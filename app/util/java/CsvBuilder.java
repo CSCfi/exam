@@ -65,6 +65,10 @@ public class CsvBuilder {
                 Logger.warn("Mandatory information missing, unable to grade");
                 continue;
             }
+            if (records[0].equalsIgnoreCase("exam id")) {
+                // this appears to be a header
+                continue;
+            }
             Long examId;
             try {
                 examId = Long.parseLong(records[0]);
@@ -104,7 +108,7 @@ public class CsvBuilder {
                 exam.setState(Exam.State.GRADED);
                 exam.setAnswerLanguage(exam.getExamLanguages().get(0).getCode());
                 exam.setCreditType(exam.getExamType());
-                String feedback = records.length == 3 ? records[2] : null;
+                String feedback = records.length > 2 ? records[2] : null;
                 if (feedback != null && !feedback.isEmpty()) {
                     Comment comment = exam.getExamFeedback();
                     if (comment == null) {
