@@ -9,7 +9,7 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 resolvers += Resolver.url("GitHub repository", url("http://shaggyyeti.github.io/releases"))(Resolver.ivyStylePatterns)
 
-addSbtPlugin("default" % "sbt-sass" % "0.1.9")
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.2")
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.6")
 

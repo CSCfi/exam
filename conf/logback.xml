@@ -6,8 +6,15 @@
 
     <conversionRule conversionWord="coloredLevel" converterClass="play.api.Logger$ColoredLevel"/>
 
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- HOX! Change location to some more permanent directory if you wish to persist the log files -->
         <file>logs/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Daily rollover with compression -->
+            <fileNamePattern>application-log-%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <!-- keep 60 days worth of history -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
         <encoder>
             <pattern>%date [%-5level] from %logger in %thread - %message%n%xException</pattern>
         </encoder>
