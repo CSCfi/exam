@@ -41,7 +41,7 @@
                     <td class="table-column-enroll-participation">{{exam.unassessedCount}}</td>
                     <td class="table-column-enroll-participation">{{exam.unfinishedCount}}</td>
                     <td class="table-column-enroll-participation">
-                        <a href="" ng-click="showReservations(activeExam.id)">{{ exam.reservationCount }}</a>
+                        <a href="" ng-click="showReservations(exam.id)">{{ exam.reservationCount }}</a>
                     </td>
                     <td class="table-column-teachers">
                         <teacher-list exam="exam" />
