@@ -162,6 +162,14 @@
                     return examReviewService.isGraded($scope.exam);
                 };
 
+                $scope.getWordCount = function (text) {
+                    return examReviewService.countWords(text);
+                };
+
+                $scope.getCharacterCount = function (text) {
+                    return examReviewService.countCharacters(text);
+                };
+
                 $scope.reviewStatus = [
                     {
                         "key": true,

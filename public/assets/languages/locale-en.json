@@ -632,7 +632,7 @@
   "sitnet_exam_software_description": "By choosing software or resources you guide students to specific computers.",
   "sitnet_missing_statement": "Statement is missing.",
   "sitnet_error_data_has_changed": "Invalid data. You might have used second browser window or tab when saving the exam. Please copy your previous data, refresh browser and try again.",
-  "Rejected": "Rejected",
+  "sitnet_exam_status_rejected": "Rejected",
   "sitnet_exam_rejected": "Test is rejected",
   "sitnet_participation_unfinished": "Waiting for final assessment",
   "sitnet_unsaved_data_may_be_lost": "Reloading this page will discard unsaved changes.",

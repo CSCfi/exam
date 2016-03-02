@@ -12,13 +12,7 @@
 <script type="text/ng-template" id="course_template.html">
     <a style="cursor: pointer;">
         <span style="cursor:pointer;font-weight: 500;" bind-html-unsafe="match.label"></span>
-        <span style="font-size:0.70em;color:#bbb;text-transform: uppercase;cursor:pointer;">{{match.model.name}}</span>
-    </a>
-</script>
-<script type="text/ng-template" id="course_name_template.html">
-    <a style="cursor: pointer;">
-        <span style="cursor:pointer;font-weight: 500;" bind-html-unsafe="match.label"></span>
-        <span style="font-size:0.70em;color:#bbb;cursor:pointer;">{{match.model.code}}</span>
+        <span style="font-size:0.70em;color:#bbb;text-transform: uppercase;cursor:pointer;">{{match.model.code}} {{match.model.name}}</span>
     </a>
 </script>
 <div class="col-md-12">
@@ -54,7 +48,7 @@
                            typeahead-wait-ms="200"
                            typeahead-focus-first="false"
                            typeahead-min-length="2"
-                           typeahead-template-url="course_name_template.html"
+                           typeahead-template-url="course_template.html"
                            typeahead-loading="loadingCoursesByName">
                                <span class="input-group-addon">
                                    <i ng-hide="loadingCoursesByName" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" uib-popover="{{'sitnet_course_name' | translate}}"></i>

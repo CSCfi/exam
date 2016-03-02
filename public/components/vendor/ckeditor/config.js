@@ -44,6 +44,7 @@ CKEDITOR.editorConfig = function (config) {
 
 	config.wordcount = {
 		showParagraphs: false,
-		showCharCount: true
+		showCharCount: true,
+        countSpacesAsChars: false
 	}
 };

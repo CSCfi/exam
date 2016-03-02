@@ -119,5 +119,49 @@
                 };
 
 
+                var strip = function (html) {
+                    var tmp = document.createElement("div");
+                    tmp.innerHTML = html;
+
+                    if (tmp.textContent == "" && typeof tmp.innerText == "undefined") {
+                        return "";
+                    }
+
+                    return tmp.textContent || tmp.innerText;
+                };
+
+                self.countCharacters = function (text) {
+                    if (!text) {
+                        return 0;
+                    }
+                    var normalizedText = text
+                        .replace(/\s/g, "")
+                        .replace(/&nbsp;/g, "")
+                        .replace(/(\r\n|\n|\r)/gm, "")
+                        .replace(/&nbsp;/gi, " ");
+                    normalizedText = strip(normalizedText)
+                        .replace(/^([\t\r\n]*)$/, "");
+                    return normalizedText.length;
+                };
+
+                self.countWords = function(text) {
+                    var normalizedText = text
+                        .replace(/(\r\n|\n|\r)/gm, " ")
+                        .replace(/^\s+|\s+$/g, "")
+                        .replace("&nbsp;", " ");
+
+                    normalizedText = strip(normalizedText);
+
+                    var words = normalizedText.split(/\s+/);
+
+                    for (var wordIndex = words.length - 1; wordIndex >= 0; wordIndex--) {
+                        if (words[wordIndex].match(/^([\s\t\r\n]*)$/)) {
+                            words.splice(wordIndex, 1);
+                        }
+                    }
+                    return words.length;
+                }
+
+
             }]);
 }());
