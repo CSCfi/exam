@@ -11,7 +11,7 @@
         <file>/var/log/exam/application.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- Daily rollover with compression -->
-            <fileNamePattern>application-log-%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <fileNamePattern>/var/log/exam/application-log-%d{yyyy-MM-dd_HH-mm}.log.gz</fileNamePattern>
             <!-- keep 90 days worth of history -->
             <maxHistory>90</maxHistory>
         </rollingPolicy>
