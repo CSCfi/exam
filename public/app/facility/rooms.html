@@ -182,8 +182,12 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="machine in room.examMachines">
-                        <td><a class="room-info-title bold-button" ng-click="modifyMachine(machine)">{{ machine.name
-                            }}</a>
+                        <td><a ng-if="machine.name" class="room-info-title bold-button"
+                               ng-click="modifyMachine(machine)">{{ machine.name}}
+                            </a>
+                            <a ng-if="!machine.name" class="exams-info-title bold-button text-danger"
+                               ng-click="modifyMachine(machine)">{{'sitnet_no_name' | translate}}
+                            </a>
                         </td>
                         <td>{{ machine.otherIdentifier }}</td>
                         <td>{{ machine.accessibilityInfo }}</td>

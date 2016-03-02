@@ -448,9 +448,7 @@
                 $scope.softwares = SoftwareResource.softwares.query();
 
                 $scope.addNewMachine = function (room) {
-                    var newMachine = {
-                        "name": $translate.instant("sitnet_write_computer_name")
-                    };
+                    var newMachine = {};
 
                     ExamMachineResource.insert({id: room.id}, newMachine, function (machine) {
                         toastr.info($translate.instant("sitnet_machine_added"));

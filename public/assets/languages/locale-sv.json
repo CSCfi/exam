@@ -293,7 +293,6 @@
   "sitnet_dont_forget_to_add_machines": "Glöm inte att lägga till datorer till utrymmet",
   "sitnet_room_saved": "Tentamensutrymmet är sparad",
   "sitnet_room_address_updated": "Tentamensutrymmets adress är uppdaterad",
-  "sitnet_write_computer_name": "Skriv datorns namn här",
   "sitnet_machine_added": "Uppgifterna om datorn är sparad",
   "sitnet_software_updated": "Programvarans uppgifter är uppdaterade",
   "sitnet_software_added": "Programvaran har lagts till",
@@ -660,5 +659,6 @@
   "sitnet_grade_exams": "Tallenna arvioinnit SV",
   "sitnet_import_grades_from_csv": "Tuo arvosanat CSV-tiedostosta SV",
   "sitnet_grade_import_file_description": "CSV-tiedoston kenttien tulee olla muodossa <tenttisuorituksen ID>,<arvosanan nimi>,<palaute> (esim: 1234,2,Hyvin meni). Palautetta ei ole pakko määritellä.SV",
-  "sitnet_create_grading_template": "Luo CSV-pohja arvosanojen tuontia varten SV"
+  "sitnet_create_grading_template": "Luo CSV-pohja arvosanojen tuontia varten SV",
+  "sitnet_machine_name": "Nimi SV"
 }

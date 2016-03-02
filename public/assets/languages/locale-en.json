@@ -293,7 +293,6 @@
   "sitnet_dont_forget_to_add_machines": "Don't forget to add computers to the exam room!",
   "sitnet_room_saved": "Exam room has been saved",
   "sitnet_room_address_updated": "Exam room address has been updated",
-  "sitnet_write_computer_name": "Write the exam computer name here",
   "sitnet_machine_added": "The computer has been added",
   "sitnet_software_updated": "Software needed for the exams has been updated",
   "sitnet_software_added": "Software needed for the exams has been added",
@@ -660,5 +659,6 @@
   "sitnet_grade_exams": "Tallenna arvioinnit EN",
   "sitnet_import_grades_from_csv": "Tuo arvosanat CSV-tiedostosta EN",
   "sitnet_grade_import_file_description": "CSV-tiedoston kenttien tulee olla muodossa <tenttisuorituksen ID>,<arvosanan nimi>,<palaute> (esim: 1234,2,Hyvin meni). Palautetta ei ole pakko määritellä. EN",
-  "sitnet_create_grading_template": "Luo CSV-pohja arvosanojen tuontia varten EN"
+  "sitnet_create_grading_template": "Luo CSV-pohja arvosanojen tuontia varten EN",
+  "sitnet_machine_name": "Nimi EN"
 }
