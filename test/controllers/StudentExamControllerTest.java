@@ -71,7 +71,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateStudentExam() throws Exception {
         // Execute
-        Result result = get("/student/doexam/" + exam.getHash());
+        Result result = get("/app/student/doexam/" + exam.getHash());
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -101,7 +101,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testAnswerMultiChoiceQuestion() throws Exception {
-        Result result = get("/student/doexam/" + exam.getHash());
+        Result result = get("/app/student/doexam/" + exam.getHash());
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
         Question question = Ebean.find(Question.class).where()
@@ -110,13 +110,13 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                 .findList()
                 .get(0);
         MultipleChoiceOption option = question.getOptions().get(0);
-        result = request(Helpers.POST, String.format("/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
+        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
                 question.getId(), option.getId()), null);
         assertThat(result.status()).isEqualTo(200);
 
         // Change answer
         option = question.getOptions().get(1);
-        result = request(Helpers.POST, String.format("/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
+        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
                 question.getId(), option.getId()), null);
         assertThat(result.status()).isEqualTo(200);
     }
@@ -125,7 +125,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testAnswerMultiChoiceQuestionWrongIP() throws Exception {
         // Setup
-        Result result = get("/student/doexam/" + exam.getHash());
+        Result result = get("/app/student/doexam/" + exam.getHash());
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
         Question question = Ebean.find(Question.class).where()
@@ -139,7 +139,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         machine.update();
 
         // Execute
-        result = request(Helpers.POST, String.format("/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
+        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
                 question.getId(), option.getId()), null);
         assertThat(result.status()).isEqualTo(403);
     }
@@ -149,7 +149,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testDoExamAndAutoEvaluate() throws Exception {
         setAutoEvaluationConfig();
-        Result result = get("/student/doexam/" + exam.getHash());
+        Result result = get("/app/student/doexam/" + exam.getHash());
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
         for (ExamSection es : studentExam.getExamSections()) {
@@ -162,20 +162,20 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                         if (answer != null && answer.getObjectVersion() > 0) {
                             body.put("objectVersion", answer.getObjectVersion());
                         }
-                        result = request(Helpers.POST, String.format("/student/exams/%s/question/%d",
+                        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d",
                                 studentExam.getHash(), question.getId()), body);
                         assertThat(result.status()).isEqualTo(200);
                         break;
                     default:
                         MultipleChoiceOption option = question.getOptions().get(0);
-                        result = request(Helpers.POST, String.format("/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
+                        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
                                 question.getId(), option.getId()), null);
                         assertThat(result.status()).isEqualTo(200);
                         break;
                 }
             }
         }
-        result = request(Helpers.PUT, String.format("/student/exams/%s", studentExam.getHash()), null);
+        result = request(Helpers.PUT, String.format("/app/student/exams/%s", studentExam.getHash()), null);
         assertThat(result.status()).isEqualTo(200);
         studentExam = Ebean.find(Exam.class, studentExam.getId());
         assertThat(studentExam.getGrade()).isNotNull();
@@ -191,7 +191,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         machine.update();
 
         // Execute
-        Result result = get("/student/doexam/" + exam.getHash());
+        Result result = get("/app/student/doexam/" + exam.getHash());
         assertThat(result.status()).isEqualTo(403);
 
         // Verify that no student exam was created
@@ -202,11 +202,11 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateSeveralStudentExamsFails() throws Exception {
         // Execute
-        Result result = get("/student/doexam/" + exam.getHash());
+        Result result = get("/app/student/doexam/" + exam.getHash());
         assertThat(result.status()).isEqualTo(200);
 
         // Try again
-        result = get("/student/doexam/" + exam.getHash());
+        result = get("/app/student/doexam/" + exam.getHash());
         assertThat(result.status()).isEqualTo(403);
 
         // Verify that no student exam was created
@@ -217,13 +217,13 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateStudentExamAlreadyStarted() throws Exception {
         // Execute
-        Result result = get("/student/doexam/" + exam.getHash());
+        Result result = get("/app/student/doexam/" + exam.getHash());
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
 
         // Try again
-        result = get("/student/doexam/" + studentExam.getHash());
+        result = get("/app/student/doexam/" + studentExam.getHash());
         assertThat(result.status()).isEqualTo(200);
 
         node = Json.parse(contentAsString(result));

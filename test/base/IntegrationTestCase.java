@@ -177,7 +177,7 @@ public class IntegrationTestCase {
 
     protected void login(String eppn) {
         HAKA_HEADERS.put("eppn", eppn);
-        Result result = request(Helpers.POST, "/login", null, HAKA_HEADERS);
+        Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS);
         assertThat(result.status()).isEqualTo(200);
         JsonNode user = Json.parse(contentAsString(result));
         sessionToken = user.get("token").asText();
@@ -185,7 +185,7 @@ public class IntegrationTestCase {
     }
 
     protected void logout() {
-        request(Helpers.POST, "/logout", null);
+        request(Helpers.POST, "/app/logout", null);
     }
 
     protected <T> T deserialize(Class<T> model, JsonNode node) {

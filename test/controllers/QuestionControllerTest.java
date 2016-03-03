@@ -29,7 +29,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
         int sectionQuestionCount = section.getSectionQuestions().size();
 
         // Create draft
-        Result result = request(Helpers.POST, "/questions", Json.newObject().put("type", "EssayQuestion"));
+        Result result = request(Helpers.POST, "/app/questions", Json.newObject().put("type", "EssayQuestion"));
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         Question question = deserialize(Question.class, node);
@@ -44,7 +44,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
                 .put("evaluationCriterias", "This is how you evaluate it")
                 .put("maxCharacters", 3000)
                 .put("evaluationType", "Points");
-        result = request(Helpers.PUT, "/questions/" + question.getId(), questionUpdate);
+        result = request(Helpers.PUT, "/app/questions/" + question.getId(), questionUpdate);
         assertThat(result.status()).isEqualTo(200);
         node = Json.parse(contentAsString(result));
         question = deserialize(Question.class, node);
@@ -52,7 +52,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assertThat(Ebean.find(Question.class, question.getId()).getMaxCharacters()).isEqualTo(3000);
 
         // Add to exam
-        result = request(Helpers.POST, String.format("/exams/%d/section/%d/0/question/%d",
+        result = request(Helpers.POST, String.format("/app/exams/%d/section/%d/0/question/%d",
                 examId, sectionId, question.getId()), null);
         assertThat(result.status()).isEqualTo(200);
         node = Json.parse(contentAsString(result));

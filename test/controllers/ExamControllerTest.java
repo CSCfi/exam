@@ -26,7 +26,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testGetActiveExamsUnauthorized() {
-        Result result = get("/reviewerexams");
+        Result result = get("/app/reviewerexams");
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
@@ -51,7 +51,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         String[] expectedPaths = {"id", "name", "course.code", "examActiveStartDate", "examActiveEndDate"};
 
         // Execute
-        Result result = get("/reviewerexams");
+        Result result = get("/app/reviewerexams");
 
         // Verify
         assertThat(result.status()).isEqualTo(200);
@@ -71,7 +71,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateDraftExamUnauthorized() {
         // Execute
-        Result result = get("/draft?executionType=PRIVATE");
+        Result result = get("/app/draft?executionType=PRIVATE");
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
@@ -83,7 +83,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         int originalRowCount = Ebean.find(Exam.class).findRowCount();
 
         // Execute
-        Result result = get("/draft?executionType=PRIVATE");
+        Result result = get("/app/draft?executionType=PRIVATE");
 
         // Verify
         assertThat(result.status()).isEqualTo(200);
@@ -115,7 +115,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         long id = 1L;
         Exam expected = Ebean.find(Exam.class, id);
         // Execute
-        Result result = get("/exams/" + id);
+        Result result = get("/app/exams/" + id);
 
         // Verify that some paths exist in JSON, this is a significant set of information so really hard to test it's
         // all there :p
@@ -153,7 +153,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         expected.update();
 
         // Execute
-        Result result = get("/exams/" + id);
+        Result result = get("/app/exams/" + id);
         assertThat(result.status()).isEqualTo(404);
     }
 

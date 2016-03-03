@@ -64,7 +64,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
 
         // Execute
-        Result result = request(Helpers.POST, "/calendar/reservation",
+        Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
@@ -106,7 +106,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         enrolment.update();
 
         // Execute
-        Result result = request(Helpers.POST, "/calendar/reservation",
+        Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
@@ -155,7 +155,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         newEnrolment.save();
 
         // Execute
-        Result result = request(Helpers.POST, "/calendar/reservation",
+        Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
@@ -190,7 +190,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
 
         // Execute
-        Result result = request(Helpers.POST, "/calendar/reservation",
+        Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
@@ -210,7 +210,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
 
         // Execute
-        Result result = request(Helpers.POST, "/calendar/reservation",
+        Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
@@ -237,7 +237,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         enrolment.update();
 
         // Execute
-        Result result = request(Helpers.POST, "/calendar/reservation",
+        Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
@@ -263,7 +263,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         enrolment.update();
 
         // Execute
-        Result result = request(Helpers.DELETE, "/calendar/reservation/" + reservation.getId(), null);
+        Result result = request(Helpers.DELETE, "/app/calendar/reservation/" + reservation.getId(), null);
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -285,7 +285,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         enrolment.update();
 
         // Execute
-        Result result = request(Helpers.DELETE, "/calendar/reservation/" + reservation.getId(), null);
+        Result result = request(Helpers.DELETE, "/app/calendar/reservation/" + reservation.getId(), null);
         assertThat(result.status()).isEqualTo(403);
 
         // Verify
@@ -306,7 +306,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         enrolment.update();
 
         // Execute
-        Result result = request(Helpers.DELETE, "/calendar/reservation/" + reservation.getId(), null);
+        Result result = request(Helpers.DELETE, "/app/calendar/reservation/" + reservation.getId(), null);
         assertThat(result.status()).isEqualTo(403);
 
         // Verify

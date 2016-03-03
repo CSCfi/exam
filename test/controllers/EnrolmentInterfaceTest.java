@@ -66,7 +66,7 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testListExams() throws Exception {
-        Result result = get("/student/exams");
+        Result result = get("/app/student/exams");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(1);
@@ -78,7 +78,7 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
     @RunAsStudent
     public void testListExamsNoRemoteEnrolments() throws Exception {
         EnrolmentInterfaceTest.emptyResponse = true;
-        Result result = get("/student/exams");
+        Result result = get("/app/student/exams");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).isEmpty();
