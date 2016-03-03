@@ -29,7 +29,7 @@
                 } else {
                     $scope.guide = true;
                     $scope.hash = $routeParams.hash;
-                    window.onbeforeunload = function() {
+                    window.onbeforeunload = function () {
                         return $translate.instant('sitnet_unsaved_data_may_be_lost');
                     };
                 }
@@ -103,7 +103,9 @@
                 };
 
                 $scope.doExam = function () {
-                    var url = isPreview() ? '/exampreview/' + $routeParams.id : '/student/doexam/' + $routeParams.hash;
+                    var url = '/app' + isPreview()
+                        ? '/exampreview/' + $routeParams.id
+                        : '/student/doexam/' + $routeParams.hash;
                     $http.get(url)
                         .success(function (data) {
                             $scope.doexam = data;
@@ -147,7 +149,7 @@
                             });
 
                             if (!isPreview()) {
-                                $http.get('/examenrolmentroom/' + $scope.doexam.id)
+                                $http.get('/app/examenrolmentroom/' + $scope.doexam.id)
                                     .success(function (data) {
                                         $scope.info = data;
                                         $scope.currentLanguageText = currentLanguage();
@@ -162,8 +164,7 @@
                                 $scope.setActiveSection($scope.pages[0]);
                                 $scope.activeSection.autosaver = getAutosaver();
                             }
-                        }).
-                    error(function () {
+                        }).error(function () {
                         $location.path("/");
                     });
                 };
@@ -483,7 +484,7 @@
                 $scope.timeChecked = false;
                 var getRemainingTime = function () {
                     if ($scope.doexam && $scope.doexam.id) {
-                        var req = $http.get('/time/' + $scope.doexam.id);
+                        var req = $http.get('/app/time/' + $scope.doexam.id);
                         req.success(function (reply) {
                             $scope.timeChecked = true;
                             $scope.remainingTime = parseInt(reply);
@@ -491,7 +492,7 @@
                     }
                 };
 
-                var logout = function(msg) {
+                var logout = function (msg) {
                     StudentExamRes.exams.update({hash: $scope.doexam.hash}, function () {
                         toastr.info($translate.instant(msg), {timeOut: 5000});
                         $timeout.cancel($scope.remainingTimePoller);
@@ -592,7 +593,7 @@
 
 
                         $scope.submit = function () {
-                            fileService.uploadAnswerAttachment("attachment/question/answer", $scope.attachmentFile,
+                            fileService.uploadAnswerAttachment("/app/attachment/question/answer", $scope.attachmentFile,
                                 {
                                     questionId: $scope.question.id,
                                     answerId: $scope.question.answer.id

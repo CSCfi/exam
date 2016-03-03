@@ -11,7 +11,7 @@
                 self.removeReservation = function (enrolment) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                     dialog.result.then(function (btn) {
-                        $http.delete('calendar/reservation/' + enrolment.reservation.id).success(function () {
+                        $http.delete('/app/calendar/reservation/' + enrolment.reservation.id).success(function () {
                             delete enrolment.reservation;
                             enrolment.reservationCanceled = true;
                         }).error(function (msg) {

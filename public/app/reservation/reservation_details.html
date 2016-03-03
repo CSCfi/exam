@@ -23,7 +23,7 @@
                 </td>
                 <td ng-if="enrolment.exam.state === 'PUBLISHED'">{{ enrolment.exam.name }}</td>
                 <td ng-if="enrolment.exam.state !== 'PUBLISHED'">
-                    <a href="#/exams/review/{{enrolment.exam.id}}">{{enrolment.exam.name}}</a>
+                    <a href="/exams/review/{{enrolment.exam.id}}">{{enrolment.exam.name}}</a>
                 </td>
                 <td>{{ enrolment.exam.course.code }}</td>
 

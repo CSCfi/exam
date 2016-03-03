@@ -238,7 +238,7 @@
                     if (!selection) {
                         return;
                     }
-                    var url = '/exam/record/export/';
+                    var url = '/app/exam/record/export/';
                     if (asReport) {
                         url += "report/";
                     }
@@ -462,7 +462,7 @@
                         });
                         $scope.title = 'sitnet_import_grades_from_csv';
                         $scope.submit = function () {
-                            fileService.upload("gradeimport", $scope.attachmentFile, {}, null, $modalInstance,
+                            fileService.upload("/app/gradeimport", $scope.attachmentFile, {}, null, $modalInstance,
                                 $route.reload);
                         };
                         $scope.cancel = function () {
@@ -535,7 +535,7 @@
 
                     modalInstance.result.then(function (params) {
                         fileService.download(
-                            '/exam/' + $routeParams.id + '/attachments', $routeParams.id + '.tar.gz', params);
+                            '/app/exam/' + $routeParams.id + '/attachments', $routeParams.id + '.tar.gz', params);
                     })
                 };
 

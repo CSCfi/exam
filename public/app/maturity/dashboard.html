@@ -50,7 +50,7 @@
                             <span class="text-danger">{{'sitnet_undefined' | translate }}</span>
                         </td>
                         <td ng-if="inspection.assignee">
-                            <a class="pointer" href="#/exams/review/{{inspection.exam.id}}">{{ 'sitnet_view' | translate }}</a>
+                            <a class="pointer" href="/exams/review/{{inspection.exam.id}}">{{ 'sitnet_view' | translate }}</a>
                         </td>
                         <td ng-if="!inspection.assignee">
                             <a class="pointer" ng-click="assignInspection(inspection)">{{ 'sitnet_assign_to_me' | translate }}</a>
@@ -63,7 +63,7 @@
         <div class="top-row">
             <div class="col-md-12">
                 <h3>{{'sitnet_processed_language_inspections' | translate }}&nbsp;<small>{{ getProcessedInspectionsDetails() }},&nbsp;
-                    <a href="#/inspections/reports">{{'sitnet_language_inspection_report_link' | translate}}</a></small>
+                    <a href="/inspections/reports">{{'sitnet_language_inspection_report_link' | translate}}</a></small>
                 </h3>
             </div>
         </div>
@@ -108,7 +108,7 @@
                         </td>
                         <td>{{ inspection.finishedAt | date:'dd.MM.yyyy' }}</td>
                         <td>
-                            <a  ng-class="inspection.approved ? 'text-success' : 'text-danger'" href="#/exams/review/{{inspection.exam.id}}">
+                            <a ng-class="inspection.approved ? 'text-success' : 'text-danger'" href="/exams/review/{{inspection.exam.id}}">
                                 <strong>{{ inspection.approved ? 'sitnet_approved' : 'sitnet_rejected' | translate }}</strong>
                             </a>
                         </td>

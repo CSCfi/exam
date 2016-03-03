@@ -39,8 +39,8 @@
             LANGUAGES_PATH: '/assets/assets/languages/',
             TEMPLATES_PATH: '/assets/app/'
         })
-        .config(['$translateProvider', '$httpProvider', '$compileProvider', 'EXAM_CONF',
-            function ($translateProvider, $httpProvider, $compileProvider, EXAM_CONF) {
+        .config(['$translateProvider', '$httpProvider', '$locationProvider', '$compileProvider', 'EXAM_CONF',
+            function ($translateProvider, $httpProvider, $locationProvider, $compileProvider, EXAM_CONF) {
                 $compileProvider.debugInfoEnabled(false);
                 $httpProvider.useApplyAsync(true);
 
@@ -58,6 +58,8 @@
                 });
                 $translateProvider.useSanitizeValueStrategy(null);
                 $translateProvider.preferredLanguage('en');
+
+                $locationProvider.html5Mode({enabled: true, requireBase: false});
             }])
         .run(['$http', '$route', '$interval', '$timeout', '$sessionStorage', 'sessionService', 'EXAM_CONF',
             function ($http, $route, $interval, $timeout, $sessionStorage, sessionService, EXAM_CONF) {

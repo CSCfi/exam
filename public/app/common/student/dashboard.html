@@ -17,7 +17,7 @@
                         <span class="col-md-12 info-header-bold">
                             {{enrolment.exam.name}} - {{enrolment.exam.course.code}}&nbsp;&nbsp;
                             <a class="pointer"
-                               href="#/enroll/{{enrolment.exam.course.code}}/exam/{{enrolment.exam.id}}">
+                               href="/enroll/{{enrolment.exam.course.code}}/exam/{{enrolment.exam.id}}">
                                 <i class="fa fa-question text-info"></i>
                             </a>
                             <span class="pointer" ng-hide="enrolment.exam.executionType.type === 'PRIVATE'">&nbsp;&nbsp;
@@ -93,14 +93,14 @@
                             <div class="col-md-9">
                                 <span>
                                     <a ng-if="enrolment.reservation" class="text-info"
-                                       href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation'
+                                       href="/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation'
                                         | translate}}</a>
                                     <span ng-if="enrolment.reservation">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
                                     <a ng-if="enrolment.reservation" class="text-danger pointer"
                                        ng-click="removeReservation(enrolment)">{{'sitnet_remove_reservation' |
                                         translate}}</a>
                                     <a ng-if="!enrolment.reservation" class="text-info"
-                                       href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_new_reservation'
+                                       href="/calendar/{{enrolment.exam.id}}">{{'sitnet_new_reservation'
                                         | translate}}</a>
                                 </span>
                             </div>

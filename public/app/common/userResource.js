@@ -3,12 +3,12 @@
     angular.module("exam.resources")
         .factory("UserRes", ['$resource', function ($resource) {
             return {
-                users: $resource("/users"),
-                permissions: $resource("/permissions", {}, {
+                users: $resource("/app/users"),
+                permissions: $resource("/app/permissions", {}, {
                     "add": {method: "POST"},
                     "remove": {method: "DELETE"}
                 }),
-                userRoles: $resource("/users/:id/roles/:role", {
+                userRoles: $resource("/app/users/:id/roles/:role", {
                         id: "@id", role: "@role"
 
                     },
@@ -17,33 +17,33 @@
                         "update": {method: "PUT", params: {id: "@id", role: "@role"}},
                         "remove": {method: "DELETE", params: {id: "@id", role: "@role"}}
                     }),
-                usersByRole: $resource("/users/byrole/:role",
+                usersByRole: $resource("/app/users/byrole/:role",
                     {
                         role: "@role"
                     }),
 
-                filterUsers: $resource("/users/filter/:role",
+                filterUsers: $resource("/app/users/filter/:role",
                     {
                         role: "@role"
                     }),
 
-                filterUsersByExam: $resource("/users/filter/:role/:eid",
-                    {
-                        eid: "@eid",
-                        role: "@role"
-                    }),
-
-                filterOwnersByExam: $resource("/users/filter/owner/:role/:eid",
+                filterUsersByExam: $resource("/app/users/filter/:role/:eid",
                     {
                         eid: "@eid",
                         role: "@role"
                     }),
 
-                updateAgreementAccepted: $resource("/users/agreement", {},
+                filterOwnersByExam: $resource("/app/users/filter/owner/:role/:eid",
+                    {
+                        eid: "@eid",
+                        role: "@role"
+                    }),
+
+                updateAgreementAccepted: $resource("/app/users/agreement", {},
                     {
                         "update": {method: "PUT"}
                     }),
-                unenrolledStudents: $resource("students/:eid",
+                unenrolledStudents: $resource("/app/students/:eid",
                     {
                         eid: "@eid"
                     })

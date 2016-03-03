@@ -56,7 +56,7 @@
                     });
                 };
 
-                $http.get('accessibility').success(function (data) {
+                $http.get('/app/accessibility').success(function (data) {
                     $scope.accessibilities = data;
                 });
 
@@ -133,7 +133,7 @@
                     }
                 };
 
-                $http.get('rooms').then(function (reply) {
+                $http.get('/app/rooms').then(function (reply) {
                     $scope.rooms = reply.data;
                 });
 
@@ -155,8 +155,8 @@
                         }).map(function (item) {
                         return item.id;
                     });
-                    $http.post('calendar/reservation', slot).then(function () {
-                        $location.path('#/home');
+                    $http.post('/app/calendar/reservation', slot).then(function () {
+                        $location.path('/');
                     }, function (error) {
                         toastr.error(error.data);
                     });

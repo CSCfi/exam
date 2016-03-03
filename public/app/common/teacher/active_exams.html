@@ -29,7 +29,7 @@
                 <tbody>
                 <tr ng-repeat="exam in activeExams | orderBy:activePredicate:reverse">
                     <td class="table-column-examcode">{{ exam.course.code }}</td>
-                    <td ng-if="exam.name" class="table-column-examname"><a href="#/exams/reviews/{{exam.id}}">{{
+                    <td ng-if="exam.name" class="table-column-examname"><a href="/exams/reviews/{{exam.id}}">{{
                         exam.name }}</a></td>
                     <td ng-if="!exam.name" class="table-column-examname">
                         <span class="text-danger">{{'sitnet_no_name' | translate}}</span>

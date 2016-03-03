@@ -49,7 +49,7 @@
 
                 $scope.getExamEnrollments = function (exam) {
                     if (exam) {
-                        fileService.download('/statistics/examenrollments/' + exam, 'exam_enrolments.xlsx');
+                        fileService.download('/app/statistics/examenrollments/' + exam, 'exam_enrolments.xlsx');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_exam'));
                     }
@@ -59,7 +59,7 @@
                     if (student) {
                         var f = $filter("date")(from, "dd.MM.yyyy") ;
                         var t = $filter("date")(to, "dd.MM.yyyy");
-                        fileService.download('/statistics/student/' + student + '/' + f + '/' + t, 'student_activity.xlsx');
+                        fileService.download('/app/statistics/student/' + student + '/' + f + '/' + t, 'student_activity.xlsx');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_student'));
                     }
@@ -73,7 +73,7 @@
 
                 $scope.getExamsXlsx = function (exam) {
                     if (exam) {
-                        fileService.download('/statistics/examnames/' + exam + '/xlsx', 'exams.xlsx');
+                        fileService.download('/app/statistics/examnames/' + exam + '/xlsx', 'exams.xlsx');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_exam'));
                     }
@@ -81,7 +81,7 @@
 
                 $scope.getExamsJson = function (exam) {
                     if (exam) {
-                        fileService.download('/statistics/examnames/' + exam + '/json', 'exams.json');
+                        fileService.download('/app/statistics/examnames/' + exam + '/json', 'exams.json');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_exam'));
                     }
@@ -97,7 +97,7 @@
                     var f = $filter("date")(from, "dd.MM.yyyy");
                     var t = $filter("date")(to, "dd.MM.yyyy");
                     if (uid > 0) {
-                        fileService.download('/statistics/teacherexamsbydate/' + uid + '/' + f + '/' + t,
+                        fileService.download('/app/statistics/teacherexamsbydate/' + uid + '/' + f + '/' + t,
                             'teacherexams_' + f + '_' + t + '.xlsx');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_teacher'));
@@ -108,7 +108,7 @@
                     var f = $filter("date")(from, "dd.MM.yyyy");
                     var t = $filter("date")(to, "dd.MM.yyyy");
                     if (rid > 0) {
-                        fileService.download('/statistics/resbydate/' + rid + '/' + f + '/' + t, 'reservations_' + f + '_' + t + '.xlsx');
+                        fileService.download('/app/statistics/resbydate/' + rid + '/' + f + '/' + t, 'reservations_' + f + '_' + t + '.xlsx');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_room'));
                     }

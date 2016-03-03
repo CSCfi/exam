@@ -107,7 +107,7 @@
                     if (!_user) {
                         return;
                     }
-                    http().post('/logout').success(function (data) {
+                    http().post('/app/logout').success(function (data) {
                         delete $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY];
                         delete http().defaults.headers.common;
                         _user = undefined;
@@ -280,7 +280,7 @@
                         username: username,
                         password: password
                     };
-                    http().post('/login', credentials, {ignoreAuthModule: true}).then(
+                    http().post('/app/login', credentials, {ignoreAuthModule: true}).then(
                         function (user) {
                             processLoggedInUser(user.data);
                             onLoginSuccess();
@@ -293,7 +293,7 @@
                     if (!_user) {
                         self.translate(lang);
                     } else {
-                        http().put('/user/lang', {lang: lang}).success(function () {
+                        http().put('/app/user/lang', {lang: lang}).success(function () {
                             _user.lang = lang;
                             self.translate(lang);
                         }).error(function () {
@@ -303,13 +303,13 @@
                 };
 
                 var checkSession = function () {
-                    http().get('/checkSession').success(function (data) {
+                    http().get('/app/checkSession').success(function (data) {
                         if (data === "alarm") {
                             toastr.options = {
                                 timeOut: "0",
                                 preventDuplicates: true,
                                 onclick: function () {
-                                    http().put('/extendSession', {}).success(function () {
+                                    http().put('/app/extendSession', {}).success(function () {
                                         toastr.info($translate.instant("sitnet_session_extended"));
                                     });
                                 }

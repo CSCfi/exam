@@ -1053,7 +1053,7 @@
                         });
 
                         $scope.submit = function () {
-                            fileService.upload("attachment/exam", $scope.attachmentFile, {examId: $scope.newExam.id}, $scope.newExam, $modalInstance);
+                            fileService.upload("/app/attachment/exam", $scope.attachmentFile, {examId: $scope.newExam.id}, $scope.newExam, $modalInstance);
                         };
 
                         $scope.cancel = function () {

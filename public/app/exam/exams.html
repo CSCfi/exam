@@ -82,9 +82,9 @@
                         <td ng-style="exam.activityStyle">{{exam.course.code}}</td>
                         <td ng-style="exam.activityStyle">
                             <a ng-if="exam.name" class="exams-info-title bold-button"
-                               href="#/exams/{{exam.id}}">{{exam.name}}</a>
+                               href="/exams/{{exam.id}}">{{exam.name}}</a>
                             <a ng-if="!exam.name" class="exams-info-title bold-button text-danger"
-                               href="#/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}
+                               href="/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}
                             </a>
                         </td>
                         <td ng-style="exam.activityStyle">{{ getExecutionTypeTranslation(exam) | translate | uppercase }}</td>

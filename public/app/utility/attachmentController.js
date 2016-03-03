@@ -81,24 +81,24 @@
                 };
 
                 $scope.downloadQuestionAttachment = function (question) {
-                    fileService.download('/attachment/question/' + question.id, question.attachment.fileName);
+                    fileService.download('/app/attachment/question/' + question.id, question.attachment.fileName);
                 };
 
                 $scope.downloadQuestionAnswerAttachment = function (question, hash) {
-                    fileService.download('/attachment/question/' + question.id + '/answer/' + hash,
+                    fileService.download('/app/attachment/question/' + question.id + '/answer/' + hash,
                         question.answer.attachment.fileName);
                 };
 
                 $scope.downloadExamAttachment = function (exam) {
-                    fileService.download('/attachment/exam/' + exam.id, exam.attachment.fileName);
+                    fileService.download('/app/attachment/exam/' + exam.id, exam.attachment.fileName);
                 };
 
                 $scope.downloadFeedbackAttachment = function (exam) {
-                    fileService.download('/attachment/exam/' + exam.id + '/feedback', exam.examFeedback.attachment.fileName);
+                    fileService.download('/app/attachment/exam/' + exam.id + '/feedback', exam.examFeedback.attachment.fileName);
                 };
 
                 $scope.downloadStatementAttachment = function (exam) {
-                    fileService.download('/attachment/exam/' + exam.id + '/statement', exam.languageInspection.statement.attachment.fileName);
+                    fileService.download('/app/attachment/exam/' + exam.id + '/statement', exam.languageInspection.statement.attachment.fileName);
                 };
 
             }]);

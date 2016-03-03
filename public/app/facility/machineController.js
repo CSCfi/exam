@@ -101,7 +101,7 @@
                         return item.id;
                     }).join(", ");
 
-                    $http.post('room/' + room.id + '/accessibility', {ids: ids})
+                    $http.post('/app/room/' + room.id + '/accessibility', {ids: ids})
                         .success(function () {
                             toastr.info($translate.instant('sitnet_room_updated'));
                         });

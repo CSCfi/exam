@@ -44,7 +44,7 @@ public class SystemRequestHandler implements HttpRequestHandler {
         AuditLogger.log(request, user);
 
         // logout, no further processing
-        if (request.path().equals("logout")) {
+        if (request.path().equals("/app/logout")) {
             return propagateAction();
         }
 

@@ -78,7 +78,7 @@
                 };
 
                 // This is just to get page refresh to route us back here
-                $http.get('/checkSession');
+                $http.get('/app/checkSession');
 
             }]);
 }());

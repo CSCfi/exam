@@ -336,7 +336,7 @@
                         });
 
                         $scope.submit = function () {
-                            fileService.upload("attachment/question", $scope.attachmentFile, {questionId: $scope.newQuestion.id}, $scope.newQuestion, $modalInstance);
+                            fileService.upload("/app/attachment/question", $scope.attachmentFile, {questionId: $scope.newQuestion.id}, $scope.newQuestion, $modalInstance);
                         };
                         // Cancel button is pressed in the modal dialog
                         $scope.cancel = function () {

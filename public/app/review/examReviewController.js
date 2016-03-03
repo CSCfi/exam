@@ -21,7 +21,7 @@
                 $scope.printEssayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/essay_question.html";
 
                 $scope.printExam = function () {
-                    window.open("/#/print/exam/" + $scope.exam.id, "_blank");
+                    window.open("/print/exam/" + $scope.exam.id, "_blank");
                 };
 
                 $scope.init = function () {
@@ -277,7 +277,7 @@
                 );
 
                 $scope.viewAnswers = function (examId) {
-                    window.open("/#/exams/review/" + examId, "_blank");
+                    window.open("/exams/review/" + examId, "_blank");
                 };
 
                 $scope.printExamDuration = function (exam) {
@@ -579,7 +579,7 @@
                             $scope.maxFileSize = data.filesize;
                         });
                         $scope.submit = function () {
-                            fileService.upload("attachment/exam/" + exam.id + "/" + urlSuffix, $scope.attachmentFile,
+                            fileService.upload("/app/attachment/exam/" + exam.id + "/" + urlSuffix, $scope.attachmentFile,
                                 {examId: $scope.exam.id}, parent, $modalInstance);
                         };
                         $scope.cancel = function () {

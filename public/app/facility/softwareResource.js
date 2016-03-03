@@ -3,7 +3,7 @@
     angular.module("exam.resources")
         .factory("SoftwareResource", ['$resource', function ($resource) {
             return {
-                machines: $resource("/software_machine/:mid",
+                machines: $resource("/app/software_machine/:mid",
                     {
                         mid: "@mid"
                     },
@@ -11,7 +11,7 @@
                         "reset": {method: "PUT"}
                     }),
 
-                machine: $resource("/machine/:mid/software/:sid",
+                machine: $resource("/app/machine/:mid/software/:sid",
                     {
                         mid: "@mid",
                         sid: "@sid"
@@ -21,14 +21,14 @@
                         "toggle": {method: "POST"}
                     }),
 
-                softwares: $resource("/softwares",
+                softwares: $resource("/app/softwares",
                     {
                     },
                     {
                         "query": {method: "GET", isArray:true}
                     }),
 
-                software: $resource("/softwares/:id",
+                software: $resource("/app/softwares/:id",
                     {
                         id: "@id"
                     },
@@ -37,7 +37,7 @@
                         "remove": {method: "DELETE"}
                     }),
 
-                add: $resource("/softwares/add/:name",
+                add: $resource("/app/softwares/add/:name",
                     {
                         name: "@name"
                     },
@@ -45,7 +45,7 @@
                         "insert": {method: "POST"}
                     }),
 
-                update: $resource("/softwares/update/:id/:name",
+                update: $resource("/app/softwares/update/:id/:name",
                     {
                         id: "@id",
                         name: "@name"
