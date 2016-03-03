@@ -166,7 +166,7 @@ question_essay:
     maxScore: 5
     evaluationType: Points
     evaluationCriterias:
-    maxCharacters: 1000
+    expectedWordCount: 1000
     shared: true
     expanded: false
 
@@ -179,7 +179,7 @@ question_essay:
     maxScore: 5
     evaluationType: Points
     evaluationCriterias:
-    maxCharacters: 1024
+    expectedWordCount: 1024
     shared: false
     expanded: false
 
@@ -192,7 +192,7 @@ question_essay:
     maxScore: 5
     evaluationType: Select
     evaluationCriterias:
-    maxCharacters: 2250
+    expectedWordCount: 2250
     shared: false
     expanded: false
 
@@ -206,7 +206,7 @@ question_essay:
     evaluationType: Select
    #materials:
     evaluationCriterias:
-    maxCharacters: 2250
+    expectedWordCount: 2250
     shared: false
     expanded: false
 
@@ -221,7 +221,7 @@ question_essay:
     maxScore: 5
     evaluationType: Points
     evaluationCriterias:
-    maxCharacters: 1000
+    expectedWordCount: 1000
     shared: true
     expanded: false
     answer:
@@ -244,7 +244,7 @@ question_essay:
     maxScore: 5
     evaluationType: Points
     evaluationCriterias:
-    maxCharacters: 1024
+    expectedWordCount: 1024
     shared: false
     expanded: false
     answer:
@@ -268,7 +268,7 @@ question_essay:
     maxScore: 5
     evaluationType: Select
     evaluationCriterias:
-    maxCharacters: 2250
+    expectedWordCount: 2250
     shared: false
     expanded: false
     answer:
@@ -291,7 +291,7 @@ question_essay:
     maxScore: 5
     evaluationType: Points
     evaluationCriterias:
-    maxCharacters: 1000
+    expectedWordCount: 1000
     shared: true
     expanded: false
     answer:
@@ -314,7 +314,7 @@ question_essay:
     maxScore: 5
     evaluationType: Points
     evaluationCriterias:
-    maxCharacters: 1024
+    expectedWordCount: 1024
     shared: false
     expanded: false
     answer:
@@ -338,7 +338,7 @@ question_essay:
     maxScore: 5
     evaluationType: Select
     evaluationCriterias:
-    maxCharacters: 2250
+    expectedWordCount: 2250
     shared: false
     expanded: false
     answer:
