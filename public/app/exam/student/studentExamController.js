@@ -103,9 +103,11 @@
                 };
 
                 $scope.doExam = function () {
-                    var url = '/app' + isPreview()
-                        ? '/exampreview/' + $routeParams.id
-                        : '/student/doexam/' + $routeParams.hash;
+                    var url = '/app' + (
+                            isPreview()
+                                ? '/exampreview/' + $routeParams.id
+                                : '/student/doexam/' + $routeParams.hash
+                        );
                     $http.get(url)
                         .success(function (data) {
                             $scope.doexam = data;
