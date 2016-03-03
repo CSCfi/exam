@@ -63,7 +63,7 @@ public class EmailComposerImpl implements EmailComposer {
         Lang lang = getLang(student);
         String subject = Messages.get(lang, "email.inspection.ready.subject");
         String examInfo = String.format("%s, %s", exam.getName(), exam.getCourse().getCode());
-        String reviewLink = String.format("%s/#/feedback/exams/%s", HOSTNAME, exam.getId());
+        String reviewLink = String.format("%s/feedback/exams/%s", HOSTNAME, exam.getId());
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("review_done", Messages.get(lang, "email.template.review.ready", examInfo));
@@ -97,7 +97,7 @@ public class EmailComposerImpl implements EmailComposer {
         String subject = Messages.get(lang, "email.inspection.comment.subject");
         String teacherName = String.format("%s %s <%s>", sender.getFirstName(), sender.getLastName(), sender.getEmail());
         String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getName());
-        String linkToInspection = String.format("%s/#exams/review/%d", HOSTNAME, exam.getId());
+        String linkToInspection = String.format("%s/exams/review/%d", HOSTNAME, exam.getId());
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("teacher_review_done", Messages.get(lang, "email.template.inspection.done", teacherName));
@@ -137,7 +137,7 @@ public class EmailComposerImpl implements EmailComposer {
 
         for (ExamParticipation review : reviews) {
             Map<String, String> stringValues = new HashMap<>();
-            stringValues.put("exam_link", String.format("%s/#/exams/reviews/%d", HOSTNAME, review.getExam().getId()));
+            stringValues.put("exam_link", String.format("%s/exams/reviews/%d", HOSTNAME, review.getExam().getId()));
             stringValues.put("student_name", String.format("%s %s",
                     review.getUser().getFirstName(), review.getUser().getLastName()));
             stringValues.put("exam_name", review.getExam().getName());
@@ -205,7 +205,7 @@ public class EmailComposerImpl implements EmailComposer {
         stringValues.put("machine_name", Messages.get(lang, "email.template.reservation.machine", machineName));
         stringValues.put("room_instructions", isTeacher ? null : roomInstructions);
         stringValues.put("cancellation_info", isTeacher ? null : Messages.get(lang, "email.template.reservation.cancel.info"));
-        stringValues.put("cancellation_link", isTeacher ? null : String.format("%s/#/", HOSTNAME));
+        stringValues.put("cancellation_link", isTeacher ? null : HOSTNAME);
         stringValues.put("cancellation_link_text", isTeacher ? null : Messages.get(lang, "email.template.reservation.cancel.link.text"));
         String content = replaceAll(template, stringValues);
 
@@ -252,7 +252,7 @@ public class EmailComposerImpl implements EmailComposer {
         String teacherName = String.format("%s %s <%s>", fromUser.getFirstName(), fromUser.getLastName(),
                 fromUser.getEmail());
         String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getCode());
-        String linkToInspection = String.format("%s/#/exams/reviews/%d", HOSTNAME, exam.getId());
+        String linkToInspection = String.format("%s/exams/reviews/%d", HOSTNAME, exam.getId());
 
         Map<String, String> values = new HashMap<>();
 
@@ -314,7 +314,7 @@ public class EmailComposerImpl implements EmailComposer {
 
         Map<String, String> stringValues = new HashMap<>();
         if (isStudentUser) {
-            String link = String.format("%s/#/enroll/%s", HOSTNAME, enrolment.getExam().getCourse().getCode());
+            String link = String.format("%s/enroll/%s", HOSTNAME, enrolment.getExam().getCourse().getCode());
             String time = String.format("%s - %s", DTF.print(adjustDST(reservation.getStartAt(), TZ)),
                     DTF.print(adjustDST(reservation.getEndAt(), TZ)));
             Exam source = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent() : enrolment.getExam();
@@ -363,7 +363,7 @@ public class EmailComposerImpl implements EmailComposer {
         String examDuration = Messages.get(lang, "email.template.participant.notification.exam.duration",
                 exam.getDuration());
         String reservationInfo = Messages.get(lang, "email.template.participant.notification.please.reserve");
-        String bookingLink = String.format("%s/#/calendar/%d", HOSTNAME, exam.getId());
+        String bookingLink = String.format("%s/calendar/%d", HOSTNAME, exam.getId());
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("title", title);
         stringValues.put("exam_info", examInfo);
@@ -431,7 +431,7 @@ public class EmailComposerImpl implements EmailComposer {
                 ? "email.template.language.inspection.approved" : "email.template.language.inspection.rejected");
         String examInfo = String.format("%s, %s", exam.getName(), exam.getCourse().getCode());
 
-        String linkToInspection = String.format("%s/#exams/review/%d", HOSTNAME, inspection.getExam().getId());
+        String linkToInspection = String.format("%s/exams/review/%d", HOSTNAME, inspection.getExam().getId());
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("exam_info", Messages.get(lang, "email.template.reservation.exam", examInfo));
@@ -486,7 +486,7 @@ public class EmailComposerImpl implements EmailComposer {
 
         for (Exam exam : exams) {
             Map<String, String> stringValues = new HashMap<>();
-            stringValues.put("exam_link", String.format("%s/#/exams/%d", HOSTNAME, exam.getId()));
+            stringValues.put("exam_link", String.format("%s/exams/%d", HOSTNAME, exam.getId()));
             stringValues.put("exam_name", exam.getName());
             stringValues.put("course_code", exam.getCourse().getCode());
             List<ExamEnrolment> enrolments = getEnrolments(exam);
