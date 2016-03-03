@@ -883,7 +883,8 @@ public class ExamController extends BaseController {
                 .fetch("examType", "id, type")
                 .fetch("examSections", "id, name")
                 .fetch("examSections.sectionQuestions", "sequenceNumber")
-                .fetch("examSections.sectionQuestions.question", "id, type, question, instruction, maxScore, maxCharacters, evaluationType, expanded")
+                .fetch("examSections.sectionQuestions.question", "id, type, question, instruction, maxScore, " +
+                        "expectedWordCount, evaluationType, expanded")
                 .fetch("examSections.sectionQuestions.question.parent", "id")
                 .fetch("examSections.sectionQuestions.question.options", "id, option")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")

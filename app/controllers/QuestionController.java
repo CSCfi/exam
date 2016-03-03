@@ -133,8 +133,8 @@ public class QuestionController extends BaseController {
             return notFound("question not found");
         }
         User user = getLoggedUser();
-        if (df.get("maxCharacters") != null) {
-            question.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
+        if (df.get("expectedWordCount") != null) {
+            question.setExpectedWordCount(Long.parseLong(df.get("expectedWordCount")));
         }
         question.setEvaluationType(df.get("evaluationType"));
         String validationResult = question.getValidationResult();

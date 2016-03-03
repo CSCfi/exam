@@ -109,7 +109,6 @@
                         case 'EssayQuestion':
                             $scope.questionTemplate = essayQuestionTemplate;
                             $scope.newQuestion.evaluationType = $scope.newQuestion.evaluationType || "Points";
-                            $scope.estimateWords();
                             break;
                         case 'MultipleChoiceQuestion':
                             $scope.questionTemplate = multiChoiceQuestionTemplate;
@@ -122,9 +121,8 @@
                     }
                 };
 
-                $scope.estimateWords = function () {
-                    $scope.newQuestion.words = Math.ceil($scope.newQuestion.maxCharacters / 7.5) || 0;
-                    return $scope.newQuestion.words;
+                $scope.estimateCharacters = function () {
+                    return $scope.newQuestion.expectedWordCount * 8;
                 };
 
                 $scope.calculateMaxPoints = function (question) {
@@ -145,7 +143,7 @@
                     // update question specific attributes
                     switch (questionToUpdate.type) {
                         case 'EssayQuestion':
-                            questionToUpdate.maxCharacters = $scope.newQuestion.maxCharacters;
+                            questionToUpdate.expectedWordCount = $scope.newQuestion.expectedWordCount;
                             questionToUpdate.evaluationType = $scope.newQuestion.evaluationType;
                             break;
 

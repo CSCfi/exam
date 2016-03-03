@@ -65,8 +65,7 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
     @Column(columnDefinition = "boolean default false")
     protected boolean expanded;
 
-    // not really max length, Just a recommendation
-    private Long maxCharacters;
+    private Long expectedWordCount;
 
     // Points, Select
     private String evaluationType;
@@ -194,12 +193,12 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
         this.examSectionQuestion = examSectionQuestion;
     }
 
-    public Long getMaxCharacters() {
-        return maxCharacters;
+    public Long getExpectedWordCount() {
+        return expectedWordCount;
     }
 
-    public void setMaxCharacters(Long maxCharacters) {
-        this.maxCharacters = maxCharacters;
+    public void setExpectedWordCount(Long expectedWordCount) {
+        this.expectedWordCount = expectedWordCount;
     }
 
     public String getEvaluationType() {

@@ -74,10 +74,12 @@
                         }}
                     </div>
                 </div>
-                <div ng-show="sectionQuestion.question.reviewExpanded && sectionQuestion.question.maxCharacters">
+                <div ng-show="sectionQuestion.question.reviewExpanded && sectionQuestion.question.expectedWordCount">
                     <div class="row">
                         <strong>{{ 'sitnet_essay_length_recommendation' | translate}}:</strong>
-                        {{ sectionQuestion.question.maxCharacters }}
+                        {{ sectionQuestion.question.expectedWordCount }}
+                        ({{ 'sitnet_approximately' | translate}} {{sectionQuestion.question.expectedWordCount * 8}}
+                        {{'sitnet_characters' | translate}})
                     </div>
                 </div>
                 <!-- grade -->

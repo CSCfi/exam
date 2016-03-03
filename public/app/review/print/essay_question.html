@@ -69,7 +69,10 @@
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_essay_length_recommendation' |
             translate}}:
         </div>
-        <div class="sub-content-row col-md-9">{{ sectionQuestion.question.maxCharacters }}&nbsp;</div>
+        <div class="sub-content-row col-md-9">{{ sectionQuestion.question.expectedWordCount }}&nbsp;
+            ({{ 'sitnet_approximately' | translate}} {{sectionQuestion.question.expectedWordCount * 8}}
+            {{'sitnet_characters' | translate}})
+        </div>
     </div>
     <!-- grade -->
     <div class="row">

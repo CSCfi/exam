@@ -145,6 +145,9 @@
                 };
 
                 self.countWords = function(text) {
+                    if (!text) {
+                        return 0;
+                    }
                     var normalizedText = text
                         .replace(/(\r\n|\n|\r)/gm, " ")
                         .replace(/^\s+|\s+$/g, "")
