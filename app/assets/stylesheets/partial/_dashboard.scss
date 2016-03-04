@@ -295,6 +295,7 @@
   .waitingroom-jumbotron {
     @extend .jumbotron;
     background-color: white;
+    padding-left: 2em;
   }
 
   @media print {
