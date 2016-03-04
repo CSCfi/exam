@@ -2,12 +2,14 @@ package util.java;
 
 import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
+import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -119,6 +121,24 @@ public class DateTimeUtils {
         }
         // Nothing to merge anymore
         return merged;
+    }
+
+    public static int resolveStartWorkingHourMillis(Date startTime, int timeZoneOffset) {
+        return resolveMillisOfDay(startTime, timeZoneOffset);
+    }
+
+    public static int resolveEndWorkingHourMillis(Date endTime, int timeZoneOffset) {
+        int millis = resolveMillisOfDay(endTime, timeZoneOffset);
+        return millis == 0 ? MILLIS_PER_DAY - 1 : millis;
+    }
+
+    private static int resolveMillisOfDay(Date date, long offset) {
+        DateTime dateTime = new DateTime(date.getTime());
+        long millis = dateTime.getMillisOfDay() + offset;
+        if (millis >= MILLIS_PER_DAY) {
+            return (int) Math.abs(millis - MILLIS_PER_DAY);
+        }
+        return (int) millis;
     }
 
 

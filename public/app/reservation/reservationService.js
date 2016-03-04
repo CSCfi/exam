@@ -141,7 +141,7 @@
                         var offset = moment.tz(tz).isDST() ? -1 : 0;
                         var start = moment.tz(dwh.startTime, tz);
                         start.add(offset, 'hour');
-                        return start;
+                        return moment().hours(start.hours()).minutes(start.minutes()).seconds(start.seconds());
                     });
                     return moment.min(openings);
                 };
@@ -152,7 +152,7 @@
                         var offset = moment.tz(tz).isDST() ? -1 : 0;
                         var end = moment.tz(dwh.endTime, tz);
                         end.add(offset, 'hour');
-                        return end;
+                        return moment().hours(end.hours()).minutes(end.minutes()).seconds(end.seconds());
                     });
                     return moment.max(closings);
                 };

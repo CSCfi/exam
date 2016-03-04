@@ -12,7 +12,14 @@ import org.joda.time.LocalDate;
 import util.AppUtil;
 import util.java.DateTimeUtils;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -309,14 +316,15 @@ public class ExamRoom extends GeneratedIdentityModel {
         List<OpeningHours> hours = new ArrayList<>();
         defaultWorkingHours.stream().filter(dwh -> dwh.getWeekday().equalsIgnoreCase(day)).collect(Collectors.toList()).forEach(dwh -> {
             DateTime midnight = date.toDateTimeAtStartOfDay();
-            DateTime start = midnight.withMillisOfDay((int) dwh.getStartTime().getTime());
-            DateTime end = midnight.withMillisOfDay((int) dwh.getEndTime().getTime());
-            Interval interval = new Interval(start.plusMillis(dwh.getTimezoneOffset()), end.plusMillis(dwh.getTimezoneOffset()));
+            DateTime start = midnight.withMillisOfDay(DateTimeUtils
+                    .resolveStartWorkingHourMillis(dwh.getStartTime(), dwh.getTimezoneOffset()));
+            DateTime end = midnight.withMillisOfDay(DateTimeUtils
+                    .resolveEndWorkingHourMillis(dwh.getEndTime(), dwh.getTimezoneOffset()));
+            Interval interval = new Interval(start, end);
             hours.add(new OpeningHours(interval, dwh.getTimezoneOffset()));
         });
         return hours;
     }
-
 
     @Transient
     public List<OpeningHours> getWorkingHoursForDate(LocalDate date) {

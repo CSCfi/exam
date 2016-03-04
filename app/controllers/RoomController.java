@@ -18,6 +18,7 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
+import util.java.DateTimeUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -156,8 +157,11 @@ public class RoomController extends BaseController {
                 DefaultWorkingHours copy = new DefaultWorkingHours();
                 BeanUtils.copyProperties(blueprint, copy, "id", "room");
                 copy.setRoom(examRoom);
-                copy.setTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(
-                        new DateTime(blueprint.getEndTime())));
+                DateTime end = new DateTime(blueprint.getEndTime());
+                int offset = DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(end);
+                int endMillisOfDay = DateTimeUtils.resolveEndWorkingHourMillis(end.toDate(), offset) - offset;
+                copy.setEndTime(end.withMillisOfDay(endMillisOfDay).toDate());
+                copy.setTimezoneOffset(offset);
                 copy.save();
             }
         }
