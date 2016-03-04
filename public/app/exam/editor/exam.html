@@ -1,6 +1,6 @@
 <div id="dashboard">
     <div id="sitnet-header" class="header">
-        <div class="col-md-6 header-wrapper">
+        <div class="col-md-12 header-wrapper">
             <span ng-if="newExam.executionType.type==='PUBLIC'" class="header-text">
                 {{'sitnet_public_exam' | translate}}
             </span>
@@ -10,10 +10,6 @@
             <span ng-if="newExam.executionType.type==='MATURITY'" class="header-text">
                 {{'sitnet_maturity' | translate}}
             </span>
-        </div>
-        <div class="col-md-6 header-wrapper" ng-show="newExam.state === 'DRAFT'">
-            <a ng-click="cancelNewExam(newExam)" class="pull-right btn btn-primary btn-lg active header-button">
-                {{'sitnet_button_cancel' | translate}} </a>
         </div>
     </div>
 
@@ -53,9 +49,6 @@
             <div class="col-md-12 bottom-padding-2">
                     <span>
                         <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
-                        <button ng-show="newExam.state === 'DRAFT'" ng-click="cancelNewExam(newExam)"
-                                class="btn btn-warning">{{'sitnet_button_cancel' | translate}}
-                        </button>
                     </span>
                     <span class="pull-right">
                         <button ng-click="previewExam()" class="btn btn-primary">{{'sitnet_preview' | translate}}
@@ -66,6 +59,9 @@
                         <button ng-show="newExam.state === 'PUBLISHED' && newExam.executionType.type==='PUBLIC'"
                                 ng-click="unpublishExam()"
                                 class="btn btn-warning">{{'sitnet_unpublish_exam' | translate }}
+                        </button>
+                        <button ng-show="newExam.executionType.type==='PUBLIC'" ng-click="removeExam()"
+                                class="btn btn-danger">{{'sitnet_exam_remove' | translate}}
                         </button>
                     </span>
             </div>

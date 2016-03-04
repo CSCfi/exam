@@ -37,7 +37,7 @@
                     ]
                 };
 
-                var getReleaseTypeByName = function(name) {
+                var getReleaseTypeByName = function (name) {
                     var matches = $scope.autoevaluation.releaseTypes.filter(function (rt) {
                         return rt.name === name;
                     });
@@ -157,7 +157,7 @@
                         };
                     }
                     if (exam.autoEvaluationConfig) {
-                        exam.autoEvaluationConfig.gradeEvaluations.sort(function(a, b) {
+                        exam.autoEvaluationConfig.gradeEvaluations.sort(function (a, b) {
                             return a.grade.id - b.grade.id;
                         });
                         $scope.applyFilter(getReleaseTypeByName(exam.autoEvaluationConfig.releaseType));
@@ -583,11 +583,11 @@
                         "grading": $scope.newExam.gradeScale ? $scope.newExam.gradeScale.id : undefined,
                         "expanded": $scope.newExam.expanded,
                         "evaluationConfig": $scope.autoevaluation.enabled ? {
-                                releaseType: $scope.selectedReleaseType().name,
-                                releaseDate: new Date($scope.newExam.autoEvaluationConfig.releaseDate).getTime(),
-                                amountDays: $scope.newExam.autoEvaluationConfig.amountDays,
-                                gradeEvaluations: $scope.newExam.autoEvaluationConfig.gradeEvaluations
-                            } : null,
+                            releaseType: $scope.selectedReleaseType().name,
+                            releaseDate: new Date($scope.newExam.autoEvaluationConfig.releaseDate).getTime(),
+                            amountDays: $scope.newExam.autoEvaluationConfig.amountDays,
+                            gradeEvaluations: $scope.newExam.autoEvaluationConfig.gradeEvaluations
+                        } : null,
                         "trialCount": $scope.newExam.trialCount,
                         "objectVersion": $scope.newExam.objectVersion
                     };
@@ -671,34 +671,53 @@
                         });
                 };
 
+                var isAllowedToUnpublishOrRemove = function (exam) {
+                    // allowed if no upcoming reservations and if no one has taken this yet
+                    return !exam.hasEnrolmentsInEffect && exam.children.length == 0;
+                };
+
                 // TODO: how should this work when it comes to private exams?
                 $scope.unpublishExam = function () {
-                    ExamRes.examEnrolments.query({eid: $scope.newExam.id}, function (enrolments) {
-                        if (enrolments && enrolments.length > 0) {
-                            toastr.warning($translate.instant('sitnet_unpublish_not_possible'));
-                        } else {
-                            var modalInstance = $modal.open({
-                                templateUrl: EXAM_CONF.TEMPLATES_PATH + 'exam/editor/exam_unpublish_dialog.html',
-                                backdrop: 'static',
-                                keyboard: true,
-                                controller: "ModalInstanceCtrl"
-                            });
+                    if (isAllowedToUnpublishOrRemove($scope.newExam)) {
+                        var modalInstance = $modal.open({
+                            templateUrl: EXAM_CONF.TEMPLATES_PATH + 'exam/editor/exam_unpublish_dialog.html',
+                            backdrop: 'static',
+                            keyboard: true,
+                            controller: "ModalInstanceCtrl"
+                        });
 
-                            modalInstance.result.then(function () {
-                                var examToSave = getUpdate({"state": 'SAVED'});
-                                ExamRes.exams.update({id: examToSave.id}, examToSave,
-                                    function () {
-                                        toastr.success($translate.instant("sitnet_exam_unpublished"));
-                                        $scope.newExam.state = 'SAVED';
-                                    }, function (error) {
-                                        toastr.error(error.data);
-                                    });
+                        modalInstance.result.then(function () {
+                            var examToSave = getUpdate({"state": 'SAVED'});
+                            ExamRes.exams.update({id: examToSave.id}, examToSave,
+                                function () {
+                                    toastr.success($translate.instant("sitnet_exam_unpublished"));
+                                    $scope.newExam.state = 'SAVED';
+                                }, function (error) {
+                                    toastr.error(error.data);
+                                });
 
+                        }, function (error) {
+                            // Cancel button clicked
+                        });
+                    } else {
+                        toastr.warning($translate.instant('sitnet_unpublish_not_possible'));
+                    }
+                };
+
+                $scope.removeExam = function () {
+                    if (isAllowedToUnpublishOrRemove($scope.newExam)) {
+                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
+                        dialog.result.then(function () {
+                            ExamRes.exams.remove({id: $scope.newExam.id}, function (ex) {
+                                toastr.success($translate.instant('sitnet_exam_removed'));
+                                $location.path('/exams');
                             }, function (error) {
-                                // Cancel button clicked
+                                toastr.error(error.data);
                             });
-                        }
-                    });
+                        });
+                    } else {
+                        toastr.warning($translate.instant('sitnet_exam_removal_not_possible'));
+                    }
                 };
 
 
@@ -839,20 +858,6 @@
                             toastr.success($translate.instant('sitnet_exam_removed'));
                             $scope.exams.splice($scope.exams.indexOf(exam), 1);
 
-                        }, function (error) {
-                            toastr.error(error.data);
-                        });
-                    }, function (btn) {
-
-                    });
-                };
-
-                $scope.cancelNewExam = function (exam) {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
-                    dialog.result.then(function (btn) {
-                        ExamRes.exams.remove({id: exam.id}, function (ex) {
-                            toastr.success($translate.instant('sitnet_exam_removed'));
-                            $location.path('/exams/');
                         }, function (error) {
                             toastr.error(error.data);
                         });

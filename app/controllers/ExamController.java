@@ -190,62 +190,24 @@ public class ExamController extends BaseController {
         return ok(exams);
     }
 
+    private boolean isAllowedToRemove(Exam exam) {
+        return !hasFutureReservations(exam) && exam.getChildren().isEmpty();
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteExam(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
         User user = getLoggedUser();
         if (user.hasRole("ADMIN", getSession()) || exam.isOwnedOrCreatedBy(user)) {
-            if (!exam.getChildren().isEmpty()) {
-                // Can't delete because of child references
-                exam.setState(Exam.State.ARCHIVED);
+            if (isAllowedToRemove(exam)) {
                 AppUtil.setModifier(exam, user);
-                exam.update();
-                return ok("Exam archived");
-            } else {
-                // If we're here it means, this exam does not have any children.
-                // e.g. this exam has never been cloned
-                // we can safely delete it completely from DB
-
-                // 1. remove enrolments. Though there shouldn't be any
-                List<ExamEnrolment> examEnrolments = Ebean.find(ExamEnrolment.class)
-                        .where()
-                        .eq("exam.id", id)
-                        .findList();
-                examEnrolments.forEach(Model::delete);
-
-                List<ExamInspection> examInspections = Ebean.find(ExamInspection.class)
-                        .where()
-                        .eq("exam.id", id)
-                        .findList();
-
-                // 2. remove inspections
-                for (ExamInspection e : examInspections) {
-                    e.getUser().getInspections().remove(e);
-                    e.delete();
-                }
-
-                for (ExamSection es : exam.getExamSections()) {
-                    es.getSectionQuestions().forEach(models.ExamSectionQuestion::delete);
-                    es.getSectionQuestions().clear();
-                    es.save();
-                }
-
-                exam.getExamSections().clear();
-
-                // yes yes, its weird, but Ebean won't delete relations with ManyToMany on enchaced classes
-                // so we just tell everyone its "deleted"
                 exam.setState(Exam.State.DELETED);
-                exam.save();
-
-//                exam.delete();
+                exam.update();
+                return ok("Exam deleted");
             }
-
-
-            return ok("Exam deleted");
-        } else {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("sitnet_exam_removal_not_possible");
         }
-
+        return forbidden("sitnet_error_access_forbidden");
     }
 
     static Query<Exam> createQuery() {
@@ -280,6 +242,7 @@ public class ExamController extends BaseController {
                 .fetch("languageInspection.statement.attachment")
                 .fetch("examEnrolments.reservation", "startAt, endAt, noShow")
                 .fetch("examEnrolments.user")
+                .fetch("children", "id")
                 .fetch("examFeedback")
                 .fetch("examFeedback.attachment")
                 .fetch("creditType")
