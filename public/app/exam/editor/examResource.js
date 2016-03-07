@@ -93,9 +93,9 @@
                 reviewerExam: $resource("/app/reviewerexams/:eid", {eid: "@eid"}),
                 draft: $resource("/app/draft"),
                 review: $resource("/app/review/:id", {id: "@id"}, {"update": {method: "PUT"}}),
-                examReviews: $resource("/app/reviews/:eid", {eid: "@eid", statuses: "@statuses"},
+                examReviews: $resource("/app/reviews/:eid", {eid: "@eid"},
                     {
-                        "get": {method: "GET", params: {eid: "@eid", statuses: "@statuses"}}
+                        "get": {method: "GET", params: {eid: "@eid"}}
                     }),
                 noShows: $resource("/app/noshows/:eid", {eid: "@eid"}),
                 archive: $resource("/app/reviews/archive", {}, {"update": {method: "PUT"}}),
@@ -133,15 +133,6 @@
                     },
                     {
                         "update": {method: "PUT", params: {id: "@id", ready: "@ready"}}
-                    }),
-
-
-                localInspection: $resource("/app/exams/localInspection/:eid/:uid",
-                    {
-                        eid: "@eid", uid: "@uid"
-                    },
-                    {
-                        "insert": {method: "POST", params: {eid: "@eid", uid: "@uid"}}
                     }),
 
                 inspector: $resource("/app/exams/inspector/:id",

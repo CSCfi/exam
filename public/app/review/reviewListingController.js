@@ -315,10 +315,7 @@
                 };
 
                 // Reviews
-                ExamRes.examReviews.query({
-                        eid: $routeParams.id,
-                        statuses: ['ABORTED', 'REVIEW', 'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'REJECTED', 'ARCHIVED']
-                    },
+                ExamRes.examReviews.query({eid: $routeParams.id},
                     function (reviews) {
                         reviews.forEach(function (r) {
                             r.duration = moment.utc(Date.parse(r.duration)).format('HH:mm');

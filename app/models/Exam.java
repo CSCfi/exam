@@ -1,5 +1,8 @@
 package models;
 
+import com.avaje.ebean.Ebean;
+import com.avaje.ebean.FetchConfig;
+import com.avaje.ebean.Query;
 import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -218,12 +221,15 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     public void setTotalScore() {
         totalScore = getTotalScore();
     }
+
     public void setMaxScore() {
         maxScore = getMaxScore();
     }
+
     public void setRejectedAnswerCount() {
         rejectedAnswerCount = getRejectedAnswerCount();
     }
+
     public void setApprovedAnswerCount() {
         approvedAnswerCount = getApprovedAnswerCount();
     }
@@ -459,7 +465,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return languageInspection;
     }
 
-    public ExamRecord getExamRecord() { return examRecord; }
+    public ExamRecord getExamRecord() {
+        return examRecord;
+    }
 
     public void setLanguageInspection(LanguageInspection languageInspection) {
         this.languageInspection = languageInspection;
@@ -641,5 +649,48 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Override
     public int compareTo(@Nonnull Exam other) {
         return created.compareTo(other.created);
+    }
+
+    public static Query<Exam> createQuery() {
+        return Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("course.organisation")
+                .fetch("course.gradeScale")
+                .fetch("course.gradeScale.grades", new FetchConfig().query())
+                .fetch("parent")
+                .fetch("parent.creator")
+                .fetch("parent.gradeScale")
+                .fetch("parent.gradeScale.grades", new FetchConfig().query())
+                .fetch("parent.examOwners", new FetchConfig().query())
+                .fetch("examType")
+                .fetch("autoEvaluationConfig")
+                .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
+                .fetch("executionType")
+                .fetch("examSections")
+                .fetch("examSections.sectionQuestions")
+                .fetch("examSections.sectionQuestions.question")
+                .fetch("examSections.sectionQuestions.question.attachment")
+                .fetch("examSections.sectionQuestions.question.options")
+                .fetch("examSections.sectionQuestions.question.answer")
+                .fetch("examSections.sectionQuestions.question.answer.attachment")
+                .fetch("examSections.sectionQuestions.question.answer.options")
+                .fetch("gradeScale")
+                .fetch("gradeScale.grades")
+                .fetch("grade")
+                .fetch("languageInspection")
+                .fetch("languageInspection.assignee", "firstName, lastName, email")
+                .fetch("languageInspection.statement")
+                .fetch("languageInspection.statement.attachment")
+                .fetch("examEnrolments.reservation", "startAt, endAt, noShow")
+                .fetch("examEnrolments.user")
+                .fetch("children", "id")
+                .fetch("examFeedback")
+                .fetch("examFeedback.attachment")
+                .fetch("creditType")
+                .fetch("attachment")
+                .fetch("creator")
+                .fetch("softwares")
+                .fetch("examLanguages")
+                .fetch("examOwners");
     }
 }

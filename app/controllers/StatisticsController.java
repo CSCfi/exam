@@ -96,7 +96,7 @@ public class StatisticsController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result getExam(Long id, String reportType) throws IOException {
 
-        Exam exam = ExamController.createQuery()
+        Exam exam = Exam.createQuery()
                 .where()
                 .idEq(id)
                 .isNotNull("course")

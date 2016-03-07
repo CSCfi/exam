@@ -26,29 +26,16 @@ DELETE        /app/permissions                                           control
 ############### Exam interface ###############
 GET           /app/exams                                                 controllers.ExamController.getExams(filter: play.libs.F.Option[java.lang.String])
 GET           /app/exams/:id                                             controllers.ExamController.getExam(id: Long)
-GET           /app/exampreview/:id                                       controllers.ExamController.getExamPreview(id: Long)
 DELETE        /app/exams/:id                                             controllers.ExamController.deleteExam(id: Long)
-PUT           /app/review/:id                                            controllers.ExamController.reviewExam(id: Long)
-POST          /app/review/:eid/comment/:cid                              controllers.ExamController.insertComment(eid: Long, cid: Long)
-PUT           /app/review/:eid/comment/:cid                              controllers.ExamController.updateComment(eid: Long, cid: Long)
-GET           /app/reviews/:eid                                          controllers.ExamController.getExamReviews(eid: Long, statuses: java.util.List[String])
-GET           /app/noshows/:eid                                          controllers.ExamController.listNoShows(eid: Long)
-PUT           /app/reviews/archive                                       controllers.ExamController.archiveExams
-GET           /app/review/info/:eid                                      controllers.ExamController.getExamStudentInfo(eid: Long)
 PUT           /app/exams/:id                                             controllers.ExamController.updateExam(id: Long)
 POST          /app/exams/:id                                             controllers.ExamController.copyExam(id: Long)
-POST          /app/exams/:id/section                                     controllers.ExamController.insertSection(id: Long)
-DELETE        /app/exams/:eid/section/:sid                               controllers.ExamController.removeSection(eid: Long, sid: Long)
-PUT           /app/exams/:eid/section/:sid                               controllers.ExamController.updateSection(eid: Long, sid: Long)
 PUT           /app/exams/:eid/course/:cid                                controllers.ExamController.updateCourse(eid: Long, cid: Long)
 DELETE        /app/exams/:eid/course/:cid                                controllers.ExamController.removeCourse(eid: Long, cid: Long)
-GET           /app/exams/:eid/reservation                                controllers.ExamController.getReservationInformationForExam(eid: Long)
-GET           /app/reviewerexams                                         controllers.ExamController.getTeachersExams
-GET           /app/reviewerexams/:eid                                    controllers.ExamController.getExamReview(eid: Long)
 
-GET           /app/examenrolments/:eid                                   controllers.ExamController.getEnrolmentsForExam(eid: Long)
+GET           /app/exampreview/:id                                       controllers.ExamController.getExamPreview(id: Long)
+GET           /app/reviewerexams                                         controllers.ExamController.getTeachersExams
+
 GET           /app/examparticipations/:eid                               controllers.ExamController.getParticipationsForExam(eid: Long)
-GET           /app/examparticipations/:eid/:uid                          controllers.ExamController.getParticipationsForExamAndUser(eid: Long, uid: Long)
 
 POST          /app/exam/record                                           controllers.ExamRecordController.addExamRecord
 GET           /app/exam/record                                           controllers.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
@@ -67,14 +54,6 @@ GET           /app/exam/:id/owners                                       control
 PUT           /app/exam/:eid/owner/:uid                                  controllers.ExamController.insertExamOwner(eid: Long, uid: Long)
 DELETE        /app/exam/:eid/owner/:uid                                  controllers.ExamController.removeExamOwner(eid: Long, uid: Long)
 
-PUT           /app/exams/inspection/:id/:ready                           controllers.ExamController.updateInspection(id: Long, ready: Boolean)
-POST          /app/exams/localInspection/:eid/:uid                       controllers.ExamController.insertLocalInspectionWithoutCommentAndEmail(eid: Long, uid: Long)
-POST          /app/email/inspection/:eid                                 controllers.ExamController.sendInspectionMessage(eid: Long)
-
-POST          /app/exams/:eid/section/:sid/:seq/question/:qid            controllers.ExamController.insertQuestion(eid: Long, sid: Long, seq: Int, qid: Long)
-POST          /app/exams/:eid/section/:sid/:seq/questions                controllers.ExamController.insertMultipleQuestions(eid: Long, sid: Long, seq: Int, questions: String)
-DELETE        /app/exams/:eid/section/:sid/question/:qid                 controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
-PUT           /app/exams/:eid/section/:sid/:from/:to                     controllers.ExamController.reorderSectionQuestions(eid: Long, sid: Long, from: Int, to: Int)
 GET           /app/draft                                                 controllers.ExamController.createExamDraft(executionType: String)
 
 PUT           /app/exam/:eid/software                                    controllers.ExamController.updateExamSoftwareInfo(eid: Long)
@@ -82,13 +61,11 @@ PUT           /app/exam/:eid/software                                    control
 PUT           /app/exam/:eid/language/:code                              controllers.ExamController.addExamLanguage(eid: Long, code: String)
 DELETE        /app/exam/:eid/languages                                   controllers.ExamController.resetExamLanguages(eid: Long)
 
-POST          /app/gradeimport                                           controllers.ExamController.importGrades
-GET           /app/exam/:eid/attachments                                 controllers.ExamController.getArchivedAttachments(eid: Long, start: play.libs.F.Option[String], end: play.libs.F.Option[String])
-
 GET           /app/examtypes                                             controllers.ExamController.getExamTypes
 GET           /app/executiontypes                                        controllers.ExamController.getExamExecutionTypes
 GET           /app/gradescales                                           controllers.ExamController.getExamGradeScales
 
+############### Student interface ###############
 GET           /app/student/exam/:eid                                     controllers.StudentExamController.getExam(eid: Long)
 GET           /app/student/exams                                         controllers.StudentExamController.listAvailableExams(filter: play.libs.F.Option[String])
 GET           /app/student/inspectors/exam/:id                           controllers.StudentExamController.getExamInspectors(id: Long)
@@ -104,6 +81,37 @@ PUT           /app/enrolments/:eid                                       control
 
 POST          /app/student/exams/:hash/question/:qid/option/:oids        controllers.StudentExamController.answerMultiChoice(hash: String, qid: Long, oids: String)
 POST          /app/student/exams/:hash/question/:questionId              controllers.StudentExamController.answerEssay(hash: String, questionId: Long)
+
+############### Section interface ###############
+
+POST          /app/exams/:id/section                                     controllers.ExamSectionController.insertSection(id: Long)
+DELETE        /app/exams/:eid/section/:sid                               controllers.ExamSectionController.removeSection(eid: Long, sid: Long)
+PUT           /app/exams/:eid/section/:sid                               controllers.ExamSectionController.updateSection(eid: Long, sid: Long)
+GET           /app/sections/:id                                          controllers.ExamSectionController.getExamSections(id: Long)
+DELETE        /app/section/:sectionId                                    controllers.ExamSectionController.deleteSection(sectionId: Long)
+DELETE        /app/clearsection/:sid                                     controllers.ExamSectionController.clearQuestions(sid: Long)
+POST          /app/exams/:eid/section/:sid/:seq/question/:qid            controllers.ExamSectionController.insertQuestion(eid: Long, sid: Long, seq: Int, qid: Long)
+POST          /app/exams/:eid/section/:sid/:seq/questions                controllers.ExamSectionController.insertMultipleQuestions(eid: Long, sid: Long, seq: Int, questions: String)
+DELETE        /app/exams/:eid/section/:sid/question/:qid                 controllers.ExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long)
+PUT           /app/exams/:eid/section/:sid/:from/:to                     controllers.ExamSectionController.reorderSectionQuestions(eid: Long, sid: Long, from: Int, to: Int)
+
+############### Review interface ###############
+GET           /app/reviews/:id                                           controllers.ReviewController.getExamReviews(id: Long)
+PUT           /app/reviews/:id                                            controllers.ReviewController.reviewExam(id: Long)
+POST          /app/review/:eid/comment/:cid                              controllers.ReviewController.insertComment(eid: Long, cid: Long)
+PUT           /app/review/:eid/comment/:cid                              controllers.ReviewController.updateComment(eid: Long, cid: Long)
+GET           /app/noshows/:eid                                          controllers.ReviewController.listNoShows(eid: Long)
+PUT           /app/reviews/archive                                       controllers.ReviewController.archiveExams
+GET           /app/review/info/:eid                                      controllers.ReviewController.getExamStudentInfo(eid: Long)
+GET           /app/exams/:eid/reservation                                controllers.ReviewController.getReservationInformationForExam(eid: Long)
+GET           /app/reviewerexams/:eid                                    controllers.ReviewController.getExamReview(eid: Long)
+GET           /app/examenrolments/:eid                                   controllers.ReviewController.getEnrolmentsForExam(eid: Long)
+GET           /app/examparticipations/:eid/:uid                          controllers.ReviewController.getParticipationsForExamAndUser(eid: Long, uid: Long)
+PUT           /app/exams/inspection/:id/:ready                           controllers.ReviewController.updateInspection(id: Long, ready: Boolean)
+POST          /app/email/inspection/:eid                                 controllers.ReviewController.sendInspectionMessage(eid: Long)
+POST          /app/gradeimport                                           controllers.ReviewController.importGrades
+GET           /app/exam/:eid/attachments                                 controllers.ReviewController.getArchivedAttachments(eid: Long, start: play.libs.F.Option[String], end: play.libs.F.Option[String])
+
 
 ############### Language inspection interface ###############
 GET           /app/inspections                                           controllers.LanguageInspectionController.listInspections(month: play.libs.F.Option[String])
@@ -122,12 +130,6 @@ GET           /app/enroll/exam/:id                                       control
 POST          /app/enroll/student/:eid/:uid                              controllers.EnrollController.createStudentEnrolment(eid: Long, uid: Long)
 DELETE        /app/enroll/:id                                            controllers.EnrollController.removeEnrolment(id: Long)
 DELETE        /app/enroll/student/:id                                    controllers.EnrollController.removeStudentEnrolment(id: Long)
-############### Section interface ###############
-
-GET           /app/sections/:id                                          controllers.ExamController.getExamSections(id: Long)
-DELETE        /app/section/:sectionId                                    controllers.ExamController.deleteSection(sectionId: Long)
-DELETE        /app/clearsection/:sid                                     controllers.ExamController.clearQuestions(sid: Long)
-
 
 ############### Courses interface ###############
 GET           /app/courses                                               controllers.CourseController.getCourses(filter: Option[String], q: Option[String])
