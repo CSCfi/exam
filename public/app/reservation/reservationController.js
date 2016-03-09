@@ -2,9 +2,30 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('ReservationCtrl', ['ExamRes', '$scope', '$location', '$http', 'EXAM_CONF',
-            'ReservationResource', 'dateService', 'examService', '$timeout', '$routeParams', '$translate',
-            function (ExamRes, $scope, $location, $http, EXAM_CONF, ReservationResource, dateService, examService,
-                      $timeout, $routeParams, $translate) {
+            'ReservationResource', 'reservationService', 'dateService', 'examService', '$timeout', '$routeParams', '$translate', '$filter',
+            function (ExamRes, $scope, $location, $http, EXAM_CONF, ReservationResource, reservationService, dateService, examService,
+                      $timeout, $routeParams, $translate, $filter) {
+
+                var select2options = {
+                    placeholder: '-',
+                    data: [],
+                    allowClear: true,
+                    dropdownAutoWidth : true,
+                    initSelection: function (element, callback) {
+                    }
+                };
+
+                $scope.machineOptions = angular.copy(select2options);
+
+                $scope.roomOptions = angular.copy(select2options);
+
+                $scope.examOptions = angular.copy(select2options);
+
+                $scope.studentOptions = angular.copy(select2options);
+
+                $scope.stateOptions = angular.copy(select2options);
+
+                $scope.teacherOptions = angular.copy(select2options);
 
                 $scope.dateService = dateService;
 
@@ -16,20 +37,11 @@
                     return $location.path() === '/';
                 };
 
-                $scope.roomContains = function (examroom, machine) {
-                    var isRoomMachine = false;
-                    if (examroom && examroom.examMachines) {
-                        angular.forEach(examroom.examMachines, function (roommachine) {
-                            if (machine.id === roommachine.id) {
-                                isRoomMachine = true;
-                            }
-                        });
-                    }
-                    return isRoomMachine;
-                };
-
                 ReservationResource.students.query(function (students) {
-                        $scope.students = students;
+                        $scope.students = $filter('orderBy')(students, ['lastName', 'firstName']);
+                        $scope.students.forEach(function (student) {
+                            $scope.studentOptions.data.push({id: student.id, text: student.name});
+                        })
                     },
                     function (error) {
                         toastr.error(error.data);
@@ -38,7 +50,10 @@
 
                 ReservationResource.exams.query(
                     function (exams) {
-                        $scope.examnames = exams;
+                        $scope.examnames = $filter('orderBy')(exams, 'name');
+                        $scope.examnames.forEach(function (exam) {
+                            $scope.examOptions.data.push({id: exam.id, text: exam.name});
+                        })
                     },
                     function (error) {
                         toastr.error(error.data);
@@ -47,7 +62,10 @@
 
                 if ($scope.isAdminView()) {
                     ReservationResource.teachers.query(function (teachers) {
-                            $scope.examOwners = teachers;
+                            $scope.examOwners = $filter('orderBy')(teachers, ['lastName', 'firstName']);
+                            $scope.examOwners.forEach(function (owner) {
+                               $scope.teacherOptions.data.push({id: owner.id, text: owner.firstName + " " + owner.lastName})
+                            });
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -57,16 +75,19 @@
                     ReservationResource.examrooms.query(
                         function (examrooms) {
                             $scope.examrooms = examrooms;
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
-
-                    ReservationResource.machines.query(
-                        function (machines) {
-                            $scope.machines = machines;
-
+                            examrooms.forEach(function (room) {
+                                $scope.roomOptions.data.push({id: room.id, text: room.name});
+                            });
+                            // Load machines after rooms are loaded
+                            ReservationResource.machines.query(
+                                function (machines) {
+                                    $scope.machines = machines;
+                                    machinesForRooms(examrooms, machines);
+                                },
+                                function (error) {
+                                    toastr.error(error.data);
+                                }
+                            );
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -87,18 +108,73 @@
                     'NO_SHOW'
                 ];
 
+                $scope.examStates.forEach(function (state) {
+                    $scope.stateOptions.data.push({id: state, text: $translate.instant('sitnet_exam_status_' + state.toLowerCase())})
+                });
+
                 $scope.printExamState = function (enrolment) {
                     return enrolment.reservation.noShow ? 'NO_SHOW' : enrolment.exam.state;
+                };
+
+                $scope.machineChanged = function () {
+                    if (typeof $scope.selection.machineId === 'object') {
+                        $scope.query();
+                    }
+                };
+
+                $scope.roomChanged = function () {
+                    if (typeof $scope.selection.roomId !== 'object') {
+                        return;
+                    }
+
+                    $scope.machineOptions.data.length = 0;
+                    if ($scope.selection.roomId === null) {
+                        machinesForRooms($scope.examrooms, $scope.machines);
+                    } else {
+                        machinesForRoom(findRoom($scope.selection.roomId.id), $scope.machines);
+                    }
+                    $scope.query();
+                };
+
+                $scope.examChanged = function () {
+                    if (typeof $scope.selection.examId === 'object') {
+                        $scope.query();
+                    }
+                };
+
+                $scope.studentChanged = function () {
+                    if (typeof $scope.selection.studentId === 'object') {
+                        $scope.query();
+                    }
+                };
+
+                $scope.stateChanged = function () {
+                    if (typeof $scope.selection.state === 'object') {
+                        $scope.query();
+                    }
+                };
+
+                $scope.teacherChanged = function () {
+                    if (typeof $scope.selection.ownerId === 'object') {
+                        $scope.query();
+                    }
                 };
 
                 $scope.query = function () {
                     // Teacher not required to specify time ranges
                     if (!$scope.isAdminView() || ($scope.dateService.startDate && $scope.dateService.endDate)) {
-                        var params = $scope.selection;
+                        var params = angular.copy($scope.selection);
                         // have to clear empty strings completely
                         for (var k in params) {
-                            if (params.hasOwnProperty(k) && params[k] === '') {
+                            if (!params.hasOwnProperty(k)) {
+                                continue;
+                            }
+                            if (params[k] === '' || params[k] === null) {
                                 delete params[k];
+                                continue;
+                            }
+                            if (typeof params[k] === 'object') {
+                                params[k] = params[k].id;
                             }
                         }
 
@@ -145,8 +221,45 @@
                         reservation.retrialPermitted = true;
                         toastr.info($translate.instant('sitnet_retrial_permitted'));
                     });
+                };
+
+                function roomContains (examroom, machine) {
+                    if (examroom && examroom.examMachines) {
+                        return examroom.examMachines.some(function (roommachine) {
+                            return (machine.id === roommachine.id);
+                        });
+                    }
+                    return false;
                 }
 
+                function findRoom(id) {
+                    return $scope.examrooms.find(function (room) {
+                        return room.id === id;
+                    });
+                }
+
+                function machinesForRoom(room, machines) {
+                    if (room.examMachines.length < 1) {
+                        return;
+                    }
+                    var data = {
+                        text: room.name,
+                        children: []
+                    };
+                    machines.forEach(function (machine) {
+                        if (!roomContains(room, machine)) {
+                            return;
+                        }
+                        data.children.push({id: machine.id, text: machine.name === null ? "" : machine.name});
+                    });
+                    $scope.machineOptions.data.push(data);
+                }
+
+                function machinesForRooms(rooms, machines) {
+                    rooms.forEach(function (room) {
+                        machinesForRoom(room, machines)
+                    });
+                }
             }
         ])
     ;

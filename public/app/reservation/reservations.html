@@ -10,7 +10,7 @@
             <form role="form" ng-controller="DatepickerCtrl">
                 <!-- Start & End time datepickers -->
                 <div class="row">
-                    <div class="col-md-6" ng-conroller="DatepickerCtrl">
+                    <div class="col-md-6">
                         <strong>{{'sitnet_begin' | translate}}</strong>
                         <div class="input-group">
                             <input type="text" class="form-control" datepicker-popup="{{format}}"
@@ -29,7 +29,7 @@
 
                         </div>
                     </div>
-                    <div class="col-md-6" ng-controller="DatepickerCtrl">
+                    <div class="col-md-6">
                         <strong>{{'sitnet_end' | translate}}</strong>
                         <div class="input-group">
                             <input type="text" class="form-control" datepicker-popup="{{format}}"
@@ -51,62 +51,41 @@
                 <div class="row top-margin-1">
                     <div class="col-md-4">
                         <strong>{{'sitnet_exam_owner' | translate}}</strong>
-                        <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
-                                ng-model="selection.ownerId" ng-change="query()">
-                            <option value="">&dash;</option>
-                            <option ng-repeat="teacher in examOwners | orderBy: '[lastName, firstName]'" value="{{teacher.id}}">{{teacher.firstName}}
-                                {{teacher.lastName}}
-                            </option>
-                        </select>
+                        <input class="wide-select" ui-select2="teacherOptions"
+                                ng-model="selection.ownerId" ng-change="teacherChanged()">
+                        </input>
                     </div>
                     <div class="col-md-4">
                         <strong>{{'sitnet_exam_state' | translate}}</strong>
-                        <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
-                                ng-model="selection.state" ng-change="query()">
-                            <option class="default-select" value="">&dash;</option>
-                            <option ng-repeat="state in examStates" value="{{state}}">{{'sitnet_exam_status_' + state |
-                                lowercase | translate}}
-                            </option>
-                        </select>
+                        <input class="wide-select" ui-select2="stateOptions"
+                                ng-model="selection.state" ng-change="stateChanged()">
+                        </input>
                     </div>
                     <div class="col-md-4">
                         <strong>{{'sitnet_student' | translate}}</strong>
-                        <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
-                                ng-model="selection.studentId" ng-change="query()">
-                            <option value="">&dash;</option>
-                            <option ng-repeat="student in students | orderBy: '[lastName, firstName]'" value="{{student.id}}">{{student.name}}</option>
-                        </select>
+                        <input class="wide-select" ui-select2="studentOptions"
+                                ng-model="selection.studentId" ng-change="studentChanged()">
+                        </input>
                     </div>
                 </div>
                 <div class="row top-margin-1">
                     <div class="col-md-4">
                         <strong>{{'sitnet_room' | translate}}</strong>
-                        <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
-                                ng-model="selection.roomId" ng-change="query()">
-                            <option value="">&dash;</option>
-                            <option ng-repeat="examroom in examrooms" value="{{examroom.id}}">{{examroom.name}}</option>
-                        </select>
+                        <input class="wide-select" ui-select2="roomOptions"
+                                ng-model="selection.roomId" ng-change="roomChanged()">
+                        </input>
                     </div>
                     <div class="col-md-4">
                         <strong>{{'sitnet_exam_machine' | translate}}</strong>
-                        <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
-                                ng-model="selection.machineId" ng-change="query()">
-                            <option value="">&dash;</option>
-                            <optgroup ng-repeat="examroom in examrooms" ng-if="examroom.examMachines.length > 0 && (selection.roomId ? selection.roomId==examroom.id : true)"
-                                      label="{{examroom.name}}">
-                                <option ng-repeat="machine in machines" ng-if="roomContains(examroom, machine)"
-                                        value="{{machine.id}}">{{machine.name}}
-                                </option>
-                            </optgroup>
-                        </select>
+                        <input class="wide-select" ui-select2="machineOptions"
+                                ng-model="selection.machineId" ng-change="machineChanged()">
+                        </input>
                     </div>
                     <div class="col-md-4">
                         <strong>{{'sitnet_exam' | translate}}</strong>
-                        <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
-                                ng-model="selection.examId" ng-change="query()">
-                            <option value="">&dash;</option>
-                            <option ng-repeat="exam in examnames | orderBy: 'name'" value="{{exam.id}}">{{exam.name}}</option>
-                        </select>
+                        <input class="wide-select" ui-select2="examOptions"
+                                ng-model="selection.examId" ng-change="examChanged()">
+                        </input>
                     </div>
                 </div>
             </form>

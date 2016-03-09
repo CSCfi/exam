@@ -215,7 +215,7 @@
                     var welcome = function () {
                         toastr.success($translate.instant("sitnet_welcome") + " " + _user.firstname + " " + _user.lastname);
                     };
-                    setTimeout(welcome, 2000);
+                    $timeout(welcome, 2000);
                     if (!_user.loginRole) {
                         self.openRoleSelectModal(_user);
                     } else if (_user.isStudent && !_user.userAgreementAccepted) {
