@@ -4,7 +4,7 @@
 <!-- The default logback configuration that Play uses if no other configuration is provided -->
 <configuration>
 
-    <conversionRule conversionWord="coloredLevel" converterClass="play.api.Logger$ColoredLevel"/>
+    <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel"/>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- HOX! Make sure exam's user has write permissions for this directory -->

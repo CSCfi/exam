@@ -10,7 +10,6 @@ import models.User;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import play.data.DynamicForm;
-import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
@@ -76,6 +75,9 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result copyQuestion(Long id) {
         Question question = Ebean.find(Question.class, id);
+        if (question == null) {
+            return notFound("question_not_found");
+        }
         Question copy = question.copy();
         copy.setParent(null);
         copy.setQuestion(String.format("<p>**COPY**</p>%s", question.getQuestion()));
@@ -85,7 +87,7 @@ public class QuestionController extends BaseController {
         copy.save();
         copy.getTags().addAll(question.getTags());
         copy.update();
-        Ebean.save(copy.getOptions());
+        Ebean.saveAll(copy.getOptions());
         return ok(Json.toJson(copy));
     }
 
@@ -102,8 +104,11 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result scoreQuestion(Long id) {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         Question essayQuestion = Ebean.find(Question.class, id);
+        if (essayQuestion == null) {
+            return notFound("question not found");
+        }
         essayQuestion.setEvaluatedScore(Double.parseDouble(df.get("evaluatedScore")));
         essayQuestion.update();
         return ok(Json.toJson(essayQuestion));
@@ -127,7 +132,7 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateQuestion(Long id) {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         Question question = Ebean.find(Question.class, id);
         if (question == null) {
             return notFound("question not found");
@@ -219,7 +224,7 @@ public class QuestionController extends BaseController {
         if (teacher == null) {
             return notFound();
         }
-        final DynamicForm df = Form.form().bindFromRequest();
+        final DynamicForm df = formFactory.form().bindFromRequest();
         final String questionIds = df.data().get("questionIds");
         if (questionIds == null || questionIds.isEmpty()) {
             return badRequest();

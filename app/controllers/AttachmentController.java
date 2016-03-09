@@ -6,25 +6,31 @@ import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import com.typesafe.config.ConfigFactory;
 import models.*;
 import models.api.AttachmentContainer;
 import models.questions.Answer;
 import models.questions.Question;
+import play.Environment;
 import play.Logger;
-import play.Play;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 import util.AppUtil;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 
 import static util.java.AttachmentUtils.setData;
 
 public class AttachmentController extends BaseController {
+
+    @Inject
+    Environment environment;
 
     private static void removePrevious(AttachmentContainer container, boolean removeFromDisk) {
         if (container.getAttachment() != null) {
@@ -50,8 +56,8 @@ public class AttachmentController extends BaseController {
     @Restrict({@Group("STUDENT")})
     public Result addAttachmentToQuestionAnswer() {
 
-        MultipartFormData body = request().body().asMultipartFormData();
-        FilePart filePart = body.getFile("file");
+        MultipartFormData<File> body = request().body().asMultipartFormData();
+        FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
@@ -97,8 +103,8 @@ public class AttachmentController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addAttachmentToQuestion() {
 
-        MultipartFormData body = request().body().asMultipartFormData();
-        FilePart filePart = body.getFile("file");
+        MultipartFormData<File> body = request().body().asMultipartFormData();
+        FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
@@ -192,8 +198,8 @@ public class AttachmentController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addAttachmentToExam() {
-        MultipartFormData body = request().body().asMultipartFormData();
-        FilePart filePart = body.getFile("file");
+        MultipartFormData<File> body = request().body().asMultipartFormData();
+        FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
@@ -224,8 +230,8 @@ public class AttachmentController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addFeedbackAttachment(Long id) {
-        MultipartFormData body = request().body().asMultipartFormData();
-        FilePart filePart = body.getFile("file");
+        MultipartFormData<File> body = request().body().asMultipartFormData();
+        FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
@@ -261,8 +267,8 @@ public class AttachmentController extends BaseController {
 
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
     public Result addStatementAttachment(Long id) {
-        MultipartFormData body = request().body().asMultipartFormData();
-        FilePart filePart = body.getFile("file");
+        MultipartFormData<File> body = request().body().asMultipartFormData();
+        FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
@@ -316,7 +322,7 @@ public class AttachmentController extends BaseController {
         File file = new File(aa.getFilePath());
 
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
+        return ok(Base64.getEncoder().encodeToString(setData(file).toByteArray()));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -338,7 +344,7 @@ public class AttachmentController extends BaseController {
         File file = new File(aa.getFilePath());
 
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
+        return ok(Base64.getEncoder().encodeToString(setData(file).toByteArray()));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -350,7 +356,7 @@ public class AttachmentController extends BaseController {
         Attachment aa = exam.getAttachment();
         File file = new File(aa.getFilePath());
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
+        return ok(Base64.getEncoder().encodeToString(setData(file).toByteArray()));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -368,7 +374,7 @@ public class AttachmentController extends BaseController {
         Attachment aa = exam.getExamFeedback().getAttachment();
         File file = new File(aa.getFilePath());
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
+        return ok(Base64.getEncoder().encodeToString(setData(file).toByteArray()));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -386,16 +392,16 @@ public class AttachmentController extends BaseController {
         Attachment aa = exam.getLanguageInspection().getStatement().getAttachment();
         File file = new File(aa.getFilePath());
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
+        return ok(Base64.getEncoder().encodeToString(setData(file).toByteArray()));
     }
 
-    private static String copyFile(File srcFile, String... pathParams) throws IOException {
-        String uploadPath = Play.application().configuration().getString("sitnet.attachments.path");
+    private String copyFile(File srcFile, String... pathParams) throws IOException {
+        String uploadPath = ConfigFactory.load().getString(("sitnet.attachments.path"));
         StringBuilder path = new StringBuilder();
         // Following does not work on windows, but we hopefully aren't using it anyway :)
         if (!uploadPath.startsWith(File.separator)) {
             // relative path
-            path.append(Play.application().path().getAbsolutePath()).append(File.separator);
+            path.append(environment.rootPath().getAbsolutePath()).append(File.separator);
         }
         path.append(uploadPath).append(File.separator);
         for (String param : pathParams) {

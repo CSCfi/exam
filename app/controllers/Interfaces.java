@@ -16,23 +16,24 @@ import models.dto.ExamScore;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
-import play.libs.F;
 import play.libs.Json;
-import play.libs.ws.WS;
+import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.Results;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
-import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Interfaces extends BaseController implements ExternalAPI {
@@ -55,6 +56,23 @@ public class Interfaces extends BaseController implements ExternalAPI {
             super(message);
         }
     }
+
+    @FunctionalInterface
+    public interface RemoteFunction<T, R> extends Function<T, R> {
+        @Override
+        default R apply(T t) {
+            try {
+                return exec(t);
+            } catch (RemoteException | ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        R exec(T t) throws RemoteException, ParseException;
+    }
+
+    @Inject
+    protected WSClient wsClient;
 
     private static URL parseUrl(User user) throws MalformedURLException {
         if (user.getUserIdentifier() == null) {
@@ -96,13 +114,13 @@ public class Interfaces extends BaseController implements ExternalAPI {
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public F.Promise<Collection<String>> getPermittedCourses(User user) throws MalformedURLException {
+    public CompletionStage<Collection<String>> getPermittedCourses(User user) throws MalformedURLException {
         URL url = parseUrl(user);
-        WSRequest request = WS.url(url.toString().split("\\?")[0]);
+        WSRequest request = wsClient.url(url.toString().split("\\?")[0]);
         if (url.getQuery() != null) {
             request = request.setQueryString(url.getQuery());
         }
-        F.Function<WSResponse, Collection<String>> onSuccess = response -> {
+        RemoteFunction<WSResponse, Collection<String>> onSuccess = response -> {
             JsonNode root = response.asJson();
             if (root.has("exception")) {
                 throw new RemoteException(root.get("exception").asText());
@@ -118,20 +136,14 @@ public class Interfaces extends BaseController implements ExternalAPI {
                 return results;
             } else {
                 Logger.warn("Unexpected content {}", root.asText());
-                throw new RemoteException("sitnet_internal_error");
+                throw new RemoteException("sitnet_request_timed_out");
             }
         };
-        F.Function<Throwable, Collection<String>> onFailure = throwable -> {
-            if (throwable instanceof TimeoutException || throwable instanceof ConnectException) {
-                throw new TimeoutException("sitnet_request_timed_out");
-            }
-            throw throwable;
-        };
-        return request.get().map(onSuccess).recover(onFailure);
+        return request.get().thenApplyAsync(onSuccess);
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public F.Promise<List<Course>> getCourseInfoByCode(User user, String code) throws MalformedURLException {
+    public CompletionStage<List<Course>> getCourseInfoByCode(User user, String code) throws MalformedURLException {
         final List<Course> courses = Ebean.find(Course.class).where()
                 .ilike("code", code + "%")
                 .disjunction()
@@ -145,26 +157,22 @@ public class Interfaces extends BaseController implements ExternalAPI {
                 .orderBy("code").findList();
         if (!courses.isEmpty() || !isCourseSearchActive()) {
             // we already have it or we don't want to fetch it
-            return F.Promise.promise(() -> courses);
+            return CompletableFuture.supplyAsync(() -> courses);
         }
         URL url = parseUrl(user, code);
-        WSRequest request = WS.url(url.toString().split("\\?")[0]);
+        WSRequest request = wsClient.url(url.toString().split("\\?")[0]);
         if (url.getQuery() != null) {
             request = request.setQueryString(url.getQuery());
         }
-        return request.get().map(wsResponse -> {
-            int status = wsResponse.getStatus();
+        RemoteFunction<WSResponse, List<Course>> onSuccess = response -> {
+            int status = response.getStatus();
             if (status == HttpServletResponse.SC_OK) {
-                return parseCourses(wsResponse.asJson());
+                return parseCourses(response.asJson());
             }
             Logger.info("Non-OK response received {}", status);
-            throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, wsResponse.getStatusText()));
-        }).recover(throwable -> {
-            if (throwable instanceof TimeoutException || throwable instanceof ConnectException) {
-                throw new TimeoutException("sitnet_request_timed_out");
-            }
-            throw throwable;
-        });
+            throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, response.getStatusText()));
+        };
+        return request.get().thenApplyAsync(onSuccess);
     }
 
     private static List<GradeScale> getGradeScales(JsonNode node) {
@@ -252,7 +260,7 @@ public class Interfaces extends BaseController implements ExternalAPI {
         return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
     }
 
-    private static Course parseCourse(JsonNode node) throws ParseException  {
+    private static Course parseCourse(JsonNode node) throws ParseException {
         Course course = null;
         // check that this is a course node, response can also contain error messages and so on
         if (node.has("identifier") && node.has("courseUnitCode") && node.has("courseUnitTitle") && node.has("institutionName")) {

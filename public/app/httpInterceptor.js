@@ -6,11 +6,19 @@
 
             }
         ]).config(['$httpProvider', function ($httpProvider) {
-            $httpProvider.interceptors.push(['$q', 'sessionService', '$rootScope', '$location', '$translate', 'wrongRoomService', 'waitingRoomService',
-                function ($q, sessionService, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {
+            $httpProvider.interceptors.push(['$q', '$cookies', 'sessionService', '$rootScope', '$location', '$translate', 'wrongRoomService', 'waitingRoomService',
+                function ($q, $cookies, sessionService, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {
 
 
                     return {
+                        'request': function (request) {
+                            if (request.method !== 'GET') {
+                                var csrfToken = $cookies.get('csrfToken');
+                                console.log('csrf token: ' + csrfToken);
+                                request.url += "?csrfToken=" + csrfToken;
+                            }
+                            return request;
+                        },
                         'response': function (response) {
 
                             var b64_to_utf8 = function (data) {

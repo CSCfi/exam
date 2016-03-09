@@ -9,13 +9,14 @@ import exceptions.NotFoundException;
 import models.*;
 import models.dto.Credentials;
 import org.joda.time.DateTime;
+import play.Environment;
 import play.Logger;
-import play.Play;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import util.AppUtil;
 
+import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
@@ -23,6 +24,9 @@ import java.net.URLDecoder;
 import java.util.*;
 
 public class SessionController extends BaseController {
+
+    @Inject
+    Environment environment;
 
     public Result login() {
         Result result;
@@ -63,7 +67,7 @@ public class SessionController extends BaseController {
     }
 
     private Result devLogin() {
-        if (!Play.isDev()) {
+        if (!environment.isDev()) {
             return unauthorized();
         }
         Credentials credentials = bindForm(Credentials.class);

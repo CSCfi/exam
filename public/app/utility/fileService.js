@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .factory('fileService', ['$q', '$http', '$translate', '$timeout', '$cookies', 'SettingsResource',
-            function ($q, $http, $translate, $timeout, $cookies, SettingsResource) {
+        .factory('fileService', ['$q', '$http', '$translate', '$timeout', 'SettingsResource',
+            function ($q, $http, $translate, $timeout, SettingsResource) {
                 var _supportsBlobUrls;
                 var _maxFileSize;
 
@@ -35,11 +35,9 @@
                 };
 
                 var download = function (url, filename, params) {
-                    $http.get(url, {params: params}).
-                    success(function (data) {
+                    $http.get(url, {params: params}).success(function (data) {
                         saveFile(data, filename);
-                    }).
-                    error(function (error) {
+                    }).error(function (error) {
                         toastr.error(error.data || error);
                     });
                 };
@@ -73,9 +71,8 @@
                             fd.append(k, params[k]);
                         }
                     }
-                    var csrfToken = $cookies.get('csrfToken');
-                    console.log('xsrf token: ' + csrfToken);
-                    $http.post(url + "?csrfToken=" + csrfToken, fd, {
+
+                    $http.post(url, fd, {
                             transformRequest: angular.identity,
                             headers: {'Content-Type': undefined}
                         })

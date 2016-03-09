@@ -11,7 +11,7 @@ import models.User;
 import play.cache.CacheApi;
 import play.data.DynamicForm;
 import play.data.Form;
-import play.libs.F;
+import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -19,6 +19,8 @@ import play.mvc.Result;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public class BaseController extends Controller {
 
@@ -30,9 +32,11 @@ public class BaseController extends Controller {
 
     @Inject
     protected CacheApi cache;
+    @Inject
+    protected FormFactory formFactory;
 
     public <T> T bindForm(final Class<T> clazz) {
-        final Form<T> form = Form.form(clazz);
+        final Form<T> form = formFactory.form(clazz);
         if (form.hasErrors()) {
             throw new MalformedDataException(form.errorsAsJson().asText());
         }
@@ -69,7 +73,7 @@ public class BaseController extends Controller {
         return token;
     }
 
-    public static String getToken(Http.Request request) {
+    public static String getToken(Http.RequestHeader request) {
         String token;
         if (LOGIN_TYPE.equals("HAKA")) {
             token = request.getHeader("Shib-Session-ID");
@@ -109,7 +113,7 @@ public class BaseController extends Controller {
     }
 
     protected List<String> parseArrayFieldFromBody(String field) {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         String args = df.get(field);
         String[] array;
         if (args == null || args.isEmpty()) {
@@ -143,7 +147,7 @@ public class BaseController extends Controller {
         return query;
     }
 
-    protected F.Promise<Result> wrapAsPromise(final Result result) {
-        return F.Promise.promise(() -> result);
+    protected CompletionStage<Result> wrapAsPromise(final Result result) {
+        return CompletableFuture.supplyAsync(() -> result);
     }
 }

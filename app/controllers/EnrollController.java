@@ -7,16 +7,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
 import org.joda.time.DateTime;
 import play.Logger;
-import play.libs.F;
 import play.mvc.Result;
 import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
 import java.net.MalformedURLException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
 
 public class EnrollController extends BaseController {
 
@@ -158,8 +157,7 @@ public class EnrollController extends BaseController {
         return ok();
     }
 
-    private Result doCreateEnrolment(Long eid, Long uid, ExamExecutionType.Type type) {
-        User user = uid == null ? getLoggedUser() : Ebean.find(User.class, uid);
+    private Result doCreateEnrolment(Long eid, ExamExecutionType.Type type, User user) {
         Exam exam = Ebean.find(Exam.class)
                 .where()
                 .eq("id", eid)
@@ -179,7 +177,7 @@ public class EnrollController extends BaseController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", user.getId())
-                        // either exam ID matches OR (exam parent ID matches AND exam is started by student)
+                // either exam ID matches OR (exam parent ID matches AND exam is started by student)
                 .disjunction()
                 .eq("exam.id", exam.getId())
                 .disjunction()
@@ -215,26 +213,26 @@ public class EnrollController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public F.Promise<Result> createEnrolment(final String code, final Long id) throws MalformedURLException {
-        if (!PERM_CHECK_ACTIVE) {
-            return wrapAsPromise(doCreateEnrolment(id, null, ExamExecutionType.Type.PUBLIC));
-        }
+    public CompletionStage<Result> createEnrolment(final String code, final Long id) throws MalformedURLException {
         final User user = getLoggedUser();
-        F.Promise<Collection<String>> promise = externalAPI.getPermittedCourses(user);
-        return promise.map(codes -> {
+        if (!PERM_CHECK_ACTIVE) {
+            return wrapAsPromise(doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user));
+        }
+        return externalAPI.getPermittedCourses(user).thenApplyAsync(codes -> {
             if (codes.contains(code)) {
-                return doCreateEnrolment(id, null, ExamExecutionType.Type.PUBLIC);
+                return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
             } else {
                 Logger.warn("Attempt to enroll for a course without permission from {}", user.toString());
                 return forbidden("sitnet_error_access_forbidden");
             }
-        }).recover(throwable -> internalServerError(throwable.getMessage()));
+        }).exceptionally(throwable -> internalServerError(throwable.getMessage()));
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result createStudentEnrolment(Long eid, Long uid) {
         Exam exam = Ebean.find(Exam.class, eid);
-        return doCreateEnrolment(eid, uid, ExamExecutionType.Type.valueOf(exam.getExecutionType().getType()));
+        User user = Ebean.find(User.class, uid);
+        return doCreateEnrolment(eid, ExamExecutionType.Type.valueOf(exam.getExecutionType().getType()), user);
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})

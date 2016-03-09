@@ -14,7 +14,7 @@ GET           /app/users/filter/:role/:eid                               control
 GET           /app/users/filter/owner/:role/:eid                         controllers.UserController.getExamOwnersByRoleFilter(role: String, eid: Long, q: String)
 PUT           /app/users/agreement                                       controllers.UserController.updateUserAgreementAccepted
 PUT           /app/user/lang                                             controllers.UserController.updateLanguage
-GET           /app/users                                                 controllers.UserController.findUsers(filter: play.libs.F.Option[String])
+GET           /app/users                                                 controllers.UserController.findUsers(filter: java.util.Optional[String])
 POST          /app/users/:id/roles/:rname                                controllers.UserController.addRole(id: Long, rname: String)
 DELETE        /app/users/:id/roles/:rname                                controllers.UserController.removeRole(id: Long, rname: String)
 PUT           /app/users/:id/roles/:rname                                controllers.SessionController.setLoginRole(id: Long, rname: String)
@@ -24,7 +24,7 @@ POST          /app/permissions                                           control
 DELETE        /app/permissions                                           controllers.UserController.revokeUserPermission
 
 ############### Exam interface ###############
-GET           /app/exams                                                 controllers.ExamController.getExams(filter: play.libs.F.Option[java.lang.String])
+GET           /app/exams                                                 controllers.ExamController.getExams(filter: java.util.Optional[String])
 GET           /app/exams/:id                                             controllers.ExamController.getExam(id: Long)
 DELETE        /app/exams/:id                                             controllers.ExamController.deleteExam(id: Long)
 PUT           /app/exams/:id                                             controllers.ExamController.updateExam(id: Long)
@@ -42,7 +42,7 @@ GET           /app/exam/record                                           control
 GET           /app/exam/record/export/:id                                controllers.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long)
 GET           /app/exam/record/export/report/:id                         controllers.ExamRecordController.exportSelectedExamRecordsAsExcel(id: Long)
 
-GET           /app/examsearch                                            controllers.ExamController.listExams(courseIds: play.libs.F.Option[LongList], sectionIds: play.libs.F.Option[LongList], tagIds: play.libs.F.Option[LongList])
+GET           /app/examsearch                                            controllers.ExamController.listExams(courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList])
 
 GET           /app/examenrolmentroom/:eid                                controllers.ExamController.getRoomInfoFromEnrollment(eid: Long)
 
@@ -67,7 +67,7 @@ GET           /app/gradescales                                           control
 
 ############### Student interface ###############
 GET           /app/student/exam/:eid                                     controllers.StudentExamController.getExam(eid: Long)
-GET           /app/student/exams                                         controllers.StudentExamController.listAvailableExams(filter: play.libs.F.Option[String])
+GET           /app/student/exams                                         controllers.StudentExamController.listAvailableExams(filter: java.util.Optional[String])
 GET           /app/student/inspectors/exam/:id                           controllers.StudentExamController.getExamInspectors(id: Long)
 GET           /app/student/finishedexams                                 controllers.StudentExamController.getFinishedExams
 GET           /app/feedback/exams/:eid                                   controllers.StudentExamController.getExamGeneralInfo(eid: Long)
@@ -110,11 +110,11 @@ GET           /app/examparticipations/:eid/:uid                          control
 PUT           /app/exams/inspection/:id/:ready                           controllers.ReviewController.updateInspection(id: Long, ready: Boolean)
 POST          /app/email/inspection/:eid                                 controllers.ReviewController.sendInspectionMessage(eid: Long)
 POST          /app/gradeimport                                           controllers.ReviewController.importGrades
-GET           /app/exam/:eid/attachments                                 controllers.ReviewController.getArchivedAttachments(eid: Long, start: play.libs.F.Option[String], end: play.libs.F.Option[String])
+GET           /app/exam/:eid/attachments                                 controllers.ReviewController.getArchivedAttachments(eid: Long, start: java.util.Optional[String], end: java.util.Optional[String])
 
 
 ############### Language inspection interface ###############
-GET           /app/inspections                                           controllers.LanguageInspectionController.listInspections(month: play.libs.F.Option[String])
+GET           /app/inspections                                           controllers.LanguageInspectionController.listInspections(month: java.util.Optional[String])
 POST          /app/inspection                                            controllers.LanguageInspectionController.createInspection
 PUT           /app/inspection/:id                                        controllers.LanguageInspectionController.assignInspection(id: Long)
 PUT           /app/inspection/:id/approval                               controllers.LanguageInspectionController.setApproval(id: Long)
@@ -133,7 +133,7 @@ DELETE        /app/enroll/student/:id                                    control
 
 ############### Courses interface ###############
 GET           /app/courses                                               controllers.CourseController.getCourses(filter: Option[String], q: Option[String])
-GET           /app/courses/user                                          controllers.CourseController.listUsersCourses(examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList])
+GET           /app/courses/user                                          controllers.CourseController.listUsersCourses(examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]])
 GET           /app/courses/:id                                           controllers.CourseController.getCourse(id: Long)
 POST          /app/courses/insert/:code                                  controllers.CourseInfoController.insertCourseFromInterface(code: String)
 
@@ -183,7 +183,7 @@ GET           /app/reservations/students                                 control
 GET           /app/reservations/teachers                                 controllers.ReservationController.getTeachers
 GET           /app/reservations/examrooms                                controllers.ReservationController.getExamRooms
 GET           /app/reservations/exams                                    controllers.ReservationController.getExams
-GET           /app/reservations                                          controllers.ReservationController.getReservations(state: play.libs.F.Option[java.lang.String], ownerId: play.libs.F.Option[java.lang.Long], studentId: play.libs.F.Option[java.lang.Long], roomId: play.libs.F.Option[java.lang.Long], machineId: play.libs.F.Option[java.lang.Long], examId: play.libs.F.Option[java.lang.Long], start: play.libs.F.Option[java.lang.Long], end: play.libs.F.Option[java.lang.Long])
+GET           /app/reservations                                          controllers.ReservationController.getReservations(state: java.util.Optional[java.lang.String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], roomId: java.util.Optional[java.lang.Long], machineId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
 DELETE        /app/reservations/:id                                      controllers.ReservationController.removeReservation(id: Long)
 PUT           /app/reservations/:id                                      controllers.ReservationController.permitRetrial(id: Long)
 GET           /app/reservations/:id/machines                             controllers.ReservationController.findAvailableMachines(id: Long)
@@ -246,7 +246,7 @@ DELETE        /app/calendar/reservation/:id                              control
 GET           /app/languages                                             controllers.LanguageController.getSupportedLanguages
 
 ################# Tag interface ##################
-GET           /app/tags                                                  controllers.TagController.listTags(filter: play.libs.F.Option[String], examIds: play.libs.F.Option[LongList], courseIds: play.libs.F.Option[LongList], sectionIds: play.libs.F.Option[LongList])
+GET           /app/tags                                                  controllers.TagController.listTags(filter: java.util.Optional[String], examIds: java.util.Optional[LongList], courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList])
 POST          /app/tags                                                  controllers.TagController.createTag
 DELETE        /app/tags/:tid                                             controllers.TagController.deleteTag(tid: Long)
 PUT           /app/tags/:tid/:qid                                        controllers.TagController.tagQuestion(tid: Long, qid: Long)
@@ -282,11 +282,11 @@ GET           /app/statistics/student/:id/:from/:to                      control
 
 ################# Reports interface ##################
 
-GET           /app/reports/participations                                controllers.ReportController.getExamParticipations(dept: play.libs.F.Option[String], start: play.libs.F.Option[java.lang.Long], end: play.libs.F.Option[java.lang.Long])
+GET           /app/reports/participations                                controllers.ReportController.getExamParticipations(dept: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
 GET           /app/reports/departments                                   controllers.ReportController.listDepartments
-GET           /app/reports/exams                                         controllers.ReportController.getPublishedExams(dept: play.libs.F.Option[String], start: play.libs.F.Option[java.lang.Long], end: play.libs.F.Option[java.lang.Long])
-GET           /app/reports/reservations                                  controllers.ReportController.getReservations(dept: play.libs.F.Option[String], start: play.libs.F.Option[java.lang.Long], end: play.libs.F.Option[java.lang.Long])
-GET           /app/reports/responses                                     controllers.ReportController.getResponses(dept: play.libs.F.Option[String], start: play.libs.F.Option[java.lang.Long], end: play.libs.F.Option[java.lang.Long])
+GET           /app/reports/exams                                         controllers.ReportController.getPublishedExams(dept: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
+GET           /app/reports/reservations                                  controllers.ReportController.getReservations(dept: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
+GET           /app/reports/responses                                     controllers.ReportController.getResponses(dept: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
 
 #######################################################
 GET           /assets/*file                                              controllers.Assets.at(path="/public", file)

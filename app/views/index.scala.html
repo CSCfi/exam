@@ -1,3 +1,4 @@
+@(isProd: Boolean)
 <!DOCTYPE html>
 <html ng-app="exam">
     <head>
@@ -87,7 +88,7 @@
         <script src="@routes.Assets.at("components/vendor/FileSaver.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/tmhDynamicLocale.js")" type="text/javascript"></script>
 
-        @if(play.api.Play.isProd(play.api.Play.current)) {
+        @if(isProd) {
             <script src="@routes.Assets.at("app/exam.min.js")" type="text/javascript"></script>
         } else {
                 <!-- internal component -->

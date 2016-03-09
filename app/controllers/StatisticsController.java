@@ -3,7 +3,6 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.ning.http.util.Base64;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
@@ -90,7 +89,7 @@ public class StatisticsController extends BaseController {
     private static Result examToJson(Exam exam) {
         String content = Ebean.json().toJson(exam);
         response().setHeader("Content-Disposition", "attachment; filename=\"exams.json\"");
-        return ok(com.ning.http.util.Base64.encode(content.getBytes()));
+        return ok(Base64.getEncoder().encodeToString(content.getBytes()));
     }
 
     @Restrict({@Group("ADMIN")})
@@ -432,7 +431,7 @@ public class StatisticsController extends BaseController {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         wb.write(bos);
         bos.close();
-        return Base64.encode(bos.toByteArray());
+        return Base64.getEncoder().encodeToString(bos.toByteArray());
     }
 
     public static void addHeader(Sheet sheet, String[] headers) {

@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 @Entity
-public class Permission extends GeneratedIdentityModel implements be.objectify.deadbolt.core.models.Permission {
+public class Permission extends GeneratedIdentityModel implements be.objectify.deadbolt.java.models.Permission {
 
     @EnumMapping(integerType = true, nameValuePairs = "CAN_INSPECT_LANGUAGE=1")
     public enum Type {

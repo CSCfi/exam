@@ -7,12 +7,12 @@ import models.{Course, User}
 import play.api.cache.CacheApi
 import play.api.mvc.{Action, Controller}
 import play.libs.Json
-import util.scala.Binders.IdList
 import util.scala.{Authenticator, JsonResponder}
-
 import scala.collection.JavaConverters._
+import scala.compat.java8.FutureConverters
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
 
 class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) extends Controller with Authenticator with JsonResponder {
 
@@ -22,7 +22,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
   def _getCourses(filterType: Option[String], criteria: Option[String], user: User) = {
     (filterType, criteria) match {
       case (Some("code"), Some(x)) =>
-        externalApi.getCourseInfoByCode(user, x).wrapped.map(i => java2Response(i))
+        FutureConverters.toScala(externalApi.getCourseInfoByCode(user, x)).map(i => java2Response(i))
       case (Some("name"), Some(x)) if x.length >= CriteriaLengthLimiter =>
         val courses = Future {
           Ebean.find(classOf[Course]).where
@@ -41,7 +41,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
     }
   }
 
-  def _listUsersCourses(user: User, examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList], token: String) = {
+  def _listUsersCourses(user: User, examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]], token: String) = {
     var query = Ebean.find(classOf[Course]).where.isNotNull("name")
     if (!user.hasRole("ADMIN", getSession(token))) {
       query = query
@@ -90,7 +90,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
     }
   }
 
-  def listUsersCourses(examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList]) = Action {
+  def listUsersCourses(examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]]) = Action {
     request => request.headers.get(getKey).map { token =>
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>

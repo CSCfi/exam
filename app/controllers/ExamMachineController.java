@@ -6,7 +6,6 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import org.joda.time.DateTime;
-import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
@@ -47,7 +46,7 @@ public class ExamMachineController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
     public Result updateExamMachine(Long id) {
-        ExamMachine src = Form.form(ExamMachine.class).bindFromRequest(
+        ExamMachine src = formFactory.form(ExamMachine.class).bindFromRequest(
                 "id",
                 "name",
                 "otherIdentifier",

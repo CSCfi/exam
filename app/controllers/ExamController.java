@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import org.joda.time.DateTime;
 import play.Logger;
-import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
@@ -53,9 +52,9 @@ public class ExamController extends BaseController {
                 .endJunction();
     }
 
-    private List<Exam> getAllExams(F.Option<String> filter) {
+    private List<Exam> getAllExams(Optional<String> filter) {
         ExpressionList<Exam> query = createPrototypeQuery();
-        if (filter.isDefined() && !filter.get().isEmpty()) {
+        if (filter.isPresent()) {
             query = query.disjunction();
             query = applyUserFilter("examOwners", query, filter.get());
             String condition = String.format("%%%s%%", filter.get());
@@ -67,27 +66,27 @@ public class ExamController extends BaseController {
         return query.findList();
     }
 
-    private static ExpressionList<Exam> applyOptionalFilters(ExpressionList<Exam> query, F.Option<List<Long>> courseIds,
-                                                             F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
-        if (courseIds.isDefined() && !courseIds.get().isEmpty()) {
+    private static ExpressionList<Exam> applyOptionalFilters(ExpressionList<Exam> query, Optional<List<Long>> courseIds,
+                                                             Optional<List<Long>> sectionIds, Optional<List<Long>> tagIds) {
+        if (courseIds.isPresent() && !courseIds.get().isEmpty()) {
             query = query.in("course.id", courseIds.get());
         }
-        if (sectionIds.isDefined() && !sectionIds.get().isEmpty()) {
+        if (sectionIds.isPresent() && !sectionIds.get().isEmpty()) {
             query = query.in("examSections.id", sectionIds.get());
         }
-        if (tagIds.isDefined() && !tagIds.get().isEmpty()) {
+        if (tagIds.isPresent() && !tagIds.get().isEmpty()) {
             query = query.in("examSections.sectionQuestions.question.parent.tags.id", tagIds.get());
         }
         return query;
     }
 
-    private static List<Exam> getAllExams(F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
+    private static List<Exam> getAllExams(Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds, Optional<List<Long>> tagIds) {
         ExpressionList<Exam> query = createPrototypeQuery().isNotNull("name");
         query = applyOptionalFilters(query, courseIds, sectionIds, tagIds);
         return query.findList();
     }
 
-    private static List<Exam> getAllExamsOfTeacher(User user, F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
+    private static List<Exam> getAllExamsOfTeacher(User user, Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds, Optional<List<Long>> tagIds) {
         ExpressionList<Exam> query = createPrototypeQuery()
                 .eq("examOwners", user)
                 .isNotNull("name");
@@ -104,7 +103,7 @@ public class ExamController extends BaseController {
     // HELPER METHODS END
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getExams(F.Option<String> filter) {
+    public Result getExams(Optional<String> filter) {
         User user = getLoggedUser();
         List<Exam> exams;
         if (user.hasRole("ADMIN", getSession())) {
@@ -116,7 +115,7 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result listExams(F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
+    public Result listExams(Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds, Optional<List<Long>> tagIds) {
         User user = getLoggedUser();
         List<Exam> exams;
         if (user.hasRole("ADMIN", getSession())) {
@@ -172,7 +171,7 @@ public class ExamController extends BaseController {
                 .endJunction()
                 .isNull("parent")
                 .orderBy("created").findList();
-        return ok(exams);
+        return ok(exams, props);
     }
 
     private boolean isAllowedToRemove(Exam exam) {

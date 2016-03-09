@@ -1,6 +1,6 @@
 package models;
 
-import be.objectify.deadbolt.core.models.Subject;
+import be.objectify.deadbolt.java.models.Subject;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;

@@ -5,9 +5,7 @@ import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.TxType;
 import com.avaje.ebean.annotation.Transactional;
 import com.avaje.ebean.config.ServerConfig;
-import com.avaje.ebean.config.dbplatform.PostgresPlatform;
 import com.avaje.ebeaninternal.api.SpiEbeanServer;
-import com.avaje.ebeaninternal.server.ddl.DdlGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.Configuration;
@@ -114,9 +112,8 @@ public class IntegrationTestCase {
     }
 
     private void cleanDB() throws SQLException {
-        DdlGenerator generator = new DdlGenerator();
         EbeanServer server = Ebean.getServer("default");
-        generator.setup((SpiEbeanServer) server, new PostgresPlatform(), new ServerConfig());
+        DropAllDdlGenerator generator = new DropAllDdlGenerator((SpiEbeanServer)server, new ServerConfig());
         // Drop
         Database db = getDB();
 
@@ -128,7 +125,7 @@ public class IntegrationTestCase {
             // OK
         }
         db.shutdown();
-        generator.runScript(false, generator.generateDropDdl());
+        generator.runScript(false, generator.generateDropDdl(), "drop all");
     }
 
     @After
@@ -282,41 +279,41 @@ public class IntegrationTestCase {
         if (userCount == 0) {
             Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
             if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
-                Ebean.save(all.get("languages"));
+                Ebean.saveAll(all.get("languages"));
             }
-            Ebean.save(all.get("organisations"));
-            Ebean.save(all.get("attachments"));
+            Ebean.saveAll(all.get("organisations"));
+            Ebean.saveAll(all.get("attachments"));
 
             addTestUsers(all);
 
             if (Ebean.find(GradeScale.class).findRowCount() == 0) { // Might already be inserted by evolution
-                Ebean.save(all.get("grade-scales"));
+                Ebean.saveAll(all.get("grade-scales"));
             }
             if (Ebean.find(Grade.class).findRowCount() == 0) { // Might already be inserted by evolution
-                Ebean.save(all.get("grades"));
+                Ebean.saveAll(all.get("grades"));
             }
-            Ebean.save(all.get("question_essay"));
-            Ebean.save(all.get("question_multiple_choice"));
-            Ebean.save(all.get("softwares"));
-            Ebean.save(all.get("courses"));
-            Ebean.save(all.get("comments"));
+            Ebean.saveAll(all.get("question_essay"));
+            Ebean.saveAll(all.get("question_multiple_choice"));
+            Ebean.saveAll(all.get("softwares"));
+            Ebean.saveAll(all.get("courses"));
+            Ebean.saveAll(all.get("comments"));
             for (Object o : all.get("exams")) {
                 Exam e = (Exam) o;
                 e.setExecutionType(Ebean.find(ExamExecutionType.class, 1));
                 e.generateHash();
                 e.save();
             }
-            Ebean.save(all.get("exam-sections"));
-            Ebean.save(all.get("section-questions"));
-            Ebean.save(all.get("exam-participations"));
-            Ebean.save(all.get("exam-inspections"));
-            Ebean.save(all.get("mail-addresses"));
-            Ebean.save(all.get("calendar-events"));
-            Ebean.save(all.get("exam-rooms"));
-            Ebean.save(all.get("exam-machines"));
-            Ebean.save(all.get("exam-room-reservations"));
-            Ebean.save(all.get("exam-enrolments"));
-            Ebean.save(all.get("question_multiple_choice"));
+            Ebean.saveAll(all.get("exam-sections"));
+            Ebean.saveAll(all.get("section-questions"));
+            Ebean.saveAll(all.get("exam-participations"));
+            Ebean.saveAll(all.get("exam-inspections"));
+            Ebean.saveAll(all.get("mail-addresses"));
+            Ebean.saveAll(all.get("calendar-events"));
+            Ebean.saveAll(all.get("exam-rooms"));
+            Ebean.saveAll(all.get("exam-machines"));
+            Ebean.saveAll(all.get("exam-room-reservations"));
+            Ebean.saveAll(all.get("exam-enrolments"));
+            Ebean.saveAll(all.get("question_multiple_choice"));
         }
     }
 

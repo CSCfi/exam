@@ -15,7 +15,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.BeanUtils;
 import play.data.DynamicForm;
-import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 import util.java.DateTimeUtils;
@@ -71,7 +70,7 @@ public class RoomController extends BaseController {
 
     @Restrict(@Group({"ADMIN"}))
     public Result updateExamRoom(Long id) {
-        ExamRoom room = Form.form(ExamRoom.class).bindFromRequest(
+        ExamRoom room = formFactory.form(ExamRoom.class).bindFromRequest(
                 "name",
                 "roomCode",
                 "buildingName",
@@ -215,7 +214,7 @@ public class RoomController extends BaseController {
         DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(root.get("startDate").asText());
         DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(root.get("endDate").asText());
 
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         String args = df.get("roomIds");
         String[] examRoomIds;
         if (args == null || args.isEmpty()) {

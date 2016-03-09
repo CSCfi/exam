@@ -1,28 +1,29 @@
 package security;
 
-import be.objectify.deadbolt.core.models.Subject;
 import be.objectify.deadbolt.java.AbstractDeadboltHandler;
+import be.objectify.deadbolt.java.models.Subject;
 import com.avaje.ebean.Ebean;
 import controllers.BaseController;
 import models.Session;
 import models.User;
 import play.cache.Cache;
-import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 public class DeadboltHandler extends AbstractDeadboltHandler {
 
     @Override
-    public F.Promise<Optional<Result>> beforeAuthCheck(Http.Context context) {
-        return F.Promise.promise(Optional::empty);
+    public CompletableFuture<Optional<Result>> beforeAuthCheck(Http.Context context) {
+        return CompletableFuture.supplyAsync(Optional::empty);
     }
 
     @Override
-    public F.Promise<Optional<Subject>> getSubject(Http.Context context) {
+    public CompletionStage<Optional<? extends Subject>> getSubject(final Http.Context context) {
         String token = BaseController.getToken(context);
         Session session = (Session) Cache.get(BaseController.SITNET_CACHE_KEY + token);
         User user = session == null ? null : Ebean.find(User.class, session.getUserId());
@@ -32,12 +33,12 @@ public class DeadboltHandler extends AbstractDeadboltHandler {
                     .filter((r) -> r.getName().equals(session.getLoginRole()))
                     .collect(Collectors.toList()));
         }
-        return F.Promise.promise(() -> Optional.ofNullable(user));
+        return CompletableFuture.supplyAsync(() -> Optional.ofNullable(user));
     }
 
     @Override
-    public F.Promise<Result> onAuthFailure(Http.Context context, String content) {
-        return F.Promise.promise(() -> forbidden("Authentication failure"));
+    public CompletableFuture<Result> onAuthFailure(Http.Context context, String content) {
+        return  CompletableFuture.supplyAsync(() -> forbidden("Authentication failure"));
     }
 
 }

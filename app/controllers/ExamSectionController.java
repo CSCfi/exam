@@ -8,7 +8,6 @@ import models.ExamSection;
 import models.ExamSectionQuestion;
 import models.User;
 import models.questions.Question;
-import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
@@ -45,7 +44,7 @@ public class ExamSectionController extends BaseController {
         AppUtil.setCreator(question, user);
         AppUtil.setModifier(question, user);
         question.save();
-        Ebean.save(question.getOptions());
+        Ebean.saveAll(question.getOptions());
         return question;
     }
 
@@ -54,12 +53,18 @@ public class ExamSectionController extends BaseController {
         if (from < 0 || to < 0) {
             return badRequest();
         }
+        if (from.equals(to)) {
+            return ok();
+        }
         Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             ExamSection section = Ebean.find(ExamSection.class, sid);
-            if (from.equals(to)) {
-                return ok();
+            if (section == null) {
+                return notFound("section not found");
             }
             // Reorder by sequenceNumber (TreeSet orders the collection based on it)
             List<ExamSectionQuestion> questions = new ArrayList<>(new TreeSet<>(section.getSectionQuestions()));
@@ -262,7 +267,7 @@ public class ExamSectionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateSection(Long eid, Long sid) {
-        ExamSection section = Form.form(ExamSection.class).bindFromRequest(
+        ExamSection section = formFactory.form(ExamSection.class).bindFromRequest(
                 "id",
                 "name",
                 "expanded",
@@ -300,9 +305,16 @@ public class ExamSectionController extends BaseController {
                 .where()
                 .eq("examSections.id", sectionId)
                 .findUnique();
+
         User user = getLoggedUser();
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             ExamSection section = Ebean.find(ExamSection.class, sectionId);
+            if (section == null) {
+                return notFound("section not found");
+            }
             exam.getExamSections().remove(section);
             exam.save();
             section.delete();

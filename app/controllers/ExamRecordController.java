@@ -4,7 +4,6 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.ning.http.util.Base64;
 import models.*;
 import models.dto.ExamScore;
 import play.Logger;
@@ -22,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +40,7 @@ public class ExamRecordController extends BaseController {
     // Instead assure that all required exam fields are set
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addExamRecord() throws IOException {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         final Exam exam = Ebean.find(Exam.class)
                 .fetch("parent")
                 .fetch("parent.creator")
@@ -83,7 +83,7 @@ public class ExamRecordController extends BaseController {
             return internalServerError("sitnet_error_creating_csv_file");
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        String content = com.ning.http.util.Base64.encode(setData(file).toByteArray());
+        String content = Base64.getEncoder().encodeToString(setData(file).toByteArray());
         if (!file.delete()) {
             Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
         }
@@ -103,7 +103,7 @@ public class ExamRecordController extends BaseController {
 
     private static Result sendFile(File file) {
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        String content = Base64.encode(setData(file).toByteArray());
+        String content = Base64.getEncoder().encodeToString(setData(file).toByteArray());
         if (!file.delete()) {
             Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
         }
@@ -132,7 +132,7 @@ public class ExamRecordController extends BaseController {
             return internalServerError("sitnet_error_creating_csv_file");
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"");
-        return ok(Base64.encode(bos.toByteArray()));
+        return ok(Base64.getEncoder().encodeToString(bos.toByteArray()));
     }
 
     private Result validateExamState(Exam exam) {

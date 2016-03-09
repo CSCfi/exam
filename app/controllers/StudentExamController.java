@@ -13,11 +13,9 @@ import models.questions.Answer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.joda.time.DateTime;
+import play.Environment;
 import play.Logger;
-import play.Play;
 import play.data.DynamicForm;
-import play.data.Form;
-import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
@@ -27,6 +25,7 @@ import util.java.EmailComposer;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,21 +40,25 @@ public class StudentExamController extends BaseController {
     protected EmailComposer emailComposer;
     @Inject
     protected ActorSystem actor;
+    @Inject
+    protected Environment environment;
 
 
     @Restrict({@Group("STUDENT")})
-    public F.Promise<Result> listAvailableExams(final F.Option<String> filter) throws MalformedURLException {
+    public CompletionStage<Result> listAvailableExams(final Optional<String> filter) throws MalformedURLException {
         if (!PERM_CHECK_ACTIVE) {
             return wrapAsPromise(listExams(filter, Collections.<String>emptyList()));
         }
-        F.Promise<Collection<String>> promise = externalAPI.getPermittedCourses(getLoggedUser());
-        return promise.map(codes -> {
-            if (codes.isEmpty()) {
-                return ok(Json.toJson(Collections.<Exam>emptyList())).as("application/json");
-            } else {
-                return listExams(filter, codes);
-            }
-        }).recover(throwable -> internalServerError(throwable.getMessage()));
+        return externalAPI.getPermittedCourses(getLoggedUser())
+                .thenApplyAsync(codes ->
+                        {
+                            if (codes.isEmpty()) {
+                                return ok(Json.toJson(Collections.<Exam>emptyList())).as("application/json");
+                            } else {
+                                return listExams(filter, codes);
+                            }
+                        }
+                ).exceptionally(throwable -> internalServerError(throwable.getMessage()));
     }
 
     @Restrict({@Group("STUDENT")})
@@ -292,7 +295,7 @@ public class StudentExamController extends BaseController {
                 .findUnique();
     }
 
-    private static Result checkEnrolmentOK(ExamEnrolment enrolment) {
+    private Result checkEnrolmentOK(ExamEnrolment enrolment) {
         // If this is null, it means someone is either trying to access an exam by wrong hash
         // or the reservation is not in effect right now.
         if (enrolment == null) {
@@ -304,7 +307,7 @@ public class StudentExamController extends BaseController {
             return forbidden("sitnet_reservation_not_found");
         } else if (enrolment.getReservation().getMachine() == null) {
             return forbidden("sitnet_reservation_machine_not_found");
-        } else if (!Play.isDev() && !enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+        } else if (!environment.isDev() && !enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
             ExamRoom examRoom = Ebean.find(ExamRoom.class)
                     .fetch("mailAddress")
                     .where()
@@ -465,7 +468,7 @@ public class StudentExamController extends BaseController {
         if (failure != null) {
             return failure;
         }
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         String essayAnswer = df.get("answer");
         Question question = Ebean.find(Question.class, questionId);
         if (question == null) {
@@ -527,7 +530,7 @@ public class StudentExamController extends BaseController {
         return ok(Json.toJson(answer));
     }
 
-    private Result listExams(F.Option<String> filter, Collection<String> courseCodes) {
+    private Result listExams(Optional<String> filter, Collection<String> courseCodes) {
         ExpressionList<Exam> query = Ebean.find(Exam.class)
                 .select("id, name, examActiveStartDate, examActiveEndDate, enrollInstruction")
                 .fetch("course", "code")
@@ -542,7 +545,7 @@ public class StudentExamController extends BaseController {
         if (!courseCodes.isEmpty()) {
             query.in("course.code", courseCodes);
         }
-        if (filter.isDefined() && !filter.get().isEmpty()) {
+        if (filter.isPresent()) {
             String condition = String.format("%%%s%%", filter.get());
             query = query.disjunction()
                     .ilike("name", condition)

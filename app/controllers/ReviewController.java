@@ -16,8 +16,6 @@ import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import play.Logger;
 import play.data.DynamicForm;
-import play.data.Form;
-import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
@@ -153,8 +151,6 @@ public class ReviewController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamReviews(Long eid) {
         User user = getLoggedUser();
-        Exam.State[] states = new Exam.State[]{Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED,
-                Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED, Exam.State.ARCHIVED};
         Set<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state, gradedTime, customCredit, creditType, answerLanguage, trialCount")
@@ -176,7 +172,8 @@ public class ReviewController extends BaseController {
                 .fetch("reservation", "retrialPermitted")
                 .where()
                 .eq("exam.parent.id", eid)
-                .in("exam.state", states)
+                .in("exam.state", Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED,
+                        Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED, Exam.State.ARCHIVED)
                 .disjunction()
                 .eq("exam.parent.examOwners", user)
                 .eq("exam.examInspections.user", user)
@@ -193,7 +190,7 @@ public class ReviewController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result reviewExam(Long id) {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator").where().idEq(id).findUnique();
         if (exam == null) {
             return notFound("sitnet_exam_not_found");
@@ -449,8 +446,8 @@ public class ReviewController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result importGrades() {
-        Http.MultipartFormData body = request().body().asMultipartFormData();
-        Http.MultipartFormData.FilePart filePart = body.getFile("file");
+        Http.MultipartFormData<File> body = request().body().asMultipartFormData();
+        Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
@@ -467,7 +464,7 @@ public class ReviewController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result getArchivedAttachments(Long eid, F.Option<String> start, F.Option<String> end) throws IOException {
+    public Result getArchivedAttachments(Long eid, Optional<String> start, Optional<String> end) throws IOException {
         Exam prototype = Ebean.find(Exam.class, eid);
         if (prototype == null) {
             return notFound();
@@ -476,10 +473,10 @@ public class ReviewController extends BaseController {
         Date endDate = null;
         try {
             DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
-            if (start.isDefined() && !start.isEmpty()) {
+            if (start.isPresent()) {
                 startDate = new DateTime(df.parse(start.get())).withTimeAtStartOfDay().toDate();
             }
-            if (end.isDefined() && !end.isEmpty()) {
+            if (end.isPresent()) {
                 endDate = new DateTime(df.parse(end.get())).withTimeAtStartOfDay().plusDays(1).toDate();
             }
         } catch (ParseException e) {
@@ -498,7 +495,7 @@ public class ReviewController extends BaseController {
             Logger.error("Failed in creating a tarball", e);
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"" + tarball.getName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(setData(tarball).toByteArray()));
+        return ok(Base64.getEncoder().encode(setData(tarball).toByteArray()));
     }
 
     private void notifyPartiesAboutPrivateExamRejection(Exam exam) {

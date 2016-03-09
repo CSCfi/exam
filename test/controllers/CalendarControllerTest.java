@@ -39,7 +39,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Ebean.delete(Ebean.find(ExamEnrolment.class).findList());
+        Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
         exam = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED).findList().get(0);
         user = Ebean.find(User.class, userId);
         user.setLanguage(Ebean.find(Language.class, "en"));

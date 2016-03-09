@@ -10,12 +10,11 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import play.data.DynamicForm;
-import play.data.Form;
-import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class UserController extends BaseController {
@@ -27,7 +26,7 @@ public class UserController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
     public Result grantUserPermission() {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         String permissionString = df.get("permission");
         User user = Ebean.find(User.class, df.get("id"));
         if (user.getPermissions().stream().noneMatch(p -> p.getValue().equals(permissionString))) {
@@ -46,7 +45,7 @@ public class UserController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
     public Result revokeUserPermission() {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         String permissionString = df.get("permission");
         User user = Ebean.find(User.class, df.get("id"));
         if (user.getPermissions().stream().anyMatch(p -> p.getValue().equals(permissionString))) {
@@ -69,10 +68,10 @@ public class UserController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result findUsers(F.Option<String> filter) {
+    public Result findUsers(Optional<String> filter) {
         Query<User> query = Ebean.find(User.class).fetch("roles").fetch("permissions");
         List<User> results;
-        if (filter.isDefined() && !filter.get().isEmpty()) {
+        if (filter.isPresent()) {
             ExpressionList<User> el = query.where().disjunction();
             el = applyUserFilter(null, el, filter.get());
             String condition = String.format("%%%s%%", filter.get());

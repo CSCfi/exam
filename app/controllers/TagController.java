@@ -7,35 +7,35 @@ import com.avaje.ebean.ExpressionList;
 import models.Tag;
 import models.User;
 import models.questions.Question;
-import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TagController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result listTags(F.Option<String> filter, F.Option<List<Long>> examIds, F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds) {
+    public Result listTags(Optional<String> filter, Optional<List<Long>> examIds, Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds) {
         User user = getLoggedUser();
         ExpressionList<Tag> query = Ebean.find(Tag.class).where();
         if (!user.hasRole("ADMIN", getSession())) {
             query = query.where().eq("creator.id", user.getId());
         }
-        if (filter.isDefined()) {
+        if (filter.isPresent()) {
             String condition = String.format("%%%s%%", filter.get());
             query = query.ilike("name", condition);
         }
-        if (examIds.isDefined() && !examIds.get().isEmpty()) {
+        if (examIds.isPresent() && !examIds.get().isEmpty()) {
             query = query.in("questions.children.examSectionQuestion.examSection.exam.id", examIds.get());
         }
-        if (courseIds.isDefined() && !courseIds.get().isEmpty()) {
+        if (courseIds.isPresent() && !courseIds.get().isEmpty()) {
             query = query.in("questions.children.examSectionQuestion.examSection.exam.course.id", courseIds.get());
         }
-        if (sectionIds.isDefined() && !sectionIds.get().isEmpty()) {
+        if (sectionIds.isPresent() && !sectionIds.get().isEmpty()) {
             query = query.in("questions.children.examSectionQuestion.examSection.id", sectionIds.get());
         }
         List<Tag> tags = query.orderBy("name").findList();
