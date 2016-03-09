@@ -399,10 +399,12 @@ public class EmailComposerImpl implements EmailComposer {
                     student.getFirstName(), student.getLastName(), student.getEmail()),
                     String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         } else {
+            String reviewLink = String.format("%s/exams/review/%d", HOSTNAME, exam.getId());
             subject = messaging.get(lang, "email.template.exam.returned.subject");
             message = messaging.get(lang, "email.template.exam.returned.message", String.format("%s %s <%s>",
                     student.getFirstName(), student.getLastName(), student.getEmail()),
-                    String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
+                    String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()), reviewLink);
+
         }
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("message", message);
