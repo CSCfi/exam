@@ -19,17 +19,6 @@ public class EmailSenderImpl implements EmailSender {
     private String PWD = ConfigFactory.load().getString("play.mailer.password");
     private Boolean USE_MOCK = ConfigFactory.load().hasPath("play.mailer.mock") && ConfigFactory.load().getBoolean("play.mailer.mock");
 
-    private HtmlEmail initMessage(EmailAttachment... attachments) throws EmailException {
-        HtmlEmail email = new HtmlEmail();
-        for (EmailAttachment attachment : attachments) {
-            email.attach(attachment);
-        }
-        email.setHostName(HOST);
-        email.setSmtpPort(PORT);
-        email.setAuthenticator(new DefaultAuthenticator(USER, PWD));
-        email.setSSLOnConnect(USE_SSL);
-        return email;
-    }
 
     private void mockSending(HtmlEmail email, String content, EmailAttachment... attachments) {
         Logger.info("mock implementation, send email");
@@ -43,7 +32,14 @@ public class EmailSenderImpl implements EmailSender {
 
     private void doSend(String recipient, String sender, String subject, String content,
                         EmailAttachment... attachments) throws EmailException {
-        HtmlEmail email = initMessage(attachments);
+        HtmlEmail email = new HtmlEmail();
+        for (EmailAttachment attachment : attachments) {
+            email.attach(attachment);
+        }
+        email.setHostName(HOST);
+        email.setSmtpPort(PORT);
+        email.setAuthenticator(new DefaultAuthenticator(USER, PWD));
+        email.setSSLOnConnect(USE_SSL);
         email.setSubject(subject);
         email.addTo(recipient);
         email.setFrom(String.format("Exam <%s>", SYSTEM_ACCOUNT));

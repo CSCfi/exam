@@ -497,7 +497,7 @@ public class ExamController extends BaseController {
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
             GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findUnique();
             if (scale != null) {
-                changed = !exam.getGradeScale().equals(scale);
+                changed = exam.getGradeScale() == null || !exam.getGradeScale().equals(scale);
                 exam.setGradeScale(scale);
             } else {
                 Logger.warn("Grade scale not found for ID {}. Not gonna update exam with it", grading);

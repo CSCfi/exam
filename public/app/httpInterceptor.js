@@ -14,7 +14,6 @@
                         'request': function (request) {
                             if (request.method !== 'GET') {
                                 var csrfToken = $cookies.get('csrfToken');
-                                console.log('csrf token: ' + csrfToken);
                                 request.url += "?csrfToken=" + csrfToken;
                             }
                             return request;
