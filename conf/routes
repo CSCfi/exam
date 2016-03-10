@@ -97,7 +97,7 @@ PUT           /app/exams/:eid/section/:sid/:from/:to                     control
 
 ############### Review interface ###############
 GET           /app/reviews/:id                                           controllers.ReviewController.getExamReviews(id: Long)
-PUT           /app/reviews/:id                                            controllers.ReviewController.reviewExam(id: Long)
+PUT           /app/review/:id                                            controllers.ReviewController.reviewExam(id: Long)
 POST          /app/review/:eid/comment/:cid                              controllers.ReviewController.insertComment(eid: Long, cid: Long)
 PUT           /app/review/:eid/comment/:cid                              controllers.ReviewController.updateComment(eid: Long, cid: Long)
 GET           /app/noshows/:eid                                          controllers.ReviewController.listNoShows(eid: Long)

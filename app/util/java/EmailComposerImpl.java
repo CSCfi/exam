@@ -79,6 +79,8 @@ public class EmailComposerImpl implements EmailComposer {
         if (reviewer == null && exam.getAutoEvaluationConfig() != null) {
             // graded automatically
             stringValues.put("review_autoevaluated", messaging.get(lang, "email.template.review.autoevaluated"));
+        } else {
+            stringValues.put("review_autoevaluated", null);
         }
 
         //Replace template strings
