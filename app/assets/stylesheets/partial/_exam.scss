@@ -9,7 +9,7 @@
   }
 
   .section-border {
-    padding: 1% 2%;
+    padding: 15px 30px;
     border: 1px solid $sitnet-common-medium;
     margin-bottom: 1em;
   }
@@ -22,7 +22,6 @@
   .exam-general-information-header {
     padding-top: 0.5em;
     padding-bottom: 0.5em;
-    //color: $sitnet-teacher-turquoise-dark-active;
     height: 4em;
   }
   .exam-general-information-header span {
@@ -65,9 +64,13 @@
     padding: 1em;
     margin: 1em 6px 1em 46px;
 
-    a > i {
+    div > i {
       margin-right: 1em;
       vertical-align: middle;
+    }
+
+    div > span {
+      line-height: 2em;
     }
   }
 

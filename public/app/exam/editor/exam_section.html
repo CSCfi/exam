@@ -65,21 +65,25 @@
             <div ng-show="section.sectionQuestions.length == 0" class="create-new dropdown"></div>
         </ul>
         <div class="create-new dropdown" uib-dropdown>
-            <a class="dropdown-toggle pointer" data-toggle="dropdown" uib-dropdown-toggle>
-                <i class="fa fa-2x fa-plus-circle"></i>
-                {{'sitnet_add_content'|translate}}
-            </a>
-            <ul class="dropdown-menu" role="menu">
-                <li role="presentation">
-                    <a role="menuitem" ng-click="createQuestionFromExamView('EssayQuestion', section)">{{ 'sitnet_essay' | translate }}</a>
-                </li>
-                <li role="presentation">
-                    <a role="menuitem" ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_multiplechoice_question' | translate }}</a>
-                </li>
-                <li role="presentation">
-                    <a role="menuitem" ng-click="createQuestionFromExamView('WeightedMultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_weighted_multiplechoice_question' | translate }}</a>
-                </li>
-            </ul>
+            <div class="row dropdown-toggle pointer" data-toggle="dropdown" uib-dropdown-toggle>
+                <div class="col-md-1">
+                    <i class="fa fa-2x fa-plus-circle"></i>
+                </div>
+                <div class="col-md-11">
+                    <span>{{'sitnet_add_content'|translate}}</span>
+                </div>
+                <ul class="dropdown-menu" role="menu">
+                    <li role="presentation">
+                        <a role="menuitem" ng-click="createQuestionFromExamView('EssayQuestion', section)">{{ 'sitnet_essay' | translate }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a role="menuitem" ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_multiplechoice_question' | translate }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a role="menuitem" ng-click="createQuestionFromExamView('WeightedMultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_weighted_multiplechoice_question' | translate }}</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>

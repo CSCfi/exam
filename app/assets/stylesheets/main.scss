@@ -17,12 +17,6 @@
 @import "partial/feedback";
 @import "partial/mainview";
 
-.essay-dialog .modal-dialog {
-  width: 80%;
-  margin-left: 17%;
-  min-width: 400px;
-}
-
 html {
   font-family: $sitnet-family-opensans;
 }
@@ -40,13 +34,13 @@ p {
 }
 
 .vmenu-on {
-  width: calc(100% - 230px);
-  margin-left: 229px;
+  width: auto;
+  margin-left: 230px;
 }
 
 .vmenu-off {
-  width: calc(100% - 50px);
-  margin-left: 49px;
+  width: auto;
+  margin-left: 50px;
 }
 
 .generic-header {

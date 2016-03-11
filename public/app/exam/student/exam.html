@@ -54,21 +54,20 @@
 
                         <!-- SECTION NAVIGATION ARROWS AND LABELS -->
                         <div class="row exam-navigation">
-                            <div class="col-sm-6 col-md-5 col-md-offset-1">
+                            <span class="col-md-12">
                                 <!-- PREVIOUS SECTION BUTTON -->
                                 <a class="blue_button" ng-show="previousButton.valid && !guide"
                                    ng-click="setPreviousSection()">
                                     <i class="fa fa-arrow-left sitnet-text-theme"></i><span>{{ previousButton.text }}</span>
                                 </a>
-                            </div>
-                            <div class="col-sm-6 col-md-5 col-md-offset-1">
                                 <!-- NEXT SECTION BUTTON -->
                                 <a class="blue_button" ng-show="nextButton.valid" ng-click="setNextSection()">
                                     <span>{{ nextButton.text }} </span><i
                                         class="fa fa-arrow-right sitnet-text-theme icon_to_right"></i>
                                 </a>
-                            </div>
+                            </span>
                         </div>
+
                     </div>
                 </div>
             </div>
