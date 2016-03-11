@@ -2,6 +2,7 @@ package models;
 
 import com.avaje.ebean.Model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import models.api.Sortable;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -12,7 +13,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"exam_section_id", "question_id"}))
-public class ExamSectionQuestion extends Model implements Comparable<ExamSectionQuestion> {
+public class ExamSectionQuestion extends Model implements Comparable<ExamSectionQuestion>, Sortable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -94,5 +95,15 @@ public class ExamSectionQuestion extends Model implements Comparable<ExamSection
     @Override
     public int compareTo(@Nonnull ExamSectionQuestion o) {
         return sequenceNumber - o.sequenceNumber;
+    }
+
+    @Override
+    public Integer getOrdinal() {
+        return sequenceNumber;
+    }
+
+    @Override
+    public void setOrdinal(Integer ordinal) {
+        sequenceNumber = ordinal;
     }
 }

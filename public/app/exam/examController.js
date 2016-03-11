@@ -533,7 +533,7 @@
                 $scope.clearAllQuestions = function (section) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_all_questions'));
                     dialog.result.then(function (btn) {
-                        ExamRes.clearsection.clear({sid: section.id}, function () {
+                        ExamRes.clearsection.clear({eid: $scope.newExam.id, sid: section.id}, function () {
                             section.sectionQuestions.splice(0, section.sectionQuestions.length);
                             toastr.info($translate.instant("sitnet_all_questions_removed"));
                         }, function (error) {

@@ -1,5 +1,7 @@
 package models;
 
+import models.base.GeneratedIdentityModel;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;

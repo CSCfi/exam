@@ -1,6 +1,8 @@
 package models;
 
 
+import models.base.GeneratedIdentityModel;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 

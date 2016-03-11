@@ -84,16 +84,15 @@ POST          /app/student/exams/:hash/question/:questionId              control
 
 ############### Section interface ###############
 
-POST          /app/exams/:id/section                                     controllers.ExamSectionController.insertSection(id: Long)
+POST          /app/exams/:eid/section                                    controllers.ExamSectionController.insertSection(eid: Long)
 DELETE        /app/exams/:eid/section/:sid                               controllers.ExamSectionController.removeSection(eid: Long, sid: Long)
 PUT           /app/exams/:eid/section/:sid                               controllers.ExamSectionController.updateSection(eid: Long, sid: Long)
-GET           /app/sections/:id                                          controllers.ExamSectionController.getExamSections(id: Long)
-DELETE        /app/section/:sectionId                                    controllers.ExamSectionController.deleteSection(sectionId: Long)
-DELETE        /app/clearsection/:sid                                     controllers.ExamSectionController.clearQuestions(sid: Long)
+DELETE        /app/exams/:eid/section/:sid/clear                         controllers.ExamSectionController.clearQuestions(eid: Long, sid: Long)
 POST          /app/exams/:eid/section/:sid/:seq/question/:qid            controllers.ExamSectionController.insertQuestion(eid: Long, sid: Long, seq: Int, qid: Long)
 POST          /app/exams/:eid/section/:sid/:seq/questions                controllers.ExamSectionController.insertMultipleQuestions(eid: Long, sid: Long, seq: Int, questions: String)
 DELETE        /app/exams/:eid/section/:sid/question/:qid                 controllers.ExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long)
-PUT           /app/exams/:eid/section/:sid/:from/:to                     controllers.ExamSectionController.reorderSectionQuestions(eid: Long, sid: Long, from: Int, to: Int)
+PUT           /app/exams/:eid/section/:sid/reorder                       controllers.ExamSectionController.reorderSectionQuestions(eid: Long, sid: Long)
+PUT           /app/exams/:eid/reorder                                    controllers.ExamSectionController.reorderSections(eid: Long)
 
 ############### Review interface ###############
 GET           /app/reviews/:id                                           controllers.ReviewController.getExamReviews(id: Long)

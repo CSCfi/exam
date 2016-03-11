@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import models.Exam;
 import models.ExamRecord;
-import models.GeneratedIdentityModel;
+import models.base.GeneratedIdentityModel;
 import models.User;
 
 import javax.persistence.Entity;

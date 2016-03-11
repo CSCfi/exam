@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import models.base.GeneratedIdentityModel;
 import org.joda.time.Interval;
 
 import javax.annotation.Nonnull;

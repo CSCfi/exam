@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.Attachment;
 import models.ExamSectionQuestion;
-import models.OwnedModel;
+import models.base.OwnedModel;
 import models.Tag;
 import models.api.AttachmentContainer;
 import org.apache.commons.lang3.builder.EqualsBuilder;

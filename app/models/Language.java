@@ -1,5 +1,7 @@
 package models;
 
+import models.base.VersionedModel;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 

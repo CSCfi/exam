@@ -2,6 +2,8 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.api.Sortable;
+import models.base.OwnedModel;
 import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
@@ -9,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-public final class ExamSection extends OwnedModel implements Comparable<ExamSection>{
+public final class ExamSection extends OwnedModel implements Comparable<ExamSection>, Sortable {
 
     private String name;
 
@@ -20,6 +22,8 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     @ManyToOne
     @JsonBackReference
     private Exam exam;
+
+    private Integer sequenceNumber;
 
     // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
@@ -53,6 +57,14 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
 
     public void setExam(Exam exam) {
         this.exam = exam;
+    }
+
+    public Integer getSequenceNumber() {
+        return sequenceNumber;
+    }
+
+    public void setSequenceNumber(Integer sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
     }
 
     public boolean getExpanded() {
@@ -132,5 +144,15 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     @Override
     public int compareTo(ExamSection o) {
         return id.intValue() - o.id.intValue();
+    }
+
+    @Override
+    public Integer getOrdinal() {
+        return sequenceNumber;
+    }
+
+    @Override
+    public void setOrdinal(Integer ordinal) {
+        sequenceNumber = ordinal;
     }
 }

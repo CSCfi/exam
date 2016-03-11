@@ -2,6 +2,7 @@ package models;
 
 
 import com.avaje.ebean.annotation.EnumMapping;
+import models.base.GeneratedIdentityModel;
 
 import javax.persistence.Entity;
 import javax.persistence.Transient;

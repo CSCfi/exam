@@ -1,5 +1,6 @@
-package models;
+package models.base;
 
+import models.User;
 import play.data.format.Formats.DateTime;
 
 import javax.persistence.MappedSuperclass;
@@ -14,16 +15,16 @@ public class OwnedModel extends GeneratedIdentityModel {
 	@Temporal(TemporalType.TIMESTAMP)
     @DateTime(pattern="yyyy/MM/dd")
     protected Date created;
-	
+
 	@OneToOne
     protected User creator;
-	
+
     @Temporal(TemporalType.TIMESTAMP)
     protected Date modified;
-	
+
 	@OneToOne
     protected User modifier;
-	
+
 	public Date getCreated() {
 		return created;
 	}

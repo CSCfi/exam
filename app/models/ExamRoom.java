@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.base.GeneratedIdentityModel;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import org.apache.commons.lang3.builder.EqualsBuilder;

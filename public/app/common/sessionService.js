@@ -98,7 +98,9 @@
                         // redirect to SP-logout directly
                         window.location.href = localLogout;
                     } else {
-                        $location.path("/login")
+                        // DEV logout
+                        $location.path("/login");
+                        http().get('/app/checkSession');
                     }
                     $timeout(toastr.clear, 300);
                 };

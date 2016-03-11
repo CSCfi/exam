@@ -58,19 +58,19 @@
                         }
 
                     }),
-                reordersection: $resource("/app/exams/:eid/section/:sid/:from/:to",
+                reordersection: $resource("/app/exams/:eid/section/:sid/reorder",
                     {
-                        eid: "@eid", sid: "@sid", from: "@from", to: "@to"
+                        eid: "@eid", sid: "@sid"
                     },
                     {
-                        "update": {method: "PUT", params: {eid: "@eid", sid: "@sid", from: "@from", to: "@to"}}
+                        "update": {method: "PUT", params: {eid: "@eid", sid: "@sid"}}
                     }),
-                clearsection: $resource("/app/clearsection/:sid",
+                clearsection: $resource("/app/exams/:eid/section/:sid/clear",
                     {
-                        sid: "@sid"
+                        eid: "@eid", sid: "@sid"
                     },
                     {
-                        "clear": {method: "DELETE", params: {sid: "@sid"}}
+                        "clear": {method: "DELETE", params: {eid: "@eid", sid: "@sid"}}
                     }),
 
                 course: $resource("/app/exams/:eid/course/:cid",

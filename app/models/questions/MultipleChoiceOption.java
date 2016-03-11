@@ -1,7 +1,7 @@
 package models.questions;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import models.GeneratedIdentityModel;
+import models.base.GeneratedIdentityModel;
 import org.springframework.beans.BeanUtils;
 
 import javax.persistence.Entity;

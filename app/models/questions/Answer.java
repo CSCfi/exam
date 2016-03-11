@@ -3,7 +3,7 @@ package models.questions;
 import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.Attachment;
-import models.OwnedModel;
+import models.base.OwnedModel;
 import models.api.AttachmentContainer;
 
 import javax.persistence.*;

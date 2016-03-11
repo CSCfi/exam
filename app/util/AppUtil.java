@@ -2,6 +2,7 @@ package util;
 
 import com.typesafe.config.ConfigFactory;
 import models.*;
+import models.base.OwnedModel;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

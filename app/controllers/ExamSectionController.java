@@ -3,18 +3,19 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.text.PathProperties;
 import models.Exam;
 import models.ExamSection;
 import models.ExamSectionQuestion;
 import models.User;
+import models.api.Sortable;
 import models.questions.Question;
+import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 
 public class ExamSectionController extends BaseController {
@@ -30,12 +31,121 @@ public class ExamSectionController extends BaseController {
             ExamSection section = new ExamSection();
             section.setLotteryItemCount(1);
             section.setExam(exam);
+            section.setSectionQuestions(Collections.emptySet());
+            section.setSequenceNumber(exam.getExamSections().size());
+            section.setExpanded(true);
             AppUtil.setCreator(section, user);
             section.save();
-            return ok(Json.toJson(section));
+            return ok(section, PathProperties.parse("(*, sectionQuestions(*))"));
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result removeSection(Long eid, Long sid) {
+        ExamSection section = Ebean.find(ExamSection.class)
+                .fetch("exam.examOwners")
+                .where()
+                .eq("exam.id", eid)
+                .idEq(sid)
+                .findUnique();
+        if (section == null) {
+            return notFound("sitnet_error_not_found");
+        }
+        Exam exam = section.getExam();
+
+        User user = getLoggedUser();
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
+            exam.getExamSections().remove(section);
+            exam.update();
+            // clear parent id from children
+            for (ExamSectionQuestion examSectionQuestion : section.getSectionQuestions()) {
+                for (Question question : examSectionQuestion.getQuestion().getChildren()) {
+                    question.setParent(null);
+                    question.update();
+                }
+            }
+            // Decrease sequences for the entries above the inserted one
+            int seq = section.getSequenceNumber();
+            for (ExamSection es : exam.getExamSections()) {
+                int num = es.getSequenceNumber();
+                if (num >= seq) {
+                    es.setSequenceNumber(num - 1);
+                    es.update();
+                }
+            }
+            return ok();
+        } else {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result updateSection(Long eid, Long sid) {
+        ExamSection section = Ebean.find(ExamSection.class)
+                .fetch("exam.examOwners")
+                .where()
+                .eq("exam.id", eid)
+                .idEq(sid)
+                .findUnique();
+        if (section == null) {
+            return notFound("sitnet_error_not_found");
+        }
+        User user = getLoggedUser();
+        if (!section.getExam().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+
+        ExamSection form = formFactory.form(ExamSection.class).bindFromRequest(
+                "id",
+                "name",
+                "expanded",
+                "lotteryOn",
+                "lotteryItemCount"
+        ).get();
+
+        section.setName(form.getName());
+        section.setExpanded(form.getExpanded());
+        section.setLotteryOn(form.getLotteryOn());
+        section.setLotteryItemCount(Math.max(1, section.getLotteryItemCount()));
+
+        section.update();
+
+        return ok(Json.toJson(section));
+    }
+
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result reorderSections(Long eid) {
+        DynamicForm df = formFactory.form().bindFromRequest();
+        Integer from = Integer.parseInt(df.get("from"));
+        Integer to = Integer.parseInt(df.get("to"));
+        Result result = checkBounds(from, to);
+        if (result != null) {
+            return result;
+        }
+        Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+        User user = getLoggedUser();
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
+            // Reorder by sequenceNumber (TreeSet orders the collection based on it)
+            List<ExamSection> sections = new ArrayList<>(new TreeSet<>(exam.getExamSections()));
+            ExamSection prev = sections.get(from);
+            boolean removed = sections.remove(prev);
+            if (removed) {
+                sections.add(to, prev);
+                for (int i = 0; i < sections.size(); ++i) {
+                    ExamSection section = sections.get(i);
+                    section.setSequenceNumber(i);
+                    section.update();
+                }
+            }
+            return ok();
+        }
+        return forbidden("sitnet_error_access_forbidden");
     }
 
     private Question clone(Question blueprint) {
@@ -49,12 +159,13 @@ public class ExamSectionController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result reorderSectionQuestions(Long eid, Long sid, Integer from, Integer to) {
-        if (from < 0 || to < 0) {
-            return badRequest();
-        }
-        if (from.equals(to)) {
-            return ok();
+    public Result reorderSectionQuestions(Long eid, Long sid) {
+        DynamicForm df = formFactory.form().bindFromRequest();
+        Integer from = Integer.parseInt(df.get("from"));
+        Integer to = Integer.parseInt(df.get("to"));
+        Result result = checkBounds(from, to);
+        if (result != null) {
+            return result;
         }
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
@@ -83,56 +194,61 @@ public class ExamSectionController extends BaseController {
         return forbidden("sitnet_error_access_forbidden");
     }
 
-    private void updateSequences(ExamSection section, int ordinal) {
+    private void updateSequences(Collection<? extends Sortable> sortables, int ordinal) {
         // Increase sequences for the entries above the inserted one
-        for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-            int sequenceNumber = esq.getSequenceNumber();
+        for (Sortable s : sortables) {
+            int sequenceNumber = s.getOrdinal();
             if (sequenceNumber >= ordinal) {
-                esq.setSequenceNumber(sequenceNumber + 1);
-                esq.update();
+                s.setOrdinal(sequenceNumber + 1);
             }
         }
     }
 
+    private Result insertQuestion(Exam exam, ExamSection section, Question question, User user, Integer seq) {
+        String validationResult = question.getValidationResult();
+        if (validationResult != null) {
+            return forbidden(validationResult);
+        }
+        if (question.getType().equals(Question.Type.EssayQuestion)) {
+            // disable auto evaluation for this exam
+            if (exam.getAutoEvaluationConfig() != null) {
+                exam.getAutoEvaluationConfig().delete();
+            }
+        }
+        Question clone = clone(question);
+
+        // Assert that the sequence number provided is within limits
+        seq = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
+        updateSequences(section.getSectionQuestions(), seq);
+        Ebean.updateAll(section.getSectionQuestions());
+
+        // Insert new section question
+        ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
+        sectionQuestion.setExamSection(section);
+        sectionQuestion.setQuestion(clone);
+        sectionQuestion.setSequenceNumber(seq);
+        section.getSectionQuestions().add(sectionQuestion);
+        AppUtil.setModifier(section, user);
+        section.save();
+        section.setSectionQuestions(new TreeSet<>(section.getSectionQuestions()));
+        return null;
+    }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertQuestion(Long eid, Long sid, Integer seq, Long qid) {
         Exam exam = Ebean.find(Exam.class, eid);
         ExamSection section = Ebean.find(ExamSection.class, sid);
-        if (section == null) {
+        Question question = Ebean.find(Question.class, qid);
+        if (exam == null || section == null || question == null) {
             return notFound();
         }
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            Question question = Ebean.find(Question.class, qid);
-            String validationResult = question.getValidationResult();
-            if (validationResult != null) {
-                return forbidden(validationResult);
-            }
-            if (question.getType().equals(Question.Type.EssayQuestion)) {
-                // disable auto evaluation for this exam
-                if (exam.getAutoEvaluationConfig() != null) {
-                    exam.getAutoEvaluationConfig().delete();
-                }
-            }
-            Question clone = clone(question);
-
-            // Assert that the sequence number provided is within limits
-            seq = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
-            updateSequences(section, seq);
-
-            // Insert new section question
-            ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
-            sectionQuestion.setExamSection(section);
-            sectionQuestion.setQuestion(clone);
-            sectionQuestion.setSequenceNumber(seq);
-            section.getSectionQuestions().add(sectionQuestion);
-            AppUtil.setModifier(section, user);
-            section.save();
-            section.setSectionQuestions(new TreeSet<>(section.getSectionQuestions()));
-            return ok(Json.toJson(section));
+        if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
+            return forbidden("sitnet_error_access_forbidden");
         }
-        return forbidden("sitnet_error_access_forbidden");
+        Result result = insertQuestion(exam, section, question, user, seq);
+        return result == null ? ok(Json.toJson(section)) : result;
+
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -140,90 +256,82 @@ public class ExamSectionController extends BaseController {
 
         Exam exam = Ebean.find(Exam.class, eid);
         ExamSection section = Ebean.find(ExamSection.class, sid);
-        if (section == null) {
+        if (exam == null || section == null) {
             return notFound();
         }
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            for (String s : questions.split(",")) {
-                Question question = Ebean.find(Question.class, Long.parseLong(s));
-                Question clone = clone(question);
-                if (clone == null) {
-                    return notFound("Question type not specified");
-                }
-
-                // Assert that the sequence number provided is within limits
-                seq = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
-                updateSequences(section, seq);
-
-                // Insert new section question
-                ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
-                sectionQuestion.setExamSection(section);
-                sectionQuestion.setQuestion(clone);
-                sectionQuestion.setSequenceNumber(seq);
-                section.getSectionQuestions().add(sectionQuestion);
-                AppUtil.setModifier(section, user);
-                section.save();
-            }
-            section = Ebean.find(ExamSection.class, sid);
-            return ok(Json.toJson(section));
+        if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
+            return forbidden("sitnet_error_access_forbidden");
         }
-        return forbidden("sitnet_error_access_forbidden");
+        for (String s : questions.split(",")) {
+            Question question = Ebean.find(Question.class, Long.parseLong(s));
+            if (question == null) {
+                continue;
+            }
+            Result result = insertQuestion(exam, section, question, user, seq);
+            if (result != null) {
+                return result;
+            }
+        }
+        return ok(Json.toJson(section));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result removeQuestion(Long eid, Long sid, Long qid) {
-        Exam exam = Ebean.find(Exam.class, eid);
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            Question question = Ebean.find(Question.class, qid);
-            ExamSection section = Ebean.find(ExamSection.class)
-                    .fetch("sectionQuestions")
-                    .where()
-                    .eq("id", sid)
-                    .findUnique();
-            ExamSectionQuestion sectionQuestion = Ebean.find(ExamSectionQuestion.class).where().eq("question",
-                    question).eq("examSection", section).findUnique();
-            if (sectionQuestion == null) {
-                return notFound("sitnet_error_not_found");
-            }
-            // Detach possible student exam questions from this one
-            List<Question> children = Ebean.find(Question.class)
-                    .where()
-                    .eq("parent.id", sectionQuestion.getQuestion().getId())
-                    .findList();
-            for (Question child : children) {
-                child.setParent(null);
-                child.save();
-            }
-            sectionQuestion.delete();
-            section.getSectionQuestions().remove(sectionQuestion);
-
-            // Decrease sequences for the entries above the inserted one
-            int seq = sectionQuestion.getSequenceNumber();
-            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                int num = esq.getSequenceNumber();
-                if (num >= seq) {
-                    esq.setSequenceNumber(num - 1);
-                    esq.update();
-                }
-            }
-            section.save();
-            return ok(Json.toJson(section));
-        } else {
+        Question question = Ebean.find(Question.class)
+                .fetch("examSectionQuestion.examSection.exam.examOwners")
+                .where()
+                .idEq(qid)
+                .eq("examSection.id", sid)
+                .eq("examSection.exam.id", eid)
+                .findUnique();
+        if (question == null) {
+            return notFound("sitnet_error_not_found");
+        }
+        ExamSectionQuestion sectionQuestion = question.getExamSectionQuestion();
+        ExamSection section = sectionQuestion.getExamSection();
+        Exam exam = section.getExam();
+        if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("sitnet_error_access_forbidden");
         }
+        // Detach possible student exam questions from this one
+        List<Question> children = Ebean.find(Question.class)
+                .where()
+                .eq("parent.id", sectionQuestion.getQuestion().getId())
+                .findList();
+        for (Question child : children) {
+            child.setParent(null);
+            child.save();
+        }
+        section.getSectionQuestions().remove(sectionQuestion);
+
+        // Decrease sequences for the entries above the inserted one
+        int seq = sectionQuestion.getSequenceNumber();
+        for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+            int num = esq.getSequenceNumber();
+            if (num >= seq) {
+                esq.setSequenceNumber(num - 1);
+                esq.update();
+            }
+        }
+        section.update();
+        return ok(Json.toJson(section));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result clearQuestions(Long sid) {
+    public Result clearQuestions(Long eid, Long sid) {
         ExamSection section = Ebean.find(ExamSection.class)
                 .fetch("exam.creator")
                 .fetch("exam.examOwners")
                 .fetch("exam.parent.examOwners")
                 .where()
                 .idEq(sid)
+                .eq("exam.id", eid)
                 .findUnique();
+        if (section == null) {
+            return notFound("sitnet_error_not_found");
+        }
         User user = getLoggedUser();
         if (section.getExam().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             section.getSectionQuestions().forEach(sq -> {
@@ -241,87 +349,14 @@ public class ExamSectionController extends BaseController {
         }
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result removeSection(Long eid, Long sid) {
-        Exam exam = Ebean.find(Exam.class, eid);
-        User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            ExamSection section = Ebean.find(ExamSection.class, sid);
-            exam.getExamSections().remove(section);
-            exam.save();
-
-            // clear parent id from children
-            for (ExamSectionQuestion examSectionQuestion : section.getSectionQuestions()) {
-                for (Question abstractQuestion : examSectionQuestion.getQuestion().getChildren()) {
-                    abstractQuestion.setParent(null);
-                    abstractQuestion.update();
-                }
-            }
-            section.delete();
-
+    private Result checkBounds(Integer from, Integer to) {
+        if (from < 0 || to < 0) {
+            return badRequest();
+        }
+        if (from.equals(to)) {
             return ok();
-        } else {
-            return forbidden("sitnet_error_access_forbidden");
         }
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateSection(Long eid, Long sid) {
-        ExamSection section = formFactory.form(ExamSection.class).bindFromRequest(
-                "id",
-                "name",
-                "expanded",
-                "lotteryOn",
-                "lotteryItemCount"
-        ).get();
-
-        ExamSection sectionToUpdate = Ebean.find(ExamSection.class, sid);
-        sectionToUpdate.setName(section.getName());
-        sectionToUpdate.setExpanded(section.getExpanded());
-        sectionToUpdate.setLotteryOn(section.getLotteryOn());
-        sectionToUpdate.setLotteryItemCount(Math.max(1, section.getLotteryItemCount()));
-        sectionToUpdate.update();
-
-        return ok(Json.toJson(sectionToUpdate));
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getExamSections(Long examid) {
-        Exam exam = Ebean.find(Exam.class, examid);
-        User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            List<ExamSection> sections = Ebean.find(ExamSection.class).where()
-                    .eq("id", examid)
-                    .findList();
-            return ok(Json.toJson(sections));
-        } else {
-            return forbidden("sitnet_error_access_forbidden");
-        }
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result deleteSection(Long sectionId) {
-        Exam exam = Ebean.find(Exam.class)
-                .where()
-                .eq("examSections.id", sectionId)
-                .findUnique();
-
-        User user = getLoggedUser();
-        if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
-        }
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            ExamSection section = Ebean.find(ExamSection.class, sectionId);
-            if (section == null) {
-                return notFound("section not found");
-            }
-            exam.getExamSections().remove(section);
-            exam.save();
-            section.delete();
-            return ok("removed");
-        } else {
-            return forbidden("sitnet_error_access_forbidden");
-        }
+        return null;
     }
 
 }

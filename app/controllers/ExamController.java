@@ -622,6 +622,7 @@ public class ExamController extends BaseController {
 
         examSection.setExam(exam);
         examSection.setExpanded(true);
+        examSection.setSequenceNumber(0);
         examSection.save();
 
         exam.getExamSections().add(examSection);

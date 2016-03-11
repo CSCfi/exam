@@ -1,4 +1,4 @@
-package models;
+package models.base;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;

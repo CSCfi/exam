@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import models.base.GeneratedIdentityModel;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;

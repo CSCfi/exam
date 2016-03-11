@@ -1037,54 +1037,67 @@ exam-sections:
 
   - &alkeet_mv_osio1 !!models.ExamSection
     name: Monivalinnat 1
+    sequenceNumber: 0
     exam: *alkeidenperusteetGraded
 
   - &alkeet_mv_osio2 !!models.ExamSection
     name: Monivalinnat 2
+    sequenceNumber: 1
     exam: *alkeidenperusteetGraded
 
   - &alkeet_essay !!models.ExamSection
     name: Essee kysymykset
+    sequenceNumber: 2
     exam: *alkeidenperusteetGraded
 
   - &alkeet_mv_osio1b !!models.ExamSection
     name: Monivalinnat 1
+    sequenceNumber: 0
     exam: *alkeidenperusteetReview
 
   - &alkeet_mv_osio2b !!models.ExamSection
     name: Monivalinnat 2
+    sequenceNumber: 1
     exam: *alkeidenperusteetReview
 
   - &alkeet_essayb !!models.ExamSection
     name: Essee kysymykset
+    sequenceNumber: 2
     exam: *alkeidenperusteetReview
 
   - &osio2 !!models.ExamSection
     name: Monivalinnat 2
+    sequenceNumber: 0
     exam: *tietokannat2013
 
   - &osio1_algo !!models.ExamSection
     name: Monivalinnat 1
+    sequenceNumber: 0
     exam: *algoritmit
 
   - &osio2_algo !!models.ExamSection
     name: Essee 1
+    sequenceNumber: 1
     exam: *algoritmit
 
   - &osio4 !!models.ExamSection
     name: Monivalinnat 4
+    sequenceNumber: 0
     exam: *ooad
 
   - &osio5 !!models.ExamSection
     name: Monivalinnat 5
+    sequenceNumber: 1
     exam: *ooad
 
   - &astro1 !!models.ExamSection
     name: Astronomian Monivalinnat
+    sequenceNumber: 0
     exam: *astronomianPerusteet
 
   - &ooadessay !!models.ExamSection
     name: Essee kysymykset
+    sequenceNumber: 2
     exam: *ooad
 
 ######################################################################
