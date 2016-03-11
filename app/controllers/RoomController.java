@@ -151,7 +151,7 @@ public class RoomController extends BaseController {
         List<DefaultWorkingHours> blueprints = parseWorkingHours(root);
         for (ExamRoom examRoom : rooms) {
             List<DefaultWorkingHours> previous = examRoom.getDefaultWorkingHours();
-            Ebean.delete(previous);
+            Ebean.deleteAll(previous);
             for (DefaultWorkingHours blueprint : blueprints) {
                 DefaultWorkingHours copy = new DefaultWorkingHours();
                 BeanUtils.copyProperties(blueprint, copy, "id", "room");
@@ -185,7 +185,7 @@ public class RoomController extends BaseController {
             }
             List<ExamStartingHour> previous = Ebean.find(ExamStartingHour.class)
                     .where().eq("room.id", examRoom.getId()).findList();
-            Ebean.delete(previous);
+            Ebean.deleteAll(previous);
 
             JsonNode node = request().body().asJson();
             DateTimeFormatter formatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
