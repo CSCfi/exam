@@ -50,6 +50,25 @@
     float: left;
     clear: left;
   }
+
+  .fa-stack-1x, .fa-stack-2x {
+    position: static;
+    display: block;
+    width: auto;
+  }
+
+  .fa-stack {
+    display: inline;
+  }
+
+  .fa {
+    position: static;
+    display: inline;
+  }
+
+  .review-question-option-name {
+    line-height: 2em;
+  }
 }
 
 .font-bold {

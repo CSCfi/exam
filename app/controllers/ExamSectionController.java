@@ -102,13 +102,15 @@ public class ExamSectionController extends BaseController {
                 "name",
                 "expanded",
                 "lotteryOn",
-                "lotteryItemCount"
+                "lotteryItemCount",
+                "description"
         ).get();
 
         section.setName(form.getName());
         section.setExpanded(form.getExpanded());
         section.setLotteryOn(form.getLotteryOn());
         section.setLotteryItemCount(Math.max(1, section.getLotteryItemCount()));
+        section.setDescription(form.getDescription());
 
         section.update();
 

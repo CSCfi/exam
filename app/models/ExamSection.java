@@ -35,6 +35,8 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
 
     private int lotteryItemCount;
 
+    private String description;
+
     public Set<ExamSectionQuestion> getSectionQuestions() {
         return sectionQuestions;
     }
@@ -89,6 +91,14 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
 
     public void setLotteryItemCount(int lotteryItemCount) {
         this.lotteryItemCount = lotteryItemCount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void shuffleQuestions() {

@@ -56,9 +56,18 @@
 </div>
 
 <div class="row">
-    <div class="col-md-12" ng-show="section.expanded">
+    <div class="col-md-offset-1 col-md-11">
+        <label class="sitnet-info-text" for="sectionDescription">{{'sitnet_section_description' | translate}}:</label>
+        <textarea id="sectionDescription" class="form-control" rows="4" cols="150" ng-model="section.description"
+                  ui-change="renameSection(section)">
+        </textarea>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-offset-1 col-md-11" ng-show="section.expanded">
         <ul droppable="section.sectionQuestions" identifier="section.id" ng-move="moveQuestion(section, from, to)"
-            ng-create="insertQuestion(section, object, to)" class="sortable">
+            ng-create="insertQuestion(section, object, to)" class="sortable no-padding">
             <li class="sortable-{{section.id}}" ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="templates.question"
                 ng-repeat="sectionQuestion in section.sectionQuestions | orderBy:sequenceNumber">
             </li>
