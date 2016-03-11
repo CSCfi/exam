@@ -19,7 +19,7 @@
                         "get": {method: "GET", isArray: false, params: {code: "@code", id: "@id"}},
                         "create": {method: "POST", params: {code: "@code", id: "@id"}}
                     }),
-                enrollStudent: $resource("/app/enroll/student/:eid/:uid ",
+                enrollStudent: $resource("/app/enroll/student/:eid/:uid",
                     {
                         eid: "@eid", uid: "@uid"
                     },
