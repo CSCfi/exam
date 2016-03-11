@@ -58,13 +58,21 @@
                         }
 
                     }),
-                reordersection: $resource("/app/exams/:eid/section/:sid/reorder",
+                questionOrder: $resource("/app/exams/:eid/section/:sid/reorder",
                     {
                         eid: "@eid", sid: "@sid"
                     },
                     {
                         "update": {method: "PUT", params: {eid: "@eid", sid: "@sid"}}
                     }),
+                sectionOrder: $resource("/app/exams/:eid/reorder",
+                    {
+                        eid: "@eid"
+                    },
+                    {
+                        "update": {method: "PUT", params: {eid: "@eid"}}
+                    }),
+
                 clearsection: $resource("/app/exams/:eid/section/:sid/clear",
                     {
                         eid: "@eid", sid: "@sid"

@@ -29,7 +29,11 @@
                 };
                 $scope.autoevaluation = {
                     enabled: false, releaseTypes: [
-                        {name: 'IMMEDIATE', translation: 'sitnet_autoevaluation_release_type_immediate', filtered: true},
+                        {
+                            name: 'IMMEDIATE',
+                            translation: 'sitnet_autoevaluation_release_type_immediate',
+                            filtered: true
+                        },
                         {name: 'GIVEN_DATE', translation: 'sitnet_autoevaluation_release_type_given_date'},
                         {name: 'GIVEN_AMOUNT_DAYS', translation: 'sitnet_autoevaluation_release_type_given_days'},
                         {name: 'AFTER_EXAM_PERIOD', translation: 'sitnet_autoevaluation_release_type_period'},
@@ -181,11 +185,14 @@
                                 // Use front-end language names always to allow for i18n etc
                                 language.name = getLanguageNativeName(language.code);
                             });
+                            $scope.newExam.examSections.sort(function (a, b) {
+                                return a.sequenceNumber - b.sequenceNumber;
+                            });
+                            recreateSectionIndices();
                             initialLanguages = exam.examLanguages.length;
                             initialSoftware = exam.softwares.length;
                             resetGradeScale(exam);
                             resetAutoEvaluationConfig();
-                            $scope.reindexNumbering();
                             getInspectors();
                             getExamOwners();
                             if (exam.examEnrolments.filter(function (ee) {
@@ -404,14 +411,10 @@
                     return examService.getExamGradeDisplayName(grade.name);
                 };
 
-                $scope.reindexNumbering = function () {
+                var recreateSectionIndices = function () {
                     // set sections and question numbering
                     angular.forEach($scope.newExam.examSections, function (section, index) {
                         section.index = index + 1;
-
-                        angular.forEach(section.sectionQuestions, function (sectionQuestion, index) {
-                            sectionQuestion.question.index = index + 1; // FIXME
-                        });
                     });
                 };
 
@@ -424,7 +427,7 @@
                     ExamRes.sections.insert({eid: $scope.newExam.id}, newSection, function (section) {
                         toastr.success($translate.instant('sitnet_section_added'));
                         $scope.newExam.examSections.push(section);
-                        $scope.reindexNumbering();
+                        recreateSectionIndices();
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -499,8 +502,7 @@
                         ExamRes.sections.remove({eid: $scope.newExam.id, sid: section.id}, function (id) {
                             toastr.info($translate.instant("sitnet_section_removed"));
                             $scope.newExam.examSections.splice($scope.newExam.examSections.indexOf(section), 1);
-                            $scope.reindexNumbering();
-
+                            recreateSectionIndices();
                         }, function (error) {
                             toastr.error(error.data);
                         });
@@ -870,10 +872,25 @@
                     return examService.getMaxScore(exam);
                 };
 
-                $scope.moveQuestion = function (section, from, to) {
-                    console.log("moving question #" + from + " to #" + to);
+                $scope.moveSection = function (section, from, to) {
+                    console.log("moving section at index " + from + " to index " + to);
                     if (from >= 0 && to >= 0 && from != to) {
-                        ExamRes.reordersection.update({
+                        ExamRes.sectionOrder.update({
+                            eid: $scope.newExam.id,
+                            from: from,
+                            to: to
+                        }, function () {
+                            console.log("moved");
+                            recreateSectionIndices();
+                            toastr.info($translate.instant("sitnet_sections_reordered"));
+                        });
+                    }
+                };
+
+                $scope.moveQuestion = function (section, from, to) {
+                    console.log("moving question at index " + from + " to index " + to);
+                    if (from >= 0 && to >= 0 && from != to) {
+                        ExamRes.questionOrder.update({
                             eid: $scope.newExam.id,
                             sid: section.id,
                             from: from,

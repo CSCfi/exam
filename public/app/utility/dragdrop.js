@@ -37,22 +37,51 @@
             };
         }])
 
+        .directive('sortable', [function () {
+            return {
+                restrict: 'A',
+                scope: {
+                    onMove: '&',
+                    objects: '=',
+                    selection: '@selection'
+                },
+                link: function (scope, element, attrs) {
+                    var startIndex = -1;
+                    element.sortable({
+                        items: scope.selection,
+                        start: function (event, ui) {
+                            // on start we define where the item is dragged from
+                            startIndex = ($(ui.item).index());
+                        },
+                        stop: function (event, ui) {
+                            // on stop we determine the new index of the
+                            // item and store it there
+                            var newIndex = ($(ui.item).index());
+                            var objToMove = scope.objects[startIndex];
+                            scope.objects.splice(startIndex, 1);
+                            scope.objects.splice(newIndex, 0, objToMove);
+                            // we move items in the array, propagete update to angular as well
+                            // since we're outside its lifecycle
+                            scope.onMove({object: objToMove, from: startIndex, to: newIndex});
+                        },
+                        axis: 'y'
+                    });
+
+                    element.disableSelection();
+                }
+            }
+        }])
+
         .directive('droppable', ['DragDropHandler', '$translate', function (DragDropHandler, $translate) {
             return {
                 scope: {
+                    objects: '=',
                     identifier: '=',
-                    droppable: '=',
-                    ngMove: '&',
-                    ngCreate: '&'
+                    onMove: '&',
+                    onCreate: '&'
                 },
                 link: function (scope, element, attrs) {
-
-                    // variables used for dnd
-                    var toUpdate;
                     var startIndex = -1;
-                    scope.$watch('droppable', function (value) {
-                        toUpdate = value;
-                    }, true);
 
                     element.droppable({
                         drop: function (event, ui) {
@@ -62,25 +91,20 @@
                         }
                     });
 
-                    // use jquery to make the element sortable. This is called
-                    // when the element is rendered
                     element.sortable({
                         items: '.sortable-' + scope.identifier,
                         start: function (event, ui) {
-                            // on start we define where the item is dragged from
                             startIndex = ($(ui.item).index());
                         },
                         stop: function (event, ui) {
-                            // on stop we determine the new index of the
-                            // item and store it there
                             var newIndex = ($(ui.item).index());
-                            var toMove = toUpdate[startIndex];
-                            toUpdate.splice(startIndex, 1);
-                            toUpdate.splice(newIndex, 0, toMove);
+                            var toMove = scope.objects[startIndex];
+                            scope.objects.splice(startIndex, 1);
+                            scope.objects.splice(newIndex, 0, toMove);
 
                             // we move items in the array, propagete update to angular as well
-                            // since we're outside angulars lifecycle
-                            scope.ngMove({from: startIndex, to: newIndex});
+                            // since we're outside its lifecycle
+                            scope.onMove({from: startIndex, to: newIndex});
                         },
                         axis: 'y'
                     });
@@ -90,7 +114,7 @@
                         var to = element.children().index(ui.item);
                         if (DragDropHandler.dragObject && to > -1) {
                             scope.$apply(function () {
-                                scope.ngCreate({
+                                scope.onCreate({
                                     object: DragDropHandler.dragObject,
                                     to: to
                                 });

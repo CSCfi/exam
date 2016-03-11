@@ -6,6 +6,7 @@ import models.api.Sortable;
 import models.base.OwnedModel;
 import org.springframework.beans.BeanUtils;
 
+import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,6 +35,8 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     private boolean lotteryOn;
 
     private int lotteryItemCount;
+
+    private String description;
 
     public Set<ExamSectionQuestion> getSectionQuestions() {
         return sectionQuestions;
@@ -91,6 +94,14 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         this.lotteryItemCount = lotteryItemCount;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public void shuffleQuestions() {
         List<ExamSectionQuestion> questions = new ArrayList<>(sectionQuestions);
         Collections.shuffle(questions);
@@ -142,8 +153,8 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     }
 
     @Override
-    public int compareTo(ExamSection o) {
-        return id.intValue() - o.id.intValue();
+    public int compareTo(@Nonnull ExamSection o) {
+        return sequenceNumber - o.sequenceNumber;
     }
 
     @Override

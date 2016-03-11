@@ -204,10 +204,8 @@ public class ExamController extends BaseController {
                 .eq("state", Exam.State.SAVED)
                 .eq("state", Exam.State.PUBLISHED)
                 .endJunction()
-                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
     }
-
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExam(Long id) {

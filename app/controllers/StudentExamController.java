@@ -331,7 +331,7 @@ public class StudentExamController extends BaseController {
                 .fetch("course", "id, code, name, credits, institutionName, department")
                 .fetch("examType", "id, type")
                 .fetch("executionType")
-                .fetch("examSections", "id, name")
+                .fetch("examSections", "id, name, sequenceNumber")
                 .fetch("examSections.sectionQuestions", "sequenceNumber")
                 .fetch("examSections.sectionQuestions.question", "id, type, question, instruction, maxScore, expectedWordCount, evaluationType, expanded")
                 .fetch("examSections.sectionQuestions.question.options", "id, option")

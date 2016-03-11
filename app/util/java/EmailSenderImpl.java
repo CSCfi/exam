@@ -33,6 +33,7 @@ public class EmailSenderImpl implements EmailSender {
     private void doSend(String recipient, String sender, String subject, String content,
                         EmailAttachment... attachments) throws EmailException {
         HtmlEmail email = new HtmlEmail();
+        email.setCharset("utf-8");
         for (EmailAttachment attachment : attachments) {
             email.attach(attachment);
         }

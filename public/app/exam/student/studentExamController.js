@@ -110,6 +110,9 @@
                         );
                     $http.get(url)
                         .success(function (data) {
+                            data.examSections.sort(function (a, b) {
+                                return a.sequenceNumber - b.sequenceNumber;
+                            });
                             $scope.doexam = data;
                             if (data.cloned) {
                                 // we came here with a reference to the parent exam so do not render page just yet,

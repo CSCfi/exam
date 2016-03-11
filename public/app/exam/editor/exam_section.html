@@ -10,7 +10,7 @@
     <div class="col-md-1">
         <span class="fa-stack fa-lg">
             <i class="fa icon-theme fa-stop fa-stack-2x"></i>
-            <i class="fa sitnet-white fa-stack-1x">{{$index+1}}.</i>
+            <i class="fa sitnet-white fa-stack-1x">{{section.index}}.</i>
         </span>
     </div>
     <div class="col-md-5">
@@ -56,9 +56,18 @@
 </div>
 
 <div class="row">
-    <div class="col-md-12" ng-show="section.expanded">
-        <ul droppable="section.sectionQuestions" identifier="section.id" ng-move="moveQuestion(section, from, to)"
-            ng-create="insertQuestion(section, object, to)" class="sortable">
+    <div class="col-md-offset-1 col-md-11">
+        <label class="sitnet-info-text" for="sectionDescription">{{'sitnet_section_description' | translate}}:</label>
+        <textarea id="sectionDescription" class="form-control" rows="4" cols="150" ng-model="section.description"
+                  ui-change="renameSection(section)">
+        </textarea>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-offset-1 col-md-11" ng-show="section.expanded">
+        <ul droppable objects="section.sectionQuestions" identifier="section.id" on-move="moveQuestion(section, from, to)"
+            on-create="insertQuestion(section, object, to)" class="sortable no-padding">
             <li class="sortable-{{section.id}}" ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="templates.question"
                 ng-repeat="sectionQuestion in section.sectionQuestions | orderBy:sequenceNumber">
             </li>

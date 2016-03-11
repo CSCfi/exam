@@ -11,8 +11,13 @@
 
 <div class="row" ng-show="sectionDisplay.visible">
     <div class="col-md-12">
-        <div class="section-border" ng-include="templates.section" ng-model="newExam.examSections"
-             ng-repeat="section in newExam.examSections | orderBy: 'created'">
+        <div sortable objects="newExam.examSections" selection=".section-handle" on-move="moveSection(object, from, to)">
+            <div class="section-border"
+                 ng-class="newExam.examSections.length > 1 ? 'section-handle' : ''"
+                 ng-include="templates.section"
+                 ng-model="newExam.examSections"
+                 ng-repeat="section in newExam.examSections | orderBy: 'sequenceNumber'">
+            </div>
         </div>
         <div class="row">
             <div class="col-md-8 create-new-section">

@@ -1,5 +1,6 @@
 <blockquote><h4>{{$index + 1}}.&nbsp; &nbsp;{{section.name}}</h4></blockquote>
-<div class="sub-content-row col-md-12" ng-repeat="sectionQuestion in section.sectionQuestions">
+<p>{{section.description}}</p>
+<div class="sub-content-row col-md-12" ng-repeat="sectionQuestion in section.sectionQuestions | orderBy: 'sequenceNumber'">
     <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion' ||
                         sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
          ng-include="printMultiChoiceQuestionTemplate">

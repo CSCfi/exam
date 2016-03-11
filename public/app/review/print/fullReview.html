@@ -108,7 +108,7 @@
     </div>
 
     <!-- Sections -->
-    <div class="top-margin-1 col-md-12" ng-repeat="section in exam.examSections"
+    <div class="top-margin-1 col-md-12" ng-repeat="section in exam.examSections | orderBy: 'sequenceNumber'"
          ng-include="printSectionTemplate">
     </div>
 

@@ -661,5 +661,7 @@
   "sitnet_grade_import_file_description": "CSV-tiedoston kenttien tulee olla muodossa <tenttisuorituksen ID>,<arvosanan nimi>,<palaute> (esim: 1234,2,Hyvin meni). Palautetta ei ole pakko määritellä.SV",
   "sitnet_create_grading_template": "Luo CSV-pohja arvosanojen tuontia varten SV",
   "sitnet_machine_name": "Nimi SV",
-  "sitnet_exam_removal_not_possible": "Tenttiä ei voi poistaa, sillä sille löytyy jo suorituksia tai siihen on olemassa varauksia. SV"
+  "sitnet_exam_removal_not_possible": "Tenttiä ei voi poistaa, sillä sille löytyy jo suorituksia tai siihen on olemassa varauksia. SV",
+  "sitnet_section_description": "Aihealueen kuvaus SV",
+  "sitnet_sections_reordered": "Aihealueiden järjestys on päivitetty SV"
 }
