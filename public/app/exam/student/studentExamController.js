@@ -114,12 +114,6 @@
                                 return a.sequenceNumber - b.sequenceNumber;
                             });
                             $scope.doexam = data;
-                            if (data.cloned) {
-                                // we came here with a reference to the parent exam so do not render page just yet,
-                                // reload with reference to student exam that we just created
-                                $location.path('/student/doexam/' + data.hash);
-                                return;
-                            }
                             $scope.activeSection = $scope.doexam.examSections[0];
 
                             // set sections and question numbering
