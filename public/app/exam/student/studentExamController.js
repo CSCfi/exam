@@ -16,7 +16,7 @@
                 $scope.sectionTemplate = EXAM_CONF.TEMPLATES_PATH + "exam/student/section_template.html";
 
                 // section back / forward buttons
-                $scope.pages = ["guide"];
+                $scope.pages = [];
                 $scope.previousButton = {};
                 $scope.nextButton = {};
 
@@ -102,6 +102,37 @@
                     }
                 };
 
+                function createActiveSectionQuestions() {
+                    if (!$scope.activeSection) {
+                        return;
+                    }
+
+                    // Loop through all questions in the active section
+                    angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
+                        var question = sectionQuestion.question;
+                        var template = "";
+                        switch (question.type) {
+                            case "MultipleChoiceQuestion":
+                                setSelections(question);
+                                template = $scope.multipleChoiceOptionTemplate;
+                                break;
+                            case "WeightedMultipleChoiceQuestion":
+                                setSelections(question);
+                                template = $scope.weightedMultipleChoiceOptionTemplate;
+                                break;
+                            case "EssayQuestion":
+                                template = $scope.essayQuestionTemplate;
+                                break;
+                            default:
+                                template = "fa-question-circle";
+                                break;
+                        }
+                        question.template = template;
+                        question.expanded = false;
+                        examService.setQuestionColors(question);
+                    });
+                }
+
                 $scope.doExam = function () {
                     var url = '/app' + (
                             isPreview()
@@ -114,38 +145,20 @@
                                 return a.sequenceNumber - b.sequenceNumber;
                             });
                             $scope.doexam = data;
-                            $scope.activeSection = $scope.doexam.examSections[0];
 
+                            if ($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
+                                // Add guide page
+                                $scope.pages.push('guide');
+                            }
                             // set sections and question numbering
                             angular.forEach($scope.doexam.examSections, function (section, index) {
                                 section.index = index + 1;
-                                $scope.pages.push(section.name);
+                                $scope.pages.push(section.id);
                             });
 
-                            // Loop through all questions in the active section
-                            angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
-                                var question = sectionQuestion.question;
-                                var template = "";
-                                switch (question.type) {
-                                    case "MultipleChoiceQuestion":
-                                        setSelections(question);
-                                        template = $scope.multipleChoiceOptionTemplate;
-                                        break;
-                                    case "WeightedMultipleChoiceQuestion":
-                                        setSelections(question);
-                                        template = $scope.weightedMultipleChoiceOptionTemplate;
-                                        break;
-                                    case "EssayQuestion":
-                                        template = $scope.essayQuestionTemplate;
-                                        break;
-                                    default:
-                                        template = "fa-question-circle";
-                                        break;
-                                }
-                                question.template = template;
-                                question.expanded = false;
-                                examService.setQuestionColors(question);
-                            });
+                            $scope.setActiveSection($scope.pages[0]);
+
+                            createActiveSectionQuestions();
 
                             if (!isPreview()) {
                                 $http.get('/app/examenrolmentroom/' + $scope.doexam.id)
@@ -154,13 +167,6 @@
                                         $scope.currentLanguageText = currentLanguage();
                                     });
                                 startClock();
-                                $scope.activeSection.autosaver = getAutosaver();
-                            }
-                            if ($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
-                                $scope.setActiveSection("guide");
-                            } else if (!isPreview()) {
-                                $scope.pages.splice(0, 1);
-                                $scope.setActiveSection($scope.pages[0]);
                                 $scope.activeSection.autosaver = getAutosaver();
                             }
                         }).error(function () {
@@ -215,91 +221,65 @@
                     if ($scope.guide) {
                         $scope.setActiveSection($scope.pages[1]);
                     } else {
-                        $scope.setActiveSection($scope.pages[$scope.pages.indexOf($scope.activeSection.name) + 1]);
+                        $scope.setActiveSection($scope.pages[$scope.pages.indexOf($scope.activeSection.id) + 1]);
                     }
                 };
 
                 $scope.setPreviousSection = function () {
                     if (!$scope.guide) {
-                        $scope.setActiveSection($scope.pages[$scope.pages.indexOf($scope.activeSection.name) - 1]);
+                        $scope.setActiveSection($scope.pages[$scope.pages.indexOf($scope.activeSection.id) - 1]);
                     }
                 };
 
-                $scope.setActiveSection = function (sectionName) {
+                function findSection(sectionId) {
+                    return $scope.doexam.examSections.find(function (section) {
+                        return sectionId === section.id
+                    });
+                }
+
+                function setNextButton(sectionId) {
+                    var nextPage = $scope.pages[$scope.pages.indexOf(sectionId) + 1];
+                    if (!nextPage) {
+                        $scope.nextButton = {valid: false};
+                        return;
+                    }
+                    $scope.nextButton = {
+                        valid: true,
+                        text: findSection(nextPage).name
+                    };
+                }
+
+                function setPreviousButton(sectionId) {
+                    var previousPage = $scope.pages[$scope.pages.indexOf(sectionId) - 1];
+                    if (!previousPage) {
+                        $scope.previousButton = {valid: false};
+                        return;
+                    }
+                    $scope.previousButton = {valid: true};
+                    if (previousPage !== 'guide') {
+                        $scope.previousButton.text = findSection(sectionId).name;
+                        return;
+                    }
+                    $scope.previousButton.isGuide = true;
+                    $scope.previousButton.text = $translate.instant("sitnet_exam_guide");
+                }
+
+                $scope.setActiveSection = function (sectionId) {
                     if (!isPreview() && $scope.activeSection && !$scope.guide) {
                         saveAllEssaysOfSection($scope.activeSection);
                     }
-                    if (sectionName !== "guide" || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === "guide")) {
-                        // next
-                        if ($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {
-                            $scope.nextButton = {
-                                valid: true,
-                                text: $scope.pages[$scope.pages.indexOf(sectionName) + 1]
-                            };
-                        } else {
-                            $scope.nextButton = {valid: false};
-                        }
-                        // previous
-                        if ($scope.pages[$scope.pages.indexOf(sectionName) - 1]) {
-                            $scope.previousButton = {valid: true};
-                            if ($scope.pages.indexOf(sectionName) - 1 >= 0 && sectionName !== "guide") {
-                                var name = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
-                                if (name === 'guide') {
-                                    $scope.previousButton.isGuide = true;
-                                    name = $translate.instant("sitnet_exam_guide");
-                                }
-                                $scope.previousButton.text = name;
-                            } else {
-                                $scope.previousButton.isGuide = true;
-                                $scope.previousButton.text = $translate.instant("sitnet_exam_guide");
-                            }
-                        } else {
-                            $scope.previousButton = {valid: false};
-                        }
-                    } else {
-                        $scope.guide = true;
-                        $scope.nextButton = {valid: true, text: $scope.pages[1]};
-                        $scope.previousButton = {valid: false};
-                    }
+                    // next
+                    setNextButton(sectionId);
+                    // previous
+                    setPreviousButton(sectionId);
 
                     delete $scope.activeSection;
-                    if (sectionName === "guide") {
+                    if (sectionId === "guide") {
                         $scope.guide = true;
                     } else {
                         $scope.guide = false;
-
-                        angular.forEach($scope.doexam.examSections, function (section, index) {
-                            if (sectionName === section.name) {
-                                $scope.activeSection = section;
-                            }
-                        });
-                    }
-
-                    if ($scope.activeSection) {
-                        // Loop through all questions in the active section
-                        angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
-                            var question = sectionQuestion.question;
-                            var template = "";
-                            switch (question.type) {
-                                case "MultipleChoiceQuestion":
-                                    setSelections(question);
-                                    template = $scope.multipleChoiceOptionTemplate;
-                                    break;
-                                case "WeightedMultipleChoiceQuestion":
-                                    setSelections(question);
-                                    template = $scope.weightedMultipleChoiceOptionTemplate;
-                                    break;
-                                case "EssayQuestion":
-                                    template = $scope.essayQuestionTemplate;
-                                    break;
-                                default:
-                                    template = "fa-question-circle";
-                                    break;
-                            }
-                            question.template = template;
-                            question.expanded = false;
-                            examService.setQuestionColors(question);
-                        });
+                        $scope.activeSection = findSection(sectionId);
+                        createActiveSectionQuestions();
                         cancelAutosavers();
                         if (!isPreview()) {
                             $scope.activeSection.autosaver = getAutosaver();
