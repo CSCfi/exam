@@ -74,7 +74,7 @@ GET           /app/feedback/exams/:eid                                   control
 GET           /app/feedback/exams/:eid/score                             controllers.StudentExamController.getExamScore(eid: Long)
 PUT           /app/student/exams/:hash                                   controllers.StudentExamController.turnExam(hash: String)
 PUT           /app/student/exam/abort/:hash                              controllers.StudentExamController.abortExam(hash: String)
-GET           /app/student/doexam/:hash                                  controllers.StudentExamController.startExam(hash: String)
+POST          /app/student/exam/:hash                                    controllers.StudentExamController.startExam(hash: String)
 GET           /app/enrolments                                            controllers.StudentExamController.getEnrolmentsForUser
 GET           /app/enrolments/:eid                                       controllers.StudentExamController.getEnrolment(eid: Long)
 PUT           /app/enrolments/:eid                                       controllers.EnrollController.updateEnrolment(eid: Long)

@@ -2,7 +2,7 @@
 <div ng-repeat="option in sectionQuestion.question.options" class="exam-answer-options">
     <input type="radio" name="answer_{{sectionQuestion.question.id}}"
            ng-model="sectionQuestion.question.selectedOptions" ng-value="option.id"
-           ng-click="optionSelected(doexam, sectionQuestion.question);" />
+           ng-click="optionSelected(exam, sectionQuestion.question);" />
        {{option.option}}
 </div>
 </div>

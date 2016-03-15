@@ -40,7 +40,7 @@
             $routeProvider.when('/softwares/add/:name', { templateUrl: tmpl + 'facility/software.html', controller: 'RoomCtrl'});
 
             /* Student */
-            $routeProvider.when('/student/doexam/:hash', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController'});
+            $routeProvider.when('/student/exam/:hash', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController'});
             $routeProvider.when('/feedback/exams/:id', { templateUrl: tmpl + 'enrolment/exam_feedback.html', controller: 'ExamFeedbackController'});
             $routeProvider.when('/student/waitingroom', { templateUrl: tmpl + 'enrolment/waitingroom.html', controller: 'WaitingRoomCtrl'});
             $routeProvider.when('/student/wrongmachine', { templateUrl: tmpl + 'enrolment/wrong_machine.html', controller: 'WrongMachineCtrl'});

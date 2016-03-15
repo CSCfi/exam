@@ -55,7 +55,7 @@
                                     $location.path('/student/waitingroom');
                                     $rootScope.$broadcast('upcomingExam');
                                 } else {
-                                    $location.path('/student/doexam/' + hash);
+                                    $location.path('/student/exam/' + hash);
                                     $rootScope.$broadcast('examStarted');
                                 }
                             } else if (enrolmentId) {

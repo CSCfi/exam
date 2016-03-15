@@ -2,7 +2,7 @@
     <div ng-repeat="option in sectionQuestion.question.options" class="exam-answer-options">
         <input type="checkbox" class="optionBox" name="selectedOption"
                ng-value="option.id" ng-checked="sectionQuestion.question.selectedOptions.indexOf(option.id) > -1"
-               ng-click="multiOptionSelected(doexam, sectionQuestion.question)" />
+               ng-click="multiOptionSelected(exam, sectionQuestion.question)" />
            {{option.option}}
     </div>
 </div>

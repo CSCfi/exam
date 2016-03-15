@@ -45,7 +45,7 @@
                                 if (!$scope.timeout) {
                                     var offset = calculateOffset();
                                     $scope.timeout = $timeout(function() {
-                                        $location.path('/student/doexam/' + $scope.enrolment.exam.hash);
+                                        $location.path('/student/exam/' + $scope.enrolment.exam.hash);
                                     }, offset);
                                     toastr.info($translate.instant('sitnet_redirect_to_exam_offset') + " " +
                                         Math.round(offset / 1000 / 60) + " " + $translate.instant('sitnet_minutes') + ". " +

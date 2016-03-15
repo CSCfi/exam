@@ -39,8 +39,8 @@
                 };
 
                 function cancelAutosavers() {
-                    if ($scope.doexam) {
-                        angular.forEach($scope.doexam.examSections, function (section) {
+                    if ($scope.exam) {
+                        angular.forEach($scope.exam.examSections, function (section) {
                             if (section.autosaver) {
                                 $interval.cancel(section.autosaver);
                             }
@@ -133,25 +133,26 @@
                     });
                 }
 
-                $scope.doExam = function () {
+                $scope.startExam = function () {
+                    var request = isPreview() ? $http.get : $http.post;
                     var url = '/app' + (
                             isPreview()
                                 ? '/exampreview/' + $routeParams.id
-                                : '/student/doexam/' + $routeParams.hash
+                                : '/student/exam/' + $routeParams.hash
                         );
-                    $http.get(url)
+                    request(url)
                         .success(function (data) {
                             data.examSections.sort(function (a, b) {
                                 return a.sequenceNumber - b.sequenceNumber;
                             });
-                            $scope.doexam = data;
+                            $scope.exam = data;
 
-                            if ($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
+                            if ($scope.exam.instruction && $scope.exam.instruction.length > 0) {
                                 // Add guide page
                                 $scope.pages.push('guide');
                             }
                             // set sections and question numbering
-                            angular.forEach($scope.doexam.examSections, function (section, index) {
+                            angular.forEach($scope.exam.examSections, function (section, index) {
                                 section.index = index + 1;
                                 $scope.pages.push(section.id);
                             });
@@ -161,7 +162,7 @@
                             createActiveSectionQuestions();
 
                             if (!isPreview()) {
-                                $http.get('/app/examenrolmentroom/' + $scope.doexam.id)
+                                $http.get('/app/examenrolmentroom/' + $scope.exam.id)
                                     .success(function (data) {
                                         $scope.info = data;
                                         $scope.currentLanguageText = currentLanguage();
@@ -214,7 +215,7 @@
 
                 // if id -> preview
                 if ($routeParams.hash || isPreview()) {
-                    $scope.doExam();
+                    $scope.startExam();
                 }
 
                 $scope.setNextSection = function () {
@@ -232,7 +233,7 @@
                 };
 
                 function findSection(sectionId) {
-                    return $scope.doexam.examSections.find(function (section) {
+                    return $scope.exam.examSections.find(function (section) {
                         return sectionId === section.id
                     });
                 }
@@ -303,7 +304,7 @@
                     enrolmentService.showMaturityInstructions({exam: exam});
                 };
 
-                $scope.multiOptionSelected = function (doexam, question) {
+                $scope.multiOptionSelected = function (exam, question) {
                     var ids = [];
                     var boxes = angular.element(".optionBox");
                     angular.forEach(boxes, function (input) {
@@ -313,7 +314,7 @@
                     });
                     if (!isPreview()) {
                         StudentExamRes.multipleChoiceAnswer.saveMultipleChoice({
-                                hash: doexam.hash,
+                                hash: exam.hash,
                                 qid: question.id,
                                 oids: ids.join() || 'none'
                             },
@@ -338,10 +339,10 @@
 
                 };
 
-                $scope.optionSelected = function (doexam, question) {
+                $scope.optionSelected = function (exam, question) {
                     if (!isPreview()) {
                         StudentExamRes.multipleChoiceAnswer.saveMultipleChoice({
-                                hash: doexam.hash,
+                                hash: exam.hash,
                                 qid: question.id,
                                 oids: Array.isArray(question.selectedOptions) ?
                                     question.selectedOptions.join() : question.selectedOptions
@@ -382,7 +383,7 @@
                     } else {
                         var deferred = $q.defer();
                         var params = {
-                            hash: $scope.doexam.hash,
+                            hash: $scope.exam.hash,
                             qid: question.id
                         };
                         var msg = {
@@ -425,7 +426,7 @@
                 var saveAllEssays = function () {
                     var deferred = $q.defer();
                     var promises = [];
-                    $scope.doexam.examSections.forEach(function (section) {
+                    $scope.exam.examSections.forEach(function (section) {
                         section.sectionQuestions.filter(function (sq) {
                             return sq.question.type === "EssayQuestion" && sq.question.answer &&
                                 sq.question.answer.answer.length > 0;
@@ -462,8 +463,8 @@
 
                 $scope.timeChecked = false;
                 var getRemainingTime = function () {
-                    if ($scope.doexam && $scope.doexam.id) {
-                        var req = $http.get('/app/time/' + $scope.doexam.id);
+                    if ($scope.exam && $scope.exam.id) {
+                        var req = $http.get('/app/time/' + $scope.exam.id);
                         req.success(function (reply) {
                             $scope.timeChecked = true;
                             $scope.remainingTime = parseInt(reply);
@@ -472,7 +473,7 @@
                 };
 
                 var logout = function (msg) {
-                    StudentExamRes.exams.update({hash: $scope.doexam.hash}, function () {
+                    StudentExamRes.exams.update({hash: $scope.exam.hash}, function () {
                         toastr.info($translate.instant(msg), {timeOut: 5000});
                         $timeout.cancel($scope.remainingTimePoller);
                         cancelAutosavers();
@@ -484,7 +485,7 @@
                 };
 
                 // Called when the save and exit button is clicked
-                $scope.saveExam = function (doexam) {
+                $scope.saveExam = function (exam) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_turn_exam'));
                     dialog.result.then(function () {
                         saveAllEssays().then(function () {
@@ -494,10 +495,10 @@
                 };
 
                 // Called when the abort button is clicked
-                $scope.abortExam = function (doexam) {
+                $scope.abortExam = function (exam) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
                     dialog.result.then(function (btn) {
-                        StudentExamRes.exam.abort({hash: doexam.hash}, {data: doexam}, function () {
+                        StudentExamRes.exam.abort({hash: exam.hash}, {data: exam}, function () {
                             toastr.info($translate.instant('sitnet_exam_aborted'), {timeOut: 5000});
                             $timeout.cancel($scope.remainingTimePoller);
                             cancelAutosavers();
@@ -532,7 +533,7 @@
                 var updateCheck = 15;
                 var updateInterval = 0;
                 var startClock = function () {
-                    if ($scope.doexam) {
+                    if ($scope.exam) {
                         updateInterval++;
 
                         $scope.remainingTimePoller = $timeout(startClock, 1000);
@@ -599,7 +600,7 @@
 
                     modalInstance.result.then(function () {
                         // OK button
-                        $location.path('/student/doexam/' + $routeParams.hash);
+                        $location.path('/student/exam/' + $routeParams.hash);
                     }, function () {
                         // Cancel button
                     });
