@@ -656,7 +656,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                 .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
                 .fetch("executionType")
                 .fetch("examSections")
-                .fetch("examSections.sectionQuestions")
+                .fetch("examSections.sectionQuestions", new FetchConfig().query())
                 .fetch("examSections.sectionQuestions.question")
                 .fetch("examSections.sectionQuestions.question.attachment")
                 .fetch("examSections.sectionQuestions.question.options")
