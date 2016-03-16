@@ -260,7 +260,7 @@ public class ExamController extends BaseController {
                 .fetch("examType")
                 .fetch("executionType")
                 .fetch("examSections")
-                .fetch("examSections.sectionQuestions")
+                .fetch("examSections.sectionQuestions", new FetchConfig().query())
                 .fetch("examSections.sectionQuestions.question")
                 .fetch("examSections.sectionQuestions.question.attachment")
                 .fetch("examSections.sectionQuestions.question.options")
