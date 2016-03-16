@@ -123,9 +123,6 @@ public class ExamControllerTest extends IntegrationTestCase {
         JsonNode node = Json.parse(contentAsString(result));
         assertPathsExist(node, getExamFields());
         assertPathCounts(node, 3, getExamSectionFieldsOfExam("*"));
-        assertPathCounts(node, 2, getSectionQuestionFieldsOfSection("0", "*"));
-        assertPathCounts(node, 3, getSectionQuestionFieldsOfSection("1", "*"));
-        assertPathCounts(node, 3, getSectionQuestionFieldsOfSection("2", "*"));
         assertPathCounts(node, 2, "softwares[*].id", "softwares[*].name");
         assertPathCounts(node, 4, "examLanguages[*].code");
 
@@ -167,18 +164,11 @@ public class ExamControllerTest extends IntegrationTestCase {
     }
 
     private String[] getExamSectionFieldsOfExam(String index) {
-        String[] fields = {"name", "id", "expanded", "lotteryOn", "lotteryItemCount"};
+        String[] fields = {"name", "id", "expanded", "lotteryOn", "sequenceNumber", "description", "lotteryItemCount"};
         for (int i = 0; i < fields.length; ++i) {
             fields[i] = "examSections[" + index + "]." + fields[i];
         }
         return fields;
     }
 
-    private String[] getSectionQuestionFieldsOfSection(String sectionIndex, String sectionQuestionIndex) {
-        String[] fields = {"sequenceNumber", "question", "question.question", "question.answer"};
-        for (int i = 0; i < fields.length; ++i) {
-            fields[i] = "examSections[" + sectionIndex + "].sectionQuestions[" + sectionQuestionIndex + "]." + fields[i];
-        }
-        return fields;
-    }
 }
