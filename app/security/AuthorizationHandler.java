@@ -2,7 +2,6 @@ package security;
 
 import be.objectify.deadbolt.java.DeadboltHandler;
 import be.objectify.deadbolt.java.DynamicResourceHandler;
-import be.objectify.deadbolt.java.models.Permission;
 import be.objectify.deadbolt.java.models.Subject;
 import com.avaje.ebean.Ebean;
 import controllers.BaseController;
@@ -21,27 +20,10 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 
-public class MyDeadboltHandler implements DeadboltHandler {
+public class AuthorizationHandler implements DeadboltHandler {
 
     // Can't use DI here
     private Cache cache = CacheManager.getInstance().getCache("play");
-
-    private DynamicResourceHandler handler = new DynamicResourceHandler() {
-        @Override
-        public CompletionStage<Boolean> isAllowed(String s, String s1, DeadboltHandler deadboltHandler, Http.Context context) {
-            return CompletableFuture.supplyAsync(() -> true);
-        }
-
-        @Override
-        public CompletionStage<Boolean> checkPermission(String s, DeadboltHandler deadboltHandler, Http.Context context) {
-            return deadboltHandler.getSubject(context).thenApplyAsync(subject ->
-                    subject.isPresent() && subject.get().getPermissions().stream()
-                            .map(Permission::getValue)
-                            .collect(Collectors.toList())
-                            .contains(s)
-            );
-        }
-    };
 
     @Override
     public CompletableFuture<Optional<Result>> beforeAuthCheck(Http.Context context) {
@@ -74,7 +56,7 @@ public class MyDeadboltHandler implements DeadboltHandler {
 
     @Override
     public CompletionStage<Optional<DynamicResourceHandler>> getDynamicResourceHandler(Http.Context context) {
-        return CompletableFuture.supplyAsync(() -> Optional.of(handler));
+        return CompletableFuture.supplyAsync(Optional::empty);
     }
 
 

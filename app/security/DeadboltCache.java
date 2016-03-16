@@ -11,7 +11,7 @@ import java.util.Map;
 @Singleton
 public class DeadboltCache implements HandlerCache {
 
-    private final DeadboltHandler defaultHandler = new security.MyDeadboltHandler();
+    private final DeadboltHandler defaultHandler = new AuthorizationHandler();
 
     private final Map<String, DeadboltHandler> handlers = new HashMap<>();
 
