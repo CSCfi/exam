@@ -75,7 +75,7 @@
 </div>
 
 <!-- EXIT / SAVE / ABORT -->
-<div class="col-md-12 top-padding-2" ng-show="!isPreview()">
+<div class="col-md-12 top-padding-2" ng-show="isPreview()">
     <div class="row pointer" ng-click="exitPreview(exam)">
         <a class="col-md-1 fa-stack">
             <i class="fa fa-stop-o fa-stack-2x"></i>
@@ -87,7 +87,7 @@
         </div>
     </div>
 </div>
-<div class="col-md-12 top-padding-2" ng-hide="!isPreview()">
+<div class="col-md-12 top-padding-2" ng-hide="isPreview()">
     <div class="row pointer" ng-click="saveExam(exam)">
         <a class="col-md-1 fa-stack">
             <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
@@ -99,7 +99,7 @@
         </div>
     </div>
 </div>
-<div class="col-md-12 separated-item" ng-hide="!isPreview()">
+<div class="col-md-12 separated-item" ng-hide="isPreview()">
     <div class="row pointer" ng-click="abortExam(exam)">
         <a class="col-md-1 fa-stack">
             <i class="fa fa-stop-o fa-stack-2x"></i>
