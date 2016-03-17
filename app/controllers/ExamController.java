@@ -3,10 +3,7 @@ package controllers;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.Model;
-import com.avaje.ebean.Query;
+import com.avaje.ebean.*;
 import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -242,12 +239,24 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamPreview(Long id) {
-
-        Exam exam = doGetExam(id);
+        User user = getLoggedUser();
+        Exam exam =  Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("executionType")
+                .fetch("examSections")
+                .fetch("examSections.sectionQuestions", new FetchConfig().query())
+                .fetch("examSections.sectionQuestions.question")
+                .fetch("examSections.sectionQuestions.question.attachment")
+                .fetch("examSections.sectionQuestions.question.options")
+                .fetch("attachment")
+                .fetch("creator")
+                .fetch("examOwners")
+                .where()
+                .idEq(id)
+                .findUnique();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        User user = getLoggedUser();
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) ||
                 getLoggedUser().hasRole("ADMIN", getSession())) {
             exam.getExamSections().stream().filter(ExamSection::getLotteryOn).forEach(ExamSection::shuffleQuestions);

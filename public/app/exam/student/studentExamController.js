@@ -289,8 +289,15 @@
                     window.scrollTo(0, 0);
                 };
 
+                $scope.calculateMaxPointsOfWeightedMcq = function (question) {
+                    return questionService.calculateMaxPoints(question);
+                };
+
                 $scope.getUser = function () {
                     var user = sessionService.getUser();
+                    if (!user) {
+                        return;
+                    }
                     var userNo = user.userNo ? ' (' + user.userNo + ')' : '';
                     return user.firstname + " " + user.lastname + userNo;
                 };

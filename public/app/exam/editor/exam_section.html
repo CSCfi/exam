@@ -81,18 +81,18 @@
                 <div class="col-md-11">
                     <span>{{'sitnet_add_content'|translate}}</span>
                 </div>
-                <ul class="dropdown-menu" role="menu">
-                    <li role="presentation">
-                        <a role="menuitem" ng-click="createQuestionFromExamView('EssayQuestion', section)">{{ 'sitnet_essay' | translate }}</a>
-                    </li>
-                    <li role="presentation">
-                        <a role="menuitem" ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_multiplechoice_question' | translate }}</a>
-                    </li>
-                    <li role="presentation">
-                        <a role="menuitem" ng-click="createQuestionFromExamView('WeightedMultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_weighted_multiplechoice_question' | translate }}</a>
-                    </li>
-                </ul>
             </div>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation">
+                    <a role="menuitem" ng-click="createQuestionFromExamView('EssayQuestion', section)">{{ 'sitnet_essay' | translate }}</a>
+                </li>
+                <li role="presentation">
+                    <a role="menuitem" ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_multiplechoice_question' | translate }}</a>
+                </li>
+                <li role="presentation">
+                    <a role="menuitem" ng-click="createQuestionFromExamView('WeightedMultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_weighted_multiplechoice_question' | translate }}</a>
+                </li>
+            </ul>
         </div>
     </div>
 </div>

@@ -285,8 +285,8 @@ public class ExamSectionController extends BaseController {
                 .fetch("examSectionQuestion.examSection.exam.examOwners")
                 .where()
                 .idEq(qid)
-                .eq("examSection.id", sid)
-                .eq("examSection.exam.id", eid)
+                .eq("examSectionQuestion.examSection.id", sid)
+                .eq("examSectionQuestion.examSection.exam.id", eid)
                 .findUnique();
         if (question == null) {
             return notFound("sitnet_error_not_found");

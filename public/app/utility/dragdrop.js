@@ -66,8 +66,6 @@
                         },
                         axis: 'y'
                     });
-
-                    element.disableSelection();
                 }
             }
         }])
@@ -110,6 +108,7 @@
                     });
 
                     element.disableSelection();
+
                     element.on("sortdeactivate", function (event, ui) {
                         var to = element.children().index(ui.item);
                         if (DragDropHandler.dragObject && to > -1) {
