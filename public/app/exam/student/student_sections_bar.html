@@ -1,11 +1,13 @@
-<ul class="toolbar-item list-muted">
+<ul class="list-muted">
+
     <li class="row pointer" ng-if="doexam.instruction.length > 0" ng-click="setActiveSection(pages[0])">
         <a class="fa-stack col-md-1">
             <i ng-class="guide ? 'sitnet-text-notice' : 'sitnet-text-medium'" class="fa fa-stop fa-stack-2x"></i>
             <i ng-class="guide ? 'sitnet-text' : 'sitnet-white'" class="fa fa-info-circle fa-stack-1x"></i>
         </a>
         <div class="col-md-11 vcenter" ng-class="guide ? 'sitnet-text' : 'sitnet-text-dark'"
-              class="icon_fix">{{'sitnet_exam_guide' | translate}}</div>
+             class="icon_fix">{{'sitnet_exam_guide' | translate}}
+        </div>
     </li>
     <li class="row pointer" ng-repeat="section in doexam.examSections" ng-click="setActiveSection(section.name)"
         popover-placement="left" popover-popup-delay="1000" popover-trigger="mouseenter"
@@ -18,11 +20,94 @@
             <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-white' "
                class="fa-stack-1x">{{section.index}}.</i>
         </div>
-        <div class="col-md-6 vcenter" ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-text-dark'">{{section.name}}</div>
-        <div class="col-md-5 pull-right vcenter">
+        <div class="col-md-8 vcenter"
+             ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-text-dark'">
+            {{section.name}}
+        </div>
+        <div class="col-md-3 pull-right vcenter">
             <span class="pull-left sitnet-text-ready bold">{{ getQuestionAmount(section,'answered') }}</span>
             <span class="pull-left horizontal-padding-05"> / </span>
             <span class="pull-left bold">{{ getQuestionAmount(section,'total') }}</span>
         </div>
     </li>
 </ul>
+<!-- ATTACHMENT -->
+<div class="col-md-12 top-padding-2" ng-show="doexam.attachment"
+     ng-controller="AttachmentController">
+    <div class="row pointer" ng-click="downloadExamAttachment(doexam)">
+        <a class="col-md-1 fa-stack">
+            <i class="fa fa-stop fa-stack-2x"/>
+            <i class="fa fa-file sitnet-white fa-stack-1x"/>
+        </a>
+
+        <div class="col-md-11 vcenter">
+            {{'sitnet_exam_attachment' | translate}}:&nbsp;({{doexam.attachment.fileName}})
+        </div>
+    </div>
+</div>
+
+<!-- INSTRUCTIONS -->
+<div class="col-md-12" ng-hide="doexam.executionType.type==='MATURITY'">
+    <div class="row pointer" popover-placement="left" popover-trigger="click"
+         uib-popover="{{ currentLanguageText }}">
+        <a class="col-md-1 fa-stack">
+            <i class="fa fa-stop fa-stack-2x"></i>
+            <i class="fa fa-info-circle sitnet-white fa-stack-1x"/>
+        </a>
+        <div class="col-md-11 vcenter">
+            {{'sitnet_room_guidance' | translate}}
+        </div>
+    </div>
+</div>
+
+<!-- MATURITY INSTRUCTIONS -->
+<div class="col-md-12" ng-click="showMaturityInstructions(doexam)"
+     ng-show="doexam.executionType.type==='MATURITY'">
+    <div class="row pointer">
+        <a class="col-md-1 fa-stack">
+            <i class="fa fa-stop fa-stack-2x"></i>
+            <i class="fa fa-info-circle sitnet-white fa-stack-1x"/>
+        </a>
+        <div class="col-md-11 vcenter">
+            {{'sitnet_maturity_instructions' | translate}}
+        </div>
+    </div>
+</div>
+
+<!-- EXIT / SAVE / ABORT -->
+<div class="col-md-12 top-padding-2" ng-show="!isPreview()">
+    <div class="row pointer" ng-click="exitPreview(doexam)">
+        <a class="col-md-1 fa-stack">
+            <i class="fa fa-stop-o fa-stack-2x"></i>
+            <i class="fa fa-ban fa-stack-2x sitnet-text-alarm"/>
+        </a>
+
+        <div class="col-md-11 vcenter">
+            {{'sitnet_exit_preview' | translate}}
+        </div>
+    </div>
+</div>
+<div class="col-md-12 top-padding-2" ng-hide="!isPreview()">
+    <div class="row pointer" ng-click="saveExam(doexam)">
+        <a class="col-md-1 fa-stack">
+            <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
+            <i class="fa fa-arrow-circle-right sitnet-white fa-stack-1x"></i>
+        </a>
+
+        <div class="col-md-11 vcenter">
+            {{'sitnet_save_and_return_exam' | translate}}
+        </div>
+    </div>
+</div>
+<div class="col-md-12 separated-item" ng-hide="!isPreview()">
+    <div class="row pointer" ng-click="abortExam(doexam)">
+        <a class="col-md-1 fa-stack">
+            <i class="fa fa-stop-o fa-stack-2x"></i>
+            <i class="fa fa-ban fa-stack-2x sitnet-text-alarm"/>
+        </a>
+
+        <div class="col-md-11 vcenter">
+            {{'sitnet_abort_exam' | translate}}
+        </div>
+    </div>
+</div>

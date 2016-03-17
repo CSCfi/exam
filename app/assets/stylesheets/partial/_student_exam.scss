@@ -17,7 +17,6 @@
     padding: 0;
     width: 400px;
     margin-left: -400px;
-
     .floating-clock {
 
       .header-wrapper {
@@ -89,8 +88,8 @@
 
   .question-text {
     display: inline;
+    padding-top: 1em;
     margin: 0;
-    padding: 0.7em 0 0 0.5em;
     line-height: 1.5em;
     font-size: 0.9em;
 
@@ -157,17 +156,24 @@
     background-color: yellow;
   }
 
+  .question-type-text {
+    line-height: 35px;
+  }
+
   .toolbar-item {
     margin-left: 1em;
   }
 
   .separated-item {
-    margin-top: 4em;
+    margin-top: 2em;
   }
 
   .list-muted {
     list-style: none;
-    padding: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    height: 200px;
+    padding: 0 0 0 15px;
   }
 
   .vcenter {
