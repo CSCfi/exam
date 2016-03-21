@@ -47,7 +47,7 @@ public class StudentExamController extends BaseController {
     @Restrict({@Group("STUDENT")})
     public CompletionStage<Result> listAvailableExams(final Optional<String> filter) throws MalformedURLException {
         if (!PERM_CHECK_ACTIVE) {
-            return wrapAsPromise(listExams(filter, Collections.<String>emptyList()));
+            return wrapAsPromise(listExams(filter, Collections.emptyList()));
         }
         return externalAPI.getPermittedCourses(getLoggedUser())
                 .thenApplyAsync(codes ->
@@ -313,6 +313,9 @@ public class StudentExamController extends BaseController {
                     .where()
                     .eq("id", enrolment.getReservation().getMachine().getRoom().getId())
                     .findUnique();
+            if (examRoom == null) {
+                return notFound();
+            }
             String message = "sitnet_wrong_exam_machine " + examRoom.getName()
                     + ", " + examRoom.getMailAddress().toString()
                     + ", sitnet_exam_machine " + enrolment.getReservation().getMachine().getName();
@@ -391,7 +394,9 @@ public class StudentExamController extends BaseController {
                 .eq("creator", user)
                 .eq("hash", hash)
                 .findUnique();
-
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         ExamParticipation p = Ebean.find(ExamParticipation.class)
                 .where()
                 .eq("exam.id", exam.getId())
@@ -428,7 +433,9 @@ public class StudentExamController extends BaseController {
     public Result abortExam(String hash) {
         User user = getLoggedUser();
         Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findUnique();
-
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         ExamParticipation p = Ebean.find(ExamParticipation.class)
                 .where()
                 .eq("exam.id", exam.getId())
@@ -613,9 +620,9 @@ public class StudentExamController extends BaseController {
         recipients.addAll(exam.getParent().getExamOwners());
         recipients.addAll(exam.getExamInspections().stream().map(
                 ExamInspection::getUser).collect(Collectors.toSet()));
-        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer);
-        }, actor.dispatcher());
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
+                () -> AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer),
+                actor.dispatcher());
     }
 
 }

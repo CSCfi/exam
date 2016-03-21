@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
-@ImplementedBy(Interfaces.class)
+@ImplementedBy(IntegrationController.class)
 public interface ExternalAPI {
     CompletionStage<Collection<String>> getPermittedCourses(User user) throws MalformedURLException;
     CompletionStage<List<Course>> getCourseInfoByCode(User user, String code) throws MalformedURLException;

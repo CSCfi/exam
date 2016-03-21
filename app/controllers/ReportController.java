@@ -20,7 +20,9 @@ public class ReportController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result listDepartments() {
         List<Course> courses = Ebean.find(Course.class).where().isNotNull("department").findList();
-        Set<String> departments = courses.stream().map(Course::getDepartment).collect(Collectors.toSet());
+        Set<String> departments = courses.stream()
+                .map(Course::getDepartment)
+                .collect(Collectors.toSet());
         ObjectNode node = Json.newObject();
         ArrayNode arrayNode = node.putArray("departments");
         departments.forEach(arrayNode::add);
@@ -74,7 +76,7 @@ public class ReportController extends BaseController {
     }
 
     // DTO for minimizing output from this API
-    class ExamInfo {
+    private class ExamInfo {
         String name;
         Integer participations;
         String state;

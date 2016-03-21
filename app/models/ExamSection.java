@@ -123,7 +123,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     }
 
     @Transient
-    public double getTotalScore() {
+    double getTotalScore() {
         return sectionQuestions.stream()
                 .map(sq -> sq.getQuestion().getAssessedScore())
                 .filter(s -> s != null)
@@ -131,7 +131,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     }
 
     @Transient
-    public double getMaxScore() {
+    double getMaxScore() {
         return sectionQuestions.stream()
                 .map(sq -> sq.getQuestion().getMaxAssessedScore())
                 .filter(s -> s != null)
@@ -139,14 +139,14 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     }
 
     @Transient
-    public int getRejectedCount() {
+    int getRejectedCount() {
         return sectionQuestions.stream()
                 .filter(sq -> sq.getQuestion().isRejected())
                 .collect(Collectors.toList()).size();
     }
 
     @Transient
-    public int getApprovedCount() {
+    int getApprovedCount() {
         return sectionQuestions.stream()
                 .filter(sq -> sq.getQuestion().isApproved())
                 .collect(Collectors.toList()).size();

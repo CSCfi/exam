@@ -183,6 +183,9 @@ public class StatisticsController extends BaseController {
         Exam proto = Ebean.find(Exam.class).fetch("examEnrolments").fetch("examEnrolments.user")
                 .fetch("examEnrolments.reservation").fetch("course")
                 .where().eq("id", id).isNull("parent").findUnique();
+        if (proto == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("enrolments");
         String[] headers = {"student name", "student ID", "student EPPN", "reservation time", "enrolment time"};
@@ -332,6 +335,10 @@ public class StatisticsController extends BaseController {
         final DateTime end = DateTime.parse(to, DTF);
 
         User student = Ebean.find(User.class, studentId);
+        if (student == null) {
+            return notFound("sitnet_error_not_found");
+        }
+
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
                 .where()
@@ -381,6 +388,9 @@ public class StatisticsController extends BaseController {
                     .eq("user.id", p.getUser().getId())
                     .eq("exam.id", p.getExam().getId())
                     .findUnique();
+            if (enrolment == null) {
+                continue;
+            }
             List<String> data = new ArrayList<>();
             if (includeStudentInfo) {
                 data.add(Long.toString(p.getUser().getId()));
@@ -427,14 +437,14 @@ public class StatisticsController extends BaseController {
     }
 
     // Base64-encode workbook
-    public static String encode(Workbook wb) throws IOException {
+    private static String encode(Workbook wb) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         wb.write(bos);
         bos.close();
         return Base64.getEncoder().encodeToString(bos.toByteArray());
     }
 
-    public static void addHeader(Sheet sheet, String[] headers) {
+    private static void addHeader(Sheet sheet, String[] headers) {
         Row headerRow = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
             headerRow.createCell(i).setCellValue(headers[i]);

@@ -22,9 +22,10 @@ import java.util.stream.Collectors;
 public class SettingsController  extends BaseController {
 
     @Inject
-    protected Langs langs;
+    private Langs langs;
+    
     @Inject
-    protected Environment environment;
+    private Environment environment;
 
     public static GeneralSettings getOrCreateSettings(String name, String value, String defaultValue) {
         GeneralSettings gs = Ebean.find(GeneralSettings.class).where().eq("name", name).findUnique();
@@ -145,6 +146,7 @@ public class SettingsController  extends BaseController {
         return ok(Json.toJson(node));
     }
 
+    @ActionMethod
     public Result isProd() {
         ObjectNode node = Json.newObject();
         node.put("isProd", environment.isProd());

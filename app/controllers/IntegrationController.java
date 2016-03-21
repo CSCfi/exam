@@ -36,7 +36,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class Interfaces extends BaseController implements ExternalAPI {
+public class IntegrationController extends BaseController implements ExternalAPI {
 
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
@@ -50,15 +50,15 @@ public class Interfaces extends BaseController implements ExternalAPI {
         SORTED_MAPPER.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
     }
 
-    public static class RemoteException extends Exception {
+    private static class RemoteException extends Exception {
 
-        public RemoteException(String message) {
+        RemoteException(String message) {
             super(message);
         }
     }
 
     @FunctionalInterface
-    public interface RemoteFunction<T, R> extends Function<T, R> {
+    private interface RemoteFunction<T, R> extends Function<T, R> {
         @Override
         default R apply(T t) {
             try {
@@ -224,11 +224,13 @@ public class Interfaces extends BaseController implements ExternalAPI {
         return scales;
     }
 
+    @ActionMethod
     public Result getNewRecords(String startDate) {
         return ok(Json.toJson(getScores(startDate)));
     }
 
     // for testing purposes
+    @ActionMethod
     public Result getNewRecordsAlphabeticKeyOrder(String startDate) {
         try {
             return ok(convertNode(Json.toJson(getScores(startDate))));

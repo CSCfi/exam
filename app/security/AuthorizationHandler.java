@@ -20,7 +20,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 
-public class AuthorizationHandler implements DeadboltHandler {
+class AuthorizationHandler implements DeadboltHandler {
 
     // Can't use DI here
     private Cache cache = CacheManager.getInstance().getCache("play");
@@ -50,7 +50,7 @@ public class AuthorizationHandler implements DeadboltHandler {
     }
 
     @Override
-    public CompletableFuture<Result> onAuthFailure(Http.Context context, String content) {
+    public CompletionStage<Result> onAuthFailure(Http.Context context, Optional<String> optional) {
         return CompletableFuture.supplyAsync(() -> Results.forbidden("Authentication failure"));
     }
 

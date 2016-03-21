@@ -130,6 +130,9 @@ public class EnrollController extends BaseController {
             enrolment = Ebean.find(ExamEnrolment.class).fetch("exam")
                     .where().idEq(id).findUnique();
         }
+        if (enrolment == null) {
+            return notFound("enrolment not found");
+        }
         // Disallow removing enrolments to private exams created automatically for student
         if (enrolment.getExam().isPrivate()) {
             return forbidden();
@@ -231,6 +234,9 @@ public class EnrollController extends BaseController {
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result createStudentEnrolment(Long eid, Long uid) {
         Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         User user = Ebean.find(User.class, uid);
         return doCreateEnrolment(eid, ExamExecutionType.Type.valueOf(exam.getExecutionType().getType()), user);
     }

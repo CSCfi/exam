@@ -275,7 +275,9 @@ public class ReviewController extends BaseController {
                 .ne("user.id", loggedUser.getId())
                 .findList();
 
-        Set<User> recipients = inspections.stream().map(ExamInspection::getUser).collect(Collectors.toSet());
+        Set<User> recipients = inspections.stream()
+                .map(ExamInspection::getUser)
+                .collect(Collectors.toSet());
 
         // add owners to list, except those how are already in the list and self
         if (exam.getParent() != null) {
@@ -316,8 +318,10 @@ public class ReviewController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertComment(Long eid, Long cid) {
-
         Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden();
         }
@@ -334,6 +338,9 @@ public class ReviewController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateComment(Long eid, Long cid) {
         Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden();
         }

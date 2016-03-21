@@ -367,7 +367,7 @@ public class ExamRoom extends GeneratedIdentityModel {
         private final Interval hours;
         private final int timezoneOffset;
 
-        public OpeningHours(Interval interval, int timezoneOffset) {
+        OpeningHours(Interval interval, int timezoneOffset) {
             this.hours = interval;
             this.timezoneOffset = timezoneOffset;
         }

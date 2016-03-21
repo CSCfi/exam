@@ -9,7 +9,7 @@ import javax.persistence.Version;
 public abstract class VersionedModel extends Model {
 
     @Version
-    protected long objectVersion;
+    private long objectVersion;
 
     public long getObjectVersion() {
         return objectVersion;

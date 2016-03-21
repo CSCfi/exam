@@ -24,18 +24,18 @@ import java.util.concurrent.CompletionStage;
 
 public class BaseController extends Controller {
 
-    public static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
     public static final String SITNET_CACHE_KEY = "user.session.";
-    public static final int SITNET_TIMEOUT_MINUTES = 30;
+    private static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
+    static final int SITNET_TIMEOUT_MINUTES = 30;
 
-    protected static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
+    static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
 
     @Inject
     protected CacheApi cache;
     @Inject
     protected FormFactory formFactory;
 
-    public <T> T bindForm(final Class<T> clazz) {
+    <T> T bindForm(final Class<T> clazz) {
         final Form<T> form = formFactory.form(clazz);
         if (form.hasErrors()) {
             throw new MalformedDataException(form.errorsAsJson().asText());
@@ -102,17 +102,17 @@ public class BaseController extends Controller {
         return cache.get(SITNET_CACHE_KEY + getToken());
     }
 
-    protected void updateSession(Session session) {
+    void updateSession(Session session) {
         cache.set(SITNET_CACHE_KEY + getToken(), session);
     }
 
-    protected String createSession(Session session) {
+    String createSession(Session session) {
         String token = createToken();
         cache.set(SITNET_CACHE_KEY + token, session);
         return token;
     }
 
-    protected List<String> parseArrayFieldFromBody(String field) {
+    List<String> parseArrayFieldFromBody(String field) {
         DynamicForm df = formFactory.form().bindFromRequest();
         String args = df.get(field);
         String[] array;
@@ -124,7 +124,7 @@ public class BaseController extends Controller {
         return Arrays.asList(array);
     }
 
-    protected <T> ExpressionList<T> applyUserFilter(String prefix, ExpressionList<T> query, String filter) {
+    <T> ExpressionList<T> applyUserFilter(String prefix, ExpressionList<T> query, String filter) {
         String rawFilter = filter.replaceAll(" +", " ").trim();
         String condition = String.format("%%%s%%", rawFilter);
         String fnField = prefix == null ? "firstName" : String.format("%s.firstName", prefix);
@@ -147,7 +147,7 @@ public class BaseController extends Controller {
         return query;
     }
 
-    protected CompletionStage<Result> wrapAsPromise(final Result result) {
+    CompletionStage<Result> wrapAsPromise(final Result result) {
         return CompletableFuture.supplyAsync(() -> result);
     }
 }

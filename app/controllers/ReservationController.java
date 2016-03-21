@@ -144,6 +144,9 @@ public class ReservationController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result findAvailableMachines(Long reservationId) {
         Reservation reservation = Ebean.find(Reservation.class, reservationId);
+        if (reservation == null) {
+            return notFound();
+        }
         PathProperties props = PathProperties.parse("(id, name)");
         Query<ExamMachine> query = Ebean.createQuery(ExamMachine.class);
         props.apply(query);
@@ -170,12 +173,18 @@ public class ReservationController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result updateMachine(Long reservationId) {
         Reservation reservation = Ebean.find(Reservation.class, reservationId);
+        if (reservation == null) {
+            return notFound();
+        }
         DynamicForm df = formFactory.form().bindFromRequest();
         Long machineId = Long.parseLong(df.get("machineId"));
         PathProperties props = PathProperties.parse("(id, name, room(id, name))");
         Query<ExamMachine> query = Ebean.createQuery(ExamMachine.class);
         props.apply(query);
         ExamMachine machine = query.where().idEq(machineId).findUnique();
+        if (machine == null) {
+            return notFound();
+        }
         if (!machine.getRoom().equals(reservation.getMachine().getRoom())) {
             return forbidden("Not allowed to change to use a machine from a different room");
         }

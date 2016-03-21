@@ -69,9 +69,9 @@ public class CalendarController extends BaseController {
         return ok("removed");
     }
 
-    private boolean isAllowedToParticipate(Long examId, User user) {
-        ReservationPoller.handleNoShow(user, examId, emailComposer);
-        Integer trialCount = Ebean.find(Exam.class, examId).getTrialCount();
+    private boolean isAllowedToParticipate(Exam exam, User user) {
+        ReservationPoller.handleNoShow(user, exam.getId(), emailComposer);
+        Integer trialCount = exam.getTrialCount();
         if (trialCount == null) {
             return true;
         }
@@ -79,7 +79,7 @@ public class CalendarController extends BaseController {
                 .fetch("exam")
                 .where()
                 .eq("user", user)
-                .eq("exam.parent.id", examId)
+                .eq("exam.parent.id", exam.getId())
                 .ne("exam.state", Exam.State.DELETED)
                 .ne("reservation.retrialPermitted", true)
                 .findList();
@@ -87,7 +87,7 @@ public class CalendarController extends BaseController {
                 .fetch("reservation")
                 .where()
                 .eq("user", user)
-                .eq("exam.id", examId)
+                .eq("exam.id", exam.getId())
                 .eq("reservation.noShow", true)
                 .ne("reservation.retrialPermitted", true)
                 .findList();
@@ -148,7 +148,7 @@ public class CalendarController extends BaseController {
         // No previous reservation or it's in the future
         // If no previous reservation, check if allowed to participate. This check is skipped if user already
         // has a reservation to this exam so that change of reservation is always possible.
-        if (oldReservation == null && !isAllowedToParticipate(examId, user)) {
+        if (oldReservation == null && !isAllowedToParticipate(enrolment.getExam(), user)) {
             return forbidden("sitnet_no_trials_left");
         }
 
@@ -512,7 +512,7 @@ public class CalendarController extends BaseController {
         private final boolean ownReservation;
         private final String conflictingExam;
 
-        public TimeSlot(Interval interval, int machineCount, String exam) {
+        TimeSlot(Interval interval, int machineCount, String exam) {
             start = ISODateTimeFormat.dateTime().print(interval.getStart());
             end = ISODateTimeFormat.dateTime().print(interval.getEnd());
             availableMachines = machineCount;

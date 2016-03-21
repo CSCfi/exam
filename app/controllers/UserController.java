@@ -29,6 +29,9 @@ public class UserController extends BaseController {
         DynamicForm df = formFactory.form().bindFromRequest();
         String permissionString = df.get("permission");
         User user = Ebean.find(User.class, df.get("id"));
+        if (user == null) {
+            return notFound();
+        }
         if (user.getPermissions().stream().noneMatch(p -> p.getValue().equals(permissionString))) {
             Permission.Type type;
             try {
@@ -48,6 +51,9 @@ public class UserController extends BaseController {
         DynamicForm df = formFactory.form().bindFromRequest();
         String permissionString = df.get("permission");
         User user = Ebean.find(User.class, df.get("id"));
+        if (user == null) {
+            return notFound();
+        }
         if (user.getPermissions().stream().anyMatch(p -> p.getValue().equals(permissionString))) {
             Permission permission = Ebean.find(Permission.class).where()
                     .eq("type", Permission.Type.valueOf(permissionString))

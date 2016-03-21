@@ -89,6 +89,9 @@ public class RoomController extends BaseController {
                 "state",
                 "expanded").get();
         ExamRoom existing = ExamRoom.find.ref(id);
+        if (existing == null) {
+            return notFound();
+        }
         existing.setName(room.getName());
         existing.setRoomCode(room.getRoomCode());
         existing.setBuildingName(room.getBuildingName());
@@ -114,6 +117,9 @@ public class RoomController extends BaseController {
     public Result updateExamRoomAddress(Long id) {
         MailAddress address = bindForm(MailAddress.class);
         MailAddress existing = Ebean.find(MailAddress.class, id);
+        if (existing == null) {
+            return notFound();
+        }
         existing.setCity(address.getCity());
         existing.setStreet(address.getStreet());
         existing.setZip(address.getZip());
@@ -225,9 +231,8 @@ public class RoomController extends BaseController {
 
         ExceptionWorkingHours hours = null;
 
-        for (int i = 0; i < examRoomIds.length; i++) {
-
-            ExamRoom examRoom = Ebean.find(ExamRoom.class, examRoomIds[i]);
+        for (String id : examRoomIds) {
+            ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
             if (examRoom == null) {
                 return notFound();
             }
@@ -255,6 +260,9 @@ public class RoomController extends BaseController {
         final List<String> ids = Arrays.asList(json.get("ids").asText().split(","));
 
         ExamRoom room = Ebean.find(ExamRoom.class, id);
+        if (room == null) {
+            return notFound();
+        }
         room.getAccessibility().clear();
         room.save();
 
@@ -278,7 +286,9 @@ public class RoomController extends BaseController {
     @Restrict(@Group({"ADMIN"}))
     public Result removeRoomExceptionHour(Long id) {
         ExceptionWorkingHours exception = Ebean.find(ExceptionWorkingHours.class, id);
-
+        if (exception == null) {
+            return notFound();
+        }
         exception.delete();
 
         return ok();

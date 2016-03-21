@@ -182,34 +182,34 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     // Aggregate properties, required as fields by Ebean
+    @Transient
     private Double totalScore;
+    @Transient
     private Double maxScore;
+    @Transient
     private int rejectedAnswerCount;
+    @Transient
     private int approvedAnswerCount;
 
-    @Transient
     public Double getTotalScore() {
         return examSections.stream()
                 .map(ExamSection::getTotalScore)
                 .reduce(0.0, (sum, x) -> sum += x);
     }
 
-    @Transient
     public Double getMaxScore() {
         return examSections.stream()
                 .map(ExamSection::getMaxScore)
                 .reduce(0.0, (sum, x) -> sum += x);
     }
 
-    @Transient
-    public int getApprovedAnswerCount() {
+    private int getApprovedAnswerCount() {
         return examSections.stream()
                 .map(ExamSection::getApprovedCount)
                 .reduce(0, (sum, x) -> sum += x);
     }
 
-    @Transient
-    public int getRejectedAnswerCount() {
+    private int getRejectedAnswerCount() {
         return examSections.stream()
                 .map(ExamSection::getRejectedCount)
                 .reduce(0, (sum, x) -> sum += x);

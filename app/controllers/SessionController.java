@@ -217,6 +217,7 @@ public class SessionController extends BaseController {
         return roles;
     }
 
+    @ActionMethod
     public Result logout() {
         Session session = getSession();
         Result result = ok();
@@ -225,7 +226,7 @@ public class SessionController extends BaseController {
             session.setValid(false);
             updateSession(session);
             Logger.info("Set session for user #{} as invalid", session.getUserId());
-            if (user.getLogoutUrl() != null) {
+            if (user != null && user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());
                 result = ok(Json.toJson(node));
@@ -236,6 +237,7 @@ public class SessionController extends BaseController {
         return result;
     }
 
+    @ActionMethod
     public Result setLoginRole(Long uid, String roleName) {
         Session session = getSession();
         if (session == null) {
@@ -269,6 +271,7 @@ public class SessionController extends BaseController {
         return ok();
     }
 
+    @ActionMethod
     public Result checkSession() {
         Session session = getSession();
         if (session == null || session.getSince() == null) {

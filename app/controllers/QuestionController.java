@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 public class QuestionController extends BaseController {
 
-    enum QuestionState {
+    private enum QuestionState {
         NEW, SAVED, DELETED
     }
 
@@ -154,6 +154,9 @@ public class QuestionController extends BaseController {
     public Result updateOption(Long oid) {
         MultipleChoiceOption form = bindForm(MultipleChoiceOption.class);
         MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, oid);
+        if (option == null) {
+            return notFound();
+        }
         option.setOption(form.getOption());
         option.setScore(form.getScore());
         option.update();
@@ -183,6 +186,9 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteQuestion(Long id) {
         Question question = Ebean.find(Question.class, id);
+        if (question == null) {
+            return notFound();
+        }
         question.setState(QuestionState.DELETED.toString());
         AppUtil.setModifier(question, getLoggedUser());
         question.save();
@@ -197,8 +203,10 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addOption(Long qid) {
-
         Question question = Ebean.find(Question.class, qid);
+        if (question == null) {
+            return notFound();
+        }
         MultipleChoiceOption option = bindForm(MultipleChoiceOption.class);
         question.getOptions().add(option);
         AppUtil.setModifier(question, getLoggedUser());
@@ -236,12 +244,15 @@ public class QuestionController extends BaseController {
                 .findList();
 
         User originalUser = getLoggedUser();
-        List<Long> ids = Stream.of(questionIds.split(",")).map(Long::parseLong).collect(Collectors.toList());
-        Ebean.find(Question.class).where().idIn(ids).findList().forEach(q -> {
-            changeOwnership(q, originalUser, teacher, tagsOfNewOwner);
-            q.getChildren()
-                    .forEach(cq -> changeOwnership(cq, originalUser, teacher, tagsOfNewOwner));
-        });
+        List<Long> ids = Stream.of(questionIds.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+        Ebean.find(Question.class).where().idIn(ids).findList()
+                .forEach(q -> {
+                    changeOwnership(q, originalUser, teacher, tagsOfNewOwner);
+                    q.getChildren()
+                            .forEach(cq -> changeOwnership(cq, originalUser, teacher, tagsOfNewOwner));
+                });
         return ok();
     }
 

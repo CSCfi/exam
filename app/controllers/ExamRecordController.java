@@ -8,7 +8,6 @@ import models.*;
 import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
-import play.data.Form;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.java.CsvBuilder;
@@ -60,6 +59,9 @@ public class ExamRecordController extends BaseController {
                 .where()
                 .eq("exam.id", exam.getId())
                 .findUnique();
+        if (participation == null) {
+            return notFound();
+        }
 
         ExamRecord record = createRecord(exam, participation);
         ExamScore score = createScore(record, participation.getEnded());

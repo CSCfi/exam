@@ -123,30 +123,6 @@ public class ExamController extends BaseController {
         return ok(exams);
     }
 
-    private Set<Exam> filterByViewability(User user, Collection<Exam> src) {
-        Set<Exam> dst = new LinkedHashSet<>();
-        for (Exam e : src) {
-            if (e.isOwnedBy(user)) {
-                dst.add(e);
-                continue;
-            }
-            for (Exam c : e.getChildren()) {
-                boolean matchFound = false;
-                for (ExamInspection ei : c.getExamInspections()) {
-                    if (ei.getUser().equals(user)) {
-                        dst.add(e);
-                        matchFound = true;
-                        break;
-                    }
-                }
-                if (matchFound) {
-                    break;
-                }
-            }
-        }
-        return dst;
-    }
-
     @Restrict(@Group("TEACHER"))
     public Result getTeachersExams() {
         // Get list of exams that user is assigned to inspect or is creator of
@@ -178,6 +154,9 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteExam(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         User user = getLoggedUser();
         if (user.hasRole("ADMIN", getSession()) || exam.isOwnedOrCreatedBy(user)) {
             if (isAllowedToRemove(exam)) {
@@ -240,7 +219,7 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamPreview(Long id) {
         User user = getLoggedUser();
-        Exam exam =  Ebean.find(Exam.class)
+        Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("executionType")
                 .fetch("examSections")
@@ -340,7 +319,7 @@ public class ExamController extends BaseController {
             }
         }
         if (newDuration != 0) {
-            if (newDuration == exam.getDuration() || !hasFutureReservations || isAdmin) {
+            if (Objects.equals(newDuration, exam.getDuration()) || !hasFutureReservations || isAdmin) {
                 exam.setDuration(newDuration);
             } else {
                 return forbidden("sitnet_error_future_reservations_exist");
@@ -426,6 +405,7 @@ public class ExamController extends BaseController {
 
     private static void updateGradeEvaluations(Exam exam, JsonNode node) {
         AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
+
         Map<Integer, GradeEvaluation> gradeMap = config.asGradeMap();
         List<Integer> handledEvaluations = new ArrayList<>();
         // Handle proposed entries, persist new ones where necessary
@@ -447,12 +427,12 @@ public class ExamController extends BaseController {
             }
         }
         // Remove obsolete entries
-        for (Map.Entry<Integer, GradeEvaluation> entry : gradeMap.entrySet()) {
-            if (!handledEvaluations.contains(entry.getKey())) {
-                entry.getValue().delete();
-                config.getGradeEvaluations().remove(entry.getValue());
-            }
-        }
+        gradeMap.entrySet().stream()
+                .filter(entry -> !handledEvaluations.contains(entry.getKey()))
+                .forEach(entry -> {
+                    entry.getValue().delete();
+                    config.getGradeEvaluations().remove(entry.getValue());
+                });
     }
 
     private static void updateAutoEvaluationConfig(Exam exam, JsonNode node) {
@@ -516,6 +496,9 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result resetExamSoftwareInfo(Long eid) {
         Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
 
         exam.getSoftwareInfo().clear();
         exam.update();
@@ -526,7 +509,9 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result resetExamLanguages(Long eid) {
         Exam exam = Ebean.find(Exam.class, eid);
-
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         exam.getExamLanguages().clear();
         exam.update();
 
@@ -537,6 +522,9 @@ public class ExamController extends BaseController {
     public Result updateExamSoftwareInfo(Long eid) {
         List<String> softwareIds = parseArrayFieldFromBody("softwareIds");
         Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         exam.getSoftwareInfo().clear();
         List<Software> software;
         if (!softwareIds.isEmpty()) {
@@ -562,8 +550,10 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addExamLanguage(Long eid, String code) {
         Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         Language language = Ebean.find(Language.class, code);
-
         exam.getExamLanguages().add(language);
         exam.update();
 
@@ -674,12 +664,18 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateCourse(Long eid, Long cid) {
         Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         User user = getLoggedUser();
         if (!isAllowedToUpdate(exam, user)) {
             return forbidden("sitnet_error_future_reservations_exist");
         }
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             Course course = Ebean.find(Course.class, cid);
+            if (course == null) {
+                return notFound("sitnet_error_not_found");
+            }
             Date now = new Date();
             if (course.getStartDate() != null && course.getStartDate().after(now)) {
                 return forbidden("sitnet_error_course_not_active");
@@ -698,6 +694,9 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result removeCourse(Long eid, Long cid) {
         Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         User user = getLoggedUser();
         if (!isAllowedToUpdate(exam, user)) {
             return forbidden("sitnet_error_future_reservations_exist");
@@ -822,6 +821,9 @@ public class ExamController extends BaseController {
         ExamInspection inspection = bindForm(ExamInspection.class);
         User recipient = Ebean.find(User.class, uid);
         Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         if (isInspectorOf(recipient, exam)) {
             return forbidden("already an inspector");
         }
@@ -839,9 +841,9 @@ public class ExamController extends BaseController {
             AppUtil.setCreator(comment, getLoggedUser());
             inspection.setComment(comment);
             comment.save();
-            actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composeExamReviewRequest(recipient, getLoggedUser(), exam, msg);
-            }, actor.dispatcher());
+            actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
+                    () -> emailComposer.composeExamReviewRequest(recipient, getLoggedUser(), exam, msg),
+                    actor.dispatcher());
         }
         inspection.save();
         // Add also as inspector to ongoing child exams if not already there.
@@ -877,6 +879,9 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteInspection(Long id) {
         ExamInspection inspection = Ebean.find(ExamInspection.class, id);
+        if (inspection == null) {
+            return notFound("sitnet_error_not_found");
+        }
         User inspector = inspection.getUser();
         Exam exam = inspection.getExam();
         exam.getChildren()

@@ -60,6 +60,9 @@ public class ExamMachineController extends BaseController {
                 "outOfService"
         ).get();
         ExamMachine dest = Ebean.find(ExamMachine.class, id);
+        if (dest == null) {
+            return notFound();
+        }
         dest.setName(src.getName());
         dest.setOtherIdentifier(src.getOtherIdentifier());
         dest.setAccessibilityInfo(src.getAccessibilityInfo());
@@ -79,6 +82,9 @@ public class ExamMachineController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result resetExamMachineSoftwareInfo(Long mid) {
         ExamMachine machine = Ebean.find(ExamMachine.class, mid);
+        if (machine == null) {
+            return notFound();
+        }
 
         machine.getSoftwareInfo().clear();
         machine.update();
@@ -89,6 +95,9 @@ public class ExamMachineController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result updateExamMachineSoftwareInfo(Long mid, Long sid) {
         ExamMachine machine = Ebean.find(ExamMachine.class, mid);
+        if (machine == null) {
+            return notFound();
+        }
         Software software = Ebean.find(Software.class, sid);
 
         machine.getSoftwareInfo().add(software);
@@ -100,6 +109,10 @@ public class ExamMachineController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result toggleExamMachineSoftwareInfo(Long mid, Long sid) {
         ExamMachine machine = Ebean.find(ExamMachine.class, mid);
+        if (machine == null) {
+            return notFound();
+        }
+
         Software software = Ebean.find(Software.class, sid);
 
         if (machine.getSoftwareInfo().contains(software)) {
@@ -124,9 +137,10 @@ public class ExamMachineController extends BaseController {
     public Result insertExamMachine(Long id) {
 
         ExamRoom room = Ebean.find(ExamRoom.class, id);
-
+        if (room == null) {
+            return notFound();
+        }
         ExamMachine machine = bindForm(ExamMachine.class);
-        //Logger.debug("softwares: " + machine.getSoftwareInfo().toString());
         room.getExamMachines().add(machine);
         room.save();
 
@@ -138,7 +152,7 @@ public class ExamMachineController extends BaseController {
     @Restrict(@Group({"ADMIN"}))
     public Result removeExamMachine(Long id) {
         // SIT-690
-        return forbidden("Tenttikoneen poistaminen estetty väliaikaisesti");
+        return forbidden();
     }
 
     @Restrict(@Group("ADMIN"))
@@ -181,6 +195,9 @@ public class ExamMachineController extends BaseController {
     @Restrict(@Group({"ADMIN"}))
     public Result updateSoftware(Long id, String name) {
         Software software = Ebean.find(Software.class, id);
+        if (software == null) {
+            return notFound();
+        }
         software.setName(name);
         software.setStatus("ACTIVE");
         software.update();
@@ -191,6 +208,9 @@ public class ExamMachineController extends BaseController {
     @Restrict(@Group({"ADMIN"}))
     public Result removeSoftware(Long id) {
         Software software = Ebean.find(Software.class, id);
+        if (software == null) {
+            return notFound();
+        }
         software.setStatus("DISABLED");
         software.update();
 
