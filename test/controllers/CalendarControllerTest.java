@@ -265,6 +265,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         // Execute
         Result result = request(Helpers.DELETE, "/app/calendar/reservation/" + reservation.getId(), null);
         assertThat(result.status()).isEqualTo(200);
+        Thread.sleep(1500); // wait for emails to be sent
 
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());

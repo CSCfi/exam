@@ -1,20 +1,22 @@
 package system;
 
+import akka.actor.Props;
+import akka.actor.UntypedActor;
 import com.avaje.ebean.Ebean;
 import models.Exam;
 import models.ExamRecord;
 import play.Logger;
 import util.AppUtil;
 
-import javax.inject.Singleton;
 import java.util.Date;
 import java.util.List;
 
-@Singleton
-public class ExamExpiryPoller implements Runnable {
+class ExamExpirationActor extends UntypedActor {
+
+    public static Props props = Props.create(ExamExpirationActor.class);
 
     @Override
-    public void run() {
+    public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Running exam expiration check ...", getClass().getCanonicalName());
         List<Exam> exams = Ebean.find(Exam.class)
                 .where()

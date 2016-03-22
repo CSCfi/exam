@@ -1,5 +1,7 @@
 package system;
 
+import akka.actor.Props;
+import akka.actor.UntypedActor;
 import com.avaje.ebean.Ebean;
 import controllers.SettingsController;
 import models.*;
@@ -8,31 +10,26 @@ import play.Logger;
 import util.AppUtil;
 import util.java.EmailComposer;
 
-import javax.inject.Singleton;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Singleton
-public class ExamAutoSaver implements Runnable {
+class ExamAutoSaverActor extends UntypedActor {
 
-    EmailComposer emailComposer;
-
-    public ExamAutoSaver(EmailComposer composer) {
-        emailComposer = composer;
-    }
+    public static Props props = Props.create(ExamAutoSaverActor.class);
 
     @Override
-    public void run() {
+    public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Checking for ongoing exams ...", getClass().getCanonicalName());
+        EmailComposer composer = (EmailComposer) message;
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
                 .fetch("reservation")
                 .fetch("reservation.machine.room")
                 .where()
-                .eq("ended", null)
+                .isNull("ended")
                 .isNotNull("reservation")
                 .findList();
 
@@ -40,10 +37,10 @@ public class ExamAutoSaver implements Runnable {
             Logger.debug("{}: ... none found.", getClass().getCanonicalName());
             return;
         }
-        markEnded(participations);
+        markEnded(participations, composer);
     }
 
-    private void markEnded(List<ExamParticipation> participations) {
+    private void markEnded(List<ExamParticipation> participations, EmailComposer emailComposer) {
         for (ExamParticipation participation : participations) {
             Exam exam = participation.getExam();
             Reservation reservation = participation.getReservation();
@@ -54,6 +51,7 @@ public class ExamAutoSaver implements Runnable {
                 participation.setEnded(now.toDate());
                 participation.setDuration(
                         new Date(participation.getEnded().getTime() - participation.getStarted().getTime()));
+
                 GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
                 int deadlineDays = Integer.parseInt(settings.getValue());
                 Date deadline = new DateTime(participation.getEnded()).plusDays(deadlineDays).toDate();

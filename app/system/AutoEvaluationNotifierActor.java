@@ -1,5 +1,7 @@
 package system;
 
+import akka.actor.Props;
+import akka.actor.UntypedActor;
 import com.avaje.ebean.Ebean;
 import models.AutoEvaluationConfig;
 import models.Exam;
@@ -9,21 +11,15 @@ import play.Logger;
 import util.AppUtil;
 import util.java.EmailComposer;
 
-import javax.inject.Singleton;
 import java.util.Date;
 import java.util.List;
 
-@Singleton
-public class AutoEvaluationNotificationPoller implements Runnable {
+public class AutoEvaluationNotifierActor extends UntypedActor {
 
-    EmailComposer emailComposer;
-
-    public AutoEvaluationNotificationPoller(EmailComposer composer) {
-        emailComposer = composer;
-    }
+    public static Props props = Props.create(AutoEvaluationNotifierActor.class);
 
     @Override
-    public void run() {
+    public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Running auto evaluation notification check ...", getClass().getCanonicalName());
         List<Exam> exams = Ebean.find(Exam.class)
                 .fetch("autoEvaluationConfig")
@@ -36,10 +32,10 @@ public class AutoEvaluationNotificationPoller implements Runnable {
                 .isNotNull("answerLanguage")
                 .isNull("autoEvaluationNotified")
                 .findList();
-
+        EmailComposer composer = (EmailComposer)message;
         exams.stream()
                 .filter(this::isPastReleaseDate)
-                .forEach(this::notifyStudent);
+                .forEach(exam -> notifyStudent(exam, composer));
 
         Logger.debug("{}: ... Done", getClass().getCanonicalName());
     }
@@ -74,10 +70,10 @@ public class AutoEvaluationNotificationPoller implements Runnable {
         return releaseDate != null && releaseDate.isBeforeNow();
     }
 
-    private void notifyStudent(Exam exam) {
+    private void notifyStudent(Exam exam, EmailComposer composer) {
         User student = exam.getCreator();
         try {
-            emailComposer.composeInspectionReady(student, null, exam);
+            composer.composeInspectionReady(student, null, exam);
             Logger.debug("{}: ... Mail sent to {}", getClass().getCanonicalName(), student.getEmail());
             exam.setAutoEvaluationNotified(new Date());
             exam.update();

@@ -5,7 +5,7 @@ import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Http;
 
-public class AuditLogger {
+class AuditLogger {
 
     public static void log(Http.Request request, User user) {
         String method = request.method();

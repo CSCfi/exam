@@ -1,6 +1,7 @@
 package system;
 
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
 import com.avaje.ebean.Ebean;
@@ -28,31 +29,34 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Singleton
-public class SystemInitializer {
+class SystemInitializer {
 
-    public static final int EXAM_AUTO_SAVER_START_AFTER_SECONDS = 15;
-    public static final int EXAM_AUTO_SAVER_INTERVAL_MINUTES = 1;
-    public static final int RESERVATION_POLLER_START_AFTER_SECONDS = 30;
-    public static final int RESERVATION_POLLER_INTERVAL_HOURS = 1;
-    public static final int EXAM_EXPIRY_POLLER_START_AFTER_SECONDS = 45;
-    public static final int EXAM_EXPIRY_POLLER_INTERVAL_DAYS = 1;
-    public static final int AUTO_EVALUATION_NOTIFIER_START_AFTER_SECONDS = 60;
-    public static final int AUTO_EVALUATION_NOTIFIER_INTERVAL_MINUTES = 15;
+    private static final int EXAM_AUTO_SAVER_START_AFTER_SECONDS = 15;
+    private static final int EXAM_AUTO_SAVER_INTERVAL_MINUTES = 1;
+    private static final int RESERVATION_POLLER_START_AFTER_SECONDS = 30;
+    private static final int RESERVATION_POLLER_INTERVAL_HOURS = 1;
+    private static final int EXAM_EXPIRY_POLLER_START_AFTER_SECONDS = 45;
+    private static final int EXAM_EXPIRY_POLLER_INTERVAL_DAYS = 1;
+    private static final int AUTO_EVALUATION_NOTIFIER_START_AFTER_SECONDS = 60;
+    private static final int AUTO_EVALUATION_NOTIFIER_INTERVAL_MINUTES = 15;
 
 
-    protected ApplicationLifecycle lifecycle;
-    protected EmailComposer composer;
-    protected ActorSystem actor;
+    private EmailComposer composer;
+    private ActorSystem system;
     protected Database database;
 
     private Map<String, Cancellable> tasks = new HashMap<>();
 
     @Inject
-    public SystemInitializer(ActorSystem actor, ApplicationLifecycle lifecycle, EmailComposer composer, Database database) {
-        this.actor = actor;
-        this.lifecycle = lifecycle;
+    public SystemInitializer(ActorSystem actorSystem, ApplicationLifecycle lifecycle, EmailComposer composer, Database database) {
+        system = actorSystem;
         this.composer = composer;
         this.database = database;
+
+        ActorRef expirationChecker = system.actorOf(ExamExpirationActor.props);
+        ActorRef examAutoSaver = system.actorOf(ExamAutoSaverActor.props);
+        ActorRef reservationChecker = system.actorOf(ReservationPollerActor.props);
+        ActorRef autoEvaluationNotifier = system.actorOf(AutoEvaluationNotifierActor.props);
 
         String encoding = System.getProperty("file.encoding");
         if (!encoding.equals("UTF-8")) {
@@ -64,35 +68,36 @@ public class SystemInitializer {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         DateTimeZone.setDefault(DateTimeZone.forID("UTC"));
 
-        tasks.put("AUTO_SAVER", actor.scheduler().schedule(
+        tasks.put("AUTO_SAVER", system.scheduler().schedule(
                 Duration.create(EXAM_AUTO_SAVER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(EXAM_AUTO_SAVER_INTERVAL_MINUTES, TimeUnit.MINUTES),
-                new ExamAutoSaver(composer),
-                actor.dispatcher()
+                examAutoSaver, composer,
+                system.dispatcher(), null
         ));
-        tasks.put("RESERVATION_POLLER", actor.scheduler().schedule(
+        tasks.put("RESERVATION_POLLER", system.scheduler().schedule(
                 Duration.create(RESERVATION_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(RESERVATION_POLLER_INTERVAL_HOURS, TimeUnit.HOURS),
-                new ReservationPoller(composer),
-                actor.dispatcher()
+                reservationChecker, composer,
+                system.dispatcher(), null
         ));
-        tasks.put("EXPIRY_POLLER", actor.scheduler().schedule(
+        tasks.put("EXPIRY_POLLER", system.scheduler().schedule(
                 Duration.create(EXAM_EXPIRY_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(EXAM_EXPIRY_POLLER_INTERVAL_DAYS, TimeUnit.DAYS),
-                new ExamExpiryPoller(),
-                actor.dispatcher()
+                expirationChecker, "tick",
+                system.dispatcher(), null
         ));
-        tasks.put("AUTOEVALUATION_NOTIFIER", actor.scheduler().schedule(
+        tasks.put("AUTOEVALUATION_NOTIFIER", system.scheduler().schedule(
                 Duration.create(AUTO_EVALUATION_NOTIFIER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(AUTO_EVALUATION_NOTIFIER_INTERVAL_MINUTES, TimeUnit.MINUTES),
-                new AutoEvaluationNotificationPoller(composer),
-                actor.dispatcher()
+                autoEvaluationNotifier, composer,
+                system.dispatcher(), null
         ));
 
         scheduleWeeklyReport();
 
         lifecycle.addStopHook(() -> {
             cancelTasks();
+            system.terminate();
             database.shutdown();
             CacheManager.getInstance().removeCache("play");
             return CompletableFuture.completedFuture(null);
@@ -126,7 +131,7 @@ public class SystemInitializer {
         if (reportTask != null) {
             reportTask.cancel();
         }
-        tasks.put("REPORT_SENDER", actor.scheduler().scheduleOnce(delay, () -> {
+        tasks.put("REPORT_SENDER", system.scheduler().scheduleOnce(delay, () -> {
             Logger.info("Running weekly email report");
             List<User> teachers = Ebean.find(User.class)
                     .fetch("language")
@@ -142,7 +147,7 @@ public class SystemInitializer {
             });
             // Reschedule
             scheduleWeeklyReport();
-        }, actor.dispatcher()));
+        }, system.dispatcher()));
     }
 
     private void cancelTasks() {

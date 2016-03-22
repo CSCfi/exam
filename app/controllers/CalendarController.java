@@ -16,9 +16,9 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
-import system.ReservationPoller;
 import util.AppUtil;
 import util.java.EmailComposer;
+import util.java.NoShowHandlerUtil;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -32,8 +32,7 @@ public class CalendarController extends BaseController {
     protected EmailComposer emailComposer;
 
     @Inject
-    protected ActorSystem actor;
-
+    protected ActorSystem system;
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result removeReservation(long id) throws NotFoundException {
@@ -62,15 +61,15 @@ public class CalendarController extends BaseController {
 
         // send email asynchronously
         final boolean isStudentUser = user.equals(enrolment.getUser());
-        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+        system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
             Logger.info("Reservation cancellation confirmation email sent");
-        }, actor.dispatcher());
+        }, system.dispatcher());
         return ok("removed");
     }
 
     private boolean isAllowedToParticipate(Exam exam, User user) {
-        ReservationPoller.handleNoShow(user, exam.getId(), emailComposer);
+        NoShowHandlerUtil.handleNoShow(user, exam.getId(), emailComposer);
         Integer trialCount = exam.getTrialCount();
         if (trialCount == null) {
             return true;
@@ -183,12 +182,12 @@ public class CalendarController extends BaseController {
         recipients.add(user);
 
         // Send some emails asynchronously
-        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+        system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User recipient : recipients) {
                 emailComposer.composeReservationNotification(recipient, reservation, exam, !recipient.equals(user));
                 Logger.info("Reservation confirmation email sent to {}", recipient.getEmail());
             }
-        }, actor.dispatcher());
+        }, system.dispatcher());
 
         return ok("ok");
     }
