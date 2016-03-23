@@ -13,7 +13,7 @@ import java.util.List;
 
 class ExamExpirationActor extends UntypedActor {
 
-    public static Props props = Props.create(ExamExpirationActor.class);
+    static final Props props = Props.create(ExamExpirationActor.class);
 
     @Override
     public void onReceive(Object message) throws Exception {

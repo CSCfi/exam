@@ -17,7 +17,7 @@ import java.util.Optional;
 
 class AutoEvaluationNotifierActor extends UntypedActor {
 
-    public static Props props = Props.create(AutoEvaluationNotifierActor.class);
+    static final Props props = Props.create(AutoEvaluationNotifierActor.class);
 
     @Override
     public void onReceive(Object message) throws Exception {

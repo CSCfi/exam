@@ -44,10 +44,11 @@ public class SessionController extends BaseController {
     }
 
     private Result hakaLogin() {
-        String eppn = parse(request().getHeader("eppn"));
-        if (eppn == null) {
+        Optional<String> id = parse(request().getHeader("eppn"));
+        if (!id.isPresent()) {
             return badRequest("No credentials!");
         }
+        String eppn = id.get();
         User user = Ebean.find(User.class)
                 .where()
                 .eq("eppn", eppn)
@@ -102,51 +103,52 @@ public class SessionController extends BaseController {
         return language;
     }
 
-    private static String validateEmail(String email) throws AddressException {
-        if (email == null) {
-            throw new AddressException("no email address for user");
+    private Optional<String> validateEmail(String email) {
+        try {
+            new InternetAddress(email).validate();
+        } catch (AddressException e) {
+            return Optional.empty();
         }
-        new InternetAddress(email).validate();
-        return email;
+        return Optional.of(email);
     }
 
-    private static String parseUserIdentifier(String src) {
-        if (src == null) {
-            return null;
-        }
+    private String parseUserIdentifier(String src) {
         return src.substring(src.lastIndexOf(":") + 1);
     }
 
-    private static String parseGivenName(Http.Request request) {
-        String givenName = parse(request.getHeader("givenName"));
-        if (givenName == null) {
-            String displayName = parse(request.getHeader("displayName"));
-            givenName = displayName.substring(displayName.lastIndexOf(" ") + 1);
-        }
-        return givenName;
+    private Optional<String> parseDisplayName(Http.Request request) {
+        return parse(request.getHeader("displayName")).map((n) -> n.substring(n.lastIndexOf(" ") + 1));
     }
 
-    private static Organisation findOrganisation(String attribute) {
-        if (attribute == null) {
-            return null;
-        }
+    private String parseGivenName(Http.Request request) {
+        return parse(request.getHeader("givenName"))
+                .orElse(parseDisplayName(request)
+                        .orElseThrow(IllegalArgumentException::new));
+    }
+
+    private Organisation findOrganisation(String attribute) {
         return Ebean.find(Organisation.class).where().eq("code", attribute).findUnique();
     }
 
-    private static void updateUser(User user) throws AddressException {
-        user.setOrganisation(findOrganisation(parse(request().getHeader("homeOrganisation"))));
-        user.setUserIdentifier(parseUserIdentifier(parse(request().getHeader("schacPersonalUniqueCode"))));
-        user.setEmail(validateEmail(parse(request().getHeader("mail"))));
-        user.setLastName(parse(request().getHeader("sn")));
+    private void updateUser(User user) throws AddressException {
+        user.setOrganisation(parse(request().getHeader("homeOrganisation"))
+                .map(this::findOrganisation).orElse(null));
+        user.setUserIdentifier(parse(request().getHeader("schacPersonalUniqueCode"))
+                .map(this::parseUserIdentifier).orElse(null));
+        user.setEmail(parse(request().getHeader("mail"))
+                .flatMap(this::validateEmail).orElseThrow(AddressException::new));
+
+        user.setLastName(parse(request().getHeader("sn")).orElseThrow(IllegalArgumentException::new));
         user.setFirstName(parseGivenName(request()));
-        user.setEmployeeNumber(parse(request().getHeader("employeeNumber")));
-        user.setLogoutUrl(parse(request().getHeader("logouturl")));
+        user.setEmployeeNumber(parse(request().getHeader("employeeNumber")).orElse(null));
+        user.setLogoutUrl(parse(request().getHeader("logouturl")).orElse(null));
     }
 
-    private static User createNewUser(String eppn) throws NotFoundException, AddressException {
+    private User createNewUser(String eppn) throws NotFoundException, AddressException {
         User user = new User();
-        user.getRoles().addAll(parseRoles(parse(request().getHeader("unscoped-affiliation"))));
-        user.setLanguage(getLanguage(parse(request().getHeader("preferredLanguage"))));
+        user.getRoles().addAll(parseRoles(parse(request().getHeader("unscoped-affiliation"))
+                .orElseThrow(NotFoundException::new)));
+        user.setLanguage(getLanguage(parse(request().getHeader("preferredLanguage")).orElse(null)));
         user.setEppn(eppn);
         updateUser(user);
         return user;
@@ -190,7 +192,7 @@ public class SessionController extends BaseController {
     }
 
     private static Set<Role> parseRoles(String attribute) throws NotFoundException {
-        Map<Role, List<String>> roleMapping = getRoleMapping();
+        Map<Role, List<String>> roleMapping = getConfiguredRoleMapping();
         Set<Role> userRoles = new HashSet<>();
         for (String affiliation : attribute.split(";")) {
             for (Map.Entry<Role, List<String>> entry : roleMapping.entrySet()) {
@@ -206,7 +208,7 @@ public class SessionController extends BaseController {
         return userRoles;
     }
 
-    static private Map<Role, List<String>> getRoleMapping() {
+    private static Map<Role, List<String>> getConfiguredRoleMapping() {
         Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findUnique();
         Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findUnique();
         Role admin = Ebean.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findUnique();
@@ -290,12 +292,12 @@ public class SessionController extends BaseController {
         return ok();
     }
 
-    private static String parse(String src) {
+    private static Optional<String> parse(String src) {
         if (src == null || src.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
         try {
-            return URLDecoder.decode(src, "UTF-8");
+            return Optional.of(URLDecoder.decode(src, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

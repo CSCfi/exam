@@ -14,7 +14,7 @@ import java.util.List;
 
 class ReservationPollerActor extends UntypedActor {
 
-    public static Props props = Props.create(ReservationPollerActor.class);
+    static final Props props = Props.create(ReservationPollerActor.class);
 
     @Override
     public void onReceive(Object message) throws Exception {

@@ -240,17 +240,17 @@ public class IntegrationController extends BaseController implements ExternalAPI
         }
     }
 
-    private static String getFirstChildNameValue(JsonNode json, String columnName) {
+    private static Optional<String> getFirstChildNameValue(JsonNode json, String columnName) {
         if (json.has(columnName)) {
             JsonNode array = json.get(columnName);
             if (array.has(0)) {
                 JsonNode child = array.get(0);
                 if (child.has("name")) {
-                    return child.get("name").asText();
+                    return Optional.of(child.get("name").asText());
                 }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private static List<ExamScore> getScores(String startDate) {
@@ -263,22 +263,21 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
     }
 
-    private static Course parseCourse(JsonNode node) throws ParseException {
-        Course course = null;
+    private static Optional<Course> parseCourse(JsonNode node) throws ParseException {
         // check that this is a course node, response can also contain error messages and so on
         if (node.has("identifier") && node.has("courseUnitCode") && node.has("courseUnitTitle") && node.has("institutionName")) {
-            course = new Course();
+            Course course = new Course();
             if (node.has("endDate")) {
                 Date endDate = DF.parse(node.get("endDate").asText());
                 if (endDate.before(new Date())) {
-                    return null;
+                    return Optional.empty();
                 }
                 course.setEndDate(endDate);
             }
             if (node.has("startDate")) {
                 Date startDate = DF.parse(node.get("startDate").asText());
                 if (startDate.after(new Date())) {
-                    return null;
+                    return Optional.empty();
                 }
                 course.setStartDate(startDate);
             }
@@ -313,14 +312,15 @@ public class IntegrationController extends BaseController implements ExternalAPI
                 course.setGradeScale(scales.get(0));
             }
             // in array form
-            course.setCampus(getFirstChildNameValue(node, "campus"));
-            course.setDegreeProgramme(getFirstChildNameValue(node, "degreeProgramme"));
-            course.setDepartment(getFirstChildNameValue(node, "department"));
-            course.setLecturerResponsible(getFirstChildNameValue(node, "lecturerResponsible"));
-            course.setLecturer(getFirstChildNameValue(node, "lecturer"));
-            course.setCreditsLanguage(getFirstChildNameValue(node, "creditsLanguage"));
+            course.setCampus(getFirstChildNameValue(node, "campus").orElse(null));
+            course.setDegreeProgramme(getFirstChildNameValue(node, "degreeProgramme").orElse(null));
+            course.setDepartment(getFirstChildNameValue(node, "department").orElse(null));
+            course.setLecturerResponsible(getFirstChildNameValue(node, "lecturerResponsible").orElse(null));
+            course.setLecturer(getFirstChildNameValue(node, "lecturer").orElse(null));
+            course.setCreditsLanguage(getFirstChildNameValue(node, "creditsLanguage").orElse(null));
+            return Optional.of(course);
         }
-        return course;
+        return Optional.empty();
     }
 
     private static List<Course> parseCourses(JsonNode response) throws ParseException {
@@ -329,16 +329,10 @@ public class IntegrationController extends BaseController implements ExternalAPI
             JsonNode root = response.get("CourseUnitInfo");
             if (root.isArray()) {
                 for (JsonNode node : root) {
-                    Course course = parseCourse(node);
-                    if (course != null) {
-                        results.add(course);
-                    }
+                    parseCourse(node).ifPresent(results::add);
                 }
             } else {
-                Course course = parseCourse(root);
-                if (course != null) {
-                    results.add(course);
-                }
+                parseCourse(root).ifPresent(results::add);
             }
         }
         return results;

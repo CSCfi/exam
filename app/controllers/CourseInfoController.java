@@ -37,13 +37,12 @@ public class CourseInfoController extends BaseController {
         return externalAPI.getCourseInfoByCode(getLoggedUser(), code)
                 .thenApplyAsync(courses -> {
                     if (courses.isEmpty()) {
-                        return null;
+                        return notFound();
                     }
                     Course first = courses.get(0);
                     first.save();
-                    return first;
+                    return ok(Json.toJson(first));
                 })
-                .thenApplyAsync(foundCourse -> foundCourse == null ? notFound() : ok(Json.toJson(foundCourse)))
                 .exceptionally(throwable -> internalServerError(throwable.getMessage()));
     }
 }

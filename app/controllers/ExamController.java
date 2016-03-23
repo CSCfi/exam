@@ -266,7 +266,7 @@ public class ExamController extends BaseController {
         }, actor.dispatcher());
     }
 
-    private Result updateStateAndValidate(Exam exam, JsonNode node) {
+    private Optional<Result> updateStateAndValidate(Exam exam, JsonNode node) {
         Exam.State state = node.has("state") ? Exam.State.valueOf(node.get("state").asText()) : null;
         if (state != null) {
             if (exam.hasState(Exam.State.SAVED, Exam.State.DRAFT) && state == Exam.State.PUBLISHED) {
@@ -274,26 +274,26 @@ public class ExamController extends BaseController {
                 String str = ValidationUtil.validateExamForm(node);
                 // invalid data
                 if (str != null) {
-                    return badRequest(str);
+                    return Optional.of(badRequest(str));
                 }
                 // no sections named
                 if (exam.getExamSections().stream().anyMatch((section) -> section.getName() == null)) {
-                    return badRequest("sitnet_exam_contains_unnamed_sections");
+                    return Optional.of(badRequest("sitnet_exam_contains_unnamed_sections"));
                 }
                 if (exam.getExamLanguages().isEmpty()) {
-                    return badRequest("no exam languages specified");
+                    return Optional.of(badRequest("no exam languages specified"));
                 }
                 if (exam.isPrivate()) {
                     // No participants added, this is not good.
                     if (exam.getExamEnrolments().isEmpty()) {
-                        return badRequest("sitnet_no_participants");
+                        return Optional.of(badRequest("sitnet_no_participants"));
                     }
                     notifyPartiesAboutPrivateExamPublication(exam);
                 }
             }
             exam.setState(state);
         }
-        return null;
+        return Optional.empty();
     }
 
     private boolean isRestrictingValidityChange(Date newDate, Exam exam, boolean isStartDate) {
@@ -301,7 +301,7 @@ public class ExamController extends BaseController {
         return isStartDate ? oldDate.before(newDate) : newDate.before(oldDate);
     }
 
-    private Result updateTemporalFieldsAndValidate(Exam exam, JsonNode node, User user) {
+    private Optional<Result> updateTemporalFieldsAndValidate(Exam exam, JsonNode node, User user) {
         Long start = node.get("examActiveStartDate").asLong();
         Long end = node.get("examActiveEndDate").asLong();
         Integer newDuration = node.get("duration").asInt();
@@ -312,7 +312,7 @@ public class ExamController extends BaseController {
             if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newStart, exam, true)) {
                 exam.setExamActiveStartDate(new Date(start));
             } else {
-                return forbidden("sitnet_error_future_reservations_exist");
+                return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
             }
         }
         if (end != 0) {
@@ -320,89 +320,86 @@ public class ExamController extends BaseController {
             if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newEnd, exam, false)) {
                 exam.setExamActiveEndDate(new Date(end));
             } else {
-                return forbidden("sitnet_error_future_reservations_exist");
+                return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
             }
         }
         if (newDuration != 0) {
             if (Objects.equals(newDuration, exam.getDuration()) || !hasFutureReservations || isAdmin) {
                 exam.setDuration(newDuration);
             } else {
-                return forbidden("sitnet_error_future_reservations_exist");
+                return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
             }
         }
-        return null;
+        return Optional.empty();
+    }
+
+    private Result handleExamUpdate(Exam exam, JsonNode node) {
+        String examName = node.get("name").asText();
+        Boolean shared = node.has("shared") && node.get("shared").asBoolean(false);
+        Integer grading = node.has("grading") ? node.get("grading").asInt() : null;
+        String answerLanguage = node.has("answerLanguage") ? node.get("answerLanguage").asText() : null;
+        String instruction = node.has("instruction") ? node.get("instruction").asText() : null;
+        String enrollInstruction = node.has("enrollInstruction") ? node.get("enrollInstruction").asText() : null;
+        Integer trialCount = node.has("trialCount") ? node.get("trialCount").asInt() : null;
+        Boolean expanded = node.has("expanded") && node.get("expanded").asBoolean(false);
+        if (examName != null) {
+            exam.setName(examName);
+        }
+        exam.setShared(shared);
+
+        // Scale and auto evaluation are intermingled, if scale changed then the auto evaluation needs be reset
+        boolean gradeScaleChanged = false;
+        if (grading != null) {
+            gradeScaleChanged = updateGrading(exam, grading);
+        }
+        if (gradeScaleChanged) {
+            if (exam.getAutoEvaluationConfig() != null) {
+                exam.getAutoEvaluationConfig().delete();
+                exam.setAutoEvaluationConfig(null);
+            }
+        } else {
+            updateAutoEvaluationConfig(exam, node);
+        }
+        if (answerLanguage != null) {
+            exam.setAnswerLanguage(answerLanguage);
+        }
+        if (instruction != null) {
+            exam.setInstruction(instruction);
+        }
+        if (enrollInstruction != null) {
+            exam.setEnrollInstruction(enrollInstruction);
+        }
+        if (node.has("examType")) {
+            String examType = node.get("examType").get("type").asText();
+            ExamType eType = Ebean.find(ExamType.class)
+                    .where()
+                    .eq("type", examType)
+                    .findUnique();
+
+            if (eType != null) {
+                exam.setExamType(eType);
+            }
+        }
+
+        exam.setTrialCount(trialCount);
+        exam.generateHash();
+        exam.setExpanded(expanded);
+        exam.save();
+        return ok(exam);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateExam(Long id) {
         Exam exam = Exam.createQuery().where().idEq(id).findUnique();
-
         if (exam == null) {
             return notFound();
         }
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || getLoggedUser().hasRole("ADMIN", getSession())) {
             JsonNode node = request().body().asJson();
-            Result result = updateTemporalFieldsAndValidate(exam, node, user);
-            if (result != null) {
-                return result;
-            }
-            result = updateStateAndValidate(exam, node);
-            if (result != null) {
-                return result;
-            }
-            String examName = node.get("name").asText();
-            Boolean shared = node.has("shared") && node.get("shared").asBoolean(false);
-            Integer grading = node.has("grading") ? node.get("grading").asInt() : null;
-            String answerLanguage = node.has("answerLanguage") ? node.get("answerLanguage").asText() : null;
-            String instruction = node.has("instruction") ? node.get("instruction").asText() : null;
-            String enrollInstruction = node.has("enrollInstruction") ? node.get("enrollInstruction").asText() : null;
-            Integer trialCount = node.has("trialCount") ? node.get("trialCount").asInt() : null;
-            Boolean expanded = node.has("expanded") && node.get("expanded").asBoolean(false);
-            if (examName != null) {
-                exam.setName(examName);
-            }
-            exam.setShared(shared);
-
-            // Scale and auto evaluation are intermingled, if scale changed then the auto evaluation needs be reset
-            boolean gradeScaleChanged = false;
-            if (grading != null) {
-                gradeScaleChanged = updateGrading(exam, grading);
-            }
-            if (gradeScaleChanged) {
-                if (exam.getAutoEvaluationConfig() != null) {
-                    exam.getAutoEvaluationConfig().delete();
-                    exam.setAutoEvaluationConfig(null);
-                }
-            } else {
-                updateAutoEvaluationConfig(exam, node);
-            }
-            if (answerLanguage != null) {
-                exam.setAnswerLanguage(answerLanguage);
-            }
-            if (instruction != null) {
-                exam.setInstruction(instruction);
-            }
-            if (enrollInstruction != null) {
-                exam.setEnrollInstruction(enrollInstruction);
-            }
-            if (node.has("examType")) {
-                String examType = node.get("examType").get("type").asText();
-                ExamType eType = Ebean.find(ExamType.class)
-                        .where()
-                        .eq("type", examType)
-                        .findUnique();
-
-                if (eType != null) {
-                    exam.setExamType(eType);
-                }
-            }
-
-            exam.setTrialCount(trialCount);
-            exam.generateHash();
-            exam.setExpanded(expanded);
-            exam.save();
-            return ok(exam);
+            return updateTemporalFieldsAndValidate(exam, node, user)
+                    .orElseGet(() -> updateStateAndValidate(exam, node)
+                            .orElseGet(() -> handleExamUpdate(exam, node)));
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }

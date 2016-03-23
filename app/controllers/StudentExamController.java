@@ -295,18 +295,18 @@ public class StudentExamController extends BaseController {
                 .findUnique();
     }
 
-    private Result checkEnrolmentOK(ExamEnrolment enrolment) {
+    private Optional<Result> getEnrolmentError(ExamEnrolment enrolment) {
         // If this is null, it means someone is either trying to access an exam by wrong hash
         // or the reservation is not in effect right now.
         if (enrolment == null) {
-            return forbidden("sitnet_reservation_not_found");
+            return Optional.of(forbidden("sitnet_reservation_not_found"));
         }
         String clientIP = request().remoteAddress();
         // Exam and enrolment found. Is student on the right machine?
         if (enrolment.getReservation() == null) {
-            return forbidden("sitnet_reservation_not_found");
+            return Optional.of(forbidden("sitnet_reservation_not_found"));
         } else if (enrolment.getReservation().getMachine() == null) {
-            return forbidden("sitnet_reservation_machine_not_found");
+            return Optional.of(forbidden("sitnet_reservation_machine_not_found"));
         } else if (!environment.isDev() && !enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
             ExamRoom examRoom = Ebean.find(ExamRoom.class)
                     .fetch("mailAddress")
@@ -314,14 +314,14 @@ public class StudentExamController extends BaseController {
                     .eq("id", enrolment.getReservation().getMachine().getRoom().getId())
                     .findUnique();
             if (examRoom == null) {
-                return notFound();
+                return Optional.of(notFound());
             }
             String message = "sitnet_wrong_exam_machine " + examRoom.getName()
                     + ", " + examRoom.getMailAddress().toString()
                     + ", sitnet_exam_machine " + enrolment.getReservation().getMachine().getName();
-            return forbidden(message);
+            return Optional.of(forbidden(message));
         }
-        return null;
+        return Optional.empty();
     }
 
     private static Query<Exam> createQuery() {
@@ -369,16 +369,12 @@ public class StudentExamController extends BaseController {
         // Create new exam for student
         if (possibleClone == null) {
             ExamEnrolment enrolment = getEnrolment(user, prototype);
-            Result error = checkEnrolmentOK(enrolment);
-            if (error != null) {
-                return error;
-            }
-            // We are good to go (reservation and enrolment OK)
-            Exam newExam = createNewExam(prototype, user, enrolment);
-            //TODO: check how to do better
-            Exam studentExam = createQuery().where().idEq(newExam.getId()).findUnique();
-
-            return ok(studentExam);
+            return getEnrolmentError(enrolment).orElseGet(() -> {
+                Exam newExam = createNewExam(prototype, user, enrolment);
+                //TODO: check how to do better
+                Exam studentExam = createQuery().where().idEq(newExam.getId()).findUnique();
+                return ok(studentExam);
+            });
         } else {
             // Returning an already existing student exam
             return ok(possibleClone);
@@ -459,81 +455,75 @@ public class StudentExamController extends BaseController {
         }
     }
 
-    private Result checkEnrolment(String hash) {
+    private Optional<Result> getEnrolmentError(String hash) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .eq("exam.hash", hash)
                 .eq("exam.creator", getLoggedUser())
                 .eq("exam.state", Exam.State.STUDENT_STARTED)
                 .findUnique();
-        return checkEnrolmentOK(enrolment);
+        return getEnrolmentError(enrolment);
     }
 
     @Restrict({@Group("STUDENT")})
     public Result answerEssay(String hash, Long questionId) {
-        Result failure = checkEnrolment(hash);
-        if (failure != null) {
-            return failure;
-        }
-        DynamicForm df = formFactory.form().bindFromRequest();
-        String essayAnswer = df.get("answer");
-        Question question = Ebean.find(Question.class, questionId);
-        if (question == null) {
-            return forbidden();
-        }
-
-        Answer answer = question.getAnswer();
-        if (answer == null) {
-            answer = new Answer();
-            answer.setType(Answer.Type.EssayAnswer);
-        } else {
-            long objectVersion = Long.parseLong(df.get("objectVersion"));
-            answer.setObjectVersion(objectVersion);
-        }
-        answer.setAnswer(essayAnswer);
-        answer.save();
-
-        question.setAnswer(answer);
-        question.save();
-        return ok(answer);
+        return getEnrolmentError(hash).orElseGet(() -> {
+            DynamicForm df = formFactory.form().bindFromRequest();
+            String essayAnswer = df.get("answer");
+            Question question = Ebean.find(Question.class, questionId);
+            if (question == null) {
+                return forbidden();
+            }
+            Answer answer = question.getAnswer();
+            if (answer == null) {
+                answer = new Answer();
+                answer.setType(Answer.Type.EssayAnswer);
+            } else {
+                long objectVersion = Long.parseLong(df.get("objectVersion"));
+                answer.setObjectVersion(objectVersion);
+            }
+            answer.setAnswer(essayAnswer);
+            answer.save();
+            question.setAnswer(answer);
+            question.save();
+            return ok(answer);
+        });
     }
 
     @Restrict({@Group("STUDENT")})
     public Result answerMultiChoice(String hash, Long qid, String oids) {
-        Result failure = checkEnrolment(hash);
-        if (failure != null) {
-            return failure;
-        }
-        List<Long> optionIds;
-        if (oids.equals("none")) { // not so elegant but will do for now
-            optionIds = new ArrayList<>();
-        } else {
-            optionIds = Stream.of(oids.split(",")).map(Long::parseLong).collect(Collectors.toList());
-        }
-        Question question = Ebean.find(Question.class).fetch("answer").where().idEq(qid).findUnique();
-        if (question == null) {
-            return forbidden();
-        }
-        Answer answer = question.getAnswer();
-        if (answer == null) {
-            answer = new Answer();
-            answer.setType(question.getType());
-            answer.save();
-            question.setAnswer(answer);
-            question.update();
-        }
-        answer.getOptions().stream().forEach(o -> {
-            o.setAnswer(null);
-            o.update();
+        return getEnrolmentError(hash).orElseGet(() -> {
+            List<Long> optionIds;
+            if (oids.equals("none")) { // not so elegant but will do for now
+                optionIds = new ArrayList<>();
+            } else {
+                optionIds = Stream.of(oids.split(",")).map(Long::parseLong).collect(Collectors.toList());
+            }
+            Question question = Ebean.find(Question.class).fetch("answer").where().idEq(qid).findUnique();
+            if (question == null) {
+                return forbidden();
+            }
+            Answer answer = question.getAnswer();
+            if (answer == null) {
+                answer = new Answer();
+                answer.setType(question.getType());
+                answer.save();
+                question.setAnswer(answer);
+                question.update();
+            }
+            answer.getOptions().stream().forEach(o -> {
+                o.setAnswer(null);
+                o.update();
+            });
+            List<MultipleChoiceOption> options = optionIds.isEmpty()
+                    ? new ArrayList<>() : Ebean.find(MultipleChoiceOption.class).where().idIn(optionIds).findList();
+            for (MultipleChoiceOption o : options) {
+                o.setAnswer(answer);
+                o.save();
+            }
+            answer.getOptions().clear();
+            answer.getOptions().addAll(options);
+            return ok(Json.toJson(answer));
         });
-        List<MultipleChoiceOption> options = optionIds.isEmpty()
-                ? new ArrayList<>() : Ebean.find(MultipleChoiceOption.class).where().idIn(optionIds).findList();
-        for (MultipleChoiceOption o : options) {
-            o.setAnswer(answer);
-            o.save();
-        }
-        answer.getOptions().clear();
-        answer.getOptions().addAll(options);
-        return ok(Json.toJson(answer));
     }
 
     private Result listExams(String filter, Collection<String> courseCodes) {

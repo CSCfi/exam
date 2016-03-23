@@ -19,10 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -46,33 +43,30 @@ public class ExamRecordController extends BaseController {
                 .where()
                 .idEq(Long.parseLong(df.get("id")))
                 .findUnique();
-        Result failure = validateExamState(exam);
-        if (failure != null) {
-            return failure;
-        }
-        exam.setState(Exam.State.GRADED_LOGGED);
-        exam.update();
+        return validateExamState(exam).orElseGet(() -> {
+            exam.setState(Exam.State.GRADED_LOGGED);
+            exam.update();
+            ExamParticipation participation = Ebean.find(ExamParticipation.class)
+                    .fetch("user")
+                    .where()
+                    .eq("exam.id", exam.getId())
+                    .findUnique();
+            if (participation == null) {
+                return notFound();
+            }
 
-        ExamParticipation participation = Ebean.find(ExamParticipation.class)
-                .fetch("user")
-                .where()
-                .eq("exam.id", exam.getId())
-                .findUnique();
-        if (participation == null) {
-            return notFound();
-        }
-
-        ExamRecord record = createRecord(exam, participation);
-        ExamScore score = createScore(record, participation.getEnded());
-        score.save();
-        record.setExamScore(score);
-        record.save();
-        final User user = getLoggedUser();
-        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
-            Logger.info("Inspection ready notification email sent");
-        }, actor.dispatcher());
-        return ok();
+            ExamRecord record = createRecord(exam, participation);
+            ExamScore score = createScore(record, participation.getEnded());
+            score.save();
+            record.setExamScore(score);
+            record.save();
+            final User user = getLoggedUser();
+            actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+                emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+                Logger.info("Inspection ready notification email sent");
+            }, actor.dispatcher());
+            return ok();
+        });
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -136,13 +130,13 @@ public class ExamRecordController extends BaseController {
         return ok(Base64.getEncoder().encodeToString(bos.toByteArray()));
     }
 
-    private Result validateExamState(Exam exam) {
+    private Optional<Result> validateExamState(Exam exam) {
         if (exam == null) {
-            return notFound();
+            return Optional.of(notFound());
         }
         User user = getLoggedUser();
         if (!exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
-            return forbidden("You are not allowed to modify this object");
+            return Optional.of(forbidden("You are not allowed to modify this object"));
         }
         if (exam.getGradedByUser() == null && exam.getAutoEvaluationConfig() != null) {
             // Automatically graded by system, set graded by user at this point.
@@ -150,13 +144,13 @@ public class ExamRecordController extends BaseController {
         }
         if (exam.getGrade() == null || exam.getCreditType() == null || exam.getAnswerLanguage() == null ||
                 exam.getGradedByUser() == null) {
-            return forbidden("not yet graded by anyone!");
+            return Optional.of(forbidden("not yet graded by anyone!"));
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
                 exam.getExamRecord() != null) {
-            return forbidden("sitnet_error_exam_already_graded_logged");
+            return Optional.of(forbidden("sitnet_error_exam_already_graded_logged"));
         }
-        return null;
+        return Optional.empty();
     }
 
     private static ExamRecord createRecord(Exam exam, ExamParticipation participation) {

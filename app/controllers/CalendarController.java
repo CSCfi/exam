@@ -153,8 +153,8 @@ public class CalendarController extends BaseController {
             return forbidden("sitnet_no_trials_left");
         }
 
-        ExamMachine machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
-        if (machine == null) {
+        Optional<ExamMachine>  machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
+        if (!machine.isPresent()) {
             return forbidden("sitnet_no_machines_available");
         }
 
@@ -162,7 +162,7 @@ public class CalendarController extends BaseController {
         final Reservation reservation = new Reservation();
         reservation.setEndAt(end.toDate());
         reservation.setStartAt(start.toDate());
-        reservation.setMachine(machine);
+        reservation.setMachine(machine.get());
         reservation.setUser(user);
 
         Ebean.save(reservation);
@@ -195,16 +195,16 @@ public class CalendarController extends BaseController {
         return ok("ok");
     }
 
-    private ExamMachine getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end, Collection<Integer> aids) {
+    private Optional<ExamMachine> getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end, Collection<Integer> aids) {
         List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
         Collections.shuffle(machines);
         Interval wantedTime = new Interval(start, end);
         for (ExamMachine machine : machines) {
             if (!machine.isReservedDuring(wantedTime)) {
-                return machine;
+                return Optional.of(machine);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})

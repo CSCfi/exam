@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 class ExamAutoSaverActor extends UntypedActor {
 
-    public static Props props = Props.create(ExamAutoSaverActor.class);
+    static final Props props = Props.create(ExamAutoSaverActor.class);
 
     @Override
     public void onReceive(Object message) throws Exception {

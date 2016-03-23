@@ -11,6 +11,7 @@ import models.User;
 import models.api.Sortable;
 import models.questions.Question;
 import play.data.DynamicForm;
+import play.db.ebean.Transactional;
 import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
@@ -123,31 +124,29 @@ public class ExamSectionController extends BaseController {
         DynamicForm df = formFactory.form().bindFromRequest();
         Integer from = Integer.parseInt(df.get("from"));
         Integer to = Integer.parseInt(df.get("to"));
-        Result result = checkBounds(from, to);
-        if (result != null) {
-            return result;
-        }
-        Exam exam = Ebean.find(Exam.class).fetch("examSections").where().idEq(eid).findUnique();
-        if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
-        }
-        User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            // Reorder by sequenceNumber (TreeSet orders the collection based on it)
-            List<ExamSection> sections = new ArrayList<>(new TreeSet<>(exam.getExamSections()));
-            ExamSection prev = sections.get(from);
-            boolean removed = sections.remove(prev);
-            if (removed) {
-                sections.add(to, prev);
-                for (int i = 0; i < sections.size(); ++i) {
-                    ExamSection section = sections.get(i);
-                    section.setSequenceNumber(i);
-                    section.update();
-                }
+        return checkBounds(from, to).orElseGet(() -> {
+            Exam exam = Ebean.find(Exam.class).fetch("examSections").where().idEq(eid).findUnique();
+            if (exam == null) {
+                return notFound("sitnet_error_exam_not_found");
             }
-            return ok();
-        }
-        return forbidden("sitnet_error_access_forbidden");
+            User user = getLoggedUser();
+            if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
+                // Reorder by sequenceNumber (TreeSet orders the collection based on it)
+                List<ExamSection> sections = new ArrayList<>(new TreeSet<>(exam.getExamSections()));
+                ExamSection prev = sections.get(from);
+                boolean removed = sections.remove(prev);
+                if (removed) {
+                    sections.add(to, prev);
+                    for (int i = 0; i < sections.size(); ++i) {
+                        ExamSection section = sections.get(i);
+                        section.setSequenceNumber(i);
+                        section.update();
+                    }
+                }
+                return ok();
+            }
+            return forbidden("sitnet_error_access_forbidden");
+        });
     }
 
     private Question clone(Question blueprint) {
@@ -165,35 +164,34 @@ public class ExamSectionController extends BaseController {
         DynamicForm df = formFactory.form().bindFromRequest();
         Integer from = Integer.parseInt(df.get("from"));
         Integer to = Integer.parseInt(df.get("to"));
-        Result result = checkBounds(from, to);
-        if (result != null) {
-            return result;
-        }
-        Exam exam = Ebean.find(Exam.class, eid);
-        if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
-        }
-        User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            ExamSection section = Ebean.find(ExamSection.class, sid);
-            if (section == null) {
-                return notFound("section not found");
+        return checkBounds(from, to).orElseGet(() -> {
+            Exam exam = Ebean.find(Exam.class, eid);
+            if (exam == null) {
+                return notFound("sitnet_error_exam_not_found");
             }
-            // Reorder by sequenceNumber (TreeSet orders the collection based on it)
-            List<ExamSectionQuestion> questions = new ArrayList<>(new TreeSet<>(section.getSectionQuestions()));
-            ExamSectionQuestion prev = questions.get(from);
-            boolean removed = questions.remove(prev);
-            if (removed) {
-                questions.add(to, prev);
-                for (int i = 0; i < questions.size(); ++i) {
-                    ExamSectionQuestion question = questions.get(i);
-                    question.setSequenceNumber(i);
-                    question.update();
+            User user = getLoggedUser();
+            if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
+                ExamSection section = Ebean.find(ExamSection.class, sid);
+                if (section == null) {
+                    return notFound("section not found");
                 }
+                // Reorder by sequenceNumber (TreeSet orders the collection based on it)
+                List<ExamSectionQuestion> questions = new ArrayList<>(new TreeSet<>(section.getSectionQuestions()));
+                ExamSectionQuestion prev = questions.get(from);
+                boolean removed = questions.remove(prev);
+                if (removed) {
+                    questions.add(to, prev);
+                    for (int i = 0; i < questions.size(); ++i) {
+                        ExamSectionQuestion question = questions.get(i);
+                        question.setSequenceNumber(i);
+                        question.update();
+                    }
+                }
+                return ok();
             }
-            return ok();
-        }
-        return forbidden("sitnet_error_access_forbidden");
+            return forbidden("sitnet_error_access_forbidden");
+        });
+
     }
 
     private void updateSequences(Collection<? extends Sortable> sortables, int ordinal) {
@@ -206,10 +204,10 @@ public class ExamSectionController extends BaseController {
         }
     }
 
-    private Result insertQuestion(Exam exam, ExamSection section, Question question, User user, Integer seq) {
+    private Optional<Result> insertQuestion(Exam exam, ExamSection section, Question question, User user, Integer seq) {
         String validationResult = question.getValidationResult();
         if (validationResult != null) {
-            return forbidden(validationResult);
+            return Optional.of(forbidden(validationResult));
         }
         if (question.getType().equals(Question.Type.EssayQuestion)) {
             // disable auto evaluation for this exam
@@ -233,7 +231,7 @@ public class ExamSectionController extends BaseController {
         AppUtil.setModifier(section, user);
         section.save();
         section.setSectionQuestions(new TreeSet<>(section.getSectionQuestions()));
-        return null;
+        return Optional.empty();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -248,12 +246,12 @@ public class ExamSectionController extends BaseController {
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        Result result = insertQuestion(exam, section, question, user, seq);
-        return result == null ? ok(Json.toJson(section)) : result;
-
+        return insertQuestion(exam, section, question, user, seq)
+                .orElse(ok(Json.toJson(section)));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Transactional
     public Result insertMultipleQuestions(Long eid, Long sid, Integer seq, String questions) {
 
         Exam exam = Ebean.find(Exam.class, eid);
@@ -270,9 +268,9 @@ public class ExamSectionController extends BaseController {
             if (question == null) {
                 continue;
             }
-            Result result = insertQuestion(exam, section, question, user, seq);
-            if (result != null) {
-                return result;
+            Optional<Result> result = insertQuestion(exam, section, question, user, seq);
+            if (result.isPresent()) {
+                return result.get();
             }
         }
         return ok(Json.toJson(section));
@@ -351,14 +349,14 @@ public class ExamSectionController extends BaseController {
         }
     }
 
-    private Result checkBounds(Integer from, Integer to) {
+    private Optional<Result> checkBounds(Integer from, Integer to) {
         if (from < 0 || to < 0) {
-            return badRequest();
+            return Optional.of(badRequest());
         }
         if (from.equals(to)) {
-            return ok();
+            return Optional.of(ok());
         }
-        return null;
+        return Optional.empty();
     }
 
 }
