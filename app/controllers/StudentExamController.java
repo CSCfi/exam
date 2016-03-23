@@ -47,7 +47,7 @@ public class StudentExamController extends BaseController {
     @Restrict({@Group("STUDENT")})
     public CompletionStage<Result> listAvailableExams(final Optional<String> filter) throws MalformedURLException {
         if (!PERM_CHECK_ACTIVE) {
-            return wrapAsPromise(listExams(filter, Collections.emptyList()));
+            return wrapAsPromise(listExams(filter.orElse(null), Collections.emptyList()));
         }
         return externalAPI.getPermittedCourses(getLoggedUser())
                 .thenApplyAsync(codes ->
@@ -55,7 +55,7 @@ public class StudentExamController extends BaseController {
                             if (codes.isEmpty()) {
                                 return ok(Json.toJson(Collections.<Exam>emptyList())).as("application/json");
                             } else {
-                                return listExams(filter, codes);
+                                return listExams(filter.orElse(null), codes);
                             }
                         }
                 ).exceptionally(throwable -> internalServerError(throwable.getMessage()));
@@ -259,7 +259,7 @@ public class StudentExamController extends BaseController {
     }
 
     private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
-        Exam studentExam = prototype.copy(user, true);
+        Exam studentExam = prototype.copyForStudent(user);
         studentExam.setState(Exam.State.STUDENT_STARTED);
         studentExam.setCreator(user);
         studentExam.setParent(prototype);
@@ -536,7 +536,7 @@ public class StudentExamController extends BaseController {
         return ok(Json.toJson(answer));
     }
 
-    private Result listExams(Optional<String> filter, Collection<String> courseCodes) {
+    private Result listExams(String filter, Collection<String> courseCodes) {
         ExpressionList<Exam> query = Ebean.find(Exam.class)
                 .select("id, name, examActiveStartDate, examActiveEndDate, enrollInstruction")
                 .fetch("course", "code")
@@ -551,8 +551,8 @@ public class StudentExamController extends BaseController {
         if (!courseCodes.isEmpty()) {
             query.in("course.code", courseCodes);
         }
-        if (filter.isPresent()) {
-            String condition = String.format("%%%s%%", filter.get());
+        if (filter != null) {
+            String condition = String.format("%%%s%%", filter);
             query = query.disjunction()
                     .ilike("name", condition)
                     .ilike("course.code", condition)

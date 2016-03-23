@@ -104,7 +104,7 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof GradeScale)) {
+        if (!(other instanceof ExamParticipation)) {
             return false;
         }
         ExamParticipation otherParticipation = (ExamParticipation) other;

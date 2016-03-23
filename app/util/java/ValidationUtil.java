@@ -6,10 +6,11 @@ import java.util.Date;
 
 public class ValidationUtil {
 
+    private static final int MS_IN_DAY = 1000 * 60 * 60 * 24;
+
     public static String validateExamForm(JsonNode node) {
 
         Long start, end, now = new Date().getTime();
-        long day = 1000 * 60 * 60 * 24;
 
         String examName = node.has("name") ? node.get("name").asText() : null;
 
@@ -29,11 +30,11 @@ public class ValidationUtil {
             return "sitnet_error_end_date";
         }
 
-        if(start >= end + day) {
+        if(start >= end + MS_IN_DAY) {
             return "sitnet_error_end_sooner_than_start";
         }
 
-        if(end + day <= now) {
+        if(end + MS_IN_DAY <= now) {
             return "sitnet_error_end_sooner_than_now";
         }
 

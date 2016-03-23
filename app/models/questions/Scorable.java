@@ -1,7 +1,7 @@
 package models.questions;
 
 
-public interface Scorable {
+interface Scorable {
 
     Double getAssessedScore();
     Double getMaxAssessedScore();

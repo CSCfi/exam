@@ -63,7 +63,7 @@ public class ExamSectionQuestion extends Model implements Comparable<ExamSection
         this.sequenceNumber = sequenceNumber;
     }
 
-    public ExamSectionQuestion copy(boolean usePrototypeQuestion) {
+    ExamSectionQuestion copy(boolean usePrototypeQuestion) {
         ExamSectionQuestion esq = new ExamSectionQuestion();
         BeanUtils.copyProperties(this, esq, "id");
         Question blueprint = question.copy();

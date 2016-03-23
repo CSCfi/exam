@@ -277,27 +277,28 @@ public class StatisticsController extends BaseController {
         addHeader(sheet, headers);
 
         for (ExamEnrolment e : enrolments) {
-            String[] data = new String[16];
-            data[0] = Long.toString(e.getId());
-            data[1] = ISODateTimeFormat.date().print(new DateTime(e.getEnrolledOn()));
-            data[2] = Long.toString(e.getUser().getId());
-            data[3] = e.getUser().getFirstName();
-            data[4] = e.getUser().getLastName();
-            data[5] = Long.toString(e.getExam().getId());
-            data[6] = e.getExam().getName();
-            data[7] = Long.toString(e.getReservation().getId());
-            data[8] = ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation().getStartAt()));
-            data[9] = ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation().getEndAt()));
-            data[10] = Long.toString(e.getReservation().getMachine().getId());
-            data[11] = e.getReservation().getMachine().getName();
-            data[12] = e.getReservation().getMachine().getIpAddress();
-            data[13] = Long.toString(e.getReservation().getMachine().getRoom().getId());
-            data[14] = e.getReservation().getMachine().getRoom().getName();
-            data[15] = e.getReservation().getMachine().getRoom().getRoomCode();
+            List<String> data = Arrays.asList(
+                    Long.toString(e.getId()),
+                    ISODateTimeFormat.date().print(new DateTime(e.getEnrolledOn())),
+                    Long.toString(e.getUser().getId()),
+                    e.getUser().getFirstName(),
+                    e.getUser().getLastName(),
+                    Long.toString(e.getExam().getId()),
+                    e.getExam().getName(),
+                    Long.toString(e.getReservation().getId()),
+                    ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation().getStartAt())),
+                    ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation().getEndAt())),
+                    Long.toString(e.getReservation().getMachine().getId()),
+                    e.getReservation().getMachine().getName(),
+                    e.getReservation().getMachine().getIpAddress(),
+                    Long.toString(e.getReservation().getMachine().getRoom().getId()),
+                    e.getReservation().getMachine().getRoom().getName(),
+                    e.getReservation().getMachine().getRoom().getRoomCode()
+            );
             Row dataRow = sheet.createRow(enrolments.indexOf(e) + 1);
-            for (int i = 0; i < data.length; ++i) {
+            for (int i = 0; i < data.size(); ++i) {
                 sheet.autoSizeColumn(i, true);
-                dataRow.createCell(i).setCellValue(data[i]);
+                dataRow.createCell(i).setCellValue(data.get(i));
             }
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"reservations.xlsx\"");

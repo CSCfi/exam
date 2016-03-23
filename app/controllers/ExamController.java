@@ -49,12 +49,12 @@ public class ExamController extends BaseController {
                 .endJunction();
     }
 
-    private List<Exam> getAllExams(Optional<String> filter) {
+    private List<Exam> getAllExams(String filter) {
         ExpressionList<Exam> query = createPrototypeQuery();
-        if (filter.isPresent()) {
+        if (filter != null) {
             query = query.disjunction();
-            query = applyUserFilter("examOwners", query, filter.get());
-            String condition = String.format("%%%s%%", filter.get());
+            query = applyUserFilter("examOwners", query, filter);
+            String condition = String.format("%%%s%%", filter);
             query = query
                     .ilike("name", condition)
                     .ilike("course.code", condition)
@@ -63,27 +63,28 @@ public class ExamController extends BaseController {
         return query.findList();
     }
 
-    private static ExpressionList<Exam> applyOptionalFilters(ExpressionList<Exam> query, Optional<List<Long>> courseIds,
-                                                             Optional<List<Long>> sectionIds, Optional<List<Long>> tagIds) {
-        if (courseIds.isPresent() && !courseIds.get().isEmpty()) {
-            query = query.in("course.id", courseIds.get());
+    private static ExpressionList<Exam> applyOptionalFilters(ExpressionList<Exam> query, List<Long> courseIds,
+                                                             List<Long> sectionIds, List<Long> tagIds) {
+        ExpressionList<Exam> result = query;
+        if (!courseIds.isEmpty()) {
+            result = query.in("course.id", courseIds);
         }
-        if (sectionIds.isPresent() && !sectionIds.get().isEmpty()) {
-            query = query.in("examSections.id", sectionIds.get());
+        if (!sectionIds.isEmpty()) {
+            result = query.in("examSections.id", sectionIds);
         }
-        if (tagIds.isPresent() && !tagIds.get().isEmpty()) {
-            query = query.in("examSections.sectionQuestions.question.parent.tags.id", tagIds.get());
+        if (!tagIds.isEmpty()) {
+            result = query.in("examSections.sectionQuestions.question.parent.tags.id", tagIds);
         }
-        return query;
+        return result;
     }
 
-    private static List<Exam> getAllExams(Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds, Optional<List<Long>> tagIds) {
+    private static List<Exam> getAllExams(List<Long> courseIds, List<Long> sectionIds, List<Long> tagIds) {
         ExpressionList<Exam> query = createPrototypeQuery().isNotNull("name");
         query = applyOptionalFilters(query, courseIds, sectionIds, tagIds);
         return query.findList();
     }
 
-    private static List<Exam> getAllExamsOfTeacher(User user, Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds, Optional<List<Long>> tagIds) {
+    private static List<Exam> getAllExamsOfTeacher(User user, List<Long> courseIds, List<Long> sectionIds, List<Long> tagIds) {
         ExpressionList<Exam> query = createPrototypeQuery()
                 .eq("examOwners", user)
                 .isNotNull("name");
@@ -104,7 +105,7 @@ public class ExamController extends BaseController {
         User user = getLoggedUser();
         List<Exam> exams;
         if (user.hasRole("ADMIN", getSession())) {
-            exams = getAllExams(filter);
+            exams = getAllExams(filter.orElse(null));
         } else {
             exams = getAllExamsOfTeacher(user);
         }
@@ -115,10 +116,14 @@ public class ExamController extends BaseController {
     public Result listExams(Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds, Optional<List<Long>> tagIds) {
         User user = getLoggedUser();
         List<Exam> exams;
+        List<Long> courses = courseIds.orElse(Collections.emptyList());
+        List<Long> sections = sectionIds.orElse(Collections.emptyList());
+        List<Long> tags = tagIds.orElse(Collections.emptyList());
+
         if (user.hasRole("ADMIN", getSession())) {
-            exams = getAllExams(courseIds, sectionIds, tagIds);
+            exams = getAllExams(courses, sections, tags);
         } else {
-            exams = getAllExamsOfTeacher(user, courseIds, sectionIds, tagIds);
+            exams = getAllExamsOfTeacher(user, courses, sections, tags);
         }
         return ok(exams);
     }
@@ -588,7 +593,7 @@ public class ExamController extends BaseController {
         if (prototype == null) {
             return notFound("sitnet_exam_not_found");
         }
-        Exam copy = prototype.copy(user, false);
+        Exam copy = prototype.copy(user);
         copy.setName(String.format("**COPY**%s", copy.getName()));
         copy.setState(Exam.State.DRAFT);
         AppUtil.setCreator(copy, user);

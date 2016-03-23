@@ -2,6 +2,7 @@ package models.questions;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.base.GeneratedIdentityModel;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 
 import javax.persistence.Entity;
@@ -104,7 +105,7 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
     }
 
     @Override
-    public int compareTo(MultipleChoiceOption o) {
+    public int compareTo(@NotNull MultipleChoiceOption o) {
         if (getId() < o.getId()) {
             return -1;
         }

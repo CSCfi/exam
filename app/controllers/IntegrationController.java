@@ -175,7 +175,8 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return request.get().thenApplyAsync(onSuccess);
     }
 
-    private static List<GradeScale> getGradeScales(JsonNode node) {
+    private static List<GradeScale> getGradeScales(JsonNode src) {
+        JsonNode node = src;
         List<GradeScale> scales = new ArrayList<>();
         if (node.has("gradeScale")) {
             node = node.get("gradeScale");

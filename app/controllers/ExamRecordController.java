@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static util.java.AttachmentUtils.setData;
 
 public class ExamRecordController extends BaseController {
 
@@ -103,7 +102,7 @@ public class ExamRecordController extends BaseController {
         return childIds;
     }
 
-    private static Result sendFile(File file) {
+    private Result sendFile(File file) {
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
         String content = Base64.getEncoder().encodeToString(setData(file).toByteArray());
         if (!file.delete()) {

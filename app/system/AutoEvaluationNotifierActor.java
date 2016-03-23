@@ -13,8 +13,9 @@ import util.java.EmailComposer;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
-public class AutoEvaluationNotifierActor extends UntypedActor {
+class AutoEvaluationNotifierActor extends UntypedActor {
 
     public static Props props = Props.create(AutoEvaluationNotifierActor.class);
 
@@ -45,29 +46,29 @@ public class AutoEvaluationNotifierActor extends UntypedActor {
     }
 
     private boolean isPastReleaseDate(Exam exam) {
-        DateTime releaseDate;
+        Optional<DateTime> releaseDate;
         AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
         switch (config.getReleaseType()) {
             case IMMEDIATE:
                 // This subtraction is to avoid a race condition
-                releaseDate = DateTime.now().minusSeconds(1);
+                releaseDate = Optional.of(DateTime.now().minusSeconds(1));
                 break;
             // Put some delay in these dates to avoid sending stuff in the middle of the night
             case GIVEN_DATE:
-                releaseDate = adjustReleaseDate(new DateTime(config.getReleaseDate()));
+                releaseDate = Optional.of(adjustReleaseDate(new DateTime(config.getReleaseDate())));
                 break;
             case GIVEN_AMOUNT_DAYS:
-                releaseDate = adjustReleaseDate(new DateTime(exam.getGradedTime()).plusDays(config.getAmountDays()));
+                releaseDate = Optional.of(adjustReleaseDate(new DateTime(exam.getGradedTime()).plusDays(config.getAmountDays())));
                 break;
             case AFTER_EXAM_PERIOD:
-                releaseDate = adjustReleaseDate(new DateTime(exam.getExamActiveEndDate()));
+                releaseDate = Optional.of(adjustReleaseDate(new DateTime(exam.getExamActiveEndDate())));
                 break;
             case NEVER:
             default:
-                releaseDate = null;
+                releaseDate = Optional.empty();
                 break;
         }
-        return releaseDate != null && releaseDate.isBeforeNow();
+        return releaseDate.isPresent() && releaseDate.get().isBeforeNow();
     }
 
     private void notifyStudent(Exam exam, EmailComposer composer) {

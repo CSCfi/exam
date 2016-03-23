@@ -1,29 +1,14 @@
 package util.java;
 
-import com.avaje.ebean.Ebean;
 import models.*;
 import play.Logger;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class NoShowHandlerUtil {
-
-    public static void handleNoShow(User user, Long examId, EmailComposer composer) {
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
-                .where()
-                .eq("user", user)
-                .eq("reservation.noShow", false)
-                .lt("reservation.endAt", new Date())
-                .eq("exam.id", examId)
-                .eq("exam.state", Exam.State.PUBLISHED)
-                .findList();
-        handleNoShows(enrolments, composer, null);
-    }
 
     public static void handleNoShows(List<ExamEnrolment> noShows, EmailComposer composer, Class<?> sender) {
         for (ExamEnrolment enrolment : noShows) {

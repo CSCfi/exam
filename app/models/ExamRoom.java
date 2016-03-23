@@ -330,8 +330,10 @@ public class ExamRoom extends GeneratedIdentityModel {
     @Transient
     public List<OpeningHours> getWorkingHoursForDate(LocalDate date) {
         List<OpeningHours> workingHours = getDefaultWorkingHours(date);
-        List<Interval> extensionEvents = DateTimeUtils.mergeSlots(DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, false));
-        List<Interval> restrictionEvents = DateTimeUtils.mergeSlots(DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, true));
+        List<Interval> extensionEvents = DateTimeUtils.mergeSlots(
+                DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, DateTimeUtils.RestrictionType.NON_RESTRICTIVE));
+        List<Interval> restrictionEvents = DateTimeUtils.mergeSlots(
+                DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, DateTimeUtils.RestrictionType.RESTRICTIVE));
         List<OpeningHours> availableHours = new ArrayList<>();
         if (!extensionEvents.isEmpty()) {
             List<Interval> unifiedIntervals = new ArrayList<>();

@@ -17,7 +17,7 @@ public class ExamStartingHour extends GeneratedIdentityModel implements Comparab
 
     @Temporal(TemporalType.TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
-    protected Date startingHour;
+    private Date startingHour;
 
     private int timezoneOffset;
 

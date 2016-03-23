@@ -462,7 +462,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.languageInspection = languageInspection;
     }
 
-    public Exam copy(User user, boolean produceStudentExam) {
+    private Exam createCopy(User user, boolean produceStudentExam) {
         Exam clone = new Exam();
         BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipations",
                 "examInspections", "autoEvaluationConfig", "creator", "created", produceStudentExam ? "examOwners" : "none");
@@ -509,6 +509,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         // do we need this at all?
         clone.setExamSections(new TreeSet<>(clone.getExamSections()));
         return clone;
+    }
+
+    public Exam copyForStudent(User student) {
+        return createCopy(student, true);
+    }
+
+    public Exam copy(User user) {
+        return createCopy(user, false);
     }
 
     public Date getExamActiveStartDate() {
@@ -560,18 +568,18 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     @Transient
-    public boolean isCreatedBy(User user) {
+    private boolean isCreatedBy(User user) {
         return creator != null && creator.equals(user);
     }
 
     @Transient
-    public boolean isInspectedBy(User user, boolean applyToChildOnly) {
+    private boolean isInspectedBy(User user, boolean applyToChildOnly) {
         Exam examToCheck = parent == null || applyToChildOnly ? this : parent;
         return examToCheck.examInspections.stream().anyMatch(ei -> ei.getUser().equals(user));
     }
 
     @Transient
-    public boolean isOwnedBy(User user) {
+    private boolean isOwnedBy(User user) {
         Exam examToCheck = parent == null ? this : parent;
         return examToCheck.examOwners.stream().anyMatch(owner -> owner.equals(user));
     }
@@ -587,8 +595,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     @Transient
-    public boolean isInspectedOrCreatedOrOwnedBy(User user, boolean applyToChildOnly) {
-        return isInspectedBy(user, applyToChildOnly) || isOwnedBy(user) || isCreatedBy(user);
+    public boolean isChildInspectedOrCreatedOrOwnedBy(User user) {
+        return isInspectedBy(user, true) || isOwnedBy(user) || isCreatedBy(user);
     }
 
     @Transient

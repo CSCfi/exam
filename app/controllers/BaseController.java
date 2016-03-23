@@ -16,6 +16,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -25,10 +26,10 @@ import java.util.concurrent.CompletionStage;
 public class BaseController extends Controller {
 
     public static final String SITNET_CACHE_KEY = "user.session.";
-    private static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
     static final int SITNET_TIMEOUT_MINUTES = 30;
-
     static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
+    private static final int KB = 1024;
+    private static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
 
     @Inject
     protected CacheApi cache;
@@ -125,6 +126,7 @@ public class BaseController extends Controller {
     }
 
     <T> ExpressionList<T> applyUserFilter(String prefix, ExpressionList<T> query, String filter) {
+        ExpressionList<T> result = query;
         String rawFilter = filter.replaceAll(" +", " ").trim();
         String condition = String.format("%%%s%%", rawFilter);
         String fnField = prefix == null ? "firstName" : String.format("%s.firstName", prefix);
@@ -133,7 +135,7 @@ public class BaseController extends Controller {
             // Possible that user provided us two names. Lets try out some combinations of first and last names
             String name1 = rawFilter.split(" ")[0];
             String name2 = rawFilter.split(" ")[1];
-            query = query.disjunction().conjunction()
+            result = result.disjunction().conjunction()
                     .ilike(fnField, String.format("%%%s%%", name1))
                     .ilike(lnField, String.format("%%%s%%", name2))
                     .endJunction().conjunction()
@@ -141,10 +143,31 @@ public class BaseController extends Controller {
                     .ilike(lnField, String.format("%%%s%%", name1))
                     .endJunction().endJunction();
         } else {
-            query = query.ilike(fnField, condition)
+            result = result.ilike(fnField, condition)
                     .ilike(lnField, condition);
         }
-        return query;
+        return result;
+    }
+
+    ByteArrayOutputStream setData(File file) {
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        try {
+            InputStream fis = new FileInputStream(file);
+
+            byte[] buf = new byte[KB];
+
+            for (int readNum; (readNum = fis.read(buf)) != -1; ) {
+                bos.write(buf, 0, readNum);
+            }
+
+            fis.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        return bos;
     }
 
     CompletionStage<Result> wrapAsPromise(final Result result) {

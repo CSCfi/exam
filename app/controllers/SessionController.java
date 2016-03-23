@@ -92,8 +92,8 @@ public class SessionController extends BaseController {
         Language language = null;
         if (code != null) {
             // for example: en-US -> en
-            code = code.split("-")[0].toLowerCase();
-            language = Ebean.find(Language.class, code);
+            String lcCode = code.split("-")[0].toLowerCase();
+            language = Ebean.find(Language.class, lcCode);
         }
         if (language == null) {
             // Default to English

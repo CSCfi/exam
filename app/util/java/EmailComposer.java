@@ -24,7 +24,7 @@ public interface EmailComposer {
     /**
      * Message sent to student when reservation has been made.
      */
-    void composeReservationNotification(User student, Reservation reservation, Exam exam, boolean isTeacher);
+    void composeReservationNotification(User student, Reservation reservation, Exam exam, Role.Name role);
 
     /**
      * Message sent to newly added inspectors.

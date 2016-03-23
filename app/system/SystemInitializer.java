@@ -48,7 +48,7 @@ class SystemInitializer {
     private Map<String, Cancellable> tasks = new HashMap<>();
 
     @Inject
-    public SystemInitializer(ActorSystem actorSystem, ApplicationLifecycle lifecycle, EmailComposer composer, Database database) {
+    SystemInitializer(ActorSystem actorSystem, ApplicationLifecycle lifecycle, EmailComposer composer, Database database) {
         system = actorSystem;
         this.composer = composer;
         this.database = database;

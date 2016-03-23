@@ -23,15 +23,15 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
 
     @OneToOne(mappedBy = "reservation")
     @JsonBackReference
-    ExamEnrolment enrolment;
+    private ExamEnrolment enrolment;
 
     @OneToOne
     @JsonBackReference
-    ExamMachine machine;
+    private ExamMachine machine;
 
     @OneToOne
     @JsonBackReference
-    User user;
+    private User user;
 
     public Date getStartAt() {
         return startAt;

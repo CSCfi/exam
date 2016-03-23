@@ -4,6 +4,7 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
@@ -32,8 +33,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
-
-import static util.java.AttachmentUtils.setData;
 
 public class ReviewController extends BaseController {
 
@@ -141,7 +140,7 @@ public class ReviewController extends BaseController {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = getLoggedUser();
-        if (!exam.isInspectedOrCreatedOrOwnedBy(user, true) && !user.hasRole("ADMIN", getSession()) &&
+        if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !user.hasRole("ADMIN", getSession()) &&
                 !exam.isViewableForLanguageInspector(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
@@ -161,8 +160,8 @@ public class ReviewController extends BaseController {
                 .fetch("exam.examType")
                 .fetch("exam.examFeedback")
                 .fetch("exam.languageInspection")
-                .fetch("exam.examSections.sectionQuestions.question")
-                .fetch("exam.examLanguages")
+                .fetch("exam.examSections.sectionQuestions.question") // for getting the scores (see below)
+                .fetch("exam.examLanguages", new FetchConfig().query())
                 .fetch("exam.course", "code, credits")
                 .fetch("exam.course.gradeScale")
                 .fetch("exam.course.gradeScale.grades", new FetchConfig().query())
@@ -360,17 +359,21 @@ public class ReviewController extends BaseController {
     }
 
 
-    @Restrict({@Group("TEACHER")})
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result archiveExams() {
         List<String> ids = parseArrayFieldFromBody("ids");
         if (ids.isEmpty()) {
             return badRequest();
         }
-        List<Exam> exams = Ebean.find(Exam.class).where()
-                .eq("state", Exam.State.GRADED_LOGGED)
-                .idIn(ids)
-                .findList();
-        for (Exam e : exams) {
+        DynamicForm df = formFactory.form().bindFromRequest();
+        Boolean fastForward = df.get("fastForward") != null && Boolean.parseBoolean(df.get("fastForward"));
+        ExpressionList<Exam> el = Ebean.find(Exam.class).where().idIn(ids);
+        if (fastForward) {
+            el = el.isNull("grade");
+        } else {
+            el = el.eq("state", Exam.State.GRADED_LOGGED);
+        }
+        for (Exam e : el.findList()) {
             e.setState(Exam.State.ARCHIVED);
             e.update();
         }
@@ -460,8 +463,9 @@ public class ReviewController extends BaseController {
         }
         File file = filePart.getFile();
         User user = getLoggedUser();
+        boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
         try {
-            CsvBuilder.parseGrades(file, user, user.hasRole(Role.Name.ADMIN.toString(), getSession()));
+            CsvBuilder.parseGrades(file, user, isAdmin ? Role.Name.ADMIN : Role.Name.TEACHER);
         } catch (IOException e) {
             Logger.error("Failed to parse CSV file. Stack trace follows");
             e.printStackTrace();

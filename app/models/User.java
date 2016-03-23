@@ -220,7 +220,7 @@ public class User extends GeneratedIdentityModel implements Subject {
         return session != null && session.getLoginRole() != null && name.equals(session.getLoginRole());
     }
 
-    public boolean hasPermission(Permission.Type type) {
+    boolean hasPermission(Permission.Type type) {
         return permissions.stream().map(Permission::getType).collect(Collectors.toList()).contains(type);
     }
 

@@ -9,7 +9,7 @@ import play.Logger;
 
 import java.util.stream.Stream;
 
-public class EmailSenderImpl implements EmailSender {
+class EmailSenderImpl implements EmailSender {
 
     private String SYSTEM_ACCOUNT = ConfigFactory.load().getString("sitnet.email.system.account");
     private String HOST = ConfigFactory.load().getString("play.mailer.host");
@@ -53,6 +53,7 @@ public class EmailSenderImpl implements EmailSender {
         }
     }
 
+    @Override
     public void send(String recipient, String sender, String subject, String content, EmailAttachment... attachments) {
         try {
             doSend(recipient, sender, subject, content, attachments);

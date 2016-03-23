@@ -220,15 +220,15 @@ public class ExamSectionController extends BaseController {
         Question clone = clone(question);
 
         // Assert that the sequence number provided is within limits
-        seq = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
-        updateSequences(section.getSectionQuestions(), seq);
+        Integer sequence = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
+        updateSequences(section.getSectionQuestions(), sequence);
         Ebean.updateAll(section.getSectionQuestions());
 
         // Insert new section question
         ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
         sectionQuestion.setExamSection(section);
         sectionQuestion.setQuestion(clone);
-        sectionQuestion.setSequenceNumber(seq);
+        sectionQuestion.setSequenceNumber(sequence);
         section.getSectionQuestions().add(sectionQuestion);
         AppUtil.setModifier(section, user);
         section.save();

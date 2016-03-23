@@ -25,7 +25,6 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 
-import static util.java.AttachmentUtils.setData;
 
 public class AttachmentController extends BaseController {
 

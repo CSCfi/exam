@@ -57,7 +57,7 @@ public class CsvBuilder {
         return file;
     }
 
-    public static void parseGrades(File csvFile, User user, boolean isAdmin) throws IOException {
+    public static void parseGrades(File csvFile, User user, Role.Name role) throws IOException {
         CSVReader reader = new CSVReader(new FileReader(csvFile));
         String[] records;
         while ((records = reader.readNext()) != null) {
@@ -83,7 +83,7 @@ public class CsvBuilder {
                     .eq("state", Exam.State.REVIEW)
                     .eq("state", Exam.State.REVIEW_STARTED)
                     .endJunction();
-            if (!isAdmin) {
+            if (role == Role.Name.ADMIN) {
                 el = el.eq("parent.examOwners", user);
             }
             Exam exam = el.findUnique();

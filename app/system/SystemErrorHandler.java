@@ -3,7 +3,6 @@ package system;
 
 import exceptions.AuthenticateException;
 import exceptions.MalformedDataException;
-import models.ApiError;
 import play.Logger;
 import play.http.HttpErrorHandler;
 import play.libs.Json;

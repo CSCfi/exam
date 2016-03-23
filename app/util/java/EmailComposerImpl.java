@@ -30,7 +30,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class EmailComposerImpl implements EmailComposer {
+class EmailComposerImpl implements EmailComposer {
 
     private static final String TAG_OPEN = "{{";
     private static final String TAG_CLOSE = "}}";
@@ -42,10 +42,11 @@ public class EmailComposerImpl implements EmailComposer {
     private static final DateTimeFormatter DF = DateTimeFormat.forPattern("dd.MM.yyyy");
     private static final DateTimeFormatter TF = DateTimeFormat.forPattern("HH:mm");
     private static final DateTimeZone TZ = AppUtil.getDefaultTimeZone();
+    private static final int MINUTES_IN_HOUR = 60;
 
-    protected EmailSender emailSender;
+    private EmailSender emailSender;
     protected Environment env;
-    protected MessagesApi messaging;
+    private MessagesApi messaging;
 
     @Inject
     public EmailComposerImpl(EmailSender sender, Environment environment, MessagesApi messagesApi) {
@@ -61,6 +62,7 @@ public class EmailComposerImpl implements EmailComposer {
     /**
      * This notification is sent to student, when teacher has reviewed the exam
      */
+    @Override
     public void composeInspectionReady(User student, User reviewer, Exam exam) {
         String templatePath = getTemplatesRoot() + "reviewReady.html";
         String template = readFile(templatePath, ENCODING);
@@ -94,6 +96,7 @@ public class EmailComposerImpl implements EmailComposer {
     /**
      * This notification is sent to the creator of exam when assigned inspector has finished inspection
      */
+    @Override
     public void composeInspectionMessage(User inspector, User sender, Exam exam, String msg) {
 
         String templatePath = getTemplatesRoot() + "inspectionReady.html";
@@ -120,7 +123,8 @@ public class EmailComposerImpl implements EmailComposer {
         emailSender.send(inspector.getEmail(), sender.getEmail(), subject, template);
     }
 
-    public void composeWeeklySummary(User teacher){
+    @Override
+    public void composeWeeklySummary(User teacher) {
 
         Lang lang = getLang(teacher);
         String enrolmentBlock = createEnrolmentBlock(teacher, lang);
@@ -168,7 +172,8 @@ public class EmailComposerImpl implements EmailComposer {
         emailSender.send(teacher.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
-    public void composeReservationNotification(User recipient, Reservation reservation, Exam exam, boolean isTeacher) {
+    @Override
+    public void composeReservationNotification(User recipient, Reservation reservation, Exam exam, Role.Name role) {
         String templatePath = getTemplatesRoot() + "reservationConfirmed.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(recipient);
@@ -186,7 +191,8 @@ public class EmailComposerImpl implements EmailComposer {
         DateTime startDate = adjustDST(reservation.getStartAt(), TZ);
         DateTime endDate = adjustDST(reservation.getEndAt(), TZ);
         String reservationDate = DTF.print(startDate) + " - " + DTF.print(endDate);
-        String examDuration = String.format("%dh %dmin", exam.getDuration() / 60, exam.getDuration() % 60);
+        String examDuration = String.format("%dh %dmin", exam.getDuration() / MINUTES_IN_HOUR,
+                exam.getDuration() % MINUTES_IN_HOUR);
 
         ExamMachine machine = reservation.getMachine();
         String machineName = forceNotNull(machine.getName());
@@ -194,6 +200,8 @@ public class EmailComposerImpl implements EmailComposer {
         String buildingInfo = forceNotNull(room.getBuildingName());
         String roomInstructions = forceNotNull(getRoomInstruction(room, lang));
         String roomName = forceNotNull(room.getName());
+
+        boolean isTeacher = role == Role.Name.TEACHER;
 
         String title = isTeacher ? messaging.get(lang, "email.template.reservation.new.student",
                 String.format("%s %s <%s>", reservation.getUser().getFirstName(),
@@ -255,6 +263,7 @@ public class EmailComposerImpl implements EmailComposer {
         return iCal;
     }
 
+    @Override
     public void composeExamReviewRequest(User toUser, User fromUser, Exam exam, String message) {
 
         String templatePath = getTemplatesRoot() + "reviewRequest.html";
@@ -306,6 +315,7 @@ public class EmailComposerImpl implements EmailComposer {
         return String.join(", ", owners);
     }
 
+    @Override
     public void composeReservationCancellationNotification(User student, Reservation reservation, String message,
                                                            Boolean isStudentUser, ExamEnrolment enrolment) {
 
@@ -354,8 +364,10 @@ public class EmailComposerImpl implements EmailComposer {
     private static String getTeachers(Exam exam) {
         Set<User> teachers = new HashSet<>(exam.getExamOwners());
         teachers.addAll(exam.getExamInspections().stream().map(ExamInspection::getUser).collect(Collectors.toSet()));
-        return String.join(", ", teachers.stream().map((t) -> String.format("%s %s <%s>",
-                t.getFirstName(), t.getLastName(), t.getEmail())).collect(Collectors.<String>toList()));
+        List<String> names = teachers.stream()
+                .map((t) -> String.format("%s %s <%s>", t.getFirstName(), t.getLastName(), t.getEmail()))
+                .collect(Collectors.toList());
+        return String.join(", ", names);
     }
 
     @Override
@@ -415,7 +427,7 @@ public class EmailComposerImpl implements EmailComposer {
     }
 
     @Override
-    public void composeNoShowMessage(User toUser, User student, Exam exam)  {
+    public void composeNoShowMessage(User toUser, User student, Exam exam) {
         String templatePath = getTemplatesRoot() + "noShow.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(toUser);
@@ -540,16 +552,17 @@ public class EmailComposerImpl implements EmailComposer {
 
 
     private static String replaceAll(String original, Map<String, String> stringValues) {
+        String result = original;
         for (Entry<String, String> entry : stringValues.entrySet()) {
-            if (original.contains(entry.getKey())) {
+            if (result.contains(entry.getKey())) {
                 String value = entry.getValue();
-                original = original.replace(TAG_OPEN + entry.getKey() + TAG_CLOSE, value == null ? "" : value);
+                result = result.replace(TAG_OPEN + entry.getKey() + TAG_CLOSE, value == null ? "" : value);
             }
         }
-        return original;
+        return result;
     }
 
-    static String readFile(String path, Charset encoding) {
+    private static String readFile(String path, Charset encoding) {
         byte[] encoded;
         try {
             encoded = Files.readAllBytes(Paths.get(path));

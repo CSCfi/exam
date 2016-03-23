@@ -23,47 +23,47 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
     }
 
     @Column
-    protected Type type;
+    private Type type;
 
     @Column(columnDefinition = "TEXT")
-    protected String question;
+    private String question;
 
-    protected boolean shared;
+    private boolean shared;
 
     @Column(columnDefinition = "TEXT")
-    protected String instruction;
+    private String instruction;
 
-    protected String state;
-
-    @Column(columnDefinition = "numeric default 0")
-    protected Double maxScore = 0.0;
+    private String state;
 
     @Column(columnDefinition = "numeric default 0")
-    protected Double evaluatedScore;
+    private Double maxScore = 0.0;
+
+    @Column(columnDefinition = "numeric default 0")
+    private Double evaluatedScore;
 
     @ManyToOne(cascade = CascadeType.PERSIST) // do not delete parent question
-    protected Question parent;
+    private Question parent;
 
     @OneToMany(mappedBy = "parent")
     @JsonBackReference
-    protected List<Question> children;
+    private List<Question> children;
 
     @OneToOne(cascade = CascadeType.ALL)
-    protected Answer answer;
+    private Answer answer;
 
     @Column(columnDefinition = "TEXT")
-    protected String evaluationCriterias;
+    private String evaluationCriterias;
 
     @OneToOne(mappedBy = "question")
     @JsonBackReference
-    protected ExamSectionQuestion examSectionQuestion;
+    private ExamSectionQuestion examSectionQuestion;
 
     @OneToOne(cascade = CascadeType.ALL)
-    protected Attachment attachment;
+    private Attachment attachment;
 
     // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
-    protected boolean expanded;
+    private boolean expanded;
 
     private Long expectedWordCount;
 
@@ -76,7 +76,7 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
 
 
     @ManyToMany(cascade = CascadeType.ALL)
-    protected List<Tag> tags;
+    private List<Tag> tags;
 
 
     public String getState() {
@@ -319,7 +319,7 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
     }
 
     @Transient
-    public boolean hasCorrectOption() {
+    private boolean hasCorrectOption() {
         return options.stream().anyMatch(MultipleChoiceOption::isCorrectOption);
     }
 

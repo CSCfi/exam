@@ -34,6 +34,8 @@ public class CalendarController extends BaseController {
     @Inject
     protected ActorSystem system;
 
+    private static final int LAST_HOUR = 23;
+
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result removeReservation(long id) throws NotFoundException {
         User user = getLoggedUser();
@@ -69,7 +71,7 @@ public class CalendarController extends BaseController {
     }
 
     private boolean isAllowedToParticipate(Exam exam, User user) {
-        NoShowHandlerUtil.handleNoShow(user, exam.getId(), emailComposer);
+        handleNoShow(user, exam.getId(), emailComposer);
         Integer trialCount = exam.getTrialCount();
         if (trialCount == null) {
             return true;
@@ -108,7 +110,7 @@ public class CalendarController extends BaseController {
         JsonNode json = request().body().asJson();
         Long roomId = json.get("roomId").asLong();
         Long examId = json.get("examId").asLong();
-        Set<Integer> aids = new HashSet<>();
+        Collection<Integer> aids = new HashSet<>();
         if (json.has("aids")) {
             Iterator<JsonNode> it = json.get("aids").elements();
             while (it.hasNext()) {
@@ -173,7 +175,7 @@ public class CalendarController extends BaseController {
             Ebean.delete(oldReservation);
         }
         Exam exam = enrolment.getExam();
-        Set<User> recipients = new HashSet<>();
+        Collection<User> recipients = new HashSet<>();
         if (exam.isPrivate()) {
             recipients.addAll(exam.getExamOwners());
             recipients.addAll(exam.getExamInspections().stream().map(
@@ -184,7 +186,8 @@ public class CalendarController extends BaseController {
         // Send some emails asynchronously
         system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User recipient : recipients) {
-                emailComposer.composeReservationNotification(recipient, reservation, exam, !recipient.equals(user));
+                Role.Name role = recipient.equals(user) ? Role.Name.STUDENT : Role.Name.TEACHER;
+                emailComposer.composeReservationNotification(recipient, reservation, exam, role);
                 Logger.info("Reservation confirmation email sent to {}", recipient.getEmail());
             }
         }, system.dispatcher());
@@ -205,7 +208,7 @@ public class CalendarController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public Result getSlots(Long examId, Long roomId, String day, List<Integer> aids) {
+    public Result getSlots(Long examId, Long roomId, String day, Collection<Integer> aids) {
         User user = getLoggedUser();
         Exam exam = getEnrolledExam(examId, user);
         if (exam == null) {
@@ -215,7 +218,7 @@ public class CalendarController extends BaseController {
         if (room == null) {
             return notFound(String.format("No room with id: (%d)", roomId));
         }
-        List<TimeSlot> slots = new ArrayList<>();
+        Collection<TimeSlot> slots = new ArrayList<>();
         if (!room.getOutOfService() && !room.getState().equals(ExamRoom.State.INACTIVE.toString()) &&
                 isRoomAccessibilitySatisfied(room, aids) && exam.getDuration() != null) {
             LocalDate searchDate;
@@ -249,8 +252,8 @@ public class CalendarController extends BaseController {
      * Queries for slots for given room and day
      */
     private Set<TimeSlot> getExamSlots(
-            User user, ExamRoom room, Exam exam, LocalDate date, List<Reservation> reservations,
-            List<ExamMachine> machines) {
+            User user, ExamRoom room, Exam exam, LocalDate date, Collection<Reservation> reservations,
+            Collection<ExamMachine> machines) {
 
         Set<TimeSlot> slots = new LinkedHashSet<>();
         // Resolve the opening hours for room and day
@@ -260,7 +263,7 @@ public class CalendarController extends BaseController {
         }
 
         // Get suitable slots based on exam duration
-        List<Interval> examSlots = new ArrayList<>();
+        Collection<Interval> examSlots = new ArrayList<>();
         Integer examDuration = exam.getDuration();
         for (Interval slot : allSlots(openingHours, room, date)) {
             DateTime beginning = slot.getStart();
@@ -379,8 +382,8 @@ public class CalendarController extends BaseController {
     /**
      * @return all intervals that fall within provided working hours
      */
-    private static List<Interval> allSlots(List<ExamRoom.OpeningHours> openingHours, ExamRoom room, LocalDate date) {
-        List<Interval> intervals = new ArrayList<>();
+    private static Iterable<Interval> allSlots(Iterable<ExamRoom.OpeningHours> openingHours, ExamRoom room, LocalDate date) {
+        Collection<Interval> intervals = new ArrayList<>();
         List<ExamStartingHour> startingHours = room.getExamStartingHours();
         if (startingHours.isEmpty()) {
             // Default to 1 hour slots that start at the hour
@@ -481,7 +484,7 @@ public class CalendarController extends BaseController {
         // Get offset from Jan 1st in order to no have DST in effect
         DateTimeZone zone = DateTimeZone.forID(roomTz);
         DateTime beginning = DateTime.now().withDayOfYear(1).withTimeAtStartOfDay();
-        DateTime ending = beginning.plusHours(23);
+        DateTime ending = beginning.plusHours(LAST_HOUR);
         List<ExamStartingHour> hours = new ArrayList<>();
         while (!beginning.isAfter(ending)) {
             ExamStartingHour esh = new ExamStartingHour();
@@ -501,6 +504,19 @@ public class CalendarController extends BaseController {
         }
         // should not occur, indicates programming error
         throw new RuntimeException("slot not contained within opening hours, recheck logic!");
+    }
+
+    private static void handleNoShow(User user, Long examId, EmailComposer composer) {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .where()
+                .eq("user", user)
+                .eq("reservation.noShow", false)
+                .lt("reservation.endAt", new Date())
+                .eq("exam.id", examId)
+                .eq("exam.state", Exam.State.PUBLISHED)
+                .findList();
+        NoShowHandlerUtil.handleNoShows(enrolments, composer, null);
     }
 
     // DTO aimed for clients
@@ -551,6 +567,7 @@ public class CalendarController extends BaseController {
         public int hashCode() {
             return new HashCodeBuilder().append(start).append(end).build();
         }
+
     }
 
 }

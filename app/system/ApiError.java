@@ -1,15 +1,15 @@
-package models;
+package system;
 
 /**
  *  Model to easily return JSend like error messages as JSON
  *  @see <a href="http://labs.omniti.com/labs/jsend">JSend</a>
  */
-public class ApiError {
+class ApiError {
     private static final String STATUS = "error";
 
     private String message;
 
-    public ApiError(String message) {
+    ApiError(String message) {
         this.message = message;
     }
 

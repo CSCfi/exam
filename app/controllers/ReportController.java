@@ -29,21 +29,22 @@ public class ReportController extends BaseController {
         return ok(Json.toJson(node));
     }
 
-    private <T> ExpressionList<T> applyFilters(ExpressionList<T> query, String deptFieldPrefix, String dateField, Optional<String> dept, Optional<Long> start,
-                                               Optional<Long> end) {
-        if (dept.isPresent()) {
-            String[] depts = dept.get().split(",");
-            query = query.in(String.format("%s.department", deptFieldPrefix), (Object[]) depts);
+    private <T> ExpressionList<T> applyFilters(ExpressionList<T> query, String deptFieldPrefix, String dateField,
+                                               String dept, Long start, Long end) {
+        ExpressionList<T> result = query;
+        if (dept != null) {
+            String[] depts = dept.split(",");
+            result = result.in(String.format("%s.department", deptFieldPrefix), (Object[]) depts);
         }
-        if (start.isPresent()) {
-            DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
-            query = query.ge(dateField, startDate.toDate());
+        if (start != null) {
+            DateTime startDate = new DateTime(start).withTimeAtStartOfDay();
+            result = result.ge(dateField, startDate.toDate());
         }
-        if (end.isPresent()) {
-            DateTime endDate = new DateTime(end.get()).plusDays(1).withTimeAtStartOfDay();
-            query = query.lt(dateField, endDate.toDate());
+        if (end != null) {
+            DateTime endDate = new DateTime(end).plusDays(1).withTimeAtStartOfDay();
+            result = result.lt(dateField, endDate.toDate());
         }
-        return query;
+        return result;
     }
 
     @Restrict({@Group("ADMIN")})
@@ -53,7 +54,7 @@ public class ReportController extends BaseController {
                 .where()
                 .isNotNull("exam.parent")
                 .isNotNull("reservation");
-        query = applyFilters(query, "exam.course", "exam.created", dept, start, end);
+        query = applyFilters(query, "exam.course", "exam.created", dept.orElse(null), start.orElse(null), end.orElse(null));
         Map<String, List<ExamEnrolment>> roomMap = new HashMap<>();
         for (ExamEnrolment enrolment : query.findList()) {
             ExamRoom room = enrolment.getReservation().getMachine().getRoom();
@@ -106,7 +107,7 @@ public class ReportController extends BaseController {
                 .eq("state", Exam.State.DELETED)
                 .eq("state", Exam.State.ARCHIVED)
                 .endJunction();
-        query = applyFilters(query, "course", "created", dept, start, end);
+        query = applyFilters(query, "course", "created", dept.orElse(null), start.orElse(null), end.orElse(null));
         Set<Exam> exams = query.findSet();
         List<ExamInfo> infos = new ArrayList<>();
         for (Exam exam : exams) {
@@ -124,7 +125,7 @@ public class ReportController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result getReservations(Optional<String> dept, Optional<Long> start, Optional<Long> end) {
         ExpressionList<Reservation> query = Ebean.find(Reservation.class).where();
-        query = applyFilters(query, "enrolment.exam.course", "startAt", dept, start, end);
+        query = applyFilters(query, "enrolment.exam.course", "startAt", dept.orElse(null), start.orElse(null), end.orElse(null));
         return ok(query.findList());
     }
 
@@ -134,7 +135,7 @@ public class ReportController extends BaseController {
         ExpressionList<Exam> query = Ebean.find(Exam.class).where()
                 .isNotNull("parent")
                 .isNotNull("course");
-        query = applyFilters(query, "course", "created", dept, start, end);
+        query = applyFilters(query, "course", "created", dept.orElse(null), start.orElse(null), end.orElse(null));
         Set<Exam> exams = query.findSet();
         List<ExamInfo> infos = new ArrayList<>();
         for (Exam exam : exams) {

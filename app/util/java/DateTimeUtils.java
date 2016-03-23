@@ -2,18 +2,17 @@ package util.java;
 
 import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
-import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
+
 public class DateTimeUtils {
+
+    public enum RestrictionType { RESTRICTIVE, NON_RESTRICTIVE }
 
     public static List<Interval> findGaps(List<Interval> reserved, Interval searchInterval) {
         List<Interval> gaps = new ArrayList<>();
@@ -46,7 +45,7 @@ public class DateTimeUtils {
 
     }
 
-    public static List<Interval> getExistingIntervalGaps(List<Interval> reserved) {
+    private static List<Interval> getExistingIntervalGaps(List<Interval> reserved) {
         List<Interval> gaps = new ArrayList<>();
         Interval current = reserved.get(0);
         for (int i = 1; i < reserved.size(); i++) {
@@ -60,20 +59,23 @@ public class DateTimeUtils {
         return gaps;
     }
 
-    public static List<Interval> removeNonOverlappingIntervals(List<Interval> reserved, Interval searchInterval) {
+    private static List<Interval> removeNonOverlappingIntervals(List<Interval> reserved, Interval searchInterval) {
         return reserved.stream().filter(interval -> interval.overlaps(searchInterval)).collect(Collectors.toList());
     }
 
-    public static boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
+    private static boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
         DateTime earliestStart = reserved.get(0).getStart();
         DateTime latestStop = reserved.get(reserved.size() - 1).getEnd();
         return !searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop);
     }
 
-    public static List<Interval> getExceptionEvents(List<ExceptionWorkingHours> hours, LocalDate date, boolean isRestriction) {
+    public static List<Interval> getExceptionEvents(List<ExceptionWorkingHours> hours, LocalDate date, RestrictionType restrictionType) {
         List<Interval> exceptions = new ArrayList<>();
         for (ExceptionWorkingHours ewh : hours) {
-            if (isRestriction == ewh.isOutOfService()) {
+            boolean isApplicable =
+                    (restrictionType == RestrictionType.RESTRICTIVE && ewh.isOutOfService()) ||
+                            (restrictionType == RestrictionType.NON_RESTRICTIVE && !ewh.isOutOfService());
+            if (isApplicable) {
                 DateTime start = new DateTime(ewh.getStartDate()).plusMillis(ewh.getStartDateTimezoneOffset());
                 DateTime end = new DateTime(ewh.getEndDate()).plusMillis(ewh.getEndDateTimezoneOffset());
                 Interval exception = new Interval(start, end);
@@ -95,12 +97,7 @@ public class DateTimeUtils {
         if (slots.size() <= 1) {
             return slots;
         }
-        Collections.sort(slots, new Comparator<Interval>() {
-            @Override
-            public int compare(Interval o1, Interval o2) {
-                return o1.getStart().compareTo(o2.getStart());
-            }
-        });
+        Collections.sort(slots, (o1, o2) -> o1.getStart().compareTo(o2.getStart()));
         boolean isMerged = false;
         List<Interval> merged = new ArrayList<>();
         merged.add(slots.get(0));
