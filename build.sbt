@@ -10,7 +10,7 @@ resolvers += "sonatype snapshots" at "https://oss.sonatype.org/content/repositor
 
 libraryDependencies ++= Seq(javaJdbc, cache , javaWs, evolutions, filters,
   "org.postgresql" % "postgresql" % "9.4-1204-jdbc4",
-  "be.objectify" %% "deadbolt-java" % "2.5.0-SNAPSHOT",
+  "be.objectify" %% "deadbolt-java" % "2.5.1-SNAPSHOT",
   "org.apache.commons" % "commons-email" % "1.4",
   "org.apache.poi" % "poi" % "3.13",
   "org.apache.poi" % "poi-ooxml" % "3.13",
