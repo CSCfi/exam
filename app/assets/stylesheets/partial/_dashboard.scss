@@ -296,6 +296,11 @@
     @extend .jumbotron;
     background-color: white;
     padding-left: 2em;
+    h2, h3, .main-row {
+      text-align: center;
+    }
+
+
   }
 
   @media print {

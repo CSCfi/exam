@@ -327,7 +327,7 @@ public class StudentExamController extends BaseController {
     private static Query<Exam> createQuery() {
 
         return Ebean.find(Exam.class)
-                .select("id, name, instruction, shared, hash, examActiveStartDate, examActiveEndDate, duration, answerLanguage, state, expanded")
+                .select("id, name, instruction, shared, hash, examActiveStartDate, examActiveEndDate, duration, answerLanguage, state, expanded, cloned")
                 .fetch("autoEvaluationConfig")
                 .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
                 .fetch("creator", "id")
@@ -373,10 +373,12 @@ public class StudentExamController extends BaseController {
                 Exam newExam = createNewExam(prototype, user, enrolment);
                 //TODO: check how to do better
                 Exam studentExam = createQuery().where().idEq(newExam.getId()).findUnique();
+                studentExam.setCloned(true);
                 return ok(studentExam);
             });
         } else {
             // Returning an already existing student exam
+            possibleClone.setCloned(false);
             return ok(possibleClone);
         }
     }

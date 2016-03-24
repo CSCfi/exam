@@ -4,7 +4,7 @@
         <h2 ng-hide="!enrolment">{{'sitnet_exam_is_about_to_begin' | translate}}</h2>
         <h2 ng-hide="enrolment">{{'sitnet_you_dont_have_exams_today' | translate}}</h2>
         <div class="main-row" ng-hide="!enrolment">
-            <h2>{{enrolment.exam.name}} - {{enrolment.exam.course.code}}</h2>
+            <h3>{{enrolment.exam.name}} - {{enrolment.exam.course.code}}</h3>
             <div><small>{{ 'sitnet_course_name' | translate }}: {{ enrolment.exam.course.name }}</small></div>
             <div><small>{{ 'sitnet_exam_duration' | translate }}: {{ printExamDuration(enrolment.exam) }}</small></div>
             <div><small>{{ 'sitnet_exam_room' | translate }}: {{enrolment.reservation.machine.name}} |
@@ -23,7 +23,7 @@
             </div>
         </div>
 
-        <h2 class="text-info">{{ 'sitnet_redirect_to_exam_notice' | translate }}</h2>
+        <h3 class="text-info">{{ 'sitnet_redirect_to_exam_notice' | translate }}</h3>
 
     </div>
 

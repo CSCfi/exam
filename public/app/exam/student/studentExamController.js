@@ -43,6 +43,7 @@
                         angular.forEach($scope.exam.examSections, function (section) {
                             if (section.autosaver) {
                                 $interval.cancel(section.autosaver);
+                                delete section.autosaver;
                             }
                         });
                     }
@@ -71,18 +72,16 @@
                 };
 
                 var getAutosaver = function () {
-                    if (!$scope.guide) {
-                        return $interval(function () {
-                            if ($scope.activeSection && $scope.activeSection.sectionQuestions) {
-                                angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
-                                    var question = sectionQuestion.question;
-                                    if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
-                                        $scope.saveEssay(question, question.answer.answer, true);
-                                    }
-                                });
-                            }
-                        }, 1000 * 60);
-                    }
+                    return $interval(function () {
+                        if ($scope.activeSection && $scope.activeSection.sectionQuestions) {
+                            angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
+                                var question = sectionQuestion.question;
+                                if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
+                                    $scope.saveEssay(question, question.answer.answer, true);
+                                }
+                            });
+                        }
+                    }, 1000 * 60);
                 };
 
                 var setSelections = function (question) {
@@ -142,11 +141,16 @@
                         );
                     request(url)
                         .success(function (data) {
+                            if (data.cloned) {
+                                // we came here with a reference to the parent exam so do not render page just yet,
+                                // reload with reference to student exam that we just created
+                                $location.path('/student/doexam/' + data.hash);
+                                return;
+                            }
                             data.examSections.sort(function (a, b) {
                                 return a.sequenceNumber - b.sequenceNumber;
                             });
                             $scope.exam = data;
-
                             if ($scope.exam.instruction && $scope.exam.instruction.length > 0) {
                                 // Add guide page
                                 $scope.pages.push('guide');
@@ -168,7 +172,6 @@
                                         $scope.currentLanguageText = currentLanguage();
                                     });
                                 startClock();
-                                $scope.activeSection.autosaver = getAutosaver();
                             }
                         }).error(function () {
                         $location.path("/");
