@@ -663,5 +663,7 @@
   "sitnet_machine_name": "Nimi SV",
   "sitnet_exam_removal_not_possible": "Tenttiä ei voi poistaa, sillä sille löytyy jo suorituksia tai siihen on olemassa varauksia. SV",
   "sitnet_section_description": "Aihealueen kuvaus SV",
-  "sitnet_sections_reordered": "Aihealueiden järjestys on päivitetty SV"
+  "sitnet_sections_reordered": "Aihealueiden järjestys on päivitetty SV",
+  "sitnet_no_grading": "Ei arviointia SV",
+  "sitnet_archive_without_registration": "Siirrä arkistoon ilman arviointia SV"
 }

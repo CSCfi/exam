@@ -50,6 +50,9 @@
                 self.getExamGradeDisplayName = function (grade) {
                     var name;
                     switch (grade) {
+                        case 'NONE':
+                            name = $translate.instant('sitnet_no_grading');
+                            break;
                         case 'I':
                             name = 'Improbatur';
                             break;

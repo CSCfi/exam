@@ -15,9 +15,13 @@
     </div>
     <div class="col-md-2">
         <span ng-show="!isReadOnly()">
-            <button class="btn btn-primary"
+            <button ng-if="selections.grade.type !== 'NONE'" class="btn btn-primary"
                     ng-disabled="isReadOnly() || !isOwnerOrAdmin() || !examForm.$valid"
                     ng-click="saveExamRecord(exam)">{{'sitnet_send_result_to_registry' | translate}}
+            </button>
+            <button ng-if="selections.grade.type === 'NONE'" class="btn btn-primary"
+                    ng-disabled="isReadOnly() || !isOwnerOrAdmin() || !examForm.$valid"
+                    ng-click="archiveExam(exam)">{{'sitnet_archive_without_registration' | translate}}
             </button>
         </span>
     </div>
