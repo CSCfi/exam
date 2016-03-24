@@ -7,7 +7,6 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import exceptions.NotFoundException;
 import models.*;
-import models.api.CountsAsTrial;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.*;
@@ -18,7 +17,6 @@ import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
 import util.java.EmailComposer;
-import util.java.NoShowHandlerUtil;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -70,39 +68,6 @@ public class CalendarController extends BaseController {
         return ok("removed");
     }
 
-    private boolean isAllowedToParticipate(Exam exam, User user) {
-        handleNoShow(user, exam.getId(), emailComposer);
-        Integer trialCount = exam.getTrialCount();
-        if (trialCount == null) {
-            return true;
-        }
-        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
-                .fetch("exam")
-                .where()
-                .eq("user", user)
-                .eq("exam.parent.id", exam.getId())
-                .ne("exam.state", Exam.State.DELETED)
-                .ne("reservation.retrialPermitted", true)
-                .findList();
-        List<ExamEnrolment> noShows = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .where()
-                .eq("user", user)
-                .eq("exam.id", exam.getId())
-                .eq("reservation.noShow", true)
-                .ne("reservation.retrialPermitted", true)
-                .findList();
-        List<CountsAsTrial> trials = new ArrayList<>(participations);
-        trials.addAll(noShows);
-        // Sort by trial time desc
-        Collections.sort(trials, (o1, o2) -> o1.getTrialTime().after(o2.getTrialTime()) ? -1 : 1);
-
-        if (trials.size() >= trialCount) {
-            List<CountsAsTrial> subset = trials.subList(0, trialCount);
-            return subset.stream().anyMatch(CountsAsTrial::isProcessed);
-        }
-        return true;
-    }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result createReservation() {
@@ -149,7 +114,7 @@ public class CalendarController extends BaseController {
         // No previous reservation or it's in the future
         // If no previous reservation, check if allowed to participate. This check is skipped if user already
         // has a reservation to this exam so that change of reservation is always possible.
-        if (oldReservation == null && !isAllowedToParticipate(enrolment.getExam(), user)) {
+        if (oldReservation == null && !isAllowedToParticipate(enrolment.getExam(), user, emailComposer)) {
             return forbidden("sitnet_no_trials_left");
         }
 
@@ -504,19 +469,6 @@ public class CalendarController extends BaseController {
         }
         // should not occur, indicates programming error
         throw new RuntimeException("slot not contained within opening hours, recheck logic!");
-    }
-
-    private static void handleNoShow(User user, Long examId, EmailComposer composer) {
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
-                .where()
-                .eq("user", user)
-                .eq("reservation.noShow", false)
-                .lt("reservation.endAt", new Date())
-                .eq("exam.id", examId)
-                .eq("exam.state", Exam.State.PUBLISHED)
-                .findList();
-        NoShowHandlerUtil.handleNoShows(enrolments, composer, null);
     }
 
     // DTO aimed for clients

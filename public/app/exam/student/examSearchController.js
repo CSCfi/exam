@@ -44,17 +44,9 @@
                 };
 
                 $scope.enrollExam = function (exam) {
-                    EnrollRes.check.get({id: exam.id}, function () {
-                            // already enrolled
-                            toastr.error($translate.instant('sitnet_already_enrolled'));
-                        }, function () {
-                            enrolmentService.enroll(exam);
-                        }
-                    )
+                    enrolmentService.checkAndEnroll(exam);
                 }
 
             }
-        ])
-    ;
-})
-();
+        ]);
+})();

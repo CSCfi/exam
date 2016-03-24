@@ -98,25 +98,32 @@ public class EnrollController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result checkIfEnrolled(Long id) {
-        DateTime now = AppUtil.adjustDST(new DateTime());
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .where()
-                .eq("user", getLoggedUser())
-                .eq("exam.id", id)
-                .gt("exam.examActiveEndDate", now.toDate())
-                .disjunction()
-                .gt("reservation.endAt", now.toDate())
-                .isNull("reservation")
-                .endJunction()
-                .disjunction()
-                .eq("exam.state", Exam.State.PUBLISHED)
-                .eq("exam.state", Exam.State.STUDENT_STARTED)
-                .endJunction()
-                .findList();
-        if (enrolments.isEmpty()) {
-            return notFound();
+        Exam exam = Ebean.find(Exam.class, id);
+        if (exam == null) {
+            return badRequest();
         }
-        return ok();
+        if (isAllowedToParticipate(exam, getLoggedUser(), emailComposer)) {
+            DateTime now = AppUtil.adjustDST(new DateTime());
+            List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                    .where()
+                    .eq("user", getLoggedUser())
+                    .eq("exam.id", id)
+                    .gt("exam.examActiveEndDate", now.toDate())
+                    .disjunction()
+                    .gt("reservation.endAt", now.toDate())
+                    .isNull("reservation")
+                    .endJunction()
+                    .disjunction()
+                    .eq("exam.state", Exam.State.PUBLISHED)
+                    .eq("exam.state", Exam.State.STUDENT_STARTED)
+                    .endJunction()
+                    .findList();
+            if (enrolments.isEmpty()) {
+                return notFound();
+            }
+            return ok();
+        }
+        return forbidden("sitnet_no_trials_left");
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})

@@ -12,8 +12,8 @@ GET           /app/users/byrole/:role                                    control
 GET           /app/users/filter/:role                                    controllers.UserController.getUsersByRoleFilter(role: String, q: String)
 GET           /app/users/filter/:role/:eid                               controllers.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
 GET           /app/users/filter/owner/:role/:eid                         controllers.UserController.getExamOwnersByRoleFilter(role: String, eid: Long, q: String)
-PUT           /app/users/agreement                                       controllers.UserController.updateUserAgreementAccepted
-PUT           /app/user/lang                                             controllers.UserController.updateLanguage
+PUT           /app/users/agreement                                       controllers.UserController.updateUserAgreementAccepted()
+PUT           /app/user/lang                                             controllers.UserController.updateLanguage()
 GET           /app/users                                                 controllers.UserController.findUsers(filter: java.util.Optional[String])
 POST          /app/users/:id/roles/:rname                                controllers.UserController.addRole(id: Long, rname: String)
 DELETE        /app/users/:id/roles/:rname                                controllers.UserController.removeRole(id: Long, rname: String)
@@ -37,7 +37,7 @@ GET           /app/reviewerexams                                         control
 
 GET           /app/examparticipations/:eid                               controllers.ExamController.getParticipationsForExam(eid: Long)
 
-POST          /app/exam/record                                           controllers.ExamRecordController.addExamRecord
+POST          /app/exam/record                                           controllers.ExamRecordController.addExamRecord()
 GET           /app/exam/record                                           controllers.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
 GET           /app/exam/record/export/:id                                controllers.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long)
 GET           /app/exam/record/export/report/:id                         controllers.ExamRecordController.exportSelectedExamRecordsAsExcel(id: Long)
@@ -146,7 +146,7 @@ PUT           /app/questions/:id/score                                   control
 
 PUT           /app/questions/option/:oid                                 controllers.QuestionController.updateOption(oid: Long)
 PUT           /app/questions/correctoption/:oid                          controllers.QuestionController.toggleCorrectOption(oid: Long)
-POST          /app/questions                                             controllers.QuestionController.addQuestion
+POST          /app/questions                                             controllers.QuestionController.addQuestion()
 POST          /app/question/:id                                          controllers.QuestionController.copyQuestion(id: Long)
 POST          /app/questions/:qid/option                                 controllers.QuestionController.addOption(qid: Long)
 DELETE        /app/questions/:id                                         controllers.QuestionController.deleteQuestion(id: Long)
@@ -164,16 +164,16 @@ POST          /app/rooms/:id                                             control
 
 PUT           /app/address/:id                                           controllers.RoomController.updateExamRoomAddress(id: Long)
 
-PUT           /app/workinghours                                          controllers.RoomController.updateExamRoomWorkingHours
-PUT           /app/startinghours                                         controllers.RoomController.updateExamStartingHours
-PUT           /app/exception                                             controllers.RoomController.addRoomExceptionHour
+PUT           /app/workinghours                                          controllers.RoomController.updateExamRoomWorkingHours()
+PUT           /app/startinghours                                         controllers.RoomController.updateExamStartingHours()
+PUT           /app/exception                                             controllers.RoomController.addRoomExceptionHour()
 DELETE        /app/exception/:id                                         controllers.RoomController.removeRoomExceptionHour(id: Long)
 
 POST          /app/room/:id/accessibility                                controllers.RoomController.updateExamRoomAccessibility(id: Long)
 
 DELETE        /app/accessibility/:id                                     controllers.AccessibilityController.removeAccessibility(id: Long)
-POST          /app/accessibility                                         controllers.AccessibilityController.addAccessibility
-PUT           /app/accessibility                                         controllers.AccessibilityController.updateAccessibility
+POST          /app/accessibility                                         controllers.AccessibilityController.addAccessibility()
+PUT           /app/accessibility                                         controllers.AccessibilityController.updateAccessibility()
 GET           /app/accessibility                                         controllers.AccessibilityController.getAccessibilities
 
 GET           /app/draft/rooms                                           controllers.RoomController.createExamRoomDraft
@@ -209,13 +209,13 @@ POST          /app/softwares/add/:name                                   control
 PUT           /app/softwares/update/:id/:name                            controllers.ExamMachineController.updateSoftware(id: Long, name: String)
 
 ############## Attachment ############################
-POST          /app/attachment/question                                   controllers.AttachmentController.addAttachmentToQuestion
+POST          /app/attachment/question                                   controllers.AttachmentController.addAttachmentToQuestion()
 DELETE        /app/attachment/question/:id                               controllers.AttachmentController.deleteQuestionAttachment(id: Long)
 GET           /app/attachment/question/:id                               controllers.AttachmentController.downloadQuestionAttachment(id: Long)
-POST          /app/attachment/question/answer                            controllers.AttachmentController.addAttachmentToQuestionAnswer
+POST          /app/attachment/question/answer                            controllers.AttachmentController.addAttachmentToQuestionAnswer()
 DELETE        /app/attachment/question/:qid/answer/:hash                 controllers.AttachmentController.deleteQuestionAnswerAttachment(qid: Long, hash: String)
 GET           /app/attachment/question/:qid/answer/:hash                 controllers.AttachmentController.downloadQuestionAnswerAttachment(qid: Long, hash: String)
-POST          /app/attachment/exam                                       controllers.AttachmentController.addAttachmentToExam
+POST          /app/attachment/exam                                       controllers.AttachmentController.addAttachmentToExam()
 DELETE        /app/attachment/exam/:id                                   controllers.AttachmentController.deleteExamAttachment(id: Long)
 GET           /app/attachment/exam/:id                                   controllers.AttachmentController.downloadExamAttachment(id: Long)
 
@@ -254,11 +254,11 @@ DELETE        /app/tags/:tid/:qid                                        control
 ################# General Settings interface ##################
 
 GET           /app/settings/agreement                                    controllers.SettingsController.getUserAgreement
-PUT           /app/settings/agreement                                    controllers.SettingsController.updateUserAgreement
+PUT           /app/settings/agreement                                    controllers.SettingsController.updateUserAgreement()
 GET           /app/settings/deadline                                     controllers.SettingsController.getDeadline
-PUT           /app/settings/deadline                                     controllers.SettingsController.setDeadline
+PUT           /app/settings/deadline                                     controllers.SettingsController.setDeadline()
 GET           /app/settings/reservationWindow                            controllers.SettingsController.getReservationWindowSize
-PUT           /app/settings/reservationWindow                            controllers.SettingsController.setReservationWindowSize
+PUT           /app/settings/reservationWindow                            controllers.SettingsController.setReservationWindowSize()
 GET           /app/settings/hostname                                     controllers.SettingsController.getHostname
 GET           /app/settings/durations                                    controllers.SettingsController.getExamDurations
 GET           /app/settings/gradescale                                   controllers.SettingsController.isExamGradeScaleOverridable

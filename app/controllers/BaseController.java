@@ -6,8 +6,8 @@ import com.avaje.ebean.text.PathProperties;
 import com.google.inject.Inject;
 import com.typesafe.config.ConfigFactory;
 import exceptions.MalformedDataException;
-import models.Session;
-import models.User;
+import models.*;
+import models.api.CountsAsTrial;
 import play.cache.CacheApi;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -15,11 +15,11 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import util.java.EmailComposer;
+import util.java.NoShowHandlerUtil;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -168,6 +168,53 @@ public class BaseController extends Controller {
         }
 
         return bos;
+    }
+
+    private static void handleNoShow(User user, Long examId, EmailComposer composer) {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .where()
+                .eq("user", user)
+                .eq("reservation.noShow", false)
+                .lt("reservation.endAt", new Date())
+                .eq("exam.id", examId)
+                .eq("exam.state", Exam.State.PUBLISHED)
+                .findList();
+        NoShowHandlerUtil.handleNoShows(enrolments, composer, null);
+    }
+
+    boolean isAllowedToParticipate(Exam exam, User user, EmailComposer composer) {
+        handleNoShow(user, exam.getId(), composer);
+        Integer trialCount = exam.getTrialCount();
+        if (trialCount == null) {
+            return true;
+        }
+        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
+                .fetch("exam")
+                .where()
+                .eq("user", user)
+                .eq("exam.parent.id", exam.getId())
+                .ne("exam.state", Exam.State.DELETED)
+                .ne("reservation.retrialPermitted", true)
+                .findList();
+        List<ExamEnrolment> noShows = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .where()
+                .eq("user", user)
+                .eq("exam.id", exam.getId())
+                .eq("reservation.noShow", true)
+                .ne("reservation.retrialPermitted", true)
+                .findList();
+        List<CountsAsTrial> trials = new ArrayList<>(participations);
+        trials.addAll(noShows);
+        // Sort by trial time desc
+        Collections.sort(trials, (o1, o2) -> o1.getTrialTime().after(o2.getTrialTime()) ? -1 : 1);
+
+        if (trials.size() >= trialCount) {
+            List<CountsAsTrial> subset = trials.subList(0, trialCount);
+            return subset.stream().anyMatch(CountsAsTrial::isProcessed);
+        }
+        return true;
     }
 
     CompletionStage<Result> wrapAsPromise(final Result result) {

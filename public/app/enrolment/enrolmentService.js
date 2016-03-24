@@ -40,8 +40,13 @@
                     EnrollRes.check.get({id: exam.id}, function () {
                             // already enrolled
                             toastr.error($translate.instant('sitnet_already_enrolled'));
-                        }, function () {
-                            self.enroll(exam);
+                        }, function (err) {
+                            if (err.status === 403) {
+                                toastr.error(err.data);
+                            }
+                            if (err.status === 404) {
+                                self.enroll(exam);
+                            }
                         }
                     )
                 };
@@ -72,8 +77,11 @@
                                     EnrollRes.check.get({id: exam.id}, function () {
                                         exam.notEnrolled = false;
                                         scope.exam = exam;
-                                    }, function () {
-                                        exam.notEnrolled = true;
+                                    }, function (err) {
+                                        exam.notEnrolled = err.status === 404;
+                                        if (err.status === 403) {
+                                            exam.noTrialsLeft = true;
+                                        }
                                         scope.exam = exam;
                                     });
                                 });
