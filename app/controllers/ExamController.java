@@ -16,7 +16,6 @@ import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
 import util.java.EmailComposer;
-import util.java.ValidationUtil;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -266,15 +265,44 @@ public class ExamController extends BaseController {
         }, actor.dispatcher());
     }
 
+    private Optional<Result> getFormValidationError(JsonNode node) {
+        String examName = node.has("name") ? node.get("name").asText() : null;
+        String reason = null;
+        if (examName == null || examName.isEmpty()) {
+            reason = "sitnet_error_exam_empty_name";
+        }
+        Long start = null, end = null;
+        JsonNode startNode = node.get("examActiveStartDate");
+        JsonNode endNode = node.get("examActiveEndDate");
+        if (startNode != null && startNode.isLong()) {
+            start = startNode.asLong();
+        } else {
+            reason = "sitnet_error_start_date";
+        }
+        if (endNode != null && endNode.isLong()) {
+            end = endNode.asLong();
+        } else {
+            reason = "sitnet_error_end_date";
+        }
+        if (start != null && end != null) {
+            if (new DateTime(start).plusDays(1).isBefore(end)) {
+                reason = "sitnet_error_end_sooner_than_start";
+            } else if (new DateTime(end).plusDays(1).isBeforeNow()) {
+                reason = "sitnet_error_end_sooner_than_now";
+            }
+        }
+        return reason == null ? Optional.empty() : Optional.of(badRequest(reason));
+    }
+
     private Optional<Result> updateStateAndValidate(Exam exam, JsonNode node) {
         Exam.State state = node.has("state") ? Exam.State.valueOf(node.get("state").asText()) : null;
         if (state != null) {
             if (exam.hasState(Exam.State.SAVED, Exam.State.DRAFT) && state == Exam.State.PUBLISHED) {
                 // Exam is about to be published
-                String str = ValidationUtil.validateExamForm(node);
+                Optional<Result> err = getFormValidationError(node);
                 // invalid data
-                if (str != null) {
-                    return Optional.of(badRequest(str));
+                if (err.isPresent()) {
+                    return err;
                 }
                 // no sections named
                 if (exam.getExamSections().stream().anyMatch((section) -> section.getName() == null)) {
@@ -832,7 +860,6 @@ public class ExamController extends BaseController {
         Comment comment = inspection.getComment();
         String msg = comment.getComment();
         // Exam name required before adding inspectors that are to receive an email notification
-        // TODO: maybe the email should be sent at a different occasion?
         if ((exam.getName() == null || exam.getName().isEmpty()) && !msg.isEmpty()) {
             return badRequest("sitnet_exam_name_missing_or_too_short");
         }

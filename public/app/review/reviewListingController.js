@@ -482,18 +482,17 @@
 
                 $scope.createGradingTemplate = function () {
                     var content = $scope.examReviews.map(function (r) {
-                        var printUser = function (user) {
-                            var fields = [user.firstName, user.lastName];
-                            if (user.userIdentifier) {
-                                fields.push("(" + user.userIdentifier + ")");
-                            }
-                            return fields.join(" ");
-                        };
-                        return [r.exam.id, '', '', printUser(r.exam.creator)].join() + ",\n";
+                        return [r.exam.id,
+                                '',
+                                '',
+                                r.exam.totalScore + " / " + r.exam.maxScore,
+                                r.user.firstName + " " + r.user.lastName,
+                                r.user.userIdentifier]
+                                .join() + ",\n";
                     }).reduce(function (a, b) {
                         return a + b;
                     }, "");
-                    content = "exam id,grade,feedback,student\n" + content;
+                    content = "exam id,grade,feedback,total score,student,student id\n" + content;
                     var blob = new Blob([content], {type: "text/csv;charset=utf-8"});
                     saveAs(blob, "grading.csv");
                 };

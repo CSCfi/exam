@@ -5,6 +5,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
+import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -13,7 +14,7 @@ public class GradeScale extends Model {
     public enum Type {
         ZERO_TO_FIVE(1), LATIN(2), APPROVED_REJECTED(3), OTHER(4);
 
-        private int value;
+        private final int value;
 
         Type(int value) {
             this.value = value;
@@ -23,22 +24,22 @@ public class GradeScale extends Model {
             return value;
         }
 
-        public static Type get(int value) {
+        public static Optional<Type> get(int value) {
             for (Type t : values()) {
                 if (t.getValue() == value) {
-                    return t;
+                    return Optional.of(t);
                 }
             }
-            return null;
+            return Optional.empty();
         }
 
-        public static Type get(String value) {
+        public static Optional<Type> get(String value) {
             for (Type t : values()) {
                 if (t.toString().equals(value)) {
-                    return t;
+                    return Optional.of(t);
                 }
             }
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -64,7 +65,7 @@ public class GradeScale extends Model {
     }
 
     public Type getType() {
-        return Type.get(description);
+        return Type.get(description).orElse(null);
     }
 
     public String getDescription() {

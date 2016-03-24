@@ -19,10 +19,7 @@ import util.AppUtil;
 
 import javax.xml.bind.DatatypeConverter;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -51,33 +48,29 @@ public class SystemRequestHandler implements ActionCreator {
             return propagateAction();
         }
 
-        Action validationAction = validateSession(session, token);
-        if (validationAction != null) {
-            return validationAction;
-        }
-
-        updateSession(request, session, token);
-
-        if (user == null || !user.hasRole("STUDENT", session)) {
-            // propagate further right away
-            return propagateAction();
-        } else {
-            // requests are candidates for extra processing
-            return propagateAction(getReservationHeaders(request, user));
-        }
+        return validateSession(session, token).orElseGet(() -> {
+            updateSession(request, session, token);
+            if (user == null || !user.hasRole("STUDENT", session)) {
+                // propagate further right away
+                return propagateAction();
+            } else {
+                // requests are candidates for extra processing
+                return propagateAction(getReservationHeaders(request, user));
+            }
+        });
     }
 
-    private Action validateSession(Session session, String token) {
+    private Optional<Action> validateSession(Session session, String token) {
         if (session == null) {
             if (token == null) {
                 Logger.debug("User not logged in");
             } else {
                 Logger.info("Session with token {} not found", token);
             }
-            return propagateAction();
+            return Optional.of(propagateAction());
         } else if (!session.isValid()) {
             Logger.warn("Session #{} is marked as invalid", token);
-            return new Action.Simple() {
+            return Optional.of(new Action.Simple() {
                 @Override
                 public CompletionStage<Result> call(final Http.Context ctx) {
                     return CompletableFuture.supplyAsync(() -> {
@@ -86,23 +79,23 @@ public class SystemRequestHandler implements ActionCreator {
                             }
                     );
                 }
-            };
+            });
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 
     private Map<String, String> getReservationHeaders(Http.RequestHeader request, User user) {
-        ExamEnrolment ongoingEnrolment = getNextEnrolment(user.getId(), 0);
         Map<String, String> headers = new HashMap<>();
-        if (ongoingEnrolment != null) {
-            handleOngoingEnrolment(ongoingEnrolment, request, headers);
+        Optional<ExamEnrolment> ongoingEnrolment = getNextEnrolment(user.getId(), 0);
+        if (ongoingEnrolment.isPresent()) {
+            handleOngoingEnrolment(ongoingEnrolment.get(), request, headers);
         } else {
             DateTime now = new DateTime();
             int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
-            ExamEnrolment upcomingEnrolment = getNextEnrolment(user.getId(), lookAheadMinutes);
-            if (upcomingEnrolment != null) {
-                handleUpcomingEnrolment(upcomingEnrolment, request, headers);
+            Optional<ExamEnrolment> upcomingEnrolment = getNextEnrolment(user.getId(), lookAheadMinutes);
+            if (upcomingEnrolment.isPresent()) {
+                handleUpcomingEnrolment(upcomingEnrolment.get(), request, headers);
             } else if (isOnExamMachine(request)) {
                 // User is logged on an exam machine but has no exams for today
                 headers.put("x-exam-upcoming-exam", "none");
@@ -203,7 +196,7 @@ public class SystemRequestHandler implements ActionCreator {
         }
     }
 
-    private ExamEnrolment getNextEnrolment(Long userId, int minutesToFuture) {
+    private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {
         DateTime now = AppUtil.adjustDST(new DateTime());
         DateTime future = now.plusMinutes(minutesToFuture);
         List<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
@@ -222,9 +215,9 @@ public class SystemRequestHandler implements ActionCreator {
                 .orderBy("reservation.startAt")
                 .findList();
         if (results.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
-        return results.get(0);
+        return Optional.of(results.get(0));
     }
 
 }

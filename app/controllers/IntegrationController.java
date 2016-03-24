@@ -182,13 +182,12 @@ public class IntegrationController extends BaseController implements ExternalAPI
             node = node.get("gradeScale");
             for (JsonNode scale : node) {
                 String type = scale.get("type").asText();
-                GradeScale.Type scaleType = GradeScale.Type.get(type);
-                if (scaleType == null) {
+                Optional<GradeScale.Type> scaleType = GradeScale.Type.get(type);
+                if (!scaleType.isPresent()) {
                     // not understood
                     Logger.warn("Skipping over unknown grade scale type {}", type);
-                    continue;
                 }
-                if (scaleType.equals(GradeScale.Type.OTHER)) {
+                else if (scaleType.get().equals(GradeScale.Type.OTHER)) {
                     // This needs custom handling
                     if (!scale.has("code") || !scale.has("name")) {
                         Logger.warn("Skipping over grade scale of type OTHER, required nodes are missing: {}",
@@ -218,7 +217,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
                     }
                     scales.add(gs);
                 } else {
-                    scales.add(Ebean.find(GradeScale.class, scaleType.getValue()));
+                    scales.add(Ebean.find(GradeScale.class, scaleType.get().getValue()));
                 }
             }
         }
