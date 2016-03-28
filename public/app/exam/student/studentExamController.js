@@ -29,7 +29,7 @@
                 } else {
                     $scope.guide = true;
                     $scope.hash = $routeParams.hash;
-                    window.onbeforeunload = function() {
+                    window.onbeforeunload = function () {
                         return $translate.instant('sitnet_unsaved_data_may_be_lost');
                     };
                 }
@@ -43,6 +43,7 @@
                         angular.forEach($scope.doexam.examSections, function (section) {
                             if (section.autosaver) {
                                 $interval.cancel(section.autosaver);
+                                delete section.autosaver;
                             }
                         });
                     }
@@ -71,18 +72,16 @@
                 };
 
                 var getAutosaver = function () {
-                    if (!$scope.guide) {
-                        return $interval(function () {
-                            if ($scope.activeSection && $scope.activeSection.sectionQuestions) {
-                                angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
-                                    var question = sectionQuestion.question;
-                                    if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
-                                        $scope.saveEssay(question, question.answer.answer, true);
-                                    }
-                                });
-                            }
-                        }, 1000 * 60);
-                    }
+                    return $interval(function () {
+                        if ($scope.activeSection && $scope.activeSection.sectionQuestions) {
+                            angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
+                                var question = sectionQuestion.question;
+                                if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
+                                    $scope.saveEssay(question, question.answer.answer, true);
+                                }
+                            });
+                        }
+                    }, 1000 * 60);
                 };
 
                 var setSelections = function (question) {
@@ -153,17 +152,14 @@
                                         $scope.currentLanguageText = currentLanguage();
                                     });
                                 startClock();
-                                $scope.activeSection.autosaver = getAutosaver();
                             }
                             if ($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
                                 $scope.setActiveSection("guide");
                             } else if (!isPreview()) {
                                 $scope.pages.splice(0, 1);
                                 $scope.setActiveSection($scope.pages[0]);
-                                $scope.activeSection.autosaver = getAutosaver();
                             }
-                        }).
-                    error(function () {
+                        }).error(function () {
                         $location.path("/");
                     });
                 };
@@ -491,7 +487,7 @@
                     }
                 };
 
-                var logout = function(msg) {
+                var logout = function (msg) {
                     StudentExamRes.exams.update({hash: $scope.doexam.hash}, function () {
                         toastr.info($translate.instant(msg), {timeOut: 5000});
                         $timeout.cancel($scope.remainingTimePoller);
