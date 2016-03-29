@@ -116,8 +116,8 @@ class SystemInitializer {
                 .withMinuteOfHour(0)
                 .withSecondOfMinute(0)
                 .withMillisOfSecond(0)
-                .plusWeeks(now.getDayOfWeek() == DateTimeConstants.TUESDAY ? 0 : 1)
-                .withDayOfWeek(DateTimeConstants.TUESDAY);
+                .plusWeeks(now.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1)
+                .withDayOfWeek(DateTimeConstants.MONDAY);
         if (!nextRun.isAfter(now)) {
             nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
         }
@@ -136,7 +136,7 @@ class SystemInitializer {
 
     private void scheduleWeeklyReport() {
         // Every Monday at 5AM UTC
-        FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(8), TimeUnit.SECONDS);
+        FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(5), TimeUnit.SECONDS);
         Cancellable reportTask = tasks.remove("REPORT_SENDER");
         if (reportTask != null) {
             reportTask.cancel();
