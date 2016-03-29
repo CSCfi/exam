@@ -96,18 +96,28 @@ public class SystemInitializer {
 
     private int secondsUntilNextMondayRun(int scheduledHour) {
         DateTime now = DateTime.now();
-        DateTime nextRun = now.withHourOfDay(scheduledHour)
+        int hours = scheduledHour;
+        if (!AppUtil.getDefaultTimeZone().isStandardOffset(now.getMillis())) {
+            // Have the run happen an hour earlier to take care of DST offset
+            hours -= 1;
+        }
+
+        DateTime nextRun = now.withHourOfDay(hours)
                 .withMinuteOfHour(0)
                 .withSecondOfMinute(0)
                 .withMillisOfSecond(0)
-                .plusWeeks(now.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1)
-                .withDayOfWeek(DateTimeConstants.MONDAY);
+                .plusWeeks(now.getDayOfWeek() == DateTimeConstants.TUESDAY ? 0 : 1)
+                .withDayOfWeek(DateTimeConstants.TUESDAY);
         if (!nextRun.isAfter(now)) {
             nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
         }
-        // Check if default TZ has daylight saving in effect by next run, need to adjust the hour offset in that case
-        if (!AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
+        // Case for: now there's no DST but by next run there will be.
+        if (hours == scheduledHour && !AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
             nextRun = nextRun.minusHours(1);
+        }
+        // Case for: now there's DST but by next run there won't be
+        else if (hours != scheduledHour && AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
+            nextRun = nextRun.plusHours(1);
         }
 
         Logger.info("Scheduled next weekly report to be run at {}", nextRun.toString());
