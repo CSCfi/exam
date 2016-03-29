@@ -6,13 +6,11 @@ import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
 import com.avaje.ebean.Ebean;
 import models.User;
-import net.sf.ehcache.CacheManager;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Seconds;
 import play.Logger;
-import play.db.Database;
 import play.inject.ApplicationLifecycle;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
@@ -43,15 +41,13 @@ class SystemInitializer {
 
     private EmailComposer composer;
     private ActorSystem system;
-    protected Database database;
 
     private Map<String, Cancellable> tasks = new HashMap<>();
 
     @Inject
-    SystemInitializer(ActorSystem actorSystem, ApplicationLifecycle lifecycle, EmailComposer composer, Database database) {
-        system = actorSystem;
+    SystemInitializer(ActorSystem system, ApplicationLifecycle lifecycle, EmailComposer composer) {
+        this.system = system;
         this.composer = composer;
-        this.database = database;
 
         ActorRef expirationChecker = system.actorOf(ExamExpirationActor.props);
         ActorRef examAutoSaver = system.actorOf(ExamAutoSaverActor.props);
@@ -98,8 +94,6 @@ class SystemInitializer {
         lifecycle.addStopHook(() -> {
             cancelTasks();
             system.terminate();
-            database.shutdown();
-            CacheManager.getInstance().removeCache("play");
             return CompletableFuture.completedFuture(null);
         });
     }
