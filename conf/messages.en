@@ -61,4 +61,4 @@ email.template.language.inspection.student=Student: {0}
 email.template.language.inspection.done=Exam  has gone through a language evaluation with the following information.
 email.template.language.inspection.statement.title=Evaluation
 email.template.language.inspection.result=Result:  {0}
-email.template.exam.returned.link=Link to evaluation
+email.template.exam.returned.link=Link to review

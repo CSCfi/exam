@@ -220,7 +220,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         String body = GreenMailUtil.getBody(mails[0]);
         String reviewLink = String.format("%s/exams/review/%d",
                 ConfigFactory.load().getString("sitnet.application.hostname"), studentExam.getId());
-        String reviewLinkElement = String.format("<a href=\"%s\">%s</a>", reviewLink, "Link to evaluation");
+        String reviewLinkElement = String.format("<a href=\"%s\">%s</a>", reviewLink, "Link to review");
         assertThat(body).contains(reviewLinkElement);
     }
 
