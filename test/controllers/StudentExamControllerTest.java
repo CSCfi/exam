@@ -5,17 +5,23 @@ import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.icegreen.greenmail.junit.GreenMailRule;
+import com.icegreen.greenmail.util.GreenMailUtil;
+import com.icegreen.greenmail.util.ServerSetup;
+import com.typesafe.config.ConfigFactory;
 import models.*;
 import models.questions.Answer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.joda.time.DateTime;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
 
+import javax.mail.internet.MimeMessage;
 import java.util.HashSet;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -30,12 +36,19 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     private ExamMachine machine;
     private Reservation reservation = new Reservation();
 
+    @Rule
+    public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
+
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
         Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
         exam = Ebean.find(Exam.class, 1);
+        exam.getExamInspections().stream().map(ExamInspection::getUser).forEach(u -> {
+            u.setLanguage(Ebean.find(Language.class, "en"));
+            u.update();
+        });
 
         user = Ebean.find(User.class, userId);
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);
@@ -179,6 +192,54 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         studentExam = Ebean.find(Exam.class, studentExam.getId());
         assertThat(studentExam.getGrade()).isNotNull();
         assertThat(studentExam.getState()).isEqualTo(Exam.State.GRADED);
+    }
+
+    private Exam createPrivateStudentExam() {
+        exam.setExecutionType(Ebean.find(ExamExecutionType.class)
+                .where().eq("type", ExamExecutionType.Type.PRIVATE.toString())
+                .findUnique());
+        exam.update();
+        Result result = request(Helpers.POST, "/app/student/exam/" + exam.getHash(), null);
+        JsonNode node = Json.parse(contentAsString(result));
+        return deserialize(Exam.class, node);
+    }
+
+    @Test
+    @RunAsStudent
+    public void testDoPrivateExam() throws Exception {
+        Exam studentExam = createPrivateStudentExam();
+        Result result = request(Helpers.PUT, String.format("/app/student/exams/%s", studentExam.getHash()), null);
+        assertThat(result.status()).isEqualTo(200);
+
+        // Check that correct mail was sent
+        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
+        MimeMessage[] mails = greenMail.getReceivedMessages();
+        assertThat(mails).hasSize(1);
+        assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
+        assertThat(mails[0].getSubject()).isEqualTo("Personal exam has been returned");
+        String body = GreenMailUtil.getBody(mails[0]);
+        String reviewLink = String.format("%s/exams/review/%d",
+                ConfigFactory.load().getString("sitnet.application.hostname"), studentExam.getId());
+        String reviewLinkElement = String.format("<a href=\"%s\">%s</a>", reviewLink, "Link to evaluation");
+        assertThat(body).contains(reviewLinkElement);
+    }
+
+    @Test
+    @RunAsStudent
+    public void testAbortPrivateExam() throws Exception {
+        Exam studentExam = createPrivateStudentExam();
+        Result result = request(Helpers.PUT, String.format("/app/student/exam/abort/%s", studentExam.getHash()), null);
+        assertThat(result.status()).isEqualTo(200);
+
+        // Check that correct mail was sent
+        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
+        MimeMessage[] mails = greenMail.getReceivedMessages();
+        assertThat(mails).hasSize(1);
+        assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
+        assertThat(mails[0].getSubject()).isEqualTo("Personal exam has been abandoned");
+        String body = GreenMailUtil.getBody(mails[0]);
+        // Make sure there is no link to review
+        assertThat(body).doesNotContain("<a href");
     }
 
 

@@ -45,11 +45,11 @@ class EmailComposerImpl implements EmailComposer {
     private static final int MINUTES_IN_HOUR = 60;
 
     private EmailSender emailSender;
-    protected Environment env;
+    private Environment env;
     private MessagesApi messaging;
 
     @Inject
-    public EmailComposerImpl(EmailSender sender, Environment environment, MessagesApi messagesApi) {
+    EmailComposerImpl(EmailSender sender, Environment environment, MessagesApi messagesApi) {
         emailSender = sender;
         env = environment;
         messaging = messagesApi;
@@ -402,26 +402,29 @@ class EmailComposerImpl implements EmailComposer {
 
     @Override
     public void composePrivateExamEnded(User toUser, Exam exam) {
-        String templatePath = getTemplatesRoot() + "examEnded.html";
-        String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(toUser);
         User student = exam.getCreator();
-        String subject, message;
+        String templatePath, subject, message;
+        Map<String, String> stringValues = new HashMap<>();
         if (exam.getState() == Exam.State.ABORTED) {
+            templatePath = getTemplatesRoot() + "examAborted.html";
             subject = messaging.get(lang, "email.template.exam.aborted.subject");
             message = messaging.get(lang, "email.template.exam.aborted.message", String.format("%s %s <%s>",
                     student.getFirstName(), student.getLastName(), student.getEmail()),
                     String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         } else {
-            String reviewLink = String.format("%s/exams/review/%d", HOSTNAME, exam.getId());
+            templatePath = getTemplatesRoot() + "examEnded.html";
             subject = messaging.get(lang, "email.template.exam.returned.subject");
             message = messaging.get(lang, "email.template.exam.returned.message", String.format("%s %s <%s>",
                     student.getFirstName(), student.getLastName(), student.getEmail()),
-                    String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()), reviewLink);
-
+                    String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
+            String reviewLinkUrl = String.format("%s/exams/review/%d", HOSTNAME, exam.getId());
+            String reviewLinkText = messaging.get(lang, "email.template.exam.returned.link");
+            stringValues.put("review_link", reviewLinkUrl);
+            stringValues.put("review_link_text", reviewLinkText);
         }
-        Map<String, String> stringValues = new HashMap<>();
         stringValues.put("message", message);
+        String template = readFile(templatePath, ENCODING);
         String content = replaceAll(template, stringValues);
         emailSender.send(toUser.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
