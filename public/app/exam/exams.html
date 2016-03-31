@@ -4,14 +4,15 @@
     </div>
 </div>
 
-<div id="dashboard">
+<div id="dashboard" ng-init="view = 'PUBLISHED'">
+
     <!-- toolbar -->
-    <div class="main-row">
+    <div class="top-row">
         <div class="col-md-12">
-        <span class="pull-left fa-stack fa-lg header-top-icon">
-            <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-            <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
-        </span>
+            <span class="pull-left fa-stack fa-lg header-top-icon">
+                <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
+            </span>
 
             <div class="dropdown" uib-dropdown>
                 <a class="header-top-link dropdown-toggle" data-toggle="dropdown" uib-dropdown-toggle>
@@ -29,6 +30,54 @@
         </div>
     </div>
 
+    <!-- TAB NAVIGATION -->
+    <div class="main-row">
+        <ul class="nav nav-tabs">
+            <li role="presentation" ng-class="{'active' : view === 'PUBLISHED'}">
+                <a class="pointer" target="_self" ng-click="view='PUBLISHED'">
+                    {{'sitnet_published_exams' | translate}}
+                    <span class="badge">{{ (exams | filter: {state: 'PUBLISHED'}).length }}</span>
+                </a>
+            </li>
+            <li role="presentation" ng-class="{'active' : view === 'SAVED'}">
+                <a class="pointer" target="_self" ng-click="view='SAVED'">
+                    {{'sitnet_saved_exams' | translate}}
+                    <span class="badge">{{ (exams | filter: {state: 'SAVED'}).length }}</span>
+                </a>
+            </li>
+            <li role="presentation" ng-class="{'active' : view === 'DRAFT'}">
+                <a class="pointer" target="_self" ng-click="view='DRAFT'">
+                    {{'sitnet_draft_exams' | translate}}
+                    <span class="badge">{{ (exams | filter: {state: 'DRAFT'}).length }}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- toolbar -->
+    <!--div class="bottom-row">
+        <div class="col-md-6">
+            <span class="pull-left fa-stack fa-lg header-top-icon">
+                <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
+            </span>
+
+            <div class="dropdown" uib-dropdown>
+                <a class="header-top-link dropdown-toggle" data-toggle="dropdown" uib-dropdown-toggle>
+                    {{'sitnet_toolbar_new_exam' | translate}}
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li role="presentation">
+                        <a ng-repeat="type in executionTypes" role="menuitem" ng-click="createExam(type.type)"
+                           class="pointer">
+                            {{type.name | translate}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div-->
+
     <div class="detail-row" ng-show="user.isAdmin">
         <div class="col-md-4">
             <div class="form-group input-group">
@@ -44,6 +93,7 @@
             </div>
         </div>
     </div>
+
     <div class="main-row" ng-show="loader.loading">
         <div class="col-md-12">
             <button class="btn btn-success">{{'sitnet_searching' | translate }}...
@@ -51,17 +101,8 @@
             </button>
         </div>
     </div>
+
     <div ng-hide="!exams || loader.loading">
-        <div class="bottom-row">
-            <h3 class="col-md-12">
-                {{ 'sitnet_published_exams' | translate }}
-                <span class="label label-success">{{ (exams | filter: {state: 'PUBLISHED'}).length }}</span>
-                {{ 'sitnet_saved_exams' | translate }}
-                <span class="label label-warning">{{ (exams | filter: {state: 'SAVED'}).length }}</span>
-                {{ 'sitnet_draft_exams' | translate }}
-                <span class="label label-danger">{{ (exams | filter: {state: 'DRAFT'}).length }}</span>
-            </h3>
-        </div>
         <div class="detail-row">
             <div class="col-md-12">
                 <table class="table table-striped table-condensed exams-table">
@@ -76,13 +117,12 @@
                             reverse="reverse"></th>
                         <th sort by="examActiveEndDate" title="sitnet_exam_validity" predicate="examsPredicate"
                             reverse="reverse"></th>
-                        <th sort by="stateOrd" title="sitnet_status" predicate="examsPredicate" reverse="reverse"></th>
                         <th>{{ 'sitnet_copy' | translate }}</th>
                         <th>{{ 'sitnet_exam_remove' | translate }}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="exam in exams | orderBy:examsPredicate:reverse">
+                    <tr ng-repeat="exam in exams | filter: {state: view} | orderBy:examsPredicate:reverse">
                         <td ng-style="exam.activityStyle">{{exam.course.code}}</td>
                         <td ng-style="exam.activityStyle">
                             <a ng-if="exam.name" class="exams-info-title bold-button"
@@ -102,13 +142,6 @@
                                 {{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
                             </span>
                         </td>
-                        <td ng-style="exam.activityStyle">
-                            <span ng-if="exam.state === 'PUBLISHED'" class="text-success">{{ 'sitnet_published' | translate }}</span>
-                            <span ng-if="exam.state === 'SAVED'"
-                                  class="text-warning">{{ 'sitnet_saved' | translate }}</span>
-                            <span ng-if="exam.state === 'DRAFT'"
-                                  class="text-danger">{{ 'sitnet_draft' | translate }}</span>
-                        </td>
                         <td ng-style="exam.activityStyle" class="text-center">
                             <a class="bold-button" ng-click="copyExam(exam)"><i class="fa fa-lg fa-copy text-info"></i></a>
                         </td>
@@ -122,14 +155,14 @@
                 </table>
             </div>
         </div>
-        <div class="detail-row">
+        <div class="detail-row" ng-show="view === 'PUBLISHED'">
             <div class="col-md-12">
                 <strong>{{ 'sitnet_published_exams' | translate }}: </strong>
                 <em class="sitnet-text-medium">{{ 'sitnet_published_exams_info_main' | translate }} {{
                     'sitnet_published_exams_info_other' | translate }}</em>
             </div>
         </div>
-        <div class="bottom-row">
+        <div class="bottom-row" ng-show="view === 'SAVED'">
             <div class="col-md-12">
                 <strong>{{ 'sitnet_saved_exams' | translate }}: </strong>
                 <em class="sitnet-text-medium">{{ 'sitnet_saved_exams_info_main' | translate }} {{
