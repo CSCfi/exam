@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('StatisticsController', ['$scope', '$translate', 'EXAM_CONF', 'ReportResource', 'RoomResource', 'dateService', '$filter', 'UserRes', 'fileService',
-            function ($scope, $translate, EXAM_CONF, ReportResource, RoomResource, dateService, $filter, UserRes, fileService) {
+        .controller('StatisticsController', ['$scope', '$translate', 'EXAM_CONF', 'ReportResource', 'RoomResource', 'dateService',
+            function ($scope, $translate, EXAM_CONF, ReportResource, RoomResource, dateService) {
 
                 $scope.dateService = dateService;
                 $scope.templates = {

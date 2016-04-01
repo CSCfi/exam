@@ -72,7 +72,7 @@
                 });
 
                 $scope.dateOptions = {
-                    'starting-day': 1
+                    startingDay: 1
                 };
 
                 $scope.format = 'dd.MM.yyyy';

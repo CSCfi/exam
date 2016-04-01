@@ -30,3 +30,4 @@ routesImport += "util.scala.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 
+PlayKeys.playRunHooks += Karma(baseDirectory.value)
