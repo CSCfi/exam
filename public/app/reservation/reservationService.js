@@ -138,9 +138,7 @@
                 self.getEarliestOpening = function (room) {
                     var tz = room.localTimezone;
                     var openings = room.defaultWorkingHours.map(function (dwh) {
-                        var offset = moment.tz(tz).isDST() ? -1 : 0;
                         var start = moment.tz(dwh.startTime, tz);
-                        start.add(offset, 'hour');
                         return moment().hours(start.hours()).minutes(start.minutes()).seconds(start.seconds());
                     });
                     return moment.min(openings);
@@ -149,9 +147,7 @@
                 self.getLatestClosing = function (room) {
                     var tz = room.localTimezone;
                     var closings = room.defaultWorkingHours.map(function (dwh) {
-                        var offset = moment.tz(tz).isDST() ? -1 : 0;
                         var end = moment.tz(dwh.endTime, tz);
-                        end.add(offset, 'hour');
                         return moment().hours(end.hours()).minutes(end.minutes()).seconds(end.seconds());
                     });
                     return moment.max(closings);

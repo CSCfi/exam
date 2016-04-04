@@ -96,13 +96,13 @@ public class SystemInitializer {
 
     private int secondsUntilNextMondayRun(int scheduledHour) {
         DateTime now = DateTime.now();
-        int hours = scheduledHour;
+        int adjustedHours = scheduledHour;
         if (!AppUtil.getDefaultTimeZone().isStandardOffset(now.getMillis())) {
             // Have the run happen an hour earlier to take care of DST offset
-            hours -= 1;
+            adjustedHours -= 1;
         }
 
-        DateTime nextRun = now.withHourOfDay(hours)
+        DateTime nextRun = now.withHourOfDay(adjustedHours)
                 .withMinuteOfHour(0)
                 .withSecondOfMinute(0)
                 .withMillisOfSecond(0)
@@ -112,16 +112,18 @@ public class SystemInitializer {
             nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
         }
         // Case for: now there's no DST but by next run there will be.
-        if (hours == scheduledHour && !AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
+        if (adjustedHours == scheduledHour && !AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
             nextRun = nextRun.minusHours(1);
         }
         // Case for: now there's DST but by next run there won't be
-        else if (hours != scheduledHour && AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
+        else if (adjustedHours != scheduledHour && AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
             nextRun = nextRun.plusHours(1);
         }
 
         Logger.info("Scheduled next weekly report to be run at {}", nextRun.toString());
-        return Seconds.secondsBetween(now, nextRun).getSeconds();
+        // Increase delay with one second so that this won't fire off before intended time. This may happen because of
+        // millisecond-level rounding issues and possibly cause resending of messages.
+        return Seconds.secondsBetween(now, nextRun).getSeconds() + 1;
     }
 
     private void scheduleWeeklyReport() {
