@@ -603,6 +603,9 @@
 
                 var onUpdate = function (exam, overrideEvaluations) {
                     exam.hasEnrolmentsInEffect = $scope.newExam.hasEnrolmentsInEffect;
+                    exam.examSections.sort(function (a, b) {
+                        return a.sequenceNumber - b.sequenceNumber;
+                    });
                     exam.examSections.forEach(function (es) {
                         es.sectionQuestions.sort(function (a, b) {
                             return a.sequenceNumber - b.sequenceNumber;
@@ -611,6 +614,7 @@
                     $scope.newExam = exam;
                     resetGradeScale(exam);
                     resetAutoEvaluationConfig(overrideEvaluations);
+                    recreateSectionIndices();
                     $scope.newExam.examLanguages.forEach(function (language) {
                         // Use front-end language names always to allow for i18n etc
                         language.name = getLanguageNativeName(language.code);
