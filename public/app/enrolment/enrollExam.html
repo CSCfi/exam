@@ -16,7 +16,7 @@
     <div class="main-row">
         <div class="main-row">
             <div class="col-md-12">
-                <button class="btn btn-success" ng-disabled="exam.notEnrolled || exam.noTrialsLeft"
+                <button class="btn btn-success" ng-disabled="exam.alreadyEnrolled || exam.noTrialsLeft"
                         ng-click="enrollExam(exam)">{{'sitnet_enroll_to_exam' | translate}}</button>
                 <button class="btn btn-info" ng-click="enrollList()">{{'sitnet_exams_for_course' | translate}}</button>
             </div>

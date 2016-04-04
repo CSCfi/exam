@@ -75,10 +75,10 @@
                                 setMaturityInstructions(exam).then(function(data) {
                                     exam = data;
                                     EnrollRes.check.get({id: exam.id}, function () {
-                                        exam.notEnrolled = false;
+                                        exam.alreadyEnrolled = true;
                                         scope.exam = exam;
                                     }, function (err) {
-                                        exam.notEnrolled = err.status === 404;
+                                        exam.alreadyEnrolled = err.status !== 404;
                                         if (err.status === 403) {
                                             exam.noTrialsLeft = true;
                                         }

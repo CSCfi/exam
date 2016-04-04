@@ -87,30 +87,6 @@
                 <div class="question">
                     <!-- content-->
                     <div ng-include="sectionQuestion.question.template"></div>
-
-                    <!-- attachment -->
-                    <div class="row" ng-controller="AttachmentController"
-                         ng-show="sectionQuestion.question.type === 'EssayQuestion'">
-                        <div class="col-md-12">
-                            <span class="text-info" style="padding-left: 0">{{'sitnet_answer_attachment' | translate}}:&nbsp;</span>
-                            <span ng-show="sectionQuestion.question.answer && sectionQuestion.question.answer.attachment && sectionQuestion.question.answer.attachment.fileName">
-                                <a class="pointer"
-                                   ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, hash)">
-                                    {{sectionQuestion.question.answer.attachment.fileName}}
-                                </a>
-                            </span>
-                            <span ng-show="sectionQuestion.question.answer && sectionQuestion.question.answer.attachment && sectionQuestion.question.answer.attachment.fileName"
-                                  class="sitnet-red pointer"
-                                  ng-click="removeQuestionAnswerAttachment(sectionQuestion.question, hash);">&nbsp;
-                                <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
-                            </span>
-                            <span ng-show="sectionQuestion.question.answer && !sectionQuestion.question.answer.attachment"
-                                  class="text-success pointer"
-                                  ng-click="selectFile(sectionQuestion.question)">&nbsp;<i class="fa fa-upload"
-                                                                                           title="{{'sitnet_attach_file' | translate}}"></i>
-                            </span>
-                        </div>
-                    </div>
                 </div>
             </div>
 

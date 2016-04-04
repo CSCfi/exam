@@ -663,5 +663,8 @@
   "sitnet_machine_name": "Nimi EN",
   "sitnet_exam_removal_not_possible": "Tenttiä ei voi poistaa, sillä sille löytyy jo suorituksia tai siihen on olemassa varauksia. EN",
   "sitnet_section_description": "Aihealueen kuvaus EN",
-  "sitnet_sections_reordered": "Aihealueiden järjestys on päivitetty EN"
+  "sitnet_sections_reordered": "Aihealueiden järjestys on päivitetty EN",
+  "sitnet_no_attachment": "Ei liitetiedostoa EN",
+  "sitnet_add_answer_attachment": "Lisää vastauksen liite EN",
+  "sitnet_remove_answer_attachment": "Poista vastauksen liite EN"
 }
