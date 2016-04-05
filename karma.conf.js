@@ -29,7 +29,7 @@ module.exports = function (config) {
         singleRun: false,
         autoWatch: true,
         frameworks: ['jasmine'],
-        browsers: ['Chrome'],
+        browsers: ['PhantomJS'],
         plugins: [
             'karma-chrome-launcher',
             'karma-phantomjs-launcher',
