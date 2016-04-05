@@ -46,29 +46,21 @@
         </div>
         <div class="col-md-2">
             <strong>{{'sitnet_student' | translate}}</strong>
-            <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
-                    ng-model="selection.studentId" ng-change="query()" class="spaced-column">
-                <option value="">&dash;</option>
-                <option ng-repeat="student in students | orderBy: '[lastName, firstName]'" value="{{student.id}}">{{student.name}}</option>
-            </select>
+            <input class="wide-select" ui-select2="studentOptions"
+                   ng-model="selection.studentId" ng-change="studentChanged()">
+            </input>
         </div>
         <div class="col-md-2">
             <strong>{{'sitnet_exam' | translate}}</strong>
-            <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
-                    ng-model="selection.examId" ng-change="query()" class="spaced-column">
-                <option class="default-select" value="">&dash;</option>
-                <option ng-repeat="exam in examnames | orderBy: 'name'" value="{{exam.id}}">{{exam.name}}</option>
-            </select>
+            <input class="wide-select" ui-select2="examOptions"
+                   ng-model="selection.examId" ng-change="examChanged()">
+            </input>
         </div>
         <div class="col-md-2">
             <strong>{{'sitnet_exam_state' | translate}}</strong>
-            <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
-                    ng-model="selection.state" ng-change="query()" class="spaced-column">
-                <option value="">&dash;</option>
-                <option ng-repeat="state in examStates" value="{{state}}">{{'sitnet_exam_status_' + state |
-                    lowercase | translate}}
-                </option>
-            </select>
+            <input class="wide-select" ui-select2="stateOptions"
+                   ng-model="selection.state" ng-change="stateChanged()">
+            </input>
         </div>
     </div>
 
