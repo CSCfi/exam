@@ -454,10 +454,7 @@
   "sitnet_exam_status_published": "Booked",
   "sitnet_exam_status_aborted": "Aborted",
   "sitnet_exam_status_no_show": "No-show",
-  "sitnet_select_teacher_to_move_the_questions_to": "Select the examiner you want to move the questions to",
-  "sitnet_question_owner_changed": "Question owner has been changed",
   "sitnet_update_failed": "The update failed",
-  "sitnet_change_owner": "Change owner",
   "sitnet_show_first": "Show the first",
   "sitnet_show_questions": "questions",
   "sitnet_show_more": "Show more",
@@ -666,5 +663,8 @@
   "sitnet_sections_reordered": "Aihealueiden järjestys on päivitetty EN",
   "sitnet_no_attachment": "Ei liitetiedostoa EN",
   "sitnet_add_answer_attachment": "Lisää vastauksen liite EN",
-  "sitnet_remove_answer_attachment": "Poista vastauksen liite EN"
+  "sitnet_remove_answer_attachment": "Poista vastauksen liite EN",
+  "sitnet_add_question_owner": "Lisää kysymyksille omistaja EN",
+  "sitnet_question_owner_added": "Omistaja lisätty EN",
+  "sitnet_public_question": "Julkinen kysymys (kaikki opettajat voivat vapaasti muokata) EN"
 }

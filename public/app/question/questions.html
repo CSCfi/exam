@@ -160,7 +160,7 @@
                 <tr>
                     <th>
                         <input type="checkbox" name="select_all" class="selectAllQuestions"
-                               ng-click="selectAll('selectAllQuestions', 'questionToMove')" popover-placement="top"
+                               ng-click="selectAll('selectAllQuestions', 'questionToUpdate')" popover-placement="top"
                                popover-trigger="mouseenter" uib-popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
                     </th>
                     <th colspan="2" sort by="id" title="sitnet_question" predicate="questionsPredicate" reverse="reverse"></th>
@@ -176,7 +176,7 @@
                 <tbody>
                 <tr ng-repeat="question in filteredQuestions | orderBy: questionsPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize">
                     <td>
-                        <input type="checkbox" class="questionToMove" value="{{question.id}}"/>
+                        <input type="checkbox" class="questionToUpdate" value="{{question.id}}"/>
                     </td>
                     <td>
                         <a href="/questions/{{question.id}}">{{question.id}}</a>
@@ -235,7 +235,7 @@
             <div class="input-group">
                 <input type="text" class="form-control ng-pristine ng-valid"
                        ng-model="newTeacher"
-                       placeholder="{{'sitnet_select_teacher_to_move_the_questions_to' | translate}}"
+                       placeholder="{{'sitnet_add_question_owner' | translate}}"
                        uib-typeahead="t as t.name for t in teachers | filter:$viewValue | limitTo:8"
                        typeahead-on-select="onTeacherSelect($item, $model, $label, newExam)"
                        typeahead-wait-ms="100"
@@ -251,8 +251,8 @@
             </div>
         </div>
         <div class="col-md-2 bottom-padding-2">
-            <input type="button" class="btn btn-primary" ng-disabled="ownerProcess" ng-click="moveSelected()"
-                   value="{{'sitnet_change_owner' | translate}}"/>
+            <input type="button" class="btn btn-primary" ng-disabled="ownerProcess" ng-click="addOwnerForSelected()"
+                   value="{{'sitnet_add' | translate}}"/>
         </div>
     </div>
 </div>

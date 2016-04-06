@@ -22,12 +22,22 @@
         <div class="main-row">
             <div class="col-md-12 top-margin-1">
                 <form role="form" class="form-horizontal" name="questionForm" novalidate>
+                    <!-- Shared -->
+                    <div class="row bottom-padding-2">
+                        <div class="checkbox">
+                            <label><input type="checkbox" ng-model="newQuestion.shared" ng-click="updateQuestion()">
+                                <strong class="sitnet-info-text">{{ 'sitnet_public_question' | translate }}</strong></label>
+                        </div>
+                    </div>
+
+
                     <!-- Question editor -->
                     <div class="form-group">
                         <label for="editor" ng-show="newQuestion && !newQuestion.question">
                             <span class="text-danger">{{ 'sitnet_write_question_below' | translate }}</span>
                         </label>
-                        <textarea id="editor" name="editor" ck-editor rows="10" cols="80" ng-model="newQuestion.question"
+                        <textarea id="editor" name="editor" ck-editor rows="10" cols="80"
+                                  ng-model="newQuestion.question"
                                   ui-change="updateQuestion()" required>
                         </textarea>
                     </div>
@@ -63,7 +73,7 @@
                                    ng-model="newQuestion.maxScore"
                                    ng-pattern="/^([1-9][0-9]*)$/"
                                    ng-required="newQuestion.evaluationType=='Points'"
-                                    />
+                            />
                         </div>
                     </div>
 
@@ -72,7 +82,8 @@
                         <div class="form-group col-md-3">
                             <label class="sitnet-info-text" for="newTag">{{'sitnet_tag_question' | translate}}</label>
                             <div ng-controller="TagTypeaheadCtrl">
-                                <input id="newTag" name="newTag" type="text" maxlength="30" lowercase class="form-control"
+                                <input id="newTag" name="newTag" type="text" maxlength="30" lowercase
+                                       class="form-control"
                                        ng-model="newQuestion.newTag"
                                        uib-typeahead="t as t.name for t in getTags($viewValue, newQuestion)"
                                        typeahead-on-select="onTagSelect($item, newQuestion)"
@@ -83,7 +94,8 @@
 
                     <!-- Categories -->
                     <div class="form-group">
-                        <label class="sitnet-info-text" for="metaInfo">{{'sitnet_question_metainfo' | translate}}</label>
+                        <label class="sitnet-info-text" for="metaInfo">{{'sitnet_question_metainfo' |
+                            translate}}</label>
 
                         <div id="metaInfo">
                             <div class="row">
@@ -96,7 +108,8 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_added_to_sections' | translate}}:
+                                <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_added_to_sections' |
+                                    translate}}:
                                 </div>
                                 <div class="col-md-9">
                                     <div ng-repeat="name in sectionNames">
@@ -105,7 +118,8 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_added_to_categories' | translate}}:
+                                <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_added_to_categories' |
+                                    translate}}:
                                 </div>
                                 <div ng-show="newQuestion.parent" class="col-md-9">
                                     <div ng-repeat="tag in newQuestion.parent.tags">
@@ -117,7 +131,8 @@
                                 <div ng-hide="newQuestion.parent" class="col-md-9">
                                     <div ng-repeat="tag in newQuestion.tags">
                                         <span class="pointer sitnet-badge pull-left inline"
-                                              popover-placement="top" popover-popup-delay="500" popover-trigger="mouseenter"
+                                              popover-placement="top" popover-popup-delay="500"
+                                              popover-trigger="mouseenter"
                                               uib-popover="{{ 'sitnet_remove' | translate }}" ng-click="removeTag(tag)">
                                             {{ tag.name }}
                                         </span>
@@ -132,7 +147,8 @@
                         <label class="sitnet-info-text" for="instruction">{{'sitnet_question_instruction' |
                             translate}}</label>
                         <textarea id="instruction" class="form-control" rows="3" ng-model="newQuestion.instruction"
-                                  ui-change="updateQuestion()" placeholder="{{'sitnet_question_instruction' | translate}}">
+                                  ui-change="updateQuestion()"
+                                  placeholder="{{'sitnet_question_instruction' | translate}}">
                         </textarea>
                     </div>
 
@@ -142,7 +158,8 @@
                             translate}}</label>
                         <textarea id="evaluationCriteria" class="form-control" rows="3"
                                   ng-model="newQuestion.evaluationCriterias"
-                                  ui-change="updateQuestion()" placeholder="{{'sitnet_question_instruction' | translate}}">
+                                  ui-change="updateQuestion()"
+                                  placeholder="{{'sitnet_question_instruction' | translate}}">
                         </textarea>
                     </div>
 
@@ -159,7 +176,8 @@
                                     <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
                                 </span>
                             </div>
-                            <button type="button" ng-click="selectFile()" class="btn btn-default btn-sm">{{ 'sitnet_attach_file' |
+                            <button type="button" ng-click="selectFile()" class="btn btn-default btn-sm">{{
+                                'sitnet_attach_file' |
                                 translate }}
                             </button>
                         </div>

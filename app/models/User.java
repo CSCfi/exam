@@ -1,7 +1,6 @@
 package models;
 
 import be.objectify.deadbolt.java.models.Subject;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.base.GeneratedIdentityModel;
@@ -33,11 +32,6 @@ public class User extends GeneratedIdentityModel implements Subject {
     private String employeeNumber;
 
     private String logoutUrl;
-
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "examOwners")
-    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "user_id"))
-    @JsonBackReference
-    private List<Exam> ownedExams;
 
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Role> roles;
@@ -198,14 +192,6 @@ public class User extends GeneratedIdentityModel implements Subject {
     @Override
     public String getIdentifier() {
         return email;
-    }
-
-    public List<Exam> getOwnedExams() {
-        return ownedExams;
-    }
-
-    public void setOwnedExams(List<Exam> ownedExams) {
-        this.ownedExams = ownedExams;
     }
 
     public Date getLastLogin() {

@@ -454,10 +454,7 @@
   "sitnet_exam_status_published": "Bokad",
   "sitnet_exam_status_aborted": "Ångrad",
   "sitnet_exam_status_no_show": "No-show",
-  "sitnet_select_teacher_to_move_the_questions_to": "Välj examinator som du vill ge frågorna till",
-  "sitnet_question_owner_changed": "Frågans ägare har byts ut",
   "sitnet_update_failed": "Uppdateringen misslyckades",
-  "sitnet_change_owner": "Byt ägare",
   "sitnet_show_first": "De första visas",
   "sitnet_show_questions": "frågor",
   "sitnet_show_more": "Visa mera",
@@ -666,5 +663,8 @@
   "sitnet_sections_reordered": "Aihealueiden järjestys on päivitetty SV",
   "sitnet_no_attachment": "Ei liitetiedostoa SV",
   "sitnet_add_answer_attachment": "Lisää vastauksen liite SV",
-  "sitnet_remove_answer_attachment": "Poista vastauksen liite SV"
+  "sitnet_remove_answer_attachment": "Poista vastauksen liite SV",
+  "sitnet_add_question_owner": "Lisää kysymyksille omistaja SV",
+  "sitnet_question_owner_added": "Omistaja lisätty SV",
+  "sitnet_public_question": "Julkinen kysymys (kaikki opettajat voivat vapaasti muokata) SV"
 }

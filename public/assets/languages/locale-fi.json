@@ -454,10 +454,7 @@
   "sitnet_exam_status_published": "Varaus tehty",
   "sitnet_exam_status_aborted": "Keskeytetty",
   "sitnet_exam_status_no_show": "No-show",
-  "sitnet_select_teacher_to_move_the_questions_to": "Valitse tentaattori, jolle kysymykset siirretään",
-  "sitnet_question_owner_changed": "Kysymyksen omistaja vaihdettu",
   "sitnet_update_failed": "Päivitys epäonnistui",
-  "sitnet_change_owner": "Vaihda omistaja",
   "sitnet_show_first": "Näytetään ensimmäiset",
   "sitnet_show_questions": "kysymystä",
   "sitnet_show_more": "Näytä lisää",
@@ -666,5 +663,8 @@
   "sitnet_sections_reordered": "Aihealueiden järjestys on päivitetty",
   "sitnet_no_attachment": "Ei liitetiedostoa",
   "sitnet_add_answer_attachment": "Lisää vastauksen liite",
-  "sitnet_remove_answer_attachment": "Poista vastauksen liite"
+  "sitnet_remove_answer_attachment": "Poista vastauksen liite",
+  "sitnet_add_question_owner": "Lisää kysymyksille omistaja",
+  "sitnet_question_owner_added": "Omistaja lisätty",
+  "sitnet_public_question": "Julkinen kysymys (kaikki opettajat voivat vapaasti muokata)"
 }

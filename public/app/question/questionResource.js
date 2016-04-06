@@ -19,7 +19,7 @@
                         uid: "@uid"
                     },
                     {
-                        "update": {method: "PUT", params: {uid: "@uid"}}
+                        "update": {method: "POST", params: {uid: "@uid"}}
                     }),
 
                 score: $resource("/app/questions/:id/score",

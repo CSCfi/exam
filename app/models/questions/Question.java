@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.Attachment;
 import models.ExamSectionQuestion;
+import models.User;
 import models.base.OwnedModel;
 import models.Tag;
 import models.api.AttachmentContainer;
@@ -13,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer, Scorable {
@@ -78,6 +80,9 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Tag> tags;
 
+    @ManyToMany
+    @JoinTable(name = "question_owner", joinColumns = @JoinColumn(name = "question_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> questionOwners;
 
     public String getState() {
         return state;
@@ -225,6 +230,14 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
         this.tags = tags;
     }
 
+    public Set<User> getQuestionOwners() {
+        return questionOwners;
+    }
+
+    public void setQuestionOwners(Set<User> questionOwners) {
+        this.questionOwners = questionOwners;
+    }
+
     @Transient
     @Override
     public Double getAssessedScore() {
@@ -277,9 +290,9 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
     public boolean isRejected() {
         return type == Type.EssayQuestion &&
                 evaluationType != null &&
-                evaluationType.equals("Select")
-                && evaluatedScore != null
-                && evaluatedScore == 0;
+                evaluationType.equals("Select") &&
+                evaluatedScore != null &&
+                evaluatedScore == 0;
     }
 
     @Transient
@@ -287,9 +300,9 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
     public boolean isApproved() {
         return type == Type.EssayQuestion &&
                 evaluationType != null &&
-                evaluationType.equals("Select")
-                && evaluatedScore != null
-                && evaluatedScore == 1;
+                evaluationType.equals("Select") &&
+                evaluatedScore != null &&
+                evaluatedScore == 1;
     }
 
     @Transient

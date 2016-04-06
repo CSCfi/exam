@@ -151,7 +151,7 @@ POST          /app/question/:id                                          control
 POST          /app/questions/:qid/option                                 controllers.QuestionController.addOption(qid: Long)
 DELETE        /app/questions/:id                                         controllers.QuestionController.deleteQuestion(id: Long)
 DELETE        /app/questions/option/:oid                                 controllers.QuestionController.deleteOption(oid: Long)
-PUT           /app/questions/owner/:uid                                  controllers.QuestionController.updateQuestionOwner(uid: Long)
+POST          /app/questions/owner/:uid                                  controllers.QuestionController.addOwner(uid: Long)
 GET           /app/question/:id/metadata                                 controllers.MetaDataController.getQuestionMetaData(id: Long)
 
 ############### Reservation interface ###############

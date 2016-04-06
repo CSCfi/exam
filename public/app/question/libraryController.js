@@ -96,12 +96,12 @@
                 };
 
                 $scope.ownerProcess = false;
-                $scope.moveSelected = function () {
+                $scope.addOwnerForSelected = function () {
                     $scope.ownerProcess = true;
 
                     // check that atleast one has been selected
                     var isEmpty = true,
-                        boxes = angular.element(".questionToMove"),
+                        boxes = angular.element(".questionToUpdate"),
                         ids = [];
 
                     angular.forEach(boxes, function (input) {
@@ -117,22 +117,21 @@
                         return;
                     }
                     if (!$scope.newTeacher) {
-                        toastr.warning($translate.instant('sitnet_select_teacher_to_move_the_questions_to'));
+                        toastr.warning($translate.instant('sitnet_add_question_owner'));
                         $scope.ownerProcess = false;
                         return;
                     }
 
-                    // print to file
-                    var questionToMove = {
+                    var data = {
                         "uid": $scope.newTeacher.id,
                         "questionIds": ids.toString()
                     };
 
-                    QuestionRes.questionOwner.update(questionToMove,
-                        function (result) {
-                            toastr.info($translate.instant('sitnet_question_owner_changed'));
+                    QuestionRes.questionOwner.update(data,
+                        function () {
+                            toastr.info($translate.instant('sitnet_question_owner_added'));
                             query();
-                        }, function (error) {
+                        }, function () {
                             toastr.info($translate.instant('sitnet_update_failed'));
                         });
                     $scope.ownerProcess = false;
@@ -206,12 +205,12 @@
                         });
                         $scope.questions = $scope.filteredQuestions = questionService.applyFilter(data);
 
-                        $scope.questions.forEach(function(q) {
-                            if (q.evaluationType ==="Points" || q.type === 'MultipleChoiceQuestion') {
+                        $scope.questions.forEach(function (q) {
+                            if (q.evaluationType === "Points" || q.type === 'MultipleChoiceQuestion') {
                                 q.displayedMaxScore = q.maxScore;
-                            } else if (q.evaluationType ==="Select") {
+                            } else if (q.evaluationType === "Select") {
                                 q.displayedMaxScore = 'sitnet_evaluation_select';
-                            } else if (q.type ==="WeightedMultipleChoiceQuestion") {
+                            } else if (q.type === "WeightedMultipleChoiceQuestion") {
                                 q.displayedMaxScore = $scope.calculateMaxPoints(q);
                             }
                             q.typeOrd = ['EssayQuestion',
