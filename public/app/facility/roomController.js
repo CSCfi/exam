@@ -179,13 +179,8 @@
                 };
 
                 var formatExceptionEvent = function (event) {
-                    var startDate = moment(event.startDate);
-                    var endDate = moment(event.endDate);
-                    var offset = moment().isDST() ? -1 : 0;
-                    startDate.add(offset, 'hour');
-                    endDate.add(offset, 'hour');
-                    event.startDate = startDate.format();
-                    event.endDate = endDate.format();
+                    event.startDate = moment(event.startDate).format();
+                    event.endDate = moment(event.endDate).format();
                 };
 
                 $scope.editingMultipleRooms = function () {
@@ -616,10 +611,8 @@
                             $scope.exception = {startDate: now, endDate: angular.copy(now), outOfService: true};
 
                             $scope.ok = function () {
-
-                                var hourOffset = moment().isDST() ? 1 : 0;
-                                var start = moment($scope.exception.startDate).add(hourOffset, 'hour');
-                                var end = moment($scope.exception.endDate).add(hourOffset, 'hour');
+                                var start = moment($scope.exception.startDate);
+                                var end = moment($scope.exception.endDate);
                                 if (end <= start) {
                                     toastr.error($translate.instant('sitnet_endtime_before_starttime'))
                                 } else {
