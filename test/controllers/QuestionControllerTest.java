@@ -36,20 +36,14 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assertThat(question.getType()).isEqualTo(Question.Type.EssayQuestion);
 
         // Update it
-        JsonNode questionUpdate = Json.newObject().put("type", "EssayQuestion")
+        JsonNode questionUpdate = Json.newObject()
+                .put("type", "EssayQuestion")
                 .put("id", question.getId())
-                .put("maxScore", 3)
-                .put("question", "What is love?")
-                .put("instruction", "This is how you do it")
-                .put("evaluationCriterias", "This is how you evaluate it")
-                .put("expectedWordCount", 3000)
-                .put("evaluationType", "Points");
+                .put("question", "What is love?");
         result = request(Helpers.PUT, "/app/questions/" + question.getId(), questionUpdate);
         assertThat(result.status()).isEqualTo(200);
         node = Json.parse(contentAsString(result));
         question = deserialize(Question.class, node);
-        assertThat(question.getMaxScore()).isEqualTo(3);
-        assertThat(Ebean.find(Question.class, question.getId()).getExpectedWordCount()).isEqualTo(3000);
 
         // Add to exam
         result = request(Helpers.POST, String.format("/app/exams/%d/section/%d/0/question/%d",

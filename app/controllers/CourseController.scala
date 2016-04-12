@@ -57,7 +57,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
       query = query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get.asJava)
     }
     val results = query.orderBy("name desc").findList
-    wrapAsJson(Ok(Json.toJson(results).toString))
+    Ok(Json.toJson(results).toString)
   }
 
 
@@ -81,7 +81,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>
           val results = Ebean.find(classOf[Course], id)
-          wrapAsJson(Ok(Json.toJson(results).toString))
+          Ok(Json.toJson(results).toString)
         case _ =>
           forbid()
       }

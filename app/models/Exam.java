@@ -510,6 +510,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                 AppUtil.setModifier(questionCopy, user);
                 questionCopy.save();
                 esq.save();
+                esq.getOptions().forEach(ExamSectionQuestionOption::save);
             }
             clone.getExamSections().add(esCopy);
         }
@@ -676,13 +677,13 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                 .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
                 .fetch("executionType")
                 .fetch("examSections")
-                .fetch("examSections.sectionQuestions", new FetchConfig().query())
-                .fetch("examSections.sectionQuestions.question")
-                .fetch("examSections.sectionQuestions.question.attachment")
-                .fetch("examSections.sectionQuestions.question.options")
-                .fetch("examSections.sectionQuestions.question.answer")
-                .fetch("examSections.sectionQuestions.question.answer.attachment")
-                .fetch("examSections.sectionQuestions.question.answer.options")
+                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
+                .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
+                .fetch("examSections.sectionQuestions.question.attachment", "fileName")
+                .fetch("examSections.sectionQuestions.options")
+                .fetch("examSections.sectionQuestions.options.option", "id, option")
+                .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, objectVersion")
+                .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")

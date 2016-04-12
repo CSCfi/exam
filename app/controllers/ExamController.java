@@ -595,13 +595,14 @@ public class ExamController extends BaseController {
         return Ebean.find(Exam.class)
                 .fetch("creator", "id")
                 .fetch("examType", "id, type")
-                .fetch("examSections", "id, name")
-                .fetch("examSections.sectionQuestions", "sequenceNumber")
-                .fetch("examSections.sectionQuestions.question", "id, type, question, instruction, maxScore, " +
-                        "expectedWordCount, evaluationType, expanded")
-                .fetch("examSections.sectionQuestions.question.parent", "id")
-                .fetch("examSections.sectionQuestions.question.options", "id, option")
+
+                .fetch("examSections", "id, name, sequenceNumber")
+                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
+                .fetch("examSections.sectionQuestions.question", "id, type, question")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
+                .fetch("examSections.sectionQuestions.options")
+                .fetch("examSections.sectionQuestions.options.option", "id, option")
+
                 .fetch("examLanguages", "code")
                 .fetch("attachment", "fileName")
                 .fetch("examOwners", "firstName, lastName")

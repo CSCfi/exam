@@ -97,6 +97,7 @@ PUT           /app/exams/:eid/reorder                                    control
 ############### Review interface ###############
 GET           /app/reviews/:id                                           controllers.ReviewController.getExamReviews(id: Long)
 PUT           /app/review/:id                                            controllers.ReviewController.reviewExam(id: Long)
+PUT           /app/review/examquestion/:id/score                         controllers.ReviewController.scoreExamQuestion(id: Long)
 POST          /app/review/:eid/comment/:cid                              controllers.ReviewController.insertComment(eid: Long, cid: Long)
 PUT           /app/review/:eid/comment/:cid                              controllers.ReviewController.updateComment(eid: Long, cid: Long)
 GET           /app/noshows/:eid                                          controllers.ReviewController.listNoShows(eid: Long)
@@ -136,23 +137,28 @@ GET           /app/courses/user                                          control
 GET           /app/courses/:id                                           controllers.CourseController.getCourse(id: Long)
 POST          /app/courses/insert/:code                                  controllers.CourseInfoController.insertCourseFromInterface(code: String)
 
+
 ############### Question interface ###############
 
 GET           /app/questions                                             controllers.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long], tag: java.util.List[java.lang.Long], section: java.util.List[java.lang.Long])
 GET           /app/questions/:id                                         controllers.QuestionController.getQuestion(id: Long)
-
 PUT           /app/questions/:id                                         controllers.QuestionController.updateQuestion(id: Long)
-PUT           /app/questions/:id/score                                   controllers.QuestionController.scoreQuestion(id: Long)
 
 PUT           /app/questions/option/:oid                                 controllers.QuestionController.updateOption(oid: Long)
 PUT           /app/questions/correctoption/:oid                          controllers.QuestionController.toggleCorrectOption(oid: Long)
-POST          /app/questions                                             controllers.QuestionController.addQuestion()
+
+POST          /app/questions                                             controllers.QuestionController.createQuestion()
 POST          /app/question/:id                                          controllers.QuestionController.copyQuestion(id: Long)
 POST          /app/questions/:qid/option                                 controllers.QuestionController.addOption(qid: Long)
 DELETE        /app/questions/:id                                         controllers.QuestionController.deleteQuestion(id: Long)
 DELETE        /app/questions/option/:oid                                 controllers.QuestionController.deleteOption(oid: Long)
 POST          /app/questions/owner/:uid                                  controllers.QuestionController.addOwner(uid: Long)
 GET           /app/question/:id/metadata                                 controllers.MetaDataController.getQuestionMetaData(id: Long)
+
+############### Section question interface ##########
+GET           /app/examquestions/:id                                     controllers.ExamSectionController.getExamQuestion(id: Long)
+PUT           /app/examquestions/:id                                     controllers.ExamSectionController.updateExamQuestion(id: Long)
+PUT           /app/examquestions/:id/option/:oid                         controllers.ExamSectionController.updateExamQuestionOption(id: Long, oid: Long)
 
 ############### Reservation interface ###############
 

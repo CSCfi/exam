@@ -22,7 +22,7 @@
                         "update": {method: "POST", params: {uid: "@uid"}}
                     }),
 
-                score: $resource("/app/questions/:id/score",
+                score: $resource("/app/review/examquestion/:id/score",
                 {
                     id: "@id"
                 },

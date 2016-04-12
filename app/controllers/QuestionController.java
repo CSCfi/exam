@@ -14,6 +14,7 @@ import play.mvc.Result;
 import util.AppUtil;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,7 +30,6 @@ public class QuestionController extends BaseController {
     public Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds) {
         User user = getLoggedUser();
         ExpressionList<Question> query = createQuery()
-                .fetch("questionOwners", "firstName, lastName, userIdentifier")
                 .where()
                 .isNull("parent")
                 .ne("state", QuestionState.DELETED.toString());
@@ -40,16 +40,16 @@ public class QuestionController extends BaseController {
                     .endJunction();
         }
         if (!examIds.isEmpty()) {
-            query = query.in("children.examSectionQuestion.examSection.exam.id", examIds);
+            query = query.in("examSectionQuestions.examSection.exam.id", examIds);
         }
         if (!courseIds.isEmpty()) {
-            query = query.in("children.examSectionQuestion.examSection.exam.course.id", courseIds);
+            query = query.in("examSectionQuestions.examSection.exam.course.id", courseIds);
         }
         if (!tagIds.isEmpty()) {
             query = query.in("tags.id", tagIds);
         }
         if (!sectionIds.isEmpty()) {
-            query = query.in("children.examSectionQuestion.examSection.id", sectionIds);
+            query = query.in("examSectionQuestions.examSection.id", sectionIds);
         }
         Set<Question> questions = query.orderBy("created desc").findSet();
         return ok(questions);
@@ -63,7 +63,7 @@ public class QuestionController extends BaseController {
             query = query.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", user)
-                    .eq("examSectionQuestion.examSection.exam.examOwners", user)
+                    .eq("examSectionQuestions.examSection.exam.examOwners", user)
                     .endJunction();
         }
         Question question = query.findUnique();
@@ -101,8 +101,10 @@ public class QuestionController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addQuestion() {
+    public Result createQuestion() {
         Question question = bindForm(Question.class);
+        question.setQuestionOwners(new HashSet<>());
+        question.getQuestionOwners().add(getLoggedUser());
         User user = getLoggedUser();
         AppUtil.setCreator(question, user);
         AppUtil.setModifier(question, user);
@@ -111,33 +113,15 @@ public class QuestionController extends BaseController {
         return ok(Json.toJson(question));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result scoreQuestion(Long id) {
-        DynamicForm df = formFactory.form().bindFromRequest();
-        Question essayQuestion = Ebean.find(Question.class, id);
-        if (essayQuestion == null) {
-            return notFound("question not found");
-        }
-        essayQuestion.setEvaluatedScore(Double.parseDouble(df.get("evaluatedScore")));
-        essayQuestion.update();
-        return ok(Json.toJson(essayQuestion));
-    }
-
     private static void doUpdateQuestion(Question question, DynamicForm df, User user) {
         if (df.get("question") != null) {
             question.setQuestion(df.get("question"));
         }
-        if (df.get("maxScore") != null) {
-            question.setMaxScore(Double.parseDouble(df.get("maxScore")));
-        }
-        question.setInstruction(df.get("instruction"));
-        question.setEvaluationCriterias(df.get("evaluationCriterias"));
         question.setShared(Boolean.parseBoolean(df.get("shared")));
         question.setState(QuestionState.SAVED.toString());
         AppUtil.setModifier(question, user);
         question.update();
     }
-
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateQuestion(Long id) {
@@ -148,17 +132,13 @@ public class QuestionController extends BaseController {
             query = query.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", user)
-                    .eq("examSectionQuestion.examSection.exam.examOwners", user)
+                    .eq("examSectionQuestions.examSection.exam.examOwners", user)
                     .endJunction();
         }
         Question question = query.findUnique();
         if (question == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        if (df.get("expectedWordCount") != null) {
-            question.setExpectedWordCount(Long.parseLong(df.get("expectedWordCount")));
-        }
-        question.setEvaluationType(df.get("evaluationType"));
         String validationResult = question.getValidationResult();
         if (validationResult != null) {
             return forbidden(validationResult);
@@ -175,7 +155,6 @@ public class QuestionController extends BaseController {
             return notFound();
         }
         option.setOption(form.getOption());
-        option.setScore(form.getScore());
         option.update();
         return ok(Json.toJson(option));
     }
@@ -236,11 +215,10 @@ public class QuestionController extends BaseController {
 
     private static Query<Question> createQuery() {
         return Ebean.find(Question.class)
-                .fetch("creator", "id")
-                .fetch("parent", "id")
+                .fetch("questionOwners", "firstName, lastName, userIdentifier")
                 .fetch("attachment")
                 .fetch("options")
-                .fetch("children.examSectionQuestion.examSection.exam.course", "code");
+                .fetch("examSectionQuestions.examSection.exam.course", "code");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

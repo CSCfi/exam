@@ -3,10 +3,12 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.text.PathProperties;
 import models.Exam;
 import models.ExamSection;
 import models.ExamSectionQuestion;
+import models.ExamSectionQuestionOption;
 import models.User;
 import models.api.Sortable;
 import models.questions.Question;
@@ -16,7 +18,12 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.TreeSet;
 
 
 public class ExamSectionController extends BaseController {
@@ -228,6 +235,7 @@ public class ExamSectionController extends BaseController {
         sectionQuestion.setQuestion(clone);
         sectionQuestion.setSequenceNumber(sequence);
         section.getSectionQuestions().add(sectionQuestion);
+
         AppUtil.setModifier(section, user);
         section.save();
         section.setSectionQuestions(new TreeSet<>(section.getSectionQuestions()));
@@ -279,17 +287,17 @@ public class ExamSectionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result removeQuestion(Long eid, Long sid, Long qid) {
         User user = getLoggedUser();
-        Question question = Ebean.find(Question.class)
-                .fetch("examSectionQuestion.examSection.exam.examOwners")
+        ExamSectionQuestion sectionQuestion = Ebean.find(ExamSectionQuestion.class)
+                .fetch("examSection.exam.examOwners")
+                .fetch("question")
                 .where()
-                .idEq(qid)
-                .eq("examSectionQuestion.examSection.id", sid)
-                .eq("examSectionQuestion.examSection.exam.id", eid)
+                .eq("examSection.exam.id", eid)
+                .eq("examSection.id", sid)
+                .eq("question.id", qid)
                 .findUnique();
-        if (question == null) {
+        if (sectionQuestion == null) {
             return notFound("sitnet_error_not_found");
         }
-        ExamSectionQuestion sectionQuestion = question.getExamSectionQuestion();
         ExamSection section = sectionQuestion.getExamSection();
         Exam exam = section.getExam();
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
@@ -347,6 +355,73 @@ public class ExamSectionController extends BaseController {
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result getExamQuestion(Long id) {
+        User user = getLoggedUser();
+        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(id);
+        if (user.hasRole("TEACHER", getSession())) {
+            query = query.eq("examSectionQuestions.examSection.exam.examOwners", user);
+        }
+        ExamSectionQuestion examQuestion = query.findUnique();
+        if (examQuestion == null) {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+        Collections.sort(examQuestion.getQuestion().getOptions());
+        return ok(Json.toJson(examQuestion));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result updateExamQuestion(Long id) {
+        DynamicForm df = formFactory.form().bindFromRequest();
+        User user = getLoggedUser();
+        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(id);
+        if (user.hasRole("TEACHER", getSession())) {
+            query = query.eq("examSection.exam.examOwners", user);
+        }
+        ExamSectionQuestion question = query.findUnique();
+        if (question == null) {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+        doUpdateQuestion(question, df, user);
+        return ok(Json.toJson(question));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result updateExamQuestionOption(Long id, Long oid) {
+        ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, id);
+        if (esq == null) {
+            return notFound();
+        }
+        Optional<ExamSectionQuestionOption> optional = esq.getOptions().stream()
+                .filter(o -> o.getId().equals(oid))
+                .findFirst();
+        if (!optional.isPresent()) {
+            return notFound();
+        }
+        ExamSectionQuestionOption option = optional.get();
+        DynamicForm df = formFactory.form().bindFromRequest();
+        Double score = Double.parseDouble(df.get("score"));
+        option.setScore(score);
+        option.update();
+        return ok(Json.toJson(option));
+    }
+
+    private static void doUpdateQuestion(ExamSectionQuestion question, DynamicForm df, User user) {
+        if (df.get("maxScore") != null) {
+            question.setMaxScore(Integer.parseInt(df.get("maxScore")));
+        }
+        question.setAnswerInstructions(df.get("answerInstructions"));
+        question.setEvaluationCriteria(df.get("evaluationCriteria"));
+        if (df.get("evaluationType") != null) {
+            question.setEvaluationType(ExamSectionQuestion.EvaluationType.valueOf(df.get("evaluationType")));
+        }
+        if (df.get("expectedWordCount") != null) {
+            question.setExpectedWordCount(Integer.parseInt(df.get("expectedWordCount")));
+        }
+        AppUtil.setModifier(question, user);
+        question.update();
     }
 
     private Optional<Result> checkBounds(Integer from, Integer to) {

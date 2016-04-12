@@ -16,15 +16,9 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
 
     private boolean correctOption;
 
-    private Double score;
-
     @ManyToOne
     @JsonBackReference
     private Question question;
-
-    @ManyToOne
-    @JsonBackReference
-    private Answer answer;
 
     public String getOption() {
         return option;
@@ -36,14 +30,6 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
 
     public boolean isCorrectOption() {
         return correctOption;
-    }
-
-    public Answer getAnswer() {
-        return answer;
-    }
-
-    public void setAnswer(Answer answer) {
-        this.answer = answer;
     }
 
     @Override
@@ -73,14 +59,6 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
         this.correctOption = correctOption;
     }
 
-    public Double getScore() {
-        return score;
-    }
-
-    public void setScore(Double score) {
-        this.score = score;
-    }
-
     public Question getQuestion() {
         return question;
     }
@@ -100,7 +78,6 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
                 "id=" + getId() +
                 ", option='" + option + '\'' +
                 ", correctOption=" + correctOption +
-                ", score=" + score +
                 '}';
     }
 

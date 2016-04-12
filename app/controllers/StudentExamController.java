@@ -9,9 +9,7 @@ import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
-import models.questions.Answer;
-import models.questions.MultipleChoiceOption;
-import models.questions.Question;
+import models.questions.EssayAnswer;
 import org.joda.time.DateTime;
 import play.Environment;
 import play.Logger;
@@ -335,13 +333,13 @@ public class StudentExamController extends BaseController {
                 .fetch("examType", "id, type")
                 .fetch("executionType")
                 .fetch("examSections", "id, name, sequenceNumber")
-                .fetch("examSections.sectionQuestions", "sequenceNumber")
-                .fetch("examSections.sectionQuestions.question", "id, type, question, instruction, maxScore, expectedWordCount, evaluationType, expanded")
-                .fetch("examSections.sectionQuestions.question.options", "id, option")
+                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
+                .fetch("examSections.sectionQuestions.question", "id, type, question")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-                .fetch("examSections.sectionQuestions.question.answer", "id, type, answer, objectVersion")
-                .fetch("examSections.sectionQuestions.question.answer.options", "id, option")
-                .fetch("examSections.sectionQuestions.question.answer.attachment", "fileName")
+                .fetch("examSections.sectionQuestions.options")
+                .fetch("examSections.sectionQuestions.options.option", "id, option")
+                .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, objectVersion")
+                .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
                 .fetch("examLanguages", "code")
                 .fetch("attachment", "fileName")
                 .fetch("examOwners", "firstName, lastName")
@@ -471,21 +469,20 @@ public class StudentExamController extends BaseController {
         return getEnrolmentError(hash).orElseGet(() -> {
             DynamicForm df = formFactory.form().bindFromRequest();
             String essayAnswer = df.get("answer");
-            Question question = Ebean.find(Question.class, questionId);
+            ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, questionId);
             if (question == null) {
                 return forbidden();
             }
-            Answer answer = question.getAnswer();
+            EssayAnswer answer = question.getEssayAnswer();
             if (answer == null) {
-                answer = new Answer();
-                answer.setType(Answer.Type.EssayAnswer);
+                answer = new EssayAnswer();
             } else {
                 long objectVersion = Long.parseLong(df.get("objectVersion"));
                 answer.setObjectVersion(objectVersion);
             }
             answer.setAnswer(essayAnswer);
             answer.save();
-            question.setAnswer(answer);
+            question.setEssayAnswer(answer);
             question.save();
             return ok(answer);
         });
@@ -498,33 +495,25 @@ public class StudentExamController extends BaseController {
             if (oids.equals("none")) { // not so elegant but will do for now
                 optionIds = new ArrayList<>();
             } else {
-                optionIds = Stream.of(oids.split(",")).map(Long::parseLong).collect(Collectors.toList());
+                optionIds = Stream.of(oids.split(","))
+                        .map(Long::parseLong)
+                        .collect(Collectors.toList());
             }
-            Question question = Ebean.find(Question.class).fetch("answer").where().idEq(qid).findUnique();
+            ExamSectionQuestion question =
+                    Ebean.find(ExamSectionQuestion.class, qid);
             if (question == null) {
                 return forbidden();
             }
-            Answer answer = question.getAnswer();
-            if (answer == null) {
-                answer = new Answer();
-                answer.setType(question.getType());
-                answer.save();
-                question.setAnswer(answer);
-                question.update();
-            }
-            answer.getOptions().stream().forEach(o -> {
-                o.setAnswer(null);
+
+            question.getOptions().forEach(o -> {
+                o.setAnswered(false);
                 o.update();
             });
-            List<MultipleChoiceOption> options = optionIds.isEmpty()
-                    ? new ArrayList<>() : Ebean.find(MultipleChoiceOption.class).where().idIn(optionIds).findList();
-            for (MultipleChoiceOption o : options) {
-                o.setAnswer(answer);
-                o.save();
-            }
-            answer.getOptions().clear();
-            answer.getOptions().addAll(options);
-            return ok(Json.toJson(answer));
+            question.getOptions().stream().filter(o -> optionIds.contains(o.getOption().getId())).forEach(o -> {
+                o.setAnswered(true);
+                o.update();
+            });
+            return ok(Json.toJson(question.getOptions()));
         });
     }
 

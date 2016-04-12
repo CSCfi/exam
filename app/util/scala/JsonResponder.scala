@@ -14,13 +14,10 @@ trait JsonResponder {
 
   implicit def course2Response[T <: Model](c: T): Result = java2Response(c)
 
-  def wrapAsJson(res: Result) =
-    res.withHeaders(CONTENT_TYPE -> "application/json")
-
   def java2Response[T <: Model](models: java.util.List[T]) =
-    wrapAsJson(Ok(JavaJson.toJson(models).toString))
+    Ok(JavaJson.toJson(models).toString)
 
   def java2Response[T <: Model](model: T) =
-    wrapAsJson(Ok(JavaJson.toJson(model).toString))
+    Ok(JavaJson.toJson(model).toString)
 
 }
