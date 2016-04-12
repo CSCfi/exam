@@ -25,7 +25,7 @@
         <!-- lottery on/off -->
         <span class="checkbox pointer-hand lottery-item-count">
               <input type="checkbox" name="On" value="On"
-                     ng-disabled="section.sectionQuestions.length < 2" ng-click="toggleLottery(section)"
+                     ng-disabled="toggleDisabled(section)" ng-click="toggleLottery(section)"
                      ng-model="section.lotteryOn">
                         {{'sitnet_randomize_questions' | translate}}
             </input>
@@ -67,7 +67,7 @@
 <div class="row">
     <div class="col-md-offset-1 col-md-11" ng-show="section.expanded">
         <ul droppable objects="section.sectionQuestions" identifier="section.id" on-move="moveQuestion(section, from, to)"
-            on-create="insertQuestion(section, object, to)" class="sortable no-padding">
+            on-create="insertQuestion(section, object, to)" drop-disabled="{{section.lotteryOn}}" class="sortable no-padding">
             <li class="sortable-{{section.id}}" ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="templates.question"
                 ng-repeat="sectionQuestion in section.sectionQuestions | orderBy:sequenceNumber">
             </li>

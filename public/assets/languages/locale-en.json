@@ -664,7 +664,10 @@
   "sitnet_no_attachment": "Ei liitetiedostoa EN",
   "sitnet_add_answer_attachment": "Lisää vastauksen liite EN",
   "sitnet_remove_answer_attachment": "Poista vastauksen liite EN",
+  "sitnet_error_lottery_points_not_match": "Arvontaa ei voida käyttää, koska kysymyksistä saatavat pisteet eivät ole saman suuruisia. EN",
   "sitnet_add_question_owner": "Lisää kysymyksille omistaja EN",
   "sitnet_question_owner_added": "Omistaja lisätty EN",
-  "sitnet_public_question": "Julkinen kysymys (kaikki opettajat voivat vapaasti muokata) EN"
+  "sitnet_public_question": "Julkinen kysymys (kaikki opettajat voivat vapaasti muokata) EN",
+  "sitnet_error_drop_disabled_lottery_on": "Kysymyksen lisääminen ei ole sallittu aihealueeseen, jossa on kysymysten arvonta käytössä. EN",
+  "sitnet_exam_section_question_lottery_on_warning": "Kysymyksen muokkaamista on rajoitettu. Arvonnassa mukana olevien kysymysten pistemäärän muokkaaminen ei ole sallittu. EN"
 }

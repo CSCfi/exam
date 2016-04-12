@@ -368,6 +368,7 @@ public class ExamSectionController extends BaseController {
         ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class)
                 .fetch("question")
                 .fetch("options")
+                .fetch("examSection")
                 .where().idEq(id);
         if (user.hasRole("TEACHER", getSession())) {
             query = query.eq("examSection.exam.examOwners", user);

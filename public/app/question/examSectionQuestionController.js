@@ -11,8 +11,10 @@
 
                 $scope.sectionQuestion = {};
                 $scope.newQuestion = {};
+                $scope.lotteryOn = false;
 
                 function sectionQuestionResponse(question) {
+                    $scope.lotteryOn = question.examSection.lotteryOn;
                     $scope.sectionQuestion = question;
                     $scope.newQuestion = question.question;
                 }
