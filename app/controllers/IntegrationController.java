@@ -169,7 +169,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
             if (status == HttpServletResponse.SC_OK) {
                 return parseCourses(response.asJson());
             }
-            Logger.info("Non-OK response received {}", status);
+            Logger.info("Non-OK response received for URL: {}. Status: {}", url, status);
             throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, response.getStatusText()));
         };
         return request.get().thenApplyAsync(onSuccess);

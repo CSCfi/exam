@@ -285,7 +285,7 @@ public class ExamController extends BaseController {
             reason = "sitnet_error_end_date";
         }
         if (start != null && end != null) {
-            if (new DateTime(start).plusDays(1).isBefore(end)) {
+            if (new DateTime(start).minusDays(1).isAfter(end)) {
                 reason = "sitnet_error_end_sooner_than_start";
             } else if (new DateTime(end).plusDays(1).isBeforeNow()) {
                 reason = "sitnet_error_end_sooner_than_now";
