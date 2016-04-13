@@ -21,8 +21,8 @@
                         angular.forEach(section.sectionQuestions, function (sectionQuestion) {
                             var question = sectionQuestion.question;
                             if (question.type === "EssayQuestion") {
-                                if (question.evaluationType === "Select") {
-                                    if (question.evaluatedScore == 1) {
+                                if (sectionQuestion.evaluationType === "Select") {
+                                    if (sectionQuestion.evaluatedScore == 1) {
                                         data.accepted++;
                                     } else if (question.evaluatedScore == 0) {
                                         data.rejected++;
@@ -36,17 +36,17 @@
                 };
 
                 // For weighted mcq
-                self.calculateMaxPoints = function (question) {
-                    return (question.options.filter(function (option) {
+                self.calculateMaxPoints = function (sectionQuestion) {
+                    return (sectionQuestion.options.filter(function (option) {
                         return option.score > 0;
                     }).reduce(function (a, b) {
                         return a + b.score;
                     }, 0));
                 };
 
-                self.scoreWeightedMultipleChoiceAnswer = function (question) {
-                    var score = question.options.filter(function (o) {
-                        return o.answer;
+                self.scoreWeightedMultipleChoiceAnswer = function (sectionQuestion) {
+                    var score = sectionQuestion.options.filter(function (o) {
+                        return o.answered;
                     }).reduce(function (a, b) {
                         return a + b.score;
                     }, 0);
@@ -54,15 +54,18 @@
                 };
 
                 // For non-weighted mcq
-                self.scoreMultipleChoiceAnswer = function (question) {
-                    if (!question.answer) {
+                self.scoreMultipleChoiceAnswer = function (sectionQuestion) {
+                    var selected = sectionQuestion.options.filter(function (o) {
+                       return o.answered;
+                    });
+                    if (selected.length == 0) {
                         return 0;
                     }
-                    if (question.answer.options.length != 1) {
+                    if (selected.length != 1) {
                         console.error("multiple options selected for a MultiChoice answer!");
                     }
-                    if (question.answer.options[0].correctOption === true) {
-                        return question.maxScore;
+                    if (selected[0].option.correctOption === true) {
+                        return sectionQuestion.maxScore;
                     }
                     return 0;
                 };

@@ -6,14 +6,14 @@
         <div class="col-md-12 info-row">
             {{activeSection.description}}
         </div>
-        <div class="{{sectionQuestion.question.selectedAnsweredState}} col-md-12 info-row"
+        <div class="{{sectionQuestion.selectedAnsweredState}} col-md-12 info-row"
              ng-repeat="sectionQuestion in activeSection.sectionQuestions | orderBy: 'sequenceNumber'"
-             ng-init="examService.setQuestionColors(sectionQuestion.question); sectionQuestion.question.expanded = true;">
+             ng-init="examService.setQuestionColors(sectionQuestion.question); sectionQuestion.expanded = true;">
 
             <div class="row">
                 <!-- chevron -->
                 <div class="col-md-1 fa-stack fa-lg pointer " ng-click="chevronClicked(sectionQuestion)">
-                    <i ng-class="sectionQuestion.question.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
+                    <i ng-class="sectionQuestion.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
                        class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
                     </i>
                 </div>
@@ -37,14 +37,14 @@
                     <span class="pull-right">
                          <i class="text-info fa fa-star"></i>
                         <span ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion' ||
-                            (sectionQuestion.question.type == 'EssayQuestion' && sectionQuestion.question.evaluationType == 'Points')">
-                            {{sectionQuestion.question.maxScore}} {{'sitnet_unit_points' | translate}}
+                            (sectionQuestion.question.type == 'EssayQuestion' && sectionQuestion.evaluationType == 'Points')">
+                            {{sectionQuestion.maxScore}} {{'sitnet_unit_points' | translate}}
                         </span>
-                        <span ng-if="sectionQuestion.question.type === 'EssayQuestion' && sectionQuestion.question.evaluationType == 'Selection'">
+                        <span ng-if="sectionQuestion.question.type === 'EssayQuestion' && sectionQuestion.evaluationType == 'Selection'">
                              {{'sitnet_evaluation_type' | translate}}: {{'sitnet_evaluation_select' | translate}}
                         </span>
                         <span ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
-                            {{calculateMaxPointsOfWeightedMcq(sectionQuestion.question)}} {{'sitnet_unit_points' | translate}}
+                            {{calculateMaxPointsOfWeightedMcq(sectionQuestion)}} {{'sitnet_unit_points' | translate}}
                         </span>
                     </span>
 
@@ -73,16 +73,17 @@
             </div>
 
             <!-- instruction -->
-            <div class="row" ng-show="sectionQuestion.question.instruction">
+            <div class="row" ng-show="sectionQuestion.answerInstructions">
                 <div class="col-md-12">
                     <p class="question-text question-type-text">
                         <i class="text-info fa fa-info-circle"></i>
-                        {{'sitnet_instructions' | translate }}:&nbsp;{{sectionQuestion.question.instruction}}</p>
+                        {{'sitnet_instructions' | translate }}:&nbsp;{{sectionQuestion.answerInstructions}}</p>
                 </div>
+            </div>
             </div>
 
             <!-- answer -->
-            <div class="exam-question-container" ng-show="sectionQuestion.question.expanded">
+            <div class="exam-question-container" ng-show="sectionQuestion.expanded">
 
                 <div class="question">
                     <!-- content-->

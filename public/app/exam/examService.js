@@ -144,31 +144,33 @@
                     }
                 };
 
-                self.setQuestionColors = function (question) {
+                self.setQuestionColors = function (sectionQuestion) {
                     var isAnswered;
-                    switch (question.type) {
+                    switch (sectionQuestion.question.type) {
                         case 'EssayQuestion':
-                            if (question.answer && question.answer.answer && self.stripHtml(question.answer.answer).length > 0) {
+                            var essayAnswer = sectionQuestion.essayAnswer;
+                            if (essayAnswer && essayAnswer.answer &&
+                                self.stripHtml(essayAnswer.answer).length > 0) {
                                 isAnswered = true;
                             }
                             break;
                         case 'MultipleChoiceQuestion':
                         case 'WeightedMultipleChoiceQuestion':
-                            if (question.answer && question.answer.options.length > 0) {
-                                isAnswered = true;
-                            }
+                            isAnswered = sectionQuestion.options.filter(function (o) {
+                                    return o.answered;
+                                }).length > 0;
                             break;
                         default:
                             break;
                     }
                     if (isAnswered) {
-                        question.answered = true;
-                        question.questionStatus = $translate.instant("sitnet_question_answered");
-                        question.selectedAnsweredState = 'question-answered-header';
+                        sectionQuestion.answered = true;
+                        sectionQuestion.questionStatus = $translate.instant("sitnet_question_answered");
+                        sectionQuestion.selectedAnsweredState = 'question-answered-header';
                     } else {
-                        question.answered = false;
-                        question.questionStatus = $translate.instant("sitnet_question_unanswered");
-                        question.selectedAnsweredState = 'question-unanswered-header';
+                        sectionQuestion.answered = false;
+                        sectionQuestion.questionStatus = $translate.instant("sitnet_question_unanswered");
+                        sectionQuestion.selectedAnsweredState = 'question-unanswered-header';
                     }
                 };
 
@@ -215,19 +217,17 @@
                 self.getSectionTotalScore = function (section) {
                     var score = 0;
 
-                    section.sectionQuestions.map(function (s) {
-                        return s.question;
-                    }).forEach(function (question) {
-                        switch (question.type) {
+                    section.sectionQuestions.forEach(function (sq) {
+                        switch (sq.question.type) {
                             case "MultipleChoiceQuestion":
-                                score += questionService.scoreMultipleChoiceAnswer(question);
+                                score += questionService.scoreMultipleChoiceAnswer(sq);
                                 break;
                             case "WeightedMultipleChoiceQuestion":
-                                score += questionService.scoreWeightedMultipleChoiceAnswer(question);
+                                score += questionService.scoreWeightedMultipleChoiceAnswer(sq);
                                 break;
                             case "EssayQuestion":
-                                if (question.evaluatedScore && question.evaluationType === 'Points') {
-                                    var number = parseFloat(question.evaluatedScore);
+                                if (sq.evaluatedScore && sq.evaluationType === 'Points') {
+                                    var number = parseFloat(sq.evaluatedScore);
                                     if (angular.isNumber(number)) {
                                         score += number;
                                     }
@@ -242,23 +242,20 @@
 
                 self.getSectionMaxScore = function (section) {
                     var score = 0;
-                    section.sectionQuestions.map(function (s) {
-                        return s.question;
-                    }).forEach(function (question) {
-                        switch (question.type) {
+                    section.sectionQuestions.forEach(function (sq) {
+                        switch (sq.question.type) {
                             case "MultipleChoiceQuestion":
-                                score += question.maxScore;
+                                score += sq.maxScore;
                                 break;
                             case "WeightedMultipleChoiceQuestion":
-                                score += questionService.calculateMaxPoints(question);
+                                score += questionService.calculateMaxPoints(sq);
                                 break;
                             case "EssayQuestion":
-                                if (question.evaluationType == 'Points') {
-                                    score += question.maxScore;
+                                if (sq.evaluationType == 'Points') {
+                                    score += sq.maxScore;
                                 }
                                 break;
                             default:
-                                toastr.error($translate.instant('sitnet_unknown_question_type') + ": " + question.type);
                                 break;
                         }
                     });
@@ -270,19 +267,19 @@
                         return false;
                     }
                     return exam.examSections.reduce(function (a, b) {
-                        return a + b.sectionQuestions.length;
-                    }, 0) > 0;
+                            return a + b.sectionQuestions.length;
+                        }, 0) > 0;
                 };
 
                 self.hasEssayQuestions = function (exam) {
                     if (!exam || !exam.examSections) {
                         return false;
                     }
-                    return exam.examSections.filter(function(es) {
-                        return es.sectionQuestions.some(function (sq) {
-                            return sq.question.type === "EssayQuestion";
-                        });
-                    }).length > 0;
+                    return exam.examSections.filter(function (es) {
+                            return es.sectionQuestions.some(function (sq) {
+                                return sq.question.type === "EssayQuestion";
+                            });
+                        }).length > 0;
                 };
 
                 self.getMaxScore = function (exam) {

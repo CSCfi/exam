@@ -73,7 +73,7 @@ public class AttachmentController extends BaseController {
         Long qid = Long.parseLong(m.get("questionId")[0]);
 
         // first check if answer already exist
-        ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).fetch("answer")
+        ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).fetch("essayAnswer")
                 .where()
                 .idEq(qid)
                 .eq("examSection.exam.creator", getLoggedUser())

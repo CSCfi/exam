@@ -284,19 +284,18 @@
                     return dateService.printExamDuration(exam);
                 };
 
-                $scope.scoreWeightedMultipleChoiceAnswer = function (question) {
-                    if (question.type !== 'WeightedMultipleChoiceQuestion' || !question.answer) {
+                $scope.scoreWeightedMultipleChoiceAnswer = function (sectionQuestion) {
+                    if (sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
                         return 0;
                     }
-                    return questionService.scoreWeightedMultipleChoiceAnswer(question);
+                    return questionService.scoreWeightedMultipleChoiceAnswer(sectionQuestion);
                 };
 
                 $scope.scoreMultipleChoiceAnswer = function (sectionQuestion) {
-                    var question = sectionQuestion.question;
-                    if (question.type !== 'MultipleChoiceQuestion') {
+                    if (sectionQuestion.question.type !== 'MultipleChoiceQuestion') {
                         return 0;
                     }
-                    return questionService.scoreMultipleChoiceAnswer(question);
+                    return questionService.scoreMultipleChoiceAnswer(sectionQuestion);
                 };
 
                 $scope.range = function (min, max, step) {
@@ -326,7 +325,7 @@
                 };
 
                 $scope.toggleQuestionExpansion = function (sectionQuestion) {
-                    sectionQuestion.question.reviewExpanded = !sectionQuestion.question.reviewExpanded;
+                    sectionQuestion.reviewExpanded = !sectionQuestion.reviewExpanded;
                 };
 
                 var getReviewUpdate = function (exam, state) {

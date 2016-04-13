@@ -504,13 +504,8 @@ public class StudentExamController extends BaseController {
             if (question == null) {
                 return forbidden();
             }
-
             question.getOptions().forEach(o -> {
-                o.setAnswered(false);
-                o.update();
-            });
-            question.getOptions().stream().filter(o -> optionIds.contains(o.getOption().getId())).forEach(o -> {
-                o.setAnswered(true);
+                o.setAnswered(optionIds.contains(o.getId()));
                 o.update();
             });
             return ok(Json.toJson(question.getOptions()));

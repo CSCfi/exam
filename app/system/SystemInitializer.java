@@ -125,7 +125,9 @@ class SystemInitializer {
         }
 
         Logger.info("Scheduled next weekly report to be run at {}", nextRun.toString());
-        return Seconds.secondsBetween(now, nextRun).getSeconds();
+        // Increase delay with one second so that this won't fire off before intended time. This may happen because of
+        // millisecond-level rounding issues and possibly cause resending of messages.
+        return Seconds.secondsBetween(now, nextRun).getSeconds() + 1;
     }
 
     private void scheduleWeeklyReport() {

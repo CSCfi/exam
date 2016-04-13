@@ -1,31 +1,31 @@
 <form class="form-inline" role="form">
-    <div class="{{sectionQuestion.question.selectedAnsweredState}}"
+    <div class="{{sectionQuestion.selectedAnsweredState}}"
          ng-repeat="sectionQuestion in activeSection.sectionQuestions">
         <h4>
             <div>
 			<span class="fa-stack sitnet-white">
                 <i class="fa fa-square fa-stack-2x"></i>
-                <i class="fa-stack-1x sitnet-black">{{question.id}}.</i>
+                <i class="fa-stack-1x sitnet-black">{{question.id}}.</i><!-- WTF -->
             </span>
-                <span class="sitnet-white" mathjax ng-bind-html="sectionQuestion.question.question"></span>
-			<span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded"
+            <span class="sitnet-white" mathjax ng-bind-html="sectionQuestion.question.question"></span>
+			<span ng-click="sectionQuestion.expanded = !sectionQuestion.expanded"
                   class="pull-right fa-stack fa-lg">
-                <i ng-class="question.expanded ? 'sitnet-white' : 'sitnet-student-darkgreen'"
+                <i ng-class="sectionQuestion.expanded ? 'sitnet-white' : 'sitnet-student-darkgreen'"
                    class="fa fa-square fa-stack-2x section-header-icon-square">
                 </i>
 				<i ng-click="chevronClicked(sectionQuestion);"
-                   ng-class="sectionQuestion.question.expanded ? 'fa-chevron-down sitnet-student-darkgreen' : 'fa-chevron-left'"
+                   ng-class="sectionQuestion.expanded ? 'fa-chevron-down sitnet-student-darkgreen' : 'fa-chevron-left'"
                    class="sitnet-white fa fa-chevron-left fa-stack-1x section-header-icon-chevron">
                 </i>
 			</span>
 
             <span class="pull-right sitnet-white">
-                <i class="question-status" ng-model="sectionQuestion.question">{{sectionQuestion.question.questionStatus}}</i>
+                <i class="question-status">{{sectionQuestion.questionStatus}}</i>
             </span>
             </div>
         </h4>
 
-        <div class="exam-question-container" ng-hide="!sectionQuestion.question.expanded">
+        <div class="exam-question-container" ng-hide="!sectionQuestion.expanded">
             <div class="question" ng-include="multipleChoiceOptionTemplate"></div>
         </div>
 
