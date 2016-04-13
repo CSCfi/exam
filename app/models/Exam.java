@@ -681,7 +681,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                 .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.options")
-                .fetch("examSections.sectionQuestions.options.option", "id, option")
+                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
                 .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, objectVersion")
                 .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
                 .fetch("gradeScale")

@@ -1,11 +1,11 @@
 <!-- compact -->
 <div class="row" ng-hide="sectionQuestion.reviewExpanded">
-    <span mathjax ng-bind-html="sectionQuestion.question.answer.options[0].option"></span>
-    <span ng-class="sectionQuestion.question.answer.options[0].correctOption ? 'text-success' : 'text-danger'">&nbsp;&nbsp;
-        <span ng-if="sectionQuestion.question.answer.options[0].correctOption === true">
+    <span>{{getAnsweredOption(sectionQuestion).option.option}}</span>
+    <span ng-class="getAnsweredOption(sectionQuestion).option.correctOption ? 'text-success' : 'text-danger'">&nbsp;&nbsp;
+        <span ng-if="getAnsweredOption(sectionQuestion).option.correctOption">
             ({{'sitnet_multiplechoice_question_correct' | translate}})
         </span>
-        <span ng-if="sectionQuestion.question.answer.options[0].correctOption === false">
+        <span ng-if="!getAnsweredOption(sectionQuestion).option.correctOption">
             ({{'sitnet_multiplechoice_question_incorrect' | translate}})
         </span>
     </span>
@@ -18,7 +18,7 @@
         <i class="fa fa-stack-1x"
            ng-class="option.answered ? 'fa-check-square-o' : 'fa-square-o'"></i>
     </span>
-    <span ng-class="option.correctOption ? 'text-success' : 'text-danger'"
+    <span ng-class="option.option.correctOption ? 'text-success' : 'text-danger'"
           class="review-question-option-name">
         {{option.option.option}}
     </span>

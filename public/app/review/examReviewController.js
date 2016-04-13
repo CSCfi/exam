@@ -328,6 +328,20 @@
                     sectionQuestion.reviewExpanded = !sectionQuestion.reviewExpanded;
                 };
 
+                $scope.getAnsweredOption = function (sectionQuestion) {
+                    if (!sectionQuestion) {
+                        return;
+                    }
+                    var options = sectionQuestion.options.filter(function (o) {
+                        return o.answered;
+                    });
+                    if (options.length > 1) {
+                        console.error("several options answered!")
+                    } else {
+                        return options.length == 0 ? undefined : options[0];
+                    }
+                };
+
                 var getReviewUpdate = function (exam, state) {
                     var creditType = exam.creditType || $scope.selections.type;
                     return {
