@@ -1,6 +1,5 @@
 package models;
 
-import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.api.Scorable;
 import models.api.Sortable;
@@ -18,11 +17,6 @@ import java.util.Set;
 
 @Entity
 public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSectionQuestion>, Sortable, Scorable {
-
-    @EnumMapping(integerType = true, nameValuePairs = "Points=1, Selection=2")
-    public enum EvaluationType {
-        Points, Selection
-    }
 
     @ManyToOne
     @JoinColumn(name = "exam_section_id")
@@ -46,7 +40,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     private Integer maxScore;
 
     @Column
-    private EvaluationType evaluationType;
+    private Question.EvaluationType evaluationType;
 
     @OneToOne(cascade = CascadeType.ALL)
     private EssayAnswer essayAnswer;
@@ -114,11 +108,11 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         this.answerInstructions = answerInstructions;
     }
 
-    public EvaluationType getEvaluationType() {
+    public Question.EvaluationType getEvaluationType() {
         return evaluationType;
     }
 
-    public void setEvaluationType(EvaluationType evaluationType) {
+    public void setEvaluationType(Question.EvaluationType evaluationType) {
         this.evaluationType = evaluationType;
     }
 
@@ -206,7 +200,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     public Double getAssessedScore() {
         switch (question.getType()) {
             case EssayQuestion:
-                if (evaluationType == EvaluationType.Points) {
+                if (evaluationType == Question.EvaluationType.Points) {
                     return essayAnswer == null || essayAnswer.getEvaluatedScore() == null ? 0 :
                             essayAnswer.getEvaluatedScore().doubleValue();
                 }
@@ -234,7 +228,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     public Double getMaxAssessedScore() {
         switch (question.getType()) {
             case EssayQuestion:
-                if (evaluationType == EvaluationType.Points) {
+                if (evaluationType == Question.EvaluationType.Points) {
                     return maxScore == null ? 0 : maxScore.doubleValue();
                 }
                 break;
@@ -253,7 +247,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     @Override
     public boolean isRejected() {
         return question.getType() == Question.Type.EssayQuestion &&
-                evaluationType == EvaluationType.Selection &&
+                evaluationType == Question.EvaluationType.Selection &&
                 essayAnswer != null && essayAnswer.getEvaluatedScore() != null &&
                 essayAnswer.getEvaluatedScore() == 0;
     }
@@ -262,7 +256,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     @Override
     public boolean isApproved() {
         return question.getType() == Question.Type.EssayQuestion &&
-                evaluationType == EvaluationType.Selection &&
+                evaluationType == Question.EvaluationType.Selection &&
                 essayAnswer != null && essayAnswer.getEvaluatedScore() != null &&
                 essayAnswer.getEvaluatedScore() == 1;
     }

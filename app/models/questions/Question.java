@@ -24,6 +24,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
         MultipleChoiceQuestion, EssayQuestion, WeightedMultipleChoiceQuestion
     }
 
+    @EnumMapping(integerType = true, nameValuePairs = "Points=1, Selection=2")
+    public enum EvaluationType {
+        Points, Selection
+    }
+
     @Column
     private Type type;
 
@@ -35,6 +40,21 @@ public class Question extends OwnedModel implements AttachmentContainer {
 
     @Column
     private String state;
+
+    @Column
+    private String defaultEvaluationCriteria;
+
+    @Column
+    private EvaluationType defaultEvaluationType;
+
+    @Column
+    private String defaultAnswerInstructions;
+
+    @Column
+    private Integer defaultMaxScore;
+
+    @Column
+    private Integer defaultExpectedWordCount;
 
     @ManyToOne(cascade = CascadeType.PERSIST) // do not delete parent question
     private Question parent;
@@ -91,6 +111,46 @@ public class Question extends OwnedModel implements AttachmentContainer {
 
     public void setShared(boolean shared) {
         this.shared = shared;
+    }
+
+    public String getDefaultEvaluationCriteria() {
+        return defaultEvaluationCriteria;
+    }
+
+    public void setDefaultEvaluationCriteria(String defaultEvaluationCriteria) {
+        this.defaultEvaluationCriteria = defaultEvaluationCriteria;
+    }
+
+    public EvaluationType getDefaultEvaluationType() {
+        return defaultEvaluationType;
+    }
+
+    public void setDefaultEvaluationType(EvaluationType defaultEvaluationType) {
+        this.defaultEvaluationType = defaultEvaluationType;
+    }
+
+    public String getDefaultAnswerInstructions() {
+        return defaultAnswerInstructions;
+    }
+
+    public void setDefaultAnswerInstructions(String defaultAnswerInstructions) {
+        this.defaultAnswerInstructions = defaultAnswerInstructions;
+    }
+
+    public Integer getDefaultMaxScore() {
+        return defaultMaxScore;
+    }
+
+    public void setDefaultMaxScore(Integer defaultMaxScore) {
+        this.defaultMaxScore = defaultMaxScore;
+    }
+
+    public Integer getDefaultExpectedWordCount() {
+        return defaultExpectedWordCount;
+    }
+
+    public void setDefaultExpectedWordCount(Integer defaultExpectedWordCount) {
+        this.defaultExpectedWordCount = defaultExpectedWordCount;
     }
 
     public Question getParent() {

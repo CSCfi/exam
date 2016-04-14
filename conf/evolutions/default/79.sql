@@ -76,12 +76,19 @@ ALTER TABLE exam_section_question_option ADD CONSTRAINT fk_exam_section_question
 CREATE INDEX ix_exam_section_question_option_esq ON exam_section_question_option(exam_section_question_id);
 CREATE INDEX ix_exam_section_question_option_option ON exam_section_question_option(option_id);
 
--- no longer needed as basic question data
-ALTER TABLE question DROP max_score;
-ALTER TABLE question DROP instruction;
-ALTER TABLE question DROP evaluation_criterias;
-ALTER TABLE question DROP expected_word_count;
+-- rename to reflect the new nature of data
+ALTER TABLE question RENAME max_score TO default_max_score;
+ALTER TABLE question RENAME instruction TO default_answer_instructions;
+ALTER TABLE question RENAME evaluation_criterias TO default_evaluation_criteria;
+ALTER TABLE question RENAME expected_word_count TO default_expected_word_count;
+ALTER TABLE question ADD default_evaluation_type INTEGER;
+UPDATE question SET default_evaluation_type = 1 WHERE evaluation_type = 'Points';
+UPDATE question SET default_evaluation_type = 2 WHERE evaluation_type = 'Select';
 ALTER TABLE question DROP evaluation_type;
+
+ALTER TABLE multiple_choice_option RENAME score TO default_score;
+
+-- no longer needed as basic question data
 ALTER TABLE question DROP answer_id;
 ALTER TABLE question DROP evaluated_score;
 
@@ -91,7 +98,6 @@ ALTER TABLE question DROP hash;
 ALTER TABLE question DROP expanded;
 
 -- no longer needed as mco data
-ALTER TABLE multiple_choice_option DROP score;
 ALTER TABLE multiple_choice_option DROP answer_id;
 
 -- remove redundant answer rows (not tied to essay questions)

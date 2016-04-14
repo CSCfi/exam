@@ -16,6 +16,8 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
 
     private boolean correctOption;
 
+    private Double defaultScore;
+
     @ManyToOne
     @JsonBackReference
     private Question question;
@@ -32,31 +34,17 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
         return correctOption;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        MultipleChoiceOption that = (MultipleChoiceOption) o;
-        return getId().equals(that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        if (getId() != null) {
-            result = 31 * result + getId().hashCode();
-        }
-        return result;
-    }
-
     public void setCorrectOption(boolean correctOption) {
 
         this.correctOption = correctOption;
+    }
+
+    public Double getDefaultScore() {
+        return defaultScore;
+    }
+
+    public void setDefaultScore(Double defaultScore) {
+        this.defaultScore = defaultScore;
     }
 
     public Question getQuestion() {
@@ -81,6 +69,27 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        MultipleChoiceOption that = (MultipleChoiceOption) o;
+        return getId().equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        if (getId() != null) {
+            result = 31 * result + getId().hashCode();
+        }
+        return result;
+    }
     @Override
     public int compareTo(@NotNull MultipleChoiceOption o) {
         if (getId() < o.getId()) {

@@ -415,7 +415,7 @@ public class ExamSectionController extends BaseController {
         question.setAnswerInstructions(df.get("answerInstructions"));
         question.setEvaluationCriteria(df.get("evaluationCriteria"));
         if (df.get("evaluationType") != null) {
-            question.setEvaluationType(ExamSectionQuestion.EvaluationType.valueOf(df.get("evaluationType")));
+            question.setEvaluationType(Question.EvaluationType.valueOf(df.get("evaluationType")));
         }
         if (df.get("expectedWordCount") != null) {
             question.setExpectedWordCount(Integer.parseInt(df.get("expectedWordCount")));
