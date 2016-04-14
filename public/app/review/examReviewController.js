@@ -365,8 +365,12 @@
                 };
 
                 $scope.insertEssayScore = function (sectionQuestion) {
-                    var question = sectionQuestion.question;
-                    QuestionRes.score.update({id: question.id}, {"evaluatedScore": question.evaluatedScore}, function (q) {
+                    var answer = sectionQuestion.essayAnswer;
+                    if (!answer || !answer.evaluatedScore) {
+                        return;
+                    }
+
+                    QuestionRes.score.update({id: sectionQuestion.id, evaluatedScore: answer.evaluatedScore}, function (q) {
                         toastr.info($translate.instant("sitnet_graded"));
                         if (q.evaluationType === "Select") {
                             setQuestionAmounts()

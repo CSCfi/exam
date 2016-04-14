@@ -94,7 +94,7 @@
                     </div>
                     <div class="bottom-row-narrow">
                         <span ng-show="sectionQuestion.evaluationType === 'Points'">
-                            <select class="form-control" style="width: 25%" ng-model="sectionQuestion.evaluatedScore"
+                            <select class="form-control" style="width: 25%" ng-model="sectionQuestion.essayAnswer.evaluatedScore"
                                     ng-change="insertEssayScore(sectionQuestion)"
                                     ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
                                     ng-options="x for x in range(0, sectionQuestion.maxScore, 1)">
@@ -102,14 +102,14 @@
                             </select>
                         </span>
                         <span ng-show="sectionQuestion.question.evaluationType === 'Select'">
-                            <select class="form-control" style="width: 25%" ng-model="sectionQuestion.evaluatedScore"
+                            <select class="form-control" style="width: 25%" ng-model="sectionQuestion.essayAnswer.evaluatedScore"
                                     ng-change="insertEssayScore(sectionQuestion)"
                                     ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()">
-                                <option value="1" ng-selected="sectionQuestion.evaluatedScore == 1">{{
+                                <option value="1" ng-selected="sectionQuestion.essayAnswer.evaluatedScore == 1">{{
                                     'sitnet_approved' |
                                     translate }}
                                 </option>
-                                <option value="0" ng-selected="sectionQuestion.evaluatedScore == 0">{{
+                                <option value="0" ng-selected="sectionQuestion.essayAnswer.evaluatedScore == 0">{{
                                     'sitnet_rejected' |
                                     translate }}
                                 </option>

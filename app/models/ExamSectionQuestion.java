@@ -23,7 +23,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     @JsonBackReference
     private ExamSection examSection;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "question_id")
     private Question question;
 
@@ -50,7 +50,6 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @Column
     private Integer expectedWordCount;
-
 
     public Long getId() {
         return id;

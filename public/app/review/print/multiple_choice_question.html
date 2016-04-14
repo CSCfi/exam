@@ -21,47 +21,46 @@
 
         <div class="sub-content-row col-md-9">
             <div class="row" ng-show="sectionQuestion.question.type==='MultipleChoiceQuestion'"
-                 ng-repeat="option in sectionQuestion.question.options">
+                 ng-repeat="o in sectionQuestion.options">
                 <div class="col-md-12">
-                                    <span class="fa fa-stack">
-                                        <i class="fa fa-stop-o fa-stack-2x"></i>
-                                        <i class="fa fa-stack-1x"
-                                           ng-class="option.option === sectionQuestion.question.answer.options[0].option ? 'fa-check-square-o' : 'fa-square-o'"></i>
-                                    </span>
-                                    <span ng-class="option.correctOption ? 'bold' : ''"
-                                          class="review-question-option-name">
-                                        {{option.option}}
-                                    </span>
+                        <span class="fa fa-stack">
+                            <i class="fa fa-stop-o fa-stack-2x"></i>
+                            <i class="fa fa-stack-1x"
+                               ng-class="o.answered ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                        </span>
+                        <span ng-class="o.option.correctOption ? 'bold' : ''"
+                              class="review-question-option-name">
+                            {{o.option.option}}
+                        </span>
                 </div>
             </div>
             <div class="row" ng-show="sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'"
-                 ng-repeat="option in sectionQuestion.question.options">
+                 ng-repeat="o in sectionQuestion.options">
                 <div class="col-md-3">
-                                    <span class="fa-stack">
-                                        <i class="fa fa-stop-o fa-stack-2x"></i>
-                                        <i class="fa fa-stack-1x"
-                                           ng-class="option.answer ? 'fa-check-square-o' : 'fa-square-o'"></i>
-                                    </span>
-                    <span ng-class="option.score > 0 ? 'font-bold' : ''">&nbsp;&nbsp;{{option.score}} {{'sitnet_unit_points' | translate }}</span>
+                        <span class="fa-stack">
+                            <i class="fa fa-stop-o fa-stack-2x"></i>
+                            <i class="fa fa-stack-1x"
+                               ng-class="o.answered ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                        </span>
+                    <span ng-class="o.score > 0 ? 'font-bold' : ''">&nbsp;&nbsp;{{o.score}} {{'sitnet_unit_points' | translate }}</span>
                 </div>
                 <div class="col-md-9 review-question-option-name">
-                    <div class="text">{{option.option}}</div>
+                    <div class="text">{{o.option.option}}</div>
                 </div>
             </div>
         </div>
-
     </div>
     <!-- grade -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_word_points' | translate }}:</div>
         <div ng-show="sectionQuestion.question.type==='MultipleChoiceQuestion'"
              class="sub-content-row col-md-9 ">
-            {{scoreMultipleChoiceAnswer(sectionQuestion)}} / {{sectionQuestion.question.maxScore}}
+            {{scoreMultipleChoiceAnswer(sectionQuestion)}} / {{sectionQuestion.maxScore}}
         </div>
         <div ng-show="sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'"
              class="sub-content-row col-md-9 ">
-            {{scoreWeightedMultipleChoiceAnswer(sectionQuestion.question)}} /
-            {{calculateMaxPoints(sectionQuestion.question)}}
+            {{ scoreWeightedMultipleChoiceAnswer(sectionQuestion) }} /
+            {{ calculateMaxPoints(sectionQuestion) }}
         </div>
     </div>
 </div>
