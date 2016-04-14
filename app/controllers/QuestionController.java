@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
+import com.avaje.ebean.text.PathProperties;
 import models.User;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
@@ -58,20 +59,25 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getQuestion(Long id) {
         User user = getLoggedUser();
-        ExpressionList<Question> query = Ebean.find(Question.class).where().idEq(id);
+        Query<Question> query = Ebean.find(Question.class);
+        PathProperties pp = PathProperties.parse("(*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
+                "attachment(id, fileName), options(id, correctOption, defaultScore), tags(id, name), " +
+                "examSectionQuestions(id, examSection(name, exam(name))))");
+        pp.apply(query);
+        ExpressionList<Question> expr =  query.where().idEq(id);
         if (user.hasRole("TEACHER", getSession())) {
-            query = query.disjunction()
+            expr = expr.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", user)
                     .eq("examSectionQuestions.examSection.exam.examOwners", user)
                     .endJunction();
         }
-        Question question = query.findUnique();
+        Question question = expr.findUnique();
         if (question == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
         Collections.sort(question.getOptions());
-        return ok(Json.toJson(question));
+        return ok(question, pp);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

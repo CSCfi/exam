@@ -26,10 +26,6 @@
 
                 var qid = $routeParams.editId || $routeParams.id;
 
-                function isInArray(array, search) {
-                    return array.indexOf(search) >= 0;
-                }
-
                 QuestionRes.questions.get({id: qid},
                     function (question) {
                         $scope.newQuestion = question;
@@ -38,65 +34,21 @@
                             ($scope.newQuestion.evaluationType && $scope.newQuestion.evaluationType === 'Select')) {
                             delete $scope.newQuestion.maxScore; // will screw up validation otherwise
                         }
-
-                        if ($routeParams.examId) {
-                            ExamRes.exams.get({id: $routeParams.examId},
-                                function (exam) {
-
-                                    if (exam.name) {
-                                        var code = "";
-                                        if (exam.course != undefined && exam.course.code != undefined) {
-                                            code = " (" + exam.course.code + ")";
-                                        }
-                                        if (!isInArray($scope.examNames, exam.name + code)) {
-                                            $scope.examNames.push(exam.name + code);
-                                        }
-                                    }
-                                    if (exam.examSections && exam.examSections.length > 0) {
-
-                                        angular.forEach(exam.examSections, function (section) {
-                                            if (section.id == $routeParams.sectionId) {
-                                                if (!isInArray($scope.sectionNames, section.name)) {
-                                                    $scope.sectionNames.push(section.name);
-                                                }
-                                            }
-                                        });
-                                    }
-                                },
-                                function (error) {
-                                    toastr.error(error.data);
-                                }
-                            );
-
-                        } else {
-                            QuestionRes.metadata.get({id: qid}, function (result) {
-
-                                    angular.forEach(result, function (question) {
-                                        if (question &&
-                                            question.examSectionQuestion &&
-                                            question.examSectionQuestion.examSection &&
-                                            question.examSectionQuestion.examSection.exam &&
-                                            question.examSectionQuestion.examSection.exam.name && !isInArray($scope.examNames, question.examSectionQuestion.examSection.exam.name)) {
-                                            var code = "";
-                                            if (question.examSectionQuestion.examSection.exam.course && question.examSectionQuestion.examSection.exam.course.code) {
-                                                code = " (" + question.examSectionQuestion.examSection.exam.course.code + ")";
-                                            }
-                                            if (!isInArray($scope.examNames, question.examSectionQuestion.examSection.exam.name + code)) {
-                                                $scope.examNames.push(question.examSectionQuestion.examSection.exam.name + code);
-                                            }
-                                        }
-                                        if (question &&
-                                            question.examSectionQuestion &&
-                                            question.examSectionQuestion.examSection &&
-                                            question.examSectionQuestion.examSection.name && !isInArray($scope.sectionNames, question.examSectionQuestion.examSection.name)) {
-                                            $scope.sectionNames.push(question.examSectionQuestion.examSection.name);
-                                        }
-                                    });
-                                },
-                                function (error) {
-                                    toastr.error(error.data);
-                                });
-                        }
+                        var sections = question.examSectionQuestions.map(function (esq) {
+                            return esq.examSection;
+                        });
+                        var examNames = sections.map(function (s) {
+                            return s.exam.name;
+                        });
+                        var sectionNames = sections.map(function (s) {
+                            return s.name;
+                        });
+                        $scope.examNames = examNames.filter(function (n, pos) {
+                            return examNames.indexOf(n) == pos;
+                        });
+                        $scope.sectionNames = sectionNames.filter(function (n, pos) {
+                            return sectionNames.indexOf(n) == pos;
+                        });
 
                     },
                     function (error) {

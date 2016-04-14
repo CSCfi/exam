@@ -153,7 +153,6 @@ POST          /app/questions/:qid/option                                 control
 DELETE        /app/questions/:id                                         controllers.QuestionController.deleteQuestion(id: Long)
 DELETE        /app/questions/option/:oid                                 controllers.QuestionController.deleteOption(oid: Long)
 POST          /app/questions/owner/:uid                                  controllers.QuestionController.addOwner(uid: Long)
-GET           /app/question/:id/metadata                                 controllers.MetaDataController.getQuestionMetaData(id: Long)
 
 ############### Section question interface ##########
 GET           /app/examquestions/:id                                     controllers.ExamSectionController.getExamQuestion(id: Long)
