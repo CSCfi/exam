@@ -129,7 +129,7 @@
                 $scope.$on('invalidToken', function () {
                     $scope.links = links();
                     var user = sessionService.getUser();
-                    user['isLoggedOut'] = true;
+                    user.isLoggedOut = true;
                     sessionService.setUser(user);
                     $location.path("/invalid_session");
                 });

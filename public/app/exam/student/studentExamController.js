@@ -126,9 +126,7 @@
                 $scope.startExam = function () {
                     var request = isPreview() ? $http.get : $http.post;
                     var url = '/app' + (
-                            isPreview()
-                                ? '/exampreview/' + $routeParams.id
-                                : '/student/exam/' + $routeParams.hash
+                            isPreview() ? '/exampreview/' + $routeParams.id : '/student/exam/' + $routeParams.hash
                         );
                     request(url)
                         .success(function (data) {
@@ -196,6 +194,7 @@
                                 }
                                 break;
                             case "en":
+                                /* falls through */
                             default:
                                 if ($scope.info.reservation.machine.room.roomInstructionEN) {
                                     tmp = $scope.info.reservation.machine.room.roomInstructionEN;
@@ -228,7 +227,7 @@
 
                 function findSection(sectionId) {
                     return $scope.exam.examSections.find(function (section) {
-                        return sectionId === section.id
+                        return sectionId === section.id;
                     });
                 }
 

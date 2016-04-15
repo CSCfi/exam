@@ -16,7 +16,7 @@
                 $scope.previousParticipationPath = EXAM_CONF.TEMPLATES_PATH + "review/previous_participation.html";
                 $scope.multiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/multiple_choice_answer.html";
                 $scope.weightedMultiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/weighted_multiple_choice_answer.html";
-                
+
                 $scope.printSectionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/exam_section.html";
                 $scope.printMultiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/multiple_choice_question.html";
                 $scope.printEssayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/essay_question.html";
@@ -337,9 +337,9 @@
                         return o.answered;
                     });
                     if (options.length > 1) {
-                        console.error("several options answered!")
+                        console.error("several options answered!");
                     } else {
-                        return options.length == 0 ? undefined : options[0];
+                        return options.length === 0 ? undefined : options[0];
                     }
                 };
 
@@ -374,7 +374,7 @@
                     QuestionRes.score.update({id: sectionQuestion.id, evaluatedScore: answer.evaluatedScore}, function (q) {
                         toastr.info($translate.instant("sitnet_graded"));
                         if (q.evaluationType === "Select") {
-                            setQuestionAmounts()
+                            setQuestionAmounts();
                         }
                         $scope.startReview();
                     }, function (error) {
@@ -403,7 +403,7 @@
                 };
 
                 $scope.saveFeedback = function (withoutNotice) {
-                    return examReviewService.saveFeedback($scope.exam, withoutNotice)
+                    return examReviewService.saveFeedback($scope.exam, withoutNotice);
                 };
 
                 $scope.saveInspectionStatement = function () {
@@ -500,7 +500,7 @@
                         if (exam.executionType.type === 'MATURITY') {
                             updateMaturity(exam, messages);
                         } else {
-                            updateExam(exam, messages)
+                            updateExam(exam, messages);
                         }
                     }
                 };
@@ -523,7 +523,7 @@
                 };
 
                 $scope.isSelected = function (grade) {
-                    return grade && $scope.selections.grade && $scope.selections.grade.id === grade.id
+                    return grade && $scope.selections.grade && $scope.selections.grade.id === grade.id;
                 };
 
                 $scope.saveExamRecord = function (reviewedExam) {
@@ -713,7 +713,7 @@
                         var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                             $translate.instant('sitnet_confirm_maturity_disapproval'));
                         dialog.result.then(function () {
-                            doRejectMaturity()
+                            doRejectMaturity();
                         });
                     } else {
                         doRejectMaturity();
@@ -754,7 +754,7 @@
                                 },
                                 function () {
                                     toastr.info($translate.instant('sitnet_language_inspection_finished'));
-                                    $location.path("inspections")
+                                    $location.path("inspections");
                                 });
                         });
                     });
@@ -783,6 +783,8 @@
                             rejectMaturity();
                             break;
                         case MATURITY_STATES.AWAIT_INSPECTION.id:
+                            // Nothing to do
+                            break;
                         default:
                             // Nothing to do
                             break;
@@ -804,6 +806,6 @@
 
             $scope.no = function () {
                 $modalInstance.dismiss('canceled');
-            }
+            };
         });
 }());

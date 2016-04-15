@@ -16,6 +16,7 @@
     "jasmine-core": "^2.4.1",
     "jasmine-jquery": "^2.1.1",
     "jquery": "^2.2.2",
+    "jshint": "^2.9.1",
     "karma": "^0.13.22",
     "karma-chrome-launcher": "^0.2.3",
     "karma-jasmine": "^0.3.8",

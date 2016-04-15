@@ -105,13 +105,13 @@
                 };
 
                 $scope.select = function (day, time) {
-                    var status = week[day][time].type;
+                    var i = 0, status = week[day][time].type;
                     if (status === 'accepted') { // clear selection
                         week[day][time].type = '';
                         return;
                     }
                     if (status === 'selected') { // mark everything hereafter as free until next block
-                        for (var i = 0; i < week[day].length; ++i) {
+                        for (i = 0; i < week[day].length; ++i) {
                             if (i >= time) {
                                 if (week[day][i].type === 'selected') {
                                     week[day][i].type = '';
@@ -347,10 +347,10 @@
                         return formatTime(hours.startingHour);
                     });
                     var data = {hours: selected, offset: $scope.roomInstance.examStartingHourOffset};
-
+                    var roomIds;
                     if ($scope.editingMultipleRooms()) {
 
-                        var roomIds = $scope.rooms.map(function (s) {
+                        roomIds = $scope.rooms.map(function (s) {
                             return s.id;
                         });
                     } else {
@@ -615,7 +615,7 @@
                             var start = moment($scope.exception.startDate);
                             var end = moment($scope.exception.endDate);
                             if (end <= start) {
-                                toastr.error($translate.instant('sitnet_endtime_before_starttime'))
+                                toastr.error($translate.instant('sitnet_endtime_before_starttime'));
                             } else {
                                 $modalInstance.close({
                                     "startDate": start,
@@ -678,25 +678,13 @@
                 };
 
                 $scope.massEditedRoomFilter = function (room) {
-
-                    var visible = false;
-
-                    angular.forEach(room.calendarExceptionEvents, function (exception) {
-                        if (exception.massEdited) {
-                            visible = true;
-                        }
+                    return room.calendarExceptionEvents.some(function (e) {
+                        return e.massEdited;
                     });
-                    return visible;
                 };
 
                 $scope.massEditedExceptionFilter = function (exception) {
-
-                    var visible = false;
-
-                    if (exception.massEdited == true) {
-                        visible = true;
-                    }
-                    return visible;
+                    return exception.massEdited;
                 };
 
             }]);

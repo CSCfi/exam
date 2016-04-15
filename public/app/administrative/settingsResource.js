@@ -14,6 +14,6 @@
                 maxFilesize: $resource("/app/settings/maxfilesize"),
                 appVersion : $resource("/app/settings/appVersion"),
                 maturityInstructions: $resource("/app/settings/maturityInstructions")
-            }
+            };
         }]);
 }());

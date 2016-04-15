@@ -77,5 +77,5 @@
 
                 $scope.format = 'dd.MM.yyyy';
 
-            }])
+            }]);
 }());

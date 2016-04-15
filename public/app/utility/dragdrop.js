@@ -67,7 +67,7 @@
                         axis: 'y'
                     });
                 }
-            }
+            };
         }])
 
         .directive('droppable', ['DragDropHandler', '$translate', function (DragDropHandler, $translate) {

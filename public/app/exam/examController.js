@@ -156,7 +156,7 @@
                         exam.autoEvaluationConfig = {
                             releaseType: $scope.selectedReleaseType().name || $scope.autoevaluation.releaseTypes[0].name,
                             gradeEvaluations: $scope.newExam.gradeScale.grades.map(function (g) {
-                                return {grade: angular.copy(g), percentage: 0}
+                                return {grade: angular.copy(g), percentage: 0};
                             })
                         };
                     }
@@ -465,7 +465,7 @@
                     }
                     return $scope.examGradings.filter(function (scale) {
                         return $scope.gradeScaleSetting.overridable || !$scope.newExam.course.gradeScale ||
-                            $scope.newExam.course.gradeScale.id === scale.id
+                            $scope.newExam.course.gradeScale.id === scale.id;
                     });
                 };
 
@@ -609,7 +609,7 @@
                     exam.examSections.forEach(function (es) {
                         es.sectionQuestions.sort(function (a, b) {
                             return a.sequenceNumber - b.sequenceNumber;
-                        })
+                        });
                     });
                     $scope.newExam = exam;
                     resetGradeScale(exam);
@@ -656,11 +656,11 @@
 
                 // Called when Save button is clicked
                 $scope.saveExam = function () {
-                    if ($scope.newExam.course == undefined) { // use == not ===
+                    if (!$scope.newExam.course) {
                         toastr.error($translate.instant('sitnet_course_missing'));
                         return;
                     }
-                    if ($scope.newExam.examLanguages === undefined || $scope.newExam.examLanguages.length === 0) {
+                    if (!$scope.newExam.examLanguages || $scope.newExam.examLanguages.length === 0) {
                         toastr.error($translate.instant('sitnet_error_exam_empty_exam_language'));
                         return;
                     }
@@ -679,7 +679,7 @@
 
                 var isAllowedToUnpublishOrRemove = function (exam) {
                     // allowed if no upcoming reservations and if no one has taken this yet
-                    return !exam.hasEnrolmentsInEffect && exam.children.length == 0;
+                    return !exam.hasEnrolmentsInEffect && exam.children.length === 0;
                 };
 
                 // TODO: how should this work when it comes to private exams?
@@ -732,7 +732,7 @@
 
                     var err = $scope.publishSanityCheck($scope.newExam);
                     $scope.errors = err;
-                    if (Object.getOwnPropertyNames(err) && Object.getOwnPropertyNames(err).length != 0) {
+                    if (Object.getOwnPropertyNames(err) && Object.getOwnPropertyNames(err).length !== 0) {
 
                         $modal.open({
                             templateUrl: EXAM_CONF.TEMPLATES_PATH + 'exam/editor/exam_publish_questions.html',
@@ -815,7 +815,7 @@
                         errors.examActiveEndDate = $translate.instant('sitnet_exam_end_date_missing');
                     }
 
-                    if (countQuestions() == 0) {
+                    if (countQuestions() === 0) {
                         errors.questions = $translate.instant('sitnet_exam_has_no_questions');
                     }
 
@@ -1031,7 +1031,7 @@
                     else {
                         ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
                             section = sec;
-                            toastr.info($translate.instant('sitnet_section_updated'))
+                            toastr.info($translate.instant('sitnet_section_updated'));
                         }, function (error) {
                             toastr.error(error.data);
                         });
@@ -1113,7 +1113,7 @@
 
                 $scope.calculatePointLimit = function (evaluation) {
                     var max = $scope.calculateExamMaxScore($scope.newExam);
-                    if (evaluation.percentage == 0 || isNaN(evaluation.percentage)) {
+                    if (evaluation.percentage === 0 || isNaN(evaluation.percentage)) {
                         return 0;
                     }
                     var ratio = max * evaluation.percentage;
@@ -1140,7 +1140,7 @@
                 };
 
                 $scope.selectedReleaseType = function () {
-                    var type = undefined;
+                    var type = null;
                     $scope.autoevaluation.releaseTypes.some(function (rt) {
                         if (rt.filtered) {
                             type = rt;
@@ -1148,7 +1148,7 @@
                         }
                     });
                     return type;
-                }
+                };
 
             }]);
 }());

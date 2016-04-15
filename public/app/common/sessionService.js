@@ -17,23 +17,28 @@
                 // Services need to be accessed like this because of circular dependency issues
                 var $http;
                 var http = function () {
-                    return $http = $http || $injector.get('$http');
+                    $http = $http || $injector.get('$http');
+                    return $http;
                 };
                 var $modal;
                 var modal = function () {
-                    return $modal = $modal || $injector.get('$uibModal');
+                    $modal = $modal || $injector.get('$uibModal');
+                    return $modal;
                 };
                 var $route;
                 var route = function () {
-                    return $route = $route || $injector.get('$route');
+                    $route = $route || $injector.get('$route');
+                    return $route;
                 };
                 var UserRes;
                 var userRes = function () {
-                    return UserRes = UserRes || $injector.get('UserRes');
+                    UserRes = UserRes || $injector.get('UserRes');
+                    return UserRes;
                 };
                 var SettingsResource;
                 var settingsRes = function () {
-                    return SettingsResource = SettingsResource || $injector.get('SettingsResource');
+                    SettingsResource = SettingsResource || $injector.get('SettingsResource');
+                    return SettingsResource;
                 };
 
                 self.getUser = function () {
@@ -207,7 +212,7 @@
 
                 var redirect = function () {
                     if (_user.isLanguageInspector) {
-                        $location.path("/inspections")
+                        $location.path("/inspections");
                     } else {
                         $location.path("/");
                     }
@@ -300,7 +305,7 @@
                             self.translate(lang);
                         }).error(function () {
                             toastr.error('failed to switch language');
-                        })
+                        });
                     }
                 };
 

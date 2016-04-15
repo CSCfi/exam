@@ -125,24 +125,24 @@
                     UserRes.userRoles.add({id: user.id, role: role.type}, function () {
                         user.roles.push({name: role.type});
                         updateEditOptions(user);
-                    })
+                    });
                 };
 
                 $scope.addPermission = function (user, permission) {
                     UserRes.permissions.add({id: user.id, permission: permission.type}, function () {
                         user.permissions.push({type: permission.type});
                         updateEditOptions(user);
-                    })
+                    });
                 };
 
                 $scope.removeRole = function (user, role) {
                     UserRes.userRoles.remove({id: user.id, role: role.type}, function () {
                         var i = user.roles.map(function (r) {
-                            return r.name
+                            return r.name;
                         }).indexOf(role.type);
                         user.roles.splice(i, 1);
                         updateEditOptions(user);
-                    })
+                    });
                 };
 
                 $scope.removePermission = function (user, permission) {
@@ -152,7 +152,7 @@
                         }).indexOf(permission.type);
                         user.permissions.splice(i, 1);
                         updateEditOptions(user);
-                    })
+                    });
                 };
             }
         ]);

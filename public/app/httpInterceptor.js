@@ -30,12 +30,13 @@
                             var hash = response.headers()['x-exam-start-exam'];
 
                             var enrolmentId = response.headers()['x-exam-upcoming-exam'];
+                            var parts;
                             if (unknownMachine) {
                                 var location = b64_to_utf8(unknownMachine).split(":::");
                                 wrongRoomService.display(location);
                             }
                             else if (wrongRoom) {
-                                var parts = b64_to_utf8(wrongRoom).split(":::");
+                                parts = b64_to_utf8(wrongRoom).split(":::");
                                 waitingRoomService.setEnrolmentId(parts[0]);
                                 waitingRoomService.setActualRoom(parts[1] + " (" + parts[2] + ")");
                                 waitingRoomService.setActualMachine(parts[3]);
@@ -75,7 +76,7 @@
                             else if (typeof response.data === "string" || response.data instanceof String) {
                                 var deferred = $q.defer();
                                 if (response.data.match(/^".*"$/g)) {
-                                    response.data = response.data.slice(1, response.data.length - 1)
+                                    response.data = response.data.slice(1, response.data.length - 1);
                                 }
                                 var parts = response.data.split(" ");
                                 $translate(parts).then(function (t) {
@@ -91,7 +92,7 @@
                             }
                             return $q.reject(response);
                         }
-                    }
+                    };
                 }
             ]);
         }]);

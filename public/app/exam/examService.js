@@ -140,7 +140,7 @@
                     if (exam.customCredit !== undefined && exam.customCredit) {
                         exam.credit = exam.customCredit;
                     } else {
-                        exam.course && exam.course.credits ? exam.credit = exam.course.credits : exam.credit = 0;
+                        exam.credit = exam.course && exam.course.credits ? exam.course.credits : 0;
                     }
                 };
 
@@ -313,7 +313,7 @@
 
                 self.isOwnerOrAdmin = function (exam) {
                     return exam && (sessionService.getUser().isAdmin || self.isOwner(exam));
-                }
+                };
 
             }]);
 }());

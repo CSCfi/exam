@@ -24,7 +24,7 @@
                                 if (sectionQuestion.evaluationType === "Select") {
                                     if (sectionQuestion.evaluatedScore == 1) {
                                         data.accepted++;
-                                    } else if (question.evaluatedScore == 0) {
+                                    } else if (question.evaluatedScore === 0) {
                                         data.rejected++;
                                     }
                                 }
@@ -50,7 +50,7 @@
                     }).reduce(function (a, b) {
                         return a + b.score;
                     }, 0);
-                    return Math.max(0, score)
+                    return Math.max(0, score);
                 };
 
                 // For non-weighted mcq
@@ -58,7 +58,7 @@
                     var selected = sectionQuestion.options.filter(function (o) {
                        return o.answered;
                     });
-                    if (selected.length == 0) {
+                    if (selected.length === 0) {
                         return 0;
                     }
                     if (selected.length != 1) {

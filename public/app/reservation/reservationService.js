@@ -70,7 +70,7 @@
                 };
 
                 var findOpeningHours = function (obj, items) {
-                    var found = undefined;
+                    var found = null;
                     items.some(function (item) {
                         if (item.ref === obj.weekday) {
                             found = item;
@@ -160,7 +160,7 @@
                         return weekdays.indexOf(dwh.weekday);
                     });
                     return [0, 1, 2, 3, 4, 5, 6].filter(function (x) {
-                        return openedDays.indexOf(x) === -1
+                        return openedDays.indexOf(x) === -1;
                     });
                 };
 

@@ -43,13 +43,13 @@
                         var sectionNames = sections.map(function (s) {
                             return s.name;
                         });
+                        // remove duplicates
                         $scope.examNames = examNames.filter(function (n, pos) {
                             return examNames.indexOf(n) == pos;
                         });
                         $scope.sectionNames = sectionNames.filter(function (n, pos) {
                             return sectionNames.indexOf(n) == pos;
                         });
-
                     },
                     function (error) {
                         toastr.error(error.data);

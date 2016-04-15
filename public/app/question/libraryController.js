@@ -206,9 +206,9 @@
                         $scope.questions = $scope.filteredQuestions = questionService.applyFilter(data);
 
                         $scope.questions.forEach(function (q) {
-                            if (q.evaluationType === "Points" || q.type === 'MultipleChoiceQuestion') {
-                                q.displayedMaxScore = q.maxScore;
-                            } else if (q.evaluationType === "Select") {
+                            if (q.defaultEvaluationType === "Points" || q.type === 'MultipleChoiceQuestion') {
+                                q.displayedMaxScore = q.defaultMaxScore;
+                            } else if (q.defaultEvaluationType === "Select") {
                                 q.displayedMaxScore = 'sitnet_evaluation_select';
                             } else if (q.type === "WeightedMultipleChoiceQuestion") {
                                 q.displayedMaxScore = $scope.calculateMaxPoints(q);
@@ -225,7 +225,7 @@
                             text: $scope.filter.text
                         };
                         questionService.storeQuestions($scope.questions, filters);
-                        $scope.currentPage = 0;
+                        $scope.currentPage = 0; 
                         limitQuestions();
                     });
                 };

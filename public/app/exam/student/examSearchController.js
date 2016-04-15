@@ -45,7 +45,7 @@
 
                 $scope.enrollExam = function (exam) {
                     enrolmentService.checkAndEnroll(exam);
-                }
+                };
 
             }
         ]);

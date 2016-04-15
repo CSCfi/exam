@@ -75,7 +75,7 @@
                 if (!input) return [];
                 start = parseInt(start);
                 return input.slice(start);
-            }
+            };
         })
         .filter('pagefill', function () {
             return function (input, total, current, pageSize) {
@@ -88,13 +88,13 @@
                     for (var i = 0; i < amount; ++i) input.push(i);
                 }
                 return input;
-            }
+            };
         })
         .filter('zeropad', function () {
             return function (input) {
                 input += '';
                 return input.length > 1 ? input : '0' + input;
-            }
+            };
         })
         .filter('adjustdst', function () {
             return function (date) {
@@ -102,6 +102,6 @@
                     date = moment(date).add(-1, 'hour').format();
                 }
                 return date;
-            }
+            };
         });
 }());

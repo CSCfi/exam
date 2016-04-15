@@ -59,7 +59,7 @@
                         };
                         $scope.cancel = function () {
                             $modalInstance.close("Canceled");
-                        }
+                        };
                     }];
 
                     var modalInstance = $modal.open({
@@ -84,13 +84,13 @@
                 };
 
                 self.isGraded = function (exam) {
-                    return exam && exam.state === "GRADED"
+                    return exam && exam.state === "GRADED";
                 };
 
                 self.pickExamLanguage = function (exam) {
                     var lang = exam.answerLanguage;
                     if (lang) {
-                        return {code: lang}
+                        return {code: lang};
                     }
                     else if (exam.examLanguages.length == 1) {
                         lang = exam.examLanguages[0];
@@ -114,8 +114,8 @@
                 // Defining markup outside templates is not advisable, but creating a working custom dialog template for this
                 // proved to be a bit too much of a hassle. Lets live with this.
                 self.getRecordReviewConfirmationDialogContent = function (feedback) {
-                    return '<h4>' + $translate.instant('sitnet_teachers_comment') + '</h4>'
-                        + feedback + '<br/><strong>' + $translate.instant('sitnet_confirm_record_review') + '</strong>';
+                    return '<h4>' + $translate.instant('sitnet_teachers_comment') + '</h4>' +
+                        feedback + '<br/><strong>' + $translate.instant('sitnet_confirm_record_review') + '</strong>';
                 };
 
 
@@ -123,7 +123,7 @@
                     var tmp = document.createElement("div");
                     tmp.innerHTML = html;
 
-                    if (tmp.textContent == "" && typeof tmp.innerText == "undefined") {
+                    if (!tmp.textContent && typeof tmp.innerText == "undefined") {
                         return "";
                     }
 
@@ -163,7 +163,7 @@
                         }
                     }
                     return words.length;
-                }
+                };
 
 
             }]);

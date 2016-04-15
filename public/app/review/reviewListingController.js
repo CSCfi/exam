@@ -73,7 +73,7 @@
                     messages.forEach(function (msg) {
                         toastr.warning($translate.instant(msg));
                     });
-                    if (messages.length == 0) {
+                    if (messages.length === 0) {
                         var grade = exam.selectedGrade.id ? exam.selectedGrade : exam.grade;
                         var data = {
                             "id": exam.id,
@@ -120,7 +120,7 @@
                 };
 
                 $scope.isGradeable = function (exam) {
-                    return exam && getErrors(exam).length == 0;
+                    return exam && getErrors(exam).length === 0;
                 };
 
                 $scope.hasModifications = function () {
@@ -514,7 +514,7 @@
                                     end = moment($scope.params.endDate).format('DD.MM.YYYY');
                                 }
                                 if (start && end && end < start) {
-                                    toastr.error($translate.instant('sitnet_endtime_before_starttime'))
+                                    toastr.error($translate.instant('sitnet_endtime_before_starttime'));
                                 } else {
                                     $modalInstance.close({
                                         "start": start,
@@ -532,7 +532,7 @@
                     modalInstance.result.then(function (params) {
                         fileService.download(
                             '/app/exam/' + $routeParams.id + '/attachments', $routeParams.id + '.tar.gz', params);
-                    })
+                    });
                 };
 
 

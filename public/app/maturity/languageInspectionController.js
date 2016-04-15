@@ -47,7 +47,7 @@
                             $location.path('exams/review/' + inspection.exam.id);
                         }, function (err) {
                             toastr.error(err);
-                        })
+                        });
                     });
                 };
 

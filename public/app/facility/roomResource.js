@@ -39,6 +39,6 @@
                     }),
 
                 draft: $resource("/app/draft/rooms")
-            }
+            };
         }]);
 }());
