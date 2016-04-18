@@ -294,6 +294,7 @@ GET           /app/reports/responses                                     control
 
 #######################################################
 GET           /assets/*file                                              controllers.Assets.at(path="/public", file)
+GET           /webjars/*file                                             controllers.WebJarAssets.at(file)
 
 #######################################################
 GET           /attributes                                                controllers.SessionController.getAttributes
