@@ -193,7 +193,7 @@ public class RoomController extends BaseController {
             for (JsonNode hours : node.get("hours")) {
                 ExamStartingHour esh = new ExamStartingHour();
                 esh.setRoom(examRoom);
-                // Deliberately use first/second of Jan to have no DST in effects
+                // Deliberately use first/second of Jan to have no DST in effect
                 DateTime startTime = DateTime.parse(hours.asText(), formatter).withDayOfYear(1);
                 esh.setStartingHour(startTime.toDate());
                 esh.setTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(startTime));
@@ -235,9 +235,9 @@ public class RoomController extends BaseController {
 
             hours = new ExceptionWorkingHours();
             hours.setStartDate(startDate.toDate());
-            hours.setStartDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(startDate.withDayOfYear(1)));
+            hours.setStartDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(startDate));
             hours.setEndDate(endDate.toDate());
-            hours.setEndDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(endDate.withDayOfYear(1)));
+            hours.setEndDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(endDate));
             hours.setRoom(examRoom);
             hours.setOutOfService(root.get("outOfService").asBoolean(true));
 
