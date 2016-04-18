@@ -112,6 +112,11 @@
                                 $location.path('/student/doexam/' + data.hash);
                                 return;
                             }
+
+                            $scope.doexam.examSections.sort(function (a, b) {
+                                return a.id - b.id;
+                            });
+
                             $scope.activeSection = $scope.doexam.examSections[0];
 
                             // set sections and question numbering
