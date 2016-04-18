@@ -28,19 +28,19 @@
                        ng-if="sectionQuestion.question.type === 'EssayQuestion'">
                     </i>
                 </div>
-                <span class="col-md-8 question-type-text">
+                <span class="col-md-7 question-type-text">
                     <strong ng-if="sectionQuestion.question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</strong>
                     <strong ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</strong>
                     <strong ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc' | translate }}</strong>
                 </span>
-                <div class="col-md-2 question-type-text">
+                <div class="col-md-3 question-type-text">
                     <span class="pull-right">
                          <i class="text-info fa fa-star"></i>
                         <span ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion' ||
                             (sectionQuestion.question.type == 'EssayQuestion' && sectionQuestion.evaluationType == 'Points')">
                             {{sectionQuestion.maxScore}} {{'sitnet_unit_points' | translate}}
                         </span>
-                        <span ng-if="sectionQuestion.question.type === 'EssayQuestion' && sectionQuestion.evaluationType == 'Selection'">
+                        <span ng-if="sectionQuestion.question.type === 'EssayQuestion' && sectionQuestion.evaluationType == 'Select'">
                              {{'sitnet_evaluation_type' | translate}}: {{'sitnet_evaluation_select' | translate}}
                         </span>
                         <span ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
