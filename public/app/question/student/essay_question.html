@@ -14,10 +14,10 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <small class="sitnet-info-text" ng-if="!sectionQuestion.question.autosaved">
+        <small class="sitnet-info-text" ng-if="sectionQuestion.question.autosaved">
             {{'sitnet_autosaved' | translate}}:&nbsp;{{ sectionQuestion.question.autosaved | date:'HH:mm'}}
         </small>
-        <small class="sitnet-info-text" ng-if="sectionQuestion.question.autosaved">
+        <small class="sitnet-info-text" ng-if="!sectionQuestion.question.autosaved">
             &nbsp;
         </small>
     </div>
