@@ -31,8 +31,8 @@
                         $scope.newQuestion = question;
                         $scope.setQuestionType();
                         if ($scope.newQuestion.type === 'WeightedMultipleChoiceQuestion' ||
-                            ($scope.newQuestion.evaluationType && $scope.newQuestion.evaluationType === 'Select')) {
-                            delete $scope.newQuestion.maxScore; // will screw up validation otherwise
+                            ($scope.newQuestion.defaultEvaluationType && $scope.newQuestion.defaultEvaluationType === 'Select')) {
+                            delete $scope.newQuestion.defaultMaxScore; // will screw up validation otherwise
                         }
                         var sections = question.examSectionQuestions.map(function (esq) {
                             return esq.examSection;
@@ -60,7 +60,7 @@
                     switch ($scope.newQuestion.type) {
                         case 'EssayQuestion':
                             $scope.questionTemplate = essayQuestionTemplate;
-                            $scope.newQuestion.evaluationType = $scope.newQuestion.evaluationType || "Points";
+                            $scope.newQuestion.defaultEvaluationType = $scope.newQuestion.defaultEvaluationType || "Points";
                             break;
                         case 'MultipleChoiceQuestion':
                             $scope.questionTemplate = multiChoiceQuestionTemplate;
@@ -73,8 +73,8 @@
                     }
                 };
 
-                $scope.estimateCharacters = function () {
-                    return $scope.newQuestion.expectedWordCount * 8;
+                $scope.estimateCharacters = function (question) {
+                    return question.defaultExpectedWordCount * 8;
                 };
 
                 $scope.calculateMaxPoints = function (question) {
@@ -85,18 +85,18 @@
                     var questionToUpdate = {
                         "id": $scope.newQuestion.id,
                         "type": $scope.newQuestion.type,
-                        "maxScore": $scope.newQuestion.maxScore,
+                        "defaultMaxScore": $scope.newQuestion.defaultMaxScore,
                         "question": $scope.newQuestion.question,
                         "shared": $scope.newQuestion.shared,
-                        "instruction": $scope.newQuestion.instruction,
-                        "evaluationCriterias": $scope.newQuestion.evaluationCriterias
+                        "defaultAnswerInstruction": $scope.newQuestion.defaultAnswerInstruction,
+                        "defaultEvaluationCriteria": $scope.newQuestion.defaultEvaluationCriteria
                     };
 
                     // update question specific attributes
                     switch (questionToUpdate.type) {
                         case 'EssayQuestion':
-                            questionToUpdate.expectedWordCount = $scope.newQuestion.expectedWordCount;
-                            questionToUpdate.evaluationType = $scope.newQuestion.evaluationType;
+                            questionToUpdate.defaultExpectedWordCount = $scope.newQuestion.defaultExpectedWordCount;
+                            questionToUpdate.defaultEvaluationType = $scope.newQuestion.defaultEvaluationType;
                             break;
 
                         case 'MultipleChoiceQuestion':
@@ -180,14 +180,14 @@
                 };
 
                 $scope.updateEvaluationType = function () {
-                    if ($scope.newQuestion.evaluationType && $scope.newQuestion.evaluationType === 'Select') {
-                        $scope.newQuestion.maxScore = undefined;
+                    if ($scope.newQuestion.defaultEvaluationType && $scope.newQuestion.defaultEvaluationType === 'Select') {
+                        $scope.newQuestion.defaultMaxScore = undefined;
                     }
                     $scope.updateQuestion();
                 };
 
                 $scope.updateQuestion = function () {
-                    if (!$scope.newQuestion.maxScore) {
+                    if (!$scope.newQuestion.defaultMaxScore) {
                         // TODO: how to put this check onto template? ui-change directive is applied in any case, even
                         // TODO: if the input is invalid or missing.
                         return;

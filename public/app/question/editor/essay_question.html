@@ -1,12 +1,12 @@
 <div class="row">
     <div class="form-group col-md-3">
-        <label class="sitnet-info-text" for="expectedWordCount">{{'sitnet_essay_length_recommendation' | translate}}</label>
-        <label ng-hide="questionForm.expectedWordCount.$valid" class="text-danger">
+        <label class="sitnet-info-text" for="defaultExpectedWordCount">{{'sitnet_essay_length_recommendation' | translate}}</label>
+        <label ng-hide="questionForm.defaultExpectedWordCount.$valid" class="text-danger">
             {{'sitnet_essay_length_recommendation_bounds' | translate}}
         </label>
-        <div class="input-group" id="expectedWordCount">
-            <input name="expectedWordCount" type="number" class="form-control" ng-model="newQuestion.expectedWordCount"
-                   ui-change="estimateCharacters(); questionForm.expectedWordCount.$valid ? updateQuestion() : false" min="1"
+        <div class="input-group" id="defaultExpectedWordCount">
+            <input name="defaultExpectedWordCount" type="number" class="form-control" ng-model="newQuestion.defaultExpectedWordCount"
+                   ui-change="estimateCharacters(); questionForm.defaultExpectedWordCount.$valid ? updateQuestion() : false" min="1"
                    max="1000000">
             <span class="input-group-addon" title="{{'sitnet_average_word_length_finnish' | translate}}">
                 {{'sitnet_approximately' | translate}} {{estimateCharacters()}} {{'sitnet_characters' | translate}}

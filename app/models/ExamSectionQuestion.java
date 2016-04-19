@@ -12,7 +12,14 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 
 import javax.annotation.Nonnull;
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import java.util.Set;
 
 @Entity
@@ -27,7 +34,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     @JoinColumn(name = "question_id")
     private Question question;
 
-    @OneToMany(cascade=CascadeType.ALL, mappedBy = "examSectionQuestion")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "examSectionQuestion")
     private Set<ExamSectionQuestionOption> options;
 
     @Column

@@ -11,6 +11,7 @@ import models.ExamSectionQuestion;
 import models.ExamSectionQuestionOption;
 import models.User;
 import models.api.Sortable;
+import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import play.data.DynamicForm;
 import play.db.ebean.Transactional;
@@ -21,6 +22,7 @@ import util.AppUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
@@ -122,7 +124,7 @@ public class ExamSectionController extends BaseController {
 
         section.update();
 
-        return ok(Json.toJson(section));
+        return ok(section);
     }
 
 
@@ -222,7 +224,6 @@ public class ExamSectionController extends BaseController {
                 exam.getAutoEvaluationConfig().delete();
             }
         }
-        Question clone = clone(question);
 
         // Assert that the sequence number provided is within limits
         Integer sequence = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
@@ -231,9 +232,22 @@ public class ExamSectionController extends BaseController {
 
         // Insert new section question
         ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
+        sectionQuestion.setCreator(user);
+        sectionQuestion.setCreated(new Date());
         sectionQuestion.setExamSection(section);
-        sectionQuestion.setQuestion(clone);
+        sectionQuestion.setQuestion(question);
         sectionQuestion.setSequenceNumber(sequence);
+        sectionQuestion.setMaxScore(question.getDefaultMaxScore());
+        sectionQuestion.setAnswerInstructions(question.getDefaultAnswerInstructions());
+        sectionQuestion.setEvaluationCriteria(question.getDefaultEvaluationCriteria());
+        sectionQuestion.setEvaluationType(question.getDefaultEvaluationType());
+        sectionQuestion.setExpectedWordCount(question.getDefaultExpectedWordCount());
+        for (MultipleChoiceOption option : question.getOptions()) {
+            ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+            esqo.setOption(option);
+            esqo.setScore(option.getDefaultScore());
+            sectionQuestion.getOptions().add(esqo);
+        }
         section.getSectionQuestions().add(sectionQuestion);
 
         AppUtil.setModifier(section, user);
@@ -281,7 +295,7 @@ public class ExamSectionController extends BaseController {
                 return result.get();
             }
         }
-        return ok(Json.toJson(section));
+        return ok(section);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -303,15 +317,6 @@ public class ExamSectionController extends BaseController {
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        // Detach possible student exam questions from this one
-        List<Question> children = Ebean.find(Question.class)
-                .where()
-                .eq("parent.id", sectionQuestion.getQuestion().getId())
-                .findList();
-        for (Question child : children) {
-            child.setParent(null);
-            child.save();
-        }
         section.getSectionQuestions().remove(sectionQuestion);
 
         // Decrease sequences for the entries above the inserted one
@@ -324,7 +329,7 @@ public class ExamSectionController extends BaseController {
             }
         }
         section.update();
-        return ok(Json.toJson(section));
+        return ok(section);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -351,7 +356,7 @@ public class ExamSectionController extends BaseController {
             });
             section.getSectionQuestions().clear();
             section.update();
-            return ok(Json.toJson(section));
+            return ok(section);
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }
@@ -360,16 +365,19 @@ public class ExamSectionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamQuestion(Long id) {
         User user = getLoggedUser();
-        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(id);
+        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class)
+                .fetch("question")
+                .fetch("options")
+                .where().idEq(id);
         if (user.hasRole("TEACHER", getSession())) {
-            query = query.eq("examSectionQuestions.examSection.exam.examOwners", user);
+            query = query.eq("examSection.exam.examOwners", user);
         }
         ExamSectionQuestion examQuestion = query.findUnique();
         if (examQuestion == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
         Collections.sort(examQuestion.getQuestion().getOptions());
-        return ok(Json.toJson(examQuestion));
+        return ok(examQuestion);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -385,7 +393,7 @@ public class ExamSectionController extends BaseController {
             return forbidden("sitnet_error_access_forbidden");
         }
         doUpdateQuestion(question, df, user);
-        return ok(Json.toJson(question));
+        return ok(question);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -405,7 +413,7 @@ public class ExamSectionController extends BaseController {
         Double score = Double.parseDouble(df.get("score"));
         option.setScore(score);
         option.update();
-        return ok(Json.toJson(option));
+        return ok(option);
     }
 
     private static void doUpdateQuestion(ExamSectionQuestion question, DynamicForm df, User user) {

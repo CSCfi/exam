@@ -19,7 +19,7 @@
             // select from querylist
             $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question/editor/question.html'});
             // edit question from exam
-            $routeProvider.when('/exams/:examId/section/:sectionId/edit/:editId', { templateUrl: tmpl + 'question/editor/question.html'});
+            $routeProvider.when('/exams/:examId/section/:sectionId/edit/:editId', { templateUrl: tmpl + 'question/editor/exam_section_question.html'});
 
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
             $routeProvider.when('/exams/course/:id', { templateUrl: tmpl + 'exam/editor/exam_new.html', controller: 'ExamController'});

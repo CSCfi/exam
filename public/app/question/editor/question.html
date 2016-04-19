@@ -50,7 +50,7 @@
                         <div class="form-group col-md-3" ng-show="newQuestion.type == 'EssayQuestion'">
                             <label class="sitnet-info-text" for="evaluationType">{{'sitnet_evaluation_type' |
                                 translate}}</label>
-                            <select id="evaluationType" class="form-control" ng-model="newQuestion.evaluationType"
+                            <select id="evaluationType" class="form-control" ng-model="newQuestion.defaultEvaluationType"
                                     ng-change="updateEvaluationType()"
                                     ng-required="newQuestion.type == 'EssayQuestion'">
                                 <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
@@ -63,16 +63,16 @@
                     <div class="row">
                         <div class="form-group col-md-3"
                              ng-show="newQuestion.type == 'MultipleChoiceQuestion' ||
-                                      newQuestion.evaluationType == 'Points'">
-                            <label class="sitnet-info-text" for="maxScore">{{'sitnet_max_score' | translate}}</label>
-                            <label ng-hide="questionForm.maxScore.$valid" class="text-danger">
+                                      newQuestion.defaultEvaluationType == 'Points'">
+                            <label class="sitnet-info-text" for="defaultMaxScore">{{'sitnet_max_score' | translate}}</label>
+                            <label ng-hide="questionForm.defaultMaxScore.$valid" class="text-danger">
                                 {{ 'sitnet_positive_integer_required' | translate }}
                             </label>
-                            <input id="maxScore" name="maxScore" type="text" class="col-md-2 form-control"
+                            <input id="defaultMaxScore" name="defaultMaxScore" type="text" class="col-md-2 form-control"
                                    ui-change="updateQuestion()"
-                                   ng-model="newQuestion.maxScore"
+                                   ng-model="newQuestion.defaultMaxScore"
                                    ng-pattern="/^([1-9][0-9]*)$/"
-                                   ng-required="newQuestion.evaluationType=='Points'"
+                                   ng-required="newQuestion.defaultEvaluationType=='Points'"
                             />
                         </div>
                     </div>
@@ -144,9 +144,9 @@
 
                     <!-- Instructions -->
                     <div class="form-group">
-                        <label class="sitnet-info-text" for="instruction">{{'sitnet_question_instruction' |
+                        <label class="sitnet-info-text" for="defaultInstruction">{{'sitnet_question_instruction' |
                             translate}}</label>
-                        <textarea id="instruction" class="form-control" rows="3" ng-model="newQuestion.instruction"
+                        <textarea id="defaultInstruction" class="form-control" rows="3" ng-model="newQuestion.defaultAnswerInstruction"
                                   ui-change="updateQuestion()"
                                   placeholder="{{'sitnet_question_instruction' | translate}}">
                         </textarea>
@@ -154,10 +154,10 @@
 
                     <!-- Evaluation criteria -->
                     <div ng-show="newQuestion.type == 'EssayQuestion'" class="form-group">
-                        <label class="sitnet-info-text" for="evaluationCriteria">{{'sitnet_exam_evaluation_criteria' |
+                        <label class="sitnet-info-text" for="defaultEvaluationCriteria">{{'sitnet_exam_evaluation_criteria' |
                             translate}}</label>
-                        <textarea id="evaluationCriteria" class="form-control" rows="3"
-                                  ng-model="newQuestion.evaluationCriterias"
+                        <textarea id="defaultEvaluationCriteria" class="form-control" rows="3"
+                                  ng-model="newQuestion.defaultEvaluationCriteria"
                                   ui-change="updateQuestion()"
                                   placeholder="{{'sitnet_question_instruction' | translate}}">
                         </textarea>
