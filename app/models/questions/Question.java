@@ -244,6 +244,7 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
                 if (answer != null) {
                     Double evaluation = answer.getOptions().stream()
                             .map(MultipleChoiceOption::getScore)
+                            .filter(s -> s != null)
                             .reduce(0.0, (sum, x) -> sum += x);
                     // ATM minimum score is zero
                     return Math.max(0.0, evaluation);
@@ -267,7 +268,7 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
             case WeightedMultipleChoiceQuestion:
                 return options.stream()
                         .map(MultipleChoiceOption::getScore)
-                        .filter(o -> o > 0)
+                        .filter(s -> s != null && s > 0)
                         .reduce(0.0, (sum, x) -> sum += x);
         }
         return 0.0;
@@ -303,8 +304,7 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
             case MultipleChoiceQuestion:
                 if (options.size() < 2) {
                     reason = "sitnet_minimum_of_two_options_required";
-                }
-                else if (!hasCorrectOption()) {
+                } else if (!hasCorrectOption()) {
                     reason = "sitnet_correct_option_required";
                 }
                 break;
