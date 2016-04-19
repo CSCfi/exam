@@ -57,9 +57,6 @@
                             questionToUpdate.expectedWordCount = $scope.sectionQuestion.expectedWordCount;
                             questionToUpdate.evaluationType = $scope.sectionQuestion.evaluationType;
                             break;
-                        case 'WeightedMultipleChoiceQuestion':
-                            questionToUpdate.options = $scope.sectionQuestion.options;
-                            break;
                     }
                     var deferred = $q.defer();
                     ExamSectionQuestionRes.questions.update({id: $scope.sectionQuestion.id}, questionToUpdate,
@@ -74,6 +71,24 @@
                         }
                     );
                     return deferred.promise;
+                };
+
+                $scope.saveQuestion = function () {
+                    if (!$scope.questionForm.$valid) {
+                        return;
+                    }
+
+                    var query = {'scrollTo': 'section' + $routeParams.sectionId};
+                    var returnUrl = "/exams/" + $routeParams.examId;
+
+                    update().then(function () {
+                        if (query) {
+                            $location.search(query);
+                        }
+                        $location.path(returnUrl);
+                    }, function () {
+                        toastr.error(error.data);
+                    });
                 };
 
                 $scope.updateEvaluationType = function () {
