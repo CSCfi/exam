@@ -56,7 +56,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
     @Column
     private Integer defaultExpectedWordCount;
 
-    @ManyToOne(cascade = CascadeType.PERSIST) // do not delete parent question
+    @ManyToOne
     private Question parent;
 
     @OneToMany(mappedBy = "parent")
@@ -77,7 +77,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Tag> tags;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "question_owner", joinColumns = @JoinColumn(name = "question_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> questionOwners;
 

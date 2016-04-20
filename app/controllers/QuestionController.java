@@ -7,6 +7,7 @@ import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
+import models.Role;
 import models.User;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
@@ -92,7 +93,7 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result copyQuestion(Long id) {
         User user = getLoggedUser();
-        ExpressionList<Question> query = Ebean.find(Question.class).where().idEq(id);
+        ExpressionList<Question> query = Ebean.find(Question.class).fetch("questionOwners").where().idEq(id);
         if (user.hasRole("TEACHER", getSession())) {
             query = query.disjunction()
                     .eq("shared", true)
@@ -181,6 +182,7 @@ public class QuestionController extends BaseController {
             return notFound();
         }
         option.setOption(form.getOption());
+        option.setDefaultScore(form.getDefaultScore());
         option.update();
         return ok(Json.toJson(option));
     }
@@ -205,16 +207,24 @@ public class QuestionController extends BaseController {
         return ok(Json.toJson(question));
     }
 
-    // TODO: needs object level permission checks and data loss prevention checks
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteQuestion(Long id) {
         Question question = Ebean.find(Question.class, id);
         if (question == null) {
             return notFound();
         }
-        question.setState(QuestionState.DELETED.toString());
-        AppUtil.setModifier(question, getLoggedUser());
-        question.save();
+        if (!getLoggedUser().hasRole(Role.Name.ADMIN.toString(), getSession()) &&
+                !question.getQuestionOwners().contains(getLoggedUser())) {
+            return forbidden();
+        }
+        if (question.getExamSectionQuestions().isEmpty() && question.getChildren().isEmpty()) {
+            // Not used in exams or as copies
+            question.delete();
+        } else {
+            question.setState(QuestionState.DELETED.toString());
+            AppUtil.setModifier(question, getLoggedUser());
+            question.save();
+        }
         return ok();
     }
 
