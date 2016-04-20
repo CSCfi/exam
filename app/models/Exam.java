@@ -505,10 +505,12 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             AppUtil.setModifier(esCopy, user);
             esCopy.save();
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
-                Question questionCopy = esq.getQuestion();
-                AppUtil.setCreator(questionCopy, user);
-                AppUtil.setModifier(questionCopy, user);
-                questionCopy.save();
+                if (produceStudentExam) {
+                    Question questionCopy = esq.getQuestion();
+                    AppUtil.setCreator(questionCopy, user);
+                    AppUtil.setModifier(questionCopy, user);
+                    questionCopy.save();
+                }
                 esq.save();
                 esq.getOptions().forEach(ExamSectionQuestionOption::save);
             }
