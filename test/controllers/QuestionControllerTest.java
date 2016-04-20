@@ -25,6 +25,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
         // Setup
         long examId = 1L;
         long sectionId = 1L;
+
         ExamSection section = Ebean.find(ExamSection.class, sectionId);
         int sectionQuestionCount = section.getSectionQuestions().size();
 
@@ -53,9 +54,9 @@ public class QuestionControllerTest extends IntegrationTestCase {
         ExamSection deserialized = deserialize(ExamSection.class, node);
         assertThat(deserialized.getSectionQuestions().size()).isEqualTo(sectionQuestionCount + 1);
 
-        // Check that section now has a clone of the original question
+        // Check that section now has a reference to the original question
         assertThat(Ebean.find(ExamSectionQuestion.class).where()
-                .eq("question.parent.id", question.getId()).findUnique()).isNotNull();
+                .eq("question.id", question.getId()).findUnique()).isNotNull();
     }
 
 

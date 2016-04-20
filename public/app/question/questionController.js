@@ -74,7 +74,7 @@
                 };
 
                 $scope.estimateCharacters = function (question) {
-                    return question.defaultExpectedWordCount * 8;
+                    return !question ? NaN : question.defaultExpectedWordCount * 8;
                 };
 
                 $scope.calculateMaxPoints = function (question) {
@@ -88,7 +88,7 @@
                         "defaultMaxScore": $scope.newQuestion.defaultMaxScore,
                         "question": $scope.newQuestion.question,
                         "shared": $scope.newQuestion.shared,
-                        "defaultAnswerInstruction": $scope.newQuestion.defaultAnswerInstruction,
+                        "defaultAnswerInstructions": $scope.newQuestion.defaultAnswerInstructions,
                         "defaultEvaluationCriteria": $scope.newQuestion.defaultEvaluationCriteria
                     };
 

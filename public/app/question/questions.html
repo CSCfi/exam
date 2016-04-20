@@ -165,6 +165,7 @@
                     </th>
                     <th colspan="2" sort by="id" title="sitnet_question" predicate="questionsPredicate" reverse="reverse"></th>
                     <th sort by="modified" title="sitnet_modified" predicate="questionsPredicate" reverse="reverse"></th>
+                    <th sort by="displayedMaxScore" title="sitnet_max_score" predicate="questionsPredicate" reverse="reverse"></th>
                     <th sort by="typeOrd" title="sitnet_question_type" predicate="questionsPredicate" reverse="reverse"></th>
                     <th sort by="attachment.fileName" title="sitnet_attachment" predicate="questionsPredicate" reverse="reverse"></th>
                     <th ng-show="user.isAdmin" sort by="ownerAggregate" title="sitnet_owner" predicate="questionsPredicate" reverse="reverse"></th>
@@ -189,6 +190,7 @@
                     <td>
                         <span ng-if="question.modified" class="timestamp">{{question.modified | date:'dd.MM.yyyy HH:mm'}}</span>
                     </td>
+                    <td>{{ question.displayedMaxScore | translate}}</td>
                     <td>
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
                         <span ng-if="question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc' | translate}}</span>

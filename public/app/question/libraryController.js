@@ -35,18 +35,10 @@
                             if (isMatch) {
                                 return true;
                             }
-                            angular.forEach(question.children, function (child) {
-                                if (child &&
-                                    child.examSectionQuestion &&
-                                    child.examSectionQuestion.examSection &&
-                                    child.examSectionQuestion.examSection.exam &&
-                                    child.examSectionQuestion.examSection.exam.course &&
-                                    child.examSectionQuestion.examSection.exam.course.code &&
-                                    child.examSectionQuestion.examSection.exam.course.code.match(re)) {
-                                    isMatch = true;
-                                }
-                            });
-                            return isMatch;
+                            // match course code
+                            return question.examSectionQuestions.filter(function (esq) {
+                                return esq.examSection.exam.course.code.match(re);
+                            }).length > 0;
                         });
                     } else {
                         $scope.filteredQuestions = $scope.questions;
@@ -206,6 +198,13 @@
                         $scope.questions = $scope.filteredQuestions = questionService.applyFilter(data);
 
                         $scope.questions.forEach(function (q) {
+                            if (q.defaultEvaluationType === "Points" || q.type === 'MultipleChoiceQuestion') {
+                                q.displayedMaxScore = q.defaultMaxScore;
+                            } else if (q.defaultEvaluationType === "Select") {
+                                q.displayedMaxScore = 'sitnet_evaluation_select';
+                            } else if (q.type === "WeightedMultipleChoiceQuestion") {
+                                q.displayedMaxScore = $scope.calculateMaxPoints(q);
+                            }
                             q.typeOrd = ['EssayQuestion',
                                 'MultipleChoiceQuestion',
                                 'WeightedMultipleChoiceQuestion'].indexOf(q.type);
@@ -218,7 +217,7 @@
                             text: $scope.filter.text
                         };
                         questionService.storeQuestions($scope.questions, filters);
-                        $scope.currentPage = 0; 
+                        $scope.currentPage = 0;
                         limitQuestions();
                     });
                 };
@@ -266,14 +265,20 @@
 
                 var doListTags = function (sections) {
                     var deferred = $q.defer();
+                    var examIds = getExamIds();
+                    var courseIds = getCourseIds();
                     TagRes.tags.query({
-                        examIds: getExamIds(),
-                        courseIds: getCourseIds(),
+                        examIds: examIds,
+                        courseIds: courseIds,
                         sectionIds: getSectionIds()
                     }, function (data) {
                         $scope.tags = union($scope.tags, data);
                         var examSections = [];
-                        $scope.exams.forEach(function (exam) {
+                        $scope.exams.filter(function (e) {
+                            var examMatch = examIds.length === 0 || examIds.indexOf(e.id) > -1;
+                            var courseMatch = courseIds.length === 0 || courseIds.indexOf(e.course.id) > -1;
+                            return examMatch && courseMatch;
+                        }).forEach(function (exam) {
                             examSections = examSections.concat(exam.examSections.filter(function (es) {
                                 return es.name;
                             }).map(function (section) {
@@ -298,8 +303,9 @@
                         $scope.listExams().then(function () {
                             return doListTags(sections);
                         });
+                    } else {
+                        return doListTags(sections);
                     }
-                    return doListTags(sections);
                 };
 
                 $scope.applyFilter = function (tag) {
@@ -308,7 +314,7 @@
                 };
 
                 $scope.calculateMaxPoints = function (question) {
-                    return questionService.calculateMaxPoints(question);
+                    return questionService.calculateDefaultMaxPoints(question);
                 };
 
                 $scope.stripHtml = function (text) {

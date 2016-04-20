@@ -9,7 +9,7 @@
                    ui-change="estimateCharacters(); questionForm.defaultExpectedWordCount.$valid ? updateQuestion() : false" min="1"
                    max="1000000">
             <span class="input-group-addon" title="{{'sitnet_average_word_length_finnish' | translate}}">
-                {{'sitnet_approximately' | translate}} {{estimateCharacters()}} {{'sitnet_characters' | translate}}
+                {{'sitnet_approximately' | translate}} {{estimateCharacters(newQuestion)}} {{'sitnet_characters' | translate}}
             </span>
         </div>
     </div>

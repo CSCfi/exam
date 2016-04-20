@@ -36,6 +36,15 @@
                 };
 
                 // For weighted mcq
+                self.calculateDefaultMaxPoints = function (question) {
+                    return (question.options.filter(function (option) {
+                        return option.defaultScore > 0;
+                    }).reduce(function (a, b) {
+                        return a + b.defaultScore;
+                    }, 0));
+                };
+
+                // For weighted mcq
                 self.calculateMaxPoints = function (sectionQuestion) {
                     return (sectionQuestion.options.filter(function (option) {
                         return option.score > 0;

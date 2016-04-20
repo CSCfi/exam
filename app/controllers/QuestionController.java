@@ -4,6 +4,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
 import models.User;
@@ -30,30 +31,38 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds) {
         User user = getLoggedUser();
-        ExpressionList<Question> query = createQuery()
+        PathProperties pp = PathProperties.parse("*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
+                "attachment(id, fileName), options(defaultScore), examSectionQuestions(examSection(exam(course(code)))))");
+        Query<Question> query = Ebean.find(Question.class);
+        pp.apply(query);
+        ExpressionList<Question> el = query
                 .where()
                 .isNull("parent")
+                .disjunction()
+                .isNull("examSectionQuestions.examSection.exam")
+                .isNotNull("examSectionQuestions.examSection.exam.course")
+                .endJunction()
                 .ne("state", QuestionState.DELETED.toString());
         if (user.hasRole("TEACHER", getSession())) {
-            query = query.disjunction()
+            el = el.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", user)
                     .endJunction();
         }
         if (!examIds.isEmpty()) {
-            query = query.in("examSectionQuestions.examSection.exam.id", examIds);
+            el = el.in("examSectionQuestions.examSection.exam.id", examIds);
         }
         if (!courseIds.isEmpty()) {
-            query = query.in("examSectionQuestions.examSection.exam.course.id", courseIds);
+            el = el.in("examSectionQuestions.examSection.exam.course.id", courseIds);
         }
         if (!tagIds.isEmpty()) {
-            query = query.in("tags.id", tagIds);
+            el = el.in("tags.id", tagIds);
         }
         if (!sectionIds.isEmpty()) {
-            query = query.in("examSectionQuestions.examSection.id", sectionIds);
+            el = el.in("examSectionQuestions.examSection.id", sectionIds);
         }
-        Set<Question> questions = query.orderBy("created desc").findSet();
-        return ok(questions);
+        Set<Question> questions = el.orderBy("created desc").findSet();
+        return ok(questions, pp);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -64,7 +73,7 @@ public class QuestionController extends BaseController {
                 "attachment(id, fileName), options(id, correctOption, defaultScore, option), tags(id, name), " +
                 "examSectionQuestions(id, examSection(name, exam(name))))");
         pp.apply(query);
-        ExpressionList<Question> expr =  query.where().idEq(id);
+        ExpressionList<Question> expr = query.where().idEq(id);
         if (user.hasRole("TEACHER", getSession())) {
             expr = expr.disjunction()
                     .eq("shared", true)
@@ -123,6 +132,17 @@ public class QuestionController extends BaseController {
         if (df.get("question") != null) {
             question.setQuestion(df.get("question"));
         }
+        if (df.get("defaultMaxScore") != null) {
+            question.setDefaultMaxScore(Integer.parseInt(df.get("defaultMaxScore")));
+        }
+        if (df.get("defaultExpectedWordCount") != null) {
+            question.setDefaultExpectedWordCount(Integer.parseInt(df.get("defaultExpectedWordCount")));
+        }
+        if (df.get("defaultEvaluationType") != null) {
+            question.setDefaultEvaluationType(Question.EvaluationType.valueOf(df.get("defaultEvaluationType")));
+        }
+        question.setDefaultAnswerInstructions(df.get("defaultAnswerInstructions"));
+        question.setDefaultEvaluationCriteria(df.get("defaultEvaluationCriteria"));
         question.setShared(Boolean.parseBoolean(df.get("shared")));
         question.setState(QuestionState.SAVED.toString());
         AppUtil.setModifier(question, user);
@@ -223,8 +243,8 @@ public class QuestionController extends BaseController {
         return Ebean.find(Question.class)
                 .fetch("questionOwners", "firstName, lastName, userIdentifier")
                 .fetch("attachment")
-                .fetch("options")
-                .fetch("examSectionQuestions.examSection.exam.course", "code");
+                .fetch("options", "defaultScore", new FetchConfig().query())
+                .fetch("examSectionQuestions.examSection.exam.course", "code", new FetchConfig().query());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -244,13 +264,10 @@ public class QuestionController extends BaseController {
         List<Long> ids = Stream.of(questionIds.split(","))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
-        Ebean.find(Question.class).where().idIn(ids).findList()
-                .forEach(q -> {
-                    addOwner(q, newOwner);
-                    // TODO: this will go away when hierarchy changes
-                    q.getChildren()
-                            .forEach(cq -> addOwner(cq, newOwner));
-                });
+        Ebean.find(Question.class).where().idIn(ids)
+                .findList()
+                .forEach(q -> addOwner(q, newOwner));
+
         return ok();
     }
 

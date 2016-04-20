@@ -30,7 +30,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     @JsonBackReference
     private ExamSection examSection;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "question_id")
     private Question question;
 
@@ -146,18 +146,18 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         this.expectedWordCount = expectedWordCount;
     }
 
-    ExamSectionQuestion copy(boolean usePrototypeQuestion) {
+    ExamSectionQuestion copy(boolean preserveOriginalQuestion) {
         ExamSectionQuestion esq = new ExamSectionQuestion();
         BeanUtils.copyProperties(this, esq, "id");
-        Question blueprint = question.copy();
-        if (usePrototypeQuestion) {
-            blueprint.setParent(question.getParent());
-        }
-        esq.setQuestion(blueprint);
-        for (MultipleChoiceOption o : blueprint.getOptions()) {
-            ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
-            esqo.setOption(o);
-            esq.getOptions().add(esqo);
+        if (!preserveOriginalQuestion) {
+            Question blueprint = question.copy();
+            blueprint.setParent(question);
+            for (MultipleChoiceOption o : blueprint.getOptions()) {
+                ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+                esqo.setOption(o);
+                esq.getOptions().add(esqo);
+            }
+            esq.setQuestion(blueprint);
         }
         return esq;
     }
