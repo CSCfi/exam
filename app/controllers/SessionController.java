@@ -6,7 +6,12 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import exceptions.NotFoundException;
-import models.*;
+import models.Credentials;
+import models.Language;
+import models.Organisation;
+import models.Role;
+import models.Session;
+import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.Json;
@@ -18,7 +23,13 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SessionController extends BaseController {
 
@@ -112,7 +123,9 @@ public class SessionController extends BaseController {
         String givenName = parse(request.getHeader("givenName"));
         if (givenName == null) {
             String displayName = parse(request.getHeader("displayName"));
-            givenName = displayName.substring(displayName.lastIndexOf(" ") + 1);
+            givenName = displayName.indexOf(" ") > 0 ?
+                    displayName.substring(displayName.lastIndexOf(" ") + 1) :
+                    displayName;
         }
         return givenName;
     }
