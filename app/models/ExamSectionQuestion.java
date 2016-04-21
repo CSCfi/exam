@@ -5,21 +5,13 @@ import models.api.Scorable;
 import models.api.Sortable;
 import models.base.OwnedModel;
 import models.questions.EssayAnswer;
-import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.Set;
 
 @Entity
@@ -45,6 +37,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @Column
     private Integer maxScore;
+
+    @Transient
+    private Double derivedMaxScore;
 
     @Column
     private Question.EvaluationType evaluationType;
@@ -106,6 +101,14 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         this.maxScore = maxScore;
     }
 
+    public Double getDerivedMaxScore() {
+        return derivedMaxScore;
+    }
+
+    public void setDerivedMaxScore() {
+        this.derivedMaxScore = getMaxAssessedScore();
+    }
+
     public String getAnswerInstructions() {
         return answerInstructions;
     }
@@ -148,16 +151,17 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     ExamSectionQuestion copy(boolean preserveOriginalQuestion) {
         ExamSectionQuestion esq = new ExamSectionQuestion();
-        BeanUtils.copyProperties(this, esq, "id");
+        BeanUtils.copyProperties(this, esq, "id", "options");
+        Question blueprint;
         if (!preserveOriginalQuestion) {
-            Question blueprint = question.copy();
+            blueprint = question.copy();
             blueprint.setParent(question);
-            for (MultipleChoiceOption o : blueprint.getOptions()) {
-                ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
-                esqo.setOption(o);
-                esq.getOptions().add(esqo);
-            }
-            esq.setQuestion(blueprint);
+        } else {
+            blueprint = question;
+        }
+        esq.setQuestion(blueprint);
+        for (ExamSectionQuestionOption o : options) {
+            esq.getOptions().add(o.copy());
         }
         return esq;
     }

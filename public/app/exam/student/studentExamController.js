@@ -86,10 +86,16 @@
                     }, 1000 * 60);
                 };
 
-                var setSelections = function (question) {
-                    return question.options.filter(function (o) {
+                var setSelection = function (question) {
+                    var answered = question.options.filter(function (o) {
                         return o.answered;
                     });
+                    if (answered.length > 1) {
+                        console.warn("several answered options for mcq");
+                    }
+                    if (answered.length == 1) {
+                        question.selectedOption = answered[0].id;
+                    }
                 };
 
                 function createActiveSectionQuestions() {
@@ -103,11 +109,10 @@
                         var template = "";
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
-                                //setSelections(sectionQuestion);
+                                setSelection(sectionQuestion);
                                 template = $scope.multipleChoiceOptionTemplate;
                                 break;
                             case "WeightedMultipleChoiceQuestion":
-                                //setSelections(sectionQuestion);
                                 template = $scope.weightedMultipleChoiceOptionTemplate;
                                 break;
                             case "EssayQuestion":
@@ -194,7 +199,7 @@
                                 }
                                 break;
                             case "en":
-                                /* falls through */
+                            /* falls through */
                             default:
                                 if ($scope.info.reservation.machine.room.roomInstructionEN) {
                                     tmp = $scope.info.reservation.machine.room.roomInstructionEN;
@@ -283,7 +288,7 @@
                 };
 
                 $scope.calculateMaxPointsOfWeightedMcq = function (question) {
-                    return questionService.calculateMaxPoints(question);
+                    return question.derivedMaxScore;
                 };
 
                 $scope.getUser = function () {
@@ -305,69 +310,38 @@
                 };
 
                 $scope.multiOptionSelected = function (exam, question) {
-                    var ids = [];
-                    var boxes = angular.element(".optionBox");
-                    angular.forEach(boxes, function (input) {
-                        if (angular.element(input).prop("checked")) {
-                            ids.push(angular.element(input).val());
-                        }
-                    });
+                    var ids;
+                    if (question.question.type === 'WeightedMultipleChoiceQuestion') {
+                        ids = question.options.filter(function (o) {
+                            return o.answered;
+                        }).map(function (o) {
+                            return o.id
+                        });
+                    } else {
+                        ids = [question.selectedOption];
+                    }
+
                     if (!isPreview()) {
                         StudentExamRes.multipleChoiceAnswer.saveMultipleChoice({
                                 hash: exam.hash,
                                 qid: question.id,
-                                oids: ids.join() || 'none'
+                                oids: ids
                             },
                             function (options) {
+                                toastr.info($translate.instant('sitnet_answer_saved'));
                                 question.options = options;
-                                toastr.info($translate.instant('sitnet_answer_saved'));
                                 examService.setQuestionColors(question);
                             }, function (error) {
 
                             });
                     } else {
-                        // TODO: check this
-                        /*question.answer = {
-                            options: angular.copy(question.options.filter(function (option) {
-                                return option.selected;
-                            }))
-                        };*/
                         examService.setQuestionColors(question);
                     }
 
-                };
-
-                $scope.optionSelected = function (exam, question) {
-                    if (!isPreview()) {
-                        StudentExamRes.multipleChoiceAnswer.saveMultipleChoice({
-                                hash: exam.hash,
-                                qid: question.id,
-                                oids: Array.isArray(question.selectedOptions) ?
-                                    question.selectedOptions.join() : question.selectedOptions
-                            },
-                            function (updated_answer) {
-                                question.answer = updated_answer;
-                                question.answer.options.forEach(function (o) {
-                                    o.selected = true;
-                                });
-                                toastr.info($translate.instant('sitnet_answer_saved'));
-                                examService.setQuestionColors(question);
-                            }, function (error) {
-
-                            });
-                    } else {
-                        // TODO: check this
-                        /*question.answer = {
-                            options: angular.copy(question.options.filter(function (option) {
-                                return option.selected;
-                            }))
-                        };*/
-                        examService.setQuestionColors(question);
-                    }
                 };
 
                 $scope.chevronClicked = function (sectionQuestion) {
-                    sectionQuestion.question.expanded = !sectionQuestion.question.expanded;
+                    sectionQuestion.expanded = !sectionQuestion.expanded;
                 };
 
                 $scope.truncate = function (content, offset) {

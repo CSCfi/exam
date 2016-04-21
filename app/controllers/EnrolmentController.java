@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
-public class EnrollController extends BaseController {
+public class EnrolmentController extends BaseController {
 
     private static final boolean PERM_CHECK_ACTIVE = AppUtil.isEnrolmentPermissionCheckActive();
 

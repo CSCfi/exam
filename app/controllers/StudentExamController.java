@@ -7,6 +7,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.questions.EssayAnswer;
@@ -26,7 +27,6 @@ import java.util.*;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class StudentExamController extends BaseController {
 
@@ -336,7 +336,7 @@ public class StudentExamController extends BaseController {
                 .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
                 .fetch("examSections.sectionQuestions.question", "id, type, question")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-                .fetch("examSections.sectionQuestions.options")
+                .fetch("examSections.sectionQuestions.options", "id, answered")
                 .fetch("examSections.sectionQuestions.options.option", "id, option")
                 .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, objectVersion")
                 .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
@@ -344,6 +344,16 @@ public class StudentExamController extends BaseController {
                 .fetch("attachment", "fileName")
                 .fetch("examOwners", "firstName, lastName")
                 .fetch("examInspections.user", "firstName, lastName");
+    }
+
+    private void setDerivedMaxScores(Exam exam) {
+        exam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .forEach(esq -> {
+                    esq.setDerivedMaxScore();
+                    esq.getOptions().stream()
+                            .forEach(o -> o.setScore(null));
+                });
     }
 
     @Restrict({@Group("STUDENT")})
@@ -372,11 +382,13 @@ public class StudentExamController extends BaseController {
                 //TODO: check how to do better
                 Exam studentExam = createQuery().where().idEq(newExam.getId()).findUnique();
                 studentExam.setCloned(true);
+                setDerivedMaxScores(studentExam);
                 return ok(studentExam);
             });
         } else {
             // Returning an already existing student exam
             possibleClone.setCloned(false);
+            setDerivedMaxScores(possibleClone);
             return ok(possibleClone);
         }
     }
@@ -489,16 +501,11 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result answerMultiChoice(String hash, Long qid, String oids) {
+    public Result answerMultiChoice(String hash, Long qid) {
         return getEnrolmentError(hash).orElseGet(() -> {
-            List<Long> optionIds;
-            if (oids.equals("none")) { // not so elegant but will do for now
-                optionIds = new ArrayList<>();
-            } else {
-                optionIds = Stream.of(oids.split(","))
-                        .map(Long::parseLong)
-                        .collect(Collectors.toList());
-            }
+            ArrayNode node = (ArrayNode) request().body().asJson().get("oids");
+            List<Long> optionIds = new ArrayList<>();
+            node.forEach(n -> optionIds.add(n.asLong()));
             ExamSectionQuestion question =
                     Ebean.find(ExamSectionQuestion.class, qid);
             if (question == null) {

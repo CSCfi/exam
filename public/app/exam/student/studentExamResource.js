@@ -43,13 +43,13 @@
                     "get": {method: "GET", params: { eid: "@eid" }}
                 }),
                 scores: $resource("/app/feedback/exams/:eid/score", {eid: "@eid"}),
-                multipleChoiceAnswer: $resource("/app/student/exams/:hash/question/:qid/option/:oids",
+                multipleChoiceAnswer: $resource("/app/student/exams/:hash/question/:qid/option/",
                 {
-                    hash: "@hash", qid: "@qid", oid: "@oids"
+                    hash: "@hash", qid: "@qid"
                 },
                 {
                     "saveMultipleChoice": {
-                        method: "POST", params: { hash: "@hash", qid: "@qid", oids: "@oids" }
+                        method: "POST", params: { hash: "@hash", qid: "@qid"}, isArray: true
                     }
                 }),
 

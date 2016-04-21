@@ -590,7 +590,7 @@
                             amountDays: $scope.newExam.autoEvaluationConfig.amountDays,
                             gradeEvaluations: $scope.newExam.autoEvaluationConfig.gradeEvaluations
                         } : null,
-                        "trialCount": $scope.newExam.trialCount,
+                        "trialCount": $scope.newExam.trialCount || undefined,
                         "objectVersion": $scope.newExam.objectVersion
                     };
                     for (var k in overrides) {
