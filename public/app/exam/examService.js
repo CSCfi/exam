@@ -226,8 +226,8 @@
                                 score += questionService.scoreWeightedMultipleChoiceAnswer(sq);
                                 break;
                             case "EssayQuestion":
-                                if (sq.evaluatedScore && sq.evaluationType === 'Points') {
-                                    var number = parseFloat(sq.evaluatedScore);
+                                if (sq.essayAnswer && sq.essayAnswer.evaluatedScore && sq.evaluationType === 'Points') {
+                                    var number = parseFloat(sq.essayAnswer.evaluatedScore);
                                     if (angular.isNumber(number)) {
                                         score += number;
                                     }

@@ -12,6 +12,7 @@ import org.springframework.beans.BeanUtils;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
+import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -216,11 +217,12 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 }
                 break;
             case MultipleChoiceQuestion:
-                return options.stream()
-                        .filter(ExamSectionQuestionOption::isAnswered)
-                        .map(ExamSectionQuestionOption::getScore)
-                        .findFirst()
-                        .orElse(0.0);
+                Optional<ExamSectionQuestionOption> o = options.stream()
+                        .filter(ExamSectionQuestionOption::isAnswered).findFirst();
+                if (o.isPresent()) {
+                    return o.get().getOption().isCorrectOption() ? maxScore : 0.0;
+                }
+                break;
             case WeightedMultipleChoiceQuestion:
                 Double evaluation = options.stream()
                         .filter(ExamSectionQuestionOption::isAnswered)
@@ -228,7 +230,6 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                         .reduce(0.0, (sum, x) -> sum += x);
                 // ATM minimum score is zero
                 return Math.max(0.0, evaluation);
-
         }
         return 0.0;
     }
@@ -247,7 +248,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             case WeightedMultipleChoiceQuestion:
                 return options.stream()
                         .map(ExamSectionQuestionOption::getScore)
-                        .filter(o -> o > 0)
+                        .filter(o -> o != null && o > 0)
                         .reduce(0.0, (sum, x) -> sum += x);
         }
         return 0.0;
