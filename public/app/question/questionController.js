@@ -19,44 +19,13 @@
                 var multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_question.html";
 
                 $scope.questionTemplate = null;
+                $scope.bodyTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/question_body.html";
                 $scope.returnURL = null;
 
                 $scope.examNames = [];
                 $scope.sectionNames = [];
 
-                var qid = $routeParams.editId || $routeParams.id;
-
-                QuestionRes.questions.get({id: qid},
-                    function (question) {
-                        $scope.newQuestion = question;
-                        $scope.setQuestionType();
-                        if ($scope.newQuestion.type === 'WeightedMultipleChoiceQuestion' ||
-                            ($scope.newQuestion.defaultEvaluationType && $scope.newQuestion.defaultEvaluationType === 'Select')) {
-                            delete $scope.newQuestion.defaultMaxScore; // will screw up validation otherwise
-                        }
-                        var sections = question.examSectionQuestions.map(function (esq) {
-                            return esq.examSection;
-                        });
-                        var examNames = sections.map(function (s) {
-                            return s.exam.name;
-                        });
-                        var sectionNames = sections.map(function (s) {
-                            return s.name;
-                        });
-                        // remove duplicates
-                        $scope.examNames = examNames.filter(function (n, pos) {
-                            return examNames.indexOf(n) == pos;
-                        });
-                        $scope.sectionNames = sectionNames.filter(function (n, pos) {
-                            return sectionNames.indexOf(n) == pos;
-                        });
-                    },
-                    function (error) {
-                        toastr.error(error.data);
-                    }
-                );
-
-                $scope.setQuestionType = function () {
+                var setQuestionType = function () {
                     switch ($scope.newQuestion.type) {
                         case 'EssayQuestion':
                             $scope.questionTemplate = essayQuestionTemplate;
@@ -71,6 +40,30 @@
                             $scope.newOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/weighted_option.html";
                             break;
                     }
+                };
+
+                var initQuestion = function () {
+                    setQuestionType();
+                    if ($scope.newQuestion.type === 'WeightedMultipleChoiceQuestion' ||
+                        ($scope.newQuestion.defaultEvaluationType && $scope.newQuestion.defaultEvaluationType === 'Select')) {
+                        delete $scope.newQuestion.defaultMaxScore; // will screw up validation otherwise
+                    }
+                    var sections = $scope.newQuestion.examSectionQuestions.map(function (esq) {
+                        return esq.examSection;
+                    });
+                    var examNames = sections.map(function (s) {
+                        return s.exam.name;
+                    });
+                    var sectionNames = sections.map(function (s) {
+                        return s.name;
+                    });
+                    // remove duplicates
+                    $scope.examNames = examNames.filter(function (n, pos) {
+                        return examNames.indexOf(n) == pos;
+                    });
+                    $scope.sectionNames = sectionNames.filter(function (n, pos) {
+                        return sectionNames.indexOf(n) == pos;
+                    });
                 };
 
                 $scope.estimateCharacters = function (question) {
@@ -309,6 +302,22 @@
                         // Cancel button
                     });
                 };
+
+                // Action
+                if ($scope.newQuestion) {
+                    initQuestion();
+                } else {
+                    var qid = $routeParams.editId || $routeParams.id;
+                    QuestionRes.questions.get({id: qid},
+                        function (question) {
+                            $scope.newQuestion = question;
+                            initQuestion();
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                }
 
             }]);
 }());

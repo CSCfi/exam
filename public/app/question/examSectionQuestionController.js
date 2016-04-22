@@ -7,23 +7,6 @@
             function (dialogs, $rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus,
                       QuestionRes, ExamSectionQuestionRes, questionService, ExamRes, TagRes, EXAM_CONF, fileService, $sce) {
 
-                var qid = $routeParams.editId || $routeParams.id;
-
-                $scope.sectionQuestion = {};
-                $scope.newQuestion = {};
-
-                function sectionQuestionResponse(question) {
-                    $scope.sectionQuestion = question;
-                    $scope.newQuestion = question.question;
-                }
-
-                ExamSectionQuestionRes.questions.get({id: qid},
-                    sectionQuestionResponse,
-                    function (error) {
-                        toastr.error(error.data);
-                    }
-                );
-
                 $scope.getOptions = function () {
                     if ($scope.newQuestion.type === 'WeightedMultipleChoiceQuestion') {
                         return $scope.sectionQuestion.options;

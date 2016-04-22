@@ -980,29 +980,6 @@
                     }
                 };
 
-                //http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
-                $scope.createQuestionFromExamView = function (type, section) {
-                    var newQuestion = {
-                        type: type
-                    };
-
-                    QuestionRes.questions.create(newQuestion,
-                        function (response) {
-                            newQuestion = response;
-                            var nextSeq;
-                            if (section.sectionQuestions === undefined || section.sectionQuestions.length === 0) {
-                                nextSeq = 0;
-                            } else {
-                                nextSeq = Math.max.apply(Math, section.sectionQuestions.map(function (s) {
-                                        return s.sequenceNumber;
-                                    })) + 1;
-                            }
-                            $location.path("/questions/" + response.id + "/exam/" + $scope.newExam.id + "/section/" + section.id + "/sequence/" + nextSeq);
-                        }, function (error) {
-                            toastr.error(error.data);
-                        });
-                };
-
                 $scope.examFilter = function (item, comparator) {
                     return (item.state == comparator);
                 };
@@ -1100,6 +1077,95 @@
                         modalInstance.dismiss();
                         $location.path('/exams/' + $scope.newExam.id);
                     });
+                };
+
+                var openExamQuestionEditor = function (question) {
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        $scope.sectionQuestion = question;
+                        $scope.newQuestion = question.question;
+
+                        $scope.submit = function () {
+                            $modalInstance.dismiss("done");
+                        };
+
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss("Cancelled");
+                        };
+
+                    }];
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'question/editor/dialog_edit_exam_question.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: ctrl,
+                        windowClass: 'question-editor-modal'
+                    });
+
+                    modalInstance.result.then(function () {
+                        // OK button
+                        modalInstance.dismiss();
+                    });
+                };
+
+                var openBaseQuestionEditor = function (question, section) {
+                    var examId = $scope.newExam.id;
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        $scope.newQuestion = question;
+
+                        $scope.submit = function () {
+                            ExamRes.sectionquestions.insert({
+                                    eid: examId,
+                                    sid: section.id,
+                                    seq: section.sectionQuestions.length,
+                                    qid: question.id
+                                }, function (sec) {
+                                    toastr.info($translate.instant("sitnet_question_added"));
+                                    updateSection(sec, true); // needs manual update as the scope is somehow not automatically refreshed
+                                    $modalInstance.dismiss("done");
+                                }, function (error) {
+                                    toastr.error(error.data);
+                                }
+                            );
+                        };
+
+                        $scope.cancel = function () {
+                            QuestionRes.questions.delete({id: question.id}, function () {
+                                toastr.info($translate.instant("sitnet_question_removed"));
+                                $modalInstance.dismiss("Cancelled");
+                            });
+                        };
+
+                    }];
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'question/editor/dialog_new_question.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: ctrl,
+                        windowClass: 'question-editor-modal'
+                    });
+
+                    modalInstance.result.then(function () {
+                        // OK button
+                        modalInstance.dismiss();
+                    });
+                };
+
+
+                $scope.addNewQuestion = function (section, type) {
+
+                    QuestionRes.questions.create({type: type},
+                        function (question) {
+                            question.examSectionQuestions = [];
+                            openBaseQuestionEditor(question, section)
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                };
+
+                $scope.editQuestion = function (section, sectionQuestion) {
+                    openExamQuestionEditor(section, sectionQuestion);
                 };
 
                 $scope.shortText = function (text, limit) {

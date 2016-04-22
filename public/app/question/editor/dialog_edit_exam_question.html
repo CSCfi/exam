@@ -1,23 +1,13 @@
-<div ng-controller="ExamSectionQuestionCtrl">
-    <div id="sitnet-header" class="header">
-        <div class="header-wrapper col-md-7">
-            <span class="header-text">{{'sitnet_questions_edit' | translate}}</span>
-        </div>
+<div id="sitnet-dialog" ng-controller="ExamSectionQuestionCtrl">
+    <div class="terms-dialog-header">
+        <h4 class="sitnet-white"><i class="fa fa-edit"></i>&nbsp;&nbsp;
+            <span>{{'sitnet_questions_edit' | translate}}</span>
+        </h4>
     </div>
-
-    <div id="dashboard">
+    <div class="modal-body">
         <div class="main-row">
             <div class="col-md-12 top-margin-1">
                 <form role="form" class="form-horizontal" name="questionForm" novalidate>
-                    <!-- Shared -->
-                    <div class="row bottom-padding-2">
-                        <div class="checkbox">
-                            <label>
-                                <input disabled="disabled" type="checkbox" ng-model="newQuestion.shared">
-                                <strong class="sitnet-info-text">{{ 'sitnet_public_question' | translate}}</strong>
-                            </label>
-                        </div>
-                    </div>
 
                     <!-- Question -->
                     <div class="form-group">
@@ -141,7 +131,7 @@
                                    ng-change="updateQuestion()"
                                    ng-pattern="/^([1-9][0-9]*)$/"
                                    ng-required="newQuestion.evaluationType=='Points'"
-                                    />
+                            />
                         </div>
                     </div>
 
@@ -171,14 +161,16 @@
                 </form>
             </div>
         </div>
-
-        <div class="main-row">
-            <div class="col-md-12">
-                <button ng-disabled="!questionForm.$valid && !questionForm.$pristine" ng-click="saveQuestion()"
-                        type="submit" class="btn btn-success">{{'sitnet_save' | translate}}
-                </button>
-            </div>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_close' | translate}}
+            </button>
         </div>
-
+        <div class="col-md-6">
+            <button ng-disabled="!questionForm.$valid" ng-click="submit()"
+                    type="submit" class="btn btn-sm btn-primary">{{'sitnet_save' | translate}}
+            </button>
+        </div>
     </div>
 </div>
