@@ -14,17 +14,15 @@
             $routeProvider.when('/questions', { templateUrl: tmpl + 'question/questions.html', controller: 'LibraryCtrl'});
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exam/exams.html', controller: 'ExamController'});
 
-            // create question from exam
-            $routeProvider.when('/questions/:id/exam/:examId/section/:sectionId/sequence/:seqId', { templateUrl: tmpl + 'question/editor/question.html'});
-            // select from querylist
+            // edit question
             $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question/editor/question.html'});
-            // edit question from exam
-            $routeProvider.when('/exams/:examId/section/:sectionId/edit/:editId', { templateUrl: tmpl + 'question/editor/exam_section_question.html'});
 
+            /* exams */
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
             $routeProvider.when('/exams/course/:id', { templateUrl: tmpl + 'exam/editor/exam_new.html', controller: 'ExamController'});
             $routeProvider.when('/exampreview/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
 
+            /* booking */
             $routeProvider.when('/calendar/:id', { templateUrl: tmpl + 'reservation/calendar.html'});
 
             $routeProvider.when('/invalid_session', { templateUrl: tmpl + 'common/invalid_session.html'});

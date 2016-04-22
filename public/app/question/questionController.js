@@ -148,7 +148,7 @@
                 };
 
                 $scope.updateQuestion = function () {
-                        update();
+                    update();
                 };
 
                 $scope.removeTag = function (tag) {
@@ -269,8 +269,7 @@
                 if ($scope.newQuestion) {
                     initQuestion();
                 } else {
-                    var qid = $routeParams.editId || $routeParams.id;
-                    QuestionRes.questions.get({id: qid},
+                    QuestionRes.questions.get({id: $routeParams.id},
                         function (question) {
                             $scope.newQuestion = question;
                             initQuestion();
