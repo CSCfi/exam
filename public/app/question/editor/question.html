@@ -19,7 +19,13 @@
     </div>
 
     <div id="dashboard">
-        <div ng-include="bodyTemplate"></div>
+        <div class="main-row">
+            <div class="col-md-12 top-margin-1">
+                <form role="form" class="form-horizontal" name="questionForm" novalidate>
+                    <div ng-include="bodyTemplate"></div>
+                </form>
+            </div>
+        </div>
         <div class="main-row">
             <div class="col-md-12">
                 <button ng-disabled="!questionForm.$valid" ng-click="saveQuestion()"

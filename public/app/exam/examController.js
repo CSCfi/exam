@@ -1,10 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$filter', '$rootScope', '$q', '$sce', '$anchorScroll', '$uibModal', 'sessionService', 'examService',
+        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$filter', '$rootScope', '$q', '$sce', '$uibModal', 'sessionService', 'examService',
             '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
             'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes',
-            function (dialogs, $scope, $timeout, $filter, $rootScope, $q, $sce, $anchorScroll, $modal, sessionService, examService,
+            function (dialogs, $scope, $timeout, $filter, $rootScope, $q, $sce, $modal, sessionService, examService,
                       $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource,
                       SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes) {
 
@@ -54,18 +54,6 @@
                 }
 
                 $scope.session = sessionService;
-
-                $rootScope.$on('$routeChangeSuccess', function (newRoute, oldRoute) {
-                    $timeout(function () {
-                        var scrollTo = $routeParams.scrollTo;
-                        if (scrollTo) {
-                            var old = $location.hash();
-                            $location.hash(scrollTo);
-                            $anchorScroll();
-                            $location.hash(old);
-                        }
-                    }, 1000);
-                });
 
                 // Clear the question type filter when moving away
                 $scope.$on('$locationChangeStart', function (event) {

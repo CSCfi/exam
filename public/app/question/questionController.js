@@ -132,40 +132,8 @@
                 };
 
                 $scope.saveQuestion = function () {
-                    var returnUrl, query;
-                    //Set return URL pointing back to questions main page if we came from there
-                    if ($routeParams.examId === undefined) {
-                        returnUrl = "/questions/";
-                    }
-                    //Set return URL to exam, if we came from there
-                    else {
-                        query = {'scrollTo': 'section' + $routeParams.sectionId};
-                        returnUrl = "/exams/" + $routeParams.examId;
-                    }
                     update(true).then(function () {
-                        // If creating new exam question also bind the question to section of the exam at this point
-                        if (!$routeParams.examId || $routeParams.editId) {
-                            if (query) {
-                                $location.search(query);
-                            }
-                            $location.path(returnUrl);
-                        }
-                        else {
-                            var params = {
-                                eid: $routeParams.examId,
-                                sid: $routeParams.sectionId,
-                                qid: $scope.newQuestion.id,
-                                seq: $routeParams.seqId
-                            };
-                            ExamRes.sectionquestions.insert(params, function () {
-                                toastr.info($translate.instant("sitnet_question_added_to_section"));
-                                $location.search(query);
-                                $location.path(returnUrl);
-                            }, function (error) {
-                                toastr.error(error.data);
-                            });
-                        }
-                        // Clear cache to trigger a refresh now that there is a new entry
+                        $location.path('/questions');
                         questionService.clearQuestions();
                     }, function () {
                         toastr.error(error.data);
@@ -180,12 +148,7 @@
                 };
 
                 $scope.updateQuestion = function () {
-                    if (!$scope.newQuestion.defaultMaxScore) {
-                        // TODO: how to put this check onto template? ui-change directive is applied in any case, even
-                        // TODO: if the input is invalid or missing.
-                        return;
-                    }
-                    update();
+                        update();
                 };
 
                 $scope.removeTag = function (tag) {
@@ -209,7 +172,6 @@
                             newQuestion.options.push(response);
                             toastr.info($translate.instant('sitnet_option_added'));
                             focus('opt' + response.id);
-                            //focus("opt" + response.id);
                         }, function (error) {
                             toastr.error(error.data);
                         }
