@@ -7,6 +7,7 @@
             function (dialogs, $rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus,
                       QuestionRes, ExamSectionQuestionRes, questionService, ExamRes, TagRes, EXAM_CONF, fileService, $sce) {
 
+
                 $scope.getOptions = function () {
                     if ($scope.newQuestion.type === 'WeightedMultipleChoiceQuestion') {
                         return $scope.sectionQuestion.options;

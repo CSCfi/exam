@@ -931,7 +931,6 @@
                 };
 
                 $scope.insertQuestion = function (section, object, to) {
-
                     if (object instanceof Array) {
                         var questions = angular.copy(object).reverse();
 
@@ -959,16 +958,16 @@
 
                     } else {
                         var question = angular.copy(object);
-                        var sectionQuestion = {question: question};
                         ExamRes.sectionquestions.insert({
                                 eid: $scope.newExam.id,
                                 sid: section.id,
                                 seq: to,
                                 qid: question.id
                             }, function (sec) {
-                                DragDropHandler.addObject(sectionQuestion, section.sectionQuestions, to);
                                 toastr.info($translate.instant("sitnet_question_added"));
-                                updateSection(sec, true); // needs manual update as the scope is somehow not automatically refreshed
+                                section.sectionQuestions = sec.sectionQuestions;
+                                updateSection(section, true); // needs manual update as the scope is somehow not automatically refreshed
+                                recreateSectionIndices();
                             }, function (error) {
                                 toastr.error(error.data);
                                 // remove broken objects
@@ -984,19 +983,57 @@
                     return (item.state == comparator);
                 };
 
-                $scope.toggleLottery = function (section) {
-                    if (section.sectionQuestions && section.sectionQuestions.length > 1) {
-                        ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section,
-                            function (sec) {
-                                section = sec;
-                                if (section.lotteryItemCount === undefined) {
-                                    section.lotteryItemCount = 1;
-                                }
+                $scope.toggleDisabled = function (section) {
+                    return !section.sectionQuestions || section.sectionQuestions.length < 2;
+                };
 
-                            }, function (error) {
-                                toastr.error(error.data);
-                            });
+                function questionPointsMatch(section) {
+                    if (!section || !section.sectionQuestions) {
+                        return true;
                     }
+                    var sectionQuestions = section.sectionQuestions;
+                    if (sectionQuestions.length < 1) {
+                        return true;
+                    }
+                    var score = getQuestionScore(sectionQuestions[0]);
+                    return sectionQuestions.every(function (sectionQuestion) {
+                        return score === getQuestionScore(sectionQuestion);
+                    });
+                }
+
+                function getQuestionScore(question) {
+                    var evaluationType = question.evaluationType;
+                    var type = question.question.type;
+                    if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion') {
+                        return question.maxScore;
+                    }
+                    if (type === 'WeightedMultipleChoiceQuestion') {
+                        return questionService.calculateMaxPoints(question);
+                    }
+                    return null;
+                }
+
+                $scope.toggleLottery = function (section) {
+                    if ($scope.toggleDisabled(section)) {
+                        section.lotteryOn = false;
+                        return;
+                    }
+
+                    if (!questionPointsMatch(section)) {
+                        toastr.error($translate.instant('sitnet_error_lottery_points_not_match'));
+                        section.lotteryOn = false;
+                        return;
+                    }
+
+                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section,
+                        function (sec) {
+                            section = sec;
+                            if (section.lotteryItemCount === undefined) {
+                                section.lotteryItemCount = 1;
+                            }
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
                 };
 
                 $scope.updateLotteryCount = function (section) {
@@ -1079,10 +1116,11 @@
                     });
                 };
 
-                var openExamQuestionEditor = function (question) {
+                var openExamQuestionEditor = function (sectionQuestion) {
                     var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
-                        $scope.sectionQuestion = question;
-                        $scope.newQuestion = question.question;
+                        $scope.sectionQuestion = sectionQuestion;
+                        $scope.newQuestion = sectionQuestion.question;
+                        $scope.lotteryOn = sectionQuestion.lotteryOn;
 
                         $scope.submit = function () {
                             $modalInstance.dismiss("done");

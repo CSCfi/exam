@@ -243,6 +243,9 @@
                 self.getSectionMaxScore = function (section) {
                     var score = 0;
                     section.sectionQuestions.forEach(function (sq) {
+                        if (!sq || !sq.question) {
+                            return;
+                        }
                         switch (sq.question.type) {
                             case "MultipleChoiceQuestion":
                                 score += sq.maxScore;

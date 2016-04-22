@@ -4,6 +4,7 @@ import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
@@ -122,15 +123,23 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                 .findList()
                 .get(0);
         MultipleChoiceOption option = question.getOptions().get(0);
-        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
-                question.getId(), option.getId()), null);
+        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
+                question.getId()), createMultipleChoiceAnswerData(option));
         assertThat(result.status()).isEqualTo(200);
 
         // Change answer
         option = question.getOptions().get(1);
-        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
-                question.getId(), option.getId()), null);
+        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
+                question.getId()), createMultipleChoiceAnswerData(option));
         assertThat(result.status()).isEqualTo(200);
+    }
+
+    private JsonNode createMultipleChoiceAnswerData(MultipleChoiceOption... options) {
+        ArrayNode array = Json.newArray();
+        for (MultipleChoiceOption option : options) {
+            array.add(option.getId());
+        }
+        return Json.newObject().set("oids", array);
     }
 
     @Test
@@ -151,8 +160,8 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         machine.update();
 
         // Execute
-        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
-                question.getId(), option.getId()), null);
+        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
+                question.getId()), null);
         assertThat(result.status()).isEqualTo(403);
     }
 
@@ -180,8 +189,8 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                         break;
                     default:
                         ExamSectionQuestionOption option = esq.getOptions().iterator().next();
-                        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
-                                question.getId(), option.getId()), null);
+                        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
+                                question.getId()), createMultipleChoiceAnswerData(option.getOption()));
                         assertThat(result.status()).isEqualTo(200);
                         break;
                 }
