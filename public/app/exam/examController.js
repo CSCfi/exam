@@ -1104,13 +1104,14 @@
                     });
                 };
 
-                var openExamQuestionEditor = function (sectionQuestion) {
+                var openExamQuestionEditor = function (section, sectionQuestion) {
                     var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.sectionQuestion = sectionQuestion;
                         $scope.newQuestion = sectionQuestion.question;
-                        $scope.lotteryOn = sectionQuestion.lotteryOn;
+                        $scope.lotteryOn = section.lotteryOn;
 
-                        $scope.submit = function () {
+                        $scope.submit = function (data) {
+                            sectionQuestion = data;
                             $modalInstance.dismiss("done");
                         };
 

@@ -301,7 +301,7 @@
   "sitnet_exception_time_removed": "The opening hours exception has been deleted",
   "sitnet_exception_time_added": "The opening hours exception has been added",
   "sitnet_internal_error": "System error",
-  "sitnet_positive_integer_required": "A positive integer is required",
+  "sitnet_positive_integer_required": "A positive integer less than one million is required",
   "sitnet_endtime_before_starttime": "End time cannot be before start time",
   "sitnet_section_name": "Section name (visible for students)",
   "sitnet_write_question_below": "Write the question in the box below",

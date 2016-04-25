@@ -131,11 +131,11 @@
                             <label ng-hide="questionForm.maxScore.$valid" class="text-danger">
                                 {{ 'sitnet_positive_integer_required' | translate }}
                             </label>
-                            <input id="maxScore" name="maxScore" type="text" class="col-md-2 form-control"
+                            <input id="maxScore" name="maxScore" type="number" class="col-md-2 form-control"
                                    ng-model="sectionQuestion.maxScore"
                                    ng-model-options="{ updateOn: 'blur'}"
                                    ng-change="updateQuestion()"
-                                   ng-pattern="/^([1-9][0-9]*)$/"
+                                   min="1" max="1000000"
                                    ng-required="newQuestion.evaluationType=='Points'"
                                    ng-disabled="lotteryOn"/>
                         </div>
@@ -174,7 +174,7 @@
             </button>
         </div>
         <div class="col-md-6">
-            <button ng-disabled="!questionForm.$valid" ng-click="submit()"
+            <button ng-disabled="!questionForm.$valid" ng-click="submit(sectionQuestion)"
                     type="submit" class="btn btn-sm btn-primary">{{'sitnet_save' | translate}}
             </button>
         </div>

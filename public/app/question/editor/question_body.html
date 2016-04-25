@@ -45,10 +45,10 @@
             <label ng-hide="questionForm.defaultMaxScore.$valid" class="text-danger">
                 {{ 'sitnet_positive_integer_required' | translate }}
             </label>
-            <input id="defaultMaxScore" name="defaultMaxScore" type="text" class="col-md-2 form-control"
+            <input id="defaultMaxScore" name="defaultMaxScore" type="number" class="col-md-2 form-control"
                    ui-change="updateQuestion()"
                    ng-model="newQuestion.defaultMaxScore"
-                   ng-pattern="/^([1-9][0-9]*)$/"
+                   min="1" max="1000000"
                    ng-required="newQuestion.defaultEvaluationType=='Points'"
             />
         </div>
