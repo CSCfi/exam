@@ -124,7 +124,7 @@ public class SessionController extends BaseController {
         if (givenName == null) {
             String displayName = parse(request.getHeader("displayName"));
             givenName = displayName.indexOf(" ") > 0 ?
-                    displayName.substring(displayName.lastIndexOf(" ") + 1) :
+                    displayName.substring(0, displayName.lastIndexOf(" ")) :
                     displayName;
         }
         return givenName;
