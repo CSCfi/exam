@@ -49,7 +49,7 @@ public class IntegrationTestCase {
     private static final Map<String, String> HAKA_HEADERS = new HashMap<>();
 
     static {
-        HAKA_HEADERS.put("displayName", "George Lazenby");
+        HAKA_HEADERS.put("displayName", "George%20Lazenby");
         HAKA_HEADERS.put("eppn", "george.lazenby@funet.fi");
         HAKA_HEADERS.put("sn", "Lazenby");
         HAKA_HEADERS.put("preferredLanguage", "fi");
