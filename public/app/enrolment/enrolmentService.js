@@ -24,8 +24,8 @@
                     var deferred = $q.defer();
                     EnrollRes.enroll.create({code: exam.course.code, id: exam.id},
                         function () {
-                            toastr.success($translate.instant('sitnet_you_have_enrolled_to_exam') + '<br/>'
-                                + $translate.instant('sitnet_remember_exam_machine_reservation'));
+                            toastr.success($translate.instant('sitnet_you_have_enrolled_to_exam') + '<br/>' +
+                                $translate.instant('sitnet_remember_exam_machine_reservation'));
                             $location.path('/calendar/' + exam.id);
                             deferred.resolve();
                         },
@@ -48,7 +48,7 @@
                                 self.enroll(exam);
                             }
                         }
-                    )
+                    );
                 };
 
                 self.enrollStudent = function (exam, student) {
@@ -134,12 +134,12 @@
                                 information: $scope.enrolment.information
                             }, function () {
                                 toastr.success($translate.instant('sitnet_saved'));
-                            })
+                            });
                         };
 
                         $scope.cancel = function () {
                             $modalInstance.close("Canceled");
-                        }
+                        };
                     }];
 
                     var modalInstance = $modal.open({

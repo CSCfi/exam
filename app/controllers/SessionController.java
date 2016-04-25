@@ -117,7 +117,8 @@ public class SessionController extends BaseController {
     }
 
     private Optional<String> parseDisplayName(Http.Request request) {
-        return parse(request.getHeader("displayName")).map((n) -> n.substring(n.lastIndexOf(" ") + 1));
+        return parse(request.getHeader("displayName")).map(n ->
+                n.indexOf(" ") > 0 ? n.substring(0, n.lastIndexOf(" ")) : n);
     }
 
     private String parseGivenName(Http.Request request) {

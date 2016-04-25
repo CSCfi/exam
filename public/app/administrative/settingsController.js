@@ -53,7 +53,7 @@
                 $scope.showAttributes = function () {
                     $http.get('/attributes').success(function (attributes) {
                         $scope.attributes = attributes;
-                    })
-                }
+                    });
+                };
             }]);
 }());

@@ -12,7 +12,10 @@ public class Index extends Controller {
     @Inject
     protected Environment environment;
 
+    @Inject
+    WebJarAssets webJarAssets;
+
     public Result index() {
-        return ok(index.render(environment.isProd()));
+        return ok(index.render(webJarAssets, environment.isProd()));
     }
 }

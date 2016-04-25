@@ -4,13 +4,14 @@ import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
 import models.*;
-import models.questions.Answer;
+import models.questions.EssayAnswer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.joda.time.DateTime;
@@ -117,20 +118,28 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
         Question question = Ebean.find(Question.class).where()
-                .eq("examSectionQuestion.examSection.exam", studentExam)
+                .eq("examSectionQuestions.examSection.exam", studentExam)
                 .eq("type", Question.Type.MultipleChoiceQuestion)
                 .findList()
                 .get(0);
         MultipleChoiceOption option = question.getOptions().get(0);
-        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
-                question.getId(), option.getId()), null);
+        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
+                question.getId()), createMultipleChoiceAnswerData(option));
         assertThat(result.status()).isEqualTo(200);
 
         // Change answer
         option = question.getOptions().get(1);
-        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
-                question.getId(), option.getId()), null);
+        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
+                question.getId()), createMultipleChoiceAnswerData(option));
         assertThat(result.status()).isEqualTo(200);
+    }
+
+    private JsonNode createMultipleChoiceAnswerData(MultipleChoiceOption... options) {
+        ArrayNode array = Json.newArray();
+        for (MultipleChoiceOption option : options) {
+            array.add(option.getId());
+        }
+        return Json.newObject().set("oids", array);
     }
 
     @Test
@@ -141,7 +150,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
         Question question = Ebean.find(Question.class).where()
-                .eq("examSectionQuestion.examSection.exam", studentExam)
+                .eq("examSectionQuestions.examSection.exam", studentExam)
                 .eq("type", Question.Type.MultipleChoiceQuestion)
                 .findList()
                 .get(0);
@@ -151,8 +160,8 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         machine.update();
 
         // Execute
-        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
-                question.getId(), option.getId()), null);
+        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
+                question.getId()), null);
         assertThat(result.status()).isEqualTo(403);
     }
 
@@ -170,7 +179,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                 switch (question.getType()) {
                     case EssayQuestion:
                         ObjectNode body = Json.newObject().put("answer", "this is my answer");
-                        Answer answer = question.getAnswer();
+                        EssayAnswer answer = esq.getEssayAnswer();
                         if (answer != null && answer.getObjectVersion() > 0) {
                             body.put("objectVersion", answer.getObjectVersion());
                         }
@@ -179,9 +188,9 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                         assertThat(result.status()).isEqualTo(200);
                         break;
                     default:
-                        MultipleChoiceOption option = question.getOptions().get(0);
-                        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option/%d", studentExam.getHash(),
-                                question.getId(), option.getId()), null);
+                        ExamSectionQuestionOption option = esq.getOptions().iterator().next();
+                        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
+                                question.getId()), createMultipleChoiceAnswerData(option.getOption()));
                         assertThat(result.status()).isEqualTo(200);
                         break;
                 }

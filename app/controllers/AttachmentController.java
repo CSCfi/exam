@@ -7,9 +7,14 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.typesafe.config.ConfigFactory;
-import models.*;
+import models.Attachment;
+import models.Comment;
+import models.Exam;
+import models.ExamSectionQuestion;
+import models.LanguageInspection;
+import models.User;
 import models.api.AttachmentContainer;
-import models.questions.Answer;
+import models.questions.EssayAnswer;
 import models.questions.Question;
 import play.Environment;
 import play.Logger;
@@ -68,30 +73,29 @@ public class AttachmentController extends BaseController {
         Long qid = Long.parseLong(m.get("questionId")[0]);
 
         // first check if answer already exist
-        Question question = Ebean.find(Question.class).fetch("answer")
+        ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).fetch("essayAnswer")
                 .where()
                 .idEq(qid)
-                .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                .eq("examSection.exam.creator", getLoggedUser())
                 .findUnique();
         if (question == null) {
             return forbidden();
         }
-        if (question.getAnswer() == null) {
-            Answer answer = new Answer();
-            answer.setType(question.getType());
-            question.setAnswer(answer);
+        if (question.getEssayAnswer() == null) {
+            EssayAnswer answer = new EssayAnswer();
+            question.setEssayAnswer(answer);
             question.save();
         }
 
         String newFilePath;
         try {
-            newFilePath = copyFile(file, "question", qid.toString(), "answer", question.getAnswer().getId().toString());
+            newFilePath = copyFile(file, "question", qid.toString(), "answer", question.getEssayAnswer().getId().toString());
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_attachment");
         }
         // Remove existing one if found
-        Answer answer = question.getAnswer();
-        removePrevious(question.getAnswer(), true);
+        EssayAnswer answer = question.getEssayAnswer();
+        removePrevious(question.getEssayAnswer(), true);
 
         Attachment attachment = createNew(filePart, newFilePath);
         answer.setAttachment(attachment);
@@ -145,17 +149,17 @@ public class AttachmentController extends BaseController {
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result deleteQuestionAnswerAttachment(Long qid, String hash) {
         User user = getLoggedUser();
-        Question question;
+        ExamSectionQuestion question;
         if (user.hasRole("STUDENT", getSession())) {
-            question = Ebean.find(Question.class).where()
+            question = Ebean.find(ExamSectionQuestion.class).where()
                     .idEq(qid)
-                    .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                    .eq("examSection.exam.creator", getLoggedUser())
                     .findUnique();
         } else {
-            question = Ebean.find(Question.class, qid);
+            question = Ebean.find(ExamSectionQuestion.class, qid);
         }
-        if (question != null && question.getAnswer() != null && question.getAnswer().getAttachment() != null) {
-            Answer answer = question.getAnswer();
+        if (question != null && question.getEssayAnswer() != null && question.getEssayAnswer().getAttachment() != null) {
+            EssayAnswer answer = question.getEssayAnswer();
             Attachment aa = answer.getAttachment();
             answer.setAttachment(null);
             answer.save();
@@ -327,19 +331,19 @@ public class AttachmentController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result downloadQuestionAnswerAttachment(Long qid, String hash) {
         User user = getLoggedUser();
-        Question question;
+        ExamSectionQuestion question;
         if (user.hasRole("STUDENT", getSession())) {
-            question = Ebean.find(Question.class).where()
+            question = Ebean.find(ExamSectionQuestion.class).where()
                     .idEq(qid)
-                    .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                    .eq("examSection.exam.creator", getLoggedUser())
                     .findUnique();
         } else {
-            question = Ebean.find(Question.class, qid);
+            question = Ebean.find(ExamSectionQuestion.class, qid);
         }
-        if (question == null || question.getAnswer() == null || question.getAnswer().getAttachment() == null) {
+        if (question == null || question.getEssayAnswer() == null || question.getEssayAnswer().getAttachment() == null) {
             return notFound();
         }
-        Attachment aa = question.getAnswer().getAttachment();
+        Attachment aa = question.getEssayAnswer().getAttachment();
         File file = new File(aa.getFilePath());
 
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");

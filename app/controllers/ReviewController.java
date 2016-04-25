@@ -8,7 +8,7 @@ import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
-import models.questions.Answer;
+import models.questions.EssayAnswer;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -17,6 +17,7 @@ import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import play.Logger;
 import play.data.DynamicForm;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
@@ -25,11 +26,23 @@ import util.java.CsvBuilder;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
@@ -185,6 +198,19 @@ public class ReviewController extends BaseController {
             exam.setTotalScore();
         });
         return ok(participations);
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result scoreExamQuestion(Long id) {
+        DynamicForm df = formFactory.form().bindFromRequest();
+        ExamSectionQuestion essayQuestion = Ebean.find(ExamSectionQuestion.class, id);
+        if (essayQuestion == null || essayQuestion.getEssayAnswer() == null) {
+            return notFound("answer not found");
+        }
+        EssayAnswer answer = essayQuestion.getEssayAnswer();
+        answer.setEvaluatedScore(Integer.parseInt(df.get("evaluatedScore")));
+        answer.update();
+        return ok(Json.toJson(essayQuestion));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -424,7 +450,7 @@ public class ReviewController extends BaseController {
                 for (ExamSectionQuestion esq : es.getSectionQuestions()) {
                     questions.put(esq.getQuestion().getId(), esq.getQuestion().getQuestion());
                     Long questionId = esq.getQuestion().getParent().getId();
-                    Answer answer = esq.getQuestion().getAnswer();
+                    EssayAnswer answer = esq.getEssayAnswer();
                     Attachment attachment;
                     File file = null;
                     if (answer != null && (attachment = answer.getAttachment()) != null) {

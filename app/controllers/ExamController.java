@@ -3,7 +3,11 @@ package controllers;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.*;
+import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.FetchConfig;
+import com.avaje.ebean.Model;
+import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -62,35 +66,6 @@ public class ExamController extends BaseController {
         return query.findList();
     }
 
-    private static ExpressionList<Exam> applyOptionalFilters(ExpressionList<Exam> query, List<Long> courseIds,
-                                                             List<Long> sectionIds, List<Long> tagIds) {
-        ExpressionList<Exam> result = query;
-        if (!courseIds.isEmpty()) {
-            result = query.in("course.id", courseIds);
-        }
-        if (!sectionIds.isEmpty()) {
-            result = query.in("examSections.id", sectionIds);
-        }
-        if (!tagIds.isEmpty()) {
-            result = query.in("examSections.sectionQuestions.question.parent.tags.id", tagIds);
-        }
-        return result;
-    }
-
-    private static List<Exam> getAllExams(List<Long> courseIds, List<Long> sectionIds, List<Long> tagIds) {
-        ExpressionList<Exam> query = createPrototypeQuery().isNotNull("name");
-        query = applyOptionalFilters(query, courseIds, sectionIds, tagIds);
-        return query.findList();
-    }
-
-    private static List<Exam> getAllExamsOfTeacher(User user, List<Long> courseIds, List<Long> sectionIds, List<Long> tagIds) {
-        ExpressionList<Exam> query = createPrototypeQuery()
-                .eq("examOwners", user)
-                .isNotNull("name");
-        query = applyOptionalFilters(query, courseIds, sectionIds, tagIds);
-        return query.orderBy("created").findList();
-    }
-
     private static List<Exam> getAllExamsOfTeacher(User user) {
         return createPrototypeQuery()
                 .eq("examOwners", user)
@@ -114,17 +89,26 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result listExams(Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds, Optional<List<Long>> tagIds) {
         User user = getLoggedUser();
-        List<Exam> exams;
         List<Long> courses = courseIds.orElse(Collections.emptyList());
         List<Long> sections = sectionIds.orElse(Collections.emptyList());
         List<Long> tags = tagIds.orElse(Collections.emptyList());
-
-        if (user.hasRole("ADMIN", getSession())) {
-            exams = getAllExams(courses, sections, tags);
-        } else {
-            exams = getAllExamsOfTeacher(user, courses, sections, tags);
+        PathProperties pp = PathProperties.parse("(id, name, course(id, code), examSections(id, name))");
+        Query<Exam> query = Ebean.find(Exam.class);
+        pp.apply(query);
+        ExpressionList<Exam> el = query.where().isNotNull("name").isNotNull("course");
+        if (!user.hasRole("ADMIN", getSession())) {
+            el = el.eq("examOwners", user);
         }
-        return ok(exams);
+        if (!courses.isEmpty()) {
+            el = el.in("course.id", courses);
+        }
+        if (!sections.isEmpty()) {
+            el = el.in("examSections.id", sections);
+        }
+        if (!tags.isEmpty()) {
+            el = el.in("examSections.sectionQuestions.question.parent.tags.id", tags);
+        }
+        return ok(el.findList(), pp);
     }
 
     @Restrict(@Group("TEACHER"))
@@ -230,7 +214,8 @@ public class ExamController extends BaseController {
                 .fetch("examSections.sectionQuestions", new FetchConfig().query())
                 .fetch("examSections.sectionQuestions.question")
                 .fetch("examSections.sectionQuestions.question.attachment")
-                .fetch("examSections.sectionQuestions.question.options")
+                .fetch("examSections.sectionQuestions.options")
+                .fetch("examSections.sectionQuestions.options.option")
                 .fetch("attachment")
                 .fetch("creator")
                 .fetch("examOwners")
@@ -595,13 +580,14 @@ public class ExamController extends BaseController {
         return Ebean.find(Exam.class)
                 .fetch("creator", "id")
                 .fetch("examType", "id, type")
-                .fetch("examSections", "id, name")
-                .fetch("examSections.sectionQuestions", "sequenceNumber")
-                .fetch("examSections.sectionQuestions.question", "id, type, question, instruction, maxScore, " +
-                        "expectedWordCount, evaluationType, expanded")
-                .fetch("examSections.sectionQuestions.question.parent", "id")
-                .fetch("examSections.sectionQuestions.question.options", "id, option")
+
+                .fetch("examSections", "id, name, sequenceNumber")
+                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
+                .fetch("examSections.sectionQuestions.question", "id, type, question")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
+                .fetch("examSections.sectionQuestions.options")
+                .fetch("examSections.sectionQuestions.options.option", "id, option")
+
                 .fetch("examLanguages", "code")
                 .fetch("attachment", "fileName")
                 .fetch("examOwners", "firstName, lastName")

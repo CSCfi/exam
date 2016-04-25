@@ -41,7 +41,7 @@
                         $scope.students = $filter('orderBy')(students, ['lastName', 'firstName']);
                         $scope.students.forEach(function (student) {
                             $scope.studentOptions.data.push({id: student.id, text: student.name});
-                        })
+                        });
                     },
                     function (error) {
                         toastr.error(error.data);
@@ -53,7 +53,7 @@
                         $scope.examnames = $filter('orderBy')(exams, 'name');
                         $scope.examnames.forEach(function (exam) {
                             $scope.examOptions.data.push({id: exam.id, text: exam.name});
-                        })
+                        });
                     },
                     function (error) {
                         toastr.error(error.data);
@@ -64,7 +64,7 @@
                     ReservationResource.teachers.query(function (teachers) {
                             $scope.examOwners = $filter('orderBy')(teachers, ['lastName', 'firstName']);
                             $scope.examOwners.forEach(function (owner) {
-                               $scope.teacherOptions.data.push({id: owner.id, text: owner.firstName + " " + owner.lastName})
+                               $scope.teacherOptions.data.push({id: owner.id, text: owner.firstName + " " + owner.lastName});
                             });
                         },
                         function (error) {
@@ -109,7 +109,7 @@
                 ];
 
                 $scope.examStates.forEach(function (state) {
-                    $scope.stateOptions.data.push({id: state, text: $translate.instant('sitnet_exam_status_' + state.toLowerCase())})
+                    $scope.stateOptions.data.push({id: state, text: $translate.instant('sitnet_exam_status_' + state.toLowerCase())});
                 });
 
                 $scope.printExamState = function (enrolment) {
@@ -261,7 +261,7 @@
 
                 function machinesForRooms(rooms, machines) {
                     rooms.forEach(function (room) {
-                        machinesForRoom(room, machines)
+                        machinesForRoom(room, machines);
                     });
                 }
             }

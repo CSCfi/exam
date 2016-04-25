@@ -39,8 +39,8 @@
             LANGUAGES_PATH: '/assets/assets/languages/',
             TEMPLATES_PATH: '/assets/app/'
         })
-        .config(['$translateProvider', '$httpProvider', '$locationProvider', '$compileProvider', 'EXAM_CONF',
-            function ($translateProvider, $httpProvider, $locationProvider, $compileProvider, EXAM_CONF) {
+        .config(['$translateProvider', '$httpProvider', '$locationProvider', '$compileProvider', 'tmhDynamicLocaleProvider', 'EXAM_CONF',
+            function ($translateProvider, $httpProvider, $locationProvider, $compileProvider, tmhDynamicLocaleProvider, EXAM_CONF) {
                 $compileProvider.debugInfoEnabled(false);
                 $httpProvider.useApplyAsync(true);
 
@@ -49,7 +49,7 @@
                     $httpProvider.defaults.headers.get = {};
                 }
                 $httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
-                $httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
+                $httpProvider.defaults.headers.get.Pragma = 'no-cache';
 
                 var path = EXAM_CONF.LANGUAGES_PATH;
                 $translateProvider.useStaticFilesLoader({
@@ -58,6 +58,8 @@
                 });
                 $translateProvider.useSanitizeValueStrategy(null);
                 $translateProvider.preferredLanguage('en');
+
+                tmhDynamicLocaleProvider.localeLocationPattern('/webjars/angular-i18n/1.4.7/angular-locale_{{locale}}.js');
 
                 $locationProvider.html5Mode({enabled: true, requireBase: false});
             }])

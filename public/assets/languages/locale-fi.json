@@ -301,7 +301,7 @@
   "sitnet_exception_time_removed": "Poikkeusaukioloaika poistettu",
   "sitnet_exception_time_added": "Poikkeusaukioloaika lisätty",
   "sitnet_internal_error": "Järjestelmävirhe",
-  "sitnet_positive_integer_required": "Arvon pitää olla positiivinen kokonaisluku",
+  "sitnet_positive_integer_required": "Arvon pitää olla positiivinen kokonaisluku ja alle miljoonan",
   "sitnet_endtime_before_starttime": "Lopetusaika ei voi olla ennen aloitusaikaa",
   "sitnet_section_name": "Aihealueen nimi (näkyy opiskelijoille)",
   "sitnet_write_question_below": "Kirjoita tenttikysymys alla olevaan kenttään",
@@ -664,7 +664,10 @@
   "sitnet_no_attachment": "Ei liitetiedostoa",
   "sitnet_add_answer_attachment": "Lisää vastauksen liite",
   "sitnet_remove_answer_attachment": "Poista vastauksen liite",
+  "sitnet_error_lottery_points_not_match": "Arvontaa ei voida käyttää, koska kysymyksistä saatavat pisteet eivät ole saman suuruisia.",
   "sitnet_add_question_owner": "Lisää kysymyksille omistaja",
   "sitnet_question_owner_added": "Omistaja lisätty",
-  "sitnet_public_question": "Julkinen kysymys (kaikki opettajat voivat vapaasti muokata)"
+  "sitnet_public_question": "Julkinen kysymys (kaikki opettajat voivat vapaasti muokata)",
+  "sitnet_error_drop_disabled_lottery_on": "Kysymyksen lisääminen ei ole sallittu aihealueeseen, jossa on kysymysten arvonta käytössä.",
+  "sitnet_exam_section_question_lottery_on_warning": "Kysymyksen muokkaamista on rajoitettu. Arvonnassa mukana olevien kysymysten pistemäärän muokkaaminen ei ole sallittu."
 }

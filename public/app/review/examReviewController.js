@@ -16,6 +16,7 @@
                 $scope.previousParticipationPath = EXAM_CONF.TEMPLATES_PATH + "review/previous_participation.html";
                 $scope.multiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/multiple_choice_answer.html";
                 $scope.weightedMultiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/weighted_multiple_choice_answer.html";
+
                 $scope.printSectionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/exam_section.html";
                 $scope.printMultiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/multiple_choice_question.html";
                 $scope.printEssayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/essay_question.html";
@@ -284,19 +285,18 @@
                     return dateService.printExamDuration(exam);
                 };
 
-                $scope.scoreWeightedMultipleChoiceAnswer = function (question) {
-                    if (question.type !== 'WeightedMultipleChoiceQuestion' || !question.answer) {
+                $scope.scoreWeightedMultipleChoiceAnswer = function (sectionQuestion) {
+                    if (sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
                         return 0;
                     }
-                    return questionService.scoreWeightedMultipleChoiceAnswer(question);
+                    return questionService.scoreWeightedMultipleChoiceAnswer(sectionQuestion);
                 };
 
                 $scope.scoreMultipleChoiceAnswer = function (sectionQuestion) {
-                    var question = sectionQuestion.question;
-                    if (question.type !== 'MultipleChoiceQuestion') {
+                    if (sectionQuestion.question.type !== 'MultipleChoiceQuestion') {
                         return 0;
                     }
-                    return questionService.scoreMultipleChoiceAnswer(question);
+                    return questionService.scoreMultipleChoiceAnswer(sectionQuestion);
                 };
 
                 $scope.range = function (min, max, step) {
@@ -326,7 +326,21 @@
                 };
 
                 $scope.toggleQuestionExpansion = function (sectionQuestion) {
-                    sectionQuestion.question.reviewExpanded = !sectionQuestion.question.reviewExpanded;
+                    sectionQuestion.reviewExpanded = !sectionQuestion.reviewExpanded;
+                };
+
+                $scope.getAnsweredOption = function (sectionQuestion) {
+                    if (!sectionQuestion) {
+                        return;
+                    }
+                    var options = sectionQuestion.options.filter(function (o) {
+                        return o.answered;
+                    });
+                    if (options.length > 1) {
+                        console.error("several options answered!");
+                    } else {
+                        return options.length === 0 ? undefined : options[0];
+                    }
                 };
 
                 var getReviewUpdate = function (exam, state) {
@@ -352,11 +366,15 @@
                 };
 
                 $scope.insertEssayScore = function (sectionQuestion) {
-                    var question = sectionQuestion.question;
-                    QuestionRes.score.update({id: question.id}, {"evaluatedScore": question.evaluatedScore}, function (q) {
+                    var answer = sectionQuestion.essayAnswer;
+                    if (!answer || !answer.evaluatedScore) {
+                        return;
+                    }
+
+                    QuestionRes.score.update({id: sectionQuestion.id, evaluatedScore: answer.evaluatedScore}, function (q) {
                         toastr.info($translate.instant("sitnet_graded"));
                         if (q.evaluationType === "Select") {
-                            setQuestionAmounts()
+                            setQuestionAmounts();
                         }
                         $scope.startReview();
                     }, function (error) {
@@ -385,7 +403,7 @@
                 };
 
                 $scope.saveFeedback = function (withoutNotice) {
-                    return examReviewService.saveFeedback($scope.exam, withoutNotice)
+                    return examReviewService.saveFeedback($scope.exam, withoutNotice);
                 };
 
                 $scope.saveInspectionStatement = function () {
@@ -482,7 +500,7 @@
                         if (exam.executionType.type === 'MATURITY') {
                             updateMaturity(exam, messages);
                         } else {
-                            updateExam(exam, messages)
+                            updateExam(exam, messages);
                         }
                     }
                 };
@@ -505,7 +523,7 @@
                 };
 
                 $scope.isSelected = function (grade) {
-                    return grade && $scope.selections.grade && $scope.selections.grade.id === grade.id
+                    return grade && $scope.selections.grade && $scope.selections.grade.id === grade.id;
                 };
 
                 $scope.saveExamRecord = function (reviewedExam) {
@@ -695,7 +713,7 @@
                         var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                             $translate.instant('sitnet_confirm_maturity_disapproval'));
                         dialog.result.then(function () {
-                            doRejectMaturity()
+                            doRejectMaturity();
                         });
                     } else {
                         doRejectMaturity();
@@ -736,7 +754,7 @@
                                 },
                                 function () {
                                     toastr.info($translate.instant('sitnet_language_inspection_finished'));
-                                    $location.path("inspections")
+                                    $location.path("inspections");
                                 });
                         });
                     });
@@ -765,6 +783,8 @@
                             rejectMaturity();
                             break;
                         case MATURITY_STATES.AWAIT_INSPECTION.id:
+                            // Nothing to do
+                            break;
                         default:
                             // Nothing to do
                             break;
@@ -786,6 +806,6 @@
 
             $scope.no = function () {
                 $modalInstance.dismiss('canceled');
-            }
+            };
         });
 }());

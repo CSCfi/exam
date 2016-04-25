@@ -1,33 +1,31 @@
 <!-- compact -->
-<div class="row" ng-hide="sectionQuestion.question.reviewExpanded">
-    <span mathjax ng-bind-html="sectionQuestion.question.answer.options[0].option"></span>
-    <span ng-class="sectionQuestion.question.answer.options[0].correctOption ? 'text-success' : 'text-danger'">&nbsp;&nbsp;
-        <span ng-if="sectionQuestion.question.answer.options[0].correctOption === true">
+<div class="row" ng-hide="sectionQuestion.reviewExpanded">
+    <span>{{getAnsweredOption(sectionQuestion).option.option}}</span>
+    <span ng-class="getAnsweredOption(sectionQuestion).option.correctOption ? 'text-success' : 'text-danger'">&nbsp;&nbsp;
+        <span ng-if="getAnsweredOption(sectionQuestion).option.correctOption">
             ({{'sitnet_multiplechoice_question_correct' | translate}})
         </span>
-        <span ng-if="sectionQuestion.question.answer.options[0].correctOption === false">
+        <span ng-if="!getAnsweredOption(sectionQuestion).option.correctOption">
             ({{'sitnet_multiplechoice_question_incorrect' | translate}})
         </span>
     </span>
 </div>
 <!-- full -->
-<div class="row" ng-show="sectionQuestion.question.reviewExpanded"
-     ng-repeat="option in sectionQuestion.question.options">
+<div class="row" ng-show="sectionQuestion.reviewExpanded"
+     ng-repeat="option in sectionQuestion.options">
     <span class="fa fa-stack">
         <i class="fa fa-stop-o fa-stack-2x"></i>
-        <!-- FIXME: following comparison should be id based, however it won't work with old answers due to change in logic.
-         Change it to option.id === ... options[0].option.id at a proper occasion-->
         <i class="fa fa-stack-1x"
-           ng-class="option.option === sectionQuestion.question.answer.options[0].option ? 'fa-check-square-o' : 'fa-square-o'"></i>
+           ng-class="option.answered ? 'fa-check-square-o' : 'fa-square-o'"></i>
     </span>
-    <span ng-class="option.correctOption ? 'text-success' : 'text-danger'"
+    <span ng-class="option.option.correctOption ? 'text-success' : 'text-danger'"
           class="review-question-option-name">
-        {{option.option}}
+        {{option.option.option}}
     </span>
 </div>
 
 <!-- grade -->
 <div class="top-row-narrow">
     <strong>{{ 'sitnet_word_points' | translate }}:</strong>
-    {{scoreMultipleChoiceAnswer(sectionQuestion)}} / {{sectionQuestion.question.maxScore}}
+    {{scoreMultipleChoiceAnswer(sectionQuestion)}} / {{sectionQuestion.maxScore}}
 </div>

@@ -26,6 +26,6 @@
                         "add": {method: "PUT"},
                         "remove": {method: "DELETE"}
                     })
-            }
+            };
         }]);
 }());

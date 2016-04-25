@@ -30,15 +30,15 @@ public class TagController extends BaseController {
             query = query.ilike("name", condition);
         }
         if (examIds.isPresent() && !examIds.get().isEmpty()) {
-            query = query.in("questions.children.examSectionQuestion.examSection.exam.id", examIds.get());
+            query = query.in("questions.examSectionQuestions.examSection.exam.id", examIds.get());
         }
         if (courseIds.isPresent() && !courseIds.get().isEmpty()) {
-            query = query.in("questions.children.examSectionQuestion.examSection.exam.course.id", courseIds.get());
+            query = query.in("questions.examSectionQuestions.examSection.exam.course.id", courseIds.get());
         }
         if (sectionIds.isPresent() && !sectionIds.get().isEmpty()) {
-            query = query.in("questions.children.examSectionQuestion.examSection.id", sectionIds.get());
+            query = query.in("questions.examSectionQuestions.examSection.id", sectionIds.get());
         }
-        List<Tag> tags = query.orderBy("name").findList();
+        Set<Tag> tags = query.findSet();
         return ok(Json.toJson(tags));
     }
 

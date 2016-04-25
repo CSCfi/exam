@@ -1,11 +1,11 @@
-<div id="exam" ng-init="sectionQuestion.question.reviewExpanded = true">
+<div id="exam" ng-init="sectionQuestion.reviewExpanded = true">
     <div class="review-question-border">
         <div class="detail-row">
             <span class="col-md-1">
                 <a ng-click="toggleQuestionExpansion(sectionQuestion)" class="fa-stack fa-lg pointer-hand">
                     <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-                    <i ng-hide="sectionQuestion.question.reviewExpanded" class="fa fa-chevron-right fa-stack-1x"></i>
-                    <i ng-show="sectionQuestion.question.reviewExpanded" class="fa fa-chevron-down fa-stack-1x"></i>
+                    <i ng-hide="sectionQuestion.reviewExpanded" class="fa fa-chevron-right fa-stack-1x"></i>
+                    <i ng-show="sectionQuestion.reviewExpanded" class="fa fa-chevron-down fa-stack-1x"></i>
                 </a>
             </span>
 
@@ -18,7 +18,7 @@
                     <span mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></span>
                 </div>
                 <!-- question attachment -->
-                <div ng-show="sectionQuestion.question.reviewExpanded && sectionQuestion.question.attachment"
+                <div ng-show="sectionQuestion.reviewExpanded && sectionQuestion.question.attachment"
                      ng-controller="AttachmentController">
                     <div class="top-row-narrow">
                         <strong>{{ 'sitnet_question_attachment' | translate}}:</strong>

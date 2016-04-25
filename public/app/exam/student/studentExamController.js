@@ -53,6 +53,7 @@
                     cancelAutosavers();
                 });
 
+                // TODO: check these
                 $scope.getQuestionAmount = function (section, type) {
                     if (type === 'total') {
                         return section.sectionQuestions.length;
@@ -76,28 +77,24 @@
                         if ($scope.activeSection && $scope.activeSection.sectionQuestions) {
                             angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
                                 var question = sectionQuestion.question;
-                                if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
-                                    $scope.saveEssay(question, question.answer.answer, true);
+                                var essayAnswer = sectionQuestion.essayAnswer;
+                                if (question.type === "EssayQuestion" && essayAnswer && essayAnswer.answer.length > 0) {
+                                    $scope.saveEssay(sectionQuestion, true);
                                 }
                             });
                         }
                     }, 1000 * 60);
                 };
 
-                var setSelections = function (question) {
-                    if (question.answer) {
-                        question.answer.options.forEach(function (ao) {
-                            ao.selected = true;
-                        });
-                        var selectedFromAnswer = question.answer.options.map(function (ao) {
-                            return ao.id;
-                        });
-                        var selectedFromQuestion = question.options.filter(function (qo) {
-                            return selectedFromAnswer.indexOf(qo.id) > -1;
-                        });
-                        question.selectedOptions = selectedFromQuestion.map(function (o) {
-                            return o.id;
-                        });
+                var setSelection = function (question) {
+                    var answered = question.options.filter(function (o) {
+                        return o.answered;
+                    });
+                    if (answered.length > 1) {
+                        console.warn("several answered options for mcq");
+                    }
+                    if (answered.length == 1) {
+                        question.selectedOption = answered[0].id;
                     }
                 };
 
@@ -112,11 +109,10 @@
                         var template = "";
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
-                                setSelections(question);
+                                setSelection(sectionQuestion);
                                 template = $scope.multipleChoiceOptionTemplate;
                                 break;
                             case "WeightedMultipleChoiceQuestion":
-                                setSelections(question);
                                 template = $scope.weightedMultipleChoiceOptionTemplate;
                                 break;
                             case "EssayQuestion":
@@ -128,16 +124,14 @@
                         }
                         question.template = template;
                         question.expanded = false;
-                        examService.setQuestionColors(question);
+                        examService.setQuestionColors(sectionQuestion);
                     });
                 }
 
                 $scope.startExam = function () {
                     var request = isPreview() ? $http.get : $http.post;
                     var url = '/app' + (
-                            isPreview()
-                                ? '/exampreview/' + $routeParams.id
-                                : '/student/exam/' + $routeParams.hash
+                            isPreview() ? '/exampreview/' + $routeParams.id : '/student/exam/' + $routeParams.hash
                         );
                     request(url)
                         .success(function (data) {
@@ -205,6 +199,7 @@
                                 }
                                 break;
                             case "en":
+                            /* falls through */
                             default:
                                 if ($scope.info.reservation.machine.room.roomInstructionEN) {
                                     tmp = $scope.info.reservation.machine.room.roomInstructionEN;
@@ -237,7 +232,7 @@
 
                 function findSection(sectionId) {
                     return $scope.exam.examSections.find(function (section) {
-                        return sectionId === section.id
+                        return sectionId === section.id;
                     });
                 }
 
@@ -293,7 +288,7 @@
                 };
 
                 $scope.calculateMaxPointsOfWeightedMcq = function (question) {
-                    return questionService.calculateMaxPoints(question);
+                    return question.derivedMaxScore;
                 };
 
                 $scope.getUser = function () {
@@ -315,77 +310,45 @@
                 };
 
                 $scope.multiOptionSelected = function (exam, question) {
-                    var ids = [];
-                    var boxes = angular.element(".optionBox");
-                    angular.forEach(boxes, function (input) {
-                        if (angular.element(input).prop("checked")) {
-                            ids.push(angular.element(input).val());
-                        }
-                    });
+                    var ids;
+                    if (question.question.type === 'WeightedMultipleChoiceQuestion') {
+                        ids = question.options.filter(function (o) {
+                            return o.answered;
+                        }).map(function (o) {
+                            return o.id
+                        });
+                    } else {
+                        ids = [question.selectedOption];
+                    }
+
                     if (!isPreview()) {
                         StudentExamRes.multipleChoiceAnswer.saveMultipleChoice({
                                 hash: exam.hash,
                                 qid: question.id,
-                                oids: ids.join() || 'none'
+                                oids: ids
                             },
-                            function (updated_answer) {
-                                question.answer = updated_answer;
-                                question.answer.options.forEach(function (o) {
-                                    o.selected = true;
-                                });
+                            function (options) {
                                 toastr.info($translate.instant('sitnet_answer_saved'));
+                                question.options = options;
                                 examService.setQuestionColors(question);
                             }, function (error) {
 
                             });
                     } else {
-                        question.answer = {
-                            options: angular.copy(question.options.filter(function (option) {
-                                return option.selected;
-                            }))
-                        };
                         examService.setQuestionColors(question);
                     }
 
-                };
-
-                $scope.optionSelected = function (exam, question) {
-                    if (!isPreview()) {
-                        StudentExamRes.multipleChoiceAnswer.saveMultipleChoice({
-                                hash: exam.hash,
-                                qid: question.id,
-                                oids: Array.isArray(question.selectedOptions) ?
-                                    question.selectedOptions.join() : question.selectedOptions
-                            },
-                            function (updated_answer) {
-                                question.answer = updated_answer;
-                                question.answer.options.forEach(function (o) {
-                                    o.selected = true;
-                                });
-                                toastr.info($translate.instant('sitnet_answer_saved'));
-                                examService.setQuestionColors(question);
-                            }, function (error) {
-
-                            });
-                    } else {
-                        question.answer = {
-                            options: angular.copy(question.options.filter(function (option) {
-                                return option.selected;
-                            }))
-                        };
-                        examService.setQuestionColors(question);
-                    }
                 };
 
                 $scope.chevronClicked = function (sectionQuestion) {
-                    sectionQuestion.question.expanded = !sectionQuestion.question.expanded;
+                    sectionQuestion.expanded = !sectionQuestion.expanded;
                 };
 
                 $scope.truncate = function (content, offset) {
                     return $filter('truncate')(content, offset);
                 };
 
-                $scope.saveEssay = function (question, answer, autosave) {
+                $scope.saveEssay = function (question, autosave) {
                     question.questionStatus = $translate.instant("sitnet_answer_saved");
 
                     if (isPreview()) {
@@ -397,8 +360,8 @@
                             qid: question.id
                         };
                         var msg = {
-                            answer: answer,
-                            objectVersion: question.answer ? question.answer.objectVersion : undefined
+                            answer: question.essayAnswer.answer,
+                            objectVersion: question.essayAnswer ? question.essayAnswer.objectVersion : undefined
                         };
                         StudentExamRes.essayAnswer.saveEssay(params, msg,
                             function (answer) {
@@ -408,7 +371,7 @@
                                     toastr.info($translate.instant("sitnet_answer_saved"));
                                     examService.setQuestionColors(question);
                                 }
-                                question.answer.objectVersion = answer.objectVersion;
+                                question.essayAnswer.objectVersion = answer.objectVersion;
                                 deferred.resolve();
                             }, function (error) {
                                 toastr.error(error.data);
@@ -423,8 +386,9 @@
                     var promises = [];
                     angular.forEach(section.sectionQuestions, function (sectionQuestion) {
                         var question = sectionQuestion.question;
-                        if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
-                            promises.push($scope.saveEssay(question, question.answer.answer, true));
+                        var essayAnswer = sectionQuestion.essayAnswer;
+                        if (question.type === "EssayQuestion" && essayAnswer && essayAnswer.answer.length > 0) {
+                            promises.push($scope.saveEssay(sectionQuestion, true));
                         }
                     });
                     $q.all(promises).then(function () {
@@ -438,12 +402,11 @@
                     var promises = [];
                     $scope.exam.examSections.forEach(function (section) {
                         section.sectionQuestions.filter(function (sq) {
-                            return sq.question.type === "EssayQuestion" && sq.question.answer &&
-                                sq.question.answer.answer.length > 0;
-                        }).map(function (sq) {
-                            return sq.question;
-                        }).forEach(function (question) {
-                            promises.push($scope.saveEssay(question, question.answer.answer, true));
+                            var essayAnswer = sq.essayAnswer;
+                            return sq.question.type === "EssayQuestion" && essayAnswer &&
+                                essayAnswer.answer.length > 0;
+                        }).forEach(function (sq) {
+                            promises.push($scope.saveEssay(sq, true));
                         });
                     });
                     $q.all(promises).then(function () {
@@ -523,12 +486,11 @@
                     var promises = [];
                     if (!$scope.guide) {
                         $scope.activeSection.sectionQuestions.filter(function (sq) {
-                            return sq.question.type === "EssayQuestion" && sq.question.answer &&
-                                sq.question.answer.answer.length > 0;
-                        }).map(function (sq) {
-                            return sq.question;
+                            var essayAnswer = sq.essayAnswer;
+                            return sq.question.type === "EssayQuestion" && essayAnswer &&
+                                essayAnswer.answer.length > 0;
                         }).forEach(function (question) {
-                            promises.push($scope.saveEssay(question, question.answer.answer));
+                            promises.push($scope.saveEssay(question));
                         });
                         // Finally turn the exam (regardless of whether every essay saved successfully) and logout
                         $q.allSettled(promises).then(function () {
@@ -586,8 +548,8 @@
                             fileService.uploadAnswerAttachment("/app/attachment/question/answer", $scope.attachmentFile,
                                 {
                                     questionId: $scope.question.id,
-                                    answerId: $scope.question.answer.id
-                                }, $scope.question.answer, $modalInstance);
+                                    answerId: $scope.question.essayAnswer.id
+                                }, $scope.question.essayAnswer, $modalInstance);
                         };
 
                         $scope.cancel = function () {

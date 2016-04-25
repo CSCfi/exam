@@ -40,7 +40,7 @@
                 };
 
                 $scope.selectedRoom = function () {
-                    var room = undefined;
+                    var room = null;
                     $scope.rooms.some(function (r) {
                         if (r.filtered) {
                             room = r;
@@ -163,12 +163,12 @@
                 };
 
                 $scope.createReservation = function (start, end) {
-                    var text = $translate.instant('sitnet_about_to_reserve') + "<br/>"
-                        + start.format("DD.MM.YYYY HH:mm") + " - " + end.format("HH:mm") + " "
-                        + "(" + $scope.selectedRoom().localTimezone + ") "
-                        + $translate.instant('sitnet_at_room') + " "
-                        + $scope.selectedRoom().name + ".<br/>"
-                        + $translate.instant('sitnet_confirm_reservation');
+                    var text = $translate.instant('sitnet_about_to_reserve') + "<br/>" +
+                        start.format("DD.MM.YYYY HH:mm") + " - " + end.format("HH:mm") + " " +
+                        "(" + $scope.selectedRoom().localTimezone + ") " +
+                        $translate.instant('sitnet_at_room') + " " +
+                        $scope.selectedRoom().name + ".<br/>" +
+                        $translate.instant('sitnet_confirm_reservation');
                     dialogs.confirm($translate.instant('sitnet_confirm'), text).result
                         .then(function () {
                             reserve(start, end);
@@ -210,6 +210,7 @@
                             info = $scope.selectedRoom().roomInstructionSV;
                             break;
                         case "en":
+                            /* falls through */
                         default:
                             info = $scope.selectedRoom().roomInstructionEN;
                             break;

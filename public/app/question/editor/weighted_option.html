@@ -1,11 +1,11 @@
-<div class="form-horizontal question-editor-option" ng-class="option.score > 0 ? 'alert-success' : 'alert-danger'">
+<div class="form-horizontal question-editor-option" ng-class="option.defaultScore > 0 ? 'alert-success' : 'alert-danger'">
     <div class="form-group">
         <label for="optionScore" class="col-md-1 control-label">{{'sitnet_word_points' | translate}}:</label>
         <div class="col-md-2">
             <input id="optionScore" class="form-control" name="maxScore" type="number"
                    class="form-control"
                    ui-change="updateOption(option)"
-                   ng-model="option.score"
+                   ng-model="option.defaultScore"
                    required="true"/>
         </div>
         <div class="col-md-9 pull-right">

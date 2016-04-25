@@ -10,6 +10,6 @@
                 ),
                 courses: $resource("/app/courses"),
                 userCourses: $resource("/app/courses/user")
-            }
+            };
         }]);
 }());

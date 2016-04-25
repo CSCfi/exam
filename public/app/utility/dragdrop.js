@@ -49,6 +49,7 @@
                     var startIndex = -1;
                     element.sortable({
                         items: scope.selection,
+                        accept: 'section-handle',
                         start: function (event, ui) {
                             // on start we define where the item is dragged from
                             startIndex = ($(ui.item).index());
@@ -67,10 +68,10 @@
                         axis: 'y'
                     });
                 }
-            }
+            };
         }])
 
-        .directive('droppable', ['DragDropHandler', '$translate', function (DragDropHandler, $translate) {
+        .directive('droppable', ['DragDropHandler', '$translate', '$parse', function (DragDropHandler, $translate, $parse) {
             return {
                 scope: {
                     objects: '=',
@@ -79,48 +80,70 @@
                     onCreate: '&'
                 },
                 link: function (scope, element, attrs) {
+
                     var startIndex = -1;
 
-                    element.droppable({
-                        drop: function (event, ui) {
-                            if (!ui.draggable.hasClass('draggable') && !ui.draggable.hasClass('sortable-' + scope.identifier)) {
-                                toastr.warning($translate.instant('sitnet_move_between_sections_disabled'));
+                    attrs.$observe('dropDisabled', function () {
+                        var dropDisabled = $parse(attrs.dropDisabled)(scope);
+                        initDroppable(scope, element, dropDisabled);
+                    });
+
+                    function initDroppable(scope, element, dropDisabled) {
+                        element.droppable({
+                            drop: function (event, ui) {
+                                if (ui.draggable.hasClass('section-handle')) {
+                                    event.revert = true;
+                                    return;
+                                }
+                                if (dropDisabled) {
+                                    toastr.error($translate.instant('sitnet_error_drop_disabled_lottery_on'));
+                                    event.revert = true;
+                                }
+                                if (!ui.draggable.hasClass('draggable') && !ui.draggable.hasClass('sortable-' + scope.identifier)) {
+                                    toastr.warning($translate.instant('sitnet_move_between_sections_disabled'));
+                                    event.revert = true;
+                                }
                             }
-                        }
-                    });
+                        });
 
-                    element.sortable({
-                        items: '.sortable-' + scope.identifier,
-                        start: function (event, ui) {
-                            startIndex = ($(ui.item).index());
-                        },
-                        stop: function (event, ui) {
-                            var newIndex = ($(ui.item).index());
-                            var toMove = scope.objects[startIndex];
-                            scope.objects.splice(startIndex, 1);
-                            scope.objects.splice(newIndex, 0, toMove);
+                        element.sortable({
+                            disabled: dropDisabled,
+                            items: '.sortable-' + scope.identifier,
+                            start: function (event, ui) {
+                                startIndex = ($(ui.item).index());
+                            },
+                            stop: function (event, ui) {
+                                var newIndex = ($(ui.item).index());
+                                var toMove = scope.objects[startIndex];
+                                if (!toMove) {
+                                    event.revert = true;
+                                    return;
+                                }
+                                scope.objects.splice(startIndex, 1);
+                                scope.objects.splice(newIndex, 0, toMove);
 
-                            // we move items in the array, propagete update to angular as well
-                            // since we're outside its lifecycle
-                            scope.onMove({from: startIndex, to: newIndex});
-                        },
-                        axis: 'y'
-                    });
+                                // we move items in the array, propagete update to angular as well
+                                // since we're outside its lifecycle
+                                scope.onMove({from: startIndex, to: newIndex});
+                            },
+                            axis: 'y'
+                        });
 
-                    element.disableSelection();
+                        element.disableSelection();
 
-                    element.on("sortdeactivate", function (event, ui) {
-                        var to = element.children().index(ui.item);
-                        if (DragDropHandler.dragObject && to > -1) {
-                            scope.$apply(function () {
-                                scope.onCreate({
-                                    object: DragDropHandler.dragObject,
-                                    to: to
+                        element.on("sortdeactivate", function (event, ui) {
+                            var to = element.children().index(ui.item);
+                            if (DragDropHandler.dragObject && to > -1) {
+                                scope.$apply(function () {
+                                    scope.onCreate({
+                                        object: DragDropHandler.dragObject,
+                                        to: to
+                                    });
+                                    ui.item.remove();
                                 });
-                                ui.item.remove();
-                            });
-                        }
-                    });
+                            }
+                        });
+                    }
                 }
             };
         }]);

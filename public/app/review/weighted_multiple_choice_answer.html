@@ -1,26 +1,26 @@
 <!-- compact -->
-<div class="row" ng-hide="sectionQuestion.question.reviewExpanded"
-     ng-repeat="option in sectionQuestion.question.answer.options">
-    <span mathjax ng-bind-html="option.option" />
+<div class="row" ng-hide="sectionQuestion.reviewExpanded"
+     ng-repeat="option in sectionQuestion.options">
+    <span mathjax ng-bind-html="option.option.option" />
     <span class="vcenter pull-right" ng-class="option.score > 0 ? 'text-success' : 'text-danger'">&nbsp;&nbsp;{{option.score}}
         {{'sitnet_unit_points' | translate }}
     </span>
 </div>
 <!-- full -->
-<div class="row" ng-show="sectionQuestion.question.reviewExpanded"
-     ng-repeat="option in sectionQuestion.question.options">
+<div class="row" ng-show="sectionQuestion.reviewExpanded"
+     ng-repeat="option in sectionQuestion.options">
     <span class="fa-stack">
         <i class="fa fa-stop-o fa-stack-2x"></i>
         <i class="fa fa-stack-1x"
-           ng-class="option.answer ? 'fa-check-square-o' : 'fa-square-o'"></i>
+           ng-class="option.answered ? 'fa-check-square-o' : 'fa-square-o'"></i>
     </span>
     <span class="vcenter pull-right" ng-class="option.score > 0 ? 'text-success' : 'text-danger'">
         {{option.score}} {{'sitnet_unit_points' | translate }}</span>
-    <span class="text" mathjax ng-bind-html="option.option"></span>
+    <span class="text" mathjax ng-bind-html="option.option.option"></span>
 </div>
 
 <!-- grade -->
 <div class="top-row-narrow">
     <strong>{{ 'sitnet_word_points' | translate }}:</strong>
-    {{scoreWeightedMultipleChoiceAnswer(sectionQuestion.question)}} / {{calculateMaxPoints(sectionQuestion.question)}}
+    {{scoreWeightedMultipleChoiceAnswer(sectionQuestion)}} / {{calculateMaxPoints(sectionQuestion)}}
 </div>

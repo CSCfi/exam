@@ -301,7 +301,7 @@
   "sitnet_exception_time_removed": "Dag(ar) med avvikande öppettider har raderats",
   "sitnet_exception_time_added": "Dag(ar) med avvikande öppettider har lagts till",
   "sitnet_internal_error": "Systemfel",
-  "sitnet_positive_integer_required": "Värdet ska vara ett positivt heltal",
+  "sitnet_positive_integer_required": "Värdet ska vara ett positivt heltal mindre än million",
   "sitnet_endtime_before_starttime": "Sluttiden kan inte vara före starttiden",
   "sitnet_section_name": "Sektionens namn (visas för studerandena)",
   "sitnet_write_question_below": "Skriv tentamensfrågan i fältet nedan",
@@ -664,7 +664,10 @@
   "sitnet_no_attachment": "Ei liitetiedostoa SV",
   "sitnet_add_answer_attachment": "Lisää vastauksen liite SV",
   "sitnet_remove_answer_attachment": "Poista vastauksen liite SV",
+  "sitnet_error_lottery_points_not_match": "Arvontaa ei voida käyttää, koska kysymyksistä saatavat pisteet eivät ole saman suuruisia. SV",
   "sitnet_add_question_owner": "Lisää kysymyksille omistaja SV",
   "sitnet_question_owner_added": "Omistaja lisätty SV",
-  "sitnet_public_question": "Julkinen kysymys (kaikki opettajat voivat vapaasti muokata) SV"
+  "sitnet_public_question": "Julkinen kysymys (kaikki opettajat voivat vapaasti muokata) SV",
+  "sitnet_error_drop_disabled_lottery_on": "Kysymyksen lisääminen ei ole sallittu aihealueeseen, jossa on kysymysten arvonta käytössä. SV",
+  "sitnet_exam_section_question_lottery_on_warning": "Kysymyksen muokkaamista on rajoitettu. Arvonnassa mukana olevien kysymysten pistemäärän muokkaaminen ei ole sallittu. SV"
 }

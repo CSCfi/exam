@@ -4,6 +4,6 @@
         .factory("LanguageRes", ['$resource', function($resource) {
             return {
                 languages: $resource("/app/languages", null)
-            }
+            };
         }]);
 }());

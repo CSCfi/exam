@@ -29,7 +29,7 @@
                         return ngModel.$viewValue;
                     }, validate);
                 }
-            }
+            };
         })
 
         .directive('uniqueValue', function () {
@@ -54,7 +54,7 @@
                     }, true);
 
                 }
-            }
+            };
         })
 
         .directive('datetimepicker', [
@@ -109,7 +109,7 @@
                         }
 
                         function createAttrConcat(previousAttrs, attr) {
-                            return previousAttrs + createAttr.apply(null, attr)
+                            return previousAttrs + createAttr.apply(null, attr);
                         }
 
                         var tmpl = "<div id=\"datetimepicker\" class=\"datetimepicker-wrapper\">" +
@@ -156,7 +156,7 @@
                             }
                         }, true);
                     }
-                }
+                };
             }])
 
 
@@ -289,7 +289,7 @@
                     };
                     modelCtrl.$parsers.push(toLowerCase);
                 }
-            }
+            };
         }])
         .directive('sitnetHeader', [function () {
             return {
@@ -318,9 +318,9 @@
                     scope.getSortClass = function () {
                         return scope.predicate === scope.by ?
                             (scope.reverse ? 'fa-sort-down' : 'fa-sort-up') : 'fa-sort';
-                    }
+                    };
                 }
-            }
+            };
         }])
         .directive('teacherList', [function () {
             return {
@@ -424,6 +424,6 @@
                         scope.currentPage = n;
                     };
                 }
-            }
+            };
         });
 }());

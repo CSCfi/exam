@@ -12,10 +12,10 @@
                 );
                 var img = new Image();
                 img.onload = function () {
-                    _supportsBlobUrls = true
+                    _supportsBlobUrls = true;
                 };
                 img.onerror = function () {
-                    _supportsBlobUrls = false
+                    _supportsBlobUrls = false;
                 };
                 img.src = URL.createObjectURL(svg);
 

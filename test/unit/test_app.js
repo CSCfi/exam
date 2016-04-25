@@ -16,6 +16,7 @@
         'ngStorage',
         'ngPromiseExtras',
         'pascalprecht.translate',
+        'ui.bootstrap',
         'exam.services',
         'exam.controllers',
         'exam.resources',

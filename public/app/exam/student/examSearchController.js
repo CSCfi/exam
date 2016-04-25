@@ -15,6 +15,9 @@
                 var search = function () {
                     StudentExamRes.exams.query({filter: $scope.filter.text}, function (exams) {
                         exams.forEach(function (exam) {
+                            if (!exam.examLanguages) {
+                                console.log("no langs for id: " + exam.id);
+                            }
                             exam.languages = exam.examLanguages.map(function (lang) {
                                 return getLanguageNativeName(lang.code);
                             });
@@ -39,13 +42,17 @@
 
                 $scope.search = function () {
                     if ($scope.permissionCheck.active === false) {
-                        search();
+                        if ($scope.filter.text) {
+                            search();
+                        } else {
+                            delete $scope.exams;
+                        }
                     }
                 };
 
                 $scope.enrollExam = function (exam) {
                     enrolmentService.checkAndEnroll(exam);
-                }
+                };
 
             }
         ]);

@@ -24,12 +24,10 @@
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant("sitnet_are_you_sure"));
                     dialog.result.then(function (btn) {
                         AttachmentRes.questionAnswerAttachment.remove({qid: question.id, hash: hash},
-
                             function (answer) {
                                 toastr.info($translate.instant("sitnet_attachment_removed"));
-                                question.answer.objectVersion = answer.objectVersion;
-                                delete question.answer.attachment;
-
+                                question.essayAnswer.objectVersion = answer.objectVersion;
+                                delete question.essayAnswer.attachment;
                             }, function (error) {
                                 toastr.error(error.data);
                             });
@@ -86,7 +84,7 @@
 
                 $scope.downloadQuestionAnswerAttachment = function (question, hash) {
                     fileService.download('/app/attachment/question/' + question.id + '/answer/' + hash,
-                        question.answer.attachment.fileName);
+                        question.essayAnswer.attachment.fileName);
                 };
 
                 $scope.downloadExamAttachment = function (exam) {

@@ -1,8 +1,10 @@
 package models;
 
-import com.avaje.ebean.Model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import models.api.Scorable;
 import models.api.Sortable;
+import models.base.OwnedModel;
+import models.questions.EssayAnswer;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -10,26 +12,47 @@ import org.springframework.beans.BeanUtils;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
+import java.util.Optional;
+import java.util.Set;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"exam_section_id", "question_id"}))
-public class ExamSectionQuestion extends Model implements Comparable<ExamSectionQuestion>, Sortable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSectionQuestion>, Sortable, Scorable {
 
     @ManyToOne
     @JoinColumn(name = "exam_section_id")
     @JsonBackReference
     private ExamSection examSection;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "question_id")
     private Question question;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "examSectionQuestion")
+    private Set<ExamSectionQuestionOption> options;
+
     @Column
     private int sequenceNumber;
+
+    @Column
+    private String answerInstructions;
+
+    @Column
+    private Integer maxScore;
+
+    @Transient
+    private Double derivedMaxScore;
+
+    @Column
+    private Question.EvaluationType evaluationType;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private EssayAnswer essayAnswer;
+
+    @Column
+    private String evaluationCriteria;
+
+    @Column
+    private Integer expectedWordCount;
 
     public Long getId() {
         return id;
@@ -55,6 +78,14 @@ public class ExamSectionQuestion extends Model implements Comparable<ExamSection
         this.question = question;
     }
 
+    public Set<ExamSectionQuestionOption> getOptions() {
+        return options;
+    }
+
+    public void setOptions(Set<ExamSectionQuestionOption> options) {
+        this.options = options;
+    }
+
     public int getSequenceNumber() {
         return sequenceNumber;
     }
@@ -63,14 +94,76 @@ public class ExamSectionQuestion extends Model implements Comparable<ExamSection
         this.sequenceNumber = sequenceNumber;
     }
 
-    ExamSectionQuestion copy(boolean usePrototypeQuestion) {
+    public Integer getMaxScore() {
+        return maxScore;
+    }
+
+    public void setMaxScore(Integer maxScore) {
+        this.maxScore = maxScore;
+    }
+
+    public Double getDerivedMaxScore() {
+        return derivedMaxScore;
+    }
+
+    public void setDerivedMaxScore() {
+        this.derivedMaxScore = getMaxAssessedScore();
+    }
+
+    public String getAnswerInstructions() {
+        return answerInstructions;
+    }
+
+    public void setAnswerInstructions(String answerInstructions) {
+        this.answerInstructions = answerInstructions;
+    }
+
+    public Question.EvaluationType getEvaluationType() {
+        return evaluationType;
+    }
+
+    public void setEvaluationType(Question.EvaluationType evaluationType) {
+        this.evaluationType = evaluationType;
+    }
+
+    public EssayAnswer getEssayAnswer() {
+        return essayAnswer;
+    }
+
+    public void setEssayAnswer(EssayAnswer essayAnswer) {
+        this.essayAnswer = essayAnswer;
+    }
+
+    public String getEvaluationCriteria() {
+        return evaluationCriteria;
+    }
+
+    public void setEvaluationCriteria(String evaluationCriteria) {
+        this.evaluationCriteria = evaluationCriteria;
+    }
+
+    public Integer getExpectedWordCount() {
+        return expectedWordCount;
+    }
+
+    public void setExpectedWordCount(Integer expectedWordCount) {
+        this.expectedWordCount = expectedWordCount;
+    }
+
+    ExamSectionQuestion copy(boolean preserveOriginalQuestion) {
         ExamSectionQuestion esq = new ExamSectionQuestion();
-        BeanUtils.copyProperties(this, esq, "id");
-        Question blueprint = question.copy();
-        if (usePrototypeQuestion) {
-            blueprint.setParent(question.getParent());
+        BeanUtils.copyProperties(this, esq, "id", "options");
+        Question blueprint;
+        if (!preserveOriginalQuestion) {
+            blueprint = question.copy();
+            blueprint.setParent(question);
+        } else {
+            blueprint = question;
         }
         esq.setQuestion(blueprint);
+        for (ExamSectionQuestionOption o : options) {
+            esq.getOptions().add(o.copy());
+        }
         return esq;
     }
 
@@ -106,4 +199,77 @@ public class ExamSectionQuestion extends Model implements Comparable<ExamSection
     public void setOrdinal(Integer ordinal) {
         sequenceNumber = ordinal;
     }
+
+    @Transient
+    @Override
+    public String getValidationResult() {
+        return question.getValidationResult();
+    }
+
+    @Transient
+    @Override
+    public Double getAssessedScore() {
+        switch (question.getType()) {
+            case EssayQuestion:
+                if (evaluationType == Question.EvaluationType.Points) {
+                    return essayAnswer == null || essayAnswer.getEvaluatedScore() == null ? 0 :
+                            essayAnswer.getEvaluatedScore().doubleValue();
+                }
+                break;
+            case MultipleChoiceQuestion:
+                Optional<ExamSectionQuestionOption> o = options.stream()
+                        .filter(ExamSectionQuestionOption::isAnswered).findFirst();
+                if (o.isPresent()) {
+                    return o.get().getOption().isCorrectOption() ? maxScore : 0.0;
+                }
+                break;
+            case WeightedMultipleChoiceQuestion:
+                Double evaluation = options.stream()
+                        .filter(ExamSectionQuestionOption::isAnswered)
+                        .map(ExamSectionQuestionOption::getScore)
+                        .reduce(0.0, (sum, x) -> sum += x);
+                // ATM minimum score is zero
+                return Math.max(0.0, evaluation);
+        }
+        return 0.0;
+    }
+
+    @Transient
+    @Override
+    public Double getMaxAssessedScore() {
+        switch (question.getType()) {
+            case EssayQuestion:
+                if (evaluationType == Question.EvaluationType.Points) {
+                    return maxScore == null ? 0 : maxScore.doubleValue();
+                }
+                break;
+            case MultipleChoiceQuestion:
+                return maxScore == null ? 0 : maxScore.doubleValue();
+            case WeightedMultipleChoiceQuestion:
+                return options.stream()
+                        .map(ExamSectionQuestionOption::getScore)
+                        .filter(o -> o != null && o > 0)
+                        .reduce(0.0, (sum, x) -> sum += x);
+        }
+        return 0.0;
+    }
+
+    @Transient
+    @Override
+    public boolean isRejected() {
+        return question.getType() == Question.Type.EssayQuestion &&
+                evaluationType == Question.EvaluationType.Selection &&
+                essayAnswer != null && essayAnswer.getEvaluatedScore() != null &&
+                essayAnswer.getEvaluatedScore() == 0;
+    }
+
+    @Transient
+    @Override
+    public boolean isApproved() {
+        return question.getType() == Question.Type.EssayQuestion &&
+                evaluationType == Question.EvaluationType.Selection &&
+                essayAnswer != null && essayAnswer.getEvaluatedScore() != null &&
+                essayAnswer.getEvaluatedScore() == 1;
+    }
+
 }

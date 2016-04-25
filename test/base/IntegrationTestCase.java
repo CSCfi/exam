@@ -43,14 +43,13 @@ import static play.test.Helpers.fakeRequest;
 public class IntegrationTestCase {
 
     protected static Application app;
-    protected String sessionToken;
+    private String sessionToken;
     protected Long userId;
 
     private static final Map<String, String> HAKA_HEADERS = new HashMap<>();
 
     static {
-        HAKA_HEADERS.put("givenName", "George");
-        HAKA_HEADERS.put("displayName", "George Lazenby");
+        HAKA_HEADERS.put("displayName", "George%20Lazenby");
         HAKA_HEADERS.put("eppn", "george.lazenby@funet.fi");
         HAKA_HEADERS.put("sn", "Lazenby");
         HAKA_HEADERS.put("preferredLanguage", "fi");
@@ -268,7 +267,7 @@ public class IntegrationTestCase {
 
     @Transactional(type = TxType.REQUIRES_NEW)
     @SuppressWarnings("unchecked")
-    public static void addTestData() {
+    private static void addTestData() {
         int userCount;
         try {
             userCount = Ebean.find(User.class).findRowCount();

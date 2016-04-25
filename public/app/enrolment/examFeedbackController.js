@@ -24,7 +24,7 @@
                             totalScore: exam.totalScore,
                             approvedAnswerCount: exam.approvedAnswerCount,
                             rejectedAnswerCount: exam.rejectedAnswerCount
-                        }
+                        };
                     });
 
                 //Go to feedback template to show teacher's comments

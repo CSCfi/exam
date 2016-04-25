@@ -4,7 +4,10 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
+import com.avaje.ebean.text.PathProperties;
+import models.Role;
 import models.User;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
@@ -14,6 +17,7 @@ import play.mvc.Result;
 import util.AppUtil;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,56 +32,68 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds) {
         User user = getLoggedUser();
-        ExpressionList<Question> query = createQuery()
-                .fetch("questionOwners", "firstName, lastName, userIdentifier")
+        PathProperties pp = PathProperties.parse("*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
+                "attachment(id, fileName), options(defaultScore), examSectionQuestions(examSection(exam(course(code)))))");
+        Query<Question> query = Ebean.find(Question.class);
+        pp.apply(query);
+        ExpressionList<Question> el = query
                 .where()
                 .isNull("parent")
+                .disjunction()
+                .isNull("examSectionQuestions.examSection.exam")
+                .isNotNull("examSectionQuestions.examSection.exam.course")
+                .endJunction()
                 .ne("state", QuestionState.DELETED.toString());
         if (user.hasRole("TEACHER", getSession())) {
-            query = query.disjunction()
+            el = el.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", user)
                     .endJunction();
         }
         if (!examIds.isEmpty()) {
-            query = query.in("children.examSectionQuestion.examSection.exam.id", examIds);
+            el = el.in("examSectionQuestions.examSection.exam.id", examIds);
         }
         if (!courseIds.isEmpty()) {
-            query = query.in("children.examSectionQuestion.examSection.exam.course.id", courseIds);
+            el = el.in("examSectionQuestions.examSection.exam.course.id", courseIds);
         }
         if (!tagIds.isEmpty()) {
-            query = query.in("tags.id", tagIds);
+            el = el.in("tags.id", tagIds);
         }
         if (!sectionIds.isEmpty()) {
-            query = query.in("children.examSectionQuestion.examSection.id", sectionIds);
+            el = el.in("examSectionQuestions.examSection.id", sectionIds);
         }
-        Set<Question> questions = query.orderBy("created desc").findSet();
-        return ok(questions);
+        Set<Question> questions = el.orderBy("created desc").findSet();
+        return ok(questions, pp);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getQuestion(Long id) {
         User user = getLoggedUser();
-        ExpressionList<Question> query = Ebean.find(Question.class).where().idEq(id);
+        Query<Question> query = Ebean.find(Question.class);
+        PathProperties pp = PathProperties.parse("(*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
+                "attachment(id, fileName), options(id, correctOption, defaultScore, option), tags(id, name), " +
+                "examSectionQuestions(id, examSection(name, exam(name))))");
+        pp.apply(query);
+        ExpressionList<Question> expr = query.where().idEq(id);
         if (user.hasRole("TEACHER", getSession())) {
-            query = query.disjunction()
+            expr = expr.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", user)
-                    .eq("examSectionQuestion.examSection.exam.examOwners", user)
+                    .eq("examSectionQuestions.examSection.exam.examOwners", user)
                     .endJunction();
         }
-        Question question = query.findUnique();
+        Question question = expr.findUnique();
         if (question == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
         Collections.sort(question.getOptions());
-        return ok(Json.toJson(question));
+        return ok(question, pp);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result copyQuestion(Long id) {
         User user = getLoggedUser();
-        ExpressionList<Question> query = Ebean.find(Question.class).where().idEq(id);
+        ExpressionList<Question> query = Ebean.find(Question.class).fetch("questionOwners").where().idEq(id);
         if (user.hasRole("TEACHER", getSession())) {
             query = query.disjunction()
                     .eq("shared", true)
@@ -101,8 +117,10 @@ public class QuestionController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addQuestion() {
+    public Result createQuestion() {
         Question question = bindForm(Question.class);
+        question.setQuestionOwners(new HashSet<>());
+        question.getQuestionOwners().add(getLoggedUser());
         User user = getLoggedUser();
         AppUtil.setCreator(question, user);
         AppUtil.setModifier(question, user);
@@ -111,33 +129,26 @@ public class QuestionController extends BaseController {
         return ok(Json.toJson(question));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result scoreQuestion(Long id) {
-        DynamicForm df = formFactory.form().bindFromRequest();
-        Question essayQuestion = Ebean.find(Question.class, id);
-        if (essayQuestion == null) {
-            return notFound("question not found");
-        }
-        essayQuestion.setEvaluatedScore(Double.parseDouble(df.get("evaluatedScore")));
-        essayQuestion.update();
-        return ok(Json.toJson(essayQuestion));
-    }
-
     private static void doUpdateQuestion(Question question, DynamicForm df, User user) {
         if (df.get("question") != null) {
             question.setQuestion(df.get("question"));
         }
-        if (df.get("maxScore") != null) {
-            question.setMaxScore(Double.parseDouble(df.get("maxScore")));
+        if (df.get("defaultMaxScore") != null) {
+            question.setDefaultMaxScore(Integer.parseInt(df.get("defaultMaxScore")));
         }
-        question.setInstruction(df.get("instruction"));
-        question.setEvaluationCriterias(df.get("evaluationCriterias"));
+        if (df.get("defaultExpectedWordCount") != null) {
+            question.setDefaultExpectedWordCount(Integer.parseInt(df.get("defaultExpectedWordCount")));
+        }
+        if (df.get("defaultEvaluationType") != null) {
+            question.setDefaultEvaluationType(Question.EvaluationType.valueOf(df.get("defaultEvaluationType")));
+        }
+        question.setDefaultAnswerInstructions(df.get("defaultAnswerInstructions"));
+        question.setDefaultEvaluationCriteria(df.get("defaultEvaluationCriteria"));
         question.setShared(Boolean.parseBoolean(df.get("shared")));
         question.setState(QuestionState.SAVED.toString());
         AppUtil.setModifier(question, user);
         question.update();
     }
-
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateQuestion(Long id) {
@@ -148,17 +159,13 @@ public class QuestionController extends BaseController {
             query = query.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", user)
-                    .eq("examSectionQuestion.examSection.exam.examOwners", user)
+                    .eq("examSectionQuestions.examSection.exam.examOwners", user)
                     .endJunction();
         }
         Question question = query.findUnique();
         if (question == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        if (df.get("expectedWordCount") != null) {
-            question.setExpectedWordCount(Long.parseLong(df.get("expectedWordCount")));
-        }
-        question.setEvaluationType(df.get("evaluationType"));
         String validationResult = question.getValidationResult();
         if (validationResult != null) {
             return forbidden(validationResult);
@@ -175,7 +182,7 @@ public class QuestionController extends BaseController {
             return notFound();
         }
         option.setOption(form.getOption());
-        option.setScore(form.getScore());
+        option.setDefaultScore(form.getDefaultScore());
         option.update();
         return ok(Json.toJson(option));
     }
@@ -200,16 +207,24 @@ public class QuestionController extends BaseController {
         return ok(Json.toJson(question));
     }
 
-    // TODO: needs object level permission checks and data loss prevention checks
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteQuestion(Long id) {
         Question question = Ebean.find(Question.class, id);
         if (question == null) {
             return notFound();
         }
-        question.setState(QuestionState.DELETED.toString());
-        AppUtil.setModifier(question, getLoggedUser());
-        question.save();
+        if (!getLoggedUser().hasRole(Role.Name.ADMIN.toString(), getSession()) &&
+                !question.getQuestionOwners().contains(getLoggedUser())) {
+            return forbidden();
+        }
+        if (question.getExamSectionQuestions().isEmpty() && question.getChildren().isEmpty()) {
+            // Not used in exams or as copies
+            question.delete();
+        } else {
+            question.setState(QuestionState.DELETED.toString());
+            AppUtil.setModifier(question, getLoggedUser());
+            question.save();
+        }
         return ok();
     }
 
@@ -236,11 +251,10 @@ public class QuestionController extends BaseController {
 
     private static Query<Question> createQuery() {
         return Ebean.find(Question.class)
-                .fetch("creator", "id")
-                .fetch("parent", "id")
+                .fetch("questionOwners", "firstName, lastName, userIdentifier")
                 .fetch("attachment")
-                .fetch("options")
-                .fetch("children.examSectionQuestion.examSection.exam.course", "code");
+                .fetch("options", "defaultScore", new FetchConfig().query())
+                .fetch("examSectionQuestions.examSection.exam.course", "code", new FetchConfig().query());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -260,13 +274,10 @@ public class QuestionController extends BaseController {
         List<Long> ids = Stream.of(questionIds.split(","))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
-        Ebean.find(Question.class).where().idIn(ids).findList()
-                .forEach(q -> {
-                    addOwner(q, newOwner);
-                    // TODO: this will go away when hierarchy changes
-                    q.getChildren()
-                            .forEach(cq -> addOwner(cq, newOwner));
-                });
+        Ebean.find(Question.class).where().idIn(ids)
+                .findList()
+                .forEach(q -> addOwner(q, newOwner));
+
         return ok();
     }
 
