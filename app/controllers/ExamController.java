@@ -270,9 +270,9 @@ public class ExamController extends BaseController {
             reason = "sitnet_error_end_date";
         }
         if (start != null && end != null) {
-            if (new DateTime(start).minusDays(1).isAfter(end)) {
+            if (start >= end) {
                 reason = "sitnet_error_end_sooner_than_start";
-            } else if (new DateTime(end).plusDays(1).isBeforeNow()) {
+            } else if (end <= DateTime.now().getMillis()) {
                 reason = "sitnet_error_end_sooner_than_now";
             }
         }
@@ -282,8 +282,8 @@ public class ExamController extends BaseController {
     private Optional<Result> updateStateAndValidate(Exam exam, JsonNode node) {
         Exam.State state = node.has("state") ? Exam.State.valueOf(node.get("state").asText()) : null;
         if (state != null) {
-            if (exam.hasState(Exam.State.SAVED, Exam.State.DRAFT) && state == Exam.State.PUBLISHED) {
-                // Exam is about to be published
+            if (state == Exam.State.PUBLISHED) {
+                // Exam is published or about to be published
                 Optional<Result> err = getFormValidationError(node);
                 // invalid data
                 if (err.isPresent()) {
