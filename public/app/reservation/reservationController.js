@@ -6,13 +6,14 @@
             function (ExamRes, $scope, $location, $http, EXAM_CONF, ReservationResource, reservationService, dateService, examService,
                       $timeout, $routeParams, $translate, $filter) {
 
+                var examId = $routeParams.eid ? parseInt($routeParams.eid) : undefined;
+                $scope.selection = {examId: examId};
+
                 var select2options = {
                     placeholder: '-',
                     data: [],
                     allowClear: true,
-                    dropdownAutoWidth : true,
-                    initSelection: function (element, callback) {
-                    }
+                    dropdownAutoWidth: true
                 };
 
                 $scope.machineOptions = angular.copy(select2options);
@@ -20,6 +21,20 @@
                 $scope.roomOptions = angular.copy(select2options);
 
                 $scope.examOptions = angular.copy(select2options);
+                $scope.examOptions.initSelection = function (element, callback) {
+                    if (examId) {
+                        var selected = $scope.examOptions.data.filter(function (d) {
+                            return d.id === examId;
+                        });
+                        if (selected.length > 0) {
+                            callback(selected[0]);
+                            // this reset is dumb but necessary because for some reason this callback is executed
+                            // each time selection changes. Might be a problem with the (deprecated) ui-select2
+                            // directive or not
+                            examId = null;
+                        }
+                    }
+                };
 
                 $scope.studentOptions = angular.copy(select2options);
 
@@ -31,7 +46,6 @@
 
                 $scope.reservationDetails = EXAM_CONF.TEMPLATES_PATH + "reservation/reservation_details.html";
 
-                $scope.selection = {examId: $routeParams.eid};
 
                 $scope.isAdminView = function () {
                     return $location.path() === '/';
@@ -64,7 +78,10 @@
                     ReservationResource.teachers.query(function (teachers) {
                             $scope.examOwners = $filter('orderBy')(teachers, ['lastName', 'firstName']);
                             $scope.examOwners.forEach(function (owner) {
-                               $scope.teacherOptions.data.push({id: owner.id, text: owner.firstName + " " + owner.lastName});
+                                $scope.teacherOptions.data.push({
+                                    id: owner.id,
+                                    text: owner.firstName + " " + owner.lastName
+                                });
                             });
                         },
                         function (error) {
@@ -109,7 +126,10 @@
                 ];
 
                 $scope.examStates.forEach(function (state) {
-                    $scope.stateOptions.data.push({id: state, text: $translate.instant('sitnet_exam_status_' + state.toLowerCase())});
+                    $scope.stateOptions.data.push({
+                        id: state,
+                        text: $translate.instant('sitnet_exam_status_' + state.toLowerCase())
+                    });
                 });
 
                 $scope.printExamState = function (enrolment) {
@@ -227,7 +247,7 @@
                     });
                 };
 
-                function roomContains (examroom, machine) {
+                function roomContains(examroom, machine) {
                     if (examroom && examroom.examMachines) {
                         return examroom.examMachines.some(function (roommachine) {
                             return (machine.id === roommachine.id);
