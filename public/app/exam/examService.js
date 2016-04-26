@@ -265,6 +265,9 @@
                                 break;
                         }
                     });
+                    if (section.lotteryOn) {
+                        score = score * section.lotteryItemCount / Math.max(1, section.sectionQuestions.length);
+                    }
                     return score;
                 };
 
