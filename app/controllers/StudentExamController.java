@@ -122,7 +122,7 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result getExamGeneralInfo(Long id) {
+    public Result getExamFeedback(Long id) {
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("creator", "firstName, lastName, email")

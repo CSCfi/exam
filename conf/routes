@@ -38,6 +38,7 @@ GET           /app/reviewerexams                                         control
 GET           /app/examparticipations/:eid                               controllers.ExamController.getParticipationsForExam(eid: Long)
 
 POST          /app/exam/record                                           controllers.ExamRecordController.addExamRecord()
+POST          /app/exam/register                                         controllers.ExamRecordController.registerExamWithoutRecord()
 GET           /app/exam/record                                           controllers.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
 GET           /app/exam/record/export/:id                                controllers.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long)
 GET           /app/exam/record/export/report/:id                         controllers.ExamRecordController.exportSelectedExamRecordsAsExcel(id: Long)
@@ -70,7 +71,7 @@ GET           /app/student/exam/:eid                                     control
 GET           /app/student/exams                                         controllers.StudentExamController.listAvailableExams(filter: java.util.Optional[String])
 GET           /app/student/inspectors/exam/:id                           controllers.StudentExamController.getExamInspectors(id: Long)
 GET           /app/student/finishedexams                                 controllers.StudentExamController.getFinishedExams
-GET           /app/feedback/exams/:eid                                   controllers.StudentExamController.getExamGeneralInfo(eid: Long)
+GET           /app/feedback/exams/:eid                                   controllers.StudentExamController.getExamFeedback(eid: Long)
 GET           /app/feedback/exams/:eid/score                             controllers.StudentExamController.getExamScore(eid: Long)
 PUT           /app/student/exams/:hash                                   controllers.StudentExamController.turnExam(hash: String)
 PUT           /app/student/exam/abort/:hash                              controllers.StudentExamController.abortExam(hash: String)

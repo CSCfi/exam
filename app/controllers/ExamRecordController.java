@@ -4,7 +4,11 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import models.*;
+import models.Exam;
+import models.ExamParticipation;
+import models.ExamRecord;
+import models.GradeScale;
+import models.User;
 import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
@@ -19,7 +23,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 
@@ -43,7 +51,7 @@ public class ExamRecordController extends BaseController {
                 .where()
                 .idEq(Long.parseLong(df.get("id")))
                 .findUnique();
-        return validateExamState(exam).orElseGet(() -> {
+        return validateExamState(exam, true).orElseGet(() -> {
             exam.setState(Exam.State.GRADED_LOGGED);
             exam.update();
             ExamParticipation participation = Ebean.find(ExamParticipation.class)
@@ -65,6 +73,22 @@ public class ExamRecordController extends BaseController {
                 emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
                 Logger.info("Inspection ready notification email sent");
             }, actor.dispatcher());
+            return ok();
+        });
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result registerExamWithoutRecord() throws IOException {
+        DynamicForm df = formFactory.form().bindFromRequest();
+        final Exam exam = Ebean.find(Exam.class)
+                .fetch("parent")
+                .fetch("parent.creator")
+                .where()
+                .idEq(Long.parseLong(df.get("id"))).findUnique();
+        return validateExamState(exam, false).orElseGet(() -> {
+            exam.setState(Exam.State.GRADED_LOGGED);
+            exam.setGrade(null);
+            exam.update();
             return ok();
         });
     }
@@ -130,7 +154,7 @@ public class ExamRecordController extends BaseController {
         return ok(Base64.getEncoder().encodeToString(bos.toByteArray()));
     }
 
-    private Optional<Result> validateExamState(Exam exam) {
+    private Optional<Result> validateExamState(Exam exam, boolean gradeRequired) {
         if (exam == null) {
             return Optional.of(notFound());
         }
@@ -142,7 +166,7 @@ public class ExamRecordController extends BaseController {
             // Automatically graded by system, set graded by user at this point.
             exam.setGradedByUser(user);
         }
-        if (exam.getGrade() == null || exam.getCreditType() == null || exam.getAnswerLanguage() == null ||
+        if ((exam.getGrade() == null && gradeRequired) || exam.getCreditType() == null || exam.getAnswerLanguage() == null ||
                 exam.getGradedByUser() == null) {
             return Optional.of(forbidden("not yet graded by anyone!"));
         }

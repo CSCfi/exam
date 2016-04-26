@@ -4,7 +4,6 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
@@ -391,15 +390,11 @@ public class ReviewController extends BaseController {
         if (ids.isEmpty()) {
             return badRequest();
         }
-        DynamicForm df = formFactory.form().bindFromRequest();
-        Boolean fastForward = df.get("fastForward") != null && Boolean.parseBoolean(df.get("fastForward"));
-        ExpressionList<Exam> el = Ebean.find(Exam.class).where().idIn(ids);
-        if (fastForward) {
-            el = el.isNull("grade");
-        } else {
-            el = el.eq("state", Exam.State.GRADED_LOGGED);
-        }
-        for (Exam e : el.findList()) {
+        List<Exam> exams = Ebean.find(Exam.class).where()
+                .eq("state", Exam.State.GRADED_LOGGED)
+                .idIn(ids)
+                .findList();
+        for (Exam e : exams) {
             e.setState(Exam.State.ARCHIVED);
             e.update();
         }

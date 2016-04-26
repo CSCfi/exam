@@ -60,7 +60,8 @@
                 };
 
                 $scope.setGrade = function () {
-                    if ($scope.selections.grade && $scope.selections.grade.id) {
+                    if ($scope.selections.grade &&
+                        ($scope.selections.grade.id || $scope.selections.grade.type === 'NONE')) {
                         $scope.exam.grade = $scope.selections.grade;
                     } else {
                         delete $scope.exam.grade;
@@ -77,17 +78,24 @@
                     }
                     var scale = $scope.exam.gradeScale || $scope.exam.parent.gradeScale || $scope.exam.course.gradeScale;
                     scale.grades = scale.grades || [];
-                    $scope.examGrading = scale.grades.map(function (grade) {
-                        grade.type = grade.name;
-                        grade.name = examService.getExamGradeDisplayName(grade.name);
+                    // The "no grade" option
+                    var noGrade = {type: 'NONE', name: examService.getExamGradeDisplayName('NONE')};
+                    if ($scope.exam.state === 'ARCHIVED' && !$scope.exam.grade.id) {
+                        $scope.selections.grade = noGrade;
+                        $scope.examGrading = [];
+                    } else {
+                        $scope.examGrading = scale.grades.map(function (grade) {
+                            grade.type = grade.name;
+                            grade.name = examService.getExamGradeDisplayName(grade.name);
 
-                        if ($scope.exam.grade && $scope.exam.grade.id === grade.id) {
-                            $scope.exam.grade.type = grade.type;
-                            $scope.selections.grade = grade;
-                        }
-                        return grade;
-                    });
-
+                            if ($scope.exam.grade && $scope.exam.grade.id === grade.id) {
+                                $scope.exam.grade.type = grade.type;
+                                $scope.selections.grade = grade;
+                            }
+                            return grade;
+                        });
+                    }
+                    $scope.examGrading.push(noGrade);
                 };
 
                 $scope.translateGrade = function (exam) {
@@ -134,6 +142,9 @@
 
                 $scope.$on('$localeChangeSuccess', function () {
                     setCredits();
+                    $scope.examGrading.forEach(function (eg) {
+                       eg.name = examService.getExamGradeDisplayName(eg.type);
+                    });
                 });
 
                 var setTemplates = function () {
@@ -526,6 +537,23 @@
                     return grade && $scope.selections.grade && $scope.selections.grade.id === grade.id;
                 };
 
+                $scope.archiveExam = function (exam) {
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                        $translate.instant('sitnet_confirm_archiving_without_grade'));
+                    dialog.result.then(function () {
+                        $scope.saveFeedback(true).then(function () {
+                            ExamRes.archive.update({ids: exam.id, fastForward: true}, function () {
+                                toastr.info($translate.instant('sitnet_exams_archived'));
+                                if ($scope.user.isAdmin) {
+                                    $location.path("/");
+                                } else {
+                                    $location.path("exams/reviews/" + exam.parent.id);
+                                }
+                            });
+                        });
+                    });
+                };
+
                 $scope.saveExamRecord = function (reviewedExam) {
 
                     if (!examReviewService.checkCredit(reviewedExam)) {
@@ -556,8 +584,15 @@
                         });
                     }
                     else {
-                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
-                            examReviewService.getRecordReviewConfirmationDialogContent(reviewedExam.examFeedback.comment));
+                        var dialogNote, res;
+                        if (reviewedExam.grade.type === 'NONE') {
+                            dialogNote = $translate.instant('sitnet_confirm_archiving_without_grade');
+                            res = ExamRes.register.add;
+                        } else {
+                            dialogNote = examReviewService.getRecordReviewConfirmationDialogContent(reviewedExam.examFeedback.comment);
+                            res = ExamRes.saveRecord.add;
+                        }
+                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), dialogNote);
                         dialog.result.then(function () {
                             $scope.saveFeedback(true).then(function () {
                                 var examToRecord = getReviewUpdate(reviewedExam, 'GRADED');
@@ -568,7 +603,7 @@
                                         toastr.info($translate.instant("sitnet_review_graded"));
                                     }
                                     examToRecord.state = 'GRADED_LOGGED';
-                                    ExamRes.saveRecord.add(examToRecord, function (exam) {
+                                    res(examToRecord, function (exam) {
                                         toastr.info($translate.instant('sitnet_review_recorded'));
                                         if ($scope.user.isAdmin) {
                                             $location.path("/");
@@ -621,8 +656,7 @@
                 // MATURITY RELATED ->
 
                 $scope.isUnderLanguageInspection = function () {
-                    return $scope.user.isLanguageInspector && $scope.exam && $scope.exam.languageInspection &&
-                        !$scope.exam.languageInspection.finishedAt;
+                    return $scope.user.isLanguageInspector && $scope.exam && $scope.exam.languageInspection && !$scope.exam.languageInspection.finishedAt;
                 };
 
                 $scope.hasGoneThroughLanguageInspection = function () {
@@ -630,8 +664,7 @@
                 };
 
                 var isAwaitingInspection = function () {
-                    return !$scope.user.isLanguageInspector && $scope.exam && $scope.exam.languageInspection &&
-                        !$scope.exam.languageInspection.finishedAt;
+                    return !$scope.user.isLanguageInspector && $scope.exam && $scope.exam.languageInspection && !$scope.exam.languageInspection.finishedAt;
                 };
 
                 $scope.canFinalizeInspection = function () {

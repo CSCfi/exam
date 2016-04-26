@@ -669,5 +669,9 @@
   "sitnet_question_owner_added": "Omistaja lisätty EN",
   "sitnet_public_question": "Julkinen kysymys (kaikki opettajat voivat vapaasti muokata) EN",
   "sitnet_error_drop_disabled_lottery_on": "Kysymyksen lisääminen ei ole sallittu aihealueeseen, jossa on kysymysten arvonta käytössä. EN",
-  "sitnet_exam_section_question_lottery_on_warning": "Kysymyksen muokkaamista on rajoitettu. Arvonnassa mukana olevien kysymysten pistemäärän muokkaaminen ei ole sallittu. EN"
+  "sitnet_exam_section_question_lottery_on_warning": "Kysymyksen muokkaamista on rajoitettu. Arvonnassa mukana olevien kysymysten pistemäärän muokkaaminen ei ole sallittu. EN",
+  "sitnet_no_grading": "Ei arviointia EN",
+  "sitnet_archive_without_registration": "Lukitse ilman arviointia EN",
+  "sitnet_confirm_archiving_without_grade": "Lukitse suoritus ilman arviointia. Tällöin suoritus ei siirry rekisteriin. Toimenpidettä ei voi perua EN",
+  "sitnet_no_grading_description": "Suoritusta ei loppuarvioitu EXAM-sovelluksessa EN"
 }

@@ -190,6 +190,10 @@
                     {
                         "add": {method: "POST"}
                     }),
+                register: $resource("/app/exam/register", null,
+                    {
+                        "add": {method: "POST"}
+                    }),
                 record: $resource("/app/exam/record/export/:id",
                     {
                         id: "@id"

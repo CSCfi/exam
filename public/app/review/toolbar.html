@@ -15,7 +15,7 @@
     <div class="col-md-2">
         <span ng-show="!isReadOnly()">
             <button class="btn btn-primary"
-                    ng-disabled="isReadOnly() || !isOwnerOrAdmin() || !examForm.$valid"
+                    ng-disabled="!isOwnerOrAdmin() || !examForm.$valid"
                     ng-click="saveExamRecord(exam)">{{'sitnet_send_result_to_registry' | translate}}
             </button>
         </span>

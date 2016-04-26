@@ -35,10 +35,8 @@
                 };
 
                 $scope.translateGrade = function (exam) {
-                    if (!exam.grade) {
-                        return;
-                    }
-                    return examService.getExamGradeDisplayName(exam.grade.name);
+                    var grade = exam.grade ? exam.grade.name : 'NONE';
+                    return examService.getExamGradeDisplayName(grade);
                 };
 
                 $scope.showFeedbackEditor = function (exam) {

@@ -24,6 +24,7 @@ import play.test.Helpers;
 
 import javax.mail.internet.MimeMessage;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -50,6 +51,18 @@ public class StudentExamControllerTest extends IntegrationTestCase {
             u.setLanguage(Ebean.find(Language.class, "en"));
             u.update();
         });
+        exam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
+                .forEach(esq -> {
+                    for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
+                        ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+                        esqo.setOption(o);
+                        esqo.setScore(o.getDefaultScore());
+                        esq.getOptions().add(esqo);
+                    }
+                    esq.save();
+                });
 
         user = Ebean.find(User.class, userId);
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);
@@ -117,26 +130,28 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/app/student/exam/" + exam.getHash(), null);
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
-        Question question = Ebean.find(Question.class).where()
-                .eq("examSectionQuestions.examSection.exam", studentExam)
-                .eq("type", Question.Type.MultipleChoiceQuestion)
+        ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).where()
+                .eq("examSection.exam", studentExam)
+                .eq("question.type", Question.Type.MultipleChoiceQuestion)
                 .findList()
                 .get(0);
-        MultipleChoiceOption option = question.getOptions().get(0);
+        Iterator<ExamSectionQuestionOption> it = question.getOptions().iterator();
+        ExamSectionQuestionOption option = it.next();
         result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
                 question.getId()), createMultipleChoiceAnswerData(option));
         assertThat(result.status()).isEqualTo(200);
 
+
         // Change answer
-        option = question.getOptions().get(1);
+        option = it.next();
         result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
                 question.getId()), createMultipleChoiceAnswerData(option));
         assertThat(result.status()).isEqualTo(200);
     }
 
-    private JsonNode createMultipleChoiceAnswerData(MultipleChoiceOption... options) {
+    private JsonNode createMultipleChoiceAnswerData(ExamSectionQuestionOption... options) {
         ArrayNode array = Json.newArray();
-        for (MultipleChoiceOption option : options) {
+        for (ExamSectionQuestionOption option : options) {
             array.add(option.getId());
         }
         return Json.newObject().set("oids", array);
@@ -149,19 +164,20 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/app/student/exam/" + exam.getHash(), null);
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
-        Question question = Ebean.find(Question.class).where()
-                .eq("examSectionQuestions.examSection.exam", studentExam)
-                .eq("type", Question.Type.MultipleChoiceQuestion)
+        ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).where()
+                .eq("examSection.exam", studentExam)
+                .eq("question.type", Question.Type.MultipleChoiceQuestion)
                 .findList()
                 .get(0);
-        MultipleChoiceOption option = question.getOptions().get(0);
+        Iterator<ExamSectionQuestionOption> it = question.getOptions().iterator();
+        ExamSectionQuestionOption option = it.next();
         // Change IP of reservation machine to simulate that student is on different machine now
         machine.setIpAddress("127.0.0.2");
         machine.update();
 
         // Execute
         result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
-                question.getId()), null);
+                question.getId()), createMultipleChoiceAnswerData(option));
         assertThat(result.status()).isEqualTo(403);
     }
 
@@ -188,9 +204,15 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                         assertThat(result.status()).isEqualTo(200);
                         break;
                     default:
-                        ExamSectionQuestionOption option = esq.getOptions().iterator().next();
+                        ExamSectionQuestion sectionQuestion = Ebean.find(ExamSectionQuestion.class).where()
+                                .eq("examSection.exam", studentExam)
+                                .eq("question.type", Question.Type.MultipleChoiceQuestion)
+                                .findList()
+                                .get(0);
+                        Iterator<ExamSectionQuestionOption> it = sectionQuestion.getOptions().iterator();
+                        ExamSectionQuestionOption option = it.next();
                         result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
-                                question.getId()), createMultipleChoiceAnswerData(option.getOption()));
+                                question.getId()), createMultipleChoiceAnswerData(option));
                         assertThat(result.status()).isEqualTo(200);
                         break;
                 }
