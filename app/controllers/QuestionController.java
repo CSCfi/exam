@@ -39,9 +39,6 @@ public class QuestionController extends BaseController {
         ExpressionList<Question> el = query
                 .where()
                 .isNull("parent")
-                .disjunction()
-                .isNull("examSectionQuestions.examSection.exam")
-                .isNotNull("examSectionQuestions.examSection.exam.course")
                 .endJunction()
                 .ne("state", QuestionState.DELETED.toString());
         if (user.hasRole("TEACHER", getSession())) {

@@ -37,8 +37,9 @@
                             }
                             // match course code
                             return question.examSectionQuestions.filter(function (esq) {
-                                return esq.examSection.exam.course.code.match(re);
-                            }).length > 0;
+                                    // Course can be empty in case of a copied exam
+                                    return esq.examSection.exam.course && esq.examSection.exam.course.code.match(re);
+                                }).length > 0;
                         });
                     } else {
                         $scope.filteredQuestions = $scope.questions;

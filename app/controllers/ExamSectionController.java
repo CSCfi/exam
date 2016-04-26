@@ -214,6 +214,13 @@ public class ExamSectionController extends BaseController {
     }
 
     private Optional<Result> insertQuestion(Exam exam, ExamSection section, Question question, User user, Integer seq) {
+        ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
+        sectionQuestion.setExamSection(section);
+        sectionQuestion.setQuestion(question);
+        if (section.getSectionQuestions().contains(sectionQuestion)) {
+            return Optional.of(badRequest("sitnet_question_already_in_section"));
+        }
+
         String validationResult = question.getValidationResult();
         if (validationResult != null) {
             return Optional.of(forbidden(validationResult));
@@ -231,7 +238,6 @@ public class ExamSectionController extends BaseController {
         Ebean.updateAll(section.getSectionQuestions());
 
         // Insert new section question
-        ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
         sectionQuestion.setCreator(user);
         sectionQuestion.setCreated(new Date());
         sectionQuestion.setExamSection(section);

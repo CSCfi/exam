@@ -499,12 +499,13 @@
 
                 $scope.renameSection = function (section) {
 
-                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
-                        section = sec;
-                        toastr.info($translate.instant("sitnet_section_updated"));
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
+                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, getSectionPayload(section),
+                        function (sec) {
+                            section = sec;
+                            toastr.info($translate.instant("sitnet_section_updated"));
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
                 };
 
                 $scope.trustAsHtml = function (content) {
@@ -512,12 +513,7 @@
                 };
 
                 $scope.expandSection = function (section) {
-
-                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
-                        section = sec;
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
+                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, getSectionPayload(section));
                 };
 
                 $scope.clearAllQuestions = function (section) {
@@ -546,7 +542,7 @@
                                 // turn off lottery
                                 section.lotteryOn = false;
                                 section.lotteryItemCount = 1;
-                                ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section);
+                                ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, getSectionPayload(section));
                             }
                         }, function (error) {
                             toastr.error(error.data);
@@ -992,13 +988,24 @@
                 function getQuestionScore(question) {
                     var evaluationType = question.evaluationType;
                     var type = question.question.type;
-                    if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion') {
+                    if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion') {
                         return question.maxScore;
                     }
                     if (type === 'WeightedMultipleChoiceQuestion') {
                         return questionService.calculateMaxPoints(question);
                     }
                     return null;
+                }
+
+                var getSectionPayload = function (section) {
+                    return {
+                        id: section.id,
+                        name: section.name,
+                        lotteryOn: section.lotteryOn,
+                        lotteryItemCount: section.lotteryItemCount,
+                        description: section.description,
+                        expanded: section.expanded
+                    }
                 }
 
                 $scope.toggleLottery = function (section) {
@@ -1013,7 +1020,7 @@
                         return;
                     }
 
-                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section,
+                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, getSectionPayload(section),
                         function (sec) {
                             section = sec;
                             if (section.lotteryItemCount === undefined) {
@@ -1031,12 +1038,13 @@
                         section.lotteryItemCount = 1;
                     }
                     else {
-                        ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
-                            section = sec;
-                            toastr.info($translate.instant('sitnet_section_updated'));
-                        }, function (error) {
-                            toastr.error(error.data);
-                        });
+                        ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, getSectionPayload(section)
+                            , function (sec) {
+                                section = sec;
+                                toastr.info($translate.instant('sitnet_section_updated'));
+                            }, function (error) {
+                                toastr.error(error.data);
+                            });
                     }
                 };
 
