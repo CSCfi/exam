@@ -159,8 +159,7 @@ public class ExamController extends BaseController {
     }
 
     private static Exam doGetExam(Long id) {
-        return Exam.createQuery()
-                .fetch("children.examEnrolments.user")
+        return Exam.baseExamQuery()
                 .where()
                 .idEq(id)
                 .disjunction()
@@ -228,6 +227,7 @@ public class ExamController extends BaseController {
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) ||
                 getLoggedUser().hasRole("ADMIN", getSession())) {
             exam.getExamSections().stream().filter(ExamSection::getLotteryOn).forEach(ExamSection::shuffleQuestions);
+            exam.setDerivedMaxScores();
             return ok(exam);
         } else {
             return forbidden("sitnet_error_access_forbidden");

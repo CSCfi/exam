@@ -51,7 +51,7 @@ public class StudentExamController extends BaseController {
                 .thenApplyAsync(codes ->
                         {
                             if (codes.isEmpty()) {
-                                return ok(Json.toJson(Collections.<Exam>emptyList())).as("application/json");
+                                return ok(Json.toJson(Collections.<Exam>emptyList()));
                             } else {
                                 return listExams(filter.orElse(null), codes);
                             }
@@ -346,16 +346,6 @@ public class StudentExamController extends BaseController {
                 .fetch("examInspections.user", "firstName, lastName");
     }
 
-    private void setDerivedMaxScores(Exam exam) {
-        exam.getExamSections().stream()
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .forEach(esq -> {
-                    esq.setDerivedMaxScore();
-                    esq.getOptions().stream()
-                            .forEach(o -> o.setScore(null));
-                });
-    }
-
     @Restrict({@Group("STUDENT")})
     public Result startExam(String hash) {
         User user = getLoggedUser();
@@ -379,16 +369,16 @@ public class StudentExamController extends BaseController {
             ExamEnrolment enrolment = getEnrolment(user, prototype);
             return getEnrolmentError(enrolment).orElseGet(() -> {
                 Exam newExam = createNewExam(prototype, user, enrolment);
-                //TODO: check how to do better
+                //TODO: Path properties should be applied
                 Exam studentExam = createQuery().where().idEq(newExam.getId()).findUnique();
                 studentExam.setCloned(true);
-                setDerivedMaxScores(studentExam);
+                studentExam.setDerivedMaxScores();
                 return ok(studentExam);
             });
         } else {
             // Returning an already existing student exam
             possibleClone.setCloned(false);
-            setDerivedMaxScores(possibleClone);
+            possibleClone.setDerivedMaxScores();
             return ok(possibleClone);
         }
     }

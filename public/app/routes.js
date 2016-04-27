@@ -12,7 +12,7 @@
             /* main navigation */
             $routeProvider.when('/', { templateUrl: tmpl + 'common/home.html', controller: 'DashboardCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'question/questions.html', controller: 'LibraryCtrl'});
-            $routeProvider.when('/exams', { templateUrl: tmpl + 'exam/exams.html', controller: 'ExamController'});
+            $routeProvider.when('/exams', { templateUrl: tmpl + 'exam/exams.html', controller: 'ExamListingController'});
 
             // edit question
             $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question/editor/question.html'});

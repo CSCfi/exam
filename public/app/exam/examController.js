@@ -23,10 +23,6 @@
 
                 $scope.examTypes = [];
                 $scope.gradeScaleSetting = {};
-                $scope.filter = {};
-                $scope.loader = {
-                    loading: false
-                };
                 $scope.autoevaluation = {
                     enabled: false, releaseTypes: [
                         {
@@ -49,9 +45,6 @@
                 };
 
                 $scope.user = sessionService.getUser();
-                if ($scope.user.isStudent) {
-                    $location.path("/");
-                }
 
                 $scope.session = sessionService;
 
@@ -59,29 +52,6 @@
                 $scope.$on('$locationChangeStart', function (event) {
                     questionService.setFilter(null);
                 });
-
-                var search = function () {
-                    $scope.loader.loading = true;
-                    ExamRes.exams.query({filter: $scope.filter.text}, function (exams) {
-                        exams.forEach(function (e) {
-                            e.ownerAggregate = e.examOwners.map(function (o) {
-                                return o.firstName + " " + o.lastName;
-                            }).join();
-                            e.stateOrd = ['PUBLISHED', 'SAVED', 'DRAFT'].indexOf(e.state);
-                            if (e.stateOrd === 0 && Date.now() <= new Date(e.examActiveEndDate)) {
-                                // There's a bug with bootstrap tables, contextual classes wont work together with
-                                // striped-table. Therefore overriding the style with this (RBG taken from .success)
-                                // https://github.com/twbs/bootstrap/issues/11728
-                                e.activityStyle = {'background-color': '#dff0d8 !important'};
-                            }
-                        });
-                        $scope.exams = exams;
-                        $scope.loader.loading = false;
-                    }, function (err) {
-                        $scope.loader.loading = false;
-                        toastr.error($translate.instant(err.data));
-                    });
-                };
 
                 SettingsResource.examDurations.get(function (data) {
                     $scope.examDurations = data.examDurations;
@@ -94,10 +64,6 @@
                 examService.listExecutionTypes().then(function (types) {
                     $scope.executionTypes = types;
                 });
-
-                $scope.getExecutionTypeTranslation = function (exam) {
-                    return examService.getExecutionTypeTranslation(exam.executionType.type);
-                };
 
                 LanguageRes.languages.query(function (languages) {
                     $scope.examLanguages = languages.map(function (language) {
@@ -211,17 +177,7 @@
                 // Here's the party
                 refreshExamTypes();
                 refreshGradeScales();
-                if ($scope.user.isTeacher) {
-                    var action = $routeParams.id ? initializeExam : search;
-                    action();
-                }
-                if ($scope.user.isAdmin && $routeParams.id) {
-                    initializeExam();
-                }
-
-                $scope.search = function () {
-                    search();
-                };
+                initializeExam();
 
                 $scope.hostname = SettingsResource.hostname.get();
 
@@ -832,30 +788,6 @@
                     return errors;
                 };
 
-                $scope.copyExam = function (exam) {
-                    ExamRes.exams.copy({id: exam.id}, function (copy) {
-                        toastr.success($translate.instant('sitnet_exam_copied'));
-                        $scope.exams.push(copy);
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
-                };
-
-                $scope.deleteExam = function (exam) {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
-                    dialog.result.then(function (btn) {
-                        ExamRes.exams.remove({id: exam.id}, function (ex) {
-                            toastr.success($translate.instant('sitnet_exam_removed'));
-                            $scope.exams.splice($scope.exams.indexOf(exam), 1);
-
-                        }, function (error) {
-                            toastr.error(error.data);
-                        });
-                    }, function (btn) {
-
-                    });
-                };
-
                 $scope.calculateExamMaxScore = function (exam) {
                     return examService.getMaxScore(exam);
                 };
@@ -963,10 +895,6 @@
                     }
                 };
 
-                $scope.examFilter = function (item, comparator) {
-                    return (item.state == comparator);
-                };
-
                 $scope.toggleDisabled = function (section) {
                     return !section.sectionQuestions || section.sectionQuestions.length < 2;
                 };
@@ -1006,7 +934,7 @@
                         description: section.description,
                         expanded: section.expanded
                     }
-                }
+                };
 
                 $scope.toggleLottery = function (section) {
                     if ($scope.toggleDisabled(section)) {
@@ -1218,7 +1146,7 @@
                         return 0;
                     }
                     var ratio = max * evaluation.percentage;
-                    return Math.ceil(ratio / 100);
+                    return (ratio / 100).toFixed(2);
                 };
 
                 var hasDuplicatePercentages = function (exam) {

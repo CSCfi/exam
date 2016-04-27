@@ -638,7 +638,7 @@
   "sitnet_use_autoevaluation": "Ota käyttöön",
   "sitnet_in_use": "käytössä",
   "sitnet_not_in_use": "ei käytössä",
-  "sitnet_autoevaluation_instructions": "Määrittele arvostelukriteerit antamalla prosenttiosuus kokonaispisteistä, joka vaaditaan arvosanan saavuttamiseksi.",
+  "sitnet_autoevaluation_instructions": "Määrittele arvostelukriteerit antamalla prosenttiosuus kokonaispisteistä, joka vaaditaan arvosanan saavuttamiseksi. Hyväksytty/Hylätty-asteikolla riittää prosenttien antaminen hyväksytylle arvosanalle. Pistemäärä tarkoittaa alarajaa kyseiselle arvosanalle. Et voi antaa samaa prosenttilukemaa usealle arvosanalle. Järjestelmä ei osaa ottaa kantaa arvosanojen suuruusjärjestykseen, joten pidä siitä itse huoli.",
   "sitnet_percentage": "Prosenttia kokonaispistemäärästä",
   "sitnet_autoevaluation_percentages_not_unique": "Prosenttiosuuksien pitää olla uniikkeja",
   "sitnet_autoevaluation_release_type": "Ajankohta, jolloin automaattisen arvioinnin tulos julkaistaan opiskelijalle",

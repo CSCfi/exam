@@ -16,7 +16,12 @@ import util.AppUtil;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentContainer {
@@ -631,6 +636,18 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return Arrays.asList(states).contains(state);
     }
 
+    @Transient
+    public void setDerivedMaxScores() {
+        examSections.stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .forEach(esq -> {
+                    esq.setDerivedMaxScore();
+                    esq.getOptions().stream()
+                            .forEach(o -> o.setScore(null));
+                });
+    }
+
+
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
@@ -663,6 +680,36 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return created.compareTo(other.created);
     }
 
+    public static Query<Exam> baseExamQuery() {
+        return Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("course.organisation")
+                .fetch("course.gradeScale")
+                .fetch("course.gradeScale.grades", new FetchConfig().query())
+                .fetch("examType")
+                .fetch("autoEvaluationConfig")
+                .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
+                .fetch("executionType")
+                .fetch("examSections")
+                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
+                .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
+                .fetch("examSections.sectionQuestions.question.attachment", "fileName")
+                .fetch("examSections.sectionQuestions.options")
+                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
+                .fetch("gradeScale")
+                .fetch("gradeScale.grades")
+                .fetch("grade")
+                .fetch("examEnrolments.user")
+                .fetch("children", "id")
+                .fetch("children.examEnrolments", "id")
+                .fetch("children.examEnrolments.user", "firstName, lastName, userIdentifier")
+                .fetch("creditType")
+                .fetch("attachment")
+                .fetch("softwares")
+                .fetch("examLanguages")
+                .fetch("examOwners");
+    }
+
     public static Query<Exam> createQuery() {
         return Ebean.find(Exam.class)
                 .fetch("course")
@@ -684,7 +731,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.options")
                 .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
-                .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore, objectVersion")
+                .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore")
                 .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")

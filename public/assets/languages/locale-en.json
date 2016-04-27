@@ -674,5 +674,6 @@
   "sitnet_archive_without_registration": "Lukitse ilman arviointia EN",
   "sitnet_confirm_archiving_without_grade": "Lukitse suoritus ilman arviointia. Tällöin suoritus ei siirry rekisteriin. Toimenpidettä ei voi perua EN",
   "sitnet_no_grading_description": "Suoritusta ei loppuarvioitu EXAM-sovelluksessa EN",
-  "sitnet_question_already_in_section": "Kysymys on jo lisätty tähän aihealueeseen EN"
+  "sitnet_question_already_in_section": "Kysymys on jo lisätty tähän aihealueeseen EN",
+  "sitnet_point_limit" : "Pisteet (arvosanan alaraja) EN"
 }
