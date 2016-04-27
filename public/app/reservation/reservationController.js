@@ -227,13 +227,10 @@
                 };
 
                 $scope.removeReservation = function (enrolment) {
-                    ReservationResource.reservation.remove({id: enrolment.reservation.id}, null,
-                        function () {
-                            $scope.enrolments.splice($scope.enrolments.indexOf(enrolment), 1);
-                            toastr.info($translate.instant('sitnet_reservation_removed'));
-                        }, function (error) {
-                            toastr.error(error.data);
-                        });
+                    reservationService.cancelReservation(enrolment.reservation).then(function () {
+                        $scope.enrolments.splice($scope.enrolments.indexOf(enrolment), 1);
+                        toastr.info($translate.instant('sitnet_reservation_removed'));
+                    });
                 };
 
                 $scope.changeReservationMachine = function (reservation) {
@@ -263,7 +260,7 @@
                 }
 
                 function machinesForRoom(room, machines) {
-                    if (room.examMachines.length < 1) {
+                    if (!machines || room.examMachines.length < 1) {
                         return;
                     }
                     var data = {

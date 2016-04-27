@@ -328,7 +328,9 @@ class EmailComposerImpl implements EmailComposer {
 
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(student);
-        String subject = messaging.get(lang, "email.reservation.cancellation.subject");
+        String subject = messaging.get(lang, isStudentUser ?
+                "email.reservation.cancellation.subject" :
+                "email.reservation.cancellation.subject.forced");
 
         String date = DF.print(adjustDST(reservation.getStartAt(), TZ));
         String room = reservation.getMachine().getRoom().getName();

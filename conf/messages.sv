@@ -6,6 +6,7 @@ email.weekly.report.subject=Veckosammanfattning för dina tentamina
 email.machine.reservation.subject=Bokning
 email.review.request.subject=Du är markerad som examinator för tentamen
 email.reservation.cancellation.subject=Din bokning är annulerad
+email.reservation.cancellation.subject.forced=Din bokning är annulerad
 email.reservation.cancellation.info=Tilläggsinformation
 email.template.inspection.done={0} har bedömt sin del av tentamenssvaret som gäller tentamen
 email.template.inspection.comment=Feedback

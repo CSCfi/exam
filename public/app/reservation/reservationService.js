@@ -199,6 +199,41 @@
                     });
                 };
 
+                self.cancelReservation = function (reservation) {
+                    var deferred = $q.defer();
+                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        $scope.message = {};
+                        $scope.ok = function () {
+                            ReservationRes.reservation.remove({id: reservation.id, msg: $scope.message.text},
+                                function () {
+                                    $modalInstance.close("Accepted");
+                                    deferred.resolve("ok");
+                                }, function (error) {
+                                    toastr.error(error.data);
+                                });
+                        };
+
+                        $scope.cancel = function () {
+                            $modalInstance.close("Dismissed");
+                            deferred.reject();
+                        };
+
+                    }];
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/remove_reservation_dialog.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: modalController
+                    });
+
+                    modalInstance.result.then(function () {
+                        console.log("closed");
+                        deferred.reject();
+                    });
+                    return deferred.promise;
+                };
+
 
             }]);
 }());

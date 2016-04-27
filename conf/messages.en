@@ -6,6 +6,7 @@ email.weekly.report.subject=Weekly exam summary
 email.machine.reservation.subject=Exam time booking
 email.review.request.subject=An exam paper has been appointed to you for assessment
 email.reservation.cancellation.subject=Your exam booking has been cancelled
+email.reservation.cancellation.subject.forced=Your exam booking has been cancelled
 email.reservation.cancellation.info=Additional information
 email.template.inspection.done={0} has done their part of the exam assessment, concerning exam
 email.template.inspection.comment=Assessment feedback

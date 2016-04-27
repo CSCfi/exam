@@ -109,6 +109,9 @@ public class ReservationController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result removeReservation(long id) throws IOException, NotFoundException {
 
+        DynamicForm df = formFactory.form().bindFromRequest();
+        String msg = df.get("msg");
+
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
                 .eq("reservation.id", id)
@@ -131,7 +134,7 @@ public class ReservationController extends BaseController {
         // Lets not send emails about historical reservations
         if (reservation.getEndAt().after(new Date())) {
             User student = enrolment.getUser();
-            emailComposer.composeReservationCancellationNotification(student, reservation, "", false, enrolment);
+            emailComposer.composeReservationCancellationNotification(student, reservation, msg, false, enrolment);
         }
 
         enrolment.setReservation(null);
