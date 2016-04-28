@@ -19,9 +19,9 @@
                 };
                 img.src = URL.createObjectURL(svg);
 
-                var saveFile = function (data, filename) {
+                var saveFile = function (data, fileName, contentType) {
                     if (!_supportsBlobUrls) {
-                        window.open('data:application/octet-stream;base64,' + data);
+                        window.open('data:' + contentType + ';base64,' + data);
                     } else {
                         var byteString = atob(data);
                         var ab = new ArrayBuffer(byteString.length);
@@ -29,14 +29,15 @@
                         for (var i = 0; i < byteString.length; i++) {
                             ia[i] = byteString.charCodeAt(i);
                         }
-                        var blob = new Blob([ia], {type: "application/octet-stream"});
-                        saveAs(blob, filename);
+                        var blob = new Blob([ia], {type: contentType});
+                        saveAs(blob, fileName);
                     }
                 };
 
                 var download = function (url, filename, params) {
-                    $http.get(url, {params: params}).success(function (data) {
-                        saveFile(data, filename);
+                    $http.get(url, {params: params}).success(function (data, status, headers) {
+                        var contentType = headers()['content-type'].split(';')[0];
+                        saveFile(data, filename, contentType);
                     }).error(function (error) {
                         toastr.error(error.data || error);
                     });

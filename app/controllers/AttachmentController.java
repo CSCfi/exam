@@ -21,6 +21,7 @@ import play.Logger;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
+import play.twirl.api.Content;
 import util.AppUtil;
 
 import javax.inject.Inject;
@@ -305,6 +306,24 @@ public class AttachmentController extends BaseController {
         return ok(attachment);
     }
 
+    private Result serveAttachment(Attachment attachment) {
+        File file = new File(attachment.getFilePath());
+
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFileName() + "\"");
+        String body = Base64.getEncoder().encodeToString(setData(file).toByteArray());
+        return ok(new Content() {
+            @Override
+            public String body() {
+                return body;
+            }
+
+            @Override
+            public String contentType() {
+                return attachment.getMimeType();
+            }
+        });
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result downloadQuestionAttachment(Long id) {
         User user = getLoggedUser();
@@ -320,12 +339,7 @@ public class AttachmentController extends BaseController {
         if (question == null || question.getAttachment() == null) {
             return notFound();
         }
-
-        Attachment aa = question.getAttachment();
-        File file = new File(aa.getFilePath());
-
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(Base64.getEncoder().encodeToString(setData(file).toByteArray()));
+        return serveAttachment(question.getAttachment());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -343,11 +357,7 @@ public class AttachmentController extends BaseController {
         if (question == null || question.getEssayAnswer() == null || question.getEssayAnswer().getAttachment() == null) {
             return notFound();
         }
-        Attachment aa = question.getEssayAnswer().getAttachment();
-        File file = new File(aa.getFilePath());
-
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(Base64.getEncoder().encodeToString(setData(file).toByteArray()));
+        return serveAttachment(question.getEssayAnswer().getAttachment());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -356,10 +366,7 @@ public class AttachmentController extends BaseController {
         if (exam == null || exam.getAttachment() == null) {
             return notFound();
         }
-        Attachment aa = exam.getAttachment();
-        File file = new File(aa.getFilePath());
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(Base64.getEncoder().encodeToString(setData(file).toByteArray()));
+        return serveAttachment(exam.getAttachment());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -374,10 +381,7 @@ public class AttachmentController extends BaseController {
         if (exam == null || exam.getExamFeedback() == null || exam.getExamFeedback().getAttachment() == null) {
             return notFound();
         }
-        Attachment aa = exam.getExamFeedback().getAttachment();
-        File file = new File(aa.getFilePath());
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(Base64.getEncoder().encodeToString(setData(file).toByteArray()));
+        return serveAttachment(exam.getExamFeedback().getAttachment());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -392,10 +396,7 @@ public class AttachmentController extends BaseController {
         if (exam == null) {
             return notFound();
         }
-        Attachment aa = exam.getLanguageInspection().getStatement().getAttachment();
-        File file = new File(aa.getFilePath());
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(Base64.getEncoder().encodeToString(setData(file).toByteArray()));
+        return serveAttachment(exam.getLanguageInspection().getStatement().getAttachment());
     }
 
     private String copyFile(File srcFile, String... pathParams) throws IOException {
