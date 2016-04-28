@@ -119,7 +119,19 @@
                             </span>
                         </td>
                         <td ng-style="exam.activityStyle" class="text-center">
-                            <a class="bold-button" ng-click="copyExam(exam)"><i class="fa fa-lg fa-copy text-info"></i></a>
+                            <span class="dropdown pointer" uib-dropdown>
+                                <a href class="dropdown-toggle" uib-dropdown-toggle>
+                                    <i class="fa fa-lg fa-copy text-info"></i>
+                                </a>
+                                <ul class="dropdown-menu pull-right" style="min-width: 17em">
+                                    <li class="dropdown-header">{{'sitnet_choose_execution_type' | translate}}</li>
+                                    <li ng-repeat="type in executionTypes">
+                                        <a role="menuitem" ng-click="copyExam(exam, type.type)">
+                                            {{type.name | translate}}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </span>
                         </td>
                         <td class="text-center" ng-style="exam.activityStyle">
                             <a ng-click="deleteExam(exam)" class="pointer">

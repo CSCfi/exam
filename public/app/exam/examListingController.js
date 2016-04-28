@@ -13,6 +13,10 @@
 
                 $scope.user = sessionService.getUser();
 
+                examService.listExecutionTypes().then(function (types) {
+                    $scope.executionTypes = types;
+                });
+
                 var search = function () {
                     $scope.loader.loading = true;
                     ExamRes.exams.query({filter: $scope.filter.text}, function (exams) {
@@ -40,8 +44,8 @@
                     search();
                 };
 
-                $scope.copyExam = function (exam) {
-                    ExamRes.exams.copy({id: exam.id}, function (copy) {
+                $scope.copyExam = function (exam, type) {
+                    ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
                         toastr.success($translate.instant('sitnet_exam_copied'));
                         $scope.exams.push(copy);
                     }, function (error) {

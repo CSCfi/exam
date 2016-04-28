@@ -604,9 +604,15 @@ public class ExamController extends BaseController {
         if (prototype == null) {
             return notFound("sitnet_exam_not_found");
         }
+        String type = formFactory.form().bindFromRequest().get("type");
+        ExamExecutionType executionType = Ebean.find(ExamExecutionType.class).where().eq("type", type).findUnique();
+        if (type == null) {
+            return notFound("sitnet_execution_type_not_found");
+        }
         Exam copy = prototype.copy(user);
         copy.setName(String.format("**COPY**%s", copy.getName()));
         copy.setState(Exam.State.DRAFT);
+        copy.setExecutionType(executionType);
         AppUtil.setCreator(copy, user);
         copy.setParent(null);
         copy.setCourse(null);
