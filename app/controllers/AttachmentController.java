@@ -21,7 +21,6 @@ import play.Logger;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
-import play.twirl.api.Content;
 import util.AppUtil;
 
 import javax.inject.Inject;
@@ -308,20 +307,9 @@ public class AttachmentController extends BaseController {
 
     private Result serveAttachment(Attachment attachment) {
         File file = new File(attachment.getFilePath());
-
         response().setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFileName() + "\"");
         String body = Base64.getEncoder().encodeToString(setData(file).toByteArray());
-        return ok(new Content() {
-            @Override
-            public String body() {
-                return body;
-            }
-
-            @Override
-            public String contentType() {
-                return attachment.getMimeType();
-            }
-        });
+        return ok(body).as(attachment.getMimeType());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
