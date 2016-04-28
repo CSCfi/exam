@@ -201,8 +201,9 @@ public class ReservationController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result getReservations(Optional<String> state, Optional<Long> ownerId, Optional<Long> studentId, Optional<Long> roomId, Optional<Long> machineId,
-                                  Optional<Long> examId, Optional<Long> start, Optional<Long> end) {
+    public Result getReservations(Optional<String> state, Optional<Long> ownerId, Optional<Long> studentId,
+                                  Optional<Long> roomId, Optional<Long> machineId, Optional<Long> examId,
+                                  Optional<Long> start, Optional<Long> end) {
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state, trialCount")
@@ -227,8 +228,6 @@ public class ReservationController extends BaseController {
         if (start.isPresent()) {
             DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
             query = query.ge("reservation.startAt", startDate.toDate());
-        } else {
-            query = query.ge("reservation.startAt", new DateTime().withTimeAtStartOfDay());
         }
 
         if (end.isPresent()) {

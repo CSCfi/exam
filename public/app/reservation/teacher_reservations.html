@@ -47,19 +47,19 @@
         <div class="col-md-2">
             <strong>{{'sitnet_student' | translate}}</strong>
             <input class="wide-select" ui-select2="studentOptions"
-                   ng-model="selection.studentId" ng-change="studentChanged()">
+                   ng-model="selection.studentId" ng-click="query()">
             </input>
         </div>
         <div class="col-md-2">
             <strong>{{'sitnet_exam' | translate}}</strong>
             <input class="wide-select" ui-select2="examOptions"
-                   ng-model="selection.examId" ng-change="examChanged()">
+                   ng-model="selection.examId" ng-click="query()">
             </input>
         </div>
         <div class="col-md-2">
             <strong>{{'sitnet_exam_state' | translate}}</strong>
             <input class="wide-select" ui-select2="stateOptions"
-                   ng-model="selection.state" ng-change="stateChanged()">
+                   ng-model="selection.state" ng-click="query()">
             </input>
         </div>
     </div>

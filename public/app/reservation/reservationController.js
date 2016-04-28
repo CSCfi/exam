@@ -133,14 +133,14 @@
                 });
 
                 $scope.printExamState = function (enrolment) {
+                    if (!enrolment.reservation) {
+                        console.warn("enrolment without reservation listed, possibly obsolete data #enrolment id: " +
+                            enrolment.id);
+                        return;
+                    }
                     return enrolment.reservation.noShow ? 'NO_SHOW' : enrolment.exam.state;
                 };
 
-                $scope.machineChanged = function () {
-                    if (typeof $scope.selection.machineId === 'object') {
-                        $scope.query();
-                    }
-                };
 
                 $scope.roomChanged = function () {
                     if (typeof $scope.selection.roomId !== 'object') {
@@ -156,34 +156,21 @@
                     $scope.query();
                 };
 
-                $scope.examChanged = function () {
-                    if (typeof $scope.selection.examId === 'object') {
-                        $scope.query();
+                var somethingSelected = function (params) {
+                    for (var k in params) {
+                        if (!params.hasOwnProperty(k)) {
+                            continue;
+                        }
+                        if (params[k]) {
+                            return true;
+                        }
                     }
-                };
-
-                $scope.studentChanged = function () {
-                    if (typeof $scope.selection.studentId === 'object') {
-                        $scope.query();
-                    }
-                };
-
-                $scope.stateChanged = function () {
-                    if (typeof $scope.selection.state === 'object') {
-                        $scope.query();
-                    }
-                };
-
-                $scope.teacherChanged = function () {
-                    if (typeof $scope.selection.ownerId === 'object') {
-                        $scope.query();
-                    }
+                    return $scope.dateService.startDate || $scope.dateService.endDate;
                 };
 
                 $scope.query = function () {
-                    // Teacher not required to specify time ranges
-                    if (!$scope.isAdminView() || ($scope.dateService.startDate && $scope.dateService.endDate)) {
-                        var params = angular.copy($scope.selection);
+                    var params = angular.copy($scope.selection);
+                    if (somethingSelected(params)) {
                         // have to clear empty strings completely
                         for (var k in params) {
                             if (!params.hasOwnProperty(k)) {
@@ -260,7 +247,7 @@
                 }
 
                 function machinesForRoom(room, machines) {
-                    if (!machines || room.examMachines.length < 1) {
+                    if (room.examMachines.length < 1) {
                         return;
                     }
                     var data = {
@@ -277,6 +264,9 @@
                 }
 
                 function machinesForRooms(rooms, machines) {
+                    if (!rooms || !machines) {
+                        return;
+                    }
                     rooms.forEach(function (room) {
                         machinesForRoom(room, machines);
                     });
