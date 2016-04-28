@@ -18,6 +18,12 @@
                     }).length;
                 };
 
+                self.getProcessedCount = function (exam) {
+                    return exam.children.filter(function (child) {
+                        return ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) == -1;
+                    }).length;
+                };
+
                 self.showFeedback = function (examId) {
                     $location.path("/feedback/exams/" + examId);
                 };

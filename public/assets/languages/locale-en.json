@@ -676,5 +676,8 @@
   "sitnet_no_grading_description": "Suoritusta ei loppuarvioitu EXAM-sovelluksessa EN",
   "sitnet_question_already_in_section": "Kysymys on jo lisätty tähän aihealueeseen EN",
   "sitnet_point_limit" : "Pisteet (arvosanan alaraja) EN",
-  "sitnet_choose_execution_type": "Valitse tentin suoritustyyppi EN"
+  "sitnet_choose_execution_type": "Valitse tentin suoritustyyppi EN",
+  "sitnet_archived_teacher_exams": "Arkistoidut tentit (voimassaoloaika päättynyt, ei arvioimattomia suorituksia) EN",
+  "sitnet_participations_assessed": "Suorituksia yhteensä EN",
+  "sitnet_expired_exams": "Sulkeutuneet tentit EN"
 }

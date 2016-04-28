@@ -675,5 +675,9 @@
   "sitnet_confirm_archiving_without_grade": "Lukitse suoritus ilman arviointia. Tällöin suoritus ei siirry rekisteriin. Toimenpidettä ei voi perua",
   "sitnet_no_grading_description": "Suoritusta ei loppuarvioitu EXAM-sovelluksessa",
   "sitnet_question_already_in_section": "Kysymys on jo lisätty tähän aihealueeseen",
-  "sitnet_choose_execution_type": "Valitse tentin suoritustyyppi"
+  "sitnet_point_limit" : "Pisteet (arvosanan alaraja)",
+  "sitnet_choose_execution_type": "Valitse tentin suoritustyyppi",
+  "sitnet_archived_teacher_exams": "Arkistoidut tentit (voimassaoloaika päättynyt, ei arvioimattomia suorituksia)",
+  "sitnet_participations_assessed": "Suorituksia yhteensä",
+  "sitnet_expired_exams": "Sulkeutuneet tentit"
 }

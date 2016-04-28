@@ -4,7 +4,7 @@
     </div>
 </div>
 
-<div id="dashboard" ng-init="view = 'PUBLISHED'">
+<div id="dashboard" ng-init="view = 'PUBLISHED'; showExpired = false">
 
     <!-- toolbar -->
     <div class="top-row">
@@ -33,20 +33,26 @@
     <!-- TAB NAVIGATION -->
     <div class="main-row">
         <ul class="nav nav-tabs">
-            <li role="presentation" ng-class="{'active' : view === 'PUBLISHED'}">
-                <a class="pointer" target="_self" ng-click="view='PUBLISHED'">
+            <li role="presentation" ng-class="{'active' : view === 'PUBLISHED' && !showExpired}">
+                <a class="pointer" target="_self" ng-click="view='PUBLISHED'; showExpired = false">
                     {{'sitnet_published_exams' | translate}}
-                    <span class="badge">{{ (exams | filter: {state: 'PUBLISHED'}).length }}</span>
+                    <span class="badge">{{ (exams | filter: {state: 'PUBLISHED', expired: false}).length }}</span>
+                </a>
+            </li>
+            <li role="presentation" ng-class="{'active' : view === 'PUBLISHED' && showExpired}">
+                <a class="pointer" target="_self" ng-click="view='PUBLISHED'; showExpired = true">
+                    {{'sitnet_expired_exams' | translate}}
+                    <span class="badge">{{ (exams | filter: {state: 'PUBLISHED', expired: true}).length }}</span>
                 </a>
             </li>
             <li role="presentation" ng-class="{'active' : view === 'SAVED'}">
-                <a class="pointer" target="_self" ng-click="view='SAVED'">
+                <a class="pointer" target="_self" ng-click="view='SAVED'; showExpired = false">
                     {{'sitnet_saved_exams' | translate}}
                     <span class="badge">{{ (exams | filter: {state: 'SAVED'}).length }}</span>
                 </a>
             </li>
             <li role="presentation" ng-class="{'active' : view === 'DRAFT'}">
-                <a class="pointer" target="_self" ng-click="view='DRAFT'">
+                <a class="pointer" target="_self" ng-click="view='DRAFT'; showExpired = false">
                     {{'sitnet_draft_exams' | translate}}
                     <span class="badge">{{ (exams | filter: {state: 'DRAFT'}).length }}</span>
                 </a>
@@ -98,7 +104,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="exam in exams | filter: {state: view} | orderBy:examsPredicate:reverse">
+                    <tr ng-repeat="exam in exams | filter: {state: view, expired: showExpired} | orderBy:examsPredicate:reverse">
                         <td ng-style="exam.activityStyle">{{exam.course.code}}</td>
                         <td ng-style="exam.activityStyle">
                             <a ng-if="exam.name" class="exams-info-title bold-button"
@@ -143,7 +149,7 @@
                 </table>
             </div>
         </div>
-        <div class="detail-row" ng-show="view === 'PUBLISHED'">
+        <div class="detail-row" ng-show="view === 'PUBLISHED' && !showExpired">
             <div class="col-md-12">
                 <strong>{{ 'sitnet_published_exams' | translate }}: </strong>
                 <em class="sitnet-text-medium">{{ 'sitnet_published_exams_info_main' | translate }} {{
