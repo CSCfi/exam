@@ -3,6 +3,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
 import org.joda.time.DateTime;
@@ -270,5 +271,26 @@ public class EnrolmentController extends BaseController {
         enrolment.delete();
         return ok();
     }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    public Result getRoomInfoFromEnrolment(Long eid) {
+        User user = getLoggedUser();
+        ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
+                .fetch("user", "id")
+                .fetch("user.language")
+                .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
+                .where()
+                .eq("exam.id", eid);
+        if (user.hasRole("STUDENT", getSession())) {
+            query = query.eq("user", user);
+        }
+        ExamEnrolment enrolment = query.findUnique();
+        if (enrolment == null) {
+            return notFound();
+        } else {
+            return ok(enrolment);
+        }
+    }
+
 
 }

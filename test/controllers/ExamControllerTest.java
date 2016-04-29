@@ -12,6 +12,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
+import play.test.Helpers;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -71,7 +72,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateDraftExamUnauthorized() {
         // Execute
-        Result result = get("/app/draft?executionType=PRIVATE");
+        Result result = request(Helpers.POST, "/app/exams", Json.newObject().put("executionType", "PUBLIC"));
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
@@ -83,7 +84,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         int originalRowCount = Ebean.find(Exam.class).findRowCount();
 
         // Execute
-        Result result = get("/app/draft?executionType=PRIVATE");
+        Result result = request(Helpers.POST, "/app/exams", Json.newObject().put("executionType", "PUBLIC"));
 
         // Verify
         assertThat(result.status()).isEqualTo(200);
@@ -160,7 +161,7 @@ public class ExamControllerTest extends IntegrationTestCase {
                 "examType", "instruction", "enrollInstruction", "shared", "examActiveStartDate",
                 "examActiveEndDate", "duration", "gradeScale", "gradeScale.description", "grade",
                 "customCredit", "answerLanguage", "state", "examFeedback", "creditType", "expanded",
-                "attachment", "creator.id", "creator.firstName", "creator.lastName"};
+                "attachment"};
     }
 
     private String[] getExamSectionFieldsOfExam(String index) {

@@ -95,7 +95,7 @@ public class StatisticsController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result getExam(Long id, String reportType) throws IOException {
 
-        Exam exam = Exam.createQuery()
+        Exam exam = Ebean.find(Exam.class)
                 .where()
                 .idEq(id)
                 .isNotNull("course")

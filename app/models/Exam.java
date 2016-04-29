@@ -680,37 +680,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return created.compareTo(other.created);
     }
 
-    public static Query<Exam> baseExamQuery() {
-        return Ebean.find(Exam.class)
-                .fetch("course")
-                .fetch("course.organisation")
-                .fetch("course.gradeScale")
-                .fetch("course.gradeScale.grades", new FetchConfig().query())
-                .fetch("examType")
-                .fetch("autoEvaluationConfig")
-                .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
-                .fetch("executionType")
-                .fetch("examSections")
-                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
-                .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
-                .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-                .fetch("examSections.sectionQuestions.options")
-                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
-                .fetch("gradeScale")
-                .fetch("gradeScale.grades")
-                .fetch("grade")
-                .fetch("examEnrolments.user")
-                .fetch("children", "id")
-                .fetch("children.examEnrolments", "id")
-                .fetch("children.examEnrolments.user", "firstName, lastName, userIdentifier")
-                .fetch("creditType")
-                .fetch("attachment")
-                .fetch("softwares")
-                .fetch("examLanguages")
-                .fetch("examOwners");
-    }
-
-    public static Query<Exam> createQuery() {
+    private static Query<Exam> createQuery() {
         return Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("course.organisation")
@@ -722,8 +692,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                 .fetch("parent.gradeScale.grades", new FetchConfig().query())
                 .fetch("parent.examOwners", new FetchConfig().query())
                 .fetch("examType")
-                .fetch("autoEvaluationConfig")
-                .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
                 .fetch("executionType")
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
@@ -740,15 +708,10 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                 .fetch("languageInspection.assignee", "firstName, lastName, email")
                 .fetch("languageInspection.statement")
                 .fetch("languageInspection.statement.attachment")
-                .fetch("examEnrolments.reservation", "startAt, endAt, noShow")
-                .fetch("examEnrolments.user")
-                .fetch("children", "id")
                 .fetch("examFeedback")
                 .fetch("examFeedback.attachment")
                 .fetch("creditType")
                 .fetch("attachment")
-                .fetch("creator")
-                .fetch("softwares")
                 .fetch("examLanguages")
                 .fetch("examOwners");
     }

@@ -99,7 +99,7 @@
                     }),
                 reviewerExams: $resource("/app/reviewerexams"),
                 reviewerExam: $resource("/app/reviewerexams/:eid", {eid: "@eid"}),
-                draft: $resource("/app/draft"),
+                draft: $resource("/app/exams", null, {"create": {method: "POST"}}),
                 review: $resource("/app/review/:id", {id: "@id"}, {"update": {method: "PUT"}}),
                 examReviews: $resource("/app/reviews/:eid", {eid: "@eid"},
                     {

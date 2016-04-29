@@ -160,7 +160,7 @@
                             createActiveSectionQuestions();
 
                             if (!isPreview()) {
-                                $http.get('/app/examenrolmentroom/' + $scope.exam.id)
+                                $http.get('/app/enroll/room/' + $scope.exam.id)
                                     .success(function (data) {
                                         $scope.info = data;
                                         $scope.currentLanguageText = currentLanguage();

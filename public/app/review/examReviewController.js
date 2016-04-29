@@ -596,8 +596,6 @@
                         dialog.result.then(function () {
                             $scope.saveFeedback(true).then(function () {
                                 var examToRecord = getReviewUpdate(reviewedExam, 'GRADED');
-                                examToRecord.additionalInfo = $scope.additionalInfo;
-
                                 ExamRes.review.update({id: examToRecord.id}, examToRecord, function () {
                                     if (reviewedExam.state !== 'GRADED') {
                                         toastr.info($translate.instant("sitnet_review_graded"));

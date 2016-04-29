@@ -25,6 +25,7 @@ DELETE        /app/permissions                                           control
 
 ############### Exam interface ###############
 GET           /app/exams                                                 controllers.ExamController.getExams(filter: java.util.Optional[String])
+POST          /app/exams                                                 controllers.ExamController.createExamDraft()
 GET           /app/exams/:id                                             controllers.ExamController.getExam(id: Long)
 DELETE        /app/exams/:id                                             controllers.ExamController.deleteExam(id: Long)
 PUT           /app/exams/:id                                             controllers.ExamController.updateExam(id: Long)
@@ -35,27 +36,7 @@ DELETE        /app/exams/:eid/course/:cid                                control
 GET           /app/exampreview/:id                                       controllers.ExamController.getExamPreview(id: Long)
 GET           /app/reviewerexams                                         controllers.ExamController.getTeachersExams
 
-GET           /app/examparticipations/:eid                               controllers.ExamController.getParticipationsForExam(eid: Long)
-
-POST          /app/exam/record                                           controllers.ExamRecordController.addExamRecord()
-POST          /app/exam/register                                         controllers.ExamRecordController.registerExamWithoutRecord()
-GET           /app/exam/record                                           controllers.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
-GET           /app/exam/record/export/:id                                controllers.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long)
-GET           /app/exam/record/export/report/:id                         controllers.ExamRecordController.exportSelectedExamRecordsAsExcel(id: Long)
-
 GET           /app/examsearch                                            controllers.ExamController.listExams(courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList])
-
-GET           /app/examenrolmentroom/:eid                                controllers.ExamController.getRoomInfoFromEnrollment(eid: Long)
-
-GET           /app/exam/:id/inspections                                  controllers.ExamController.getExamInspections(id: Long)
-POST          /app/exams/:eid/inspector/:uid                             controllers.ExamController.insertInspection(eid: Long, uid: Long)
-DELETE        /app/exams/inspector/:id                                   controllers.ExamController.deleteInspection(id: Long)
-
-GET           /app/exam/:id/owners                                       controllers.ExamController.getExamOwners(id: Long)
-PUT           /app/exam/:eid/owner/:uid                                  controllers.ExamController.insertExamOwner(eid: Long, uid: Long)
-DELETE        /app/exam/:eid/owner/:uid                                  controllers.ExamController.removeExamOwner(eid: Long, uid: Long)
-
-GET           /app/draft                                                 controllers.ExamController.createExamDraft(executionType: String)
 
 PUT           /app/exam/:eid/software                                    controllers.ExamController.updateExamSoftwareInfo(eid: Long)
 
@@ -65,6 +46,28 @@ DELETE        /app/exam/:eid/languages                                   control
 GET           /app/examtypes                                             controllers.ExamController.getExamTypes
 GET           /app/executiontypes                                        controllers.ExamController.getExamExecutionTypes
 GET           /app/gradescales                                           controllers.ExamController.getExamGradeScales
+
+
+############### Exam owner interface ###############
+GET           /app/exam/:id/owners                                       controllers.ExamOwnerController.getExamOwners(id: Long)
+PUT           /app/exam/:eid/owner/:uid                                  controllers.ExamOwnerController.insertExamOwner(eid: Long, uid: Long)
+DELETE        /app/exam/:eid/owner/:uid                                  controllers.ExamOwnerController.removeExamOwner(eid: Long, uid: Long)
+
+
+############### Exam inspection interface ###############
+GET           /app/exam/:id/inspections                                  controllers.ExamInspectionController.getExamInspections(id: Long)
+POST          /app/exams/:eid/inspector/:uid                             controllers.ExamInspectionController.insertInspection(eid: Long, uid: Long)
+DELETE        /app/exams/inspector/:id                                   controllers.ExamInspectionController.deleteInspection(id: Long)
+PUT           /app/exams/inspection/:id                                  controllers.ExamInspectionController.updateInspection(id: Long)
+
+
+############### Exam record interface ###############
+POST          /app/exam/record                                           controllers.ExamRecordController.addExamRecord()
+POST          /app/exam/register                                         controllers.ExamRecordController.registerExamWithoutRecord()
+GET           /app/exam/record                                           controllers.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
+GET           /app/exam/record/export/:id                                controllers.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long)
+GET           /app/exam/record/export/report/:id                         controllers.ExamRecordController.exportSelectedExamRecordsAsExcel(id: Long)
+
 
 ############### Student interface ###############
 GET           /app/student/exam/:eid                                     controllers.StudentExamController.getExam(eid: Long)
@@ -108,7 +111,6 @@ GET           /app/exams/:eid/reservation                                control
 GET           /app/reviewerexams/:eid                                    controllers.ReviewController.getExamReview(eid: Long)
 GET           /app/examenrolments/:eid                                   controllers.ReviewController.getEnrolmentsForExam(eid: Long)
 GET           /app/examparticipations/:eid/:uid                          controllers.ReviewController.getParticipationsForExamAndUser(eid: Long, uid: Long)
-PUT           /app/exams/inspection/:id/:ready                           controllers.ReviewController.updateInspection(id: Long, ready: Boolean)
 POST          /app/email/inspection/:eid                                 controllers.ReviewController.sendInspectionMessage(eid: Long)
 POST          /app/gradeimport                                           controllers.ReviewController.importGrades
 GET           /app/exam/:eid/attachments                                 controllers.ReviewController.getArchivedAttachments(eid: Long, start: java.util.Optional[String], end: java.util.Optional[String])
@@ -131,6 +133,9 @@ GET           /app/enroll/exam/:id                                       control
 POST          /app/enroll/student/:eid/:uid                              controllers.EnrolmentController.createStudentEnrolment(eid: Long, uid: Long)
 DELETE        /app/enroll/:id                                            controllers.EnrolmentController.removeEnrolment(id: Long)
 DELETE        /app/enroll/student/:id                                    controllers.EnrolmentController.removeStudentEnrolment(id: Long)
+
+GET           /app/enroll/room/:eid                                      controllers.EnrolmentController.getRoomInfoFromEnrolment(eid: Long)
+
 
 ############### Courses interface ###############
 GET           /app/courses                                               controllers.CourseController.getCourses(filter: Option[String], q: Option[String])

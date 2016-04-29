@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.FetchConfig;
+import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
 import models.questions.EssayAnswer;
@@ -53,20 +54,6 @@ public class ReviewController extends BaseController {
 
     @Inject
     protected ActorSystem actor;
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateInspection(Long id, boolean ready) {
-
-        ExamInspection inspection = Ebean.find(ExamInspection.class, id);
-
-        if (inspection == null) {
-            return notFound();
-        }
-        inspection.setReady(ready);
-        inspection.update();
-
-        return ok();
-    }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamStudentInfo(Long eid) {
@@ -134,7 +121,7 @@ public class ReviewController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamReview(Long eid) {
-        Exam exam = Exam.createQuery()
+        Exam exam = createQuery()
                 .where()
                 .eq("id", eid)
                 .disjunction()
@@ -536,6 +523,42 @@ public class ReviewController extends BaseController {
             emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
             Logger.info("Inspection rejection notification email sent");
         }, actor.dispatcher());
+    }
+
+    private static Query<Exam> createQuery() {
+        return Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("course.organisation")
+                .fetch("course.gradeScale")
+                .fetch("course.gradeScale.grades", new FetchConfig().query())
+                .fetch("parent")
+                .fetch("parent.creator")
+                .fetch("parent.gradeScale")
+                .fetch("parent.gradeScale.grades", new FetchConfig().query())
+                .fetch("parent.examOwners", new FetchConfig().query())
+                .fetch("examType")
+                .fetch("executionType")
+                .fetch("examSections")
+                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
+                .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
+                .fetch("examSections.sectionQuestions.question.attachment", "fileName")
+                .fetch("examSections.sectionQuestions.options")
+                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
+                .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore")
+                .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
+                .fetch("gradeScale")
+                .fetch("gradeScale.grades")
+                .fetch("grade")
+                .fetch("languageInspection")
+                .fetch("languageInspection.assignee", "firstName, lastName, email")
+                .fetch("languageInspection.statement")
+                .fetch("languageInspection.statement.attachment")
+                .fetch("examFeedback")
+                .fetch("examFeedback.attachment")
+                .fetch("creditType")
+                .fetch("attachment")
+                .fetch("examLanguages")
+                .fetch("examOwners");
     }
 
 }
