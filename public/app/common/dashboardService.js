@@ -75,6 +75,11 @@
                     return deferred.promise;
                 };
 
+                // Exam is private and has unfinished participants
+                var participationsInFuture = function (exam) {
+                    return exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0;
+                };
+
                 var showTeacherDashboard = function () {
                     var scope = {};
                     var deferred = $q.defer();
@@ -83,7 +88,8 @@
                         scope.executionTypes = types;
                         ExamRes.reviewerExams.query(function (reviewerExams) {
                             scope.activeExams = reviewerExams.filter(function (review) {
-                                return Date.now() <= new Date(review.examActiveEndDate);
+                                return Date.now() <= new Date(review.examActiveEndDate) &&
+                                    participationsInFuture(review);
                             });
                             scope.activeExams.forEach(function (ae) {
                                 ae.unassessedCount = examService.getReviewablesCount(ae);
@@ -97,7 +103,7 @@
                             scope.finishedExams = [];
                             scope.archivedExams = [];
                             var endedExams = reviewerExams.filter(function (review) {
-                                return Date.now() > new Date(review.examActiveEndDate);
+                                return Date.now() > new Date(review.examActiveEndDate) || !participationsInFuture(review);
                             });
                             endedExams.forEach(function (ee) {
                                 ee.ownerAggregate = ee.examOwners.map(function (o) {

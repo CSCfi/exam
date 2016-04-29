@@ -377,11 +377,6 @@
                     });
                 };
 
-                // Called when create exam button is clicked
-                $scope.createExam = function (executionType) {
-                    examService.createExam(executionType);
-                };
-
                 $scope.continueToExam = function () {
                     $location.path("/exams/" + $routeParams.id);
                 };

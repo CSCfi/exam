@@ -42,6 +42,11 @@
                     search();
                 };
 
+                // Called when create exam button is clicked
+                $scope.createExam = function (executionType) {
+                    examService.createExam(executionType);
+                };
+
                 $scope.copyExam = function (exam, type) {
                     ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
                         toastr.success($translate.instant('sitnet_exam_copied'));
