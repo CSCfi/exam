@@ -9,6 +9,7 @@ import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
 import models.questions.EssayAnswer;
+import models.questions.Question;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -399,9 +400,13 @@ public class ReviewController extends BaseController {
         File file = File.createTempFile("summary", ".txt");
         FileOutputStream fos = new FileOutputStream(file);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
-        DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
-        writer.write(String.format("period: %s-%s", df.format(start), df.format(end)));
-        writer.newLine();
+
+        if (start != null || end != null){
+            DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+            writer.write(String.format("period: %s-%s",
+                    start == null ? "" : df.format(start), end == null ? "" : df.format(end)));
+            writer.newLine();
+        }
         writer.write(String.format("exam id: %d", exam.getId()));
         writer.newLine();
         writer.write(String.format("exam name: %s", exam.getName()));
@@ -426,10 +431,13 @@ public class ReviewController extends BaseController {
                 (e) -> isEligibleForArchiving(e, start, end)).collect(Collectors.toList());
         Map<Long, String> questions = new LinkedHashMap<>();
         for (Exam exam : children) {
-            String uid = exam.getCreator().getUserIdentifier() == null ?
-                    exam.getCreator().getId().toString() : exam.getCreator().getUserIdentifier();
+            String uid = String.format("%s-%d", exam.getCreator().getUserIdentifier() == null ?
+                    exam.getCreator().getId().toString() : exam.getCreator().getUserIdentifier(), exam.getId());
             for (ExamSection es : exam.getExamSections()) {
-                for (ExamSectionQuestion esq : es.getSectionQuestions()) {
+                List<ExamSectionQuestion> essays = es.getSectionQuestions().stream()
+                        .filter(esq -> esq.getQuestion().getType() == Question.Type.EssayQuestion)
+                        .collect(Collectors.toList());
+                for (ExamSectionQuestion esq : essays) {
                     questions.put(esq.getQuestion().getId(), esq.getQuestion().getQuestion());
                     Long questionId = esq.getQuestion().getParent().getId();
                     EssayAnswer answer = esq.getEssayAnswer();
@@ -438,7 +446,7 @@ public class ReviewController extends BaseController {
                     if (answer != null && (attachment = answer.getAttachment()) != null) {
                         // attached answer
                         String fileName = attachment.getFileName();
-                        file = new File(String.format("%s/%s", attachment.getFilePath(), fileName));
+                        file = new File(attachment.getFilePath());
                         if (file.exists()) {
                             String entryName = String.format("%d/%d/%s/%s", prototype.getId(), questionId, uid, fileName);
                             TarArchiveEntry entry = new TarArchiveEntry(entryName);
@@ -514,7 +522,8 @@ public class ReviewController extends BaseController {
             Logger.error("Failed in creating a tarball", e);
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"" + tarball.getName() + "\"");
-        return ok(Base64.getEncoder().encode(setData(tarball).toByteArray()));
+        String body = Base64.getEncoder().encodeToString(setData(tarball).toByteArray());
+        return ok(body).as("application/gzip");
     }
 
     private void notifyPartiesAboutPrivateExamRejection(Exam exam) {
