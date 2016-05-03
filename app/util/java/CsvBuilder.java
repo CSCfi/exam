@@ -25,7 +25,7 @@ public class CsvBuilder {
         List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
                 .fetch("examScore")
                 .where()
-                .between("time_stamp", start, end)
+                .between("timeStamp", start, end)
                 .findList();
 
         File file = File.createTempFile("csv-output", ".tmp");

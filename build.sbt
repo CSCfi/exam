@@ -36,8 +36,10 @@ libraryDependencies ++= Seq(
   "org.webjars.bower" % "angular-translate" % "2.11.0",
   "org.webjars.bower" % "angular-translate-loader-static-files" % "2.11.0",
   "org.webjars.bower" % "angular-ui-calendar" % "1.0.1",
+  "org.webjars.bower" % "angular-ui-select" % "0.16.1",
   "org.webjars.bower" % "angular-http-auth" % "1.2.3",
   "org.webjars.bower" % "angular-dialog-service" % "5.2.8",
+  "org.webjars.bower" % "bootstrap-sass" % "3.3.6",
   "org.webjars.bower" % "ngstorage" % "0.3.10",
   "org.webjars.bower" % "momentjs" % "2.10.6",
   "org.webjars.bower" % "moment-timezone" % "0.5.0",
@@ -46,6 +48,7 @@ libraryDependencies ++= Seq(
   "org.webjars.bower" % "angular-strap" % "2.3.7",
   "org.webjars.bower" % "FileSaver.js" % "0.0.2",
   "org.webjars.bower" % "angular-dynamic-locale" % "0.1.30",
+  "org.webjars.bower" % "font-awesome" % "4.6.1",
   "org.webjars.bower" % "fullcalendar" % "2.4.0",
   "org.webjars.bower" % "jquery" % "2.1.4",
   "org.webjars" % "jquery-ui" % "1.11.4",
@@ -65,4 +68,4 @@ routesImport += "util.scala.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 
-PlayKeys.playRunHooks += Karma(baseDirectory.value)
+// PlayKeys.playRunHooks += Karma(baseDirectory.value)

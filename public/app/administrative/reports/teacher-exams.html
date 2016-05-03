@@ -7,13 +7,15 @@
 
     <div class="col-md-2">
         <label for="teacher">{{'sitnet_teacher' | translate}}</label>
-        <div id="teacher">
-            <select ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selectedFields.teacher"
-                    ng-change="setTeacher(selectedFields.teacher)" data-placeholder="{{'sitnet_teacher' | translate}}"
-                    style="min-width:50%;">
-                <option value=""></option>
-                <option ng-repeat="teacher in teachers" value="{{teacher.id}}">{{teacher.name}}</option>
-            </select>
+        <div id="teacher" class="form-group">
+            <ui-select ng-model="ctrl.selectedFields.teacher">
+                <ui-select-match allow-clear="true" placeholder="{{'sitnet_teacher' | translate}}">
+                    {{$select.selected.name}}
+                </ui-select-match>
+                <ui-select-choices repeat="teacher in (ctrl.teachers | filter: $select.search | limitTo: 50) track by teacher.id">
+                    <div>{{teacher.name}}</div>
+                </ui-select-choices>
+            </ui-select>
         </div>
     </div>
 
@@ -59,7 +61,7 @@
         <label for="link">&nbsp;</label>
 
         <div id="link">
-            <a ng-click="getTeacherExamsByDate(selectedFields.teacher, dateService.startDate, dateService.endDate)"
+            <a ng-click="ctrl.getTeacherExamsByDate(ctrl.selectedFields.teacher, ctrl.dateService.startDate, ctrl.dateService.endDate)"
                class="fa-stack fa-lg pointer pull-right" download popover-trigger="mouseenter"
                uib-popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>

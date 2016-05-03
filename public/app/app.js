@@ -18,6 +18,7 @@
             'http-auth-interceptor',
             'ui.bootstrap',
             'ui.calendar',
+            'ui.select',
             'ui.multiselect',
             'ui.select2',
             'dialogs.main',

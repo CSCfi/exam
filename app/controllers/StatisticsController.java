@@ -43,6 +43,8 @@ public class StatisticsController extends BaseController {
                 .select("id, name")
                 .fetch("course", "id, name, code")
                 .where()
+                .isNotNull("name")
+                .isNotNull("course")
                 .isNull("parent") // only Exam prototypes
                 .findList();
         return ok(exams);

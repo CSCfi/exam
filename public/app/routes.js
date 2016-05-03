@@ -56,7 +56,7 @@
             $routeProvider.when('/rooms', { templateUrl: tmpl + 'facility/rooms.html', controller: 'RoomCtrl'});
             $routeProvider.when('/rooms/:id', { templateUrl: tmpl + 'facility/room.html', controller: 'RoomCtrl'});
             $routeProvider.when('/rooms_edit/edit_multiple', { templateUrl: tmpl + 'facility/room.html', controller: 'RoomCtrl'});
-            $routeProvider.when('/reports', { templateUrl: tmpl + 'administrative/reports/reports.html', controller: 'ReportController'});
+            $routeProvider.when('/reports', { templateUrl: tmpl + 'administrative/reports/reports.html', controller: 'ReportController', controllerAs: 'ctrl'});
             $routeProvider.when('/settings', { templateUrl: tmpl + 'administrative/settings.html'});
             $routeProvider.when('/users', { templateUrl: tmpl + 'administrative/users.html', controller: 'UserCtrl'});
             $routeProvider.when('/statistics', { templateUrl: tmpl + 'administrative/statistics/statistics.html', controller: 'StatisticsController'});
