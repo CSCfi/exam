@@ -8,26 +8,22 @@
     </div>
 
     <!-- Question owners -->
-    <div class="row">
-        <div class="sitnet-info-text"><strong>{{'sitnet_question_owners' | translate}}:</strong>
-        </div>
-    </div>
-
-    <div class="row">
-        <ul class="list-inline">
+    <div class="row top-margin-1">
+        <label for="question-owners" class="sitnet-info-text-compact">{{'sitnet_question_owners' | translate}}:</label>
+        <ul id="question-owners" class="list-inline">
             <li>
-                <button ng-repeat="user in newQuestion.questionOwners" class="btn btn-primary btn-xs"
-                        style="margin: 0.2em"
-                        ng-disabled="newQuestion.questionOwners.length == 1" ng-click="removeOwner(user)"
-                        title="{{'sitnet_remove' | translate}}">
+                <span ng-repeat="user in newQuestion.questionOwners" class="label"
+                      ng-click="removeOwner(user)" title="{{'sitnet_remove' | translate}}" style="margin: 0.2em"
+                      ng-class="newQuestion.questionOwners.length == 1 ? 'label-default' : 'label-primary pointer'">
                     {{user.firstName }} {{ user.lastName }}
-                </button>
-                <i class="fa fa-plus text-info pointer"
+                </span>
+                &nbsp;<i class="fa fa-plus text-success pointer"
                    title="{{'sitnet_add' | translate}}" ng-click="openQuestionOwnerModal()"></i>
             </li>
         </ul>
     </div>
 
+    <!-- Exam contexts -->
     <div class="row">
         <label for="exam-contexts" class="sitnet-info-text-compact">{{'sitnet_added_to_exams' | translate}}:</label>
         <ul id="exam-contexts" class="list-inline">
