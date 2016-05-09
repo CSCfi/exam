@@ -1,171 +1,194 @@
 <div id="sitnet-dialog" ng-controller="ExamSectionQuestionCtrl">
     <div class="terms-dialog-header">
         <h4 class="sitnet-white"><i class="fa fa-edit"></i>&nbsp;&nbsp;
-            <span>{{'sitnet_questions_edit' | translate}}</span>
+            <span>{{'sitnet_edit_exam_question' | translate}}</span>
         </h4>
     </div>
     <div class="modal-body">
-        <div class="main-row">
-            <div class="col-md-12 top-margin-1">
-                <div ng-show="lotteryOn">
-                    <div class="alert-warning" style="padding: 1em">
-                        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                        <span>{{'sitnet_exam_section_question_lottery_on_warning' | translate}}</span>
+        <div class="col-md-12 alert alert-info info-box">
+            <div><i class="fa fa-lg fa-info-circle text-info"></i></div>
+            <div class="content-wrapper">
+                <p>{{'sitnet_exam_question_edit_instructions' | translate}}</p>
+                <p>{{'sitnet_exam_question_edit_disclaimer' | translate}}</p>
+                <p><a ng-click="openBaseQuestionEditor()" target="_blank" class="pointer">
+                    <strong>{{ 'sitnet_base_question_edit' | translate }}</strong>
+                </a></p>
+            </div>
+        </div>
+        <div class="col-md-12 top-margin-1">
+            <div ng-show="lotteryOn">
+                <div class="alert-warning" style="padding: 1em">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                    <span>{{'sitnet_exam_section_question_lottery_on_warning' | translate}}</span>
+                </div>
+            </div>
+            <form role="form" class="form-horizontal" name="questionForm" novalidate>
+
+                <!-- Question -->
+                <div class="form-group">
+                    <label class="sitnet-info-text" for="question-text">
+                        {{ 'sitnet_question_text' | translate }}
+                    </label>
+                    <div id="question-text">
+                        <strong>
+                            <span mathjax ng-bind-html="trustAsHtml(newQuestion.question)"></span>
+                        </strong>
                     </div>
                 </div>
-                <form role="form" class="form-horizontal" name="questionForm" novalidate>
 
-                    <!-- Question -->
-                    <div class="form-group">
-                        <div>
-                            <strong>
-                                <span mathjax ng-bind-html="trustAsHtml(newQuestion.question)"></span>
-                            </strong>
+                <div ng-controller="AttachmentController" class="form-group">
+                    <label class="sitnet-info-text" for="attachment">
+                        {{ 'sitnet_question_attachment' | translate }}
+                    </label>
+                    <div id="attachment">
+                        <div ng-show="newQuestion.attachment">
+                            <a class="pointer" ng-click="downloadQuestionAttachment(newQuestion)">{{
+                                newQuestion.attachment.fileName }}</a>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Type specific content -->
-                    <div class="top-margin-1">
-                        <div ng-if="newQuestion.type === 'MultipleChoiceQuestion' || newQuestion.type === 'WeightedMultipleChoiceQuestion'">
-                            <div class="row">
-                                <h4 class="sitnet-info-text">{{'sitnet_question_options' | translate}}</h4>
-                            </div>
-                            <div id="question-editor">
-                                <div ng-repeat="option in getOptions()">
-                                    <div ng-if="newQuestion.type === 'MultipleChoiceQuestion'"
-                                         class="form-horizontal question-editor-option"
-                                         ng-class="option.correctOption ? 'alert-success' : 'alert-danger'">
-                                        <div class="form-group">
-                                            <div class="col-md-11">
-                                                <input id="optionText" type="text" focus-on="opt{{option.id}}"
-                                                       class="form-control"
-                                                       ng-model="option.option"
-                                                       disabled="disabled"/>
-                                            </div>
+                <!-- Type specific content -->
+                <div class="top-margin-1">
+                    <div ng-if="newQuestion.type === 'MultipleChoiceQuestion' || newQuestion.type === 'WeightedMultipleChoiceQuestion'">
+                        <div class="row">
+                            <h4 class="sitnet-info-text">{{'sitnet_question_options' | translate}}</h4>
+                        </div>
+                        <div id="question-editor">
+                            <div ng-repeat="option in getOptions()">
+                                <div ng-if="newQuestion.type === 'MultipleChoiceQuestion'"
+                                     class="form-horizontal question-editor-option"
+                                     ng-class="option.option.correctOption ? 'alert-success' : 'alert-danger'">
+                                    <div class="form-group">
+                                        <div class="col-md-11">
+                                            <input id="optionText" type="text"
+                                                   class="form-control"
+                                                   ng-model="option.option.option"
+                                                   disabled="disabled"/>
                                         </div>
-                                        <div class="form-group">
-                                            <div class="col-md-4">
-                                                <div class="radio">
-                                                    <label>
-                                                        <input type="radio" ng-model="option.correctOption"
-                                                               ng-value="true" disabled="disabled">
-                                                        {{'sitnet_correct_option' | translate }}
-                                                    </label>
-                                                </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-4">
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" ng-model="option.option.correctOption"
+                                                           ng-value="true" disabled="disabled">
+                                                    {{'sitnet_correct_option' | translate }}
+                                                </label>
                                             </div>
                                         </div>
                                     </div>
-                                    <div ng-if="newQuestion.type === 'WeightedMultipleChoiceQuestion'"
-                                         class="form-horizontal question-editor-option"
-                                         ng-class="option.score > 0 ? 'alert-success' : 'alert-danger'">
-                                        <div class="form-group">
-                                            <label for="optionScore" class="col-md-1 control-label">{{'sitnet_word_points'
-                                                | translate}}:</label>
+                                </div>
+                                <div ng-if="newQuestion.type === 'WeightedMultipleChoiceQuestion'"
+                                     class="form-horizontal question-editor-option"
+                                     ng-class="option.score > 0 ? 'alert-success' : 'alert-danger'">
+                                    <div class="form-group">
+                                        <label for="optionScore" class="col-md-1 control-label">{{'sitnet_word_points'
+                                            | translate}}:</label>
 
-                                            <div class="col-md-2">
-                                                <input id="optionScore" class="form-control" name="maxScore"
-                                                       type="number"
-                                                       class="form-control" ng-change="updateOption(option)"
-                                                       ng-model-options="{ updateOn: 'blur' }"
-                                                       ng-model="option.score"
-                                                       required="true" ng-disabled="lotteryOn">
-                                            </div>
+                                        <div class="col-md-2">
+                                            <input id="optionScore" class="form-control" name="maxScore"
+                                                   type="number"
+                                                   class="form-control" ng-change="updateOption(option)"
+                                                   ng-model-options="{ updateOn: 'blur' }"
+                                                   ng-model="option.score"
+                                                   required="true" ng-disabled="lotteryOn">
                                         </div>
-                                        <div class="form-group">
-                                            <label for="optionText" class="col-md-1 control-label"></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="optionText" class="col-md-1 control-label"></label>
 
-                                            <div class="col-md-11">
-                                                <input id="multiOptionText" type="text" class="form-control"
-                                                       ng-model="option.option.option"
-                                                       disabled="disabled"/>
-                                            </div>
+                                        <div class="col-md-11">
+                                            <input id="multiOptionText" type="text" class="form-control"
+                                                   ng-model="option.option.option"
+                                                   disabled="disabled"/>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row" ng-if="newQuestion.type === 'EssayQuestion'">
-                            <div class="form-group col-md-3">
-                                <label class="sitnet-info-text" for="expectedWordCount">{{'sitnet_essay_length_recommendation'
-                                    | translate}}</label>
-                                <label ng-hide="questionForm.expectedWordCount.$valid" class="text-danger">
-                                    {{'sitnet_essay_length_recommendation_bounds' | translate}}
-                                </label>
+                    </div>
+                    <div class="row" ng-if="newQuestion.type === 'EssayQuestion'">
+                        <div class="form-group col-md-3">
+                            <label class="sitnet-info-text" for="expectedWordCount">{{'sitnet_essay_length_recommendation'
+                                | translate}}</label>
+                            <label ng-hide="questionForm.expectedWordCount.$valid" class="text-danger">
+                                {{'sitnet_essay_length_recommendation_bounds' | translate}}
+                            </label>
 
-                                <div class="input-group" id="expectedWordCount">
-                                    <input name="expectedWordCount" type="number" class="form-control"
-                                           ng-model="sectionQuestion.expectedWordCount"
-                                           ng-model-options="{ updateOn: 'blur' }"
-                                           ui-change="estimateCharacters(sectionQuestion); questionForm.expectedWordCount.$valid ? updateQuestion() : false"
-                                           min="1"
-                                           max="1000000">
+                            <div class="input-group" id="expectedWordCount">
+                                <input name="expectedWordCount" type="number" class="form-control"
+                                       ng-model="sectionQuestion.expectedWordCount"
+                                       ng-model-options="{ updateOn: 'blur' }"
+                                       ui-change="estimateCharacters(sectionQuestion); questionForm.expectedWordCount.$valid ? updateQuestion() : false"
+                                       min="1"
+                                       max="1000000">
                                     <span class="input-group-addon"
                                           title="{{'sitnet_average_word_length_finnish' | translate}}">
                                         {{'sitnet_approximately' | translate}} {{estimateCharacters(sectionQuestion)}} {{'sitnet_characters' | translate}}
                                     </span>
-                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Evaluation type -->
-                    <div class="row">
-                        <div class="form-group col-md-3" ng-if="newQuestion.type == 'EssayQuestion'">
-                            <label class="sitnet-info-text" for="evaluationType">{{'sitnet_evaluation_type' |
-                                translate}}</label>
-                            <select id="evaluationType" class="form-control" ng-model="sectionQuestion.evaluationType"
-                                    ng-change="updateEvaluationType()"
-                                    ng-required="newQuestion.type === 'EssayQuestion'">
-                                <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
-                                <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Max score -->
-                    <div class="row">
-                        <div class="form-group col-md-3"
-                             ng-if="newQuestion.type == 'MultipleChoiceQuestion' ||
-                                      sectionQuestion.evaluationType == 'Points'">
-                            <label class="sitnet-info-text" for="maxScore">{{'sitnet_max_score' | translate}}</label>
-                            <label ng-hide="questionForm.maxScore.$valid" class="text-danger">
-                                {{ 'sitnet_positive_integer_required' | translate }}
-                            </label>
-                            <input id="maxScore" name="maxScore" type="number" class="col-md-2 form-control"
-                                   ng-model="sectionQuestion.maxScore"
-                                   ng-model-options="{ updateOn: 'blur'}"
-                                   ng-change="updateQuestion()"
-                                   min="1" max="1000000"
-                                   ng-required="newQuestion.evaluationType=='Points'"
-                                   ng-disabled="lotteryOn"/>
-                        </div>
-                    </div>
-
-                    <!-- Instructions -->
-                    <div class="form-group">
-                        <label class="sitnet-info-text" for="instruction">{{'sitnet_question_instruction' |
+                <!-- Evaluation type -->
+                <div class="row">
+                    <div class="form-group col-md-3" ng-if="newQuestion.type == 'EssayQuestion'">
+                        <label class="sitnet-info-text" for="evaluationType">{{'sitnet_evaluation_type' |
                             translate}}</label>
+                        <select id="evaluationType" class="form-control" ng-model="sectionQuestion.evaluationType"
+                                ng-change="updateEvaluationType()"
+                                ng-required="newQuestion.type === 'EssayQuestion'">
+                            <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
+                            <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Max score -->
+                <div class="row">
+                    <div class="form-group col-md-3"
+                         ng-if="newQuestion.type == 'MultipleChoiceQuestion' ||
+                                      sectionQuestion.evaluationType == 'Points'">
+                        <label class="sitnet-info-text" for="maxScore">{{'sitnet_max_score' | translate}}</label>
+                        <label ng-hide="questionForm.maxScore.$valid" class="text-danger">
+                            {{ 'sitnet_positive_integer_required' | translate }}
+                        </label>
+                        <input id="maxScore" name="maxScore" type="number" class="col-md-2 form-control"
+                               ng-model="sectionQuestion.maxScore"
+                               ng-model-options="{ updateOn: 'blur'}"
+                               ng-change="updateQuestion()"
+                               min="1" max="1000000"
+                               ng-required="newQuestion.evaluationType=='Points'"
+                               ng-disabled="lotteryOn"/>
+                    </div>
+                </div>
+
+                <!-- Instructions -->
+                <div class="form-group">
+                    <label class="sitnet-info-text" for="instruction">{{'sitnet_question_instruction' |
+                        translate}}</label>
                         <textarea id="instruction" class="form-control" rows="3"
                                   ng-model-options="{ updateOn: 'blur'}"
                                   ng-change="updateQuestion()"
                                   ng-model="sectionQuestion.answerInstructions"
                                   placeholder="{{'sitnet_question_instruction' | translate}}">
                         </textarea>
-                    </div>
+                </div>
 
-                    <!-- Evaluation criteria -->
-                    <div ng-if="newQuestion.type == 'EssayQuestion'" class="form-group">
-                        <label class="sitnet-info-text" for="evaluationCriteria">{{'sitnet_exam_evaluation_criteria' |
-                            translate}}</label>
+                <!-- Evaluation criteria -->
+                <div ng-if="newQuestion.type == 'EssayQuestion'" class="form-group">
+                    <label class="sitnet-info-text" for="evaluationCriteria">{{'sitnet_exam_evaluation_criteria' |
+                        translate}}</label>
                         <textarea id="evaluationCriteria" class="form-control" rows="3"
                                   ng-model-options="{ updateOn: 'blur'}"
                                   ng-change="updateQuestion()"
                                   ng-model="sectionQuestion.evaluationCriteria"
                                   placeholder="{{'sitnet_question_instruction' | translate}}">
                         </textarea>
-                    </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
     <div class="modal-footer">

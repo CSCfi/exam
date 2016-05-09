@@ -675,9 +675,16 @@
   "sitnet_confirm_archiving_without_grade": "Lukitse suoritus ilman arviointia. Tällöin suoritus ei siirry rekisteriin. Toimenpidettä ei voi perua EN",
   "sitnet_no_grading_description": "Suoritusta ei loppuarvioitu EXAM-sovelluksessa EN",
   "sitnet_question_already_in_section": "Kysymys on jo lisätty tähän aihealueeseen EN",
-  "sitnet_point_limit" : "Pisteet (arvosanan alaraja) EN",
+  "sitnet_point_limit": "Pisteet (arvosanan alaraja) EN",
   "sitnet_choose_execution_type": "Valitse tentin suoritustyyppi EN",
   "sitnet_archived_teacher_exams": "Arkistoidut tentit (voimassaoloaika päättynyt, ei arvioimattomia suorituksia) EN",
   "sitnet_participations_assessed": "Suorituksia yhteensä EN",
-  "sitnet_expired_exams": "Sulkeutuneet tentit EN"
+  "sitnet_expired_exams": "Sulkeutuneet tentit EN",
+  "sitnet_edit_exam_question": "Muokkaa tenttikysymystä EN",
+  "sitnet_question_text": "Kysymysteksti EN",
+  "sitnet_exam_question_edit_instructions": "Tässä näkymässä voit muokata kysymyksen tenttisidonnaisia tietoja kuten pisteitä ja vastausohjeita. EN",
+  "sitnet_exam_question_edit_disclaimer": "Jos haluat muokata kysymyksen perustietoja kuten kysymystekstiä tai liitetiedostoa, voit siirtyä muokkaamaan niitä allaolevasta linkistä. Huomioi kuitenkin että muutokset perustietoihin heijastuvat suoraan kaikkiin tentteihin, joissa kysymys on käytössä. EN",
+  "sitnet_base_question_edit": "Muokkaa kysymyksen perustietoja EN",
+  "sitnet_question_owners": "Kysymyksen omistajat EN",
+  "sitnet_add_owner_for_question": "Lisää kysymykselle omistaja EN"
 }

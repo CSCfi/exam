@@ -7,6 +7,8 @@ import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
+import models.ExamSectionQuestion;
+import models.ExamSectionQuestionOption;
 import models.Role;
 import models.User;
 import models.questions.MultipleChoiceOption;
@@ -243,6 +245,16 @@ public class QuestionController extends BaseController {
         question.save();
         option.save();
 
+        // Need to add the new option to bound exam section questions as well
+        // TODO: provide support for weighted mcq. Needs changes in its scoring model
+        if (question.getType() == Question.Type.MultipleChoiceQuestion) {
+            for (ExamSectionQuestion esq : question.getExamSectionQuestions()) {
+                ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+                esqo.setOption(option);
+                esq.getOptions().add(esqo);
+                esq.update();
+            }
+        }
         return ok(Json.toJson(option));
     }
 
@@ -257,7 +269,7 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addOwner(Long uid) {
 
-        User newOwner = Ebean.find(User.class, uid);
+        User newOwner = Ebean.find(User.class).select("id, firstName, lastName, userIdentifier").where().idEq(uid).findUnique();
         if (newOwner == null) {
             return notFound();
         }
@@ -271,15 +283,41 @@ public class QuestionController extends BaseController {
         List<Long> ids = Stream.of(questionIds.split(","))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
+        User modifier = getLoggedUser();
         Ebean.find(Question.class).where().idIn(ids)
                 .findList()
-                .forEach(q -> addOwner(q, newOwner));
+                .forEach(q -> addOwner(q, newOwner, modifier));
 
+        return ok(newOwner);
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result removeOwner(Long uid) {
+
+        User owner = Ebean.find(User.class, uid);
+        if (owner == null) {
+            return notFound();
+        }
+        final DynamicForm df = formFactory.form().bindFromRequest();
+        final String questionId = df.data().get("questionId");
+
+        if (questionId == null || questionId.isEmpty()) {
+            return badRequest();
+        }
+
+        Question question = Ebean.find(Question.class, questionId);
+        if (question == null) {
+            return notFound();
+        }
+        AppUtil.setModifier(question, getLoggedUser());
+        question.getQuestionOwners().remove(owner);
+        question.update();
         return ok();
     }
 
-    private void addOwner(Question question, User user) {
-        AppUtil.setModifier(question, user);
+
+    private void addOwner(Question question, User user, User modifier) {
+        AppUtil.setModifier(question, modifier);
         question.getQuestionOwners().add(user);
         question.update();
     }

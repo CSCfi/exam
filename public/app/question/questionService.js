@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('questionService', ['$translate', '$location', '$sessionStorage', 'QuestionRes',
-            function ($translate, $location, $sessionStorage, QuestionRes) {
+        .service('questionService', ['$q', '$translate', '$location', '$sessionStorage', 'QuestionRes',
+            function ($q, $translate, $location, $sessionStorage, QuestionRes) {
 
                 var self = this;
 
@@ -154,6 +154,45 @@
                     }
                     return input;
                 };
+
+                self.updateQuestion = function (question, displayErrors) {
+                    var questionToUpdate = {
+                        "id": question.id,
+                        "type": question.type,
+                        "defaultMaxScore": question.defaultMaxScore,
+                        "question": question.question,
+                        "shared": question.shared,
+                        "defaultAnswerInstructions": question.defaultAnswerInstructions,
+                        "defaultEvaluationCriteria": question.defaultEvaluationCriteria
+                    };
+
+                    // update question specific attributes
+                    switch (questionToUpdate.type) {
+                        case 'EssayQuestion':
+                            questionToUpdate.defaultExpectedWordCount = question.defaultExpectedWordCount;
+                            questionToUpdate.defaultEvaluationType = question.defaultEvaluationType;
+                            break;
+
+                        case 'MultipleChoiceQuestion':
+                        case 'WeightedMultipleChoiceQuestion':
+                            questionToUpdate.options = question.options;
+                            break;
+                    }
+                    var deferred = $q.defer();
+                    QuestionRes.questions.update(questionToUpdate,
+                        function () {
+                            toastr.info($translate.instant("sitnet_question_saved"));
+                            deferred.resolve();
+                        }, function (error) {
+                            if (displayErrors) {
+                                toastr.error(error.data);
+                            }
+                            deferred.reject();
+                        }
+                    );
+                    return deferred.promise;
+                };
+
 
             }]);
 }());

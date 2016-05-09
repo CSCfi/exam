@@ -1,12 +1,16 @@
 package models.questions;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import models.ExamSectionQuestionOption;
 import models.base.GeneratedIdentityModel;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import java.util.Set;
 
 
 @Entity
@@ -21,6 +25,10 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
     @ManyToOne
     @JsonBackReference
     private Question question;
+
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "option")
+    @JsonBackReference
+    private Set<ExamSectionQuestionOption> examSectionQuestionOptions;
 
     public String getOption() {
         return option;
@@ -55,9 +63,17 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
         this.question = question;
     }
 
+    public Set<ExamSectionQuestionOption> getExamSectionQuestionOptions() {
+        return examSectionQuestionOptions;
+    }
+
+    public void setExamSectionQuestionOptions(Set<ExamSectionQuestionOption> examSectionQuestionOptions) {
+        this.examSectionQuestionOptions = examSectionQuestionOptions;
+    }
+
     public MultipleChoiceOption copy() {
         MultipleChoiceOption option = new MultipleChoiceOption();
-        BeanUtils.copyProperties(this, option, "id");
+        BeanUtils.copyProperties(this, option, "id, examSectionQuestionOptions");
         return option;
     }
 

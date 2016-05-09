@@ -8,7 +8,14 @@ import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.*;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamInspection;
+import models.Language;
+import models.Permission;
+import models.Role;
+import models.User;
+import models.questions.Question;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
@@ -179,6 +186,17 @@ public class UserController extends BaseController {
         }
         List<User> users = findUsersByRoleAndName(role, criteria);
         users.removeAll(exam.getExamOwners());
+        return ok(Json.toJson(asArray(users)));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result getQuestionOwnersByRoleFilter(String role, Long qid, String criteria) {
+        Question question = Ebean.find(Question.class, qid);
+        if (question == null) {
+            return notFound();
+        }
+        List<User> users = findUsersByRoleAndName(role, criteria);
+        users.removeAll(question.getQuestionOwners());
         return ok(Json.toJson(asArray(users)));
     }
 

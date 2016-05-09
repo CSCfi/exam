@@ -10,7 +10,6 @@
                 }),
                 userRoles: $resource("/app/users/:id/roles/:role", {
                         id: "@id", role: "@role"
-
                     },
                     {
                         "add": {method: "POST", params: {id: "@id", role: "@role"}},
@@ -33,9 +32,14 @@
                         role: "@role"
                     }),
 
-                filterOwnersByExam: $resource("/app/users/filter/owner/:role/:eid",
+                filterOwnersByExam: $resource("/app/users/exam/owners/:role/:eid",
                     {
                         eid: "@eid",
+                        role: "@role"
+                    }),
+                filterOwnersByQuestion: $resource("/app/users/question/owners/:role/:qid",
+                    {
+                        qid: "@qid",
                         role: "@role"
                     }),
 

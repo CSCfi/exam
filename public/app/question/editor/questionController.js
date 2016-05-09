@@ -75,41 +75,7 @@
                 };
 
                 var update = function (displayErrors) {
-                    var questionToUpdate = {
-                        "id": $scope.newQuestion.id,
-                        "type": $scope.newQuestion.type,
-                        "defaultMaxScore": $scope.newQuestion.defaultMaxScore,
-                        "question": $scope.newQuestion.question,
-                        "shared": $scope.newQuestion.shared,
-                        "defaultAnswerInstructions": $scope.newQuestion.defaultAnswerInstructions,
-                        "defaultEvaluationCriteria": $scope.newQuestion.defaultEvaluationCriteria
-                    };
-
-                    // update question specific attributes
-                    switch (questionToUpdate.type) {
-                        case 'EssayQuestion':
-                            questionToUpdate.defaultExpectedWordCount = $scope.newQuestion.defaultExpectedWordCount;
-                            questionToUpdate.defaultEvaluationType = $scope.newQuestion.defaultEvaluationType;
-                            break;
-
-                        case 'MultipleChoiceQuestion':
-                        case 'WeightedMultipleChoiceQuestion':
-                            questionToUpdate.options = $scope.newQuestion.options;
-                            break;
-                    }
-                    var deferred = $q.defer();
-                    QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
-                        function () {
-                            toastr.info($translate.instant("sitnet_question_saved"));
-                            deferred.resolve();
-                        }, function (error) {
-                            if (displayErrors) {
-                                toastr.error(error.data);
-                            }
-                            deferred.reject();
-                        }
-                    );
-                    return deferred.promise;
+                    return questionService.updateQuestion($scope.newQuestion, displayErrors);
                 };
 
                 $scope.deleteQuestion = function () {
@@ -228,6 +194,39 @@
                     );
                 };
 
+                $scope.openQuestionOwnerModal = function () {
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'question/editor/question_owner.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: "QuestionOwnerController",
+                        resolve: {
+                            question: function () {
+                                return $scope.newQuestion;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function (result) {
+                        $scope.newQuestion.questionOwners.push(result);
+                    }, function () {
+                        // Cancel button clicked
+                    });
+                };
+
+                $scope.removeOwner = function (user) {
+                    QuestionRes.questionOwner.remove({questionId: $scope.newQuestion.id, uid: user.id},
+                        function () {
+                            var i = $scope.newQuestion.questionOwners.indexOf(user);
+                            if (i > 0) {
+                                $scope.newQuestion.questionOwners.splice(i, 1);
+                            }
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        });
+                };
+
                 $scope.selectFile = function () {
 
                     var question = $scope.newQuestion;
@@ -269,7 +268,8 @@
                 if ($scope.newQuestion) {
                     initQuestion();
                 } else {
-                    QuestionRes.questions.get({id: $routeParams.id},
+                    var id = $scope.baseQuestionId || $routeParams.id;
+                    QuestionRes.questions.get({id: id},
                         function (question) {
                             $scope.newQuestion = question;
                             initQuestion();

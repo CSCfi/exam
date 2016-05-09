@@ -69,6 +69,19 @@ p {
   }
 }
 
+.info-box {
+  padding: 1em;
+  margin-bottom: 0 !important;
+  div {
+    float: left;
+    clear: none;
+  }
+  .content-wrapper {
+    width: 95%;
+    margin-left: 1em;
+  }
+}
+
 .question-editor-modal .modal-dialog {
   width: 80%;
 }

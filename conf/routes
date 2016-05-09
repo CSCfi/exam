@@ -11,7 +11,8 @@ GET           /app/users/:id                                             control
 GET           /app/users/byrole/:role                                    controllers.UserController.getUsersByRole(role: String)
 GET           /app/users/filter/:role                                    controllers.UserController.getUsersByRoleFilter(role: String, q: String)
 GET           /app/users/filter/:role/:eid                               controllers.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
-GET           /app/users/filter/owner/:role/:eid                         controllers.UserController.getExamOwnersByRoleFilter(role: String, eid: Long, q: String)
+GET           /app/users/exam/owners/:role/:eid                          controllers.UserController.getExamOwnersByRoleFilter(role: String, eid: Long, q: String)
+GET           /app/users/question/owners/:role/:qid                      controllers.UserController.getQuestionOwnersByRoleFilter(role: String, qid: Long, q: String)
 PUT           /app/users/agreement                                       controllers.UserController.updateUserAgreementAccepted()
 PUT           /app/user/lang                                             controllers.UserController.updateLanguage()
 GET           /app/users                                                 controllers.UserController.findUsers(filter: java.util.Optional[String])
@@ -159,6 +160,7 @@ POST          /app/questions/:qid/option                                 control
 DELETE        /app/questions/:id                                         controllers.QuestionController.deleteQuestion(id: Long)
 DELETE        /app/questions/option/:oid                                 controllers.QuestionController.deleteOption(oid: Long)
 POST          /app/questions/owner/:uid                                  controllers.QuestionController.addOwner(uid: Long)
+DELETE        /app/questions/owner/:uid                                  controllers.QuestionController.removeOwner(uid: Long)
 
 ############### Section question interface ##########
 GET           /app/examquestions/:id                                     controllers.ExamSectionController.getExamQuestion(id: Long)

@@ -1,17 +1,52 @@
 <div>
     <!-- Shared -->
-    <div class="row bottom-padding-2">
+    <div class="row">
         <div class="checkbox">
             <label><input type="checkbox" ng-model="newQuestion.shared" ng-click="updateQuestion()">
                 <strong class="sitnet-info-text">{{ 'sitnet_public_question' | translate }}</strong></label>
         </div>
     </div>
 
+    <!-- Question owners -->
+    <div class="row">
+        <div class="sitnet-info-text"><strong>{{'sitnet_question_owners' | translate}}:</strong>
+        </div>
+    </div>
+
+    <div class="row">
+        <ul class="list-inline">
+            <li>
+                <button ng-repeat="user in newQuestion.questionOwners" class="btn btn-primary btn-xs"
+                        style="margin: 0.2em"
+                        ng-disabled="newQuestion.questionOwners.length == 1" ng-click="removeOwner(user)"
+                        title="{{'sitnet_remove' | translate}}">
+                    {{user.firstName }} {{ user.lastName }}
+                </button>
+                <i class="fa fa-plus text-info pointer"
+                   title="{{'sitnet_add' | translate}}" ng-click="openQuestionOwnerModal()"></i>
+            </li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <label for="exam-contexts" class="sitnet-info-text-compact">{{'sitnet_added_to_exams' | translate}}:</label>
+        <ul id="exam-contexts" class="list-inline">
+            <li>
+                <span ng-repeat="name in examNames" class="label label-primary" style="margin: 0.2em">
+                    {{name}}
+                </span>
+                <span ng-if="examNames.length === 0" class="label label-default" style="margin: 0.2em">
+                    &dash;
+                </span>
+            </li>
+        </ul>
+    </div>
+
 
     <!-- Question editor -->
     <div class="form-group">
-        <label for="editor" ng-show="newQuestion && !newQuestion.question">
-            <span class="text-danger">{{ 'sitnet_write_question_below' | translate }}</span>
+        <label for="editor">
+            <span ng-show="newQuestion && !newQuestion.question" class="text-danger">{{ 'sitnet_write_question_below' | translate }}</span>
         </label>
         <textarea id="editor" name="editor" ck-editor rows="10" cols="80"
                   ng-model="newQuestion.question"
@@ -75,15 +110,6 @@
             translate}}</label>
 
         <div id="metaInfo">
-            <div class="row">
-                <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_added_to_exams' | translate}}:
-                </div>
-                <div class="col-md-9">
-                    <div ng-repeat="name in examNames">
-                        <span class="sitnet-badge pull-left inline">{{ name }}</span>
-                    </div>
-                </div>
-            </div>
             <div class="row">
                 <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_added_to_sections' |
                     translate}}:

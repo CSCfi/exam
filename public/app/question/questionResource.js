@@ -19,7 +19,8 @@
                         uid: "@uid"
                     },
                     {
-                        "update": {method: "POST", params: {uid: "@uid"}}
+                        "update": {method: "POST"},
+                        "remove": {method: "DELETE"}
                     }),
 
                 score: $resource("/app/review/examquestion/:id/score",

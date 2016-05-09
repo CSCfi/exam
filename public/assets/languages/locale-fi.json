@@ -144,7 +144,7 @@
   "sitnet_question_unanswered": "Vastaamatta",
   "sitnet_questions": "Kysymykset",
   "sitnet_questions_all": "Kaikki kysymykset",
-  "sitnet_questions_edit": "Muokkaa kysymystä",
+  "sitnet_questions_edit": "Muokkaa kysymyksen perustietoja",
   "sitnet_randomize_questions": "Arvo kysymykset",
   "sitnet_ready": "Valmis",
   "sitnet_reason": "Syy",
@@ -679,5 +679,12 @@
   "sitnet_choose_execution_type": "Valitse tentin suoritustyyppi",
   "sitnet_archived_teacher_exams": "Arkistoidut tentit (voimassaoloaika päättynyt, ei arvioimattomia suorituksia)",
   "sitnet_participations_assessed": "Suorituksia yhteensä",
-  "sitnet_expired_exams": "Sulkeutuneet tentit"
+  "sitnet_expired_exams": "Sulkeutuneet tentit",
+  "sitnet_edit_exam_question": "Muokkaa tenttikysymystä",
+  "sitnet_question_text": "Kysymysteksti",
+  "sitnet_exam_question_edit_instructions": "Tässä näkymässä voit muokata kysymyksen tenttisidonnaisia tietoja kuten pisteitä ja vastausohjeita.",
+  "sitnet_exam_question_edit_disclaimer": "Jos haluat muokata kysymyksen perustietoja kuten kysymystekstiä tai liitetiedostoa, voit siirtyä muokkaamaan niitä allaolevasta linkistä. Huomioi kuitenkin että muutokset perustietoihin heijastuvat suoraan kaikkiin tentteihin, joissa kysymys on käytössä.",
+  "sitnet_base_question_edit": "Muokkaa kysymyksen perustietoja",
+  "sitnet_question_owners": "Kysymyksen omistajat",
+  "sitnet_add_owner_for_question": "Lisää kysymykselle omistaja"
 }
