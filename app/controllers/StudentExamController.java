@@ -515,7 +515,7 @@ public class StudentExamController extends BaseController {
                 .fetch("course", "code")
                 .fetch("examOwners", "firstName, lastName")
                 .fetch("examInspections.user", "firstName, lastName")
-                .fetch("examLanguages", "code, name")
+                .fetch("examLanguages", "code, name", new FetchConfig().query())
                 .fetch("creator", "firstName, lastName")
                 .where()
                 .eq("state", Exam.State.PUBLISHED)

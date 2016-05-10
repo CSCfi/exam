@@ -16,7 +16,8 @@
                     StudentExamRes.exams.query({filter: $scope.filter.text}, function (exams) {
                         exams.forEach(function (exam) {
                             if (!exam.examLanguages) {
-                                console.log("no langs for id: " + exam.id);
+                                console.warn("No languages for exam #" + exam.id);
+                                exam.examLanguages = [];
                             }
                             exam.languages = exam.examLanguages.map(function (lang) {
                                 return getLanguageNativeName(lang.code);
