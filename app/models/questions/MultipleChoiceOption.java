@@ -73,7 +73,7 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
 
     public MultipleChoiceOption copy() {
         MultipleChoiceOption option = new MultipleChoiceOption();
-        BeanUtils.copyProperties(this, option, "id, examSectionQuestionOptions");
+        BeanUtils.copyProperties(this, option, "id", "examSectionQuestionOptions");
         return option;
     }
 
