@@ -7,6 +7,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
+import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
@@ -15,6 +16,7 @@ import org.joda.time.DateTime;
 import play.Environment;
 import play.Logger;
 import play.data.DynamicForm;
+import play.db.ebean.Transactional;
 import play.libs.Json;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
@@ -322,31 +324,28 @@ public class StudentExamController extends BaseController {
         return Optional.empty();
     }
 
-    private static Query<Exam> createQuery() {
+    private static PathProperties getPath() {
+        return PathProperties.parse(
+                "(id, name, instruction, hash, duration, cloned, course(id, code, name), executionType(id, type), " + // (
+                        "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
+                        "examInspections(user(firstName, lastName))" +
+                        "examSections(id, name, sequenceNumber, " + // ((
+                        "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
+                        "question(id, type, question, attachment(fileName))" +
+                        "options(id, answered, option(id, option))" +
+                        "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
+                        ")))");
+    }
 
-        return Ebean.find(Exam.class)
-                .select("id, name, instruction, shared, hash, examActiveStartDate, examActiveEndDate, duration, answerLanguage, state, expanded, cloned")
-                .fetch("autoEvaluationConfig")
-                .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
-                .fetch("creator", "id")
-                .fetch("course", "id, code, name, credits, institutionName, department")
-                .fetch("examType", "id, type")
-                .fetch("executionType")
-                .fetch("examSections", "id, name, sequenceNumber")
-                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
-                .fetch("examSections.sectionQuestions.question", "id, type, question")
-                .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-                .fetch("examSections.sectionQuestions.options", "id, answered")
-                .fetch("examSections.sectionQuestions.options.option", "id, option")
-                .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, objectVersion")
-                .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
-                .fetch("examLanguages", "code")
-                .fetch("attachment", "fileName")
-                .fetch("examOwners", "firstName, lastName")
-                .fetch("examInspections.user", "firstName, lastName");
+    private static Query<Exam> createQuery() {
+        Query<Exam> query = Ebean.find(Exam.class);
+        PathProperties props = getPath();
+        props.apply(query);
+        return query;
     }
 
     @Restrict({@Group("STUDENT")})
+    @Transactional
     public Result startExam(String hash) {
         User user = getLoggedUser();
         Exam prototype = getPrototype(hash);
@@ -355,35 +354,29 @@ public class StudentExamController extends BaseController {
         if (prototype == null && possibleClone == null) {
             return notFound();
         }
-        // exam has been started
-        if (possibleClone != null) {
-            Exam.State state = possibleClone.getState();
-            // sanity check
-            if (state != Exam.State.STUDENT_STARTED) {
-                return forbidden();
-            }
-        }
-
-        // Create new exam for student
+        // Exam not started yet, create new exam for student
         if (possibleClone == null) {
             ExamEnrolment enrolment = getEnrolment(user, prototype);
             return getEnrolmentError(enrolment).orElseGet(() -> {
                 Exam newExam = createNewExam(prototype, user, enrolment);
-                //TODO: Path properties should be applied
-                Exam studentExam = createQuery().where().idEq(newExam.getId()).findUnique();
-                studentExam.setCloned(true);
-                studentExam.setDerivedMaxScores();
-                return ok(studentExam);
+                newExam.setCloned(true);
+                newExam.setDerivedMaxScores();
+                return ok(newExam, getPath());
             });
         } else {
-            // Returning an already existing student exam
+            // Exam started already
+            // sanity check
+            if (possibleClone.getState() != Exam.State.STUDENT_STARTED) {
+                return forbidden();
+            }
             possibleClone.setCloned(false);
             possibleClone.setDerivedMaxScores();
-            return ok(possibleClone);
+            return ok(possibleClone, getPath());
         }
     }
 
     @Restrict({@Group("STUDENT")})
+    @Transactional
     public Result turnExam(String hash) {
         User user = getLoggedUser();
         Exam exam = Ebean.find(Exam.class)
@@ -428,6 +421,7 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
+    @Transactional
     public Result abortExam(String hash) {
         User user = getLoggedUser();
         Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findUnique();

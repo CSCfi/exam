@@ -110,11 +110,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         assertThat(studentExam.getExamSections()).hasSize(exam.getExamSections().size());
         assertThat(studentExam.getHash()).isNotEqualTo(exam.getHash());
         assertThat(studentExam.getExamLanguages()).hasSize(exam.getExamLanguages().size());
-        assertThat(studentExam.getExamActiveStartDate()).isEqualTo(exam.getExamActiveStartDate());
-        assertThat(studentExam.getExamActiveEndDate()).isEqualTo(exam.getExamActiveEndDate());
         assertThat(studentExam.getDuration()).isEqualTo(exam.getDuration());
-        assertThat(studentExam.getState()).isEqualTo(Exam.State.STUDENT_STARTED);
-        assertThat(studentExam.getCreator().getId()).isEqualTo(user.getId());
 
         assertThat(Ebean.find(Exam.class).where().eq("hash", studentExam.getHash()).findUnique()).isNotNull();
         assertThat(Ebean.find(ExamEnrolment.class, enrolment.getId()).getExam().getHash()).isEqualTo(studentExam.getHash());

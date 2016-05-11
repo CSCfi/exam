@@ -319,7 +319,7 @@ public class AttachmentController extends BaseController {
         if (user.hasRole("STUDENT", getSession())) {
             question = Ebean.find(Question.class).where()
                     .idEq(id)
-                    .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                    .eq("examSectionQuestions.examSection.exam.creator", getLoggedUser())
                     .findUnique();
         } else {
             question = Ebean.find(Question.class, id);
