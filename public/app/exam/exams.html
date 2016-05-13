@@ -105,26 +105,26 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="exam in exams | filter: {state: view, expired: showExpired} | orderBy:examsPredicate:reverse">
-                        <td ng-style="exam.activityStyle">{{exam.course.code}}</td>
-                        <td ng-style="exam.activityStyle">
+                        <td>{{exam.course.code}}</td>
+                        <td>
                             <a ng-if="exam.name" class="exams-info-title bold-button"
                                href="/exams/{{exam.id}}">{{exam.name}}</a>
                             <a ng-if="!exam.name" class="exams-info-title bold-button text-danger"
                                href="/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}
                             </a>
                         </td>
-                        <td ng-style="exam.activityStyle">{{ getExecutionTypeTranslation(exam) | translate | uppercase
+                        <td>{{ getExecutionTypeTranslation(exam) | translate | uppercase
                             }}
                         </td>
-                        <td ng-style="exam.activityStyle">
+                        <td>
                             <teacher-list exam="exam"/>
                         </td>
-                        <td ng-style="exam.activityStyle">
+                        <td>
                             <span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">
                                 {{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
                             </span>
                         </td>
-                        <td ng-style="exam.activityStyle" class="text-center">
+                        <td class="text-center">
                             <span class="dropdown pointer" uib-dropdown>
                                 <a href class="dropdown-toggle" uib-dropdown-toggle>
                                     <i class="fa fa-lg fa-copy text-info"></i>
@@ -139,7 +139,7 @@
                                 </ul>
                             </span>
                         </td>
-                        <td class="text-center" ng-style="exam.activityStyle">
+                        <td class="text-center">
                             <a ng-click="deleteExam(exam)" class="pointer">
                                 <i class="fa fa-times fa-lg sitnet-red"></i>
                             </a>
