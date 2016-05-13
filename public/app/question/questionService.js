@@ -21,7 +21,7 @@
                         angular.forEach(section.sectionQuestions, function (sectionQuestion) {
                             var question = sectionQuestion.question;
                             if (question.type === "EssayQuestion") {
-                                if (sectionQuestion.evaluationType === "Select") {
+                                if (sectionQuestion.evaluationType === "Selection") {
                                     if (sectionQuestion.evaluatedScore == 1) {
                                         data.accepted++;
                                     } else if (question.evaluatedScore === 0) {

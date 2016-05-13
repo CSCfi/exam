@@ -45,6 +45,9 @@
                             <a class="pointer" ng-click="downloadQuestionAttachment(newQuestion)">{{
                                 newQuestion.attachment.fileName }}</a>
                         </div>
+                        <div ng-hide="newQuestion.attachment">
+                            &ndash;
+                        </div>
                     </div>
                 </div>
 

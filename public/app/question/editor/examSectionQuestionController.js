@@ -53,7 +53,7 @@
                 };
 
                 $scope.updateEvaluationType = function () {
-                    if ($scope.sectionQuestion.evaluationType && $scope.sectionQuestion.evaluationType === 'Select') {
+                    if ($scope.sectionQuestion.evaluationType && $scope.sectionQuestion.evaluationType === 'Selection') {
                         $scope.sectionQuestion.maxScore = undefined;
                     }
                     update();

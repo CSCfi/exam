@@ -201,7 +201,7 @@
                         $scope.questions.forEach(function (q) {
                             if (q.defaultEvaluationType === "Points" || q.type === 'MultipleChoiceQuestion') {
                                 q.displayedMaxScore = q.defaultMaxScore;
-                            } else if (q.defaultEvaluationType === "Select") {
+                            } else if (q.defaultEvaluationType === "Selection") {
                                 q.displayedMaxScore = 'sitnet_evaluation_select';
                             } else if (q.type === "WeightedMultipleChoiceQuestion") {
                                 q.displayedMaxScore = $scope.calculateMaxPoints(q);

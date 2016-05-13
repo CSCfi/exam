@@ -45,7 +45,7 @@
                 var initQuestion = function () {
                     setQuestionType();
                     if ($scope.newQuestion.type === 'WeightedMultipleChoiceQuestion' ||
-                        ($scope.newQuestion.defaultEvaluationType && $scope.newQuestion.defaultEvaluationType === 'Select')) {
+                        ($scope.newQuestion.defaultEvaluationType && $scope.newQuestion.defaultEvaluationType === 'Selection')) {
                         delete $scope.newQuestion.defaultMaxScore; // will screw up validation otherwise
                     }
                     var sections = $scope.newQuestion.examSectionQuestions.map(function (esq) {
@@ -107,7 +107,7 @@
                 };
 
                 $scope.updateEvaluationType = function () {
-                    if ($scope.newQuestion.defaultEvaluationType && $scope.newQuestion.defaultEvaluationType === 'Select') {
+                    if ($scope.newQuestion.defaultEvaluationType && $scope.newQuestion.defaultEvaluationType === 'Selection') {
                         $scope.newQuestion.defaultMaxScore = undefined;
                     }
                     $scope.updateQuestion();
