@@ -65,18 +65,26 @@
                     var deferred = $q.defer();
                     var exam = review.exam;
                     var messages = getErrors(exam);
-                    if (!exam.selectedGrade.id && !exam.grade.id) {
+                    if (!exam.selectedGrade && !exam.grade.id) {
                         messages.push('sitnet_participation_unreviewed');
                     }
                     messages.forEach(function (msg) {
                         toastr.warning($translate.instant(msg));
                     });
                     if (messages.length === 0) {
-                        var grade = exam.selectedGrade.id ? exam.selectedGrade : exam.grade;
+                        var grade;
+                        if (exam.selectedGrade.type === 'NONE') {
+                            grade = undefined;
+                            exam.gradeless = true;
+                        } else {
+                            grade = exam.selectedGrade.id ? exam.selectedGrade : exam.grade;
+                            exam.gradeless = false;
+                        }
                         var data = {
                             "id": exam.id,
                             "state": "GRADED",
-                            "grade": grade.id,
+                            "gradeless": exam.gradeless,
+                            "grade": grade ? grade.id : undefined,
                             "customCredit": exam.customCredit,
                             "creditType": exam.creditType ? exam.creditType.type : exam.examType.type,
                             "answerLanguage": exam.answerLanguage ? exam.answerLanguage.code : exam.examLanguages[0].code
@@ -115,6 +123,11 @@
                         }
                         return grade;
                     });
+                    var noGrade = {type: 'NONE', name: examService.getExamGradeDisplayName('NONE')};
+                    if (exam.gradeless && !exam.selectedGrade) {
+                        exam.selectedGrade = noGrade;
+                    }
+                    exam.selectableGrades.push(noGrade);
                 };
 
                 $scope.isGradeable = function (exam) {
@@ -123,13 +136,15 @@
 
                 $scope.hasModifications = function () {
                     return $scope.examReviews.filter(function (r) {
-                            return r.exam.selectedGrade && r.exam.selectedGrade.id && $scope.isGradeable(r.exam);
+                            return r.exam.selectedGrade &&
+                                (r.exam.selectedGrade.id || r.exam.selectedGrade.type === 'NONE') &&
+                                $scope.isGradeable(r.exam);
                         }).length > 0;
                 };
 
                 $scope.gradeExams = function () {
                     var reviews = $scope.examReviews.filter(function (r) {
-                        return r.exam.selectedGrade && r.exam.selectedGrade.id && $scope.isGradeable(r.exam);
+                        return r.exam.selectedGrade && $scope.isGradeable(r.exam);
                     });
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_grade_review'));
                     dialog.result.then(function (btn) {

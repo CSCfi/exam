@@ -42,10 +42,14 @@
 
     <!-- FILTERS -->
     <div class="main-row" ng-hide="selectedRoom()">
-        <span class="col-md-12 alert-danger">
-            <i class="fa fa-exclamation-triangle"></i>
-            &nbsp;<strong>{{'sitnet_calendar_pick_room' | translate }}</strong>
-        </span>
+        <div class="col-md-12">
+            <div class="alert alert-info info-box">
+                <span class="form-group">
+                    <i class="fa fa-lg fa-info-circle text-info"></i>
+                    &nbsp;{{'sitnet_calendar_pick_room' | translate }}
+                </span>
+            </div>
+        </div>
     </div>
 
     <div class="detail-row">

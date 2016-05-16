@@ -5,12 +5,15 @@ import akka.actor.UntypedActor;
 import com.avaje.ebean.Ebean;
 import models.Exam;
 import models.ExamEnrolment;
+import org.joda.time.DateTime;
 import play.Logger;
+import util.AppUtil;
 import util.java.EmailComposer;
 import util.java.NoShowHandlerUtil;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class ReservationPollerActor extends UntypedActor {
 
@@ -20,11 +23,12 @@ class ReservationPollerActor extends UntypedActor {
     public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Running no-show check ...", getClass().getCanonicalName());
         EmailComposer composer = (EmailComposer) message;
+        DateTime now = AppUtil.adjustDST(DateTime.now());
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .where()
                 .eq("reservation.noShow", false)
-                .lt("reservation.endAt", new Date())
+                .lt("reservation.endAt", now.toDate())
                 .eq("exam.state", Exam.State.PUBLISHED)
                 .findList();
 

@@ -170,6 +170,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Temporal(TemporalType.TIMESTAMP)
     private Date autoEvaluationNotified;
 
+    private boolean gradeless;
+
     public User getGradedByUser() {
         return gradedByUser;
     }
@@ -585,6 +587,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setAutoEvaluationNotified(Date autoEvaluationNotified) {
         this.autoEvaluationNotified = autoEvaluationNotified;
+    }
+
+    public boolean isGradeless() {
+        return gradeless;
+    }
+
+    public void setGradeless(boolean gradeless) {
+        this.gradeless = gradeless;
     }
 
     @Transient

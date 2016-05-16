@@ -63,8 +63,10 @@
                     if ($scope.selections.grade &&
                         ($scope.selections.grade.id || $scope.selections.grade.type === 'NONE')) {
                         $scope.exam.grade = $scope.selections.grade;
+                        $scope.exam.gradeless = $scope.selections.grade.type === 'NONE';
                     } else {
                         delete $scope.exam.grade;
+                        $scope.exam.gradeless = false;
                     }
                 };
 
@@ -78,22 +80,20 @@
                     }
                     var scale = $scope.exam.gradeScale || $scope.exam.parent.gradeScale || $scope.exam.course.gradeScale;
                     scale.grades = scale.grades || [];
+                    $scope.examGrading = scale.grades.map(function (grade) {
+                        grade.type = grade.name;
+                        grade.name = examService.getExamGradeDisplayName(grade.name);
+
+                        if ($scope.exam.grade && $scope.exam.grade.id === grade.id) {
+                            $scope.exam.grade.type = grade.type;
+                            $scope.selections.grade = grade;
+                        }
+                        return grade;
+                    });
                     // The "no grade" option
                     var noGrade = {type: 'NONE', name: examService.getExamGradeDisplayName('NONE')};
-                    if ($scope.exam.state === 'ARCHIVED' && !$scope.exam.grade.id) {
+                    if ($scope.exam.gradeless && !$scope.selections.grade) {
                         $scope.selections.grade = noGrade;
-                        $scope.examGrading = [];
-                    } else {
-                        $scope.examGrading = scale.grades.map(function (grade) {
-                            grade.type = grade.name;
-                            grade.name = examService.getExamGradeDisplayName(grade.name);
-
-                            if ($scope.exam.grade && $scope.exam.grade.id === grade.id) {
-                                $scope.exam.grade.type = grade.type;
-                                $scope.selections.grade = grade;
-                            }
-                            return grade;
-                        });
                     }
                     $scope.examGrading.push(noGrade);
                 };
@@ -360,6 +360,7 @@
                         "id": exam.id,
                         "state": state || exam.state,
                         "grade": exam.grade && exam.grade.id ? exam.grade.id : undefined,
+                        "gradeless": exam.gradeless,
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": creditType ? creditType.type : undefined,
@@ -585,7 +586,7 @@
                     }
                     else {
                         var dialogNote, res;
-                        if (reviewedExam.grade.type === 'NONE') {
+                        if (reviewedExam.gradeless) {
                             dialogNote = $translate.instant('sitnet_confirm_archiving_without_grade');
                             res = ExamRes.register.add;
                         } else {

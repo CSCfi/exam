@@ -88,6 +88,7 @@ public class ExamRecordController extends BaseController {
         return validateExamState(exam, false).orElseGet(() -> {
             exam.setState(Exam.State.GRADED_LOGGED);
             exam.setGrade(null);
+            exam.setGradeless(true);
             exam.update();
             return ok();
         });
