@@ -727,7 +727,7 @@ public class ExamController extends BaseController {
         }
     }
 
-    public static Query<Exam> prototypeQuery() {
+    private static Query<Exam> prototypeQuery() {
         return Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("course.organisation")
@@ -747,6 +747,7 @@ public class ExamController extends BaseController {
                 .fetch("gradeScale.grades")
                 .fetch("grade")
                 .fetch("examEnrolments.user")
+                .fetch("examEnrolments.reservation", "endAt")
                 .fetch("children", "id")
                 .fetch("children.examEnrolments", "id")
                 .fetch("children.examEnrolments.user", "firstName, lastName, userIdentifier")

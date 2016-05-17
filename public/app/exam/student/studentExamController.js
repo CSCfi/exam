@@ -53,17 +53,16 @@
                     cancelAutosavers();
                 });
 
-                // TODO: check these
                 $scope.getQuestionAmount = function (section, type) {
                     if (type === 'total') {
                         return section.sectionQuestions.length;
                     } else if (type === 'answered') {
                         return section.sectionQuestions.filter(function (sectionQuestion) {
-                            return sectionQuestion.question.answered;
+                            return sectionQuestion.answered;
                         }).length;
                     } else if (type === 'unanswered') {
                         return section.sectionQuestions.length - section.sectionQuestions.filter(function (sectionQuestion) {
-                                return sectionQuestion.question.answered;
+                                return sectionQuestion.answered;
                             }).length;
                     }
                 };

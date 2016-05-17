@@ -10,7 +10,7 @@
     </div>
 
     <div class="top-row">
-        <div class="col-md-6 list-item" ng-repeat="enrolment in userEnrolments">
+        <div class="col-md-6 list-item" ng-repeat="enrolment in userEnrolments | orderBy: 'reservation.startAt'">
             <div class="student-enrolment-wrapper">
                 <div class="col-md-12">
                     <div class="enrolment-row">
