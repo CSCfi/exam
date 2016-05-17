@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('LibraryCtrl', ['dialogs', '$q', '$scope', '$location', '$translate', 'sessionService', 'QuestionRes',
+        .controller('LibraryCtrl', ['dialogs', '$q', '$scope', '$rootScope', '$location', '$translate', 'sessionService', 'QuestionRes',
             'questionService', 'ExamRes', 'CourseRes', 'TagRes', 'UserRes',
-            function (dialogs, $q, $scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
+            function (dialogs, $q, $scope, $rootScope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
 
                 var step = 100;
 
@@ -391,6 +391,14 @@
                     );
 
                 };
+
+                var refresh = function () {
+                    questionService.clearQuestions();
+                    query();
+                };
+
+                $rootScope.$on('questionAdded', refresh);
+                $rootScope.$on('questionUpdated', refresh);
 
                 var storedData = questionService.loadQuestions();
                 if (storedData.questions) {

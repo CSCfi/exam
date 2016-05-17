@@ -1081,6 +1081,7 @@
                                     toastr.info($translate.instant("sitnet_question_added"));
                                     updateSection(sec, true); // needs manual update as the scope is somehow not automatically refreshed
                                     $modalInstance.dismiss("done");
+                                    $rootScope.$emit('questionAdded'); // Emit event for question library.
                                 }, function (error) {
                                     toastr.error(error.data);
                                 }
@@ -1116,7 +1117,7 @@
                     QuestionRes.questions.create({type: type},
                         function (question) {
                             question.examSectionQuestions = [];
-                            openBaseQuestionEditor(question, section)
+                            openBaseQuestionEditor(question, section);
                         }, function (error) {
                             toastr.error(error.data);
                         });

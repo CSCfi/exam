@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamSectionQuestionCtrl', ['$scope', '$q', '$uibModal', '$translate', 'QuestionRes',
+        .controller('ExamSectionQuestionCtrl', ['$rootScope', '$scope', '$q', '$uibModal', '$translate', 'QuestionRes',
             'ExamSectionQuestionRes', 'questionService', 'EXAM_CONF', '$sce',
-            function ($scope, $q, $modal, $translate, QuestionRes, ExamSectionQuestionRes, questionService, EXAM_CONF,
+            function ($rootScope, $scope, $q, $modal, $translate, QuestionRes, ExamSectionQuestionRes, questionService, EXAM_CONF,
                       $sce) {
 
                 $scope.getOptions = function () {
@@ -95,6 +95,7 @@
                             questionService.updateQuestion(q, true).then(function () {
                                 toastr.info($translate.instant("sitnet_question_saved"));
                                 $modalInstance.close(q);
+                                $rootScope.$emit('questionUpdated'); // Emit event for question library.
                             });
                         };
 
