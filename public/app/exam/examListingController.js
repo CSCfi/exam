@@ -50,12 +50,7 @@
                 $scope.copyExam = function (exam, type) {
                     ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
                         toastr.success($translate.instant('sitnet_exam_copied'));
-                        if (copy.state === 'PUBLISHED') {
-                            copy.expired = Date.now() > new Date(copy.examActiveEndDate)
-                        } else {
-                            copy.expired = false;
-                        }
-                        $scope.exams.push(copy);
+                        $location.path("/exams/" + copy.id);
                     }, function (error) {
                         toastr.error(error.data);
                     });
