@@ -177,11 +177,11 @@ public class CalendarController extends BaseController {
         User user = getLoggedUser();
         Exam exam = getEnrolledExam(examId, user);
         if (exam == null) {
-            return notFound("sitnet_error_enrolment_not_found");
+            return forbidden("sitnet_error_enrolment_not_found");
         }
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
         if (room == null) {
-            return notFound(String.format("No room with id: (%d)", roomId));
+            return forbidden(String.format("No room with id: (%d)", roomId));
         }
         Collection<TimeSlot> slots = new ArrayList<>();
         if (!room.getOutOfService() && !room.getState().equals(ExamRoom.State.INACTIVE.toString()) &&
