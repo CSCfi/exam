@@ -61,7 +61,7 @@ class AutoEvaluationNotifierActor extends UntypedActor {
                 releaseDate = Optional.of(adjustReleaseDate(new DateTime(exam.getGradedTime()).plusDays(config.getAmountDays())));
                 break;
             case AFTER_EXAM_PERIOD:
-                releaseDate = Optional.of(adjustReleaseDate(new DateTime(exam.getExamActiveEndDate())));
+                releaseDate = Optional.of(adjustReleaseDate(new DateTime(exam.getExamActiveEndDate()).plusDays(1)));
                 break;
             case NEVER:
             default:
