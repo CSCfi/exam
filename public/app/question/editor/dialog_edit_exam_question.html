@@ -95,7 +95,7 @@
                                                    class="form-control" ng-change="updateOption(option)"
                                                    ng-model-options="{ updateOn: 'blur' }"
                                                    ng-model="option.score"
-                                                   required="true" ng-disabled="lotteryOn">
+                                                   required ng-disabled="lotteryOn">
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -163,7 +163,7 @@
                                ng-model-options="{ updateOn: 'blur'}"
                                ng-change="updateQuestion()"
                                min="1" max="1000000"
-                               ng-required="newQuestion.evaluationType=='Points'"
+                               required
                                ng-disabled="lotteryOn"/>
                     </div>
                 </div>

@@ -144,7 +144,9 @@ public class QuestionController extends BaseController {
         question.setDefaultAnswerInstructions(df.get("defaultAnswerInstructions"));
         question.setDefaultEvaluationCriteria(df.get("defaultEvaluationCriteria"));
         question.setShared(Boolean.parseBoolean(df.get("shared")));
-        question.setState(QuestionState.SAVED.toString());
+        if (!QuestionState.DELETED.toString().equals(question.getState())) {
+            question.setState(QuestionState.SAVED.toString());
+        }
         AppUtil.setModifier(question, user);
         question.update();
     }
