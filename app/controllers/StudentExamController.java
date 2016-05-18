@@ -410,9 +410,20 @@ public class StudentExamController extends BaseController {
             if (exam.isPrivate()) {
                 notifyTeachers(exam);
             }
-            if (exam.getAutoEvaluationConfig() != null) {
+            AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
+            if (config != null) {
                 // Grade automatically
                 autoEvaluate(exam);
+                if (config.getReleaseType() == AutoEvaluationConfig.ReleaseType.IMMEDIATE) {
+                    // Notify student immediately
+                    exam.setAutoEvaluationNotified(new Date());
+                    exam.update();
+                    User student = exam.getCreator();
+                    actor.scheduler().scheduleOnce(Duration.create(5, TimeUnit.SECONDS),
+                            () -> emailComposer.composeInspectionReady(student, null, exam),
+                            actor.dispatcher());
+                    Logger.debug("Mail sent about automatic evaluation to {}", student.getEmail());
+                }
             }
             return ok("Exam sent for review");
         } else {

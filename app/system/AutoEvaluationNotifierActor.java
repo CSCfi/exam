@@ -49,10 +49,6 @@ class AutoEvaluationNotifierActor extends UntypedActor {
         Optional<DateTime> releaseDate;
         AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
         switch (config.getReleaseType()) {
-            case IMMEDIATE:
-                // This subtraction is to avoid a race condition
-                releaseDate = Optional.of(DateTime.now().minusSeconds(1));
-                break;
             // Put some delay in these dates to avoid sending stuff in the middle of the night
             case GIVEN_DATE:
                 releaseDate = Optional.of(adjustReleaseDate(new DateTime(config.getReleaseDate())));
@@ -63,6 +59,8 @@ class AutoEvaluationNotifierActor extends UntypedActor {
             case AFTER_EXAM_PERIOD:
                 releaseDate = Optional.of(adjustReleaseDate(new DateTime(exam.getExamActiveEndDate()).plusDays(1)));
                 break;
+            // Not handled at least by this actor
+            case IMMEDIATE:
             case NEVER:
             default:
                 releaseDate = Optional.empty();
