@@ -1072,20 +1072,22 @@
                         $scope.newQuestion = question;
 
                         $scope.submit = function () {
-                            ExamRes.sectionquestions.insert({
-                                    eid: examId,
-                                    sid: section.id,
-                                    seq: section.sectionQuestions.length,
-                                    qid: question.id
-                                }, function (sec) {
-                                    toastr.info($translate.instant("sitnet_question_added"));
-                                    updateSection(sec, true); // needs manual update as the scope is somehow not automatically refreshed
-                                    $modalInstance.dismiss("done");
-                                    $rootScope.$emit('questionAdded'); // Emit event for question library.
-                                }, function (error) {
-                                    toastr.error(error.data);
-                                }
-                            );
+                            questionService.updateQuestion(question, true).then(function () {
+                                ExamRes.sectionquestions.insert({
+                                        eid: examId,
+                                        sid: section.id,
+                                        seq: section.sectionQuestions.length,
+                                        qid: question.id
+                                    }, function (sec) {
+                                        toastr.info($translate.instant("sitnet_question_added"));
+                                        updateSection(sec, true); // needs manual update as the scope is somehow not automatically refreshed
+                                        $modalInstance.dismiss("done");
+                                        $rootScope.$emit('questionAdded'); // Emit event for question library.
+                                    }, function (error) {
+                                        toastr.error(error.data);
+                                    }
+                                );
+                            });
                         };
 
                         $scope.cancel = function () {
