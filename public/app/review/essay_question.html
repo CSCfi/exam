@@ -101,7 +101,7 @@
                                 {{ x }} / {{sectionQuestion.maxScore}}
                             </select>
                         </span>
-                        <span ng-show="sectionQuestion.question.evaluationType === 'Select'">
+                        <span ng-show="sectionQuestion.question.evaluationType === 'Selection'">
                             <select class="form-control" style="width: 25%" ng-model="sectionQuestion.essayAnswer.evaluatedScore"
                                     ng-change="insertEssayScore(sectionQuestion)"
                                     ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()">

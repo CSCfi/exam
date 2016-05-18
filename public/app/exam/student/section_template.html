@@ -36,10 +36,10 @@
                 <div class="col-md-3 question-type-text">
                     <span class="pull-right">
                          <i class="text-info fa fa-star"></i>
-                        <span ng-if="sectionQuestion.evaluationType == 'Select'">
-                             {{'sitnet_evaluation_type' | translate}}: {{'sitnet_evaluation_select' | translate}}
+                        <span ng-if="sectionQuestion.evaluationType == 'Selection'">
+                             {{'sitnet_evaluation_select' | translate}}
                         </span>
-                        <span ng-if="sectionQuestion.evaluationType !== 'Select'">
+                        <span ng-if="sectionQuestion.evaluationType !== 'Selection'">
                             {{sectionQuestion.derivedMaxScore}} {{'sitnet_unit_points' | translate}}
                         </span>
                     </span>

@@ -686,5 +686,6 @@
   "sitnet_exam_question_edit_disclaimer": "Jos haluat muokata kysymyksen perustietoja kuten kysymystekstiä tai liitetiedostoa, voit siirtyä muokkaamaan niitä allaolevasta linkistä. Huomioi kuitenkin että muutokset perustietoihin heijastuvat suoraan kaikkiin tentteihin, joissa kysymys on käytössä.",
   "sitnet_base_question_edit": "Muokkaa kysymyksen perustietoja",
   "sitnet_question_owners": "Kysymyksen omistajat",
-  "sitnet_add_owner_for_question": "Lisää kysymykselle omistaja"
+  "sitnet_add_owner_for_question": "Lisää kysymykselle omistaja",
+  "sitnet_unrestricted": "Ei rajoitettu"
 }
