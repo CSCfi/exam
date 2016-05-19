@@ -135,12 +135,12 @@
                         "insert": {method: "POST", params: {eid: "@eid", uid: "@uid"}}
                     }),
 
-                inspectionReady: $resource("/app/exams/inspection/:id/:ready",
+                inspectionReady: $resource("/app/exams/inspection/:id",
                     {
-                        id: "@id", ready: "@ready"
+                        id: "@id"
                     },
                     {
-                        "update": {method: "PUT", params: {id: "@id", ready: "@ready"}}
+                        "update": {method: "PUT", params: {id: "@id"}}
                     }),
 
                 inspector: $resource("/app/exams/inspector/:id",
