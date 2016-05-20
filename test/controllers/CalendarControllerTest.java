@@ -60,6 +60,11 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservation() throws Exception {
         // Setup
+        // Private exam
+        exam.setExecutionType(Ebean.find(ExamExecutionType.class, 2));
+        // Add Arvo teacher to owner
+        exam.getExamOwners().add(Ebean.find(User.class, 4));
+        exam.save();
         Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
         Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
 

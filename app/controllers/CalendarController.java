@@ -140,21 +140,11 @@ public class CalendarController extends BaseController {
             Ebean.delete(oldReservation);
         }
         Exam exam = enrolment.getExam();
-        Collection<User> recipients = new HashSet<>();
-        if (exam.isPrivate()) {
-            recipients.addAll(exam.getExamOwners());
-            recipients.addAll(exam.getExamInspections().stream().map(
-                    ExamInspection::getUser).collect(Collectors.toSet()));
-        }
-        recipients.add(user);
 
         // Send some emails asynchronously
         system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            for (User recipient : recipients) {
-                Role.Name role = recipient.equals(user) ? Role.Name.STUDENT : Role.Name.TEACHER;
-                emailComposer.composeReservationNotification(recipient, reservation, exam, role);
-                Logger.info("Reservation confirmation email sent to {}", recipient.getEmail());
-            }
+            emailComposer.composeReservationNotification(user, reservation, exam);
+            Logger.info("Reservation confirmation email sent to {}", user.getEmail());
         }, system.dispatcher());
 
         return ok("ok");

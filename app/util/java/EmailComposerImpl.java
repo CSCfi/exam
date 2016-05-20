@@ -173,7 +173,7 @@ class EmailComposerImpl implements EmailComposer {
     }
 
     @Override
-    public void composeReservationNotification(User recipient, Reservation reservation, Exam exam, Role.Name role) {
+    public void composeReservationNotification(User recipient, Reservation reservation, Exam exam) {
         String templatePath = getTemplatesRoot() + "reservationConfirmed.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(recipient);
@@ -201,12 +201,7 @@ class EmailComposerImpl implements EmailComposer {
         String roomInstructions = forceNotNull(getRoomInstruction(room, lang));
         String roomName = forceNotNull(room.getName());
 
-        boolean isTeacher = role == Role.Name.TEACHER;
-
-        String title = isTeacher ? messaging.get(lang, "email.template.reservation.new.student",
-                String.format("%s %s <%s>", reservation.getUser().getFirstName(),
-                        reservation.getUser().getLastName(), reservation.getUser().getEmail())) :
-                messaging.get(lang, "email.template.reservation.new");
+        String title = messaging.get(lang, "email.template.reservation.new");
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("title", title);
@@ -217,10 +212,10 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("building_info", messaging.get(lang, "email.template.reservation.building", buildingInfo));
         stringValues.put("room_name", messaging.get(lang, "email.template.reservation.room", roomName));
         stringValues.put("machine_name", messaging.get(lang, "email.template.reservation.machine", machineName));
-        stringValues.put("room_instructions", isTeacher ? null : roomInstructions);
-        stringValues.put("cancellation_info", isTeacher ? null : messaging.get(lang, "email.template.reservation.cancel.info"));
-        stringValues.put("cancellation_link", isTeacher ? null : HOSTNAME);
-        stringValues.put("cancellation_link_text", isTeacher ? null : messaging.get(lang, "email.template.reservation.cancel.link.text"));
+        stringValues.put("room_instructions", roomInstructions);
+        stringValues.put("cancellation_info", messaging.get(lang, "email.template.reservation.cancel.info"));
+        stringValues.put("cancellation_link", HOSTNAME);
+        stringValues.put("cancellation_link_text", messaging.get(lang, "email.template.reservation.cancel.link.text"));
         String content = replaceAll(template, stringValues);
 
         // Export as iCal format
