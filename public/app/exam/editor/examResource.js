@@ -39,6 +39,7 @@
                         "update": {method: "PUT", params: {eid: "@eid", sid: "@sid"}}
 
                     }),
+                questionDistribution: $resource("/app/exams/question/:id/distribution", {id: "@id"}),
                 sectionquestions: $resource("/app/exams/:eid/section/:sid/:seq/question/:qid",
                     {
                         eid: "@eid", sid: "@sid", seq: "@seq", qid: "@qid"

@@ -98,6 +98,7 @@ POST          /app/exams/:eid/section/:sid/:seq/questions                control
 DELETE        /app/exams/:eid/section/:sid/question/:qid                 controllers.ExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long)
 PUT           /app/exams/:eid/section/:sid/reorder                       controllers.ExamSectionController.reorderSectionQuestions(eid: Long, sid: Long)
 PUT           /app/exams/:eid/reorder                                    controllers.ExamSectionController.reorderSections(eid: Long)
+GET           /app/exams/question/:id/distribution                       controllers.ExamSectionController.getQuestionDistribution(id: Long)
 
 ############### Review interface ###############
 GET           /app/reviews/:id                                           controllers.ReviewController.getExamReviews(id: Long)

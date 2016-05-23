@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.text.PathProperties;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Exam;
 import models.ExamSection;
 import models.ExamSectionQuestion;
@@ -447,6 +448,21 @@ public class ExamSectionController extends BaseController {
             return Optional.of(ok());
         }
         return Optional.empty();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result getQuestionDistribution(Long id) {
+        ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, id);
+        if (esq == null) {
+            return notFound();
+        }
+        Question question = esq.getQuestion();
+        boolean isDistributed = question.getExamSectionQuestions().size() > 1 ||
+                question.getQuestionOwners().size() > 1 ||
+                question.isShared();
+        ObjectNode node = Json.newObject();
+        node.put("distributed", isDistributed);
+        return ok(Json.toJson(node));
     }
 
 }
