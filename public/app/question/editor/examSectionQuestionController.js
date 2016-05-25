@@ -2,9 +2,9 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('ExamSectionQuestionCtrl', ['$rootScope', '$scope', '$q', '$uibModal', '$translate', 'QuestionRes',
-            'ExamSectionQuestionRes', 'questionService', 'EXAM_CONF', '$sce',
+            'ExamSectionQuestionRes', 'questionService', 'EXAM_CONF', '$sce', 'fileService',
             function ($rootScope, $scope, $q, $modal, $translate, QuestionRes, ExamSectionQuestionRes, questionService, EXAM_CONF,
-                      $sce) {
+                      $sce, fileService) {
 
                 $scope.getOptions = function () {
                     return $scope.sectionQuestion.options;
@@ -22,7 +22,11 @@
                     return questionService.calculateMaxPoints(question);
                 };
 
-                var update = function (displayErrors) {
+                var updateBaseQuestion = function () {
+                    questionService.updateQuestion($scope.question, true);
+                };
+
+                var updateExamQuestion = function () {
                     var questionToUpdate = {
                         "id": $scope.sectionQuestion.id,
                         "maxScore": $scope.sectionQuestion.maxScore,
@@ -31,7 +35,7 @@
                     };
 
                     // update question specific attributes
-                    switch ($scope.newQuestion.type) {
+                    switch ($scope.question.type) {
                         case 'EssayQuestion':
                             questionToUpdate.expectedWordCount = $scope.sectionQuestion.expectedWordCount;
                             questionToUpdate.evaluationType = $scope.sectionQuestion.evaluationType;
@@ -43,29 +47,40 @@
                             toastr.info($translate.instant("sitnet_question_saved"));
                             deferred.resolve();
                         }, function (error) {
-                            if (displayErrors) {
-                                toastr.error(error.data);
-                            }
+                            toastr.error(error.data);
                             deferred.reject();
                         }
                     );
                     return deferred.promise;
                 };
 
+                // from the editor directive activated "onblur"
+                $scope.updateProperties = function () {
+                    $scope.updateBaseQuestion();
+                };
+
+                $scope.updateBaseQuestion = function () {
+                    if (!$scope.questionForm.$valid) {
+                        return;
+                    }
+                    updateBaseQuestion();
+                };
+
                 $scope.updateEvaluationType = function () {
                     if ($scope.sectionQuestion.evaluationType && $scope.sectionQuestion.evaluationType === 'Selection') {
                         $scope.sectionQuestion.maxScore = undefined;
                     }
-                    update();
+                    updateExamQuestion();
                 };
 
-                $scope.updateQuestion = function () {
+                $scope.updateExamQuestion = function () {
                     if (!$scope.questionForm.$valid) {
                         return;
                     }
-                    update();
+                    updateExamQuestion();
                 };
 
+                // Need one for the base options as well
                 $scope.updateOption = function (option) {
                     if (!$scope.questionForm.$valid) {
                         return;
@@ -82,86 +97,117 @@
                     );
                 };
 
+                $scope.updateOptionText = function (examQuestionOption) {
+                    QuestionRes.options.update({oid: examQuestionOption.option.id}, examQuestionOption.option,
+                        function () {
+                            toastr.info($translate.instant('sitnet_option_updated'));
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
+                $scope.addNewOption = function (question) {
+
+                    QuestionRes.options.create({qid: question.id},
+                        function (option) {
+                            question.options.push(option);
+                            $scope.sectionQuestion.options.push({option: option, score: option.defaultScore});
+                            toastr.info($translate.instant('sitnet_option_added'));
+                            focus('opt' + option.id);
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
+                $scope.removeOption = function (option) {
+
+                    QuestionRes.options.delete({oid: option.option.id},
+                        function () {
+                            $scope.sectionQuestion.options.splice($scope.sectionQuestion.options.map(function(o) {
+                                return o.option.id;
+                            }).indexOf(option.option.id), 1);
+                            toastr.info($translate.instant('sitnet_option_removed'));
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+
+                };
+
+                $scope.correctAnswerToggled = function (examQuestionOption) {
+                    QuestionRes.correctOption.update({oid: examQuestionOption.option.id}, examQuestionOption.option,
+                        function (question) {
+                            $scope.sectionQuestion.options.forEach(function (o) {
+                                o.option.correctOption = o.id == examQuestionOption.id;
+                            });
+                            //$scope.question.options = question.options;
+                            toastr.info($translate.instant('sitnet_correct_option_updated'));
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
                 $scope.selectIfDefault = function (value, $event) {
                     if (value === $translate.instant('sitnet_default_option_description')) {
                         $event.target.select();
                     }
                 };
 
-                var openBaseQuestionEditor = function (sectionQuestion) {
+                $scope.selectFile = function () {
+
+                    var question = $scope.question;
+
                     var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
-                        $scope.baseQuestionId = sectionQuestion.question.id;
-                        $scope.submit = function (q) {
-                            questionService.updateQuestion(q, true).then(function () {
-                                toastr.info($translate.instant("sitnet_question_saved"));
-                                $modalInstance.close(q);
-                                $rootScope.$emit('questionUpdated'); // Emit event for question library.
-                            });
+
+                        $scope.question = question;
+                        $scope.isTeacherModal = true;
+                        fileService.getMaxFilesize().then(function (data) {
+                            $scope.maxFileSize = data.filesize;
+                        });
+
+                        $scope.submit = function () {
+                            fileService.upload("/app/attachment/question", $scope.attachmentFile, {questionId: $scope.question.id}, $scope.question, $modalInstance);
+                        };
+                        // Cancel button is pressed in the modal dialog
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss('Canceled');
                         };
 
-                        $scope.cancel = function () {
-                            $modalInstance.dismiss();
-                        };
                     }];
 
                     var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'question/editor/dialog_new_question.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',
                         backdrop: 'static',
                         keyboard: true,
-                        controller: ctrl,
-                        windowClass: 'question-editor-modal'
+                        controller: ctrl
                     });
 
-                    modalInstance.result.then(function (question) {
-                        if (question) {
-                            // Update scope where needed
-                            $scope.sectionQuestion.question.question = question.question;
-                            $scope.sectionQuestion.question.attachment = question.attachment;
-                            // Some serious updating of answer options. Maybe this could be done easier?
-                            var updatables = $scope.sectionQuestion.options.filter(function (o) {
-                                return question.options.map(function (qo) {
-                                    return qo.id;
-                                }).indexOf(o.option.id) > -1;
-                            });
-                            var removables = angular.copy($scope.sectionQuestion.options.filter(function (o) {
-                                return question.options.map(function (qo) {
-                                    return qo.id;
-                                }).indexOf(o.option.id) === -1;
-                            }));
-                            var insertables = question.options.filter(function (o) {
-                                return $scope.sectionQuestion.options.map(function (esqo) {
-                                    return esqo.option.id;
-                                }).indexOf(o.id) === -1;
-                            });
-                            updatables.forEach(function (o) {
-                                question.options.forEach(function (qo) {
-                                    if (qo.id === o.option.id) {
-                                        o.option = qo;
-                                    }
-                                })
-                            });
-                            removables.forEach(function (o) {
-                                var index = -1;
-                                $scope.sectionQuestion.options.some(function (esqo, x) {
-                                    if (o.option.id === esqo.option.id) {
-                                        index = x;
-                                    }
-                                });
-                                if (index > -1) {
-                                    $scope.sectionQuestion.options.splice(index, 1);
-                                }
-                            });
-                            insertables.forEach(function (o) {
-                                $scope.sectionQuestion.options.push({option: o});
-                            });
-                        }
+                    modalInstance.result.then(function () {
                         modalInstance.dismiss();
+                    //    $location.path('/questions/' + $scope.newQuestion.id);
+                    }, function () {
+                        // Cancel button
                     });
                 };
 
-                $scope.openBaseQuestionEditor = function () {
-                    openBaseQuestionEditor($scope.sectionQuestion);
+
+                var initForm = function() {
+                    QuestionRes.questions.get({id: $scope.sectionQuestion.question.id}, function (data) {
+                        $scope.question = data;
+                        var examNames = $scope.question.examSectionQuestions.map(function (esq) {
+                            return esq.examSection.exam.name;
+                        });
+                        // remove duplicates
+                        $scope.examNames = examNames.filter(function (n, pos) {
+                            return examNames.indexOf(n) == pos;
+                        });
+                    });
                 };
+
+                initForm();
 
             }]);
 }());

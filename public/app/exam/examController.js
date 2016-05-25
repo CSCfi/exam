@@ -1050,20 +1050,19 @@
                 };
 
                 var openExamQuestionEditor = function (section, sectionQuestion) {
-
-
                     getQuestionDistribution(sectionQuestion).then(function (data) {
-
                         if (!data.distributed) {
+                            // If this is not distributed, treat it as a plain question (or at least trick the user to
+                            // believe so :( )
                             openBaseQuestionEditor(sectionQuestion.question, section, sectionQuestion);
                         } else {
                             var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                                 $scope.sectionQuestion = sectionQuestion;
-                                $scope.newQuestion = sectionQuestion.question;
                                 $scope.lotteryOn = section.lotteryOn;
 
-                                $scope.submit = function (data) {
-                                    sectionQuestion = data;
+                                $scope.submit = function (baseQuestion, examQuestion) {
+                                    sectionQuestion = examQuestion;
+                                    sectionQuestion.question = baseQuestion; // probably won't cut it but lets see
                                     $modalInstance.dismiss("done");
                                 };
 

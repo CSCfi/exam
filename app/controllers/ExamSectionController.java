@@ -20,13 +20,8 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class ExamSectionController extends BaseController {
@@ -457,9 +452,11 @@ public class ExamSectionController extends BaseController {
             return notFound();
         }
         Question question = esq.getQuestion();
-        boolean isDistributed = question.getExamSectionQuestions().size() > 1 ||
-                question.getQuestionOwners().size() > 1 ||
-                question.isShared();
+        // ATM it is enough that question is bound to multiple exams
+        Set<Exam> boundExams = question.getExamSectionQuestions().stream()
+                .map(eq -> eq.getExamSection().getExam())
+                .collect(Collectors.toSet());
+        boolean isDistributed = boundExams.size() > 1;
         ObjectNode node = Json.newObject();
         node.put("distributed", isDistributed);
         return ok(Json.toJson(node));
