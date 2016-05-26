@@ -153,7 +153,7 @@ attachments:
 ######################################################################
 
 
-question_essay:
+question-essay:
 
 # Essay questions
 
@@ -184,7 +184,7 @@ question_essay:
 
 ######################################################################
 
-question_multiple_choice:
+question-multiple-choice:
 
 # Multiple choice questions
   - &multi1 !!models.questions.Question
@@ -355,6 +355,20 @@ question_multiple_choice:
         - !!models.questions.MultipleChoiceOption {option: Kuun vetovoima, correctOption: false}
         - !!models.questions.MultipleChoiceOption {option: Auringon vetovoima, correctOption: true}
         - !!models.questions.MultipleChoiceOption {option: Maapallon pinnanmuodot, correctOption: false}
+
+######################################################################
+
+question-weighted-multiple-choice:
+
+  - &weighted1 !!models.questions.Question
+      type: WeightedMultipleChoiceQuestion
+      question: Kumpi vai kampi
+      creator: *olli
+      created: 2014-01-18 12:30:05.123
+      options:
+          - &kampi !!models.questions.MultipleChoiceOption {option: Kampi, defaultScore: 1}
+          - &kumpi !!models.questions.MultipleChoiceOption {option: Kumpi, defaultScore: 1}
+          - &molemmat !!models.questions.MultipleChoiceOption {option: Molemmat, defaultScore: -1}
 
 ######################################################################
 
@@ -1012,6 +1026,15 @@ section-questions:
     sequenceNumber: 2
     maxScore: 7
     evaluationType: Points
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2
+    question: *weighted1
+    sequenceNumber: 2
+    options:
+      - !!models.ExamSectionQuestionOption {option: *kumpi, score: 2}
+      - !!models.ExamSectionQuestionOption {option: *kampi, score: 2}
+      - !!models.ExamSectionQuestionOption {option: *molemmat, score: -2}
 
 ################################################################
 

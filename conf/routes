@@ -160,6 +160,7 @@ POST          /app/question/:id                                          control
 POST          /app/questions/:qid/option                                 controllers.QuestionController.addOption(qid: Long)
 DELETE        /app/questions/:id                                         controllers.QuestionController.deleteQuestion(id: Long)
 DELETE        /app/questions/option/:oid                                 controllers.QuestionController.deleteOption(oid: Long)
+DELETE        /app/questions/:qid/option/:oid                            controllers.QuestionController.deleteOptionQ(qid: Long, oid: Long)
 POST          /app/questions/owner/:uid                                  controllers.QuestionController.addOwner(uid: Long)
 DELETE        /app/questions/owner/:uid                                  controllers.QuestionController.removeOwner(uid: Long)
 

@@ -4,7 +4,7 @@
         <div class="col-md-2">
             <input id="optionScore" class="form-control" name="maxScore" type="number"
                    class="form-control"
-                   ui-change="updateOption(option)"
+                   ui-change="option.id ? updateOption(option) : saveOption(option)"
                    ng-model="option.defaultScore"
                    required="true"/>
         </div>
@@ -18,7 +18,7 @@
         <label for="optionText" class="col-md-1 control-label"></label>
         <div class="col-md-11">
             <input id="optionText" type="text" focus-on="opt{{option.id}}" class="form-control"
-               ng-model="option.option" ui-blur="updateOption(option)"
+               ng-model="option.option" ui-blur="option.id ? updateOption(option) : saveOption(option)"
                ng-click="selectIfDefault(option.option, $event)"
                required="true"/>
         </div>

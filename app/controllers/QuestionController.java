@@ -231,7 +231,27 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteOption(Long oid) {
-        Ebean.delete(MultipleChoiceOption.class, oid);
+        return deleteOptionQ(null, oid);
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result deleteOptionQ(Long qid, Long oid) {
+        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, oid);
+        if (option == null) {
+            return ok();
+        }
+        Question question = option.getQuestion();
+        if (question.getType() == Question.Type.WeightedMultipleChoiceQuestion) {
+            for (ExamSectionQuestion esq : question.getExamSectionQuestions()) {
+                boolean preserveScores = false;
+                if (esq.getId().equals(qid)) {
+                    preserveScores = true;
+                }
+                esq.removeOption(option, preserveScores);
+                esq.save();
+            }
+        }
+        option.delete();
         return ok();
     }
 
@@ -241,6 +261,8 @@ public class QuestionController extends BaseController {
         if (question == null) {
             return notFound();
         }
+        final DynamicForm df = formFactory.form().bindFromRequest();
+        String examSectionQuestionId = df.get("examSectionQuestionId");
         MultipleChoiceOption option = bindForm(MultipleChoiceOption.class);
         question.getOptions().add(option);
         AppUtil.setModifier(question, getLoggedUser());
@@ -248,16 +270,48 @@ public class QuestionController extends BaseController {
         option.save();
 
         // Need to add the new option to bound exam section questions as well
-        // TODO: provide support for weighted mcq. Needs changes in its scoring model
-        if (question.getType() == Question.Type.MultipleChoiceQuestion) {
+        if (question.getType() == Question.Type.MultipleChoiceQuestion
+                || question.getType() == Question.Type.WeightedMultipleChoiceQuestion) {
             for (ExamSectionQuestion esq : question.getExamSectionQuestions()) {
+                Double score = calculateOptionScore(question, option, esq);
+                boolean preserveScores = false;
+                if (esq.getId().toString().equals(examSectionQuestionId)) {
+                    //Use original score for calling exam section question.
+                    score = option.getDefaultScore();
+                    preserveScores = true;
+                }
                 ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+                esqo.setScore(score);
                 esqo.setOption(option);
-                esq.getOptions().add(esqo);
+
+                esq.addOption(esqo, preserveScores);
                 esq.update();
             }
         }
         return ok(Json.toJson(option));
+    }
+
+    /**
+     * Calculates new option score for ExamSectionQuestionOption.
+     *
+     * @param question Base question.
+     * @param option New added option.
+     * @param esq ExamSectionQuestion.
+     * @return New calculated score rounded to two decimals.
+     */
+    private Double calculateOptionScore(Question question, MultipleChoiceOption option, ExamSectionQuestion esq) {
+        Double defaultScore = option.getDefaultScore();
+        if (defaultScore == null || defaultScore == 0) {
+            return defaultScore;
+        }
+
+        double result = 0.0;
+        if (defaultScore > 0) {
+            result = (esq.getMaxAssessedScore() / 100) * ((defaultScore / question.getMaxDefaultScore()) * 100);
+        } else if (defaultScore < 0) {
+            result = (esq.getMinScore() / 100) * ((defaultScore / question.getMinDefaultScore()) * 100);
+        }
+        return Math.round(result * 100) / 100d;
     }
 
     private static Query<Question> createQuery() {

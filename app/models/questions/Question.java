@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.Attachment;
 import models.ExamSectionQuestion;
+import models.ExamSectionQuestionOption;
 import models.Tag;
 import models.User;
 import models.api.AttachmentContainer;
@@ -234,6 +235,36 @@ public class Question extends OwnedModel implements AttachmentContainer {
                 reason = "unknown question type";
         }
         return reason;
+    }
+
+    @Transient
+    public Double getMaxDefaultScore() {
+        switch (getType()) {
+            case EssayQuestion:
+                if (defaultEvaluationType == EvaluationType.Points) {
+                    return defaultMaxScore == null ? 0 : defaultMaxScore.doubleValue();
+                }
+                break;
+            case MultipleChoiceQuestion:
+                return defaultMaxScore == null ? 0 : defaultMaxScore.doubleValue();
+            case WeightedMultipleChoiceQuestion:
+                return options.stream()
+                        .map(MultipleChoiceOption::getDefaultScore)
+                        .filter(score -> score != null && score > 0)
+                        .reduce(0.0, (sum, x) -> sum += x);
+        }
+        return 0.0;
+    }
+
+    @Transient
+    public Double getMinDefaultScore() {
+        if (getType() == Type.WeightedMultipleChoiceQuestion) {
+                return options.stream()
+                        .map(MultipleChoiceOption::getDefaultScore)
+                        .filter(score -> score != null && score < 0)
+                        .reduce(0.0, (sum, x) -> sum += x);
+        }
+        return 0.0;
     }
 
     @Transient

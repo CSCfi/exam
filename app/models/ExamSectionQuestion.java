@@ -5,15 +5,25 @@ import models.api.Scorable;
 import models.api.Sortable;
 import models.base.OwnedModel;
 import models.questions.EssayAnswer;
+import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 
 import javax.annotation.Nonnull;
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSectionQuestion>, Sortable, Scorable {
@@ -248,8 +258,19 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             case WeightedMultipleChoiceQuestion:
                 return options.stream()
                         .map(ExamSectionQuestionOption::getScore)
-                        .filter(o -> o != null && o > 0)
+                        .filter(score -> score != null && score > 0)
                         .reduce(0.0, (sum, x) -> sum += x);
+        }
+        return 0.0;
+    }
+
+    @Transient
+    public Double getMinScore() {
+        if (question.getType() == Question.Type.WeightedMultipleChoiceQuestion) {
+            return options.stream()
+                    .map(ExamSectionQuestionOption::getScore)
+                    .filter(score -> score != null && score < 0)
+                    .reduce(0.0, (sum, x) -> sum += x);
         }
         return 0.0;
     }
@@ -272,4 +293,58 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 essayAnswer.getEvaluatedScore() == 1;
     }
 
+    /**
+     * Adds new answer option.
+     * If question type equals WeightedMultiChoiceQuestion, recalculates scores for old options so that max assessed score won't change.
+     *
+     * @param option New option to add.
+     * @param preserveScores If true other options scores will not be recalculated.
+     */
+    @Transient
+    public void addOption(ExamSectionQuestionOption option, boolean preserveScores) {
+        if (question.getType() != Question.Type.WeightedMultipleChoiceQuestion
+                || option.getScore() == null || preserveScores) {
+            options.add(option);
+            return;
+        }
+
+        if (option.getScore() > 0) {
+            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() > 0)
+                    .collect(Collectors.toList());
+            opts.stream().forEach(o -> o.setScore(o.getScore() - option.getScore() / opts.size()));
+        } else if (option.getScore() < 0) {
+            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() < 0)
+                    .collect(Collectors.toList());
+            opts.stream().forEach(o -> o.setScore(o.getScore() - option.getScore() / opts.size()));
+        }
+        options.add(option);
+    }
+
+    @Transient
+    public void removeOption(MultipleChoiceOption option, boolean preserveScores) {
+        ExamSectionQuestionOption esqo = options.stream()
+                .filter(o -> option.equals(o.getOption()))
+                .findFirst()
+                .orElse(null);
+        if (esqo == null) {
+            return;
+        }
+
+        Double score = esqo.getScore();
+        options.remove(esqo);
+        if (question.getType() != Question.Type.WeightedMultipleChoiceQuestion
+                || score == null || preserveScores) {
+            return;
+        }
+
+        if (score > 0) {
+            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() > 0)
+                    .collect(Collectors.toList());
+            opts.stream().forEach(o -> o.setScore(o.getScore() + score / opts.size()));
+        } else if (score < 0) {
+            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() < 0)
+                    .collect(Collectors.toList());
+            opts.stream().forEach(o -> o.setScore(o.getScore() + score / opts.size()));
+        }
+    }
 }

@@ -291,8 +291,9 @@ public class IntegrationTestCase {
             if (Ebean.find(Grade.class).findRowCount() == 0) { // Might already be inserted by evolution
                 Ebean.saveAll(all.get("grades"));
             }
-            Ebean.saveAll(all.get("question_essay"));
-            Ebean.saveAll(all.get("question_multiple_choice"));
+            Ebean.saveAll(all.get("question-essay"));
+            Ebean.saveAll(all.get("question-multiple-choice"));
+            Ebean.saveAll(all.get("question-weighted-multiple-choice"));
             Ebean.saveAll(all.get("softwares"));
             Ebean.saveAll(all.get("courses"));
             Ebean.saveAll(all.get("comments"));
@@ -312,7 +313,6 @@ public class IntegrationTestCase {
             Ebean.saveAll(all.get("exam-machines"));
             Ebean.saveAll(all.get("exam-room-reservations"));
             Ebean.saveAll(all.get("exam-enrolments"));
-            Ebean.saveAll(all.get("question_multiple_choice"));
         }
     }
 

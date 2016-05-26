@@ -132,16 +132,7 @@
                 };
 
                 $scope.addNewOption = function (newQuestion) {
-
-                    QuestionRes.options.create({qid: newQuestion.id},
-                        function (response) {
-                            newQuestion.options.push(response);
-                            toastr.info($translate.instant('sitnet_option_added'));
-                            focus('opt' + response.id);
-                        }, function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
+                    newQuestion.options.push({});
                 };
 
                 $scope.radioChecked = function (option) {
@@ -155,7 +146,6 @@
                 };
 
                 $scope.removeOption = function (option) {
-
                     QuestionRes.options.delete({qid: null, oid: option.id},
                         function () {
                             $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
@@ -170,6 +160,26 @@
                 $scope.selectIfDefault = function (value, $event) {
                     if (value === $translate.instant('sitnet_default_option_description')) {
                         $event.target.select();
+                    }
+                };
+
+                $scope.saveOption = function (option) {
+                    if (!$scope.questionForm.$valid) {
+                        return;
+                    }
+                    var data = {
+                        defaultScore: option.defaultScore,
+                        option: option.option
+                    };
+                    if (angular.isUndefined(option.id)) {
+                        QuestionRes.options.create({qid: $scope.newQuestion.id}, data,
+                            function (response) {
+                                option.id = response.id;
+                                toastr.info($translate.instant('sitnet_option_added'));
+                            }, function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
                     }
                 };
 

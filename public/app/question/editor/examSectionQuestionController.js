@@ -80,6 +80,27 @@
                     updateExamQuestion();
                 };
 
+                $scope.saveOption = function (option) {
+                    if (angular.isDefined(option.id) || !$scope.questionForm.$valid) {
+                        return;
+                    }
+                    var data = {
+                        defaultScore: option.score,
+                        option: option.option.option,
+                        correctOption: option.option.correctOption,
+                        examSectionQuestionId: $scope.sectionQuestion.id
+                    };
+                    QuestionRes.options.create({qid: $scope.question.id}, data,
+                        function (opt) {
+                            option.option.id = opt.id;
+                            toastr.info($translate.instant('sitnet_option_added'));
+                            focus('opt' + opt.id);
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
                 // Need one for the base options as well
                 $scope.updateOption = function (option) {
                     if (!$scope.questionForm.$valid) {
@@ -98,6 +119,9 @@
                 };
 
                 $scope.updateOptionText = function (examQuestionOption) {
+                    if (angular.isUndefined(examQuestionOption.option.id)) {
+                        return;
+                    }
                     QuestionRes.options.update({oid: examQuestionOption.option.id}, examQuestionOption.option,
                         function () {
                             toastr.info($translate.instant('sitnet_option_updated'));
@@ -108,22 +132,13 @@
                 };
 
                 $scope.addNewOption = function (question) {
-
-                    QuestionRes.options.create({qid: question.id},
-                        function (option) {
-                            question.options.push(option);
-                            $scope.sectionQuestion.options.push({option: option, score: option.defaultScore});
-                            toastr.info($translate.instant('sitnet_option_added'));
-                            focus('opt' + option.id);
-                        }, function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
+                    var option = {};
+                    question.options.push(option);
+                    $scope.sectionQuestion.options.push({option: option});
                 };
 
                 $scope.removeOption = function (option) {
-
-                    QuestionRes.options.delete({oid: option.option.id},
+                    QuestionRes.options.delete({qid: $scope.sectionQuestion.id, oid: option.option.id},
                         function () {
                             $scope.sectionQuestion.options.splice($scope.sectionQuestion.options.map(function(o) {
                                 return o.option.id;
