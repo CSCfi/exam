@@ -52,13 +52,13 @@
                     </span>
                 </div>
                 <!-- answer attachment -->
-                <div ng-show="sectionQuestion.reviewExpanded && sectionQuestion.question.answer.attachment"
+                <div ng-show="sectionQuestion.reviewExpanded && sectionQuestion.essayAnswer.attachment"
                      ng-controller="AttachmentController">
                     <div class="top-row-narrow">
                         <strong>{{ 'sitnet_answer_attachment' | translate}}:</strong>
                         <a class="pointer"
                            ng-click="downloadQuestionAnswerAttachment(sectionQuestion, exam.hash)">
-                            {{sectionQuestion.question.answer.attachment.fileName}}
+                            {{sectionQuestion.essayAnswer.attachment.fileName}}
                         </a>
                     </div>
                 </div>
