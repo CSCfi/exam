@@ -44,6 +44,7 @@
                 $scope.search = function () {
                     if ($scope.permissionCheck.active === false) {
                         if ($scope.filter.text) {
+                            $scope.loader.loading = true;
                             search();
                         } else {
                             delete $scope.exams;

@@ -158,6 +158,7 @@ public class ReviewController extends BaseController {
                 .fetch("exam.gradeScale.grades")
                 .fetch("exam.creditType")
                 .fetch("exam.examType")
+                .fetch("exam.executionType")
                 .fetch("exam.examFeedback")
                 .fetch("exam.languageInspection")
                 .fetch("exam.examSections.sectionQuestions.question") // for getting the scores (see below)
