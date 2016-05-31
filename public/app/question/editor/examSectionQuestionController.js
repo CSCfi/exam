@@ -81,7 +81,9 @@
                 };
 
                 $scope.saveOption = function (option) {
-                    if (angular.isDefined(option.id) || !$scope.questionForm.$valid) {
+                    var type = $scope.question.type;
+                    if (type === "WeightedMultipleChoiceQuestion"
+                        && angular.isUndefined(option.score)) {
                         return;
                     }
                     var data = {
@@ -152,6 +154,9 @@
                 };
 
                 $scope.correctAnswerToggled = function (examQuestionOption) {
+                    if (angular.isUndefined(examQuestionOption.option.id)) {
+                        return;
+                    }
                     QuestionRes.correctOption.update({oid: examQuestionOption.option.id}, examQuestionOption.option,
                         function (question) {
                             $scope.sectionQuestion.options.forEach(function (o) {
@@ -163,6 +168,10 @@
                             toastr.error(error.data);
                         }
                     );
+                };
+
+                $scope.optionDisabled = function (option) {
+                    return angular.isUndefined(option.option.id) || option.option.correctOption;
                 };
 
                 $scope.selectIfDefault = function (value, $event) {

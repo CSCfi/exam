@@ -164,11 +164,14 @@
                 };
 
                 $scope.saveOption = function (option) {
-                    if (!$scope.questionForm.$valid) {
+                    var type = $scope.newQuestion.type;
+                    if (type === "WeightedMultipleChoiceQuestion"
+                        && angular.isUndefined(option.defaultScore)) {
                         return;
                     }
                     var data = {
                         defaultScore: option.defaultScore,
+                        correctOption: option.correctOption,
                         option: option.option
                     };
                     if (angular.isUndefined(option.id)) {
@@ -194,6 +197,9 @@
                 };
 
                 $scope.correctAnswerToggled = function (option) {
+                    if (angular.isUndefined(option.id)) {
+                        return;
+                    }
                     QuestionRes.correctOption.update({oid: option.id}, option,
                         function (question) {
                             $scope.newQuestion.options = question.options;
@@ -202,6 +208,10 @@
                             toastr.error(error.data);
                         }
                     );
+                };
+
+                $scope.optionDisabled = function (option) {
+                    return angular.isUndefined(option.id) || option.correctOption;
                 };
 
                 $scope.openQuestionOwnerModal = function () {
