@@ -1102,14 +1102,16 @@
                     return deferred.promise;
                 };
 
-                var insertExamQuestion = function (examId, sectionId, questionId, sequenceNumber, modal) {
+                var insertExamQuestion = function (examId, sectionId, questionId, sequenceNumber, modal, silent) {
                     ExamRes.sectionquestions.insert({
                             eid: examId,
                             sid: sectionId,
                             seq: sequenceNumber,
                             qid: questionId
                         }, function (sec) {
-                            toastr.info($translate.instant("sitnet_question_added"));
+                            if (!silent) {
+                                toastr.info($translate.instant("sitnet_question_added"));
+                            }
                             updateSection(sec, true); // needs manual update as the scope is somehow not automatically refreshed
                             modal.dismiss("done");
                             $rootScope.$emit('questionAdded'); // Emit event for question library.
@@ -1139,7 +1141,7 @@
                                     removeExamQuestion(examId, section.id, baseQuestion.id)
                                         .then(function () {
                                             insertExamQuestion(examId, section.id, baseQuestion.id, sectionQuestion.sequenceNumber,
-                                                $modalInstance);
+                                                $modalInstance, true);
                                         });
                                 }
                             });
