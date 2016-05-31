@@ -194,13 +194,12 @@ public class QuestionController extends BaseController {
         if (option == null) {
             return notFound();
         }
-        boolean isCorrect = !option.isCorrectOption();
         Question question = option.getQuestion();
         for (MultipleChoiceOption mco : option.getQuestion().getOptions()) {
             if (mco.equals(option)) {
-                mco.setCorrectOption(isCorrect);
+                mco.setCorrectOption(true);
             } else {
-                mco.setCorrectOption(!isCorrect);
+                mco.setCorrectOption(false);
             }
             mco.update();
         }

@@ -682,7 +682,7 @@
   "sitnet_expired_exams": "Sulkeutuneet tentit",
   "sitnet_edit_exam_question": "Muokkaa tenttikysymystä",
   "sitnet_question_text": "Kysymysteksti",
-  "sitnet_exam_question_edit_instructions": "Tässä näkymässä voit muokata kysymyksen tenttisidonnaisia tietoja kuten pisteitä ja vastausohjeita.",
+  "sitnet_exam_question_edit_instructions": "Tämä kysymys on käytössä useammassa tentissä. Muutokset kysymystekstiin, vastausvaihtoehtoihin (poislukien pisteet) ja liitetiedostoon päivittyvät seuraaviin tentteihin:",
   "sitnet_base_question_edit": "Muokkaa kysymyksen perustietoja",
   "sitnet_question_owners": "Kysymyksen omistajat",
   "sitnet_add_owner_for_question": "Lisää kysymykselle omistaja",
