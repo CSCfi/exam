@@ -104,7 +104,8 @@
                                             <div class="radio">
                                                 <label>
                                                     <input type="radio" ng-model="option.option.correctOption" ng-value="true"
-                                                           ng-click="correctAnswerToggled(option)" ng-disabled="option.option.id ? false : true">
+                                                           ng-click="correctAnswerToggled(option)"
+                                                           ng-disabled="optionDisabled(option)">
                                                     {{'sitnet_correct_option' | translate }}
                                                 </label>
                                             </div>
