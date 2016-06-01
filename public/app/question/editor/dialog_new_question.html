@@ -25,9 +25,8 @@
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">
-                <span ng-if="!baseQuestionId">{{'sitnet_button_cancel' | translate}}</span>
-                <span ng-if="baseQuestionId">{{'sitnet_close' | translate}}</span>
+            <button ng-if="!baseQuestionId" class="btn btn-sm btn-danger pull-left" ng-click="cancel()">
+                <span>{{'sitnet_button_cancel' | translate}}</span>
             </button>
         </div>
         <div class="col-md-6">

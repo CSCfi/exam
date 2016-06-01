@@ -103,7 +103,7 @@
                                         <div class="col-md-4">
                                             <div class="radio">
                                                 <label>
-                                                    <input type="radio" ng-model="option.option.correctOption" ng-value="true"
+                                                    <input name="correctOption" type="radio" ng-model="option.option.correctOption" ng-value="true"
                                                            ng-click="correctAnswerToggled(option)"
                                                            ng-disabled="optionDisabled(option)">
                                                     {{'sitnet_correct_option' | translate }}
@@ -259,8 +259,6 @@
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_close' | translate}}
-            </button>
         </div>
         <div class="col-md-6">
             <button ng-disabled="!questionForm.$valid" ng-click="submit(question, sectionQuestion)"

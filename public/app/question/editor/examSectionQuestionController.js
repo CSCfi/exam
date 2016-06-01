@@ -86,6 +86,11 @@
                         && angular.isUndefined(option.score)) {
                         return;
                     }
+
+                    if (angular.isUndefined(option.option.option)) {
+                        return;
+                    }
+
                     var data = {
                         defaultScore: option.score,
                         option: option.option.option,
@@ -139,13 +144,21 @@
                     $scope.sectionQuestion.options.push({option: option});
                 };
 
+                function removeOption(option) {
+                    $scope.sectionQuestion.options.splice($scope.sectionQuestion.options.map(function (o) {
+                        return o.option.id;
+                    }).indexOf(option.option.id), 1);
+                    toastr.info($translate.instant('sitnet_option_removed'));
+                }
+
                 $scope.removeOption = function (option) {
+                    if (angular.isUndefined(option.option.id)) {
+                        removeOption(option);
+                        return;
+                    }
                     QuestionRes.options.delete({qid: $scope.sectionQuestion.id, oid: option.option.id},
                         function () {
-                            $scope.sectionQuestion.options.splice($scope.sectionQuestion.options.map(function(o) {
-                                return o.option.id;
-                            }).indexOf(option.option.id), 1);
-                            toastr.info($translate.instant('sitnet_option_removed'));
+                            removeOption(option);
                         }, function (error) {
                             toastr.error(error.data);
                         }
@@ -160,7 +173,7 @@
                     QuestionRes.correctOption.update({oid: examQuestionOption.option.id}, examQuestionOption.option,
                         function (question) {
                             $scope.sectionQuestion.options.forEach(function (o) {
-                                o.option.correctOption = o.id == examQuestionOption.id;
+                                o.option.correctOption = o.option.id == examQuestionOption.option.id;
                             });
                             //$scope.question.options = question.options;
                             toastr.info($translate.instant('sitnet_correct_option_updated'));

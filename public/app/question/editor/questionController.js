@@ -135,7 +135,7 @@
                     newQuestion.options.push({});
                 };
 
-                $scope.radioChecked = function (option) {
+                function radioChecked (option) {
                     option.correctOption = true;
 
                     angular.forEach($scope.newQuestion.options, function (value) {
@@ -143,13 +143,21 @@
                             value.correctOption = false;
                         }
                     });
-                };
+                }
+
+                function removeOption(option) {
+                    $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
+                    toastr.info($translate.instant('sitnet_option_removed'));
+                }
 
                 $scope.removeOption = function (option) {
+                    if (angular.isUndefined(option.id)) {
+                        removeOption(option);
+                        return;
+                    }
                     QuestionRes.options.delete({qid: null, oid: option.id},
                         function () {
-                            $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
-                            toastr.info($translate.instant('sitnet_option_removed'));
+                            removeOption(option);
                         }, function (error) {
                             toastr.error(error.data);
                         }
@@ -169,6 +177,11 @@
                         && angular.isUndefined(option.defaultScore)) {
                         return;
                     }
+
+                    if (angular.isUndefined(option.option)) {
+                        return;
+                    }
+
                     var data = {
                         defaultScore: option.defaultScore,
                         correctOption: option.correctOption,
@@ -202,7 +215,7 @@
                     }
                     QuestionRes.correctOption.update({oid: option.id}, option,
                         function (question) {
-                            $scope.newQuestion.options = question.options;
+                            radioChecked(option);
                             toastr.info($translate.instant('sitnet_correct_option_updated'));
                         }, function (error) {
                             toastr.error(error.data);
