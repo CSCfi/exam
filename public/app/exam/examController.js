@@ -841,7 +841,7 @@
                         }
                         $scope.newExam.examSections[index] = section;
                     }
-
+                    recreateSectionIndices();
                 };
 
                 $scope.insertQuestion = function (section, object, to) {
@@ -881,7 +881,6 @@
                                 toastr.info($translate.instant("sitnet_question_added"));
                                 section.sectionQuestions = sec.sectionQuestions;
                                 updateSection(section, true); // needs manual update as the scope is somehow not automatically refreshed
-                                recreateSectionIndices();
                             }, function (error) {
                                 toastr.error(error.data);
                                 // remove broken objects
