@@ -1149,12 +1149,16 @@
                         };
 
                         $scope.cancel = function () {
-                            QuestionRes.questions.delete({id: question.id}, function () {
-                                toastr.info($translate.instant("sitnet_question_removed"));
+                            // If editing a non-shared exam question DO NOT go and mark it as DELETED
+                            if (!sectionQuestion) {
+                                QuestionRes.questions.delete({id: question.id}, function () {
+                                    toastr.info($translate.instant("sitnet_question_removed"));
+                                    $modalInstance.dismiss("Cancelled");
+                                });
+                            } else {
                                 $modalInstance.dismiss("Cancelled");
-                            });
+                            }
                         };
-
                     }];
 
                     var modalInstance = $modal.open({
