@@ -20,14 +20,11 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-8 create-new-section">
-                <span class="fa-stack fa-lg">
-                    <i class="fa icon-theme fa-stop fa-stack-2x"></i>
-                    <i class="fa sitnet-white fa-plus fa-stack-1x"></i>
-                </span>
-                <a ng-click="addNewSection()" class="create-new-section-button">
-                    {{'sitnet_section_add' | translate}}
-                </a>
+            <div class="col-md-8">
+                <button class="btn btn-primary" ng-click="addNewSection()">
+                        <i class="fa fa-lg sitnet-white fa-plus"></i>&nbsp;
+                        {{'sitnet_section_add' | translate}}
+                </button>
             </div>
             <div class="col-md-4 total-score">
                 <span class="pull-right">

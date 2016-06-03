@@ -6,7 +6,7 @@ email.weekly.report.subject=Veckosammanfattning för dina tentamina
 email.machine.reservation.subject=Bokning
 email.review.request.subject=Du är markerad som examinator för tentamen
 email.reservation.cancellation.subject=Din bokning är annulerad
-email.reservation.cancellation.subject.forced=Din bokning är annulerad
+email.reservation.cancellation.subject.forced=Din bokning för tentamen "{0}" är annulerad
 email.reservation.cancellation.info=Tilläggsinformation
 email.template.inspection.done={0} har bedömt sin del av tentamenssvaret som gäller tentamen
 email.template.inspection.comment=Feedback
@@ -63,3 +63,5 @@ email.template.language.inspection.done=Prestationen har genomgått språkgransk
 email.template.language.inspection.statement.title=Utlåtande
 email.template.language.inspection.result=Resultat: {0}
 email.template.exam.returned.link=Länk till bedömning
+email.weekly.report.review.summary={0} kpl, joista ensimmäisen arvioinnin deadline on {1} SV.
+

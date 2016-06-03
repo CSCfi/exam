@@ -123,6 +123,12 @@ class EmailComposerImpl implements EmailComposer {
         emailSender.send(inspector.getEmail(), sender.getEmail(), subject, template);
     }
 
+    private class ReviewStats {
+        int amount;
+        Date earliestDeadLine;
+    }
+
+
     @Override
     public void composeWeeklySummary(User teacher) {
 
@@ -142,22 +148,31 @@ class EmailComposerImpl implements EmailComposer {
 
         int totalUngradedExams = reviews.size();
 
-        // To ditch duplicate rows
-        Set<String> inspectionRows = new LinkedHashSet<>();
-
+        Map<Exam, ReviewStats> examReviewMap = new HashMap<>();
         for (ExamParticipation review : reviews) {
-            Map<String, String> stringValues = new HashMap<>();
-            stringValues.put("exam_link", String.format("%s/exams/reviews/%d", HOSTNAME, review.getExam().getId()));
-            stringValues.put("student_name", String.format("%s %s",
-                    review.getUser().getFirstName(), review.getUser().getLastName()));
-            stringValues.put("exam_name", review.getExam().getName());
-            stringValues.put("course_code", review.getExam().getCourse().getCode());
-            String row = replaceAll(inspectionTemplate, stringValues);
-            inspectionRows.add(row);
+            Exam exam = review.getExam().getParent();
+            ReviewStats stats = examReviewMap.get(exam);
+            if (stats == null) {
+                stats = new ReviewStats();
+            }
+            stats.amount++;
+            if (stats.earliestDeadLine == null || review.getDeadline().before(stats.earliestDeadLine)) {
+                stats.earliestDeadLine = review.getDeadline();
+            }
+            examReviewMap.put(exam, stats);
         }
-
         StringBuilder rowBuilder = new StringBuilder();
-        inspectionRows.stream().forEach(rowBuilder::append);
+        examReviewMap.entrySet().stream().filter(entry -> entry.getValue().amount > 0).forEach(entry -> {
+            Map<String, String> stringValues = new HashMap<>();
+            stringValues.put("exam_name", entry.getKey().getName());
+            stringValues.put("course_code", entry.getKey().getCourse().getCode());
+            String summary = messaging.get(lang, "email.weekly.report.review.summary",
+                    Integer.toString(entry.getValue().amount),
+                    DF.print(new DateTime(entry.getValue().earliestDeadLine)));
+            stringValues.put("review_summary", summary);
+            String row = replaceAll(inspectionTemplate, stringValues);
+            rowBuilder.append(row);
+        });
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("enrolments_title", messaging.get(lang, "email.template.weekly.report.enrolments"));
@@ -177,7 +192,7 @@ class EmailComposerImpl implements EmailComposer {
         String templatePath = getTemplatesRoot() + "reservationConfirmed.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(recipient);
-        String subject = messaging.get(lang, "email.machine.reservation.subject");
+        String subject = String.format("%s: \"%s\"", messaging.get(lang, "email.machine.reservation.subject"), exam.getName());
 
         String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getCode());
         String teacherName;
@@ -225,7 +240,7 @@ class EmailComposerImpl implements EmailComposer {
         ICalendar iCal = createReservationEvent(lang, startDate, endDate, addressString, buildingInfo, roomName, machineName);
         File file;
         try {
-            file = File.createTempFile("reservation", ".ics");
+            file = File.createTempFile(exam.getName().replace(" ", "-"), ".ics");
             Biweekly.write(iCal).go(file);
         } catch (IOException e) {
             Logger.error("Failed to create a temporary iCal file on disk!");
@@ -323,9 +338,12 @@ class EmailComposerImpl implements EmailComposer {
 
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(student);
-        String subject = messaging.get(lang, isStudentUser ?
-                "email.reservation.cancellation.subject" :
-                "email.reservation.cancellation.subject.forced");
+        String subject;
+        if (isStudentUser) {
+            subject = messaging.get(lang, "email.reservation.cancellation.subject");
+        } else {
+            subject = messaging.get(lang, "email.reservation.cancellation.subject.forced", enrolment.getExam().getName());
+        }
 
         String date = DF.print(adjustDST(reservation.getStartAt(), TZ));
         String room = reservation.getMachine().getRoom().getName();
