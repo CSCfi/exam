@@ -20,6 +20,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -297,7 +298,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
      * Adds new answer option.
      * If question type equals WeightedMultiChoiceQuestion, recalculates scores for old options so that max assessed score won't change.
      *
-     * @param option New option to add.
+     * @param option         New option to add.
      * @param preserveScores If true other options scores will not be recalculated.
      */
     @Transient
@@ -311,11 +312,11 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         if (option.getScore() > 0) {
             List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() > 0)
                     .collect(Collectors.toList());
-            opts.stream().forEach(o -> o.setScore(o.getScore() - option.getScore() / opts.size()));
+            calculateOptionScores(option, opts);
         } else if (option.getScore() < 0) {
             List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() < 0)
                     .collect(Collectors.toList());
-            opts.stream().forEach(o -> o.setScore(o.getScore() - option.getScore() / opts.size()));
+            calculateOptionScores(option, opts);
         }
         options.add(option);
     }
@@ -340,11 +341,26 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         if (score > 0) {
             List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() > 0)
                     .collect(Collectors.toList());
-            opts.stream().forEach(o -> o.setScore(o.getScore() + score / opts.size()));
+            opts.stream().forEach(o -> o.setScore(roundToTwoDigits(o.getScore() + score / opts.size())));
         } else if (score < 0) {
             List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() < 0)
                     .collect(Collectors.toList());
-            opts.stream().forEach(o -> o.setScore(o.getScore() + score / opts.size()));
+            opts.stream().forEach(o -> o.setScore(roundToTwoDigits(o.getScore() + score / opts.size())));
         }
+    }
+
+    private void calculateOptionScores(ExamSectionQuestionOption option, List<ExamSectionQuestionOption> opts) {
+        BigDecimal oldSum = new BigDecimal(0);
+        BigDecimal sum = new BigDecimal(0);
+        for (ExamSectionQuestionOption o : opts) {
+            oldSum = oldSum.add(BigDecimal.valueOf(o.getScore()));
+            o.setScore(roundToTwoDigits(o.getScore() - option.getScore() / opts.size()));
+            sum = sum.add(BigDecimal.valueOf(o.getScore()));
+        }
+        option.setScore(new BigDecimal(option.getScore()).add(oldSum.subtract(new BigDecimal(option.getScore()).add(sum))).doubleValue());
+    }
+
+    private Double roundToTwoDigits(double score) {
+        return Math.round(score * 100) / 100d;
     }
 }

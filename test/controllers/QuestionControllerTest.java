@@ -76,9 +76,9 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assertExamSectionQuestion(question, 3, 4d, new Double[]{2d, 2d, -2d}, -2d);
 
         // Add new option to question
-        question = addNewOption(question, 0.5, new Double[]{1d, 1d, -1d, 0.5d}, -1d);
+        question = addNewOption(question, 0.75, new Double[]{1d, 1d, -1d, 0.75d}, -1d);
 
-        assertExamSectionQuestion(question, 4, 4d, new Double[]{1.6d, 1.6d, -2d, 0.8d}, -2d);
+        assertExamSectionQuestion(question, 4, 4d, new Double[]{1.46d, 1.46d, -2d, 1.08d}, -2d);
     }
 
     @Test
@@ -102,9 +102,9 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assertExamSectionQuestion(question, 3, 4d, new Double[]{2d, 2d, -2d}, -2d);
 
         // Add new option to question
-        question = addNewOption(question, -0.5, new Double[]{1d, 1d, -1d, -0.5d}, -1.5d);
+        question = addNewOption(question, -0.73, new Double[]{1d, 1d, -1d, -0.73d}, -1.73d);
 
-        assertExamSectionQuestion(question, 4, 4d, new Double[]{2d, 2d, -1.33d, -0.67d}, -2d);
+        assertExamSectionQuestion(question, 4, 4d, new Double[]{2d, 2d, -1.16d, -0.84d}, -2d);
     }
 
     @Test
@@ -113,8 +113,8 @@ public class QuestionControllerTest extends IntegrationTestCase {
         Question question = getWeightedMultipleChoiceQuestion();
         // Add new option to question and then delete it
         assertExamSectionQuestion(question, 3, 4d, new Double[]{2d, 2d, -2d}, -2d);
-        question = addNewOption(question, 0.5, new Double[]{1d, 1d, -1d, 0.5d}, -1d);
-        assertExamSectionQuestion(question, 4, 4d, new Double[]{1.6d, 1.6d, -2d, 0.8d}, -2d);
+        question = addNewOption(question, 0.75, new Double[]{1d, 1d, -1d, 0.75d}, -1d);
+        assertExamSectionQuestion(question, 4, 4d, new Double[]{1.46d, 1.46d, -2d, 1.08d}, -2d);
 
         MultipleChoiceOption option = question.getOptions().get(3);
         deleteOption(option.getId());
