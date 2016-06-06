@@ -110,6 +110,8 @@ public class QuestionController extends BaseController {
         AppUtil.setModifier(copy, user);
         copy.save();
         copy.getTags().addAll(question.getTags());
+        copy.getQuestionOwners().clear();
+        copy.getQuestionOwners().add(user);
         copy.update();
         Ebean.saveAll(copy.getOptions());
         return ok(Json.toJson(copy));
