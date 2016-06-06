@@ -742,7 +742,7 @@ public class ExamController extends BaseController {
                 .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.options")
-                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
+                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption, defaultScore")
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")
