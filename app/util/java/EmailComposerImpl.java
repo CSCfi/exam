@@ -123,9 +123,15 @@ class EmailComposerImpl implements EmailComposer {
         emailSender.send(inspector.getEmail(), sender.getEmail(), subject, template);
     }
 
-    private class ReviewStats {
+    private class ReviewStats implements Comparable<ReviewStats> {
         int amount;
         Date earliestDeadLine;
+
+
+        @Override
+        public int compareTo(ReviewStats o) {
+            return earliestDeadLine.compareTo(o.earliestDeadLine);
+        }
     }
 
 
@@ -161,14 +167,15 @@ class EmailComposerImpl implements EmailComposer {
             }
             examReviewMap.put(exam, stats);
         }
+        SortedSet<Map.Entry<Exam, ReviewStats>> sorted = sortByValue(examReviewMap);
         StringBuilder rowBuilder = new StringBuilder();
-        examReviewMap.entrySet().stream().filter(entry -> entry.getValue().amount > 0).forEach(entry -> {
+        sorted.stream().filter(e -> e.getValue().amount > 0).forEach(e -> {
             Map<String, String> stringValues = new HashMap<>();
-            stringValues.put("exam_name", entry.getKey().getName());
-            stringValues.put("course_code", entry.getKey().getCourse().getCode());
+            stringValues.put("exam_name", e.getKey().getName());
+            stringValues.put("course_code", e.getKey().getCourse().getCode());
             String summary = messaging.get(lang, "email.weekly.report.review.summary",
-                    Integer.toString(entry.getValue().amount),
-                    DF.print(new DateTime(entry.getValue().earliestDeadLine)));
+                    Integer.toString(e.getValue().amount),
+                    DF.print(new DateTime(e.getValue().earliestDeadLine)));
             stringValues.put("review_summary", summary);
             String row = replaceAll(inspectionTemplate, stringValues);
             rowBuilder.append(row);
@@ -538,7 +545,7 @@ class EmailComposerImpl implements EmailComposer {
             if (enrolments.isEmpty()) {
                 String noEnrolments = messaging.get(lang, "email.enrolment.no.enrolments");
                 subTemplate = String.format(
-                        "<p><a href=\"{{exam_link}}\">{{exam_name}}</a>, {{course_code}} - %s</p>", noEnrolments);
+                        "<li><a href=\"{{exam_link}}\">{{exam_name}}</a>, {{course_code}} - %s</li>", noEnrolments);
             } else {
                 DateTime date = adjustDST(enrolments.get(0).getReservation().getStartAt(), TZ);
                 stringValues.put("enrolments",
@@ -566,6 +573,20 @@ class EmailComposerImpl implements EmailComposer {
                 .eq("exam.state", Exam.State.REVIEW_STARTED)
                 .endJunction()
                 .findList();
+    }
+
+    private static <K,V extends Comparable<? super V>> SortedSet<Map.Entry<K,V>> sortByValue(Map<K,V> map) {
+        SortedSet<Map.Entry<K,V>> set = new TreeSet<>(
+                new Comparator<Map.Entry<K, V>>() {
+                    @Override
+                    public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
+                        int res = e1.getValue().compareTo(e2.getValue());
+                        return res != 0 ? res : 1;
+                    }
+                }
+        );
+        set.addAll(map.entrySet());
+        return set;
     }
 
 
