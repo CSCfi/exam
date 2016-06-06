@@ -1,7 +1,6 @@
 package system;
 
 
-import exceptions.AuthenticateException;
 import exceptions.MalformedDataException;
 import play.Logger;
 import play.http.HttpErrorHandler;
@@ -39,9 +38,6 @@ public class SystemErrorHandler implements HttpErrorHandler {
             Logger.error("onServerError: URL: {}, msg: {}", request.uri(), errorMessage);
             exception.printStackTrace();
             if (cause != null) {
-                if (cause instanceof AuthenticateException) {
-                    return Results.unauthorized(Json.toJson(errorMessage));
-                }
                 if (cause instanceof MalformedDataException) {
                     return Results.badRequest(Json.toJson(errorMessage));
                 }
