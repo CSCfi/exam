@@ -5,8 +5,10 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
+import com.avaje.ebean.Model;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
+import models.Exam;
 import models.ExamSectionQuestion;
 import models.ExamSectionQuestionOption;
 import models.Role;
@@ -19,6 +21,7 @@ import play.mvc.Result;
 import util.AppUtil;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +38,7 @@ public class QuestionController extends BaseController {
     public Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds) {
         User user = getLoggedUser();
         PathProperties pp = PathProperties.parse("*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
-                "attachment(id, fileName), options(defaultScore), examSectionQuestions(examSection(exam(course(code)))))");
+                "attachment(id, fileName), options(defaultScore), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))");
         Query<Question> query = Ebean.find(Question.class);
         pp.apply(query);
         ExpressionList<Question> el = query
@@ -219,14 +222,18 @@ public class QuestionController extends BaseController {
                 !question.getQuestionOwners().contains(getLoggedUser())) {
             return forbidden();
         }
-        if (question.getExamSectionQuestions().isEmpty() && question.getChildren().isEmpty()) {
-            // Not used in exams or as copies
-            question.delete();
-        } else {
-            question.setState(QuestionState.DELETED.toString());
-            AppUtil.setModifier(question, getLoggedUser());
-            question.save();
+        // Not allowed to remove if used in active exams
+        if (!question.getExamSectionQuestions().stream()
+                .filter(esq -> {
+                    Exam exam = esq.getExamSection().getExam();
+                    return exam.getState() == Exam.State.PUBLISHED && exam.getExamActiveEndDate().after(new Date());
+                })
+                .collect(Collectors.toList())
+                .isEmpty()) {
+            return forbidden();
         }
+        question.getExamSectionQuestions().forEach((Model::delete));
+        question.delete();
         return ok();
     }
 

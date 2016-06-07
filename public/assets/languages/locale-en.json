@@ -686,5 +686,6 @@
   "sitnet_base_question_edit": "Edit the basic information of the question",
   "sitnet_question_owners": "Owners of the question",
   "sitnet_add_owner_for_question": "Add owner to the question",
-  "sitnet_unrestricted": "Ei rajoitettu EN"
+  "sitnet_unrestricted": "Ei rajoitettu EN",
+  "sitnet_question_removal_disallowed": "Kysymystä ei voi poistaa, sillä se on käytössä voimassaolevissa tenteissä EN"
 }

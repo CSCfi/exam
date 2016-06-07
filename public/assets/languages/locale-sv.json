@@ -686,5 +686,6 @@
   "sitnet_base_question_edit": "Ändra frågans grundinformation",
   "sitnet_question_owners": "Frågans ägare",
   "sitnet_add_owner_for_question": "Lägg till ägare",
-  "sitnet_unrestricted": "Ei rajoitettu SV"
+  "sitnet_unrestricted": "Ei rajoitettu SV",
+  "sitnet_question_removal_disallowed": "Kysymystä ei voi poistaa, sillä se on käytössä voimassaolevissa tenteissä SV"
 }

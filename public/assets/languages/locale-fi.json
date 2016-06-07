@@ -417,7 +417,7 @@
   "sitnet_get_graded_exams": "Tulosta tenttisuoritukset valitsemaltani aikaväliltä tiedostoon",
   "sitnet_get_all_student_activities": "Tulosta valitsemani opiskelijan aktiviteetit valitsemaltani aikaväliltä tiedostoon",
   "sitnet_get_all_teacher_exams": "Tulosta valitsemani tentaattorin luomat tentit valitsemaltani aikaväliltä tiedostoon",
-  "sitnet_remove_question_from_library_only": "Poistetaanko kysymys? Kysymys poistuu kysymyspankista, mutta ei tenteistä, joihin se on liitetty",
+  "sitnet_remove_question_from_library_only": "Poistetaanko kysymys? Kysymys poistuu kysymyspankista sekä tenteistä, joihin se on liitetty.",
   "sitnet_exam_room_unique_code": "Tenttitilan yksilöivä tunniste",
   "sitnet_building_where_the_machine_is": "Rakennus, jossa tenttikone sijaitsee",
   "sitnet_campus_where_room_is": "Kampus, jossa tenttitila sijaitsee",
@@ -686,5 +686,6 @@
   "sitnet_base_question_edit": "Muokkaa kysymyksen perustietoja",
   "sitnet_question_owners": "Kysymyksen omistajat",
   "sitnet_add_owner_for_question": "Lisää kysymykselle omistaja",
-  "sitnet_unrestricted": "Ei rajoitettu"
+  "sitnet_unrestricted": "Ei rajoitettu",
+  "sitnet_question_removal_disallowed": "Kysymystä ei voi poistaa, sillä se on käytössä voimassaolevissa tenteissä"
 }

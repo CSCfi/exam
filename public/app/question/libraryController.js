@@ -210,6 +210,10 @@
                                 'MultipleChoiceQuestion',
                                 'WeightedMultipleChoiceQuestion'].indexOf(q.type);
                             q.ownerAggregate = q.creator.lastName + q.creator.firstName;
+                            q.allowedToRemove = q.examSectionQuestions.filter(function (esq) {
+                                var exam = esq.examSection.exam;
+                                return exam.state === 'PUBLISHED' && exam.examActiveEndDate > new Date().getTime();
+                            }).length == 0;
                         });
                         var filters = {
                             exams: $scope.exams,

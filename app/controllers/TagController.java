@@ -80,9 +80,6 @@ public class TagController extends BaseController {
         if (tag == null || question == null) {
             return notFound();
         }
-        if (question.getParent() != null) {
-            return forbidden("Tagging is available only for prototype questions");
-        }
         Set<String> names = question.getTags().stream().map(Tag::getName).collect(Collectors.toSet());
         if (!names.contains(tag.getName())) {
             question.getTags().add(tag);
@@ -97,9 +94,6 @@ public class TagController extends BaseController {
         Question question = Ebean.find(Question.class, questionId);
         if (tag == null || question == null) {
             return notFound();
-        }
-        if (question.getParent() != null) {
-            return forbidden("Tagging is available only for prototype questions");
         }
         question.getTags().remove(tag);
         question.update();

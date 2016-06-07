@@ -211,8 +211,10 @@
                                 class="fa fa-lg fa-copy text-info"></i></a>
                     </td>
                     <td>
-                        <a class="bold-button" ng-click="deleteQuestion(question)"><i
-                                class="fa fa-lg fa-times sitnet-red"></i></a>
+                        <i ng-if="!question.allowedToRemove" class="fa fa-lg fa-times text-muted" title="{{'sitnet_question_removal_disallowed' | translate}}"></i>
+                        <a class="bold-button" ng-if="question.allowedToRemove" ng-click="deleteQuestion(question)">
+                            <i  class="fa fa-lg fa-times sitnet-red"></i>
+                        </a>
                     </td>
                 </tr>
                 <!--Fill if page not full-->
