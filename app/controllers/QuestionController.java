@@ -232,6 +232,10 @@ public class QuestionController extends BaseController {
                 .isEmpty()) {
             return forbidden();
         }
+        question.getChildren().forEach(c -> {
+            c.setParent(null);
+            c.update();
+        });
         question.getExamSectionQuestions().forEach((Model::delete));
         question.delete();
         return ok();

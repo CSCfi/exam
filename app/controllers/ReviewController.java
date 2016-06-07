@@ -443,7 +443,7 @@ public class ReviewController extends BaseController {
                         .collect(Collectors.toList());
                 for (ExamSectionQuestion esq : essays) {
                     questions.put(esq.getQuestion().getId(), esq.getQuestion().getQuestion());
-                    Long questionId = esq.getQuestion().getParent().getId();
+                    Long questionId = esq.getQuestion().getParent() == null ? esq.getQuestion().getId() : esq.getQuestion().getParent().getId();
                     EssayAnswer answer = esq.getEssayAnswer();
                     Attachment attachment;
                     File file = null;
