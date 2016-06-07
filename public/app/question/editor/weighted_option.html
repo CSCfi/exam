@@ -6,7 +6,8 @@
                    class="form-control"
                    ui-change="option.id ? updateOption(option) : saveOption(option)"
                    ng-model="option.defaultScore"
-                   required="true"/>
+                   required="true"
+                   ng-disabled="lotteryOn"/>
         </div>
         <div class="col-md-9 pull-right">
             <div ng-click="removeOption(option)" class="pull-right text-danger fa-2x">

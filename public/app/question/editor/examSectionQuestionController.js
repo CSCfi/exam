@@ -139,6 +139,10 @@
                 };
 
                 $scope.addNewOption = function (question) {
+                    if ($scope.lotteryOn) {
+                        toastr.error($translate.instant("sitnet_action_disabled_lottery_on"));
+                        return;
+                    }
                     var option = {};
                     question.options.push(option);
                     $scope.sectionQuestion.options.push({option: option});
@@ -152,6 +156,10 @@
                 }
 
                 $scope.removeOption = function (option) {
+                    if ($scope.lotteryOn) {
+                        toastr.error($translate.instant("sitnet_action_disabled_lottery_on"));
+                        return;
+                    }
                     if (angular.isUndefined(option.option.id)) {
                         removeOption(option);
                         return;

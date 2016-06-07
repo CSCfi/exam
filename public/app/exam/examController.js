@@ -1123,6 +1123,7 @@
                 var openBaseQuestionEditor = function (question, section, sectionQuestion) {
                     var examId = $scope.newExam.id;
                     var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        $scope.lotteryOn = section.lotteryOn;
                         if (!sectionQuestion) {
                             $scope.newQuestion = question;
                         } else {
@@ -1176,7 +1177,10 @@
 
 
                 $scope.addNewQuestion = function (section, type) {
-
+                    if (section.lotteryOn) {
+                        toastr.error($translate.instant("sitnet_error_drop_disabled_lottery_on"));
+                        return;
+                    }
                     QuestionRes.questions.create({type: type},
                         function (question) {
                             question.examSectionQuestions = [];

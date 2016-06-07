@@ -687,5 +687,6 @@
   "sitnet_question_owners": "Kysymyksen omistajat",
   "sitnet_add_owner_for_question": "Lisää kysymykselle omistaja",
   "sitnet_unrestricted": "Ei rajoitettu",
-  "sitnet_question_removal_disallowed": "Kysymystä ei voi poistaa, sillä se on käytössä voimassaolevissa tenteissä"
+  "sitnet_question_removal_disallowed": "Kysymystä ei voi poistaa, sillä se on käytössä voimassaolevissa tenteissä",
+  "sitnet_action_disabled_lottery_on": "Toiminto ei ole sallittu kun arvonta on käytössä."
 }
