@@ -312,11 +312,13 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         if (option.getScore() > 0) {
             List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() > 0)
                     .collect(Collectors.toList());
-            calculateOptionScores(option, opts);
+            BigDecimal delta = calculateOptionScores(option.getScore(), opts);
+            option.setScore(new BigDecimal(option.getScore()).add(delta).doubleValue());
         } else if (option.getScore() < 0) {
             List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() < 0)
                     .collect(Collectors.toList());
-            calculateOptionScores(option, opts);
+            BigDecimal delta = calculateOptionScores(option.getScore(), opts);
+            option.setScore(new BigDecimal(option.getScore()).add(delta).doubleValue());
         }
         options.add(option);
     }
@@ -341,23 +343,31 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         if (score > 0) {
             List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() > 0)
                     .collect(Collectors.toList());
-            opts.stream().forEach(o -> o.setScore(roundToTwoDigits(o.getScore() + score / opts.size())));
+            BigDecimal delta = calculateOptionScores(score*-1, opts);
+            if (opts.size() > 0) {
+                ExamSectionQuestionOption first = opts.get(0);
+                first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
+            }
         } else if (score < 0) {
             List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() < 0)
                     .collect(Collectors.toList());
-            opts.stream().forEach(o -> o.setScore(roundToTwoDigits(o.getScore() + score / opts.size())));
+            BigDecimal delta = calculateOptionScores(score*-1, opts);
+            if (opts.size() > 0) {
+                ExamSectionQuestionOption first = opts.get(0);
+                first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
+            }
         }
     }
 
-    private void calculateOptionScores(ExamSectionQuestionOption option, List<ExamSectionQuestionOption> opts) {
+    private BigDecimal calculateOptionScores(double optionScore, List<ExamSectionQuestionOption> opts) {
         BigDecimal oldSum = new BigDecimal(0);
         BigDecimal sum = new BigDecimal(0);
         for (ExamSectionQuestionOption o : opts) {
             oldSum = oldSum.add(BigDecimal.valueOf(o.getScore()));
-            o.setScore(roundToTwoDigits(o.getScore() - option.getScore() / opts.size()));
+            o.setScore(roundToTwoDigits(o.getScore() - optionScore / opts.size()));
             sum = sum.add(BigDecimal.valueOf(o.getScore()));
         }
-        option.setScore(new BigDecimal(option.getScore()).add(oldSum.subtract(new BigDecimal(option.getScore()).add(sum))).doubleValue());
+        return oldSum.subtract(new BigDecimal(optionScore).add(sum));
     }
 
     private Double roundToTwoDigits(double score) {
