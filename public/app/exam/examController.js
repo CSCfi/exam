@@ -3,10 +3,10 @@
     angular.module("exam.controllers")
         .controller('ExamController', ['dialogs', '$scope', '$timeout', '$filter', '$rootScope', '$q', '$sce', '$uibModal', 'sessionService', 'examService',
             '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
-            'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes',
+            'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes', 'ExamSectionQuestionRes',
             function (dialogs, $scope, $timeout, $filter, $rootScope, $q, $sce, $modal, sessionService, examService,
                       $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource,
-                      SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes) {
+                      SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes, ExamSectionQuestionRes) {
 
                 $scope.newExam = {};
                 $scope.sectionDisplay = {visible: true};
@@ -1061,8 +1061,15 @@
 
                                 $scope.submit = function (baseQuestion, examQuestion) {
                                     sectionQuestion = examQuestion;
-                                    sectionQuestion.question = baseQuestion; // probably won't cut it but lets see
-                                    $modalInstance.dismiss("done");
+                                    sectionQuestion.question = baseQuestion;
+                                    ExamSectionQuestionRes.questions.update({id: $scope.sectionQuestion.id}, sectionQuestion,
+                                        function () {
+                                            toastr.info($translate.instant("sitnet_question_saved"));
+                                            $modalInstance.dismiss("done");
+                                        }, function (error) {
+                                            toastr.error(error.data);
+                                        }
+                                    );
                                 };
 
                                 $scope.cancel = function () {

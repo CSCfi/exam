@@ -391,12 +391,22 @@ public class ExamSectionController extends BaseController {
         if (user.hasRole("TEACHER", getSession())) {
             query = query.eq("examSection.exam.examOwners", user);
         }
-        ExamSectionQuestion question = query.findUnique();
-        if (question == null) {
+        ExamSectionQuestion examSectionQuestion = query.findUnique();
+        if (examSectionQuestion == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        doUpdateQuestion(question, df, user);
-        return ok(question);
+        Question question = Ebean.find(Question.class, examSectionQuestion.getQuestion().getId());
+        if (question == null) {
+            return notFound();
+        }
+        String validationResult = question.getValidationResult();
+        if (validationResult != null) {
+            return forbidden(validationResult);
+        }
+        question.setQuestion(df.get("question.question"));
+        question.update();
+        doUpdateQuestion(examSectionQuestion, df, user);
+        return ok(examSectionQuestion);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

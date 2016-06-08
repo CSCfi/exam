@@ -23,15 +23,16 @@
                 };
 
                 var updateBaseQuestion = function () {
-                    questionService.updateQuestion($scope.question, true);
+                    questionService.updateQuestion($scope.question, false);
                 };
 
-                var updateExamQuestion = function () {
+                var updateExamQuestion = function (showErrors) {
                     var questionToUpdate = {
                         "id": $scope.sectionQuestion.id,
                         "maxScore": $scope.sectionQuestion.maxScore,
                         "answerInstructions": $scope.sectionQuestion.answerInstructions,
-                        "evaluationCriteria": $scope.sectionQuestion.evaluationCriteria
+                        "evaluationCriteria": $scope.sectionQuestion.evaluationCriteria,
+                        "question": $scope.question
                     };
 
                     // update question specific attributes
@@ -47,7 +48,9 @@
                             toastr.info($translate.instant("sitnet_question_saved"));
                             deferred.resolve();
                         }, function (error) {
-                            toastr.error(error.data);
+                            if (showErrors) {
+                                toastr.error(error.data);
+                            }
                             deferred.reject();
                         }
                     );

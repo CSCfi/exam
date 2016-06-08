@@ -114,7 +114,7 @@
                 };
 
                 $scope.updateQuestion = function () {
-                    update(true);
+                    update();
                 };
 
                 $scope.removeTag = function (tag) {
