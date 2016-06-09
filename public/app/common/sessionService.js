@@ -219,6 +219,7 @@
                 };
 
                 var onLoginSuccess = function () {
+                    self.restartSessionCheck();
                     $rootScope.$broadcast('userUpdated');
                     var welcome = function () {
                         toastr.success($translate.instant("sitnet_welcome") + " " + _user.firstname + " " + _user.lastname);
