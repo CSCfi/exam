@@ -52,8 +52,9 @@ public class ReportController extends BaseController {
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("exam", "id, created")
                 .where()
-                .isNotNull("exam.parent")
-                .isNotNull("reservation");
+                .ne("exam.state", Exam.State.PUBLISHED)
+                .isNotNull("reservation")
+                .ne("reservation.noShow", true);
         query = applyFilters(query, "exam.course", "exam.created", dept.orElse(null), start.orElse(null), end.orElse(null));
         Map<String, List<ExamEnrolment>> roomMap = new HashMap<>();
         for (ExamEnrolment enrolment : query.findList()) {
@@ -114,7 +115,7 @@ public class ReportController extends BaseController {
             ExamInfo info = new ExamInfo();
             info.name = String.format("[%s] %s", exam.getCourse().getCode(), exam.getName());
             info.participations = exam.getChildren().stream()
-                    .filter(e -> e.getState().ordinal() > Exam.State.PUBLISHED.ordinal())
+                    .filter(e -> e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && !e.getExamParticipations().isEmpty())
                     .collect(Collectors.toList())
                     .size();
             infos.add(info);
@@ -138,7 +139,9 @@ public class ReportController extends BaseController {
         query = applyFilters(query, "course", "created", dept.orElse(null), start.orElse(null), end.orElse(null));
         Set<Exam> exams = query.findSet();
         List<ExamInfo> infos = new ArrayList<>();
-        for (Exam exam : exams) {
+        for (Exam exam : exams.stream()
+                .filter(e -> e.getState().ordinal() > Exam.State.PUBLISHED.ordinal())
+                .collect(Collectors.toList())) {
             ExamInfo info = new ExamInfo();
             info.state = exam.getState().toString();
             infos.add(info);

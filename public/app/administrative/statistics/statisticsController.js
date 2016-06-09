@@ -154,7 +154,7 @@
                 $scope.listResponses = function () {
                     ReportResource.responses.query(getQueryParams(), function (exams) {
                         $scope.assessedExams = exams.filter(function(e) {
-                            return ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'DELETED'].indexOf(e.state) > -1;
+                            return ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'REJECTED', 'DELETED'].indexOf(e.state) > -1;
                         });
                         $scope.unassessedExams = exams.filter(function(e) {
                             return ['STUDENT_STARTED', 'REVIEW', 'REVIEW_STARTED'].indexOf(e.state) > -1;
