@@ -405,7 +405,7 @@ public class ReviewController extends BaseController {
         FileOutputStream fos = new FileOutputStream(file);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
 
-        if (start != null || end != null){
+        if (start != null || end != null) {
             DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
             writer.write(String.format("period: %s-%s",
                     start == null ? "" : df.format(start), end == null ? "" : df.format(end)));
@@ -431,8 +431,9 @@ public class ReviewController extends BaseController {
     }
 
     private void createArchive(Exam prototype, ArchiveOutputStream aos, Date start, Date end) throws IOException {
-        List<Exam> children = prototype.getChildren().stream().filter(
-                (e) -> isEligibleForArchiving(e, start, end)).collect(Collectors.toList());
+        List<Exam> children = prototype.getChildren().stream()
+                .filter(e -> isEligibleForArchiving(e, start, end))
+                .collect(Collectors.toList());
         Map<Long, String> questions = new LinkedHashMap<>();
         for (Exam exam : children) {
             String uid = String.format("%s-%d", exam.getCreator().getUserIdentifier() == null ?
@@ -442,8 +443,12 @@ public class ReviewController extends BaseController {
                         .filter(esq -> esq.getQuestion().getType() == Question.Type.EssayQuestion)
                         .collect(Collectors.toList());
                 for (ExamSectionQuestion esq : essays) {
-                    questions.put(esq.getQuestion().getId(), esq.getQuestion().getQuestion());
-                    Long questionId = esq.getQuestion().getParent() == null ? esq.getQuestion().getId() : esq.getQuestion().getParent().getId();
+                    Long questionId = esq.getQuestion().getParent() == null ?
+                            esq.getQuestion().getId() : esq.getQuestion().getParent().getId();
+                    questions.put(questionId, esq.getQuestion().getQuestion());
+                    String questionIdText = esq.getQuestion().getParent() == null ?
+                            Long.toString(questionId) + "#original_question_removed" :
+                            Long.toString(esq.getQuestion().getParent().getId());
                     EssayAnswer answer = esq.getEssayAnswer();
                     Attachment attachment;
                     File file = null;
@@ -452,7 +457,7 @@ public class ReviewController extends BaseController {
                         String fileName = attachment.getFileName();
                         file = new File(attachment.getFilePath());
                         if (file.exists()) {
-                            String entryName = String.format("%d/%d/%s/%s", prototype.getId(), questionId, uid, fileName);
+                            String entryName = String.format("%d/%s/%s/%s", prototype.getId(), questionIdText, uid, fileName);
                             TarArchiveEntry entry = new TarArchiveEntry(entryName);
                             entry.setSize(file.length());
                             aos.putArchiveEntry(entry);
