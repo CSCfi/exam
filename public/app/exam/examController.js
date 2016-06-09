@@ -511,7 +511,7 @@
                 var getUpdate = function (overrides) {
                     var update = {
                         "id": $scope.newExam.id,
-                        "name": $scope.newExam.name,
+                        "name": $scope.newExam.name || "",
                         "examType": $scope.newExam.examType,
                         "instruction": $scope.newExam.instruction || "",
                         "enrollInstruction": $scope.newExam.enrollInstruction || "",

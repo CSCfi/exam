@@ -329,7 +329,7 @@ public class StudentExamController extends BaseController {
                 "(id, name, instruction, hash, duration, cloned, course(id, code, name), executionType(id, type), " + // (
                         "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
                         "examInspections(user(firstName, lastName))" +
-                        "examSections(id, name, sequenceNumber, " + // ((
+                        "examSections(id, name, sequenceNumber, description, " + // ((
                         "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
                         "question(id, type, question, attachment(fileName))" +
                         "options(id, answered, option(id, option))" +

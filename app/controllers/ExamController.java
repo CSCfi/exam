@@ -294,7 +294,7 @@ public class ExamController extends BaseController {
                 if (exam.getExamLanguages().isEmpty()) {
                     return Optional.of(badRequest("no exam languages specified"));
                 }
-                if (exam.isPrivate()) {
+                if (exam.isPrivate() && exam.getState() != Exam.State.PUBLISHED) {
                     // No participants added, this is not good.
                     if (exam.getExamEnrolments().isEmpty()) {
                         return Optional.of(badRequest("sitnet_no_participants"));

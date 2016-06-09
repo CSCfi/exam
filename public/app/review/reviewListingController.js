@@ -144,7 +144,7 @@
 
                 $scope.gradeExams = function () {
                     var reviews = $scope.examReviews.filter(function (r) {
-                        return r.exam.selectedGrade && $scope.isGradeable(r.exam);
+                        return r.exam.selectedGrade.type && $scope.isGradeable(r.exam);
                     });
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_grade_review'));
                     dialog.result.then(function (btn) {
