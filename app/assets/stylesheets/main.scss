@@ -73,12 +73,14 @@ p {
   padding: 1em;
   margin-bottom: 0 !important;
   div {
-    float: left;
     clear: none;
   }
   .content-wrapper {
     width: 95%;
     margin-left: 1em;
+  }
+  .label-primary {
+    float: left;
   }
 }
 
