@@ -19,7 +19,7 @@
                     {{user.firstName }} {{ user.lastName }}
                 </span>
                 &nbsp;<i class="fa fa-plus text-success pointer"
-                   title="{{'sitnet_add' | translate}}" ng-click="openQuestionOwnerModal()"></i>
+                         title="{{'sitnet_add' | translate}}" ng-click="openQuestionOwnerModal()"></i>
             </li>
             <li ng-if="!isUserAllowedToModifyOwners(newQuestion)">
                 <span ng-repeat="user in newQuestion.questionOwners" class="label label-default" style="margin: 0.2em">
@@ -31,17 +31,35 @@
 
     <!-- Exam contexts -->
     <div class="row">
-        <label for="exam-contexts" class="sitnet-info-text-compact">{{'sitnet_added_to_exams' | translate}}:</label>
-        <ul id="exam-contexts" class="list-inline">
-            <li>
+        <div ng-if="showWarning()" class="col-md-12 alert alert-info info-box">
+            <div><i class="fa fa-lg fa-info-circle text-info"></i></div>
+            <div class="content-wrapper">
+                <div>{{'sitnet_exam_question_edit_instructions' | translate}}</div>
+
+                <div class="row col-md-12 top-margin-1">
+                    <ul class="list-inline">
+                        <li>
+                            <span ng-repeat="name in examNames" class="label label-primary" style="margin: 0.2em">
+                                {{name}}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div ng-if="!showWarning()">
+            <label for="exam-contexts" class="sitnet-info-text-compact">{{'sitnet_added_to_exams' | translate}}:</label>
+            <ul id="exam-contexts" class="list-inline">
+                <li>
                 <span ng-repeat="name in examNames" class="label label-primary" style="margin: 0.2em">
                     {{name}}
                 </span>
                 <span ng-if="examNames.length === 0" class="label label-default" style="margin: 0.2em">
                     &dash;
                 </span>
-            </li>
-        </ul>
+                </li>
+            </ul>
+        </div>
     </div>
 
 
@@ -172,8 +190,10 @@
 
     <!-- Attachment -->
     <div ng-controller="AttachmentController" class="form-group">
-        <label class="sitnet-info-text" for="attachment">{{ 'sitnet_question_attachment' | translate
-            }}</label>
+        <label class="sitnet-info-text" for="attachment">
+            <i ng-if="showWarning()" class="fa fa-lg fa-info-circle text-info"></i>&nbsp;
+            {{ 'sitnet_question_attachment' | translate}}
+        </label>
 
         <div id="attachment">
             <div ng-show="newQuestion.attachment">

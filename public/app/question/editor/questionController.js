@@ -68,6 +68,10 @@
                     });
                 };
 
+                $scope.showWarning = function () {
+                    return $scope.examNames.length > 1;
+                };
+
                 $scope.estimateCharacters = function (question) {
                     return !question ? NaN : question.defaultExpectedWordCount * 8;
                 };

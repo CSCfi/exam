@@ -1,7 +1,12 @@
 
     <div id="question-editor">
         <div class="row">
-            <h4 class="sitnet-info-text">{{'sitnet_question_options' | translate}}</h4>
+            <h4 class="sitnet-info-text">
+                <small ng-if="showWarning()">
+                    <i class="fa fa-lg fa-info-circle text-info"></i>
+                </small>&nbsp;
+                {{'sitnet_question_options' | translate}}
+            </h4>
         </div>
         <div ng-repeat="option in newQuestion.options" ng-include="newOptionTemplate" />
         <div class="row">
