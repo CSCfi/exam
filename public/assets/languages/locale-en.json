@@ -417,7 +417,7 @@
   "sitnet_get_graded_exams": "Print all exam results from the selected time period to a file",
   "sitnet_get_all_student_activities": "Print all selected student activity from the selected time period to a file",
   "sitnet_get_all_teacher_exams": "Print all exams created by the selected examiner from the selected time period to a file",
-  "sitnet_remove_question_from_library_only": "Do you want to delete the question? The question will be deleted from the question bank but not from the exams it is included in.",
+  "sitnet_remove_question_from_library_only": "Do you want to delete the question? The question will be deleted from the question bank and the exams it is included in.",
   "sitnet_exam_room_unique_code": "Exam room ID",
   "sitnet_building_where_the_machine_is": "Name of the building where the exam computer is located",
   "sitnet_campus_where_room_is": "Name of the campus where the exam room is located",
@@ -667,7 +667,7 @@
   "sitnet_error_lottery_points_not_match": "Randomizing cannot be used because the points for the questions are not the same.",
   "sitnet_add_question_owner": "Add owner to the question",
   "sitnet_question_owner_added": "Owner added",
-  "sitnet_public_question": "Public question (all examiners can edit)",
+  "sitnet_public_question": "Public question (all teachers can edit)",
   "sitnet_error_drop_disabled_lottery_on": "Adding a question not allowed to a section where randomizing questions is used.",
   "sitnet_exam_section_question_lottery_on_warning": "Editing the question is restricted. Editing the points of a question that is randomized is not allowed.",
   "sitnet_no_grading": "No grading",
@@ -686,7 +686,7 @@
   "sitnet_base_question_edit": "Edit the basic information of the question",
   "sitnet_question_owners": "Owners of the question",
   "sitnet_add_owner_for_question": "Add owner to the question",
-  "sitnet_unrestricted": "Ei rajoitettu EN",
-  "sitnet_question_removal_disallowed": "Kysymystä ei voi poistaa, sillä se on käytössä voimassaolevissa tenteissä EN",
-  "sitnet_action_disabled_lottery_on": "Toiminto ei ole sallittu kun arvonta on käytössä. EN"
+  "sitnet_unrestricted": "Not restricted",
+  "sitnet_question_removal_disallowed": "Question cannot be deleted because it is currently attached in published exam.",
+  "sitnet_action_disabled_lottery_on": "Action is not allowed, because it is part of randomized questions."
 }
