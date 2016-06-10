@@ -12,7 +12,7 @@
     <div class="row">
         <label for="question-owners" class="sitnet-info-text-compact">{{'sitnet_question_owners' | translate}}:</label>
         <ul id="question-owners" class="list-inline">
-            <li>
+            <li ng-if="isUserAllowedToModifyOwners(newQuestion)">
                 <span ng-repeat="user in newQuestion.questionOwners" class="label"
                       ng-click="removeOwner(user)" title="{{'sitnet_remove' | translate}}" style="margin: 0.2em"
                       ng-class="newQuestion.questionOwners.length == 1 ? 'label-default' : 'label-primary pointer'">
@@ -20,6 +20,11 @@
                 </span>
                 &nbsp;<i class="fa fa-plus text-success pointer"
                    title="{{'sitnet_add' | translate}}" ng-click="openQuestionOwnerModal()"></i>
+            </li>
+            <li ng-if="!isUserAllowedToModifyOwners(newQuestion)">
+                <span ng-repeat="user in newQuestion.questionOwners" class="label label-default" style="margin: 0.2em">
+                    {{user.firstName }} {{ user.lastName }}
+                </span>
             </li>
         </ul>
     </div>

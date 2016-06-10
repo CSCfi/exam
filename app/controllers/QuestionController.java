@@ -11,7 +11,6 @@ import com.avaje.ebean.text.PathProperties;
 import models.Exam;
 import models.ExamSectionQuestion;
 import models.ExamSectionQuestionOption;
-import models.Role;
 import models.User;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
@@ -214,13 +213,17 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteQuestion(Long id) {
-        Question question = Ebean.find(Question.class, id);
+        User user = getLoggedUser();
+        ExpressionList<Question> expr = Ebean.find(Question.class).where().idEq(id);
+        if (user.hasRole("TEACHER", getSession())) {
+            expr = expr.disjunction()
+                    .eq("shared", true)
+                    .eq("questionOwners", user)
+                    .endJunction();
+        }
+        Question question = expr.findUnique();
         if (question == null) {
             return notFound();
-        }
-        if (!getLoggedUser().hasRole(Role.Name.ADMIN.toString(), getSession()) &&
-                !question.getQuestionOwners().contains(getLoggedUser())) {
-            return forbidden();
         }
         // Not allowed to remove if used in active exams
         if (!question.getExamSectionQuestions().stream()
@@ -336,7 +339,6 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addOwner(Long uid) {
-
         User newOwner = Ebean.find(User.class).select("id, firstName, lastName, userIdentifier").where().idEq(uid).findUnique();
         if (newOwner == null) {
             return notFound();
@@ -347,21 +349,27 @@ public class QuestionController extends BaseController {
         if (questionIds == null || questionIds.isEmpty()) {
             return badRequest();
         }
-
         List<Long> ids = Stream.of(questionIds.split(","))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
         User modifier = getLoggedUser();
-        Ebean.find(Question.class).where().idIn(ids)
-                .findList()
-                .forEach(q -> addOwner(q, newOwner, modifier));
-
+        ExpressionList<Question> expr = Ebean.find(Question.class).where().idIn(ids);
+        if (modifier.hasRole("TEACHER", getSession())) {
+            expr = expr.disjunction()
+                    .eq("shared", true)
+                    .eq("questionOwners", modifier)
+                    .endJunction();
+        }
+        List<Question> questions = expr.findList();
+        if (questions.isEmpty()) {
+            return notFound();
+        }
+        questions.forEach(q -> addOwner(q, newOwner, modifier));
         return ok(newOwner);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result removeOwner(Long uid) {
-
         User owner = Ebean.find(User.class, uid);
         if (owner == null) {
             return notFound();
@@ -372,17 +380,28 @@ public class QuestionController extends BaseController {
         if (questionId == null || questionId.isEmpty()) {
             return badRequest();
         }
+        User user = getLoggedUser();
+        ExpressionList<Question> expr = Ebean.find(Question.class).where().idEq(questionId);
+        if (user.hasRole("TEACHER", getSession())) {
+            expr = expr.disjunction()
+                    .eq("shared", true)
+                    .eq("questionOwners", user)
+                    .endJunction();
+        }
+        Question question = expr.findUnique();
 
-        Question question = Ebean.find(Question.class, questionId);
         if (question == null) {
             return notFound();
+        }
+        if (question.getQuestionOwners().size() < 2) {
+            // Minimum of one owners must remain
+            return forbidden();
         }
         AppUtil.setModifier(question, getLoggedUser());
         question.getQuestionOwners().remove(owner);
         question.update();
         return ok();
     }
-
 
     private void addOwner(Question question, User user, User modifier) {
         AppUtil.setModifier(question, modifier);

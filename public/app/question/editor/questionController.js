@@ -11,9 +11,9 @@
 
         .controller('QuestionCtrl', ['dialogs', '$rootScope', '$scope', '$q', '$http', '$uibModal', '$routeParams',
             '$location', '$translate', 'focus', 'QuestionRes', 'questionService', 'ExamRes', 'TagRes', 'EXAM_CONF',
-            'fileService',
+            'fileService', 'sessionService',
             function (dialogs, $rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus,
-                      QuestionRes, questionService, ExamRes, TagRes, EXAM_CONF, fileService) {
+                      QuestionRes, questionService, ExamRes, TagRes, EXAM_CONF, fileService, sessionService) {
 
                 var essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/essay_question.html";
                 var multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_question.html";
@@ -24,6 +24,8 @@
 
                 $scope.examNames = [];
                 $scope.sectionNames = [];
+
+                $scope.user = sessionService.getUser();
 
                 var setQuestionType = function () {
                     switch ($scope.newQuestion.type) {
@@ -255,7 +257,17 @@
                     });
                 };
 
+                $scope.isUserAllowedToModifyOwners = function (question) {
+                    return $scope.user.isAdmin || question.questionOwners.map(function (o) {
+                            return o.id
+                        }).indexOf($scope.user.id) > -1;
+                };
+
                 $scope.removeOwner = function (user) {
+                    if ($scope.newQuestion.questionOwners.length == 1) {
+                        // disallow clearing the owners
+                        return;
+                    }
                     QuestionRes.questionOwner.remove({questionId: $scope.newQuestion.id, uid: user.id},
                         function () {
                             var i = $scope.newQuestion.questionOwners.indexOf(user);
@@ -309,7 +321,7 @@
                 if ($scope.newQuestion) {
                     initQuestion();
                 } else {
-                    var id = $scope.baseQuestionId || $routeParams.id;
+                    var id = $scope.baseQuestionId || $routeParams.id;
                     QuestionRes.questions.get({id: id},
                         function (question) {
                             $scope.newQuestion = question;
