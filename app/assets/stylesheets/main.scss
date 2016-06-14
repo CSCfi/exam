@@ -69,18 +69,43 @@ p {
   }
 }
 
+label {
+  .text-info {
+    margin-left: 3em;
+  }
+}
+
 .info-box {
   padding: 1em;
-  margin-bottom: 0 !important;
+  margin-bottom: 10px !important;
+  background-color: #216a9b;
+  color: white;
+  display: inline-block;
   div {
     clear: none;
+    float: left;
+  }
+  ul {
+    margin: 0;
+    li {
+      padding: 0;
+    }
+  }
+  .text-info {
+    color: white;
+    font-size: 30px;
+    margin-top: 5px;
   }
   .content-wrapper {
-    width: 95%;
-    margin-left: 1em;
+    width: 93%;
+    margin-left: 1.5em;
   }
   .label-primary {
     float: left;
+    padding: 0.7em;
+    font-size: 12px;
+    background-color: white;
+    color: #216a9b;
   }
 }
 

@@ -6,7 +6,7 @@
     </div>
     <div class="modal-body">
         <div class="col-md-12 alert alert-info info-box">
-            <div><i class="fa fa-lg fa-info-circle text-info"></i></div>
+            <div><i class="fa fa-lg fa-exclamation-circle text-info"></i></div>
             <div class="content-wrapper">
                 <div>{{'sitnet_exam_question_edit_instructions' | translate}}</div>
 
@@ -43,14 +43,11 @@
                 </ul>
             </div>
         </div>
-
+        <div ng-show="lotteryOn" class="col-md-12 alert-warning" style="padding: 1em">
+            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            <span>{{'sitnet_exam_section_question_lottery_on_warning' | translate}}</span>
+        </div>
         <div class="col-md-12 top-margin-1">
-            <div ng-show="lotteryOn">
-                <div class="alert-warning" style="padding: 1em">
-                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                    <span>{{'sitnet_exam_section_question_lottery_on_warning' | translate}}</span>
-                </div>
-            </div>
             <form role="form" class="form-horizontal" name="questionForm" novalidate>
 
                 <!-- Question editor -->
@@ -59,9 +56,11 @@
                         <span ng-show="question && !question.question" class="text-danger">{{ 'sitnet_write_question_below' | translate }}</span>
                     </label>
                     <label for="editor">
-                        <span ng-show="!question || question.question">
-                            <i class="fa fa-lg fa-info-circle text-info"></i>&nbsp;
-                            {{ 'sitnet_question' | translate }}</span>
+                        <span>
+                            {{ 'sitnet_question' | translate }}
+                            <i class="fa fa-lg fa-exclamation-circle text-info"></i>
+                            <small>{{'sitnet_shared_question_property_info' | translate}}</small>
+                        </span>
                     </label>
                     <textarea id="editor" name="editor" ck-editor rows="10" cols="80"
                               ng-model="question.question"
@@ -72,14 +71,13 @@
                 <!-- Type specific content -->
                 <div class="top-margin-1">
                     <div ng-if="question.type === 'MultipleChoiceQuestion' || question.type === 'WeightedMultipleChoiceQuestion'">
-                        <div class="row">
-                            <h4>
-                                <small>
-                                    <i class="fa fa-lg fa-info-circle text-info"></i>
-                                </small>&nbsp;
+                        <label for="question-editor">
+                            <span>
                                 {{'sitnet_question_options' | translate}}
-                            </h4>
-                        </div>
+                                <i class="fa fa-lg fa-exclamation-circle text-info"></i>
+                                <small>{{'sitnet_shared_question_property_info' | translate}}</small>
+                            </span>
+                        </label>
                         <div id="question-editor">
                             <div ng-repeat="option in sectionQuestion.options">
                                 <div ng-if="question.type === 'MultipleChoiceQuestion'"
@@ -236,8 +234,9 @@
                 <div ng-controller="AttachmentController" class="form-group">
                     <label for="attachment">
                         <span>
-                            <i class="fa fa-lg fa-info-circle text-info"></i>&nbsp;
                             {{ 'sitnet_question_attachment' | translate }}
+                            <i class="fa fa-lg fa-exclamation-circle text-info"></i>
+                            <small>{{'sitnet_shared_question_property_info' | translate}}</small>
                         </span>
                     </label>
                     <div id="attachment">

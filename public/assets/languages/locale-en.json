@@ -688,5 +688,6 @@
   "sitnet_add_owner_for_question": "Add owner to the question",
   "sitnet_unrestricted": "Not restricted",
   "sitnet_question_removal_disallowed": "Question cannot be deleted because it is currently attached in published exam.",
-  "sitnet_action_disabled_lottery_on": "Action is not allowed, because it is part of randomized questions."
+  "sitnet_action_disabled_lottery_on": "Action is not allowed, because it is part of randomized questions.",
+  "sitnet_shared_question_property_info": "Tämän tiedon muutos päivittyy myös muihin tentteihin. EN"
 }

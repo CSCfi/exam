@@ -32,7 +32,7 @@
     <!-- Exam contexts -->
     <div class="row">
         <div ng-if="showWarning()" class="col-md-12 alert alert-info info-box">
-            <div><i class="fa fa-lg fa-info-circle text-info"></i></div>
+            <div><i class="fa fa-lg fa-exclamation-circle text-info"></i></div>
             <div class="content-wrapper">
                 <div>{{'sitnet_exam_question_edit_instructions' | translate}}</div>
 
@@ -67,6 +67,13 @@
     <div class="form-group">
         <label for="editor">
             <span ng-show="newQuestion && !newQuestion.question" class="text-danger">{{ 'sitnet_write_question_below' | translate }}</span>
+        </label>
+        <label for="editor">
+            <span>
+                {{ 'sitnet_question' | translate }}
+                <i ng-if="showWarning()" class="fa fa-lg fa-exclamation-circle text-info"></i>
+                <small ng-if="showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
+            </span>
         </label>
         <textarea id="editor" name="editor" ck-editor rows="10" cols="80"
                   ng-model="newQuestion.question"
@@ -191,8 +198,9 @@
     <!-- Attachment -->
     <div ng-controller="AttachmentController" class="form-group">
         <label class="sitnet-info-text" for="attachment">
-            <i ng-if="showWarning()" class="fa fa-lg fa-info-circle text-info"></i>&nbsp;
             {{ 'sitnet_question_attachment' | translate}}
+            <i ng-if="showWarning()" class="fa fa-lg fa-info-circle text-info"></i>
+            <small ng-if="showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
         </label>
 
         <div id="attachment">
