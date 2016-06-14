@@ -145,7 +145,7 @@
                     newQuestion.options.push({});
                 };
 
-                function radioChecked (option) {
+                function radioChecked(option) {
                     option.correctOption = true;
 
                     angular.forEach($scope.newQuestion.options, function (value) {
@@ -214,6 +214,14 @@
                 };
 
                 $scope.updateOption = function (option) {
+                    var type = $scope.newQuestion.type;
+                    if (type === "WeightedMultipleChoiceQuestion"
+                        && angular.isUndefined(option.defaultScore)) {
+                        return;
+                    }
+                    if (angular.isUndefined(option.option)) {
+                        return;
+                    }
                     QuestionRes.options.update({oid: option.id}, option,
                         function () {
                             toastr.info($translate.instant('sitnet_option_updated'));
@@ -262,9 +270,11 @@
                 };
 
                 $scope.isUserAllowedToModifyOwners = function (question) {
-                    return $scope.user.isAdmin || question.questionOwners.map(function (o) {
-                            return o.id
-                        }).indexOf($scope.user.id) > -1;
+                    return question && ($scope.user.isAdmin ||
+                            question.questionOwners.map(function (o) {
+                                return o.id
+                            }).indexOf($scope.user.id) > -1
+                        );
                 };
 
                 $scope.removeOwner = function (user) {

@@ -1072,8 +1072,12 @@
                                     );
                                 };
 
-                                $scope.cancel = function () {
-                                    $modalInstance.dismiss("Cancelled");
+                                $scope.cancel = function (baseQuestion, examQuestion) {
+                                    ExamSectionQuestionRes.questions.get({id: examQuestion.id}, function (q)  {
+                                        $modalInstance.close(q);
+                                    }, function (err) {
+                                        $modalInstance.dismiss();
+                                    });
                                 };
 
                             }];
@@ -1086,8 +1090,10 @@
                                 windowClass: 'question-editor-modal'
                             });
 
-                            modalInstance.result.then(function () {
-                                // OK button
+                            modalInstance.result.then(function (data) {
+                                if (data) {
+                                    angular.extend(sectionQuestion, data);
+                                }
                                 modalInstance.dismiss();
                             });
                         }
@@ -1155,8 +1161,8 @@
 
                         };
 
-                        $scope.cancel = function () {
-                            // If editing a non-shared exam question DO NOT go and mark it as DELETED
+                        $scope.cancel = function (baseQuestion) {
+                            // If editing a non-shared exam question DO NOT go and DELETE it
                             if (!sectionQuestion) {
                                 QuestionRes.questions.delete({id: question.id}, function () {
                                     toastr.info($translate.instant("sitnet_question_removed"));
@@ -1164,6 +1170,14 @@
                                 });
                             } else {
                                 $modalInstance.dismiss("Cancelled");
+                                // This is horrible. We have to replace the previous exam question even with cancel :)
+                                // Something might have changed in the editor and we really have no reliable way of
+                                // detecting it. Best to just replace and forget about it.
+                                removeExamQuestion(examId, section.id, baseQuestion.id)
+                                    .then(function () {
+                                        insertExamQuestion(examId, section.id, baseQuestion.id, sectionQuestion.sequenceNumber,
+                                            $modalInstance, true);
+                                    });
                             }
                         };
                     }];
