@@ -171,6 +171,7 @@ class EmailComposerImpl implements EmailComposer {
         StringBuilder rowBuilder = new StringBuilder();
         sorted.stream().filter(e -> e.getValue().amount > 0).forEach(e -> {
             Map<String, String> stringValues = new HashMap<>();
+            stringValues.put("exam_link", String.format("%s/exams/%d", HOSTNAME, e.getKey().getId()));
             stringValues.put("exam_name", e.getKey().getName());
             stringValues.put("course_code", e.getKey().getCourse().getCode());
             String summary = messaging.get(lang, "email.weekly.report.review.summary",
@@ -545,7 +546,7 @@ class EmailComposerImpl implements EmailComposer {
             if (enrolments.isEmpty()) {
                 String noEnrolments = messaging.get(lang, "email.enrolment.no.enrolments");
                 subTemplate = String.format(
-                        "<li><a href=\"{{exam_link}}\">{{exam_name}}</a>, {{course_code}} - %s</li>", noEnrolments);
+                        "<li><a href=\"{{exam_link}}\">{{exam_name}} - {{course_code}}</a>: %s</li>", noEnrolments);
             } else {
                 DateTime date = adjustDST(enrolments.get(0).getReservation().getStartAt(), TZ);
                 stringValues.put("enrolments",

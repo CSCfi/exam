@@ -554,7 +554,7 @@ public class StudentExamController extends BaseController {
         while (it.hasNext()) {
             GradeEvaluation ge = it.next();
             int threshold = 0;
-            if (ge.getPercentage() >= percentage) {
+            if (ge.getPercentage() > percentage) {
                 grade = prev == null ? ge.getGrade() : prev.getGrade();
                 threshold = prev == null ? ge.getPercentage() : prev.getPercentage();
             }
