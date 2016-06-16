@@ -357,6 +357,7 @@ public class ExamSectionController extends BaseController {
                 sq.delete();
             });
             section.getSectionQuestions().clear();
+            section.setLotteryOn(false);
             section.update();
             return ok(section);
         } else {

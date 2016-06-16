@@ -472,6 +472,7 @@
                     dialog.result.then(function (btn) {
                         ExamRes.clearsection.clear({eid: $scope.newExam.id, sid: section.id}, function () {
                             section.sectionQuestions.splice(0, section.sectionQuestions.length);
+                            section.lotteryOn = false;
                             toastr.info($translate.instant("sitnet_all_questions_removed"));
                         }, function (error) {
                             toastr.error(error.data);
