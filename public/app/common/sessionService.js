@@ -211,7 +211,7 @@
                 };
 
                 var redirect = function () {
-                    if (location().path() === '/' && _user.isLanguageInspector) {
+                    if ($location.path() === '/' && _user.isLanguageInspector) {
                         $location.path("/inspections");
                     }
                     /*if (_user.isLanguageInspector) {
