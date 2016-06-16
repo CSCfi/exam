@@ -13,11 +13,11 @@
     <table class="table table-bordered table-striped exams-table">
         <thead ng-init="abortedPredicate = 'started'">
         <tr>
-            <th sort by="user.lastName" title="sitnet_student" predicate="abortedPredicate" reverse="reverse"></th>
-            <th sort by="user.email" title="sitnet_email" predicate="abortedPredicate" reverse="reverse"></th>
-            <th sort by="started" title="sitnet_exam_duration" predicate="abortedPredicate" reverse="reverse"></th>
+            <th sort by="user.lastName" text="sitnet_student" predicate="abortedPredicate" reverse="reverse"></th>
+            <th sort by="user.email" text="sitnet_email" predicate="abortedPredicate" reverse="reverse"></th>
+            <th sort by="started" text="sitnet_exam_duration" predicate="abortedPredicate" reverse="reverse"></th>
             <th>{{'sitnet_exam_state' | translate}}</th>
-            <th ng-if="review.exam.executionType.type === 'PUBLIC'">{{'sitnet_trial' | translate}}</th>
+            <th>{{'sitnet_trial' | translate}}</th>
         </tr>
         </thead>
 
@@ -50,6 +50,9 @@
                 <div ng-show="!review.exam.trialCount" class="text-muted">
                     {{'sitnet_unrestricted' | translate }}
                 </div>
+            </td>
+            <td class="table-column-10" ng-if="review.exam.executionType.type !== 'PUBLIC'">
+                &ndash;
             </td>
         </tr>
         </tbody>

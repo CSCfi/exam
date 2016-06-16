@@ -70,7 +70,9 @@
         </label>
         <label for="editor">
             <span>
-                {{ 'sitnet_question' | translate }}
+                <span ng-if="!newQuestion || newQuestion.question">
+                    {{ 'sitnet_question' | translate }}
+                </span>
                 <i ng-if="showWarning()" class="fa fa-lg fa-exclamation-circle text-info"></i>
                 <small ng-if="showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
             </span>

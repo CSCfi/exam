@@ -306,13 +306,13 @@
             return {
                 restrict: 'A',
                 template: '<span ng-class="predicate === by ? \'sorted-column\' : \'\'" class="pointer"' +
-                'ng-click="predicate = by; reverse = !reverse">{{ title | translate }}&nbsp;' +
+                'ng-click="predicate = by; reverse = !reverse">{{ text | translate }}&nbsp;' +
                 '<i class="fa" ng-class="getSortClass()"></i>' +
                 '</span>',
                 scope: {
                     predicate: '=',
                     by: '@by',
-                    title: '@title',
+                    text: '@text',
                     reverse: '='
                 }, link: function (scope, element, attrs) {
                     scope.getSortClass = function () {

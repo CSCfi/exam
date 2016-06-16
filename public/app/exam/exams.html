@@ -90,14 +90,14 @@
                 <table class="table table-striped table-condensed exams-table">
                     <thead ng-init="examsPredicate='examActiveEndDate'; reverse=true">
                     <tr>
-                        <th sort by="course.code" title="sitnet_examcode" predicate="examsPredicate"
+                        <th sort by="course.code" text="sitnet_examcode" predicate="examsPredicate"
                             reverse="reverse"></th>
-                        <th sort by="name" title="sitnet_exam_name" predicate="examsPredicate" reverse="reverse"></th>
-                        <th sort by="executionType.id" title="sitnet_exam_credit_type" predicate="examsPredicate"
+                        <th sort by="name" text="sitnet_exam_name" predicate="examsPredicate" reverse="reverse"></th>
+                        <th sort by="executionType.id" text="sitnet_exam_credit_type" predicate="examsPredicate"
                             reverse="reverse"></th>
-                        <th sort by="ownerAggregate" title="sitnet_teachers" predicate="examsPredicate"
+                        <th sort by="ownerAggregate" text="sitnet_teachers" predicate="examsPredicate"
                             reverse="reverse"></th>
-                        <th sort by="examActiveEndDate" title="sitnet_exam_validity" predicate="examsPredicate"
+                        <th sort by="examActiveEndDate" text="sitnet_exam_validity" predicate="examsPredicate"
                             reverse="reverse"></th>
                         <th>{{ 'sitnet_copy' | translate }}</th>
                         <th>{{ 'sitnet_exam_remove' | translate }}</th>

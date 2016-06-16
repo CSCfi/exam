@@ -236,7 +236,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 break;
             case WeightedMultipleChoiceQuestion:
                 Double evaluation = options.stream()
-                        .filter(ExamSectionQuestionOption::isAnswered)
+                        .filter(esq -> esq.isAnswered() && esq.getScore() != null)
                         .map(ExamSectionQuestionOption::getScore)
                         .reduce(0.0, (sum, x) -> sum += x);
                 // ATM minimum score is zero

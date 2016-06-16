@@ -316,6 +316,7 @@ public class ReviewController extends BaseController {
     public Result listNoShows(Long eid) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount")
+                .fetch("exam.executionType")
                 .fetch("reservation")
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam.course", "code, credits")

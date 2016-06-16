@@ -2,6 +2,7 @@
 
     $(function () {
         $("#draggable").draggable({
+            containment: "window",
             // fix for https://bugs.jqueryui.com/ticket/10725
             drag: function () {
                 $(this).css('height', 'auto');

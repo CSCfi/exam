@@ -211,11 +211,14 @@
                 };
 
                 var redirect = function () {
-                    if (_user.isLanguageInspector) {
+                    if (location().path() === '/' && _user.isLanguageInspector) {
+                        $location.path("/inspections");
+                    }
+                    /*if (_user.isLanguageInspector) {
                         $location.path("/inspections");
                     } else {
                         $location.path("/");
-                    }
+                    }*/
                 };
 
                 var onLoginSuccess = function () {
