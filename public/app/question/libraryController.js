@@ -213,7 +213,7 @@
                             q.allowedToRemove = q.examSectionQuestions.filter(function (esq) {
                                 var exam = esq.examSection.exam;
                                 return exam.state === 'PUBLISHED' && exam.examActiveEndDate > new Date().getTime();
-                            }).length == 0;
+                            }).length === 0;
                         });
                         var filters = {
                             exams: $scope.exams,

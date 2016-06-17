@@ -187,8 +187,7 @@
 
                 $scope.saveOption = function (option) {
                     var type = $scope.newQuestion.type;
-                    if (type === "WeightedMultipleChoiceQuestion"
-                        && angular.isUndefined(option.defaultScore)) {
+                    if (type === "WeightedMultipleChoiceQuestion" && angular.isUndefined(option.defaultScore)) {
                         return;
                     }
 
@@ -215,8 +214,7 @@
 
                 $scope.updateOption = function (option) {
                     var type = $scope.newQuestion.type;
-                    if (type === "WeightedMultipleChoiceQuestion"
-                        && angular.isUndefined(option.defaultScore)) {
+                    if (type === "WeightedMultipleChoiceQuestion" && angular.isUndefined(option.defaultScore)) {
                         return;
                     }
                     if (angular.isUndefined(option.option)) {
@@ -272,7 +270,7 @@
                 $scope.isUserAllowedToModifyOwners = function (question) {
                     return question && ($scope.user.isAdmin ||
                             question.questionOwners.map(function (o) {
-                                return o.id
+                                return o.id;
                             }).indexOf($scope.user.id) > -1
                         );
                 };

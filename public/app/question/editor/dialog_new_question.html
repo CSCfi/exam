@@ -30,9 +30,12 @@
                 <span>{{'sitnet_button_cancel' | translate}}</span>
             </button>
             <!-- We are editing an unshared exam question -->
+            <!-- SIT-1566 hide this until we have atomic question save operation
+
             <button ng-if="baseQuestionId" class="btn btn-sm btn-danger pull-left" ng-click="cancel(newQuestion)">
                 <span>{{'sitnet_close' | translate}}</span>
             </button>
+            -->
         </div>
         <div class="col-md-6">
             <button ng-disabled="!questionForm.$valid" ng-click="submit(newQuestion)"

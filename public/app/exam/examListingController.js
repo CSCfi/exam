@@ -25,7 +25,7 @@
                                 return o.firstName + " " + o.lastName;
                             }).join();
                             if (e.state === 'PUBLISHED') {
-                                e.expired = Date.now() > new Date(e.examActiveEndDate)
+                                e.expired = Date.now() > new Date(e.examActiveEndDate);
                             } else {
                                 e.expired = false;
                             }

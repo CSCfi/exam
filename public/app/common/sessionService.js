@@ -213,12 +213,9 @@
                 var redirect = function () {
                     if ($location.path() === '/' && _user.isLanguageInspector) {
                         $location.path("/inspections");
-                    }
-                    /*if (_user.isLanguageInspector) {
-                        $location.path("/inspections");
-                    } else {
+                    } else if (_env && !_env.isProd) {
                         $location.path("/");
-                    }*/
+                    }
                 };
 
                 var onLoginSuccess = function () {

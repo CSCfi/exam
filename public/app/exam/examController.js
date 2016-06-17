@@ -931,7 +931,7 @@
                         lotteryItemCount: section.lotteryItemCount,
                         description: section.description,
                         expanded: section.expanded
-                    }
+                    };
                 };
 
                 $scope.toggleLottery = function (section) {
@@ -964,8 +964,8 @@
                         section.lotteryItemCount = 1;
                     }
                     else {
-                        ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, getSectionPayload(section)
-                            , function (sec) {
+                        ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, getSectionPayload(section),
+                            function (sec) {
                                 section = sec;
                                 toastr.info($translate.instant('sitnet_section_updated'));
                             }, function (error) {
@@ -1074,7 +1074,7 @@
                                 };
 
                                 $scope.cancel = function (baseQuestion, examQuestion) {
-                                    ExamSectionQuestionRes.questions.get({id: examQuestion.id}, function (q)  {
+                                    ExamSectionQuestionRes.questions.get({id: examQuestion.id}, function (q) {
                                         $modalInstance.close(q);
                                     }, function (err) {
                                         $modalInstance.dismiss();

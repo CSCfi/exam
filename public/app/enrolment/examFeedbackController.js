@@ -38,7 +38,7 @@
                 $scope.$on('$localeChangeSuccess', function () {
                     $scope.reviewedExam.grade.displayName =
                         examService.getExamGradeDisplayName($scope.reviewedExam.grade.name);
-                })
+                });
 
 
             }]);

@@ -85,8 +85,7 @@
 
                 $scope.saveOption = function (option) {
                     var type = $scope.question.type;
-                    if (type === "WeightedMultipleChoiceQuestion"
-                        && angular.isUndefined(option.score)) {
+                    if (type === "WeightedMultipleChoiceQuestion" && angular.isUndefined(option.score)) {
                         return;
                     }
 

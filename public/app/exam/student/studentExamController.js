@@ -314,7 +314,7 @@
                         ids = question.options.filter(function (o) {
                             return o.answered;
                         }).map(function (o) {
-                            return o.id
+                            return o.id;
                         });
                     } else {
                         ids = [question.selectedOption];
