@@ -171,7 +171,7 @@ class EmailComposerImpl implements EmailComposer {
         StringBuilder rowBuilder = new StringBuilder();
         sorted.stream().filter(e -> e.getValue().amount > 0).forEach(e -> {
             Map<String, String> stringValues = new HashMap<>();
-            stringValues.put("exam_link", String.format("%s/exams/%d", HOSTNAME, e.getKey().getId()));
+            stringValues.put("exam_link", String.format("%s/exams/reviews/%d", HOSTNAME, e.getKey().getId()));
             stringValues.put("exam_name", e.getKey().getName());
             stringValues.put("course_code", e.getKey().getCourse().getCode());
             String summary = messaging.get(lang, "email.weekly.report.review.summary",
@@ -538,7 +538,7 @@ class EmailComposerImpl implements EmailComposer {
 
         for (Exam exam : exams) {
             Map<String, String> stringValues = new HashMap<>();
-            stringValues.put("exam_link", String.format("%s/exams/%d", HOSTNAME, exam.getId()));
+            stringValues.put("exam_link", String.format("%s/exams/reviews/%d", HOSTNAME, exam.getId()));
             stringValues.put("exam_name", exam.getName());
             stringValues.put("course_code", exam.getCourse().getCode());
             List<ExamEnrolment> enrolments = getEnrolments(exam);

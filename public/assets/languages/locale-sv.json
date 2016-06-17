@@ -43,7 +43,7 @@
   "sitnet_email_hi": "Hej",
   "sitnet_end_time": "Tentamensperioden slutar",
   "sitnet_enroll": "Anmälan till tentamen och platsbokning",
-  "sitnet_enrolment_url": "Länk till tentamensanmälan och platsbokning",
+  "sitnet_enrolment_url": "Länk till tentamensanmälan",
   "sitnet_essay": "Essä",
   "sitnet_essay_example": "Studeranden skriver sitt svar här",
   "sitnet_essay_length_recommendation": "Svarets längd i ord (rekommendation)",
@@ -226,7 +226,7 @@
   "sitnet_reservation_machine_not_found": "Tentamensdatorn finns inte",
   "sitnet_wrong_exam_machine": "Du är vid fel dator. Du borde vara vid",
   "sitnet_exam_record_language": "Prestationsspråk",
-  "sitnet_reservations": "Bokningar",
+  "sitnet_reservations": "Studerande",
   "sitnet_attachment_removed": "Bilagan är raderad",
   "sitnet_unable_to_remove_reservation": "Bokningen kan inte raderas, eftersom den är kopplad till en tentamensanmälan.",
   "sitnet_error_creating_attachment": "Systemfel när bilagan skulle skapas. Bilagan är inte infogad.",
@@ -301,7 +301,7 @@
   "sitnet_exception_time_removed": "Dag(ar) med avvikande öppettider har raderats",
   "sitnet_exception_time_added": "Dag(ar) med avvikande öppettider har lagts till",
   "sitnet_internal_error": "Systemfel",
-  "sitnet_positive_integer_required": "Värdet ska vara ett positivt heltal och mindre än 1 000 000",
+  "sitnet_positive_integer_required": "Värdet ska vara ett positivt heltal (0-999999)",
   "sitnet_endtime_before_starttime": "Sluttiden kan inte vara före starttiden",
   "sitnet_section_name": "Sektionens namn (visas för studerandena)",
   "sitnet_write_question_below": "Skriv tentamensfrågan i fältet nedan",
@@ -689,5 +689,5 @@
   "sitnet_unrestricted": "Obegränsad",
   "sitnet_question_removal_disallowed": "Man kan inte radera denna fråga, den används i publicerade tentamina",
   "sitnet_action_disabled_lottery_on": "Man kan inte göra det för att utlottning är i bruk",
-  "sitnet_shared_question_property_info": "Tämän tiedon muutos päivittyy myös muihin tentteihin. SV"
+  "sitnet_shared_question_property_info": "De här ändringar uppdateras också i andra tentamina."
 }

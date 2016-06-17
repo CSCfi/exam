@@ -63,4 +63,4 @@ email.template.language.inspection.done=Exam has gone through a language evaluat
 email.template.language.inspection.statement.title=Language evaluation statement
 email.template.language.inspection.result=Result: {0}
 email.template.exam.returned.link=Link to evaluation
-email.weekly.report.review.summary=TBD
+email.weekly.report.review.summary={0} exams (assessment deadline {1})

@@ -63,4 +63,4 @@ email.template.language.inspection.done=Prestationen har genomgått språkgransk
 email.template.language.inspection.statement.title=Utlåtande
 email.template.language.inspection.result=Resultat: {0}
 email.template.exam.returned.link=Länk till bedömningen
-email.weekly.report.review.summary=TBD
+email.weekly.report.review.summary={0} tentamina (bedömning deadline {1})

@@ -63,4 +63,4 @@ email.template.language.inspection.done=Tenttisuoritus on käynyt läpi kielenta
 email.template.language.inspection.statement.title=Lausunto
 email.template.language.inspection.result=Tulos: {0}
 email.template.exam.returned.link=Siirry arvioimaan suoritus
-email.weekly.report.review.summary={0} kpl, joista ensimmäisen arvioinnin deadline on {1}.
+email.weekly.report.review.summary={0} kpl (arvioinnin takaraja {1})

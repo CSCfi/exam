@@ -43,7 +43,7 @@
   "sitnet_email_hi": "Dear",
   "sitnet_end_time": "Exam period ends",
   "sitnet_enroll": "Registration",
-  "sitnet_enrolment_url": "Registration link",
+  "sitnet_enrolment_url": "Registration link for the students",
   "sitnet_essay": "Essay",
   "sitnet_essay_example": "The student types the response here",
   "sitnet_essay_length_recommendation": "Response length in characters (recommendation)",
@@ -103,7 +103,7 @@
   "sitnet_inspection_status": "Assessment status",
   "sitnet_inspector_name": "Examiner's name",
   "sitnet_instruction": "Instructions",
-  "sitnet_library": "Question drafts",
+  "sitnet_library": "Question bank",
   "sitnet_logged_out": "You have logged out. Please close the browser window",
   "sitnet_login": "Log in",
   "sitnet_logout": "Log out",
@@ -226,7 +226,7 @@
   "sitnet_reservation_machine_not_found": "The computer cannot be found",
   "sitnet_wrong_exam_machine": "You are on a wrong computer. You should be in",
   "sitnet_exam_record_language": "Language in exam",
-  "sitnet_reservations": "Reservations",
+  "sitnet_reservations": "Students",
   "sitnet_attachment_removed": "The attachment has been removed",
   "sitnet_unable_to_remove_reservation": "The reservation cannot be removed, because it is connected to an exam enrollment",
   "sitnet_error_creating_attachment": "System error in creating the attachment. The attachment has not been included.",
@@ -689,5 +689,5 @@
   "sitnet_unrestricted": "Not restricted",
   "sitnet_question_removal_disallowed": "Question cannot be deleted because it is currently attached in published exam.",
   "sitnet_action_disabled_lottery_on": "Action is not allowed, because it is part of randomized questions.",
-  "sitnet_shared_question_property_info": "Tämän tiedon muutos päivittyy myös muihin tentteihin. EN"
+  "sitnet_shared_question_property_info": "If you make modifications to this information, it will have an effect to other exams."
 }
