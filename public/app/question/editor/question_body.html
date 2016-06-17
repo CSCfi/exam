@@ -1,0 +1,222 @@
+<div>
+    <!-- SIT-1548 disable at least for now --->
+    <!-- Shared -->
+    <!--div class="row">
+        <div class="checkbox">
+            <label><input type="checkbox" ng-model="newQuestion.shared" ng-click="updateQuestion()">
+                <strong class="sitnet-info-text">{{ 'sitnet_public_question' | translate }}</strong></label>
+        </div>
+    </div-->
+
+    <!-- Question owners -->
+    <div class="row">
+        <label for="question-owners" class="sitnet-info-text-compact">{{'sitnet_question_owners' | translate}}:</label>
+        <ul id="question-owners" class="list-inline">
+            <li ng-if="isUserAllowedToModifyOwners(newQuestion)">
+                <span ng-repeat="user in newQuestion.questionOwners" class="label"
+                      ng-click="removeOwner(user)" title="{{'sitnet_remove' | translate}}" style="margin: 0.2em"
+                      ng-class="newQuestion.questionOwners.length == 1 ? 'label-default' : 'label-primary pointer'">
+                    {{user.firstName }} {{ user.lastName }}
+                </span>
+                &nbsp;<i class="fa fa-plus text-success pointer"
+                         title="{{'sitnet_add' | translate}}" ng-click="openQuestionOwnerModal()"></i>
+            </li>
+            <li ng-if="!isUserAllowedToModifyOwners(newQuestion)">
+                <span ng-repeat="user in newQuestion.questionOwners" class="label label-default" style="margin: 0.2em">
+                    {{user.firstName }} {{ user.lastName }}
+                </span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Exam contexts -->
+    <div class="row">
+        <div ng-if="showWarning()" class="col-md-12 alert alert-info info-box">
+            <div><i class="fa fa-lg fa-exclamation-circle text-info"></i></div>
+            <div class="content-wrapper">
+                <div>{{'sitnet_exam_question_edit_instructions' | translate}}</div>
+
+                <div class="row col-md-12 top-margin-1">
+                    <ul class="list-inline">
+                        <li>
+                            <span ng-repeat="name in examNames" class="label label-primary" style="margin: 0.2em">
+                                {{name}}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div ng-if="!showWarning()">
+            <label for="exam-contexts" class="sitnet-info-text-compact">{{'sitnet_added_to_exams' | translate}}:</label>
+            <ul id="exam-contexts" class="list-inline">
+                <li>
+                <span ng-repeat="name in examNames" class="label label-primary" style="margin: 0.2em">
+                    {{name}}
+                </span>
+                <span ng-if="examNames.length === 0" class="label label-default" style="margin: 0.2em">
+                    &dash;
+                </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+    <!-- Question editor -->
+    <div class="form-group">
+        <label for="editor">
+            <span ng-show="newQuestion && !newQuestion.question" class="text-danger">{{ 'sitnet_write_question_below' | translate }}</span>
+        </label>
+        <label for="editor">
+            <span>
+                <span ng-if="!newQuestion || newQuestion.question">
+                    {{ 'sitnet_question' | translate }}
+                </span>
+                <i ng-if="showWarning()" class="fa fa-lg fa-exclamation-circle text-info"></i>
+                <small ng-if="showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
+            </span>
+        </label>
+        <textarea id="editor" name="editor" ck-editor rows="10" cols="80"
+                  ng-model="newQuestion.question"
+                  ui-change="updateQuestion()" required>
+        </textarea>
+    </div>
+
+    <!-- Type specific content -->
+    <div class="top-margin-1" ng-include="questionTemplate"></div>
+
+    <!-- Evaluation type -->
+    <div class="row">
+        <div class="form-group col-md-3" ng-show="newQuestion.type == 'EssayQuestion'">
+            <label class="sitnet-info-text" for="evaluationType">{{'sitnet_evaluation_type' |
+                translate}}</label>
+            <select id="evaluationType" class="form-control" ng-model="newQuestion.defaultEvaluationType"
+                    ng-change="updateEvaluationType()"
+                    ng-required="newQuestion.type == 'EssayQuestion'">
+                <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
+                <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Max score -->
+    <div class="row">
+        <div class="form-group col-md-3"
+             ng-if="newQuestion.type == 'MultipleChoiceQuestion' ||
+                                          newQuestion.defaultEvaluationType == 'Points'">
+            <label class="sitnet-info-text" for="defaultMaxScore">{{'sitnet_max_score' | translate}}</label>
+            <label ng-hide="questionForm.defaultMaxScore.$valid" class="text-danger">
+                {{ 'sitnet_positive_integer_required' | translate }}
+            </label>
+            <input id="defaultMaxScore" name="defaultMaxScore" type="number" class="col-md-2 form-control"
+                   ui-change="updateQuestion()"
+                   ng-model="newQuestion.defaultMaxScore"
+                   min="1" max="1000000"
+                   required ng-disabled="lotteryOn"/>
+        </div>
+    </div>
+
+    <!-- New tag -->
+    <div class="row" ng-show="!newQuestion.parent">
+        <div class="form-group col-md-3">
+            <label class="sitnet-info-text" for="newTag">{{'sitnet_tag_question' | translate}}</label>
+            <div ng-controller="TagTypeaheadCtrl">
+                <input id="newTag" name="newTag" type="text" maxlength="30" lowercase
+                       class="form-control"
+                       ng-model="newQuestion.newTag"
+                       uib-typeahead="t as t.name for t in getTags($viewValue, newQuestion)"
+                       typeahead-on-select="onTagSelect($item, newQuestion)"
+                       typeahead-min-length="2"/>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="form-group">
+        <label class="sitnet-info-text" for="metaInfo">{{'sitnet_question_metainfo' |
+            translate}}</label>
+
+        <div id="metaInfo">
+            <div class="row">
+                <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_added_to_sections' |
+                    translate}}:
+                </div>
+                <div class="col-md-9">
+                    <div ng-repeat="name in sectionNames">
+                        <span class="sitnet-badge pull-left inline">{{ name }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_added_to_categories' |
+                    translate}}:
+                </div>
+                <div ng-show="newQuestion.parent" class="col-md-9">
+                    <div ng-repeat="tag in newQuestion.parent.tags">
+                                            <span class="sitnet-badge pull-left inline">
+                                                {{ tag.name }}
+                                            </span>
+                    </div>
+                </div>
+                <div ng-hide="newQuestion.parent" class="col-md-9">
+                    <div ng-repeat="tag in newQuestion.tags">
+                        <span class="pointer sitnet-badge pull-left inline"
+                              popover-placement="top" popover-popup-delay="500"
+                              popover-trigger="mouseenter"
+                              uib-popover="{{ 'sitnet_remove' | translate }}" ng-click="removeTag(tag)">
+                            {{ tag.name }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="form-group">
+        <label class="sitnet-info-text" for="defaultInstructions">
+            {{'sitnet_question_instruction' | translate}}
+        </label>
+        <textarea id="defaultInstructions" class="form-control" rows="3"
+                  ng-model="newQuestion.defaultAnswerInstructions"
+                  ui-change="updateQuestion()"
+                  placeholder="{{'sitnet_question_instruction' | translate}}">
+        </textarea>
+    </div>
+
+    <!-- Evaluation criteria -->
+    <div ng-show="newQuestion.type == 'EssayQuestion'" class="form-group">
+        <label class="sitnet-info-text" for="defaultEvaluationCriteria">
+            {{'sitnet_exam_evaluation_criteria' |translate}}
+        </label>
+        <textarea id="defaultEvaluationCriteria" class="form-control" rows="3"
+                  ng-model="newQuestion.defaultEvaluationCriteria"
+                  ui-change="updateQuestion()"
+                  placeholder="{{'sitnet_question_instruction' | translate}}">
+        </textarea>
+    </div>
+
+    <!-- Attachment -->
+    <div ng-controller="AttachmentController" class="form-group">
+        <label class="sitnet-info-text" for="attachment">
+            {{ 'sitnet_question_attachment' | translate}}
+            <i ng-if="showWarning()" class="fa fa-lg fa-info-circle text-info"></i>
+            <small ng-if="showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
+        </label>
+
+        <div id="attachment">
+            <div ng-show="newQuestion.attachment">
+                <a class="pointer" ng-click="downloadQuestionAttachment(newQuestion)">{{
+                    newQuestion.attachment.fileName }}</a>
+                                    <span class="sitnet-red pointer" ng-click="removeQuestionAttachment(newQuestion)">
+                                        <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
+                                    </span>
+            </div>
+            <button type="button" ng-click="selectFile()" class="btn btn-default btn-sm">{{
+                'sitnet_attach_file' |
+                translate }}
+            </button>
+        </div>
+    </div>
+</div>

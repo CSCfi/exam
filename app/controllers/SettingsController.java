@@ -9,9 +9,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import models.GeneralSettings;
 import models.User;
-import play.Play;
+import play.Environment;
 import play.data.DynamicForm;
-import play.data.Form;
 import play.i18n.Lang;
 import play.i18n.Langs;
 import play.libs.Json;
@@ -23,7 +22,10 @@ import java.util.stream.Collectors;
 public class SettingsController  extends BaseController {
 
     @Inject
-    protected Langs langs;
+    private Langs langs;
+    
+    @Inject
+    private Environment environment;
 
     public static GeneralSettings getOrCreateSettings(String name, String value, String defaultValue) {
         GeneralSettings gs = Ebean.find(GeneralSettings.class).where().eq("name", name).findUnique();
@@ -72,7 +74,7 @@ public class SettingsController  extends BaseController {
 
     @Restrict({ @Group("ADMIN")})
     public Result updateUserAgreement() {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         String eula = df.get("value");
         GeneralSettings gs = getOrCreateSettings("eula", eula, null);
 
@@ -87,7 +89,7 @@ public class SettingsController  extends BaseController {
 
     @Restrict({ @Group("ADMIN")})
     public Result setDeadline() {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         String deadline = df.get("value");
         GeneralSettings gs = getOrCreateSettings("review_deadline", deadline, null);
         return ok(Json.toJson(gs));
@@ -95,7 +97,7 @@ public class SettingsController  extends BaseController {
 
     @Restrict({ @Group("ADMIN")})
     public Result setReservationWindowSize() {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         String deadline = df.get("value");
         GeneralSettings gs = getOrCreateSettings("reservation_window_size", deadline, null);
         return ok(Json.toJson(gs));
@@ -144,9 +146,10 @@ public class SettingsController  extends BaseController {
         return ok(Json.toJson(node));
     }
 
+    @ActionMethod
     public Result isProd() {
         ObjectNode node = Json.newObject();
-        node.put("isProd", Play.isProd());
+        node.put("isProd", environment.isProd());
         return ok(Json.toJson(node));
     }
 

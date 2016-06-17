@@ -3,7 +3,6 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.ning.http.util.Base64;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
@@ -44,6 +43,8 @@ public class StatisticsController extends BaseController {
                 .select("id, name")
                 .fetch("course", "id, name, code")
                 .where()
+                .isNotNull("name")
+                .isNotNull("course")
                 .isNull("parent") // only Exam prototypes
                 .findList();
         return ok(exams);
@@ -90,13 +91,13 @@ public class StatisticsController extends BaseController {
     private static Result examToJson(Exam exam) {
         String content = Ebean.json().toJson(exam);
         response().setHeader("Content-Disposition", "attachment; filename=\"exams.json\"");
-        return ok(com.ning.http.util.Base64.encode(content.getBytes()));
+        return ok(Base64.getEncoder().encodeToString(content.getBytes()));
     }
 
     @Restrict({@Group("ADMIN")})
     public Result getExam(Long id, String reportType) throws IOException {
 
-        Exam exam = ExamController.createQuery()
+        Exam exam = Ebean.find(Exam.class)
                 .where()
                 .idEq(id)
                 .isNotNull("course")
@@ -184,6 +185,9 @@ public class StatisticsController extends BaseController {
         Exam proto = Ebean.find(Exam.class).fetch("examEnrolments").fetch("examEnrolments.user")
                 .fetch("examEnrolments.reservation").fetch("course")
                 .where().eq("id", id).isNull("parent").findUnique();
+        if (proto == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("enrolments");
         String[] headers = {"student name", "student ID", "student EPPN", "reservation time", "enrolment time"};
@@ -275,27 +279,28 @@ public class StatisticsController extends BaseController {
         addHeader(sheet, headers);
 
         for (ExamEnrolment e : enrolments) {
-            String[] data = new String[16];
-            data[0] = Long.toString(e.getId());
-            data[1] = ISODateTimeFormat.date().print(new DateTime(e.getEnrolledOn()));
-            data[2] = Long.toString(e.getUser().getId());
-            data[3] = e.getUser().getFirstName();
-            data[4] = e.getUser().getLastName();
-            data[5] = Long.toString(e.getExam().getId());
-            data[6] = e.getExam().getName();
-            data[7] = Long.toString(e.getReservation().getId());
-            data[8] = ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation().getStartAt()));
-            data[9] = ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation().getEndAt()));
-            data[10] = Long.toString(e.getReservation().getMachine().getId());
-            data[11] = e.getReservation().getMachine().getName();
-            data[12] = e.getReservation().getMachine().getIpAddress();
-            data[13] = Long.toString(e.getReservation().getMachine().getRoom().getId());
-            data[14] = e.getReservation().getMachine().getRoom().getName();
-            data[15] = e.getReservation().getMachine().getRoom().getRoomCode();
+            List<String> data = Arrays.asList(
+                    Long.toString(e.getId()),
+                    ISODateTimeFormat.date().print(new DateTime(e.getEnrolledOn())),
+                    Long.toString(e.getUser().getId()),
+                    e.getUser().getFirstName(),
+                    e.getUser().getLastName(),
+                    Long.toString(e.getExam().getId()),
+                    e.getExam().getName(),
+                    Long.toString(e.getReservation().getId()),
+                    ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation().getStartAt())),
+                    ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation().getEndAt())),
+                    Long.toString(e.getReservation().getMachine().getId()),
+                    e.getReservation().getMachine().getName(),
+                    e.getReservation().getMachine().getIpAddress(),
+                    Long.toString(e.getReservation().getMachine().getRoom().getId()),
+                    e.getReservation().getMachine().getRoom().getName(),
+                    e.getReservation().getMachine().getRoom().getRoomCode()
+            );
             Row dataRow = sheet.createRow(enrolments.indexOf(e) + 1);
-            for (int i = 0; i < data.length; ++i) {
+            for (int i = 0; i < data.size(); ++i) {
                 sheet.autoSizeColumn(i, true);
-                dataRow.createCell(i).setCellValue(data[i]);
+                dataRow.createCell(i).setCellValue(data.get(i));
             }
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"reservations.xlsx\"");
@@ -333,6 +338,10 @@ public class StatisticsController extends BaseController {
         final DateTime end = DateTime.parse(to, DTF);
 
         User student = Ebean.find(User.class, studentId);
+        if (student == null) {
+            return notFound("sitnet_error_not_found");
+        }
+
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
                 .where()
@@ -382,6 +391,9 @@ public class StatisticsController extends BaseController {
                     .eq("user.id", p.getUser().getId())
                     .eq("exam.id", p.getExam().getId())
                     .findUnique();
+            if (enrolment == null) {
+                continue;
+            }
             List<String> data = new ArrayList<>();
             if (includeStudentInfo) {
                 data.add(Long.toString(p.getUser().getId()));
@@ -428,14 +440,14 @@ public class StatisticsController extends BaseController {
     }
 
     // Base64-encode workbook
-    public static String encode(Workbook wb) throws IOException {
+    private static String encode(Workbook wb) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         wb.write(bos);
         bos.close();
-        return Base64.encode(bos.toByteArray());
+        return Base64.getEncoder().encodeToString(bos.toByteArray());
     }
 
-    public static void addHeader(Sheet sheet, String[] headers) {
+    private static void addHeader(Sheet sheet, String[] headers) {
         Row headerRow = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
             headerRow.createCell(i).setCellValue(headers[i]);

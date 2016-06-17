@@ -6,32 +6,27 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import exceptions.NotFoundException;
-import models.Credentials;
-import models.Language;
-import models.Organisation;
-import models.Role;
-import models.Session;
-import models.User;
+import models.*;
+import models.dto.Credentials;
 import org.joda.time.DateTime;
+import play.Environment;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import util.AppUtil;
 
+import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SessionController extends BaseController {
+
+    @Inject
+    Environment environment;
 
     public Result login() {
         Result result;
@@ -49,10 +44,11 @@ public class SessionController extends BaseController {
     }
 
     private Result hakaLogin() {
-        String eppn = parse(request().getHeader("eppn"));
-        if (eppn == null) {
+        Optional<String> id = parse(request().getHeader("eppn"));
+        if (!id.isPresent()) {
             return badRequest("No credentials!");
         }
+        String eppn = id.get();
         User user = Ebean.find(User.class)
                 .where()
                 .eq("eppn", eppn)
@@ -72,6 +68,9 @@ public class SessionController extends BaseController {
     }
 
     private Result devLogin() {
+        if (!environment.isDev()) {
+            return unauthorized();
+        }
         Credentials credentials = bindForm(Credentials.class);
         Logger.debug("User login with username: {}", credentials.getUsername() + "@funet.fi");
         if (credentials.getPassword() == null || credentials.getUsername() == null) {
@@ -86,7 +85,7 @@ public class SessionController extends BaseController {
             return unauthorized("sitnet_error_unauthenticated");
         }
         user.setLastLogin(new Date());
-        user.save();
+        user.update();
         return createSession(user);
     }
 
@@ -94,8 +93,8 @@ public class SessionController extends BaseController {
         Language language = null;
         if (code != null) {
             // for example: en-US -> en
-            code = code.split("-")[0].toLowerCase();
-            language = Ebean.find(Language.class, code);
+            String lcCode = code.split("-")[0].toLowerCase();
+            language = Ebean.find(Language.class, lcCode);
         }
         if (language == null) {
             // Default to English
@@ -104,53 +103,53 @@ public class SessionController extends BaseController {
         return language;
     }
 
-    private static String validateEmail(String email) throws AddressException {
-        if (email == null) {
-            throw new AddressException("no email address for user");
+    private Optional<String> validateEmail(String email) {
+        try {
+            new InternetAddress(email).validate();
+        } catch (AddressException e) {
+            return Optional.empty();
         }
-        new InternetAddress(email).validate();
-        return email;
+        return Optional.of(email);
     }
 
-    private static String parseUserIdentifier(String src) {
-        if (src == null) {
-            return null;
-        }
+    private String parseUserIdentifier(String src) {
         return src.substring(src.lastIndexOf(":") + 1);
     }
 
-    private static String parseGivenName(Http.Request request) {
-        String givenName = parse(request.getHeader("givenName"));
-        if (givenName == null) {
-            String displayName = parse(request.getHeader("displayName"));
-            givenName = displayName.indexOf(" ") > 0 ?
-                    displayName.substring(0, displayName.lastIndexOf(" ")) :
-                    displayName;
-        }
-        return givenName;
+    private Optional<String> parseDisplayName(Http.Request request) {
+        return parse(request.getHeader("displayName")).map(n ->
+                n.indexOf(" ") > 0 ? n.substring(0, n.lastIndexOf(" ")) : n);
     }
 
-    private static Organisation findOrganisation(String attribute) {
-        if (attribute == null) {
-            return null;
-        }
+    private String parseGivenName(Http.Request request) {
+        return parse(request.getHeader("givenName"))
+                .orElse(parseDisplayName(request)
+                        .orElseThrow(IllegalArgumentException::new));
+    }
+
+    private Organisation findOrganisation(String attribute) {
         return Ebean.find(Organisation.class).where().eq("code", attribute).findUnique();
     }
 
-    private static void updateUser(User user) throws AddressException {
-        user.setOrganisation(findOrganisation(parse(request().getHeader("homeOrganisation"))));
-        user.setUserIdentifier(parseUserIdentifier(parse(request().getHeader("schacPersonalUniqueCode"))));
-        user.setEmail(validateEmail(parse(request().getHeader("mail"))));
-        user.setLastName(parse(request().getHeader("sn")));
+    private void updateUser(User user) throws AddressException {
+        user.setOrganisation(parse(request().getHeader("homeOrganisation"))
+                .map(this::findOrganisation).orElse(null));
+        user.setUserIdentifier(parse(request().getHeader("schacPersonalUniqueCode"))
+                .map(this::parseUserIdentifier).orElse(null));
+        user.setEmail(parse(request().getHeader("mail"))
+                .flatMap(this::validateEmail).orElseThrow(AddressException::new));
+
+        user.setLastName(parse(request().getHeader("sn")).orElseThrow(IllegalArgumentException::new));
         user.setFirstName(parseGivenName(request()));
-        user.setEmployeeNumber(parse(request().getHeader("employeeNumber")));
-        user.setLogoutUrl(parse(request().getHeader("logouturl")));
+        user.setEmployeeNumber(parse(request().getHeader("employeeNumber")).orElse(null));
+        user.setLogoutUrl(parse(request().getHeader("logouturl")).orElse(null));
     }
 
-    private static User createNewUser(String eppn) throws NotFoundException, AddressException {
+    private User createNewUser(String eppn) throws NotFoundException, AddressException {
         User user = new User();
-        user.getRoles().addAll(parseRoles(parse(request().getHeader("unscoped-affiliation"))));
-        user.setLanguage(getLanguage(parse(request().getHeader("preferredLanguage"))));
+        user.getRoles().addAll(parseRoles(parse(request().getHeader("unscoped-affiliation"))
+                .orElseThrow(NotFoundException::new)));
+        user.setLanguage(getLanguage(parse(request().getHeader("preferredLanguage")).orElse(null)));
         user.setEppn(eppn);
         updateUser(user);
         return user;
@@ -194,7 +193,7 @@ public class SessionController extends BaseController {
     }
 
     private static Set<Role> parseRoles(String attribute) throws NotFoundException {
-        Map<Role, List<String>> roleMapping = getRoleMapping();
+        Map<Role, List<String>> roleMapping = getConfiguredRoleMapping();
         Set<Role> userRoles = new HashSet<>();
         for (String affiliation : attribute.split(";")) {
             for (Map.Entry<Role, List<String>> entry : roleMapping.entrySet()) {
@@ -210,7 +209,7 @@ public class SessionController extends BaseController {
         return userRoles;
     }
 
-    static private Map<Role, List<String>> getRoleMapping() {
+    private static Map<Role, List<String>> getConfiguredRoleMapping() {
         Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findUnique();
         Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findUnique();
         Role admin = Ebean.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findUnique();
@@ -221,6 +220,7 @@ public class SessionController extends BaseController {
         return roles;
     }
 
+    @ActionMethod
     public Result logout() {
         Session session = getSession();
         Result result = ok();
@@ -229,7 +229,7 @@ public class SessionController extends BaseController {
             session.setValid(false);
             updateSession(session);
             Logger.info("Set session for user #{} as invalid", session.getUserId());
-            if (user.getLogoutUrl() != null) {
+            if (user != null && user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());
                 result = ok(Json.toJson(node));
@@ -240,6 +240,7 @@ public class SessionController extends BaseController {
         return result;
     }
 
+    @ActionMethod
     public Result setLoginRole(Long uid, String roleName) {
         Session session = getSession();
         if (session == null) {
@@ -273,6 +274,7 @@ public class SessionController extends BaseController {
         return ok();
     }
 
+    @ActionMethod
     public Result checkSession() {
         Session session = getSession();
         if (session == null || session.getSince() == null) {
@@ -291,12 +293,12 @@ public class SessionController extends BaseController {
         return ok();
     }
 
-    private static String parse(String src) {
+    private static Optional<String> parse(String src) {
         if (src == null || src.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
         try {
-            return URLDecoder.decode(src, "UTF-8");
+            return Optional.of(URLDecoder.decode(src, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

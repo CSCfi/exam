@@ -1,0 +1,110 @@
+<div class="row exam-general-information-header">
+    <div class="col-md-1">
+        <a class="pointer pull-left fa-stack fa-lg" popover-placement="left" popover-popup-delay="1000"
+           popover-trigger="mouseenter" uib-popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
+           ng-click="autoevaluationDisplay.visible = !autoevaluationDisplay.visible">
+            <i ng-class="autoevaluationDisplay.visible ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-right fa-stack-1x'"></i>
+        </a>
+    </div>
+    <div class="col-md-11 exams-generic-info-title" ng-class="autoevaluation.enabled ? 'text' : 'text-muted'">
+        {{'sitnet_exam_autoevaluation' | translate}}
+        <small ng-if="autoevaluation.enabled">({{'sitnet_in_use' | translate}})</small>
+        <small ng-if="!autoevaluation.enabled">({{'sitnet_not_in_use' | translate}})</small>
+    </div>
+</div>
+
+<div ng-show="autoevaluationDisplay.visible">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="checkbox-inline">
+                <input type="checkbox" ng-model="autoevaluation.enabled" ng-value="true">{{'sitnet_use_autoevaluation' |
+                translate}}
+            </div>
+        </div>
+    </div>
+    <div class="main-row">
+        <div class="col-md-12 alert alert-info">
+            <i class="fa fa-lg fa-info-circle text-info"></i>&nbsp;
+            {{'sitnet_autoevaluation_instructions' | translate}}
+        </div>
+    </div>
+    <div class="top-row">
+        <div class="col-md-2"><strong>{{'sitnet_exam_grade' | translate}}</strong></div>
+        <div class="col-md-4"><strong>{{'sitnet_percentage' | translate}}</strong></div>
+        <div class="col-md-6"><strong>{{'sitnet_point_limit' | translate}}</strong></div>
+    </div>
+    <form role="form">
+        <div ng-repeat="ge in newExam.autoEvaluationConfig.gradeEvaluations | orderBy: ge.grade.id">
+            <div class="top-row">
+                <div class="col-md-2">
+                    {{ getGradeDisplayName(ge.grade) }}
+                </div>
+                <div class="col-md-2">
+                    <input ng-disabled="!autoevaluation.enabled" type="number" class="form-control pull-right"
+                           ng-model="ge.percentage"
+                           min="0" max="100"
+                           required unique-value items="newExam.autoEvaluationConfig.gradeEvaluations" property="percentage">
+                </div>
+                <div class="col-md-2">
+                    &percnt;
+                </div>
+                <div class="col-md-6 pull-right">
+                    {{ calculatePointLimit(ge) }}
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="sitnet-info-text">{{'sitnet_autoevaluation_release_type' | translate}}:</div>
+            <div class="dropdown" uib-dropdown>
+                <button class="btn btn-default dropdown-toggle" ng-disabled="!autoevaluation.enabled" type="button" data-toggle="dropdown"
+                        uib-dropdown-toggle
+                        aria-expanded="true">
+                    {{ selectedReleaseType().translation | translate}}&nbsp;<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li ng-repeat="type in autoevaluation.releaseTypes" role="presentation"
+                        ng-class="type.filtered ? 'active': ''" ng-click="applyFilter(type)">
+                        <a role="menuitem" class="pointer">
+                            {{type.translation | translate}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <form role="form">
+        <div class="bottom-row" ng-if="selectedReleaseType().name === 'GIVEN_DATE'">
+            <div class="col-md-6" ng-controller="DatepickerCtrl">
+                <div class="sitnet-info-text">{{'sitnet_autoevaluation_release_date' | translate}}:</div>
+                <div class="input-group">
+                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
+                           ng-model="newExam.autoEvaluationConfig.releaseDate"
+                           is-open="startDateOpened" minDate="new Date()"
+                           datepicker-options="dateOptions"
+                           close-text="{{'sitnet_close' | translate}}"
+                           current-text="{{'sitnet_today' | translate}}"
+                           toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                           clear-text="{{'sitnet_clear' | translate}}" date-validator
+                           required>
+
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" ng-click="openStartDate($event)">
+                                <i class="fa fa-calendar"></i>
+                            </button>
+                        </span>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-row" ng-if="selectedReleaseType().name === 'GIVEN_AMOUNT_DAYS'">
+            <div class="col-md-12">
+                <div class="sitnet-info-text">{{'sitnet_autoevaluation_release_after_days' | translate}}:</div>
+                <input type="number" class="form-control"
+                       ng-model="newExam.autoEvaluationConfig.amountDays"
+                       min="1" max="60"
+                       required>
+            </div>
+        </div>
+    </form>
+</div>

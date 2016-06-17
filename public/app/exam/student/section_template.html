@@ -1,16 +1,19 @@
 <form class="form-inline" role="form">
     <div ng-show="guide">
-        <div class="guide-instruction col-md-12" ng-bind-html="doexam.instruction"></div>
+        <div class="guide-instruction col-md-12" ng-bind-html="exam.instruction"></div>
     </div>
     <div ng-show="!guide">
-        <div class="{{sectionQuestion.question.selectedAnsweredState}} col-md-12 info-row"
-             ng-repeat="sectionQuestion in activeSection.sectionQuestions"
-             ng-init="examService.setQuestionColors(sectionQuestion.question); sectionQuestion.question.expanded = true;">
+        <div class="col-md-12 info-row">
+            {{activeSection.description}}
+        </div>
+        <div class="{{sectionQuestion.selectedAnsweredState}} col-md-12 info-row"
+             ng-repeat="sectionQuestion in activeSection.sectionQuestions | orderBy: 'sequenceNumber'"
+             ng-init="examService.setQuestionColors(sectionQuestion.question); sectionQuestion.expanded = true;">
 
             <div class="row">
                 <!-- chevron -->
                 <div class="col-md-1 fa-stack fa-lg pointer " ng-click="chevronClicked(sectionQuestion)">
-                    <i ng-class="sectionQuestion.question.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
+                    <i ng-class="sectionQuestion.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
                        class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
                     </i>
                 </div>
@@ -33,15 +36,11 @@
                 <div class="col-md-3 question-type-text">
                     <span class="pull-right">
                          <i class="text-info fa fa-star"></i>
-                        <span ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion' ||
-                            (sectionQuestion.question.type == 'EssayQuestion' && sectionQuestion.question.evaluationType == 'Points')">
-                            {{sectionQuestion.question.maxScore}} {{'sitnet_unit_points' | translate}}
+                        <span ng-if="sectionQuestion.evaluationType == 'Selection'">
+                             {{'sitnet_evaluation_select' | translate}}
                         </span>
-                        <span ng-if="sectionQuestion.question.type === 'EssayQuestion' && sectionQuestion.question.evaluationType == 'Select'">
-                             {{'sitnet_evaluation_type' | translate}}: {{'sitnet_evaluation_select' | translate}}
-                        </span>
-                        <span ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
-                            {{calculateMaxPointsOfWeightedMcq(sectionQuestion.question)}} {{'sitnet_unit_points' | translate}}
+                        <span ng-if="sectionQuestion.evaluationType !== 'Selection'">
+                            {{sectionQuestion.derivedMaxScore}} {{'sitnet_unit_points' | translate}}
                         </span>
                     </span>
 
@@ -51,8 +50,8 @@
             <!-- question text -->
             <div class="row bottom-padding-2">
                 <div class="col-md-12 question-text">
-                    <div ng-if="sectionQuestion.question.expanded" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></div>
-                    <div ng-if="!sectionQuestion.question.expanded" mathjax ng-bind-html="trustAsHtml(truncate(sectionQuestion.question.question, 240))"></div>
+                    <div ng-if="sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></div>
+                    <div ng-if="!sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(truncate(sectionQuestion.question.question, 240))"></div>
                 </div>
             </div>
 
@@ -70,44 +69,20 @@
             </div>
 
             <!-- instruction -->
-            <div class="row" ng-show="sectionQuestion.question.instruction">
+            <div class="row" ng-show="sectionQuestion.answerInstructions">
                 <div class="col-md-12">
                     <p class="question-text question-type-text">
                         <i class="text-info fa fa-info-circle"></i>
-                        {{'sitnet_instructions' | translate }}:&nbsp;{{sectionQuestion.question.instruction}}</p>
+                        {{'sitnet_instructions' | translate }}:&nbsp;{{sectionQuestion.answerInstructions}}</p>
                 </div>
             </div>
 
             <!-- answer -->
-            <div class="exam-question-container" ng-show="sectionQuestion.question.expanded">
+            <div class="exam-question-container" ng-show="sectionQuestion.expanded">
 
                 <div class="question">
                     <!-- content-->
                     <div ng-include="sectionQuestion.question.template"></div>
-
-                    <!-- attachment -->
-                    <div class="row" ng-controller="AttachmentController"
-                         ng-show="sectionQuestion.question.type === 'EssayQuestion'">
-                        <div class="col-md-12">
-                            <span class="text-info" style="padding-left: 0">{{'sitnet_answer_attachment' | translate}}:&nbsp;</span>
-                            <span ng-show="sectionQuestion.question.answer && sectionQuestion.question.answer.attachment && sectionQuestion.question.answer.attachment.fileName">
-                                <a class="pointer"
-                                   ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, hash)">
-                                    {{sectionQuestion.question.answer.attachment.fileName}}
-                                </a>
-                            </span>
-                            <span ng-show="sectionQuestion.question.answer && sectionQuestion.question.answer.attachment && sectionQuestion.question.answer.attachment.fileName"
-                                  class="sitnet-red pointer"
-                                  ng-click="removeQuestionAnswerAttachment(sectionQuestion.question, hash);">&nbsp;
-                                <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
-                            </span>
-                            <span ng-show="sectionQuestion.question.answer && !sectionQuestion.question.answer.attachment"
-                                  class="text-success pointer"
-                                  ng-click="selectFile(sectionQuestion.question)">&nbsp;<i class="fa fa-upload"
-                                                                                           title="{{'sitnet_attach_file' | translate}}"></i>
-                            </span>
-                        </div>
-                    </div>
                 </div>
             </div>
 

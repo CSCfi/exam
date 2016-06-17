@@ -1,11 +1,16 @@
 package models.questions;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import models.GeneratedIdentityModel;
+import models.ExamSectionQuestionOption;
+import models.base.GeneratedIdentityModel;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import java.util.Set;
 
 
 @Entity
@@ -15,15 +20,15 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
 
     private boolean correctOption;
 
-    private Double score;
+    private Double defaultScore;
 
     @ManyToOne
     @JsonBackReference
     private Question question;
 
-    @ManyToOne
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "option")
     @JsonBackReference
-    private Answer answer;
+    private Set<ExamSectionQuestionOption> examSectionQuestionOptions;
 
     public String getOption() {
         return option;
@@ -37,12 +42,47 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
         return correctOption;
     }
 
-    public Answer getAnswer() {
-        return answer;
+    public void setCorrectOption(boolean correctOption) {
+
+        this.correctOption = correctOption;
     }
 
-    public void setAnswer(Answer answer) {
-        this.answer = answer;
+    public Double getDefaultScore() {
+        return defaultScore;
+    }
+
+    public void setDefaultScore(Double defaultScore) {
+        this.defaultScore = defaultScore;
+    }
+
+    public Question getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(Question question) {
+        this.question = question;
+    }
+
+    public Set<ExamSectionQuestionOption> getExamSectionQuestionOptions() {
+        return examSectionQuestionOptions;
+    }
+
+    public void setExamSectionQuestionOptions(Set<ExamSectionQuestionOption> examSectionQuestionOptions) {
+        this.examSectionQuestionOptions = examSectionQuestionOptions;
+    }
+
+    public MultipleChoiceOption copy() {
+        MultipleChoiceOption option = new MultipleChoiceOption();
+        BeanUtils.copyProperties(this, option, "id", "examSectionQuestionOptions");
+        return option;
+    }
+
+    public String toString() {
+        return "MultipleChoiceOption{" +
+                "id=" + getId() +
+                ", option='" + option + '\'' +
+                ", correctOption=" + correctOption +
+                '}';
     }
 
     @Override
@@ -66,45 +106,8 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
         }
         return result;
     }
-
-    public void setCorrectOption(boolean correctOption) {
-
-        this.correctOption = correctOption;
-    }
-
-    public Double getScore() {
-        return score;
-    }
-
-    public void setScore(Double score) {
-        this.score = score;
-    }
-
-    public Question getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(Question question) {
-        this.question = question;
-    }
-
-    public MultipleChoiceOption copy() {
-        MultipleChoiceOption option = new MultipleChoiceOption();
-        BeanUtils.copyProperties(this, option, "id");
-        return option;
-    }
-
-    public String toString() {
-        return "MultipleChoiceOption{" +
-                "id=" + getId() +
-                ", option='" + option + '\'' +
-                ", correctOption=" + correctOption +
-                ", score=" + score +
-                '}';
-    }
-
     @Override
-    public int compareTo(MultipleChoiceOption o) {
+    public int compareTo(@NotNull MultipleChoiceOption o) {
         if (getId() < o.getId()) {
             return -1;
         }

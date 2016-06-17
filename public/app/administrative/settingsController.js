@@ -1,8 +1,13 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('SettingsController', ['$scope', '$translate', '$location', '$http', 'SettingsResource',
-            function ($scope, $translate, $location, $http, SettingsResource) {
+        .controller('SettingsController', ['$scope', '$translate', '$location', '$http', 'SettingsResource', 'sessionService',
+            function ($scope, $translate, $location, $http, SettingsResource, sessionService) {
+
+                var user = sessionService.getUser();
+                if (!user || !user.isAdmin) {
+                    $location.path("/");
+                }
 
                 $scope.eula = SettingsResource.agreement.get();
                 SettingsResource.deadline.get(function (deadline) {
@@ -48,7 +53,7 @@
                 $scope.showAttributes = function () {
                     $http.get('/attributes').success(function (attributes) {
                         $scope.attributes = attributes;
-                    })
-                }
+                    });
+                };
             }]);
 }());

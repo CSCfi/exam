@@ -5,24 +5,30 @@
 </div>
 <!-- Enrolled exams list -->
 <div id="dashboard">
-    <div class="main-row">
-        <div class="col-md-4" ng-show="permissionCheck.active===false">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="alert alert-info info-box">
+                <span class="form-group"><i class="fa fa-lg fa-info-circle text-info"></i>
+                    &nbsp;
+                    <span ng-if="permissionCheck.active===false">{{ 'sitnet_exam_search_description' | translate }}</span>
+                    <span ng-if="permissionCheck.active===true">{{ 'sitnet_search_restricted' | translate }}</span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="top-row" ng-show="permissionCheck.active===false">
+        <div class="col-md-4">
             <div class="form-group input-group">
                 <input ng-change="search()" ng-model="filter.text"
                        ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
-                       class="form-control" placeholder="{{'sitnet_search' | translate }}" popover-placement="top"
-                       popover-popup-delay="500" popover-trigger="mouseenter"
-                       popover="{{ 'sitnet_exam_search_description' | translate }}">
+                       class="form-control" placeholder="{{'sitnet_search' | translate }}">
                 <div class="input-group-addon">
                     <i class="fa fa-search fa-fw"></i>
                 </div>
             </div>
         </div>
-        <div class="col-md-12" ng-show="permissionCheck.active===true">
-            <p class="text-info">{{ 'sitnet_search_restricted' | translate }}</p>
-        </div>
     </div>
-    <div class="main-row">
+    <div class="top-row">
         <div class="col-md-12">
             <button ng-show="loader.loading" class="btn btn-success">{{'sitnet_searching' | translate }}...
                 <i class="fa fa-spinner fa-spin"></i>

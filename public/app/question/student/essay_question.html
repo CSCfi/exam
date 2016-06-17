@@ -1,28 +1,61 @@
-<div class="row" ng-hide="!sectionQuestion.question.maxCharacters">
+<div class="row" ng-hide="!sectionQuestion.expectedWordCount">
     <div class="col-md-12">
         <small class="sitnet-info-text">{{ 'sitnet_essay_length_recommendation' | translate }}:&nbsp;
-            {{ sectionQuestion.question.maxCharacters }}
+            {{ sectionQuestion.expectedWordCount }}
+            ({{ 'sitnet_approximately' | translate}} {{sectionQuestion.expectedWordCount * 8}}
+            {{'sitnet_characters' | translate}})
         </small>
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        <textarea ck-editor rows="10" cols="80" ng-model="sectionQuestion.question.answer.answer"></textarea>
+        <textarea ck-editor rows="10" cols="80" ng-model="sectionQuestion.essayAnswer.answer"></textarea>
     </div>
 </div>
-<div class="row top-margin-1">
-    <div class="col-md-8">
-        <small class="sitnet-info-text" ng-if="sectionQuestion.question.autosaved">
-            {{'sitnet_autosaved' | translate}}:&nbsp;{{ sectionQuestion.question.autosaved | date:'HH:mm'}}
+<div class="row">
+    <div class="col-md-12">
+        <small class="sitnet-info-text" ng-if="sectionQuestion.autosaved">
+            {{'sitnet_autosaved' | translate}}:&nbsp;{{ sectionQuestion.autosaved | date:'HH:mm'}}
         </small>
-        <small class="sitnet-info-text" ng-if="!sectionQuestion.question.autosaved">
+        <small class="sitnet-info-text" ng-if="!sectionQuestion.autosaved">
             &nbsp;
         </small>
     </div>
-    <div class="col-md-4">
-        <button ng-disabled="isPreview()"
-                ng-click="saveEssay(sectionQuestion.question, sectionQuestion.question.answer.answer)"
-                class="btn btn-sm btn-primary pull-right">{{'sitnet_save' | translate }}
-        </button>
+</div>
+<!-- attachment -->
+<div ng-controller="AttachmentController">
+    <div class="row top-margin-1">
+        <div class="col-md-12">
+            <span ng-show="sectionQuestion.essayAnswer.attachment.fileName">
+                <a class="pointer"
+                   ng-click="downloadQuestionAnswerAttachment(sectionQuestion, hash)">
+                    <strong>{{sectionQuestion.essayAnswer.attachment.fileName}}</strong>
+                </a>
+            </span>
+            <strong class="text-danger" ng-show="!sectionQuestion.essayAnswer.attachment.fileName">
+                {{'sitnet_no_attachment' | translate | uppercase }}
+            </strong>
+        </div>
+    </div>
+    <div class="row top-margin-1">
+        <div class="col-md-6">
+            <button class="btn btn-danger btn-xs" ng-show="sectionQuestion.essayAnswer.attachment.fileName"
+                    ng-click="removeQuestionAnswerAttachment(sectionQuestion, hash)">
+                {{'sitnet_remove_answer_attachment' | translate }}
+                <i class="fa fa-trash"></i>
+            </button>
+            <button class="btn btn-primary btn-xs" ng-show="sectionQuestion.essayAnswer && !sectionQuestion.essayAnswer.attachment"
+                    ng-click="selectFile(sectionQuestion)"> {{'sitnet_add_answer_attachment' | translate}}
+                <i class="fa fa-upload"></i>
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button ng-disabled="isPreview()"
+                    ng-click="saveEssay(sectionQuestion)"
+                    class="btn btn-xs btn-primary pull-right">{{'sitnet_save' | translate }}
+                <i class="fa fa-save"></i>
+            </button>
+        </div>
+
     </div>
 </div>

@@ -2,6 +2,9 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.api.CountsAsTrial;
+import models.base.GeneratedIdentityModel;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -96,5 +99,20 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
     @Override
     public boolean isProcessed() {
         return exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof ExamParticipation)) {
+            return false;
+        }
+        ExamParticipation otherParticipation = (ExamParticipation) other;
+        return new EqualsBuilder().append(id, otherParticipation.id).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).build();
     }
 }

@@ -4,22 +4,13 @@
     </div>
 </div>
 <div id="dashboard">
-    <div class="main-row">
-        <div class="col-md-12" ng-init="showMachineName = true">
-            <div ng-show="showMachineName">
-                <h3 class="pull-left room-name" ng-click="showMachineName = !showMachineName">
-                    {{machine.name}} <i class="fa fa-pencil"></i>
-                </h3>
+    <div class="detail-row">
+        <div class="col-md-6">
+            <div class="sitnet-info-text">
+                {{'sitnet_machine_name' | translate}}
             </div>
-            <div ng-show="!showMachineName">
-                <form class="form-inline" role="form">
-                    <div class="form-group">
-                        <input type="text" class="form-control input-lg" ng-model="machine.name" autofocus>
-                    </div>
-                    <button class="btn-primary" ng-click="showMachineName = !showMachineName; updateMachine(machine)">
-                        <i class="fa fa-check"></i>
-                    </button>
-                </form>
+            <div>
+                <input type="text" class="form-control" ng-model="machine.name" autofocus>
             </div>
         </div>
     </div>

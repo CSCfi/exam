@@ -8,15 +8,14 @@
                 </button>
             </span>
             <span ng-show="isReadOnly() || (!isOwnerOrAdmin() && isGraded())" class="row">
-                <a href="#/exams/reviews/{{ exam.parent.id }}" class="row">
-                    <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
-                </a>
+                <i class="fa fa-close text-info"></i></i>
+                <a href="/exams/reviews/{{ exam.parent.id }}">{{'sitnet_close' | translate}}</a>
             </span>
     </div>
     <div class="col-md-2">
         <span ng-show="!isReadOnly()">
             <button class="btn btn-primary"
-                    ng-disabled="isReadOnly() || !isOwnerOrAdmin() || !examForm.$valid"
+                    ng-disabled="!isOwnerOrAdmin() || !examForm.$valid"
                     ng-click="saveExamRecord(exam)">{{'sitnet_send_result_to_registry' | translate}}
             </button>
         </span>

@@ -15,6 +15,10 @@
                 var search = function () {
                     StudentExamRes.exams.query({filter: $scope.filter.text}, function (exams) {
                         exams.forEach(function (exam) {
+                            if (!exam.examLanguages) {
+                                console.warn("No languages for exam #" + exam.id);
+                                exam.examLanguages = [];
+                            }
                             exam.languages = exam.examLanguages.map(function (lang) {
                                 return getLanguageNativeName(lang.code);
                             });
@@ -39,22 +43,19 @@
 
                 $scope.search = function () {
                     if ($scope.permissionCheck.active === false) {
-                        search();
+                        if ($scope.filter.text) {
+                            $scope.loader.loading = true;
+                            search();
+                        } else {
+                            delete $scope.exams;
+                        }
                     }
                 };
 
                 $scope.enrollExam = function (exam) {
-                    EnrollRes.check.get({id: exam.id}, function () {
-                            // already enrolled
-                            toastr.error($translate.instant('sitnet_already_enrolled'));
-                        }, function () {
-                            enrolmentService.enroll(exam);
-                        }
-                    )
-                }
+                    enrolmentService.checkAndEnroll(exam);
+                };
 
             }
-        ])
-    ;
-})
-();
+        ]);
+})();

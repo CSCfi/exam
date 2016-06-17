@@ -2,16 +2,14 @@
 
     <div class="col-md-1" id="section{{section.id}}">
         <a class="pointer pull-left fa-stack fa-lg" popover-placement="left" popover-popup-delay="1000"
-           popover-trigger="mouseenter" popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
+           popover-trigger="mouseenter" uib-popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
            ng-click="section.expanded = !section.expanded; expandSection(section)">
             <i ng-class="section.expanded ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-right fa-stack-1x'"></i>
         </a>
     </div>
     <div class="col-md-1">
-        <span class="fa-stack fa-lg">
-            <i class="fa icon-theme fa-stop fa-stack-2x"></i>
-            <i class="fa sitnet-white fa-stack-1x">{{$index+1}}.</i>
-        </span>
+        <h3 style="margin-top: 0"><span class="label label-primary">{{section.index}}.</span>
+        </h3>
     </div>
     <div class="col-md-5">
         <label for="sectionName">{{'sitnet_section_name' | translate}}:</label>
@@ -25,7 +23,7 @@
         <!-- lottery on/off -->
         <span class="checkbox pointer-hand lottery-item-count">
               <input type="checkbox" name="On" value="On"
-                     ng-disabled="section.sectionQuestions.length < 2" ng-click="toggleLottery(section)"
+                     ng-disabled="toggleDisabled(section)" ng-click="toggleLottery(section)"
                      ng-model="section.lotteryOn">
                         {{'sitnet_randomize_questions' | translate}}
             </input>
@@ -41,8 +39,8 @@
     </span>
     <div class="col-md-1">
         <!-- settings -->
-        <div class="dropdown" dropdown>
-            <a class="dropdown-toggle fa-stack fa-lg" dropdown-toggle>
+        <div class="dropdown" uib-dropdown>
+            <a class="dropdown-toggle fa-stack fa-lg" uib-dropdown-toggle>
                 <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
                 <i class="fa fa-wrench fa-stack-1x"></i>
             </a>
@@ -56,28 +54,41 @@
 </div>
 
 <div class="row">
-    <div class="col-md-12" ng-show="section.expanded">
-        <ul droppable="section.sectionQuestions" identifier="section.id" ng-move="moveQuestion(section, from, to)"
-            ng-create="insertQuestion(section, object, to)" class="sortable">
+    <div class="col-md-offset-1 col-md-11">
+        <label class="sitnet-info-text" for="sectionDescription">{{'sitnet_section_description' | translate}}:</label>
+        <textarea id="sectionDescription" class="form-control" rows="4" cols="150" ng-model="section.description"
+                  ui-change="renameSection(section)">
+        </textarea>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-offset-1 col-md-11" ng-show="section.expanded">
+        <ul droppable objects="section.sectionQuestions" identifier="section.id" on-move="moveQuestion(section, from, to)"
+            on-create="insertQuestion(section, object, to)" drop-disabled="{{section.lotteryOn}}" class="sortable no-padding">
             <li class="sortable-{{section.id}}" ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="templates.question"
                 ng-repeat="sectionQuestion in section.sectionQuestions | orderBy:sequenceNumber">
             </li>
             <div ng-show="section.sectionQuestions.length == 0" class="create-new dropdown"></div>
         </ul>
-        <div class="create-new dropdown" dropdown>
-            <a class="dropdown-toggle pointer" data-toggle="dropdown" dropdown-toggle>
-                <i class="fa fa-2x fa-plus-circle"></i>
-                {{'sitnet_add_content'|translate}}
-            </a>
-            <ul class="dropdown-menu" role="menu">
+        <div class="create-new dropdown" uib-dropdown>
+            <div class="row dropdown-toggle pointer" data-toggle="dropdown" uib-dropdown-toggle>
+                <div class="col-md-1">
+                    <i class="fa fa-2x fa-plus-circle"></i>
+                </div>
+                <div class="col-md-11">
+                    <span>{{'sitnet_add_content'|translate}}</span>
+                </div>
+            </div>
+            <ul class="dropdown-menu pointer" role="menu">
                 <li role="presentation">
-                    <a role="menuitem" ng-click="createQuestionFromExamView('EssayQuestion', section)">{{ 'sitnet_essay' | translate }}</a>
+                    <a role="menuitem" ng-click="addNewQuestion(section, 'EssayQuestion')">{{ 'sitnet_essay' | translate }}</a>
                 </li>
                 <li role="presentation">
-                    <a role="menuitem" ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_multiplechoice_question' | translate }}</a>
+                    <a role="menuitem" ng-click="addNewQuestion(section, 'MultipleChoiceQuestion' )">{{ 'sitnet_toolbar_multiplechoice_question' | translate }}</a>
                 </li>
                 <li role="presentation">
-                    <a role="menuitem" ng-click="createQuestionFromExamView('WeightedMultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_weighted_multiplechoice_question' | translate }}</a>
+                    <a role="menuitem" ng-click="addNewQuestion(section, 'WeightedMultipleChoiceQuestion')">{{ 'sitnet_toolbar_weighted_multiplechoice_question' | translate }}</a>
                 </li>
             </ul>
         </div>

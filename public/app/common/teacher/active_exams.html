@@ -1,4 +1,3 @@
-<!-- Active exams indications bar -->
 <div ng-init="toggleActiveExams = 'true'">
     <div class="main-row">
         <span class="col-md-12">
@@ -16,20 +15,20 @@
             <table class="table table-bordered table-striped exams-table">
                 <thead ng-init="activePredicate = 'examActiveEndDate'">
                 <tr>
-                    <th sort by="course.code" title="sitnet_examcode" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort by="name" title="sitnet_exam_name" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort by="executionType.id" title="sitnet_exam_credit_type" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort by="examActiveEndDate" title="sitnet_exam_validity" predicate="activePredicate" reverse="reverse" ></th>
-                    <th sort by="unassessedCount" title="sitnet_participation_unreviewed" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort by="unfinishedCount" title="sitnet_participation_unfinished" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort by="reservationCount" title="sitnet_participation_enrolled" predicate="activePredicate" reverse="reverse" ></th>
-                    <th sort by="ownerAggregate" title="sitnet_teachers" predicate="activePredicate" reverse="reverse" ></th>
+                    <th sort by="course.code" text="sitnet_examcode" predicate="activePredicate" reverse="reverse"></th>
+                    <th sort by="name" text="sitnet_exam_name" predicate="activePredicate" reverse="reverse"></th>
+                    <th sort by="executionType.id" text="sitnet_exam_credit_type" predicate="activePredicate" reverse="reverse"></th>
+                    <th sort by="examActiveEndDate" text="sitnet_exam_validity" predicate="activePredicate" reverse="reverse" ></th>
+                    <th sort by="unassessedCount" text="sitnet_participation_unreviewed" predicate="activePredicate" reverse="reverse"></th>
+                    <th sort by="unfinishedCount" text="sitnet_participation_unfinished" predicate="activePredicate" reverse="reverse"></th>
+                    <th sort by="reservationCount" text="sitnet_participation_enrolled" predicate="activePredicate" reverse="reverse" ></th>
+                    <th sort by="ownerAggregate" text="sitnet_teachers" predicate="activePredicate" reverse="reverse" ></th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr ng-repeat="exam in activeExams | orderBy:activePredicate:reverse">
                     <td class="table-column-examcode">{{ exam.course.code }}</td>
-                    <td ng-if="exam.name" class="table-column-examname"><a href="#/exams/reviews/{{exam.id}}">{{
+                    <td ng-if="exam.name" class="table-column-examname"><a href="/exams/reviews/{{exam.id}}">{{
                         exam.name }}</a></td>
                     <td ng-if="!exam.name" class="table-column-examname">
                         <span class="text-danger">{{'sitnet_no_name' | translate}}</span>

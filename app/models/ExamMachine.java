@@ -2,6 +2,8 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.base.GeneratedIdentityModel;
+import org.joda.time.Interval;
 
 import javax.persistence.*;
 import java.util.List;
@@ -17,7 +19,7 @@ public class ExamMachine extends GeneratedIdentityModel {
     private String accessibilityInfo;
 
     // Checkbox indicating is there any accessibility issues concerning the room
-    @Column(columnDefinition="boolean default false")
+    @Column(columnDefinition = "boolean default false")
     @Deprecated
     private boolean accessible;
 
@@ -36,14 +38,14 @@ public class ExamMachine extends GeneratedIdentityModel {
 
     @ManyToOne
     @JsonBackReference
-	private ExamRoom room;
+    private ExamRoom room;
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "machine")
     @JsonManagedReference
     private List<Reservation> reservations;
 
     // In UI, section has been expanded
-    @Column(columnDefinition="boolean default false")
+    @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
     // Machine may be out of service,
@@ -171,6 +173,17 @@ public class ExamMachine extends GeneratedIdentityModel {
 
     public void setAccessibility(List<Accessibility> accessibility) {
         this.accessibility = accessibility;
+    }
+
+    @Transient
+    public boolean hasRequiredSoftware(Exam exam) {
+        return softwareInfo.containsAll(exam.getSoftwareInfo());
+    }
+
+    @Transient
+    public boolean isReservedDuring(Interval interval) {
+        return reservations.stream()
+                .anyMatch(r -> interval.overlaps(r.toInterval()));
     }
 
     @Override

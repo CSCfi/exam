@@ -11,10 +11,10 @@
                 <div class="input-group" style="display: block !important;">
                     <input type="text" class="form-control"
                            ng-model="newEnrolment.user.name"
+                           uib-typeahead="t.name for t in students('name', $viewValue)"
                            typeahead-editable="false"
                            typeahead-min-length="2"
-                           typeahead-on-select="setNewEnrolment($item, $model, $label);"
-                           typeahead="t.name for t in students('name', $viewValue)">
+                           typeahead-on-select="setNewEnrolment($item, $model, $label)">
                 </div>
             </div>
         </div>

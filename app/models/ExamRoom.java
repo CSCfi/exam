@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.base.GeneratedIdentityModel;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -329,8 +330,10 @@ public class ExamRoom extends GeneratedIdentityModel {
     @Transient
     public List<OpeningHours> getWorkingHoursForDate(LocalDate date) {
         List<OpeningHours> workingHours = getDefaultWorkingHours(date);
-        List<Interval> extensionEvents = DateTimeUtils.mergeSlots(DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, false));
-        List<Interval> restrictionEvents = DateTimeUtils.mergeSlots(DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, true));
+        List<Interval> extensionEvents = DateTimeUtils.mergeSlots(
+                DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, DateTimeUtils.RestrictionType.NON_RESTRICTIVE));
+        List<Interval> restrictionEvents = DateTimeUtils.mergeSlots(
+                DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, DateTimeUtils.RestrictionType.RESTRICTIVE));
         List<OpeningHours> availableHours = new ArrayList<>();
         if (!extensionEvents.isEmpty()) {
             List<Interval> unifiedIntervals = new ArrayList<>();
@@ -366,7 +369,7 @@ public class ExamRoom extends GeneratedIdentityModel {
         private final Interval hours;
         private final int timezoneOffset;
 
-        public OpeningHours(Interval interval, int timezoneOffset) {
+        OpeningHours(Interval interval, int timezoneOffset) {
             this.hours = interval;
             this.timezoneOffset = timezoneOffset;
         }

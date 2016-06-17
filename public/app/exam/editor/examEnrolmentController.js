@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamEnrolmentController', ['$scope', 'exam', '$modalInstance', '$translate', 'enrolmentService', 'UserRes', 'limitToFilter',
+        .controller('ExamEnrolmentController', ['$scope', 'exam', '$uibModalInstance', '$translate', 'enrolmentService', 'UserRes', 'limitToFilter',
             function ($scope, exam, $modalInstance, $translate, enrolmentService, UserRes, limitToFilter) {
 
                 $scope.exam = exam;

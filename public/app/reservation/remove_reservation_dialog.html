@@ -1,0 +1,22 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4 class="sitnet-white"><i class="fa fa-trash"></i>&nbsp;&nbsp;{{'sitnet_remove_reservation' | translate}}</i></h4>
+    </div>
+    <div class="modal-body">
+        <strong>{{'sitnet_message' | translate}}</strong>
+        <textarea class="form-control" ng-model="message.text"
+                  rows="3">
+        </textarea>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-primary" ng-click="ok()">
+                {{'sitnet_remove' | translate}}
+            </button>
+        </div>
+    </div>
+</div>

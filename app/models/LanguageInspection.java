@@ -1,6 +1,8 @@
 package models;
 
 
+import models.base.GeneratedIdentityModel;
+
 import javax.persistence.*;
 import java.util.Date;
 

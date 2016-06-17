@@ -3,14 +3,15 @@
         <table class="table table-striped table-condensed" ng-init="predicate='reservation.startAt'; reverse=false">
             <thead ng-init="predicate='reservation.startAt'">
             <tr>
-                <th sort by="userAggregate" title="sitnet_student" predicate="predicate" reverse="reverse"></th>
-                <th sort by="exam.name" title="sitnet_exam" predicate="predicate" reverse="reverse"></th>
-                <th sort by="exam.course.code" title="sitnet_examcode" predicate="predicate" reverse="reverse"></th>
-                <th sort by="teacherAggregate" title="sitnet_teachers" predicate="predicate" reverse="reverse"></th>
-                <th sort by="reservation.startAt" title="sitnet_date_time" predicate="predicate" reverse="reverse"></th>
-                <th sort by="reservation.machine.room.name" title="sitnet_exam_machine" predicate="predicate" reverse="reverse"></th>
-                <th sort by="stateOrd" title="sitnet_exam_state" predicate="predicate" reverse="reverse"></th>
+                <th sort by="userAggregate" text="sitnet_student" predicate="predicate" reverse="reverse"></th>
+                <th sort by="exam.name" text="sitnet_exam" predicate="predicate" reverse="reverse"></th>
+                <th sort by="exam.course.code" text="sitnet_examcode" predicate="predicate" reverse="reverse"></th>
+                <th sort by="teacherAggregate" text="sitnet_teachers" predicate="predicate" reverse="reverse"></th>
+                <th sort by="reservation.startAt" text="sitnet_date_time" predicate="predicate" reverse="reverse"></th>
+                <th sort by="reservation.machine.room.name" text="sitnet_exam_machine" predicate="predicate" reverse="reverse"></th>
+                <th sort by="stateOrd" text="sitnet_exam_state" predicate="predicate" reverse="reverse"></th>
                 <th ng-if="isAdminView()">{{'sitnet_remove_reservation' | translate}}</th>
+                <th ng-if="isAdminView()">{{'sitnet_change_reservation_machine'  | translate}}</th>
             </tr>
             </thead>
             <tbody>
@@ -22,7 +23,7 @@
                 </td>
                 <td ng-if="enrolment.exam.state === 'PUBLISHED'">{{ enrolment.exam.name }}</td>
                 <td ng-if="enrolment.exam.state !== 'PUBLISHED'">
-                    <a href="#/exams/review/{{enrolment.exam.id}}">{{enrolment.exam.name}}</a>
+                    <a href="/exams/review/{{enrolment.exam.id}}">{{enrolment.exam.name}}</a>
                 </td>
                 <td>{{ enrolment.exam.course.code }}</td>
 
@@ -50,6 +51,12 @@
                             ng-disabled="!enrolment.exam.trialCount || enrolment.reservation.retrialPermitted"
                             class="btn btn-primary pull-left">
                         {{'sitnet_permit_retrial' | translate}}
+                    </button>
+                </td>
+                <td ng-if="isAdminView()">
+                    <button ng-if="enrolment.exam.state === 'PUBLISHED' && !enrolment.reservation.noShow"
+                            ng-click="changeReservationMachine(enrolment.reservation)" class="btn btn-primary pull-left">
+                        {{'sitnet_change_reservation_machine' | translate}}
                     </button>
                 </td>
             </tr>

@@ -13,16 +13,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import models.*;
 import org.joda.time.DateTime;
-import play.libs.F;
+import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class ReservationController extends BaseController {
@@ -111,6 +109,9 @@ public class ReservationController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result removeReservation(long id) throws IOException, NotFoundException {
 
+        DynamicForm df = formFactory.form().bindFromRequest();
+        String msg = df.get("msg");
+
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
                 .eq("reservation.id", id)
@@ -133,7 +134,7 @@ public class ReservationController extends BaseController {
         // Lets not send emails about historical reservations
         if (reservation.getEndAt().after(new Date())) {
             User student = enrolment.getUser();
-            emailComposer.composeReservationCancellationNotification(student, reservation, "", false, enrolment);
+            emailComposer.composeReservationCancellationNotification(student, reservation, msg, false, enrolment);
         }
 
         enrolment.setReservation(null);
@@ -143,15 +144,72 @@ public class ReservationController extends BaseController {
         return ok("removed");
     }
 
+    @Restrict({@Group("ADMIN")})
+    public Result findAvailableMachines(Long reservationId) {
+        Reservation reservation = Ebean.find(Reservation.class, reservationId);
+        if (reservation == null) {
+            return notFound();
+        }
+        PathProperties props = PathProperties.parse("(id, name)");
+        Query<ExamMachine> query = Ebean.createQuery(ExamMachine.class);
+        props.apply(query);
+
+        List<ExamMachine> candidates = query.where()
+                .eq("room", reservation.getMachine().getRoom())
+                .ne("outOfService", true)
+                .ne("archived", true)
+                .findList();
+
+        Iterator<ExamMachine> it = candidates.listIterator();
+        while (it.hasNext()) {
+            ExamMachine machine = it.next();
+            if (!machine.hasRequiredSoftware(reservation.getEnrolment().getExam())) {
+                it.remove();
+            }
+            if (machine.isReservedDuring(reservation.toInterval())) {
+                it.remove();
+            }
+        }
+        return ok(candidates, props);
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public Result updateMachine(Long reservationId) {
+        Reservation reservation = Ebean.find(Reservation.class, reservationId);
+        if (reservation == null) {
+            return notFound();
+        }
+        DynamicForm df = formFactory.form().bindFromRequest();
+        Long machineId = Long.parseLong(df.get("machineId"));
+        PathProperties props = PathProperties.parse("(id, name, room(id, name))");
+        Query<ExamMachine> query = Ebean.createQuery(ExamMachine.class);
+        props.apply(query);
+        ExamMachine machine = query.where().idEq(machineId).findUnique();
+        if (machine == null) {
+            return notFound();
+        }
+        if (!machine.getRoom().equals(reservation.getMachine().getRoom())) {
+            return forbidden("Not allowed to change to use a machine from a different room");
+        }
+        if (!machine.hasRequiredSoftware(reservation.getEnrolment().getExam()) ||
+                machine.isReservedDuring(reservation.toInterval())) {
+            return forbidden("Machine not eligible for choosing");
+        }
+        reservation.setMachine(machine);
+        reservation.update();
+        return ok(machine, props);
+    }
+
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result getReservations(F.Option<String> state, F.Option<Long> ownerId, F.Option<Long> studentId, F.Option<Long> roomId, F.Option<Long> machineId,
-                                  F.Option<Long> examId, F.Option<Long> start, F.Option<Long> end) {
+    public Result getReservations(Optional<String> state, Optional<Long> ownerId, Optional<Long> studentId,
+                                  Optional<Long> roomId, Optional<Long> machineId, Optional<Long> examId,
+                                  Optional<Long> start, Optional<Long> end) {
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state, trialCount")
                 .fetch("exam.course", "code")
                 .fetch("exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
-                .fetch("exam.parent.examOwners", "id, firstName, lastName",  new FetchConfig().query())
+                .fetch("exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
                 .fetch("exam.examInspections.user", "id, firstName, lastName")
                 .fetch("reservation", "startAt, endAt, noShow, retrialPermitted")
                 .fetch("reservation.machine", "id, name, ipAddress, otherIdentifier")
@@ -167,19 +225,17 @@ public class ReservationController extends BaseController {
                     .endJunction();
         }
 
-        if (start.isDefined()) {
+        if (start.isPresent()) {
             DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
             query = query.ge("reservation.startAt", startDate.toDate());
-        } else {
-            query = query.ge("reservation.startAt", new DateTime().withTimeAtStartOfDay());
         }
 
-        if (end.isDefined()) {
+        if (end.isPresent()) {
             DateTime endDate = new DateTime(end.get()).plusDays(1).withTimeAtStartOfDay();
             query = query.lt("reservation.endAt", endDate.toDate());
         }
 
-        if (state.isDefined()) {
+        if (state.isPresent()) {
             if (!state.get().equals("NO_SHOW")) {
                 query = query.eq("exam.state", Exam.State.valueOf(state.get()));
                 if (state.get().equals(Exam.State.PUBLISHED.toString())) {
@@ -190,20 +246,20 @@ public class ReservationController extends BaseController {
             }
         }
 
-        if (studentId.isDefined()) {
+        if (studentId.isPresent()) {
             query = query.eq("user.id", studentId.get());
         }
-        if (roomId.isDefined()) {
+        if (roomId.isPresent()) {
             query = query.eq("reservation.machine.room.id", roomId.get());
         }
-        if (machineId.isDefined()) {
+        if (machineId.isPresent()) {
             query = query.eq("reservation.machine.id", machineId.get());
         }
-        if (examId.isDefined()) {
+        if (examId.isPresent()) {
             query = query.disjunction().eq("exam.parent.id", examId.get()).eq("exam.id", examId.get()).endJunction();
         }
 
-        if (ownerId.isDefined() && user.hasRole("ADMIN", getSession())) {
+        if (ownerId.isPresent() && user.hasRole("ADMIN", getSession())) {
             Long userId = ownerId.get();
             query = query.disjunction().eq("exam.examOwners.id", userId).eq("exam.parent.examOwners.id", userId).endJunction();
         }

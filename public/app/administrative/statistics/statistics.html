@@ -42,8 +42,9 @@
                 <h4>{{'sitnet_begin' | translate}}</h4>
 
                 <p class="input-group">
-                    <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
+                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dateService.startDate"
                            is-open="startDateOpened" datepicker-options="dateOptions"
+                           ng-model-options="{timezone: '+0000'}"
                            close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}"
                            toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}"
                            ui-change="updateExam()">
@@ -60,8 +61,9 @@
                 <h4>{{'sitnet_end' | translate}}</h4>
 
                 <p class="input-group">
-                    <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
+                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dateService.endDate"
                            is-open="endDateOpened" min="dateService.startDate" datepicker-options="dateOptions"
+                           ng-model-options="{timezone: '+0000'}"
                            date-disabled="disabled(date, mode)"
                            close-text="{{'sitnet_close' | translate}}"
                            current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
@@ -77,8 +79,8 @@
 
         <div class="col-md-3">
             <h4>{{'sitnet_department' | translate}}</h4>
-        <span class="dropdown" dropdown>
-            <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+        <span class="dropdown" uib-dropdown>
+            <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
                     data-toggle="dropdown" aria-expanded="true">
                 {{'sitnet_choose' | translate}}&nbsp;<span class="caret"></span>
             </button>

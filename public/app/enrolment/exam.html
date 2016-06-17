@@ -1,32 +1,32 @@
 <div class="col-md-12 pull-left bottom-padding-2 light-table">
     <div class="col-md-1 pull-left" style="text-align: center">
-                            <span class="info-column-large-icon fa-stack fa-2x pointer" ng-click="enrollExam(exam)"
-                                  popover-placement="top" popover-trigger="mouseenter"
-                                  popover="{{'sitnet_enroll_to_exam' | translate}}">
-                                <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
-                                <i class="fa fa-arrow-circle-right sitnet-white fa-stack-1x"></i>
-                            </span>
+        <span class="info-column-large-icon fa-stack fa-2x pointer" ng-click="enrollExam(exam)"
+              popover-placement="top" popover-trigger="mouseenter"
+              uib-popover="{{'sitnet_enroll_to_exam' | translate}}">
+            <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
+            <i class="fa fa-arrow-circle-right sitnet-white fa-stack-1x"></i>
+        </span>
     </div>
     <div class="col-md-5 pull-left">
         <div class="info-row col-md-12 pull-left">
             <div class="info-row col-md-12 info-column">
                 <span class="header col-md-5">{{'sitnet_examcode_and_name' | translate}}:</span>
-                <a ng-href="#/enroll/{{exam.course.code}}/exam/{{exam.id}}" class="col-md-7" style="padding-left: 0em">{{exam.course.code}}
+                <a ng-href="/enroll/{{exam.course.code}}/exam/{{exam.id}}" class="col-md-7" style="padding-left: 0em">{{exam.course.code}}
                     - {{exam.name}}</a>
             </div>
             <div class="info-row col-md-12 info-column">
                 <span class="header col-md-5">{{'sitnet_exam_validity' | translate}}:</span>
-                                    <span class="text col-md-7">
-                                        {{exam.examActiveStartDate | date:'dd.MM.yyyy'}}
-                                        -
-                                        {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
-                                    </span>
+                <span class="text col-md-7">
+                    {{exam.examActiveStartDate | date:'dd.MM.yyyy'}}
+                    -
+                    {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+                </span>
             </div>
             <div class="info-row col-md-12 info-column">
                 <span class="header col-md-5">{{'sitnet_teachers' | translate}}:</span>
-                                    <span class="light-text col-md-7">
-                                        <teacher-list exam="exam" />
-                                    </span>
+                <span class="light-text col-md-7">
+                    <teacher-list exam="exam" />
+                </span>
             </div>
         </div>
     </div>

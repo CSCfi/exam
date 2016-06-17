@@ -20,10 +20,10 @@
         <table class="table table-bordered table-striped exams-table">
             <thead ng-init="reviewPredicate = 'deadline'">
             <tr>
-                <th sort by="user.lastName" title="sitnet_student" predicate="reviewPredicate" reverse="reverse"></th>
-                <th sort by="user.email" title="sitnet_email" predicate="reviewPredicate" reverse="reverse"></th>
-                <th sort by="started" title="sitnet_exam_duration" predicate="reviewPredicate" reverse="reverse"></th>
-                <th sort by="deadline" title="sitnet_review_deadline" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="user.lastName" text="sitnet_student" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="user.email" text="sitnet_email" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="started" text="sitnet_exam_duration" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="deadline" text="sitnet_review_deadline" predicate="reviewPredicate" reverse="reverse"></th>
                 <th>{{'sitnet_inspection_status' | translate}}</th>
                 <th>{{'sitnet_exam_state' | translate}}</th>
             </tr>

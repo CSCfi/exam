@@ -3,7 +3,7 @@ package models.calendar;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import models.ExamRoom;
-import models.GeneratedIdentityModel;
+import models.base.GeneratedIdentityModel;
 
 import javax.persistence.*;
 import java.util.Date;

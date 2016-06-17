@@ -8,14 +8,15 @@
     <div class="col-md-2">
 
         <label for="student">{{'sitnet_student' | translate}}</label>
-
-        <div id="student">
-            <select ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selectedFields.student"
-                    ng-change="setStudent(selectedFields.student)" data-placeholder="{{'sitnet_student' | translate}}"
-                    style="min-width:50%;">
-                <option value=""></option>
-                <option ng-repeat="student in students" value="{{student.id}}">{{student.name}}</option>
-            </select>
+        <div class="form-group" id="student">
+            <ui-select ng-model="ctrl.selectedFields.student">
+                <ui-select-match allow-clear="true" placeholder="{{'sitnet_student' | translate}}">
+                    {{$select.selected.name}}
+                </ui-select-match>
+                <ui-select-choices repeat="student in (ctrl.students | filter: $select.search | limitTo: 50) track by student.id">
+                    <div ng-bind="student.name"></div>
+                </ui-select-choices>
+            </ui-select>
         </div>
     </div>
 
@@ -25,7 +26,7 @@
             <label for="startAt">{{'sitnet_from' | translate}}</label>
 
             <div id="startAt" class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
+                <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dateService.startDate"
                        is-open="startDateOpened" datepicker-options="dateOptions" ng-required="true"
                        close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}"
                        toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}">
@@ -42,7 +43,7 @@
             <label for="endAt">{{'sitnet_to' | translate}}</label>
 
             <div id="endAt" class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
+                <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dateService.endDate"
                        is-open="endDateOpened" min="dateService.startDate" datepicker-options="dateOptions"
                        date-disabled="disabled(date, mode)"
                        ng-required="true" close-text="{{'sitnet_close' | translate}}"
@@ -60,9 +61,9 @@
     <div class="col-md-2">
         <label for="link"></label>
         <div id="link">
-            <a ng-click="getStudentReport(selectedFields.student, dateService.startDate, dateService.endDate)"
+            <a ng-click="ctrl.getStudentReport(ctrl.selectedFields.student, ctrl.dateService.startDate, ctrl.dateService.endDate)"
                class="fa-stack fa-lg pointer pull-right" download popover-trigger="mouseenter"
-               popover="{{'sitnet_download' | translate}}">
+               uib-popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                 <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
             </a>

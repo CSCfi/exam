@@ -11,10 +11,10 @@
                 <div class="input-group">
                     <input type="text" class="form-control"
                            ng-model="newOwner.user.name"
+                           uib-typeahead="t.name for t in examOwners('name', $viewValue)"
                            typeahead-editable="false"
                            typeahead-min-length="2"
-                           typeahead-on-select="setExamOwner($item, $model, $label);"
-                           typeahead="t.name for t in examOwners('name', $viewValue)">
+                           typeahead-on-select="setExamOwner($item, $model, $label)">
                 </div>
             </div>
         </div>

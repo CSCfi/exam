@@ -17,23 +17,28 @@
                 // Services need to be accessed like this because of circular dependency issues
                 var $http;
                 var http = function () {
-                    return $http = $http || $injector.get('$http');
+                    $http = $http || $injector.get('$http');
+                    return $http;
                 };
                 var $modal;
                 var modal = function () {
-                    return $modal = $modal || $injector.get('$modal');
+                    $modal = $modal || $injector.get('$uibModal');
+                    return $modal;
                 };
                 var $route;
                 var route = function () {
-                    return $route = $route || $injector.get('$route');
+                    $route = $route || $injector.get('$route');
+                    return $route;
                 };
                 var UserRes;
                 var userRes = function () {
-                    return UserRes = UserRes || $injector.get('UserRes');
+                    UserRes = UserRes || $injector.get('UserRes');
+                    return UserRes;
                 };
                 var SettingsResource;
                 var settingsRes = function () {
-                    return SettingsResource = SettingsResource || $injector.get('SettingsResource');
+                    SettingsResource = SettingsResource || $injector.get('SettingsResource');
+                    return SettingsResource;
                 };
 
                 self.getUser = function () {
@@ -90,6 +95,7 @@
                 var onLogoutSuccess = function (data) {
                     $rootScope.$broadcast('userUpdated');
                     toastr.success($translate.instant("sitnet_logout_success"));
+                    window.onbeforeunload = null;
                     var localLogout = window.location.protocol + "//" + window.location.host + "/Shibboleth.sso/Logout";
                     if (data && data.logoutUrl) {
                         window.location.href = data.logoutUrl + "?return=" + localLogout;
@@ -97,7 +103,9 @@
                         // redirect to SP-logout directly
                         window.location.href = localLogout;
                     } else {
-                        $location.path("/login")
+                        // DEV logout
+                        $location.path("/login");
+                        http().get('/app/checkSession');
                     }
                     $timeout(toastr.clear, 300);
                 };
@@ -106,13 +114,13 @@
                     if (!_user) {
                         return;
                     }
-                    http().post('/logout').success(function (data) {
+                    http().post('/app/logout').success(function (data) {
                         delete $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY];
                         delete http().defaults.headers.common;
                         _user = undefined;
                         onLogoutSuccess(data);
                     }).error(function (error) {
-                        toastr(error.data);
+                        toastr.error(error.data);
                     });
                 };
 
@@ -122,7 +130,7 @@
                 };
 
                 self.openEulaModal = function (user) {
-                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.ok = function () {
                             // OK button
                             userRes().updateAgreementAccepted.update(function () {
@@ -155,7 +163,7 @@
                 };
 
                 self.openRoleSelectModal = function (user) {
-                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.user = user;
                         $scope.ok = function (role) {
                             userRes().userRoles.update({id: user.id, role: role.name}, function () {
@@ -203,14 +211,15 @@
                 };
 
                 var redirect = function () {
-                    if (_user.isLanguageInspector) {
-                        $location.path("/inspections")
-                    } else {
+                    if ($location.path() === '/' && _user.isLanguageInspector) {
+                        $location.path("/inspections");
+                    } else if (_env && !_env.isProd) {
                         $location.path("/");
                     }
                 };
 
                 var onLoginSuccess = function () {
+                    self.restartSessionCheck();
                     $rootScope.$broadcast('userUpdated');
                     var welcome = function () {
                         toastr.success($translate.instant("sitnet_welcome") + " " + _user.firstname + " " + _user.lastname);
@@ -279,7 +288,7 @@
                         username: username,
                         password: password
                     };
-                    http().post('/login', credentials, {ignoreAuthModule: true}).then(
+                    http().post('/app/login', credentials, {ignoreAuthModule: true}).then(
                         function (user) {
                             processLoggedInUser(user.data);
                             onLoginSuccess();
@@ -292,23 +301,23 @@
                     if (!_user) {
                         self.translate(lang);
                     } else {
-                        http().put('/user/lang', {lang: lang}).success(function () {
+                        http().put('/app/user/lang', {lang: lang}).success(function () {
                             _user.lang = lang;
                             self.translate(lang);
                         }).error(function () {
                             toastr.error('failed to switch language');
-                        })
+                        });
                     }
                 };
 
                 var checkSession = function () {
-                    http().get('/checkSession').success(function (data) {
+                    http().get('/app/checkSession').success(function (data) {
                         if (data === "alarm") {
                             toastr.options = {
                                 timeOut: "0",
                                 preventDuplicates: true,
                                 onclick: function () {
-                                    http().put('/extendSession', {}).success(function () {
+                                    http().put('/app/extendSession', {}).success(function () {
                                         toastr.info($translate.instant("sitnet_session_extended"));
                                     });
                                 }

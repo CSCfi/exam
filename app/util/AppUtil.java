@@ -2,6 +2,7 @@ package util;
 
 import com.typesafe.config.ConfigFactory;
 import models.*;
+import models.base.OwnedModel;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -78,15 +79,16 @@ public class AppUtil {
 
     private static DateTime doAdjustDST(DateTime dateTime, ExamRoom room) {
         DateTimeZone dtz;
+        DateTime result = dateTime;
         if (room == null) {
             dtz = getDefaultTimeZone();
         } else {
             dtz = DateTimeZone.forID(room.getLocalTimezone());
         }
         if (!dtz.isStandardOffset(System.currentTimeMillis())) {
-            dateTime = dateTime.plusHours(1);
+            result = dateTime.plusHours(1);
         }
-        return dateTime;
+        return result;
     }
 
     public static OwnedModel setCreator(OwnedModel object, User user) {

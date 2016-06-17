@@ -23,7 +23,7 @@
         <div class="col-md-2 form-group">
             <label for="deadline">{{'sitnet_review_deadline' | translate}} ({{'sitnet_days' | translate}})</label>
             <input id="deadline" name="deadline" class="form-control" type="number" min="1" ng-model="deadline.value"
-                   popover="{{'sitnet_info_deadline' | translate}}"  popover-trigger="focus" />
+                   uib-popover="{{'sitnet_info_deadline' | translate}}"  popover-trigger="focus" />
         </div>
     </div>
     <div class="bottom-row">
@@ -36,7 +36,7 @@
         <div class="col-md-2 form-group">
             <label for="reservationWindow">{{'sitnet_reservation_window' | translate}} ({{'sitnet_days' | translate}})</label>
             <input id="reservationWindow" name="reservationWindow" class="form-control" type="number" min="1"
-                   ng-model="reservationWindow.value" popover="{{'sitnet_info_reservation_window' | translate}}"
+                   ng-model="reservationWindow.value" uib-popover="{{'sitnet_info_reservation_window' | translate}}"
                    popover-trigger="focus" />
         </div>
     </div>

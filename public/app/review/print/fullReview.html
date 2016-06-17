@@ -108,7 +108,7 @@
     </div>
 
     <!-- Sections -->
-    <div class="top-margin-1 col-md-12" ng-repeat="section in exam.examSections"
+    <div class="top-margin-1 col-md-12" ng-repeat="section in exam.examSections | orderBy: 'sequenceNumber'"
          ng-include="printSectionTemplate">
     </div>
 
@@ -143,6 +143,12 @@
     <div class="row">
         <div class="col-md-3"><strong>{{'sitnet_teachers_comment' | translate}}:</strong></div>
         <div class="col-md-9" mathjax ng-bind-html="exam.examFeedback.comment"></div>
+    </div>
+    <div class="row" ng-show="exam.examFeedback.attachment">
+        <div class="col-md-3"><strong>{{'sitnet_feedback_attachment' | translate}}:</strong></div>
+        <div class="col-md-9" ng-show="exam.examFeedback.attachment">
+            {{exam.examFeedback.attachment.fileName}}
+        </div>
     </div>
 
     <div ng-show="getTeacherCount() > 1 && !isReadOnly()">

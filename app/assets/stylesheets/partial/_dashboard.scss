@@ -1,4 +1,4 @@
-@import "../vendor/bootstrap";
+@import "lib/bootstrap-sass/assets/stylesheets/bootstrap";
 
 #dashboard {
 
@@ -67,6 +67,10 @@
 
   .wide-column {
     padding-right: 0;
+  }
+
+  .scrollable {
+    overflow-x: scroll;
   }
 
   .title {
@@ -285,6 +289,15 @@
 
     i {
       color: black;
+    }
+  }
+
+  .waitingroom-jumbotron {
+    @extend .jumbotron;
+    background-color: white;
+    padding-left: 2em;
+    h2, h3, .main-row {
+      text-align: center;
     }
   }
 

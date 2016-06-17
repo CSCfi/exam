@@ -4,10 +4,17 @@
 <!-- The default logback configuration that Play uses if no other configuration is provided -->
 <configuration>
 
-    <conversionRule conversionWord="coloredLevel" converterClass="play.api.Logger$ColoredLevel"/>
+    <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel"/>
 
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>logs/application.log</file>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- HOX! Make sure exam's user has write permissions for this directory -->
+        <file>/var/log/exam/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Daily rollover with compression -->
+            <fileNamePattern>/var/log/exam/application-log-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <!-- keep 90 days worth of history -->
+            <maxHistory>90</maxHistory>
+        </rollingPolicy>
         <encoder>
             <pattern>%date [%-5level] from %logger in %thread - %message%n%xException</pattern>
         </encoder>

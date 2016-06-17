@@ -12,13 +12,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public final class JsonDeserializer {
+final class JsonDeserializer {
 
-    private static GsonBuilder gsonBuilder = new GsonBuilder();
+    private JsonDeserializer() {
+    }
+
+    private static final GsonBuilder gsonBuilder = new GsonBuilder();
     static {
         gsonBuilder.registerTypeAdapter(Date.class, new DateDeserializer());
     }
-    private static Gson gson = gsonBuilder.create();
+    private static final Gson gson = gsonBuilder.create();
 
     private static class DateDeserializer implements com.google.gson.JsonDeserializer<Date> {
 
@@ -37,7 +40,7 @@ public final class JsonDeserializer {
         }
     }
 
-    public static <T> T deserialize(Class<T> model, JsonNode node) {
+    static <T> T deserialize(Class<T> model, JsonNode node) {
         return gson.fromJson(node.toString(), model);
     }
 }

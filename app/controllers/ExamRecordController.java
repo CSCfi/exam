@@ -4,12 +4,14 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.ning.http.util.Base64;
-import models.*;
+import models.Exam;
+import models.ExamParticipation;
+import models.ExamRecord;
+import models.GradeScale;
+import models.User;
 import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
-import play.data.Form;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.java.CsvBuilder;
@@ -22,11 +24,12 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static util.java.AttachmentUtils.setData;
 
 public class ExamRecordController extends BaseController {
 
@@ -40,7 +43,7 @@ public class ExamRecordController extends BaseController {
     // Instead assure that all required exam fields are set
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addExamRecord() throws IOException {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         final Exam exam = Ebean.find(Exam.class)
                 .fetch("parent")
                 .fetch("parent.creator")
@@ -48,30 +51,47 @@ public class ExamRecordController extends BaseController {
                 .where()
                 .idEq(Long.parseLong(df.get("id")))
                 .findUnique();
-        Result failure = validateExamState(exam);
-        if (failure != null) {
-            return failure;
-        }
-        exam.setState(Exam.State.GRADED_LOGGED);
-        exam.update();
+        return validateExamState(exam, true).orElseGet(() -> {
+            exam.setState(Exam.State.GRADED_LOGGED);
+            exam.update();
+            ExamParticipation participation = Ebean.find(ExamParticipation.class)
+                    .fetch("user")
+                    .where()
+                    .eq("exam.id", exam.getId())
+                    .findUnique();
+            if (participation == null) {
+                return notFound();
+            }
 
-        ExamParticipation participation = Ebean.find(ExamParticipation.class)
-                .fetch("user")
+            ExamRecord record = createRecord(exam, participation);
+            ExamScore score = createScore(record, participation.getEnded());
+            score.save();
+            record.setExamScore(score);
+            record.save();
+            final User user = getLoggedUser();
+            actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+                emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+                Logger.info("Inspection ready notification email sent");
+            }, actor.dispatcher());
+            return ok();
+        });
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result registerExamWithoutRecord() throws IOException {
+        DynamicForm df = formFactory.form().bindFromRequest();
+        final Exam exam = Ebean.find(Exam.class)
+                .fetch("parent")
+                .fetch("parent.creator")
                 .where()
-                .eq("exam.id", exam.getId())
-                .findUnique();
-
-        ExamRecord record = createRecord(exam, participation);
-        ExamScore score = createScore(record, participation.getEnded());
-        score.save();
-        record.setExamScore(score);
-        record.save();
-        final User user = getLoggedUser();
-        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
-            Logger.info("Inspection ready notification email sent");
-        }, actor.dispatcher());
-        return ok();
+                .idEq(Long.parseLong(df.get("id"))).findUnique();
+        return validateExamState(exam, false).orElseGet(() -> {
+            exam.setState(Exam.State.GRADED_LOGGED);
+            exam.setGrade(null);
+            exam.setGradeless(true);
+            exam.update();
+            return ok();
+        });
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -83,7 +103,7 @@ public class ExamRecordController extends BaseController {
             return internalServerError("sitnet_error_creating_csv_file");
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        String content = com.ning.http.util.Base64.encode(setData(file).toByteArray());
+        String content = Base64.getEncoder().encodeToString(setData(file).toByteArray());
         if (!file.delete()) {
             Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
         }
@@ -101,9 +121,9 @@ public class ExamRecordController extends BaseController {
         return childIds;
     }
 
-    private static Result sendFile(File file) {
+    private Result sendFile(File file) {
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        String content = Base64.encode(setData(file).toByteArray());
+        String content = Base64.getEncoder().encodeToString(setData(file).toByteArray());
         if (!file.delete()) {
             Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
         }
@@ -132,26 +152,30 @@ public class ExamRecordController extends BaseController {
             return internalServerError("sitnet_error_creating_csv_file");
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"");
-        return ok(Base64.encode(bos.toByteArray()));
+        return ok(Base64.getEncoder().encodeToString(bos.toByteArray()));
     }
 
-    private Result validateExamState(Exam exam) {
+    private Optional<Result> validateExamState(Exam exam, boolean gradeRequired) {
         if (exam == null) {
-            return notFound();
+            return Optional.of(notFound());
         }
         User user = getLoggedUser();
         if (!exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
-            return forbidden("You are not allowed to modify this object");
+            return Optional.of(forbidden("You are not allowed to modify this object"));
         }
-        if (exam.getGrade() == null || exam.getCreditType() == null || exam.getAnswerLanguage() == null ||
+        if (exam.getGradedByUser() == null && exam.getAutoEvaluationConfig() != null) {
+            // Automatically graded by system, set graded by user at this point.
+            exam.setGradedByUser(user);
+        }
+        if ((exam.getGrade() == null && gradeRequired) || exam.getCreditType() == null || exam.getAnswerLanguage() == null ||
                 exam.getGradedByUser() == null) {
-            return forbidden("not yet graded by anyone!");
+            return Optional.of(forbidden("not yet graded by anyone!"));
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
                 exam.getExamRecord() != null) {
-            return forbidden("sitnet_error_exam_already_graded_logged");
+            return Optional.of(forbidden("sitnet_error_exam_already_graded_logged"));
         }
-        return null;
+        return Optional.empty();
     }
 
     private static ExamRecord createRecord(Exam exam, ExamParticipation participation) {

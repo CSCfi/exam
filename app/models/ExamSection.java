@@ -2,14 +2,17 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.api.Sortable;
+import models.base.OwnedModel;
 import org.springframework.beans.BeanUtils;
 
+import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-public final class ExamSection extends OwnedModel {
+public final class ExamSection extends OwnedModel implements Comparable<ExamSection>, Sortable {
 
     private String name;
 
@@ -21,6 +24,8 @@ public final class ExamSection extends OwnedModel {
     @JsonBackReference
     private Exam exam;
 
+    private Integer sequenceNumber;
+
     // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
     private boolean expanded;
@@ -30,6 +35,8 @@ public final class ExamSection extends OwnedModel {
     private boolean lotteryOn;
 
     private int lotteryItemCount;
+
+    private String description;
 
     public Set<ExamSectionQuestion> getSectionQuestions() {
         return sectionQuestions;
@@ -53,6 +60,14 @@ public final class ExamSection extends OwnedModel {
 
     public void setExam(Exam exam) {
         this.exam = exam;
+    }
+
+    public Integer getSequenceNumber() {
+        return sequenceNumber;
+    }
+
+    public void setSequenceNumber(Integer sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
     }
 
     public boolean getExpanded() {
@@ -79,13 +94,21 @@ public final class ExamSection extends OwnedModel {
         this.lotteryItemCount = lotteryItemCount;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public void shuffleQuestions() {
         List<ExamSectionQuestion> questions = new ArrayList<>(sectionQuestions);
         Collections.shuffle(questions);
         sectionQuestions = new HashSet<>(questions.subList(0, lotteryItemCount));
     }
 
-    public ExamSection copy(Exam exam, boolean produceStudentExamSection)
+    ExamSection copy(Exam exam, boolean produceStudentExamSection)
     {
         ExamSection section = new ExamSection();
         BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions");
@@ -100,32 +123,47 @@ public final class ExamSection extends OwnedModel {
     }
 
     @Transient
-    public double getTotalScore() {
+    double getTotalScore() {
         return sectionQuestions.stream()
-                .map(sq -> sq.getQuestion().getAssessedScore())
+                .map(ExamSectionQuestion::getAssessedScore)
                 .filter(s -> s != null)
                 .reduce(0.0, (sum, x) -> sum += x);
     }
 
     @Transient
-    public double getMaxScore() {
+    double getMaxScore() {
         return sectionQuestions.stream()
-                .map(sq -> sq.getQuestion().getMaxAssessedScore())
+                .map(ExamSectionQuestion::getMaxAssessedScore)
                 .filter(s -> s != null)
                 .reduce(0.0, (sum, x) -> sum += x);
     }
 
     @Transient
-    public int getRejectedCount() {
+    int getRejectedCount() {
         return sectionQuestions.stream()
-                .filter(sq -> sq.getQuestion().isRejected())
+                .filter(ExamSectionQuestion::isRejected)
                 .collect(Collectors.toList()).size();
     }
 
     @Transient
-    public int getApprovedCount() {
+    int getApprovedCount() {
         return sectionQuestions.stream()
-                .filter(sq -> sq.getQuestion().isApproved())
+                .filter(ExamSectionQuestion::isApproved)
                 .collect(Collectors.toList()).size();
+    }
+
+    @Override
+    public int compareTo(@Nonnull ExamSection o) {
+        return sequenceNumber - o.sequenceNumber;
+    }
+
+    @Override
+    public Integer getOrdinal() {
+        return sequenceNumber;
+    }
+
+    @Override
+    public void setOrdinal(Integer ordinal) {
+        sequenceNumber = ordinal;
     }
 }

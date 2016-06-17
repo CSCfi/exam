@@ -12,19 +12,17 @@
             /* main navigation */
             $routeProvider.when('/', { templateUrl: tmpl + 'common/home.html', controller: 'DashboardCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'question/questions.html', controller: 'LibraryCtrl'});
-            $routeProvider.when('/exams', { templateUrl: tmpl + 'exam/exams.html', controller: 'ExamController'});
+            $routeProvider.when('/exams', { templateUrl: tmpl + 'exam/exams.html', controller: 'ExamListingController'});
 
-            // create question from exam
-            $routeProvider.when('/questions/:id/exam/:examId/section/:sectionId/sequence/:seqId', { templateUrl: tmpl + 'question/editor/question.html'});
-            // select from querylist
+            // edit question
             $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question/editor/question.html'});
-            // edit question from exam
-            $routeProvider.when('/exams/:examId/section/:sectionId/edit/:editId', { templateUrl: tmpl + 'question/editor/question.html'});
 
+            /* exams */
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
             $routeProvider.when('/exams/course/:id', { templateUrl: tmpl + 'exam/editor/exam_new.html', controller: 'ExamController'});
             $routeProvider.when('/exampreview/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
 
+            /* booking */
             $routeProvider.when('/calendar/:id', { templateUrl: tmpl + 'reservation/calendar.html'});
 
             $routeProvider.when('/invalid_session', { templateUrl: tmpl + 'common/invalid_session.html'});
@@ -40,7 +38,7 @@
             $routeProvider.when('/softwares/add/:name', { templateUrl: tmpl + 'facility/software.html', controller: 'RoomCtrl'});
 
             /* Student */
-            $routeProvider.when('/student/doexam/:hash', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController'});
+            $routeProvider.when('/student/exam/:hash', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController'});
             $routeProvider.when('/feedback/exams/:id', { templateUrl: tmpl + 'enrolment/exam_feedback.html', controller: 'ExamFeedbackController'});
             $routeProvider.when('/student/waitingroom', { templateUrl: tmpl + 'enrolment/waitingroom.html', controller: 'WaitingRoomCtrl'});
             $routeProvider.when('/student/wrongmachine', { templateUrl: tmpl + 'enrolment/wrong_machine.html', controller: 'WrongMachineCtrl'});
@@ -58,7 +56,7 @@
             $routeProvider.when('/rooms', { templateUrl: tmpl + 'facility/rooms.html', controller: 'RoomCtrl'});
             $routeProvider.when('/rooms/:id', { templateUrl: tmpl + 'facility/room.html', controller: 'RoomCtrl'});
             $routeProvider.when('/rooms_edit/edit_multiple', { templateUrl: tmpl + 'facility/room.html', controller: 'RoomCtrl'});
-            $routeProvider.when('/reports', { templateUrl: tmpl + 'administrative/reports/reports.html', controller: 'ReportController'});
+            $routeProvider.when('/reports', { templateUrl: tmpl + 'administrative/reports/reports.html', controller: 'ReportController', controllerAs: 'ctrl'});
             $routeProvider.when('/settings', { templateUrl: tmpl + 'administrative/settings.html'});
             $routeProvider.when('/users', { templateUrl: tmpl + 'administrative/users.html', controller: 'UserCtrl'});
             $routeProvider.when('/statistics', { templateUrl: tmpl + 'administrative/statistics/statistics.html', controller: 'StatisticsController'});

@@ -1,4 +1,7 @@
 #exam {
+  .no-padding {
+    padding: 0;
+  }
 
   .courseBorder {
     width: 100%;
@@ -9,10 +12,14 @@
   }
 
   .section-border {
-    width: 100%;
-    padding: 1% 2%;
+    padding: 15px 15px 30px 15px;
     border: 1px solid $sitnet-common-medium;
     margin-bottom: 1em;
+  }
+
+  .section-handle:hover {
+    border: dashed 1px $sitnet-teacher-turquoise-dark-inactive;
+    cursor: move;
   }
 
   .exam-header {
@@ -23,7 +30,6 @@
   .exam-general-information-header {
     padding-top: 0.5em;
     padding-bottom: 0.5em;
-    color: $sitnet-teacher-turquoise-dark-active;
     height: 4em;
   }
   .exam-general-information-header span {
@@ -64,8 +70,16 @@
     color: $sitnet-dark-grey;
     border: 2px dashed $sitnet-teacher-turquoise-dark-inactive;
     padding: 1em;
-    margin-bottom: 1em;
-    margin-top: 1em;
+    margin: 1em 0 1em 0;
+
+    div > i {
+      margin-right: 1em;
+      vertical-align: middle;
+    }
+
+    div > span {
+      line-height: 2em;
+    }
   }
 
   .create-new:hover {
@@ -77,12 +91,17 @@
     margin-top: 1em;
   }
 
-  .create-new-section {
-    padding: 2em 0 3em 0;
+  .total-score {
+    padding: 2em 1em 0 0;
+
+    span {
+      padding-top: 0.6em;
+      vertical-align: middle;
+    }
   }
 
   .create-new-section-button, .create-new-section-button:hover {
-    padding: 0.6em 1em 0.7em 1em;
+    padding: 0.6em 1em 0.6em 1em;
     color: $sitnet-white;
     background-color: $sitnet-theme;
     text-decoration: none;
@@ -102,7 +121,6 @@
   .exams-generic-info-title {
     font-size: 1.4em;
     font-family: $sitnet-family-opensans-semibold;
-    color: $sitnet-text;
     font-weight: 300;
     letter-spacing: 1px;
     line-height: 2em;
@@ -136,7 +154,12 @@
   .exam-editor-question-item {
     color: $sitnet-white;
     background-color: #B8DCE6;
-    margin: 0.5em !important;
+    margin-top: 0.5em !important;
+  }
+
+  .exam-editor-question-item:hover {
+    background-color: $sitnet-theme;
+    cursor: move;
   }
 
   .exam-editor-question-body {

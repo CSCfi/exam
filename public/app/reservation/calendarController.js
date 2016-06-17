@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'dateService',
+        .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$routeParams', 'dateService',
             '$locale', 'StudentExamRes', 'reservationService', 'dialogs', 'SettingsResource', 'CalendarRes', 'uiCalendarConfig',
-            function ($scope, $http, $location, $translate, $modal, $routeParams, dateService, $locale, StudentExamRes,
+            function ($scope, $http, $location, $translate, $routeParams, dateService, $locale, StudentExamRes,
                       reservationService, dialogs, SettingsResource, CalendarRes, uiCalendarConfig) {
 
                 $scope.limitations = {};
@@ -40,7 +40,7 @@
                 };
 
                 $scope.selectedRoom = function () {
-                    var room = undefined;
+                    var room = null;
                     $scope.rooms.some(function (r) {
                         if (r.filtered) {
                             room = r;
@@ -56,7 +56,7 @@
                     });
                 };
 
-                $http.get('accessibility').success(function (data) {
+                $http.get('/app/accessibility').success(function (data) {
                     $scope.accessibilities = data;
                 });
 
@@ -133,7 +133,7 @@
                     }
                 };
 
-                $http.get('rooms').then(function (reply) {
+                $http.get('/app/rooms').then(function (reply) {
                     $scope.rooms = reply.data;
                 });
 
@@ -155,20 +155,20 @@
                         }).map(function (item) {
                         return item.id;
                     });
-                    $http.post('calendar/reservation', slot).then(function () {
-                        $location.path('#/home');
+                    $http.post('/app/calendar/reservation', slot).then(function () {
+                        $location.path('/');
                     }, function (error) {
                         toastr.error(error.data);
                     });
                 };
 
                 $scope.createReservation = function (start, end) {
-                    var text = $translate.instant('sitnet_about_to_reserve') + "<br/>"
-                        + start.format("DD.MM.YYYY HH:mm") + " - " + end.format("HH:mm") + " "
-                        + "(" + $scope.selectedRoom().localTimezone + ") "
-                        + $translate.instant('sitnet_at_room') + " "
-                        + $scope.selectedRoom().name + ".<br/>"
-                        + $translate.instant('sitnet_confirm_reservation');
+                    var text = $translate.instant('sitnet_about_to_reserve') + "<br/>" +
+                        start.format("DD.MM.YYYY HH:mm") + " - " + end.format("HH:mm") + " " +
+                        "(" + $scope.selectedRoom().localTimezone + ") " +
+                        $translate.instant('sitnet_at_room') + " " +
+                        $scope.selectedRoom().name + ".<br/>" +
+                        $translate.instant('sitnet_confirm_reservation');
                     dialogs.confirm($translate.instant('sitnet_confirm'), text).result
                         .then(function () {
                             reserve(start, end);
@@ -210,6 +210,7 @@
                             info = $scope.selectedRoom().roomInstructionSV;
                             break;
                         case "en":
+                            /* falls through */
                         default:
                             info = $scope.selectedRoom().roomInstructionEN;
                             break;

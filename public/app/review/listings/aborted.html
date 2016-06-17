@@ -1,10 +1,10 @@
 
 <div class="main-row">
-            <span class="col-md-12">
-                <span class="exams-list-title-text pointer">
-                    {{'sitnet_aborted_exams' | translate}}
-                </span>
-            </span>
+    <span class="col-md-12">
+        <span class="exams-list-title-text pointer">
+            {{'sitnet_aborted_exams' | translate}}
+        </span>
+    </span>
 </div>
 <div class="indented-row" ng-show="abortedExams.length === 0">
     <div class="col-md-12 text">N/A</div>
@@ -13,9 +13,9 @@
     <table class="table table-bordered table-striped exams-table">
         <thead ng-init="abortedPredicate = 'started'">
         <tr>
-            <th sort by="user.lastName" title="sitnet_student" predicate="abortedPredicate" reverse="reverse"></th>
-            <th sort by="user.email" title="sitnet_email" predicate="abortedPredicate" reverse="reverse"></th>
-            <th sort by="started" title="sitnet_exam_duration" predicate="abortedPredicate" reverse="reverse"></th>
+            <th sort by="user.lastName" text="sitnet_student" predicate="abortedPredicate" reverse="reverse"></th>
+            <th sort by="user.email" text="sitnet_email" predicate="abortedPredicate" reverse="reverse"></th>
+            <th sort by="started" text="sitnet_exam_duration" predicate="abortedPredicate" reverse="reverse"></th>
             <th>{{'sitnet_exam_state' | translate}}</th>
             <th>{{'sitnet_trial' | translate}}</th>
         </tr>
@@ -24,7 +24,7 @@
         <tbody>
         <tr ng-repeat="review in abortedExams | orderBy:abortedPredicate:reverse">
             <td class="table-column-examname">
-                <a ng-click="go(review.exam)">
+                <a class="pointer" ng-click="go(review.exam)">
                     {{review.user.firstName}}&nbsp;{{review.user.lastName}}
                     <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
                 </a>
@@ -37,15 +37,22 @@
                 'HH:mm'}}
                 ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
             </td>
-            <td class="table-column-15" class="sitnet-text-aborted">
+            <td class="table-column-15 sitnet-text-aborted">
                 {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
             </td>
-            <td class="table-column-10" class="sitnet-text-aborted">
-                <button ng-disabled="!review.exam.trialCount || !review.reservation || review.reservation.retrialPermitted"
-                        ng-click="permitRetrial(review.reservation)"
-                        class="btn btn-sm btn-primary">
-                    {{'sitnet_permit_retrial' | translate}}
-                </button>
+            <td class="table-column-10" ng-if="review.exam.executionType.type === 'PUBLIC'">
+                <div ng-show="review.exam.trialCount && review.reservation">
+                    <button ng-disabled="review.reservation.retrialPermitted"
+                            ng-click="permitRetrial(review.reservation)" class="btn btn-sm btn-primary">
+                        {{'sitnet_permit_retrial' | translate}}
+                    </button>
+                </div>
+                <div ng-show="!review.exam.trialCount" class="text-muted">
+                    {{'sitnet_unrestricted' | translate }}
+                </div>
+            </td>
+            <td class="table-column-10" ng-if="review.exam.executionType.type !== 'PUBLIC'">
+                &ndash;
             </td>
         </tr>
         </tbody>

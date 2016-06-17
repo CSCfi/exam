@@ -39,7 +39,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Ebean.delete(Ebean.find(ExamEnrolment.class).findList());
+        Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
         exam = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED).findList().get(0);
         user = Ebean.find(User.class, userId);
         user.setLanguage(Ebean.find(Language.class, "en"));
@@ -60,11 +60,16 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservation() throws Exception {
         // Setup
+        // Private exam
+        exam.setExecutionType(Ebean.find(ExamExecutionType.class, 2));
+        // Add Arvo teacher to owner
+        exam.getExamOwners().add(Ebean.find(User.class, 4));
+        exam.save();
         Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
         Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
 
         // Execute
-        Result result = request(Helpers.POST, "/calendar/reservation",
+        Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
@@ -106,7 +111,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         enrolment.update();
 
         // Execute
-        Result result = request(Helpers.POST, "/calendar/reservation",
+        Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
@@ -155,7 +160,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         newEnrolment.save();
 
         // Execute
-        Result result = request(Helpers.POST, "/calendar/reservation",
+        Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
@@ -190,7 +195,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
 
         // Execute
-        Result result = request(Helpers.POST, "/calendar/reservation",
+        Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
@@ -210,7 +215,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
 
         // Execute
-        Result result = request(Helpers.POST, "/calendar/reservation",
+        Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
@@ -237,7 +242,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         enrolment.update();
 
         // Execute
-        Result result = request(Helpers.POST, "/calendar/reservation",
+        Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
@@ -263,8 +268,9 @@ public class CalendarControllerTest extends IntegrationTestCase {
         enrolment.update();
 
         // Execute
-        Result result = request(Helpers.DELETE, "/calendar/reservation/" + reservation.getId(), null);
+        Result result = request(Helpers.DELETE, "/app/calendar/reservation/" + reservation.getId(), null);
         assertThat(result.status()).isEqualTo(200);
+        Thread.sleep(1500); // wait for emails to be sent
 
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
@@ -285,7 +291,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         enrolment.update();
 
         // Execute
-        Result result = request(Helpers.DELETE, "/calendar/reservation/" + reservation.getId(), null);
+        Result result = request(Helpers.DELETE, "/app/calendar/reservation/" + reservation.getId(), null);
         assertThat(result.status()).isEqualTo(403);
 
         // Verify
@@ -306,7 +312,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         enrolment.update();
 
         // Execute
-        Result result = request(Helpers.DELETE, "/calendar/reservation/" + reservation.getId(), null);
+        Result result = request(Helpers.DELETE, "/app/calendar/reservation/" + reservation.getId(), null);
         assertThat(result.status()).isEqualTo(403);
 
         // Verify

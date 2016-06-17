@@ -1,3 +1,7 @@
+// This overrides the bundled bootstrap glyphicon font path.
+// There's some problem with the original path so we (still) have to serve those from separate location :(
+$icon-font-path:            "../../assets/assets/fonts/bootstrap/" !default;
+
 $sitnet-dark-green: #63aa92;
 $sitnet-green: #2bb9a8;
 $sitnet-blue: #27b9ca;

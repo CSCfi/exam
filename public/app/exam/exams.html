@@ -4,17 +4,18 @@
     </div>
 </div>
 
-<div id="dashboard">
-    <!-- toolbar -->
-    <div class="main-row">
-        <div class="col-md-12">
-        <span class="pull-left fa-stack fa-lg header-top-icon">
-            <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-            <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
-        </span>
+<div id="dashboard" ng-init="view = 'PUBLISHED'; showExpired = false">
 
-            <div class="dropdown" dropdown>
-                <a class="header-top-link dropdown-toggle" data-toggle="dropdown" dropdown-toggle>
+    <!-- toolbar -->
+    <div class="top-row">
+        <div class="col-md-12">
+            <span class="pull-left fa-stack fa-lg header-top-icon">
+                <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
+            </span>
+
+            <div class="dropdown" uib-dropdown>
+                <a class="header-top-link dropdown-toggle" data-toggle="dropdown" uib-dropdown-toggle>
                     {{'sitnet_toolbar_new_exam' | translate}}
                 </a>
                 <ul class="dropdown-menu" role="menu">
@@ -29,13 +30,44 @@
         </div>
     </div>
 
+    <!-- TAB NAVIGATION -->
+    <div class="main-row">
+        <ul class="nav nav-tabs">
+            <li role="presentation" ng-class="{'active' : view === 'PUBLISHED' && !showExpired}">
+                <a class="pointer" target="_self" ng-click="view='PUBLISHED'; showExpired = false">
+                    {{'sitnet_published_exams' | translate}}
+                    <span class="badge">{{ (exams | filter: {state: 'PUBLISHED', expired: false}).length }}</span>
+                </a>
+            </li>
+            <li role="presentation" ng-class="{'active' : view === 'PUBLISHED' && showExpired}">
+                <a class="pointer" target="_self" ng-click="view='PUBLISHED'; showExpired = true">
+                    {{'sitnet_expired_exams' | translate}}
+                    <span class="badge">{{ (exams | filter: {state: 'PUBLISHED', expired: true}).length }}</span>
+                </a>
+            </li>
+            <li role="presentation" ng-class="{'active' : view === 'SAVED'}">
+                <a class="pointer" target="_self" ng-click="view='SAVED'; showExpired = false">
+                    {{'sitnet_saved_exams' | translate}}
+                    <span class="badge">{{ (exams | filter: {state: 'SAVED'}).length }}</span>
+                </a>
+            </li>
+            <li role="presentation" ng-class="{'active' : view === 'DRAFT'}">
+                <a class="pointer" target="_self" ng-click="view='DRAFT'; showExpired = false">
+                    {{'sitnet_draft_exams' | translate}}
+                    <span class="badge">{{ (exams | filter: {state: 'DRAFT'}).length }}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
     <div class="detail-row" ng-show="user.isAdmin">
         <div class="col-md-4">
             <div class="form-group input-group">
                 <input ng-change="search()" ng-model="filter.text"
-                       ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text" class="form-control"
+                       ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
+                       class="form-control"
                        placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
-                       popover-trigger="mouseenter" popover="{{ 'sitnet_exam_search_description' | translate }}">
+                       popover-trigger="mouseenter" uib-popover="{{ 'sitnet_exam_search_description' | translate }}">
 
                 <div class="input-group-addon">
                     <i class="fa fa-search fa-fw"></i>
@@ -43,6 +75,7 @@
             </div>
         </div>
     </div>
+
     <div class="main-row" ng-show="loader.loading">
         <div class="col-md-12">
             <button class="btn btn-success">{{'sitnet_searching' | translate }}...
@@ -50,66 +83,65 @@
             </button>
         </div>
     </div>
+
     <div ng-hide="!exams || loader.loading">
-        <div class="bottom-row">
-            <h3 class="col-md-12">
-                {{ 'sitnet_published_exams' | translate }}
-                <span class="label label-success">{{ (exams | filter: {state: 'PUBLISHED'}).length }}</span>
-                {{ 'sitnet_saved_exams' | translate }}
-                <span class="label label-warning">{{ (exams | filter: {state: 'SAVED'}).length }}</span>
-                {{ 'sitnet_draft_exams' | translate }}
-                <span class="label label-danger">{{ (exams | filter: {state: 'DRAFT'}).length }}</span>
-            </h3>
-        </div>
         <div class="detail-row">
             <div class="col-md-12">
                 <table class="table table-striped table-condensed exams-table">
                     <thead ng-init="examsPredicate='examActiveEndDate'; reverse=true">
                     <tr>
-                        <th sort by="course.code" title="sitnet_examcode" predicate="examsPredicate" reverse="reverse"></th>
-                        <th sort by="name" title="sitnet_exam_name" predicate="examsPredicate" reverse="reverse"></th>
-                        <th sort by="executionType.id" title="sitnet_exam_credit_type" predicate="examsPredicate"
+                        <th sort by="course.code" text="sitnet_examcode" predicate="examsPredicate"
                             reverse="reverse"></th>
-                        <th sort by="ownerAggregate" title="sitnet_teachers" predicate="examsPredicate" reverse="reverse"></th>
-                        <th sort by="examActiveEndDate" title="sitnet_exam_validity" predicate="examsPredicate" reverse="reverse"></th>
-                        <th sort by="stateOrd" title="sitnet_status" predicate="examsPredicate" reverse="reverse"></th>
+                        <th sort by="name" text="sitnet_exam_name" predicate="examsPredicate" reverse="reverse"></th>
+                        <th sort by="executionType.id" text="sitnet_exam_credit_type" predicate="examsPredicate"
+                            reverse="reverse"></th>
+                        <th sort by="ownerAggregate" text="sitnet_teachers" predicate="examsPredicate"
+                            reverse="reverse"></th>
+                        <th sort by="examActiveEndDate" text="sitnet_exam_validity" predicate="examsPredicate"
+                            reverse="reverse"></th>
                         <th>{{ 'sitnet_copy' | translate }}</th>
                         <th>{{ 'sitnet_exam_remove' | translate }}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="exam in exams | orderBy:examsPredicate:reverse">
-                        <td ng-style="exam.activityStyle">{{exam.course.code}}</td>
-                        <td ng-style="exam.activityStyle">
+                    <tr ng-repeat="exam in exams | filter: {state: view, expired: showExpired} | orderBy:examsPredicate:reverse">
+                        <td>{{exam.course.code}}</td>
+                        <td>
                             <a ng-if="exam.name" class="exams-info-title bold-button"
-                               href="#/exams/{{exam.id}}">{{exam.name}}</a>
+                               href="/exams/{{exam.id}}">{{exam.name}}</a>
                             <a ng-if="!exam.name" class="exams-info-title bold-button text-danger"
-                               href="#/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}
+                               href="/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}
                             </a>
                         </td>
-                        <td ng-style="exam.activityStyle">{{ getExecutionTypeTranslation(exam) | translate | uppercase }}</td>
-                        <td ng-style="exam.activityStyle">
+                        <td>{{ getExecutionTypeTranslation(exam) | translate | uppercase
+                            }}
+                        </td>
+                        <td>
                             <teacher-list exam="exam"/>
                         </td>
-                        <td ng-style="exam.activityStyle">
+                        <td>
                             <span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">
                                 {{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
                             </span>
                         </td>
-                        <td ng-style="exam.activityStyle">
-                            <span ng-if="exam.state === 'PUBLISHED'" class="text-success">{{ 'sitnet_published' | translate }}</span>
-                            <span ng-if="exam.state === 'SAVED'" class="text-warning">{{ 'sitnet_saved' | translate }}</span>
-                            <span ng-if="exam.state === 'DRAFT'" class="text-danger">{{ 'sitnet_draft' | translate }}</span>
+                        <td class="text-center">
+                            <span class="dropdown pointer" uib-dropdown>
+                                <a href class="dropdown-toggle" uib-dropdown-toggle>
+                                    <i class="fa fa-lg fa-copy text-info"></i>
+                                </a>
+                                <ul class="dropdown-menu pull-right" style="min-width: 17em">
+                                    <li class="dropdown-header">{{'sitnet_choose_execution_type' | translate}}</li>
+                                    <li ng-repeat="type in executionTypes">
+                                        <a role="menuitem" ng-click="copyExam(exam, type.type)">
+                                            {{type.name | translate}}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </span>
                         </td>
-                        <td ng-style="exam.activityStyle" class="text-center">
-                            <a class="bold-button" ng-click="copyExam(exam)"><i class="fa fa-lg fa-copy text-info"></i></a>
-                        </td>
-                        <td class="text-center" ng-style="exam.activityStyle">
-                            <a ng-if="exam.state !== 'PUBLISHED'" ng-click="deleteExam(exam)" class="pointer">
+                        <td class="text-center">
+                            <a ng-click="deleteExam(exam)" class="pointer">
                                 <i class="fa fa-times fa-lg sitnet-red"></i>
-                            </a>
-                            <a ng-if="exam.state === 'PUBLISHED'">
-                                <i class="fa fa-times fa-lg text-muted"></i>
                             </a>
                         </td>
                     </tr>
@@ -117,14 +149,14 @@
                 </table>
             </div>
         </div>
-        <div class="detail-row">
+        <div class="detail-row" ng-show="view === 'PUBLISHED' && !showExpired">
             <div class="col-md-12">
                 <strong>{{ 'sitnet_published_exams' | translate }}: </strong>
                 <em class="sitnet-text-medium">{{ 'sitnet_published_exams_info_main' | translate }} {{
                     'sitnet_published_exams_info_other' | translate }}</em>
             </div>
         </div>
-        <div class="bottom-row">
+        <div class="bottom-row" ng-show="view === 'SAVED'">
             <div class="col-md-12">
                 <strong>{{ 'sitnet_saved_exams' | translate }}: </strong>
                 <em class="sitnet-text-medium">{{ 'sitnet_saved_exams_info_main' | translate }} {{

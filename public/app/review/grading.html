@@ -20,13 +20,21 @@
     </div>
 </div>
 
-<div class="main-row" ng-show="isReadOnly()">
+<div class="top-row" ng-show="isReadOnly()">
     <strong class="col-md-12">{{'sitnet_teachers_comment' | translate}}:</strong>
 </div>
 
 <div class="detail-row" ng-show="isReadOnly()">
     <div class="col-md-12" mathjax ng-bind-html="exam.examFeedback.comment"></div>
 </div>
+<div class="bottom-row" ng-show="isReadOnly()">
+    <div class="col-md-12" ng-if="exam.examFeedback && exam.examFeedback.attachment" ng-controller="AttachmentController">
+        <a class="pointer" ng-click="downloadFeedbackAttachment(exam)">
+            {{exam.examFeedback.attachment.fileName}}
+        </a>
+    </div>
+</div>
+
 <div class="main-row" ng-show="getTeacherCount() > 1">
     <div>
         <div class="col-md-6">
@@ -71,7 +79,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6" ng-hide="isReadOnly()">
             <div class="row">
                 <strong class="col-md-12">
                     {{'sitnet_send_to_other_reviewers' | translate}}:
@@ -79,19 +87,18 @@
             </div>
             <div class="row">
                 <div class="col-md-12">
-                <textarea class="form-control" ng-model="$parent.message" rows="3" cols="120"
-                          ng-disabled="isReadOnly()">
+                <textarea class="form-control" ng-model="$parent.message" rows="3" cols="120">
                 </textarea>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <input type="button" class="btn btn-link"
-                           ng-disabled="isReadOnly()" ng-click="sendEmailMessage()"
+                    <input type="button" class="btn btn-link" ng-click="sendEmailMessage()"
                            value="{{'sitnet_send' | translate}}"/>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 

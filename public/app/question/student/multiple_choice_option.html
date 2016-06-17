@@ -1,8 +1,7 @@
 <div class="bottom-padding-2">
-<div ng-repeat="option in sectionQuestion.question.options" class="exam-answer-options">
-    <input type="radio" name="answer_{{sectionQuestion.question.id}}"
-           ng-model="sectionQuestion.question.selectedOptions" ng-value="option.id"
-           ng-click="optionSelected(doexam, sectionQuestion.question);" />
-       {{option.option}}
-</div>
+    <div ng-repeat="sqo in sectionQuestion.options | orderBy: 'id'" class="exam-answer-options">
+        <input type="radio" ng-model="sectionQuestion.selectedOption" ng-value="sqo.id"
+               ng-click="multiOptionSelected(exam, sectionQuestion);"/>
+        {{sqo.option.option}}
+    </div>
 </div>

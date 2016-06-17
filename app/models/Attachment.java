@@ -1,5 +1,7 @@
 package models;
 
+import models.base.OwnedModel;
+
 import javax.persistence.Entity;
 
 @Entity

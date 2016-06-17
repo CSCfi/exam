@@ -1,16 +1,17 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('reservationService', ['$q', '$modal', '$http', '$routeParams', '$translate', '$location', 'dialogs',
-            'dateService', 'sessionService',
-            function ($q, $modal, $http, $routeParams, $translate, $location, dialogs, dateService, sessionService) {
+        .service('reservationService', ['$q', '$uibModal', '$http', '$routeParams', '$translate', '$location', 'dialogs',
+            'dateService', 'sessionService', 'ReservationResource', 'EXAM_CONF',
+            function ($q, $modal, $http, $routeParams, $translate, $location, dialogs, dateService, sessionService,
+                      ReservationRes, EXAM_CONF) {
 
                 var self = this;
 
                 self.removeReservation = function (enrolment) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                     dialog.result.then(function (btn) {
-                        $http.delete('calendar/reservation/' + enrolment.reservation.id).success(function () {
+                        $http.delete('/app/calendar/reservation/' + enrolment.reservation.id).success(function () {
                             delete enrolment.reservation;
                             enrolment.reservationCanceled = true;
                         }).error(function (msg) {
@@ -69,7 +70,7 @@
                 };
 
                 var findOpeningHours = function (obj, items) {
-                    var found = undefined;
+                    var found = null;
                     items.some(function (item) {
                         if (item.ref === obj.weekday) {
                             found = item;
@@ -159,8 +160,78 @@
                         return weekdays.indexOf(dwh.weekday);
                     });
                     return [0, 1, 2, 3, 4, 5, 6].filter(function (x) {
-                        return openedDays.indexOf(x) === -1
+                        return openedDays.indexOf(x) === -1;
                     });
+                };
+
+                self.changeMachine = function (reservation) {
+                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        $scope.selection = {};
+                        $scope.availableMachines = ReservationRes.availableMachines.query({id: reservation.id});
+                        $scope.ok = function () {
+                            ReservationRes.machine.update({
+                                id: reservation.id,
+                                machineId: $scope.selection.machineId
+                            }, function (machine) {
+                                toastr.info($translate.instant("sitnet_updated"));
+                                reservation.machine = machine;
+                                $modalInstance.close("Accepted");
+                            }, function (msg) {
+                                toastr.error(msg);
+                            });
+                        };
+
+                        $scope.cancel = function () {
+                            $modalInstance.close("Dismissed");
+                        };
+
+                    }];
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/change_machine_dialog.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: modalController
+                    });
+
+                    modalInstance.result.then(function () {
+                        console.log("closed");
+                    });
+                };
+
+                self.cancelReservation = function (reservation) {
+                    var deferred = $q.defer();
+                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        $scope.message = {};
+                        $scope.ok = function () {
+                            ReservationRes.reservation.remove({id: reservation.id, msg: $scope.message.text},
+                                function () {
+                                    $modalInstance.close("Accepted");
+                                    deferred.resolve("ok");
+                                }, function (error) {
+                                    toastr.error(error.data);
+                                });
+                        };
+
+                        $scope.cancel = function () {
+                            $modalInstance.close("Dismissed");
+                            deferred.reject();
+                        };
+
+                    }];
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/remove_reservation_dialog.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: modalController
+                    });
+
+                    modalInstance.result.then(function () {
+                        console.log("closed");
+                        deferred.reject();
+                    });
+                    return deferred.promise;
                 };
 
 

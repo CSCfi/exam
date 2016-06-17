@@ -1,25 +1,36 @@
 <div class="row exam-general-information-header">
     <div class="col-md-1">
         <a class="pointer pull-left fa-stack fa-lg" popover-placement="left" popover-popup-delay="1000"
-           popover-trigger="mouseenter" popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
-           ng-click="sectionTemplate.visible = !sectionTemplate.visible">
-            <i ng-class="sectionTemplate.visible ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-right fa-stack-1x'"></i>
+           popover-trigger="mouseenter" uib-popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
+           ng-click="sectionDisplay.visible = !sectionDisplay.visible">
+            <i ng-class="sectionDisplay.visible ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-right fa-stack-1x'"></i>
         </a>
     </div>
     <div class="col-md-11 exams-generic-info-title">{{'sitnet_exam_questions' | translate}}</div>
 </div>
 
-<div class="col-md-12" ng-show="sectionTemplate.visible">
-    <div class="section-border" ng-include="templates.section" ng-model="newExam.examSections"
-         ng-repeat="section in newExam.examSections | orderBy: 'created'">
-    </div>
-    <div class="row col-md-12 create-new-section">
-        <div class="col-md-1 fa-stack fa-lg">
-            <i class="fa icon-theme fa-stop fa-stack-2x"></i>
-            <i class="fa sitnet-white fa-plus fa-stack-1x"></i>
+<div class="row" ng-show="sectionDisplay.visible">
+    <div class="col-md-12">
+        <div sortable objects="newExam.examSections" selection=".section-handle" on-move="moveSection(object, from, to)">
+            <div class="section-border"
+                 ng-class="newExam.examSections.length > 1 ? 'section-handle' : ''"
+                 ng-include="templates.section"
+                 ng-model="newExam.examSections"
+                 ng-repeat="section in newExam.examSections | orderBy: 'sequenceNumber'">
+            </div>
         </div>
-        <a ng-click="addNewSection()" class="create-new-section-button">
-            {{'sitnet_section_add' | translate}}
-        </a>
+        <div class="row">
+            <div class="col-md-8">
+                <button class="btn btn-primary" ng-click="addNewSection()">
+                        <i class="fa fa-lg sitnet-white fa-plus"></i>&nbsp;
+                        {{'sitnet_section_add' | translate}}
+                </button>
+            </div>
+            <div class="col-md-4 total-score">
+                <span class="pull-right">
+                    <strong>{{'sitnet_total_score' | translate }}: {{ calculateExamMaxScore(newExam) }}</strong>
+                </span>
+            </div>
+        </div>
     </div>
 </div>

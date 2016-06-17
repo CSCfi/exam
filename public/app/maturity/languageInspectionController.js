@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('LanguageInspectionCtrl', ['$scope', '$translate', '$modal', '$location', 'dialogs',
+        .controller('LanguageInspectionCtrl', ['$scope', '$translate', '$uibModal', '$location', 'dialogs',
             'EXAM_CONF', 'LanguageInspectionRes',
             function ($scope, $translate, $modal, $location, dialogs, EXAM_CONF, LanguageInspectionRes) {
 
@@ -47,12 +47,12 @@
                             $location.path('exams/review/' + inspection.exam.id);
                         }, function (err) {
                             toastr.error(err);
-                        })
+                        });
                     });
                 };
 
                 $scope.showStatement = function (statement) {
-                    var modalController = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.statement = statement.comment;
                         $scope.ok = function () {
                             $modalInstance.close("Accepted");

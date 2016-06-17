@@ -8,14 +8,20 @@ import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.*;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamInspection;
+import models.Language;
+import models.Permission;
+import models.Role;
+import models.User;
+import models.questions.Question;
 import play.data.DynamicForm;
-import play.data.Form;
-import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class UserController extends BaseController {
@@ -27,9 +33,12 @@ public class UserController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
     public Result grantUserPermission() {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         String permissionString = df.get("permission");
         User user = Ebean.find(User.class, df.get("id"));
+        if (user == null) {
+            return notFound();
+        }
         if (user.getPermissions().stream().noneMatch(p -> p.getValue().equals(permissionString))) {
             Permission.Type type;
             try {
@@ -39,22 +48,25 @@ public class UserController extends BaseController {
             }
             Permission permission = Ebean.find(Permission.class).where().eq("type", type).findUnique();
             user.getPermissions().add(permission);
-            user.save();
+            user.update();
         }
         return ok();
     }
 
     @Restrict({@Group("ADMIN")})
     public Result revokeUserPermission() {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         String permissionString = df.get("permission");
         User user = Ebean.find(User.class, df.get("id"));
+        if (user == null) {
+            return notFound();
+        }
         if (user.getPermissions().stream().anyMatch(p -> p.getValue().equals(permissionString))) {
             Permission permission = Ebean.find(Permission.class).where()
                     .eq("type", Permission.Type.valueOf(permissionString))
                     .findUnique();
             user.getPermissions().remove(permission);
-            user.save();
+            user.update();
         }
         return ok();
     }
@@ -69,10 +81,10 @@ public class UserController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result findUsers(F.Option<String> filter) {
+    public Result findUsers(Optional<String> filter) {
         Query<User> query = Ebean.find(User.class).fetch("roles").fetch("permissions");
         List<User> results;
-        if (filter.isDefined() && !filter.get().isEmpty()) {
+        if (filter.isPresent()) {
             ExpressionList<User> el = query.where().disjunction();
             el = applyUserFilter(null, el, filter.get());
             String condition = String.format("%%%s%%", filter.get());
@@ -100,7 +112,7 @@ public class UserController extends BaseController {
                 return notFound("sitnet_role_not_found");
             }
             user.getRoles().add(role);
-            user.save();
+            user.update();
         }
         return ok();
     }
@@ -117,7 +129,7 @@ public class UserController extends BaseController {
                 return notFound("sitnet_role_not_found");
             }
             user.getRoles().remove(role);
-            user.save();
+            user.update();
         }
         return ok();
     }
@@ -178,6 +190,17 @@ public class UserController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result getQuestionOwnersByRoleFilter(String role, Long qid, String criteria) {
+        Question question = Ebean.find(Question.class, qid);
+        if (question == null) {
+            return notFound();
+        }
+        List<User> users = findUsersByRoleAndName(role, criteria);
+        users.removeAll(question.getQuestionOwners());
+        return ok(Json.toJson(asArray(users)));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamInspectorsByRoleFilter(String role, Long eid, String criteria) {
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class).where().eq("exam.id", eid).findList();
         List<User> users = findUsersByRoleAndName(role, criteria);
@@ -203,8 +226,7 @@ public class UserController extends BaseController {
             result = notFound();
         } else {
             user.setUserAgreementAccepted(true);
-            user.save();
-            Ebean.update(user);
+            user.update();
             result = ok(user);
         }
         return result;

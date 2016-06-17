@@ -1,0 +1,130 @@
+<div class="main-row">
+    <span class="col-md-12">
+        <a ng-click="toggleUnreviewed()" class="header-icon fa-stack fa-lg">
+            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+            <i ng-show="!toggleReviews" class="fa fa-chevron-right fa-stack-1x"></i>
+            <i ng-show="toggleReviews" class="fa fa-chevron-down fa-stack-1x"></i>
+        </a>
+        <span class="exams-list-title-text pointer">
+            {{ 'sitnet_exam_in_review' | translate }}
+        </span>
+    </span>
+</div>
+
+<div class="indented-row" ng-show="examReviews.length === 0">
+    <div class="col-md-12 text">N/A</div>
+</div>
+
+<div class="detail-row" ng-show="toggleReviews && examReviews.length > 0">
+    <div class="col-md-12">
+        <table class="table table-bordered table-striped exams-table">
+            <thead ng-init="reviewPredicate = 'deadline'">
+            <tr>
+                <th sort by="user.lastName" text="sitnet_student" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="user.email" text="sitnet_email" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="started" text="sitnet_exam_duration" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="deadline" text="sitnet_review_deadline" predicate="reviewPredicate"
+                    reverse="reverse"></th>
+                <th>{{'sitnet_inspection_status' | translate}}</th>
+                <th>{{'sitnet_exam_state' | translate}}</th>
+                <th>{{'sitnet_total_score' | translate}}</th>
+                <th>{{'sitnet_grade' | translate}}</th>
+                <th>{{'sitnet_feedback' | translate}}</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr ng-repeat="review in examReviews | orderBy:reviewPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize">
+                <td class="table-column-bold">
+                    <a class="pointer" ng-click="go(review.exam)">
+                        {{review.user.firstName}} {{review.user.lastName}}
+                        <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
+                    </a>
+                </td>
+                <td>
+                    <a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+                </td>
+                <td>{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                    {{'sitnet_clock_short' |
+                    translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                    {{review.ended | adjustdst | date: 'HH:mm'}}
+                    ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
+                </td>
+                <td>{{review.deadline | date:'dd.MM.yyyy'}} (<span
+                        ng-bind-html="review.deadline | diffInDaysToNow"></span>)
+                </td>
+                <td>
+                    <div ng-repeat="inspection in review.inspections">
+                        <span ng-class="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
+                            <span ng-class="isOwner(inspection.user, review.exam.examOwners) ? 'bold' : ''">
+                                {{inspection.user.firstName}} {{inspection.user.lastName}}
+                            </span>
+                        </span>
+                    </div>
+                </td>
+                <td class="text-success">
+                    {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
+                </td>
+                <td>{{review.exam.totalScore}} / {{review.exam.maxScore}}
+                    <span ng-if="review.exam.rejectedAnswerCount > 0 || review.exam.approvedAnswerCount > 0">
+                        <br />{{'sitnet_approved' | translate }}: {{ review.exam.approvedAnswerCount }}
+                        <br />{{'sitnet_rejected' | translate }}: {{ review.exam.rejectedAnswerCount }}
+                    </span>
+                </td>
+                <td>
+                    <span ng-if="!isGradeable(review.exam)">{{'sitnet_speed_review_incomplete_info_or_no_permission' | translate}}</span>
+                    <select class="form-control"
+                            ng-disabled="!isGradeable(review.exam)"
+                            ng-model="review.exam.selectedGrade"
+                            required
+                            ng-options="grade.name for grade in review.exam.selectableGrades | orderBy:'id'">
+                        <option value=""
+                                ng-selected="!review.exam.selectedGrade">{{'sitnet_choose' | translate}}
+                        </option>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-xs btn-link" ng-disabled="!isAllowedToGrade(review.exam)"
+                            ng-click="showFeedbackEditor(review.exam)">{{ 'sitnet_edit' | translate }}
+                    </button>
+                </td>
+            </tr>
+            <!--Fill if page not full-->
+            <tr ng-repeat="r in [] | pagefill: examReviews.length:currentPage:pageSize">
+                <td class="table-column-examname">&nbsp;</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="detail-row" ng-show="toggleReviews">
+    <div col-md-12 ng-show="examReviews.length > pageSize">
+        <paginator items="examReviews" page-size="pageSize" current-page="currentPage"/>
+    </div>
+</div>
+
+<div class="main-row">
+    <div class="col-md-6">
+        <button class="btn btn-primary" ng-click="gradeExams()" ng-disabled="!hasModifications()">{{'sitnet_grade_exams' | translate}}</button>
+    </div>
+</div>
+<div class="main-row">
+    <div class="col-md-12">
+        <a class="pointer" ng-click="importGrades()">{{'sitnet_import_grades_from_csv' | translate}}</a>
+        <div><small>{{'sitnet_grade_import_file_description' | translate}}</small></div>
+    </div>
+</div>
+<div class="bottom-row">
+    <div class="col-md-12">
+        <a class="pointer" ng-click="createGradingTemplate()">{{'sitnet_create_grading_template' | translate}}</a>
+    </div>
+</div>

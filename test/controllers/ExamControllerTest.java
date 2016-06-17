@@ -7,10 +7,12 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import models.Exam;
+import models.ExamSection;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
+import play.test.Helpers;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -25,7 +27,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testGetActiveExamsUnauthorized() {
-        Result result = get("/reviewerexams");
+        Result result = get("/app/reviewerexams");
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
@@ -50,7 +52,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         String[] expectedPaths = {"id", "name", "course.code", "examActiveStartDate", "examActiveEndDate"};
 
         // Execute
-        Result result = get("/reviewerexams");
+        Result result = get("/app/reviewerexams");
 
         // Verify
         assertThat(result.status()).isEqualTo(200);
@@ -70,7 +72,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateDraftExamUnauthorized() {
         // Execute
-        Result result = get("/draft?executionType=PRIVATE");
+        Result result = request(Helpers.POST, "/app/exams", Json.newObject().put("executionType", "PUBLIC"));
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
@@ -82,7 +84,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         int originalRowCount = Ebean.find(Exam.class).findRowCount();
 
         // Execute
-        Result result = get("/draft?executionType=PRIVATE");
+        Result result = request(Helpers.POST, "/app/exams", Json.newObject().put("executionType", "PUBLIC"));
 
         // Verify
         assertThat(result.status()).isEqualTo(200);
@@ -95,8 +97,9 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(draft.getCreated()).isNotNull();
         assertThat(draft.getState()).isEqualTo(Exam.State.DRAFT);
         assertThat(draft.getExamSections().size()).isEqualTo(1);
-        assertThat(draft.getExamSections().get(0).getName()).isNull();
-        assertThat(draft.getExamSections().get(0).getExpanded()).isTrue();
+        ExamSection section = draft.getExamSections().iterator().next();
+        assertThat(section.getName()).isNull();
+        assertThat(section.getExpanded()).isTrue();
         assertThat(draft.getExamLanguages().size()).isEqualTo(1);
         assertThat(draft.getExamLanguages().get(0).getCode()).isEqualTo("fi");
         assertThat(draft.getExamType().getId()).isEqualTo(2);
@@ -113,7 +116,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         long id = 1L;
         Exam expected = Ebean.find(Exam.class, id);
         // Execute
-        Result result = get("/exams/" + id);
+        Result result = get("/app/exams/" + id);
 
         // Verify that some paths exist in JSON, this is a significant set of information so really hard to test it's
         // all there :p
@@ -121,9 +124,6 @@ public class ExamControllerTest extends IntegrationTestCase {
         JsonNode node = Json.parse(contentAsString(result));
         assertPathsExist(node, getExamFields());
         assertPathCounts(node, 3, getExamSectionFieldsOfExam("*"));
-        assertPathCounts(node, 2, getSectionQuestionFieldsOfSection("0", "*"));
-        assertPathCounts(node, 3, getSectionQuestionFieldsOfSection("1", "*"));
-        assertPathCounts(node, 3, getSectionQuestionFieldsOfSection("2", "*"));
         assertPathCounts(node, 2, "softwares[*].id", "softwares[*].name");
         assertPathCounts(node, 4, "examLanguages[*].code");
 
@@ -151,7 +151,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         expected.update();
 
         // Execute
-        Result result = get("/exams/" + id);
+        Result result = get("/app/exams/" + id);
         assertThat(result.status()).isEqualTo(404);
     }
 
@@ -161,22 +161,15 @@ public class ExamControllerTest extends IntegrationTestCase {
                 "examType", "instruction", "enrollInstruction", "shared", "examActiveStartDate",
                 "examActiveEndDate", "duration", "gradeScale", "gradeScale.description", "grade",
                 "customCredit", "answerLanguage", "state", "examFeedback", "creditType", "expanded",
-                "attachment", "creator.id", "creator.firstName", "creator.lastName"};
+                "attachment"};
     }
 
     private String[] getExamSectionFieldsOfExam(String index) {
-        String[] fields = {"name", "id", "expanded", "lotteryOn", "lotteryItemCount"};
+        String[] fields = {"name", "id", "expanded", "lotteryOn", "sequenceNumber", "description", "lotteryItemCount"};
         for (int i = 0; i < fields.length; ++i) {
             fields[i] = "examSections[" + index + "]." + fields[i];
         }
         return fields;
     }
 
-    private String[] getSectionQuestionFieldsOfSection(String sectionIndex, String sectionQuestionIndex) {
-        String[] fields = {"sequenceNumber", "question", "question.question", "question.answer"};
-        for (int i = 0; i < fields.length; ++i) {
-            fields[i] = "examSections[" + sectionIndex + "].sectionQuestions[" + sectionQuestionIndex + "]." + fields[i];
-        }
-        return fields;
-    }
 }

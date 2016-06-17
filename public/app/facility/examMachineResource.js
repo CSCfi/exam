@@ -3,7 +3,7 @@
     angular.module("exam.resources")
         .factory("ExamMachineResource", ['$resource', function ($resource) {
             return $resource(
-                "/machines/:id",
+                "/app/machines/:id",
                 {
                     id: "@id"
                 },

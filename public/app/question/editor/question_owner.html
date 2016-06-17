@@ -1,0 +1,31 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4 class="sitnet-white"><i class="fa fa-user"></i>&nbsp;&nbsp;{{'sitnet_add_owner_for_question' | translate}}</h4>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="sitnet-info-text">
+                    {{'sitnet_owner_name' | translate}}
+                </div>
+                <div class="input-group">
+                    <input type="text" class="form-control"
+                           ng-model="newOwner.name"
+                           uib-typeahead="t.name for t in questionOwners('name', $viewValue)"
+                           typeahead-editable="false"
+                           typeahead-min-length="2"
+                           typeahead-on-select="setQuestionOwner($item, $model, $label)">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-3">
+            <button ng-click="cancel()" class="btn btn-danger">{{'sitnet_button_cancel' | translate}}</button>
+        </div>
+        <div class="col-md-3 col-md-offset-5">
+            <!--{{'sitnet_create_new' | translate}}-->
+            <button ng-click="addQuestionOwner()" class="btn btn-primary">{{'sitnet_button_save' | translate}}</button>
+        </div>
+    </div>
+</div>

@@ -15,7 +15,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.BeanUtils;
 import play.data.DynamicForm;
-import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 import util.java.DateTimeUtils;
@@ -71,7 +70,7 @@ public class RoomController extends BaseController {
 
     @Restrict(@Group({"ADMIN"}))
     public Result updateExamRoom(Long id) {
-        ExamRoom room = Form.form(ExamRoom.class).bindFromRequest(
+        ExamRoom room = formFactory.form(ExamRoom.class).bindFromRequest(
                 "name",
                 "roomCode",
                 "buildingName",
@@ -90,6 +89,9 @@ public class RoomController extends BaseController {
                 "state",
                 "expanded").get();
         ExamRoom existing = ExamRoom.find.ref(id);
+        if (existing == null) {
+            return notFound();
+        }
         existing.setName(room.getName());
         existing.setRoomCode(room.getRoomCode());
         existing.setBuildingName(room.getBuildingName());
@@ -115,6 +117,9 @@ public class RoomController extends BaseController {
     public Result updateExamRoomAddress(Long id) {
         MailAddress address = bindForm(MailAddress.class);
         MailAddress existing = Ebean.find(MailAddress.class, id);
+        if (existing == null) {
+            return notFound();
+        }
         existing.setCity(address.getCity());
         existing.setStreet(address.getStreet());
         existing.setZip(address.getZip());
@@ -152,7 +157,7 @@ public class RoomController extends BaseController {
         List<DefaultWorkingHours> blueprints = parseWorkingHours(root);
         for (ExamRoom examRoom : rooms) {
             List<DefaultWorkingHours> previous = examRoom.getDefaultWorkingHours();
-            Ebean.delete(previous);
+            Ebean.deleteAll(previous);
             for (DefaultWorkingHours blueprint : blueprints) {
                 DefaultWorkingHours copy = new DefaultWorkingHours();
                 BeanUtils.copyProperties(blueprint, copy, "id", "room");
@@ -186,7 +191,7 @@ public class RoomController extends BaseController {
             }
             List<ExamStartingHour> previous = Ebean.find(ExamStartingHour.class)
                     .where().eq("room.id", examRoom.getId()).findList();
-            Ebean.delete(previous);
+            Ebean.deleteAll(previous);
 
             JsonNode node = request().body().asJson();
             DateTimeFormatter formatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
@@ -215,7 +220,7 @@ public class RoomController extends BaseController {
         DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(root.get("startDate").asText());
         DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(root.get("endDate").asText());
 
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         String args = df.get("roomIds");
         String[] examRoomIds;
         if (args == null || args.isEmpty()) {
@@ -226,9 +231,8 @@ public class RoomController extends BaseController {
 
         ExceptionWorkingHours hours = null;
 
-        for (int i = 0; i < examRoomIds.length; i++) {
-
-            ExamRoom examRoom = Ebean.find(ExamRoom.class, examRoomIds[i]);
+        for (String id : examRoomIds) {
+            ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
             if (examRoom == null) {
                 return notFound();
             }
@@ -256,6 +260,9 @@ public class RoomController extends BaseController {
         final List<String> ids = Arrays.asList(json.get("ids").asText().split(","));
 
         ExamRoom room = Ebean.find(ExamRoom.class, id);
+        if (room == null) {
+            return notFound();
+        }
         room.getAccessibility().clear();
         room.save();
 
@@ -279,7 +286,9 @@ public class RoomController extends BaseController {
     @Restrict(@Group({"ADMIN"}))
     public Result removeRoomExceptionHour(Long id) {
         ExceptionWorkingHours exception = Ebean.find(ExceptionWorkingHours.class, id);
-
+        if (exception == null) {
+            return notFound();
+        }
         exception.delete();
 
         return ok();

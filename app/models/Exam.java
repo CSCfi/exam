@@ -1,9 +1,13 @@
 package models;
 
+import com.avaje.ebean.Ebean;
+import com.avaje.ebean.FetchConfig;
+import com.avaje.ebean.Query;
 import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.api.AttachmentContainer;
+import models.base.OwnedModel;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -12,7 +16,12 @@ import util.AppUtil;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentContainer {
@@ -60,7 +69,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     // An ExamSection may be used only in one Exam
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
-    private List<ExamSection> examSections;
+    private Set<ExamSection> examSections;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     protected Exam parent;
@@ -83,6 +92,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     @OneToOne(mappedBy = "exam")
     private ExamRecord examRecord;
+
+    @OneToOne(mappedBy = "exam", cascade = CascadeType.ALL)
+    private AutoEvaluationConfig autoEvaluationConfig;
 
     @OneToOne(mappedBy = "exam")
     private LanguageInspection languageInspection;
@@ -155,6 +167,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @OneToOne(cascade = CascadeType.ALL)
     private Attachment attachment;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date autoEvaluationNotified;
+
+    private boolean gradeless;
+
     public User getGradedByUser() {
         return gradedByUser;
     }
@@ -172,37 +189,37 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     // Aggregate properties, required as fields by Ebean
+    @Transient
     private Double totalScore;
+    @Transient
     private Double maxScore;
+    @Transient
     private int rejectedAnswerCount;
+    @Transient
     private int approvedAnswerCount;
 
     // Cloned - needed as field for serialization :(
     private Boolean cloned;
 
-    @Transient
     public Double getTotalScore() {
         return examSections.stream()
                 .map(ExamSection::getTotalScore)
                 .reduce(0.0, (sum, x) -> sum += x);
     }
 
-    @Transient
     public Double getMaxScore() {
         return examSections.stream()
                 .map(ExamSection::getMaxScore)
                 .reduce(0.0, (sum, x) -> sum += x);
     }
 
-    @Transient
-    public int getApprovedAnswerCount() {
+    private int getApprovedAnswerCount() {
         return examSections.stream()
                 .map(ExamSection::getApprovedCount)
                 .reduce(0, (sum, x) -> sum += x);
     }
 
-    @Transient
-    public int getRejectedAnswerCount() {
+    private int getRejectedAnswerCount() {
         return examSections.stream()
                 .map(ExamSection::getRejectedCount)
                 .reduce(0, (sum, x) -> sum += x);
@@ -212,12 +229,15 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     public void setTotalScore() {
         totalScore = getTotalScore();
     }
+
     public void setMaxScore() {
         maxScore = getMaxScore();
     }
+
     public void setRejectedAnswerCount() {
         rejectedAnswerCount = getRejectedAnswerCount();
     }
+
     public void setApprovedAnswerCount() {
         approvedAnswerCount = getApprovedAnswerCount();
     }
@@ -263,11 +283,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.examType = examType;
     }
 
-    public List<ExamSection> getExamSections() {
+    public Set<ExamSection> getExamSections() {
         return examSections;
     }
 
-    public void setExamSections(List<ExamSection> examSections) {
+    public void setExamSections(Set<ExamSection> examSections) {
         this.examSections = examSections;
     }
 
@@ -453,21 +473,30 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return languageInspection;
     }
 
-    public ExamRecord getExamRecord() { return examRecord; }
+    public ExamRecord getExamRecord() {
+        return examRecord;
+    }
 
     public void setLanguageInspection(LanguageInspection languageInspection) {
         this.languageInspection = languageInspection;
     }
 
-    public Exam copy(User user, boolean produceStudentExam) {
+    private Exam createCopy(User user, boolean produceStudentExam) {
         Exam clone = new Exam();
         BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipations",
-                "examInspections", "creator", "created", produceStudentExam ? "examOwners" : "none");
+                "examInspections", "autoEvaluationConfig", "creator", "created", produceStudentExam ? "examOwners" : "none");
         clone.setParent(this);
         AppUtil.setCreator(clone, user);
         AppUtil.setModifier(clone, user);
         clone.generateHash();
         clone.save();
+
+        if (autoEvaluationConfig != null) {
+            AutoEvaluationConfig configClone = autoEvaluationConfig.copy();
+            configClone.setExam(clone);
+            configClone.save();
+            clone.setAutoEvaluationConfig(configClone);
+        }
 
         for (ExamInspection ei : examInspections) {
             ExamInspection inspection = new ExamInspection();
@@ -475,18 +504,22 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             inspection.setExam(clone);
             inspection.save();
         }
-        Collections.sort(examSections, (o1, o2) -> (int) (o1.getId() - o2.getId()));
-        for (ExamSection es : examSections) {
+        Set<ExamSection> sections = new TreeSet<>();
+        sections.addAll(examSections);
+        for (ExamSection es : sections) {
             ExamSection esCopy = es.copy(clone, produceStudentExam);
             AppUtil.setCreator(esCopy, user);
             AppUtil.setModifier(esCopy, user);
             esCopy.save();
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
-                Question questionCopy = esq.getQuestion();
-                AppUtil.setCreator(questionCopy, user);
-                AppUtil.setModifier(questionCopy, user);
-                questionCopy.save();
+                if (produceStudentExam) {
+                    Question questionCopy = esq.getQuestion();
+                    AppUtil.setCreator(questionCopy, user);
+                    AppUtil.setModifier(questionCopy, user);
+                    questionCopy.save();
+                }
                 esq.save();
+                esq.getOptions().forEach(ExamSectionQuestionOption::save);
             }
             clone.getExamSections().add(esCopy);
         }
@@ -495,8 +528,17 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             BeanUtils.copyProperties(attachment, copy, "id");
             clone.setAttachment(copy);
         }
-        Collections.sort(clone.getExamSections(), (o1, o2) -> (int) (o1.getId() - o2.getId()));
+        // do we need this at all?
+        clone.setExamSections(new TreeSet<>(clone.getExamSections()));
         return clone;
+    }
+
+    public Exam copyForStudent(User student) {
+        return createCopy(student, true);
+    }
+
+    public Exam copy(User user) {
+        return createCopy(user, false);
     }
 
     public Date getExamActiveStartDate() {
@@ -531,19 +573,43 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.executionType = executionType;
     }
 
+    public AutoEvaluationConfig getAutoEvaluationConfig() {
+        return autoEvaluationConfig;
+    }
+
+    public void setAutoEvaluationConfig(AutoEvaluationConfig autoEvaluationConfig) {
+        this.autoEvaluationConfig = autoEvaluationConfig;
+    }
+
+    public Date getAutoEvaluationNotified() {
+        return autoEvaluationNotified;
+    }
+
+    public void setAutoEvaluationNotified(Date autoEvaluationNotified) {
+        this.autoEvaluationNotified = autoEvaluationNotified;
+    }
+
+    public boolean isGradeless() {
+        return gradeless;
+    }
+
+    public void setGradeless(boolean gradeless) {
+        this.gradeless = gradeless;
+    }
+
     @Transient
-    public boolean isCreatedBy(User user) {
+    private boolean isCreatedBy(User user) {
         return creator != null && creator.equals(user);
     }
 
     @Transient
-    public boolean isInspectedBy(User user, boolean applyToChildOnly) {
+    private boolean isInspectedBy(User user, boolean applyToChildOnly) {
         Exam examToCheck = parent == null || applyToChildOnly ? this : parent;
         return examToCheck.examInspections.stream().anyMatch(ei -> ei.getUser().equals(user));
     }
 
     @Transient
-    public boolean isOwnedBy(User user) {
+    private boolean isOwnedBy(User user) {
         Exam examToCheck = parent == null ? this : parent;
         return examToCheck.examOwners.stream().anyMatch(owner -> owner.equals(user));
     }
@@ -559,8 +625,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     @Transient
-    public boolean isInspectedOrCreatedOrOwnedBy(User user, boolean applyToChildOnly) {
-        return isInspectedBy(user, applyToChildOnly) || isOwnedBy(user) || isCreatedBy(user);
+    public boolean isChildInspectedOrCreatedOrOwnedBy(User user) {
+        return isInspectedBy(user, true) || isOwnedBy(user) || isCreatedBy(user);
     }
 
     @Transient
@@ -579,6 +645,18 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     public boolean hasState(State... states) {
         return Arrays.asList(states).contains(state);
     }
+
+    @Transient
+    public void setDerivedMaxScores() {
+        examSections.stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .forEach(esq -> {
+                    esq.setDerivedMaxScore();
+                    esq.getOptions().stream()
+                            .forEach(o -> o.setScore(null));
+                });
+    }
+
 
     @Override
     public boolean equals(Object other) {
@@ -610,5 +688,41 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Override
     public int compareTo(@Nonnull Exam other) {
         return created.compareTo(other.created);
+    }
+
+    private static Query<Exam> createQuery() {
+        return Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("course.organisation")
+                .fetch("course.gradeScale")
+                .fetch("course.gradeScale.grades", new FetchConfig().query())
+                .fetch("parent")
+                .fetch("parent.creator")
+                .fetch("parent.gradeScale")
+                .fetch("parent.gradeScale.grades", new FetchConfig().query())
+                .fetch("parent.examOwners", new FetchConfig().query())
+                .fetch("examType")
+                .fetch("executionType")
+                .fetch("examSections")
+                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
+                .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
+                .fetch("examSections.sectionQuestions.question.attachment", "fileName")
+                .fetch("examSections.sectionQuestions.options")
+                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
+                .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore")
+                .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
+                .fetch("gradeScale")
+                .fetch("gradeScale.grades")
+                .fetch("grade")
+                .fetch("languageInspection")
+                .fetch("languageInspection.assignee", "firstName, lastName, email")
+                .fetch("languageInspection.statement")
+                .fetch("languageInspection.statement.attachment")
+                .fetch("examFeedback")
+                .fetch("examFeedback.attachment")
+                .fetch("creditType")
+                .fetch("attachment")
+                .fetch("examLanguages")
+                .fetch("examOwners");
     }
 }

@@ -26,7 +26,7 @@ public class RoomControllerTest extends IntegrationTestCase {
         assertThat(room.getState()).isNotEqualTo(ExamRoom.State.INACTIVE.toString());
 
         // Execute
-        Result result = request(Helpers.DELETE, "/rooms/" + 1, null);
+        Result result = request(Helpers.DELETE, "/app/rooms/" + 1, null);
         assertThat(result.status()).isEqualTo(200);
 
         // Verify (both response and database)
@@ -48,7 +48,7 @@ public class RoomControllerTest extends IntegrationTestCase {
         room.update();
 
         // Execute
-        Result result = get("/rooms");
+        Result result = get("/app/rooms");
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -66,7 +66,7 @@ public class RoomControllerTest extends IntegrationTestCase {
         room.update();
 
         // Execute
-        Result result = request(Helpers.POST, "/rooms/" + 1, null);
+        Result result = request(Helpers.POST, "/app/rooms/" + 1, null);
         assertThat(result.status()).isEqualTo(200);
 
         // Verify (both response and database)
@@ -88,7 +88,7 @@ public class RoomControllerTest extends IntegrationTestCase {
         room.update();
 
         // Execute
-        Result result = get("/rooms");
+        Result result = get("/app/rooms");
         assertThat(result.status()).isEqualTo(200);
 
         // Verify

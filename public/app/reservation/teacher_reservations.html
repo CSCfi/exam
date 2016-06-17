@@ -10,7 +10,7 @@
             <strong>{{'sitnet_begin' | translate}}</strong>
 
             <div class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}"
+                <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
                        ng-model="dateService.startDate"
                        is-open="startDateOpened" datepicker-options="dateOptions"
                        close-text="{{'sitnet_close' | translate}}"
@@ -29,7 +29,7 @@
             <strong>{{'sitnet_end' | translate}}</strong>
 
             <div class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
+                <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dateService.endDate"
                        is-open="endDateOpened" datepicker-options="dateOptions"
                        close-text="{{'sitnet_close' | translate}}"
                        current-text="{{'sitnet_today' | translate}}"
@@ -47,19 +47,19 @@
         <div class="col-md-2">
             <strong>{{'sitnet_student' | translate}}</strong>
             <input class="wide-select" ui-select2="studentOptions"
-                   ng-model="selection.studentId" ng-change="studentChanged()">
+                   ng-model="selection.studentId" ng-click="query()">
             </input>
         </div>
         <div class="col-md-2">
             <strong>{{'sitnet_exam' | translate}}</strong>
             <input class="wide-select" ui-select2="examOptions"
-                   ng-model="selection.examId" ng-change="examChanged()">
+                   ng-model="selection.examId" ng-click="query()">
             </input>
         </div>
         <div class="col-md-2">
             <strong>{{'sitnet_exam_state' | translate}}</strong>
             <input class="wide-select" ui-select2="stateOptions"
-                   ng-model="selection.state" ng-change="stateChanged()">
+                   ng-model="selection.state" ng-click="query()">
             </input>
         </div>
     </div>

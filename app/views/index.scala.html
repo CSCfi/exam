@@ -1,3 +1,4 @@
+@(webJarAssets: WebJarAssets, isProd: Boolean)
 <!DOCTYPE html>
 <html ng-app="exam">
     <head>
@@ -27,45 +28,55 @@
         <meta name="msapplication-TileColor" content="#000000">
         <meta name="msapplication-TileImage" content="images//mstile-144x144.png">
 
-        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/bootstrap.css")">
-        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/font-awesome.min.css")">
-        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/jquery-ui.min.css")">
-        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/toastr.min.css")">
-        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/jquery-ui.min.css")">
-        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/fullcalendar.min.css")">
-        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/multiselect-style.css")">
-        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/select2/select2.css")">
-        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/dialogs.min.css")">
+        <link rel="stylesheet" media="all" href="@routes.WebJarAssets.at(webJarAssets.locate("font-awesome", "font-awesome.min.css"))">
+        <link rel="stylesheet" media="all" href="@routes.WebJarAssets.at(webJarAssets.locate("select2", "3.5.4/select2.css"))">
+        <link rel="stylesheet" media="all" href="@routes.WebJarAssets.at(webJarAssets.locate("angular-ui-select", "select.min.css"))">
+        <link rel="stylesheet" media="all" href="@routes.WebJarAssets.at(webJarAssets.locate("fullcalendar", "fullcalendar.min.css"))">
+        <link rel="stylesheet" media="all" href="@routes.WebJarAssets.at(webJarAssets.locate("toastr", "toastr.css"))">
             <!--  style -->
         <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/main.css")">
 
             <!-- vendor -->
-        <script src="@routes.Assets.at("components/vendor/jquery.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/jquery-ui.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/jquery.ui.touch-punch.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/toastr.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/angular.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/angular-animate.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/calendar.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/angular-cookies.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/angular-route.min.js")" type="text/javascript"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("jquery","dist/jquery.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("jquery-ui","jquery-ui.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("jquery-ui-touch-punch","jquery.ui.touch-punch.min.js"))"></script>
+
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("toastr","toastr.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular", "angular.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-animate", "angular-animate.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-i18n", "angular-locale_en.js"))" type="text/javascript"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-i18n", "angular-locale_fi.js"))" type="text/javascript"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-i18n", "angular-locale_sv.js"))" type="text/javascript"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-ui-calendar", "calendar.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-ui-select", "select.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-cookies", "angular-cookies.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-resource", "angular-resource.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-route", "angular-route.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-sanitize", "angular-sanitize.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-translate.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-translate-loader-static-files.min.js"))"></script>
+
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("http-auth-interceptor.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("ngStorage.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-ui-bootstrap", "ui-bootstrap-tpls.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-strap", "debounce.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-strap", "dimensions.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-strap", "affix.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("momentjs","moment-with-locales.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("moment-timezone", "moment-timezone-with-data.min.js"))"></script>
+
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("fullcalendar", "fullcalendar.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("multiselect-tpls.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("select2", "3.5.4/select2.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("ui-select2.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("FileSaver.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-dynamic-locale", "dist/tmhDynamicLocale.min.js"))" type="text/javascript"></script>
+
+        <!-- Not available as webjars -->
         <script src="@routes.Assets.at("components/vendor/angular-promise-extras.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/angular-resource.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/angular-sanitize.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/http-auth-interceptor.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/ngStorage.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/angular-translate.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/angular-translate-loader-static-files.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/ui-bootstrap-tpls-0.12.1.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/debounce.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/dimensions.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/affix.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/moment-with-locales.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/moment-timezone-with-data.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/fullcalendar.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/ckeditor/ckeditor.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/dialogs.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/MathJax-2.5-latest/MathJax.js?config=TeX-AMS_HTML")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/ckeditor/ckeditor.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/MathJax-2.6-latest/MathJax.js?config=TeX-AMS_HTML")" type="text/javascript"></script>
         <script>
             if (window.CKEDITOR) {
                 CKEDITOR.env.isCompatible = true;
@@ -81,13 +92,8 @@
                 });
             }
         </script>
-        <script src="@routes.Assets.at("components/vendor/multiselect-tpls.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/select2.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/ui-select2.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/FileSaver.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("components/vendor/tmhDynamicLocale.js")" type="text/javascript"></script>
 
-        @if(play.api.Play.isProd(play.api.Play.current)) {
+        @if(isProd) {
             <script src="@routes.Assets.at("app/exam.min.js")" type="text/javascript"></script>
         } else {
                 <!-- internal component -->
@@ -133,6 +139,7 @@
             <script src="@routes.Assets.at("app/exam/editor/courseResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/editor/languageResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/examController.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/exam/examListingController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/student/studentExamController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/student/examLogoutController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/student/examSearchController.js")" type="text/javascript"></script>
@@ -153,7 +160,10 @@
 
                 <!-- question -->
             <script src="@routes.Assets.at("app/question/questionResource.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/question/questionController.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/question/editor/examSectionQuestionResource.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/question/editor/questionController.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/question/editor/questionOwnerController.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/question/editor/examSectionQuestionController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/question/questionService.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/question/libraryController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/question/tagResource.js")" type="text/javascript"></script>
@@ -169,6 +179,7 @@
                 <!-- review -->
             <script src="@routes.Assets.at("app/review/examReviewController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/review/reviewListingController.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/review/examReviewService.js")" type="text/javascript"></script>
 
                 <!-- maturity -->
             <script src="@routes.Assets.at("app/maturity/languageInspectionController.js")" type="text/javascript"></script>
@@ -262,7 +273,7 @@
                 </div>
             </div>
             @*App content*@
-            <div id="mainView" class="container-fluid" ng-class="examStarted ? '' : minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
+            <div id="mainView" class="wide-container-fluid" ng-class="examStarted ? '' : minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
                 <div ng-view />
             </div>
         </div>

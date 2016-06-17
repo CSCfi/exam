@@ -1,0 +1,46 @@
+<div ng-init="toggleArchivedExams = false">
+    <div class="main-row">
+        <span class="col-md-12">
+            <a ng-click="toggleArchivedExams = !toggleArchivedExams" class="header-icon fa-stack fa-lg">
+                <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+                <i ng-show="!toggleArchivedExams" class="fa fa-chevron-right fa-stack-1x"></i>
+                <i ng-show="toggleArchivedExams" class="fa fa-chevron-down fa-stack-1x"></i>
+            </a>
+            <span ng-click="toggleArchivedExams = !toggleArchivedExams" class="exams-list-title-text pointer">{{ 'sitnet_archived_teacher_exams' | translate }}</span>
+        </span>
+    </div>
+
+    <div class="detail-row" ng-show="toggleArchivedExams">
+        <div class="col-md-12">
+            <table class="table table-bordered table-striped exams-table">
+                <thead ng-init="archivedPredicate='examActiveEndDate'; reverse=true;">
+                <tr>
+                    <th sort by="course.code" text="sitnet_examcode" predicate="archivedPredicate" reverse="reverse"></th>
+                    <th sort by="name" text="sitnet_exam_name" predicate="archivedPredicate" reverse="reverse"></th>
+                    <th sort by="executionType.id" text="sitnet_exam_credit_type" predicate="archivedPredicate" reverse="reverse"></th>
+                    <th sort by="examActiveEndDate" text="sitnet_exam_validity" predicate="archivedPredicate" reverse="reverse"></th>
+                    <th sort by="assessedCount" text="sitnet_participations_assessed" predicate="archivedPredicate" reverse="reverse"></th>
+                    <th sort by="ownerAggregate" text="sitnet_teachers" predicate="archivedPredicate" reverse="reverse"></th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr ng-repeat="exam in archivedExams | orderBy:archivedPredicate:reverse">
+                    <td class="table-column-examcode">{{ exam.course.code }}</td>
+                    <td ng-if="exam.name" class="table-column-examname"><a href="/exams/reviews/{{exam.id}}">
+                        {{ exam.name }}</a></td>
+                    <td ng-if="!exam.name" class="table-column-examname">
+                        <span class="text-danger">{{'sitnet_no_name' | translate}}</span>
+                    </td>
+                    <td>{{ getExecutionTypeTranslation(exam) | translate | uppercase }}</td>
+                    <td class="table-column-open-until">{{ exam.examActiveStartDate | date:'dd.MM.yyyy' }} -
+                        {{ exam.examActiveEndDate | date:'dd.MM.yyyy' }}
+                    </td>
+                    <td class="table-column-enroll-participation">{{exam.assessedCount}}</td>
+                    <td class="table-column-teachers"><teacher-list exam="exam" /></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

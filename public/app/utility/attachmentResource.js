@@ -4,7 +4,7 @@
         .factory("AttachmentRes", ['$resource', function ($resource) {
             return {
                 questionAttachment: $resource(
-                    "/attachment/question/:id",
+                    "/app/attachment/question/:id",
                     {
                         id: "@id"
                     },
@@ -14,7 +14,7 @@
                         "remove": {method: "DELETE", params: {id: "@id"}}
                     }),
                 questionAnswerAttachment: $resource(
-                    "/attachment/question/:qid/answer/:hash",
+                    "/app/attachment/question/:qid/answer/:hash",
                     {
                         qid: "@qid",
                         hash: "@hash"
@@ -25,7 +25,7 @@
                         "remove": {method: "DELETE", params: {qid: "@qid", hash: "@hash"}}
                     }),
                 examAttachment: $resource(
-                    "/attachment/exam/:id",
+                    "/app/attachment/exam/:id",
                     {
                         id: "@id"
                     },
@@ -35,7 +35,7 @@
                         "remove": {method: "DELETE", params: {id: "@id"}}
                     }),
                 feedbackAttachment: $resource(
-                    "/attachment/exam/:id/feedback",
+                    "/app/attachment/exam/:id/feedback",
                     {
                         id: "@id"
                     },
@@ -45,7 +45,7 @@
                         "remove": {method: "DELETE", params: {eid: "@id"}}
                     }),
                 statementAttachment: $resource(
-                    "/attachment/exam/:id/statement",
+                    "/app/attachment/exam/:id/statement",
                     {
                         id: "@id"
                     },

@@ -3,7 +3,7 @@
     angular.module("exam.resources")
         .factory("LanguageRes", ['$resource', function($resource) {
             return {
-                languages: $resource("/languages", null)
-            }
+                languages: $resource("/app/languages", null)
+            };
         }]);
 }());

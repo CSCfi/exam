@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import models.base.GeneratedIdentityModel;
 import org.joda.time.Interval;
 
 import javax.annotation.Nonnull;
@@ -22,15 +23,15 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
 
     @OneToOne(mappedBy = "reservation")
     @JsonBackReference
-    ExamEnrolment enrolment;
+    private ExamEnrolment enrolment;
 
     @OneToOne
     @JsonBackReference
-    ExamMachine machine;
+    private ExamMachine machine;
 
     @OneToOne
     @JsonBackReference
-    User user;
+    private User user;
 
     public Date getStartAt() {
         return startAt;

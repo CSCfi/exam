@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -37,13 +37,14 @@ CKEDITOR.editorConfig = function (config) {
     // Simplify the dialog windows.
     config.removeDialogTabs = 'image:advanced;link:advanced';
 
-    config.mathJaxLib = "/assets/components/vendor/MathJax-2.5-latest/MathJax.js?config=TeX-AMS_HTML";
+    config.mathJaxLib = "/assets/components/vendor/MathJax-2.6-latest/MathJax.js?config=TeX-AMS_HTML";
 
     // Uncomment this in order to enable resizing in both directions, default is vertical only
     //config.resize_dir = 'both';
 
 	config.wordcount = {
 		showParagraphs: false,
-		showCharCount: true
+		showCharCount: true,
+        countSpacesAsChars: false
 	}
 };

@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('enrolmentService', ['$translate', '$q', '$location', '$modal', 'dialogs', 'EnrollRes', 'SettingsResource',
+        .service('enrolmentService', ['$translate', '$q', '$location', '$uibModal', 'dialogs', 'EnrollRes', 'SettingsResource',
             'StudentExamRes', 'EXAM_CONF',
             function ($translate, $q, $location, $modal, dialogs, EnrollRes, SettingsResource, StudentExamRes, EXAM_CONF) {
 
@@ -24,8 +24,8 @@
                     var deferred = $q.defer();
                     EnrollRes.enroll.create({code: exam.course.code, id: exam.id},
                         function () {
-                            toastr.success($translate.instant('sitnet_you_have_enrolled_to_exam') + '<br/>'
-                                + $translate.instant('sitnet_remember_exam_machine_reservation'));
+                            toastr.success($translate.instant('sitnet_you_have_enrolled_to_exam') + '<br/>' +
+                                $translate.instant('sitnet_remember_exam_machine_reservation'));
                             $location.path('/calendar/' + exam.id);
                             deferred.resolve();
                         },
@@ -40,10 +40,15 @@
                     EnrollRes.check.get({id: exam.id}, function () {
                             // already enrolled
                             toastr.error($translate.instant('sitnet_already_enrolled'));
-                        }, function () {
-                            self.enroll(exam);
+                        }, function (err) {
+                            if (err.status === 403) {
+                                toastr.error(err.data);
+                            }
+                            if (err.status === 404) {
+                                self.enroll(exam);
+                            }
                         }
-                    )
+                    );
                 };
 
                 self.enrollStudent = function (exam, student) {
@@ -70,10 +75,13 @@
                                 setMaturityInstructions(exam).then(function(data) {
                                     exam = data;
                                     EnrollRes.check.get({id: exam.id}, function () {
-                                        exam.notEnrolled = false;
+                                        exam.alreadyEnrolled = true;
                                         scope.exam = exam;
-                                    }, function () {
-                                        exam.notEnrolled = true;
+                                    }, function (err) {
+                                        exam.alreadyEnrolled = err.status !== 404;
+                                        if (err.status === 403) {
+                                            exam.noTrialsLeft = true;
+                                        }
                                         scope.exam = exam;
                                     });
                                 });
@@ -116,7 +124,7 @@
                 };
 
                 self.addEnrolmentInformation = function (enrolment) {
-                    var modalController = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.enrolment = angular.copy(enrolment);
                         $scope.ok = function () {
                             $modalInstance.close("Accepted");
@@ -126,12 +134,12 @@
                                 information: $scope.enrolment.information
                             }, function () {
                                 toastr.success($translate.instant('sitnet_saved'));
-                            })
+                            });
                         };
 
                         $scope.cancel = function () {
                             $modalInstance.close("Canceled");
-                        }
+                        };
                     }];
 
                     var modalInstance = $modal.open({
@@ -152,7 +160,7 @@
                 };
 
                 self.showInstructions = function (enrolment) {
-                    var modalController = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.title = 'sitnet_instruction';
                         $scope.instructions = enrolment.exam.enrollInstruction;
                         $scope.ok = function () {
@@ -178,7 +186,7 @@
                 };
 
                 self.showMaturityInstructions = function (enrolment) {
-                    var modalController = ["$scope", "$modalInstance", "SettingsResource", function ($scope, $modalInstance, SettingsResource) {
+                    var modalController = ["$scope", "$uibModalInstance", "SettingsResource", function ($scope, $modalInstance, SettingsResource) {
                         if (enrolment.exam.examLanguages.length !== 1) {
                             console.warn("Exam has no exam languages or it has several!");
                         }

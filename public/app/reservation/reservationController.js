@@ -6,13 +6,14 @@
             function (ExamRes, $scope, $location, $http, EXAM_CONF, ReservationResource, reservationService, dateService, examService,
                       $timeout, $routeParams, $translate, $filter) {
 
+                var examId = $routeParams.eid ? parseInt($routeParams.eid) : undefined;
+                $scope.selection = {examId: examId};
+
                 var select2options = {
                     placeholder: '-',
                     data: [],
                     allowClear: true,
-                    dropdownAutoWidth : true,
-                    initSelection: function (element, callback) {
-                    }
+                    dropdownAutoWidth: true
                 };
 
                 $scope.machineOptions = angular.copy(select2options);
@@ -20,6 +21,20 @@
                 $scope.roomOptions = angular.copy(select2options);
 
                 $scope.examOptions = angular.copy(select2options);
+                $scope.examOptions.initSelection = function (element, callback) {
+                    if (examId) {
+                        var selected = $scope.examOptions.data.filter(function (d) {
+                            return d.id === examId;
+                        });
+                        if (selected.length > 0) {
+                            callback(selected[0]);
+                            // this reset is dumb but necessary because for some reason this callback is executed
+                            // each time selection changes. Might be a problem with the (deprecated) ui-select2
+                            // directive or not
+                            examId = null;
+                        }
+                    }
+                };
 
                 $scope.studentOptions = angular.copy(select2options);
 
@@ -31,7 +46,6 @@
 
                 $scope.reservationDetails = EXAM_CONF.TEMPLATES_PATH + "reservation/reservation_details.html";
 
-                $scope.selection = {examId: $routeParams.eid};
 
                 $scope.isAdminView = function () {
                     return $location.path() === '/';
@@ -41,7 +55,7 @@
                         $scope.students = $filter('orderBy')(students, ['lastName', 'firstName']);
                         $scope.students.forEach(function (student) {
                             $scope.studentOptions.data.push({id: student.id, text: student.name});
-                        })
+                        });
                     },
                     function (error) {
                         toastr.error(error.data);
@@ -53,7 +67,7 @@
                         $scope.examnames = $filter('orderBy')(exams, 'name');
                         $scope.examnames.forEach(function (exam) {
                             $scope.examOptions.data.push({id: exam.id, text: exam.name});
-                        })
+                        });
                     },
                     function (error) {
                         toastr.error(error.data);
@@ -64,7 +78,10 @@
                     ReservationResource.teachers.query(function (teachers) {
                             $scope.examOwners = $filter('orderBy')(teachers, ['lastName', 'firstName']);
                             $scope.examOwners.forEach(function (owner) {
-                               $scope.teacherOptions.data.push({id: owner.id, text: owner.firstName + " " + owner.lastName})
+                                $scope.teacherOptions.data.push({
+                                    id: owner.id,
+                                    text: owner.firstName + " " + owner.lastName
+                                });
                             });
                         },
                         function (error) {
@@ -109,18 +126,21 @@
                 ];
 
                 $scope.examStates.forEach(function (state) {
-                    $scope.stateOptions.data.push({id: state, text: $translate.instant('sitnet_exam_status_' + state.toLowerCase())})
+                    $scope.stateOptions.data.push({
+                        id: state,
+                        text: $translate.instant('sitnet_exam_status_' + state.toLowerCase())
+                    });
                 });
 
                 $scope.printExamState = function (enrolment) {
+                    if (!enrolment.reservation) {
+                        console.warn("enrolment without reservation listed, possibly obsolete data #enrolment id: " +
+                            enrolment.id);
+                        return;
+                    }
                     return enrolment.reservation.noShow ? 'NO_SHOW' : enrolment.exam.state;
                 };
 
-                $scope.machineChanged = function () {
-                    if (typeof $scope.selection.machineId === 'object') {
-                        $scope.query();
-                    }
-                };
 
                 $scope.roomChanged = function () {
                     if (typeof $scope.selection.roomId !== 'object') {
@@ -136,34 +156,21 @@
                     $scope.query();
                 };
 
-                $scope.examChanged = function () {
-                    if (typeof $scope.selection.examId === 'object') {
-                        $scope.query();
+                var somethingSelected = function (params) {
+                    for (var k in params) {
+                        if (!params.hasOwnProperty(k)) {
+                            continue;
+                        }
+                        if (params[k]) {
+                            return true;
+                        }
                     }
-                };
-
-                $scope.studentChanged = function () {
-                    if (typeof $scope.selection.studentId === 'object') {
-                        $scope.query();
-                    }
-                };
-
-                $scope.stateChanged = function () {
-                    if (typeof $scope.selection.state === 'object') {
-                        $scope.query();
-                    }
-                };
-
-                $scope.teacherChanged = function () {
-                    if (typeof $scope.selection.ownerId === 'object') {
-                        $scope.query();
-                    }
+                    return $scope.dateService.startDate || $scope.dateService.endDate;
                 };
 
                 $scope.query = function () {
-                    // Teacher not required to specify time ranges
-                    if (!$scope.isAdminView() || ($scope.dateService.startDate && $scope.dateService.endDate)) {
-                        var params = angular.copy($scope.selection);
+                    var params = angular.copy($scope.selection);
+                    if (somethingSelected(params)) {
                         // have to clear empty strings completely
                         for (var k in params) {
                             if (!params.hasOwnProperty(k)) {
@@ -207,13 +214,14 @@
                 };
 
                 $scope.removeReservation = function (enrolment) {
-                    ReservationResource.reservation.remove({id: enrolment.reservation.id}, null,
-                        function () {
-                            $scope.enrolments.splice($scope.enrolments.indexOf(enrolment), 1);
-                            toastr.info($translate.instant('sitnet_reservation_removed'));
-                        }, function (error) {
-                            toastr.error(error.data);
-                        });
+                    reservationService.cancelReservation(enrolment.reservation).then(function () {
+                        $scope.enrolments.splice($scope.enrolments.indexOf(enrolment), 1);
+                        toastr.info($translate.instant('sitnet_reservation_removed'));
+                    });
+                };
+
+                $scope.changeReservationMachine = function (reservation) {
+                    reservationService.changeMachine(reservation);
                 };
 
                 $scope.permitRetrial = function (reservation) {
@@ -223,7 +231,7 @@
                     });
                 };
 
-                function roomContains (examroom, machine) {
+                function roomContains(examroom, machine) {
                     if (examroom && examroom.examMachines) {
                         return examroom.examMachines.some(function (roommachine) {
                             return (machine.id === roommachine.id);
@@ -256,8 +264,11 @@
                 }
 
                 function machinesForRooms(rooms, machines) {
+                    if (!rooms || !machines) {
+                        return;
+                    }
                     rooms.forEach(function (room) {
-                        machinesForRoom(room, machines)
+                        machinesForRoom(room, machines);
                     });
                 }
             }

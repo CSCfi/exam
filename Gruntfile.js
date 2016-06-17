@@ -32,13 +32,27 @@ module.exports = function (grunt) {
                     'public/app/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
                 }
             }
+        },
+        jshint: {
+            files: ['Gruntfile.js', 'public/app/**/*.js'],
+            options: {
+                globals: {
+                    config: true
+                }
+            }
+        },
+        watch: {
+            files: ['<%= jshint.files %>'],
+            tasks: ['jshint']
         }
 
     });
 
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-ng-annotate');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.registerTask('default', ['concat', 'ngAnnotate', 'uglify']);
+    grunt.registerTask('minify', ['concat', 'ngAnnotate', 'uglify']);
 };
 

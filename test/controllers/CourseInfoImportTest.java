@@ -72,7 +72,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     public void testGetCourseDefaultOrganisation() throws Exception {
         setUserOrg(null);
         CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo.json");
-        Result result = get("/courses?filter=code&q=2121219");
+        Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(1);
@@ -93,7 +93,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         setUserOrg("oulu.fi");
 
         CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo2.json");
-        Result result = get("/courses?filter=code&q=t7");
+        Result result = get("/app/courses?filter=code&q=t7");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(1);
@@ -112,7 +112,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     public void testGetCourseMultiple() throws Exception {
         setUserOrg(null);
         CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfoMultiple.json");
-        Result result = get("/courses?filter=code&q=2121219");
+        Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(8);
@@ -129,7 +129,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     public void testGetCourseUnauthorized() throws Exception {
         setUserOrg(null);
         CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo.json");
-        Result result = get("/courses?filter=code&q=2121219");
+        Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(401);
     }
 
@@ -137,7 +137,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     public void testGetCourseUnauthenticated() throws Exception {
         setUserOrg(null);
         CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfo.json");
-        Result result = get("/courses?filter=code&q=2121219");
+        Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(401);
     }
 
@@ -146,7 +146,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     public void testGetExpiredCourse() throws Exception {
         setUserOrg(null);
         CourseInfoServlet.jsonFile = new File("test/resources/courseUnitInfoExpired.json");
-        Result result = get("/courses?filter=code&q=2121219");
+        Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).isEmpty();

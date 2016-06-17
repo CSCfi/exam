@@ -1,5 +1,8 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import models.base.GeneratedIdentityModel;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
@@ -9,9 +12,11 @@ import java.util.List;
 public class Software extends GeneratedIdentityModel {
 
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "softwareInfo")
-    private List<ExamMachine> machine;
+    @JsonBackReference
+    private List<ExamMachine> machines;
 
     @ManyToMany(cascade = CascadeType.ALL)
+    @JsonBackReference
     private List<Exam> exams;
 
     private String name;
@@ -34,6 +39,22 @@ public class Software extends GeneratedIdentityModel {
         this.status = status;
     }
 
+    public List<Exam> getExams() {
+        return exams;
+    }
+
+    public void setExams(List<Exam> exams) {
+        this.exams = exams;
+    }
+
+    public List<ExamMachine> getMachines() {
+        return machines;
+    }
+
+    public void setMachines(List<ExamMachine> machines) {
+        this.machines = machines;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -51,4 +72,5 @@ public class Software extends GeneratedIdentityModel {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
+
 }

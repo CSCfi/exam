@@ -153,7 +153,7 @@ attachments:
 ######################################################################
 
 
-question_essay:
+question-essay:
 
 # Essay questions
 
@@ -162,197 +162,29 @@ question_essay:
     creator: *olli
     created: 2014-04-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
-    instruction:
-    maxScore: 5
-    evaluationType: Points
-    evaluationCriterias:
-    maxCharacters: 1000
-    shared: true
-    expanded: false
 
   - &essay2 !!models.questions.Question
     type: EssayQuestion
     creator: *olli
     created: 2014-03-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
-    instruction:
-    maxScore: 5
-    evaluationType: Points
-    evaluationCriterias:
-    maxCharacters: 1024
-    shared: false
-    expanded: false
 
   - &essay3 !!models.questions.Question
     type: EssayQuestion
     creator: *arvo
     created: 2014-02-01 12:30:05.123
     question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
-    instruction:
-    maxScore: 5
-    evaluationType: Select
-    evaluationCriterias:
-    maxCharacters: 2250
-    shared: false
-    expanded: false
 
   - &essay_algo_01 !!models.questions.Question
     type: EssayQuestion
     creator: *arvo
     created: 2014-02-01 12:30:05.123
     question: Kuvaile ahneen algoritmin toimintaperiaate.
-    instruction:
-    maxScore: 5
-    evaluationType: Select
-   #materials:
-    evaluationCriterias:
-    maxCharacters: 2250
-    shared: false
-    expanded: false
 
-#Answered questions
-  - &essay1_sauli !!models.questions.Question
-    type: EssayQuestion
-    creator: *sauli
-    created: 2014-04-01 12:30:05.123
-    question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
-    parent: *essay1
-    instruction:
-    maxScore: 5
-    evaluationType: Points
-    evaluationCriterias:
-    maxCharacters: 1000
-    shared: true
-    expanded: false
-    answer:
-        !!models.questions.Answer {type: EssayAnswer, answer: "Bacon ipsum dolor sit amet pork belly ball tip ground round, bresaola beef short loin pancetta pork chop tail boudin corned beef ribeye rump turducken tongue. Swine jerky rump fatback shoulder cow ham filet mignon, kielbasa ball tip spare ribs ribeye bacon andouille ham hock. Spare ribs corned beef kevin prosciutto strip steak turducken beef meatball bresaola bacon kielbasa ground round. Ham hock biltong doner pork belly tail pork loin. Short loin ham ham hock flank frankfurter kielbasa meatloaf ribeye meatball chicken.
-
-                                                                  Pancetta spare ribs leberkas meatloaf flank ball tip tail andouille frankfurter sausage filet mignon fatback. Ground round pig leberkas hamburger doner short loin. Prosciutto sausage short ribs pancetta venison sirloin kevin, bresaola boudin jowl jerky. Beef brisket tri-tip hamburger pig jowl kevin sausage. Biltong landjaeger pastrami tenderloin boudin tri-tip sausage, andouille tail hamburger.
-
-                                                                  Porchetta hamburger kielbasa venison ball tip pastrami shoulder shank prosciutto corned beef filet mignon jerky pancetta jowl. Porchetta andouille drumstick fatback strip steak. Kielbasa bresaola andouille fatback pastrami ball tip pork chop. Beef tri-tip pork belly turducken salami hamburger. Kielbasa corned beef pork chop t-bone, shankle porchetta ball tip andouille.
-
-                                                                  Pork jowl tri-tip, turducken brisket strip steak bacon. Tri-tip pork chop doner, porchetta brisket capicola ground round corned beef filet mignon tail. Chicken landjaeger boudin frankfurter, drumstick pork chop chuck t-bone strip steak corned beef. Cow shank andouille beef ribs, swine tenderloin frankfurter filet mignon porchetta sirloin turducken. Chicken sausage tri-tip pork chop tongue pig short loin ground round boudin andouille leberkas capicola spare ribs fatback landjaeger.
-
-                                                                  Turkey ham hock biltong turducken spare ribs sausage, sirloin beef ribs prosciutto rump jowl. Landjaeger pork chop salami, chicken beef pig tenderloin pancetta ball tip tri-tip tail pork belly andouille cow. Shank tail prosciutto chuck filet mignon, swine short loin beef porchetta sirloin t-bone. Meatloaf tenderloin filet mignon salami flank porchetta, bacon pork loin cow chicken. Landjaeger biltong turducken jerky beef ribs swine shank pork corned beef pork belly tenderloin. Jowl rump pancetta corned beef ball tip chuck ham hock kielbasa meatball andouille."}
-
-  - &essay2_sauli !!models.questions.Question
-    type: EssayQuestion
-    creator: *sauli
-    created: 2014-03-01 12:30:05.123
-    question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
-    instruction:
-    maxScore: 5
-    evaluationType: Points
-    evaluationCriterias:
-    maxCharacters: 1024
-    shared: false
-    expanded: false
-    answer:
-        !!models.questions.Answer {type: EssayAnswer, answer: "Ja, und maybe vee stamp on it und skvush it, Lebowski! Dolor sit amet, consectetur adipiscing elit praesent ac magna justo pellentesque ac lectus quis. Yeah man. Well, you know, the Dude abides. Elit blandit fringilla a ut turpis praesent felis ligula. Shomer shabbos. Malesuada suscipit malesuada non. Jesus, man, can you change the station. Ultrices non urna sed orci ipsum. Walter, this isn't a First Amendment thing. Placerat id condimentum rutrum, rhoncus ac lorem aliquam placerat posuere neque.
-
-                                                                  All right, Plan B. You might want to watch out the front window there, Larry. At dignissim magna ullamcorper in aliquam sagittis massa ac. 1972 Pontiac LeBaron. Tortor ultrices faucibus curabitur eu mi sapien, ut ultricies ipsum morbi eget risus nulla. Yeah. Roadie for Metallica. Speed of Sound Tour. Nullam vel nisi enim, vel auctor ante morbi id urna vel felis lacinia. A way out west there was a fella, fella I want to tell you about, fella by the name of Jeff Lebowski. At least, that was the handle his lovin' parents gave him, but he never had much use for it himself. This Lebowski, he called himself the Dude. Now, Dude, that's a name no one would self-apply where I come from. But then, there was a lot about the Dude that didn't make a whole lot of sense to me. And a lot about where he lived, likewise. But then again, maybe that's why I found the place s'durned innarestin'. Placerat vestibulum turpis nulla, viverra nec volutpat ac, ornare id lectus.
-
-                                                                  Dieter doesn't care about anything. He's a nihilist. Cras pharetra faucibus tristique nullam non accumsan justo nulla facilisi integer interdum elementum. Mind if I smoke a jay. Nulla, nec eleifend nisl euismod ac maecenas. Call the medics, Dude. Vitae eros velit, eu suscipit. This Chinaman is not the issue! Erat integer purus lacus, pretium vel venenatis eu, volutpat non erat donec a. I don't see any connection to Vietnam, Walter. Metus ac eros dictum aliquet.
-
-                                                                  Tomorrow vee come back und cut off your chonson. Nulla consectetur egestas placerat maecenas pulvinar nisl. What in God's holy name are you blathering about. Et nisl rhoncus at volutpat. Leads, yeah. I'll just check with the boys down at the Crime Lab. They've assigned four more detectives to the case, got us working in shifts. Felis blandit in libero turpis, laoreet et molestie sed, volutpat et erat.
-
-                                                                  He suspects that the culprits might be the very people who, uh, soiled your rug, and you're in a unique position to confirm or, uh, disconfirm that suspicion. Nulla ut orci quis neque consectetur tincidunt aliquam erat volutpat donec. Zere ARE no ROOL.! Aliquam orci eget mi lobortis sed tincidunt diam mattis fusce sem quam, ultricies sed. Yeah well, that's just, ya know, like, your opinion, man. Convallis ac, hendrerit eu urna curabitur varius egestas."}
-
-  - &essay3_sauli !!models.questions.Question
-    type: EssayQuestion
-    creator: *arvo
-    created: 2014-02-01 12:30:05.123
-    question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
-    parent: *essay3
-    instruction:
-    maxScore: 5
-    evaluationType: Select
-    evaluationCriterias:
-    maxCharacters: 2250
-    shared: false
-    expanded: false
-    answer:
-        !!models.questions.Answer {type: EssayAnswer, answer: "Bicycle rights chillwave quis tattooed ennui sriracha. Biodiesel pork belly raw denim bespoke single-origin coffee, Austin dreamcatcher butcher chambray photo booth hella labore aliquip Brooklyn. Williamsburg Vice velit et, master cleanse pariatur irony cornhole 3 wolf moon Tumblr est. Mollit nulla swag, laborum XOXO aesthetic bicycle rights reprehenderit street art semiotics Intelligentsia. Quis enim nesciunt skateboard pug, chia excepteur eu officia crucifix 90's. Kickstarter laboris you probably haven't heard of them est, deserunt hella delectus actually flannel accusamus. Meh PBR duis next level, flexitarian narwhal Pinterest id reprehenderit cupidatat cred Vice VHS forage.
-
-                                                                  Incididunt leggings 8-bit eiusmod, kale chips Portland roof party vinyl High Life. Beard McSweeney's proident asymmetrical, ugh brunch freegan dolore laboris velit eiusmod. Church-key ugh excepteur bicycle rights Odd Future fixie. Tofu non Austin do, leggings chia asymmetrical skateboard voluptate American Apparel next level bespoke fashion axe. YOLO squid locavore American Apparel, tofu non commodo Schlitz post-ironic. Elit pug put a bird on it selfies, food truck fugiat High Life deserunt eiusmod stumptown hella quis officia vegan squid. Disrupt skateboard laborum 90's cornhole butcher, church-key locavore 8-bit id aute direct trade.
-
-                                                                  Blue Bottle fingerstache cray lomo exercitation. Squid ut tote bag cillum DIY sint, High Life eiusmod elit stumptown Carles. Bushwick leggings PBR&B, enim chia pariatur irony Carles mixtape iPhone PBR. Est pour-over vinyl, wayfarers cray labore trust fund retro banjo selvage. Skateboard PBR dolor sustainable, tousled enim viral kitsch ut gentrify Portland McSweeney's. Pitchfork meggings fashion axe, banjo raw denim roof party selfies. Meggings biodiesel try-hard, twee ut mumblecore Bushwick Odd Future cliche velit.
-
-                                                                  YOLO aesthetic farm-to-table Marfa voluptate, single-origin coffee street art sapiente twee non. Fap Cosby sweater deep v pour-over synth. Bushwick nihil qui kale chips. Wes Anderson mumblecore reprehenderit, viral hella iPhone nihil eiusmod irure. Vinyl retro magna, eiusmod skateboard pug single-origin coffee ethical Helvetica Pinterest eu. Pitchfork elit odio Vice. Yr twee keytar, tofu Cosby sweater laborum readymade cillum freegan Pitchfork letterpress shabby chic odio."}
-
-
-  - &essay1b_sauli !!models.questions.Question
-    type: EssayQuestion
-    creator: *sauli
-    created: 2014-04-01 12:30:05.123
-    question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
-    parent: *essay1
-    instruction:
-    maxScore: 5
-    evaluationType: Points
-    evaluationCriterias:
-    maxCharacters: 1000
-    shared: true
-    expanded: false
-    answer:
-        !!models.questions.Answer {type: EssayAnswer, answer: "Bacon ipsum dolor sit amet pork belly ball tip ground round, bresaola beef short loin pancetta pork chop tail boudin corned beef ribeye rump turducken tongue. Swine jerky rump fatback shoulder cow ham filet mignon, kielbasa ball tip spare ribs ribeye bacon andouille ham hock. Spare ribs corned beef kevin prosciutto strip steak turducken beef meatball bresaola bacon kielbasa ground round. Ham hock biltong doner pork belly tail pork loin. Short loin ham ham hock flank frankfurter kielbasa meatloaf ribeye meatball chicken.
-
-                                                                  Pancetta spare ribs leberkas meatloaf flank ball tip tail andouille frankfurter sausage filet mignon fatback. Ground round pig leberkas hamburger doner short loin. Prosciutto sausage short ribs pancetta venison sirloin kevin, bresaola boudin jowl jerky. Beef brisket tri-tip hamburger pig jowl kevin sausage. Biltong landjaeger pastrami tenderloin boudin tri-tip sausage, andouille tail hamburger.
-
-                                                                  Porchetta hamburger kielbasa venison ball tip pastrami shoulder shank prosciutto corned beef filet mignon jerky pancetta jowl. Porchetta andouille drumstick fatback strip steak. Kielbasa bresaola andouille fatback pastrami ball tip pork chop. Beef tri-tip pork belly turducken salami hamburger. Kielbasa corned beef pork chop t-bone, shankle porchetta ball tip andouille.
-
-                                                                  Pork jowl tri-tip, turducken brisket strip steak bacon. Tri-tip pork chop doner, porchetta brisket capicola ground round corned beef filet mignon tail. Chicken landjaeger boudin frankfurter, drumstick pork chop chuck t-bone strip steak corned beef. Cow shank andouille beef ribs, swine tenderloin frankfurter filet mignon porchetta sirloin turducken. Chicken sausage tri-tip pork chop tongue pig short loin ground round boudin andouille leberkas capicola spare ribs fatback landjaeger.
-
-                                                                  Turkey ham hock biltong turducken spare ribs sausage, sirloin beef ribs prosciutto rump jowl. Landjaeger pork chop salami, chicken beef pig tenderloin pancetta ball tip tri-tip tail pork belly andouille cow. Shank tail prosciutto chuck filet mignon, swine short loin beef porchetta sirloin t-bone. Meatloaf tenderloin filet mignon salami flank porchetta, bacon pork loin cow chicken. Landjaeger biltong turducken jerky beef ribs swine shank pork corned beef pork belly tenderloin. Jowl rump pancetta corned beef ball tip chuck ham hock kielbasa meatball andouille."}
-
-  - &essay2b_sauli !!models.questions.Question
-    type: EssayQuestion
-    creator: *sauli
-    created: 2014-03-01 12:30:05.123
-    question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
-    instruction:
-    maxScore: 5
-    evaluationType: Points
-    evaluationCriterias:
-    maxCharacters: 1024
-    shared: false
-    expanded: false
-    answer:
-        !!models.questions.Answer {type: EssayAnswer, answer: "Ja, und maybe vee stamp on it und skvush it, Lebowski! Dolor sit amet, consectetur adipiscing elit praesent ac magna justo pellentesque ac lectus quis. Yeah man. Well, you know, the Dude abides. Elit blandit fringilla a ut turpis praesent felis ligula. Shomer shabbos. Malesuada suscipit malesuada non. Jesus, man, can you change the station. Ultrices non urna sed orci ipsum. Walter, this isn't a First Amendment thing. Placerat id condimentum rutrum, rhoncus ac lorem aliquam placerat posuere neque.
-
-                                                                  All right, Plan B. You might want to watch out the front window there, Larry. At dignissim magna ullamcorper in aliquam sagittis massa ac. 1972 Pontiac LeBaron. Tortor ultrices faucibus curabitur eu mi sapien, ut ultricies ipsum morbi eget risus nulla. Yeah. Roadie for Metallica. Speed of Sound Tour. Nullam vel nisi enim, vel auctor ante morbi id urna vel felis lacinia. A way out west there was a fella, fella I want to tell you about, fella by the name of Jeff Lebowski. At least, that was the handle his lovin' parents gave him, but he never had much use for it himself. This Lebowski, he called himself the Dude. Now, Dude, that's a name no one would self-apply where I come from. But then, there was a lot about the Dude that didn't make a whole lot of sense to me. And a lot about where he lived, likewise. But then again, maybe that's why I found the place s'durned innarestin'. Placerat vestibulum turpis nulla, viverra nec volutpat ac, ornare id lectus.
-
-                                                                  Dieter doesn't care about anything. He's a nihilist. Cras pharetra faucibus tristique nullam non accumsan justo nulla facilisi integer interdum elementum. Mind if I smoke a jay. Nulla, nec eleifend nisl euismod ac maecenas. Call the medics, Dude. Vitae eros velit, eu suscipit. This Chinaman is not the issue! Erat integer purus lacus, pretium vel venenatis eu, volutpat non erat donec a. I don't see any connection to Vietnam, Walter. Metus ac eros dictum aliquet.
-
-                                                                  Tomorrow vee come back und cut off your chonson. Nulla consectetur egestas placerat maecenas pulvinar nisl. What in God's holy name are you blathering about. Et nisl rhoncus at volutpat. Leads, yeah. I'll just check with the boys down at the Crime Lab. They've assigned four more detectives to the case, got us working in shifts. Felis blandit in libero turpis, laoreet et molestie sed, volutpat et erat.
-
-                                                                  He suspects that the culprits might be the very people who, uh, soiled your rug, and you're in a unique position to confirm or, uh, disconfirm that suspicion. Nulla ut orci quis neque consectetur tincidunt aliquam erat volutpat donec. Zere ARE no ROOL.! Aliquam orci eget mi lobortis sed tincidunt diam mattis fusce sem quam, ultricies sed. Yeah well, that's just, ya know, like, your opinion, man. Convallis ac, hendrerit eu urna curabitur varius egestas."}
-
-  - &essay3b_sauli !!models.questions.Question
-    type: EssayQuestion
-    creator: *arvo
-    created: 2014-02-01 12:30:05.123
-    question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
-    parent: *essay3
-    instruction:
-    maxScore: 5
-    evaluationType: Select
-    evaluationCriterias:
-    maxCharacters: 2250
-    shared: false
-    expanded: false
-    answer:
-        !!models.questions.Answer {type: EssayAnswer, answer: "Bicycle rights chillwave quis tattooed ennui sriracha. Biodiesel pork belly raw denim bespoke single-origin coffee, Austin dreamcatcher butcher chambray photo booth hella labore aliquip Brooklyn. Williamsburg Vice velit et, master cleanse pariatur irony cornhole 3 wolf moon Tumblr est. Mollit nulla swag, laborum XOXO aesthetic bicycle rights reprehenderit street art semiotics Intelligentsia. Quis enim nesciunt skateboard pug, chia excepteur eu officia crucifix 90's. Kickstarter laboris you probably haven't heard of them est, deserunt hella delectus actually flannel accusamus. Meh PBR duis next level, flexitarian narwhal Pinterest id reprehenderit cupidatat cred Vice VHS forage.
-
-                                                                  Incididunt leggings 8-bit eiusmod, kale chips Portland roof party vinyl High Life. Beard McSweeney's proident asymmetrical, ugh brunch freegan dolore laboris velit eiusmod. Church-key ugh excepteur bicycle rights Odd Future fixie. Tofu non Austin do, leggings chia asymmetrical skateboard voluptate American Apparel next level bespoke fashion axe. YOLO squid locavore American Apparel, tofu non commodo Schlitz post-ironic. Elit pug put a bird on it selfies, food truck fugiat High Life deserunt eiusmod stumptown hella quis officia vegan squid. Disrupt skateboard laborum 90's cornhole butcher, church-key locavore 8-bit id aute direct trade.
-
-                                                                  Blue Bottle fingerstache cray lomo exercitation. Squid ut tote bag cillum DIY sint, High Life eiusmod elit stumptown Carles. Bushwick leggings PBR&B, enim chia pariatur irony Carles mixtape iPhone PBR. Est pour-over vinyl, wayfarers cray labore trust fund retro banjo selvage. Skateboard PBR dolor sustainable, tousled enim viral kitsch ut gentrify Portland McSweeney's. Pitchfork meggings fashion axe, banjo raw denim roof party selfies. Meggings biodiesel try-hard, twee ut mumblecore Bushwick Odd Future cliche velit.
-
-                                                                  YOLO aesthetic farm-to-table Marfa voluptate, single-origin coffee street art sapiente twee non. Fap Cosby sweater deep v pour-over synth. Bushwick nihil qui kale chips. Wes Anderson mumblecore reprehenderit, viral hella iPhone nihil eiusmod irure. Vinyl retro magna, eiusmod skateboard pug single-origin coffee ethical Helvetica Pinterest eu. Pitchfork elit odio Vice. Yr twee keytar, tofu Cosby sweater laborum readymade cillum freegan Pitchfork letterpress shabby chic odio."}
 
 ######################################################################
 
-question_multiple_choice:
+question-multiple-choice:
 
 # Multiple choice questions
   - &multi1 !!models.questions.Question
@@ -361,176 +193,124 @@ question_multiple_choice:
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     attachment: *att1
-    maxScore: 5
-    evaluationCriterias:
     options:
-        - !!models.questions.MultipleChoiceOption {option: 3, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: 42, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: 99, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: 7, correctOption: false, score: 1}
-    shared: true
-    expanded: false
+        - !!models.questions.MultipleChoiceOption {option: 3, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: 42, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: 99, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: 7, correctOption: false}
 
   - &multi2 !!models.questions.Question
     type: MultipleChoiceQuestion
     question: Mikä on ikuisen elämän salaisuus?
     creator: *olli
     created: 2014-01-03 12:40:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:
     options:
-        - !!models.questions.MultipleChoiceOption {option: IDDQD, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: IDKFA, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: IDCLIP, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: IDCHOPPERS, correctOption: false, score: 1}
-    shared: false
-    expanded: false
+        - !!models.questions.MultipleChoiceOption {option: IDDQD, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: IDKFA, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: IDCLIP, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: IDCHOPPERS, correctOption: false}
 
   - &multi3 !!models.questions.Question
     type: MultipleChoiceQuestion
     question: Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?
     creator: *olli
     created: 2014-01-01 12:10:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:
     options:
-        - !!models.questions.MultipleChoiceOption {option: Antiteflon, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Adheesio, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Hakman, correctOption: false, score: 1}
-    shared: false
-    expanded: false
+        - !!models.questions.MultipleChoiceOption {option: Antiteflon, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Adheesio, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Hakman, correctOption: false}
 
   - &multi4 !!models.questions.Question
     type: MultipleChoiceQuestion
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
     creator: *arvo
     created: 2014-01-02 12:50:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:
     options:
-        - !!models.questions.MultipleChoiceOption {option: Lampaita, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Ihmisiä, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Paimenkoiria, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Jokin muu, correctOption: false, score: 1}
-    shared: false
-    expanded: false
+        - !!models.questions.MultipleChoiceOption {option: Lampaita, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Ihmisiä, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Paimenkoiria, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Jokin muu, correctOption: false}
 
   - &multi5 !!models.questions.Question
     type: MultipleChoiceQuestion
     question: Matkustat autolla valon nopeutta, mitä tapahtuu kun laitat pitkät valot päälle?
     creator: *arvo
     created: 2014-01-06 12:30:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:
     options:
-        - !!models.questions.MultipleChoiceOption {option: Tulevaisuus valkenee, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Aika-avaruus jatkumon vääristymä, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Sokaiset itse itsesi sillä valo palaa menneisyyteen ja häikäisee taustapeilistä, correctOption: false, score: 1}
-    shared: false
-    expanded: false
+        - !!models.questions.MultipleChoiceOption {option: Tulevaisuus valkenee, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Aika-avaruus jatkumon vääristymä, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Sokaiset itse itsesi sillä valo palaa menneisyyteen ja häikäisee taustapeilistä, correctOption: false}
 
   - &avaruus1 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
     creator: *olli
     created: 2014-01-07 12:30:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
     options:
-        - !!models.questions.MultipleChoiceOption {option: kosmonautti, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: kosmetologi, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: kosmologi, correctOption: true, score: 1}
-    shared: false
+        - !!models.questions.MultipleChoiceOption {option: kosmonautti, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: kosmetologi, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: kosmologi, correctOption: true}
 
   - &avaruus2 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:  Auringon fuusioreaktiot tapahtuvat
     creator: *olli
     created: 2014-01-08 12:30:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:  Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
     options:
-        - !!models.questions.MultipleChoiceOption {option: Ytimessä, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Säteilyvyöhykkeessä, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Konvektiovyöhykkeessä, correctOption: false, score: 1}
-    shared: false
+        - !!models.questions.MultipleChoiceOption {option: Ytimessä, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Säteilyvyöhykkeessä, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Konvektiovyöhykkeessä, correctOption: false}
 
   - &avaruus3 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   AU mittaa
     creator: *olli
     created: 2014-01-09 12:30:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:  Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
     options:
-        - !!models.questions.MultipleChoiceOption {option: Aikaa, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Etäisyyttä, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Painoa, correctOption: false, score: 1}
-    shared: false
+        - !!models.questions.MultipleChoiceOption {option: Aikaa, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Etäisyyttä, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Painoa, correctOption: false}
 
   - &avaruus4 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Ekliptika on
     creator: *olli
     created: 2014-01-10 12:30:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
     options:
-        - !!models.questions.MultipleChoiceOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Kuun sirppi, correctOption: false, score: 1}
-    shared: false
+        - !!models.questions.MultipleChoiceOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Maapallon kiertoradan muoto, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Kuun sirppi, correctOption: false}
 
   - &avaruus5 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Tähdenlento eli
     creator: *olli
     created: 2014-01-11 12:30:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
     options:
-        - !!models.questions.MultipleChoiceOption {option: Meteoroidi, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Meteori, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Meteoriitti, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Meteorologi, correctOption: false, score: 1}
-    shared: false
+        - !!models.questions.MultipleChoiceOption {option: Meteoroidi, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Meteori, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Meteoriitti, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Meteorologi, correctOption: false}
 
   - &avaruus6 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
     creator: *olli
     created: 2014-01-12 12:30:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:  Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
     options:
-        - !!models.questions.MultipleChoiceOption {option: Aineen palamisesta ilmakehässä, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Kaasujen hehkumisesta, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Auringon valon heijastumisesta kiintoaineesta, correctOption: false, score: 1}
-    shared: false
+        - !!models.questions.MultipleChoiceOption {option: Aineen palamisesta ilmakehässä, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Kaasujen hehkumisesta, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Auringon valon heijastumisesta kiintoaineesta, correctOption: false}
 
   - &avaruus7 !!models.questions.Question
     type: MultipleChoiceQuestion
     question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
     creator: *olli
     created: 2014-01-13 12:30:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:  Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
     options:
-        - !!models.questions.MultipleChoiceOption {option: Maa, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Jupiter, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Venus, correctOption: false, score: 1}
-    shared: false
+        - !!models.questions.MultipleChoiceOption {option: Maa, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Jupiter, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Venus, correctOption: false}
 
 
   - &avaruus8 !!models.questions.Question
@@ -538,14 +318,10 @@ question_multiple_choice:
     question:   The Great Red Spot tarkoittaa
     creator: *olli
     created: 2014-01-14 12:30:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:  Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
     options:
-        - !!models.questions.MultipleChoiceOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Jupiterin korkeapaineen aluetta, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Mars-planeettaa, correctOption: false, score: 1}
-    shared: false
+        - !!models.questions.MultipleChoiceOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Jupiterin korkeapaineen aluetta, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Mars-planeettaa, correctOption: false}
 
 
   - &avaruus9 !!models.questions.Question
@@ -553,14 +329,10 @@ question_multiple_choice:
     question:   Vuodenajat aiheutuvat
     creator: *olli
     created: 2014-01-15 12:30:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:  Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
     options:
-        - !!models.questions.MultipleChoiceOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Maapallon kiertämisestä Auringon ympäri, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Auringon ja Maan etäisyys muuttuu vuoden aikana, correctOption: false, score: 1}
-    shared: false
+        - !!models.questions.MultipleChoiceOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Maapallon kiertämisestä Auringon ympäri, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Auringon ja Maan etäisyys muuttuu vuoden aikana, correctOption: false}
 
 
   - &avaruus10 !!models.questions.Question
@@ -568,14 +340,10 @@ question_multiple_choice:
     question:   Uudenkuun aikaan
     creator: *olli
     created: 2014-01-16 12:30:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan.
     options:
-        - !!models.questions.MultipleChoiceOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Kuu on Auringon ja Maan välissä, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Kuu tulee uudelleen näkyviin, correctOption: false, score: 1}
-    shared: false
+        - !!models.questions.MultipleChoiceOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Kuu on Auringon ja Maan välissä, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Kuu tulee uudelleen näkyviin, correctOption: false}
 
 
   - &avaruus11 !!models.questions.Question
@@ -583,166 +351,24 @@ question_multiple_choice:
     question:   Vuoksen ja luoteen aiheuttavat pääasiassa
     creator: *olli
     created: 2014-01-17 12:30:05.123
-   #materials:
-    maxScore: 5
-    evaluationCriterias:  Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
     options:
-        - !!models.questions.MultipleChoiceOption {option: Kuun vetovoima, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Auringon vetovoima, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Maapallon pinnanmuodot, correctOption: false, score: 1}
-    shared: false
+        - !!models.questions.MultipleChoiceOption {option: Kuun vetovoima, correctOption: false}
+        - !!models.questions.MultipleChoiceOption {option: Auringon vetovoima, correctOption: true}
+        - !!models.questions.MultipleChoiceOption {option: Maapallon pinnanmuodot, correctOption: false}
 
-#Multiple choice questions with answers
+######################################################################
 
-  - &multi1_sauli !!models.questions.Question
-    type: MultipleChoiceQuestion
-    creator: *sauli
-    created: 2014-01-04 12:30:05.123
-    question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
-    parent: *multi1
-    attachment: *att1
-    maxScore: 5
-    evaluationCriterias:
-    options:
-        - !!models.questions.MultipleChoiceOption {option: 3, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: 42, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: 99, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: 7, correctOption: false, score: 1}
-    shared: true
-    expanded: false
+question-weighted-multiple-choice:
 
-  - &multi2_sauli !!models.questions.Question
-    type: MultipleChoiceQuestion
-    question: Mikä on ikuisen elämän salaisuus?
-    creator: *sauli
-    created: 2014-01-03 12:40:05.123
-    maxScore: 5
-    evaluationCriterias:
-    options:
-        - !!models.questions.MultipleChoiceOption {option: IDDQD, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: IDKFA, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: IDCLIP, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: IDCHOPPERS, correctOption: false, score: 1}
-    shared: false
-    expanded: false
-
-  - &multi4_sauli !!models.questions.Question
-    type: MultipleChoiceQuestion
-    question: Mitä lampaat laskevat jotta ne nukahtaisivat?
-    parent: *multi4
-    creator: *arvo
-    created: 2014-01-02 12:50:05.123
-    maxScore: 5
-    evaluationCriterias:
-    options:
-        - !!models.questions.MultipleChoiceOption {option: Lampaita, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Ihmisiä, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Paimenkoiria, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Jokin muu, correctOption: false, score: 1}
-    shared: false
-    expanded: false
-
-  - &avaruus4_sauli !!models.questions.Question
-    type: MultipleChoiceQuestion
-    question:   Ekliptika on
-    creator: *sauli
-    created: 2014-01-10 12:30:05.123
-    maxScore: 5
-    evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
-    options:
-        - !!models.questions.MultipleChoiceOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Kuun sirppi, correctOption: false, score: 1}
-    shared: false
-
-  - &avaruus5_sauli !!models.questions.Question
-    type: MultipleChoiceQuestion
-    question:   Tähdenlento eli
-    creator: *sauli
-    created: 2014-01-11 12:30:05.123
-    maxScore: 5
-    evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
-    options:
-        - !!models.questions.MultipleChoiceOption {option: Meteoroidi, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Meteori, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Meteoriitti, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Meteorologi, correctOption: false, score: 1}
-    shared: false
-
-  - &multi1b_sauli !!models.questions.Question
-    type: MultipleChoiceQuestion
-    creator: *sauli
-    created: 2014-01-04 12:30:05.123
-    question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
-    parent: *multi1
-    attachment: *att1
-    maxScore: 5
-    evaluationCriterias:
-    options:
-        - !!models.questions.MultipleChoiceOption {option: 3, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: 42, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: 99, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: 7, correctOption: false, score: 1}
-    shared: true
-    expanded: false
-
-  - &multi2b_sauli !!models.questions.Question
-    type: MultipleChoiceQuestion
-    question: Mikä on ikuisen elämän salaisuus?
-    creator: *sauli
-    created: 2014-01-03 12:40:05.123
-    maxScore: 5
-    evaluationCriterias:
-    options:
-        - !!models.questions.MultipleChoiceOption {option: IDDQD, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: IDKFA, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: IDCLIP, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: IDCHOPPERS, correctOption: false, score: 1}
-    shared: false
-    expanded: false
-
-  - &multi4b_sauli !!models.questions.Question
-    type: MultipleChoiceQuestion
-    question: Mitä lampaat laskevat jotta ne nukahtaisivat?
-    parent: *multi4
-    creator: *arvo
-    created: 2014-01-02 12:50:05.123
-    maxScore: 5
-    evaluationCriterias:
-    options:
-        - !!models.questions.MultipleChoiceOption {option: Lampaita, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Ihmisiä, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Paimenkoiria, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Jokin muu, correctOption: false, score: 1}
-    shared: false
-    expanded: false
-
-  - &avaruus4b_sauli !!models.questions.Question
-    type: MultipleChoiceQuestion
-    question:   Ekliptika on
-    creator: *sauli
-    created: 2014-01-10 12:30:05.123
-    maxScore: 5
-    evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
-    options:
-        - !!models.questions.MultipleChoiceOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Kuun sirppi, correctOption: false, score: 1}
-    shared: false
-
-  - &avaruus5b_sauli !!models.questions.Question
-    type: MultipleChoiceQuestion
-    question:   Tähdenlento eli
-    creator: *sauli
-    created: 2014-01-11 12:30:05.123
-    maxScore: 5
-    evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
-    options:
-        - !!models.questions.MultipleChoiceOption {option: Meteoroidi, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Meteori, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Meteoriitti, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiceOption {option: Meteorologi, correctOption: false, score: 1}
-    shared: false
+  - &weighted1 !!models.questions.Question
+      type: WeightedMultipleChoiceQuestion
+      question: Kumpi vai kampi
+      creator: *olli
+      created: 2014-01-18 12:30:05.123
+      options:
+          - &kampi !!models.questions.MultipleChoiceOption {option: Kampi, defaultScore: 1}
+          - &kumpi !!models.questions.MultipleChoiceOption {option: Kumpi, defaultScore: 1}
+          - &molemmat !!models.questions.MultipleChoiceOption {option: Molemmat, defaultScore: -1}
 
 ######################################################################
 
@@ -1037,54 +663,67 @@ exam-sections:
 
   - &alkeet_mv_osio1 !!models.ExamSection
     name: Monivalinnat 1
+    sequenceNumber: 0
     exam: *alkeidenperusteetGraded
 
   - &alkeet_mv_osio2 !!models.ExamSection
     name: Monivalinnat 2
+    sequenceNumber: 1
     exam: *alkeidenperusteetGraded
 
   - &alkeet_essay !!models.ExamSection
     name: Essee kysymykset
+    sequenceNumber: 2
     exam: *alkeidenperusteetGraded
 
   - &alkeet_mv_osio1b !!models.ExamSection
     name: Monivalinnat 1
+    sequenceNumber: 0
     exam: *alkeidenperusteetReview
 
   - &alkeet_mv_osio2b !!models.ExamSection
     name: Monivalinnat 2
+    sequenceNumber: 1
     exam: *alkeidenperusteetReview
 
   - &alkeet_essayb !!models.ExamSection
     name: Essee kysymykset
+    sequenceNumber: 2
     exam: *alkeidenperusteetReview
 
   - &osio2 !!models.ExamSection
     name: Monivalinnat 2
+    sequenceNumber: 0
     exam: *tietokannat2013
 
   - &osio1_algo !!models.ExamSection
     name: Monivalinnat 1
+    sequenceNumber: 0
     exam: *algoritmit
 
   - &osio2_algo !!models.ExamSection
     name: Essee 1
+    sequenceNumber: 1
     exam: *algoritmit
 
   - &osio4 !!models.ExamSection
     name: Monivalinnat 4
+    sequenceNumber: 0
     exam: *ooad
 
   - &osio5 !!models.ExamSection
     name: Monivalinnat 5
+    sequenceNumber: 1
     exam: *ooad
 
   - &astro1 !!models.ExamSection
     name: Astronomian Monivalinnat
+    sequenceNumber: 0
     exam: *astronomianPerusteet
 
   - &ooadessay !!models.ExamSection
     name: Essee kysymykset
+    sequenceNumber: 2
     exam: *ooad
 
 ######################################################################
@@ -1093,188 +732,232 @@ section-questions:
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio1
-    question: *multi1_sauli
+    question: *multi1
     sequenceNumber: 0
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio1
-    question: *multi2_sauli
+    question: *multi2
     sequenceNumber: 1
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio2
-    question: *avaruus4_sauli
+    question: *avaruus4
     sequenceNumber: 0
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio2
-    question: *multi4_sauli
+    question: *multi4
     sequenceNumber: 1
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio2
-    question: *avaruus5_sauli
+    question: *avaruus5
     sequenceNumber: 2
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_essay
-    question: *essay1_sauli
+    question: *essay1
     sequenceNumber: 0
+    maxScore: 7
+    evaluationType: Points
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_essay
-    question: *essay2_sauli
+    question: *essay2
     sequenceNumber: 1
+    maxScore: 7
+    evaluationType: Points
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_essay
-    question: *essay3_sauli
+    question: *essay3
     sequenceNumber: 2
+    maxScore: 7
+    evaluationType: Points
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio1b
-    question: *multi1b_sauli
+    question: *multi1
     sequenceNumber: 0
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio1b
-    question: *multi2b_sauli
+    question: *multi2
     sequenceNumber: 1
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio2b
-    question: *avaruus4b_sauli
+    question: *avaruus4
     sequenceNumber: 0
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio2b
-    question: *multi4b_sauli
+    question: *multi4
     sequenceNumber: 1
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio2b
-    question: *avaruus5b_sauli
+    question: *avaruus5
     sequenceNumber: 2
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_essayb
-    question: *essay1b_sauli
+    question: *essay1
     sequenceNumber: 0
+    maxScore: 7
+    evaluationType: Points
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_essayb
-    question: *essay2b_sauli
+    question: *essay2
     sequenceNumber: 1
+    maxScore: 7
+    evaluationType: Points
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_essayb
-    question: *essay3b_sauli
+    question: *essay3
     sequenceNumber: 2
+    maxScore: 7
+    evaluationType: Points
 
   - !!models.ExamSectionQuestion
     examSection: *osio2
     question: *multi3
     sequenceNumber: 0
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio2
     question: *multi4
     sequenceNumber: 1
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio2
     question: *multi5
     sequenceNumber: 2
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio1_algo
     question: *avaruus4
     sequenceNumber: 0
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio1_algo
     question: *multi4
     sequenceNumber: 1
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio1_algo
     question: *avaruus5
     sequenceNumber: 2
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio2_algo
     question: *essay1
     sequenceNumber: 0
+    maxScore: 7
+    evaluationType: Points
 
   - !!models.ExamSectionQuestion
     examSection: *osio2_algo
     question: *multi4
     sequenceNumber: 1
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio2_algo
     question: *avaruus5
     sequenceNumber: 2
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio4
     question: *avaruus9
     sequenceNumber: 0
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio4
     question: *avaruus8
     sequenceNumber: 1
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio4
     question: *avaruus7
     sequenceNumber: 2
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio4
     question: *multi1
     sequenceNumber: 3
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio4
     question: *multi2
     sequenceNumber: 4
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio4
     question: *multi3
     sequenceNumber: 5
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio5
     question: *avaruus9
     sequenceNumber: 0
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio5
     question: *avaruus8
     sequenceNumber: 1
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio5
     question: *avaruus7
     sequenceNumber: 2
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus1
     sequenceNumber: 0
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus2
     sequenceNumber: 1
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus3
     sequenceNumber: 2
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *astro1
@@ -1285,51 +968,73 @@ section-questions:
     examSection: *astro1
     question: *avaruus5
     sequenceNumber: 4
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus6
     sequenceNumber: 5
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus7
     sequenceNumber: 6
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus8
     sequenceNumber: 7
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus9
     sequenceNumber: 8
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus10
     sequenceNumber: 9
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus11
     sequenceNumber: 10
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *ooadessay
     question: *essay1
     sequenceNumber: 0
+    maxScore: 7
+    evaluationType: Points
 
   - !!models.ExamSectionQuestion
     examSection: *ooadessay
     question: *essay2
     sequenceNumber: 1
+    maxScore: 7
+    evaluationType: Points
 
   - !!models.ExamSectionQuestion
     examSection: *ooadessay
     question: *essay3
     sequenceNumber: 2
+    maxScore: 7
+    evaluationType: Points
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2
+    question: *weighted1
+    sequenceNumber: 2
+    options:
+      - !!models.ExamSectionQuestionOption {option: *kumpi, score: 2}
+      - !!models.ExamSectionQuestionOption {option: *kampi, score: 2}
+      - !!models.ExamSectionQuestionOption {option: *molemmat, score: -2}
 
 ################################################################
 

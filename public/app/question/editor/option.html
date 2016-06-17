@@ -3,7 +3,7 @@
         <!--label for="optionText" class="col-md-1 control-label">{{'sitnet_default_option_description' | translate}}:</label-->
         <div class="col-md-11">
             <input id="optionText" type="text" focus-on="opt{{option.id}}" class="form-control"
-                   ng-model="option.option" ui-blur="updateOption(option)"
+                   ng-model="option.option" ui-blur="option.id ? updateOption(option) : saveOption(option)"
                    ng-click="selectIfDefault(option.option, $event)"
                    required="true"/>
         </div>
@@ -17,7 +17,8 @@
         <div class="col-md-4">
             <div class="radio">
                 <label>
-                    <input type="radio" ng-model="option.correctOption" ng-value="true" ng-click="correctAnswerToggled(option)">{{'sitnet_correct_option' | translate }}
+                    <input name="correctOption" type="radio" ng-model="option.correctOption" ng-value="true" ng-click="correctAnswerToggled(option)"
+                            ng-disabled="optionDisabled(option)">{{'sitnet_correct_option' | translate }}
                 </label>
             </div>
         </div>

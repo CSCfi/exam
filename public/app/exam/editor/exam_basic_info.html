@@ -1,7 +1,8 @@
+
 <div class="row exam-general-information-header">
     <div class="col-md-1">
         <a class="pointer pull-left fa-stack fa-lg" popover-placement="left" popover-popup-delay="1000"
-           popover-trigger="mouseenter" popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
+           popover-trigger="mouseenter" uib-popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
            ng-click="newExam.expanded = !newExam.expanded">
             <i ng-class="newExam.expanded ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-right fa-stack-1x'"></i>
         </a>
@@ -17,8 +18,8 @@
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_start_time' | translate}}:</div>
                 <div class="input-group">
-                    <input type="text" class="form-control" datepicker-popup="{{format}}"
-                           date-fix="{{format}}" ng-model="newExam.examActiveStartDate"
+                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
+                           ng-model="newExam.examActiveStartDate"
                            is-open="startDateOpened" min="minDate"
                            datepicker-options="dateOptions"
                            close-text="{{'sitnet_close' | translate}}"
@@ -38,8 +39,8 @@
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_end_time' | translate}}:</div>
                 <div class="input-group">
-                    <input type="text" class="form-control" datepicker-popup="{{format}}"
-                           date-fix="{{format}}" ng-model="newExam.examActiveEndDate"
+                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
+                           ng-model="newExam.examActiveEndDate"
                            is-open="endDateOpened" min="newExam.examActiveStartDate"
                            datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}"
                            current-text="{{'sitnet_today' | translate}}"
@@ -74,7 +75,7 @@
             <div class="sitnet-info-text">{{'sitnet_exam_owners' | translate}}:
                 &nbsp;
                 <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
-                   popover="{{'sitnet_exam_owner_description' | translate}}"></i>
+                   uib-popover="{{'sitnet_exam_owner_description' | translate}}"></i>
             </div>
         </div>
     </div>
@@ -104,7 +105,7 @@
                 <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:
                     &nbsp;
                     <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
-                       popover="{{'sitnet_exam_instructor_description' | translate}}"></i>
+                       uib-popover="{{'sitnet_exam_instructor_description' | translate}}"></i>
                 </div>
             </div>
         </div>
@@ -132,12 +133,7 @@
     <div ng-hide="newExam.executionType.type==='PUBLIC'">
         <div class="row">
             <div class="col-md-12">
-                <div ng-if="newExam.state !== 'PUBLISHED'" class="sitnet-info-text">{{'sitnet_exam_participants' |
-                    translate}}:
-                </div>
-                <div ng-if="newExam.state === 'PUBLISHED'" class="sitnet-info-text">{{'sitnet_exam_participants_left' |
-                    translate}}:
-                </div>
+                <div class="sitnet-info-text">{{'sitnet_exam_participants' | translate}}:</div>
             </div>
         </div>
         <div class="row">
@@ -150,11 +146,18 @@
             <div class="col-md-9">
                 <ul class="list-inline">
                     <li>
+                        <!-- Students not having finished the exam -->
                         <button ng-repeat="enrolment in newExam.examEnrolments"
                                 ng-disabled="newExam.state === 'PUBLISHED'" class="btn btn-primary btn-xs"
                                 style="margin: 0.2em" ng-click="removeParticipant(enrolment.id)"
                                 title="{{'sitnet_remove' | translate}}">
                             {{enrolment.user.firstName }} {{ enrolment.user.lastName }}
+                        </button>
+                        <!-- Students that have finished the exam -->
+                        <button ng-repeat="participant in newExam.participants"
+                                ng-disabled="newExam.state === 'PUBLISHED'" class="btn btn-success btn-xs"
+                                style="margin: 0.2em">
+                            {{ participant.user.firstName }} {{ participant.user.lastName }}
                         </button>
                     </li>
                 </ul>
@@ -214,7 +217,7 @@
         <div class="col-md-6" ng-hide="newExam.executionType.type==='MATURITY'">
             <div class="sitnet-info-text">{{'sitnet_exam_trial_count' | translate}}:&nbsp;
                 <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
-                   popover="{{'sitnet_exam_trial_count_description' | translate}}"></i></div>
+                   uib-popover="{{'sitnet_exam_trial_count_description' | translate}}"></i></div>
             <span ng-show="newExam.executionType.type==='PUBLIC'" ng-repeat="x in range(1, 5)">
                 <button class="btn btn-default" ng-class="checkTrialCount(x)" ng-click="setTrialCount(x)">{{x}}
                 </button>&nbsp;
@@ -235,7 +238,7 @@
             <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}:
                 &nbsp;
                 <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
-                   popover="{{'sitnet_exam_software_description' | translate}}"></i>
+                   uib-popover="{{'sitnet_exam_software_description' | translate}}"></i>
             </div>
             <multiselect data-multiple="true"
                          ng-model="newExam.softwares"

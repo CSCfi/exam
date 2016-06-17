@@ -18,7 +18,7 @@
             <div class="row">
                 <div class="col-md-6" ng-controller="DatepickerCtrl">
                     <p class="input-group">
-                        <input type="text" class="form-control" datepicker-popup="{{format}}"
+                        <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
                                ng-model="params.startDate"
                                is-open="startDateOpened" datepicker-options="dateOptions"
                                close-text="{{'sitnet_close' | translate}}"
@@ -35,7 +35,7 @@
                 </div>
                 <div class="col-md-6" ng-controller="DatepickerCtrl">
                     <p class="input-group">
-                        <input type="text" class="form-control" datepicker-popup="{{format}}"
+                        <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
                                ng-model="params.endDate"
                                is-open="endDateOpened" datepicker-options="dateOptions"
                                close-text="{{'sitnet_close' | translate}}"

@@ -24,12 +24,10 @@
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant("sitnet_are_you_sure"));
                     dialog.result.then(function (btn) {
                         AttachmentRes.questionAnswerAttachment.remove({qid: question.id, hash: hash},
-
                             function (answer) {
                                 toastr.info($translate.instant("sitnet_attachment_removed"));
-                                question.answer.objectVersion = answer.objectVersion;
-                                delete question.answer.attachment;
-
+                                question.essayAnswer.objectVersion = answer.objectVersion;
+                                delete question.essayAnswer.attachment;
                             }, function (error) {
                                 toastr.error(error.data);
                             });
@@ -81,24 +79,24 @@
                 };
 
                 $scope.downloadQuestionAttachment = function (question) {
-                    fileService.download('/attachment/question/' + question.id, question.attachment.fileName);
+                    fileService.download('/app/attachment/question/' + question.id, question.attachment.fileName);
                 };
 
                 $scope.downloadQuestionAnswerAttachment = function (question, hash) {
-                    fileService.download('/attachment/question/' + question.id + '/answer/' + hash,
-                        question.answer.attachment.fileName);
+                    fileService.download('/app/attachment/question/' + question.id + '/answer/' + hash,
+                        question.essayAnswer.attachment.fileName);
                 };
 
                 $scope.downloadExamAttachment = function (exam) {
-                    fileService.download('/attachment/exam/' + exam.id, exam.attachment.fileName);
+                    fileService.download('/app/attachment/exam/' + exam.id, exam.attachment.fileName);
                 };
 
                 $scope.downloadFeedbackAttachment = function (exam) {
-                    fileService.download('/attachment/exam/' + exam.id + '/feedback', exam.examFeedback.attachment.fileName);
+                    fileService.download('/app/attachment/exam/' + exam.id + '/feedback', exam.examFeedback.attachment.fileName);
                 };
 
                 $scope.downloadStatementAttachment = function (exam) {
-                    fileService.download('/attachment/exam/' + exam.id + '/statement', exam.languageInspection.statement.attachment.fileName);
+                    fileService.download('/app/attachment/exam/' + exam.id + '/statement', exam.languageInspection.statement.attachment.fileName);
                 };
 
             }]);

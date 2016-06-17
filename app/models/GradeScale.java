@@ -1,9 +1,12 @@
 package models;
 
 import com.avaje.ebean.Model;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Entity
 public class GradeScale extends Model {
@@ -11,7 +14,7 @@ public class GradeScale extends Model {
     public enum Type {
         ZERO_TO_FIVE(1), LATIN(2), APPROVED_REJECTED(3), OTHER(4);
 
-        private int value;
+        private final int value;
 
         Type(int value) {
             this.value = value;
@@ -21,22 +24,22 @@ public class GradeScale extends Model {
             return value;
         }
 
-        public static Type get(int value) {
+        public static Optional<Type> get(int value) {
             for (Type t : values()) {
                 if (t.getValue() == value) {
-                    return t;
+                    return Optional.of(t);
                 }
             }
-            return null;
+            return Optional.empty();
         }
 
-        public static Type get(String value) {
+        public static Optional<Type> get(String value) {
             for (Type t : values()) {
                 if (t.toString().equals(value)) {
-                    return t;
+                    return Optional.of(t);
                 }
             }
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -55,14 +58,14 @@ public class GradeScale extends Model {
     private String displayName;
 
     @OneToMany(mappedBy = "gradeScale", cascade = CascadeType.ALL)
-    private List<Grade> grades;
+    private Set<Grade> grades;
 
     public int getId() {
         return id;
     }
 
     public Type getType() {
-        return Type.get(description);
+        return Type.get(description).orElse(null);
     }
 
     public String getDescription() {
@@ -89,12 +92,27 @@ public class GradeScale extends Model {
         this.displayName = displayName;
     }
 
-    public List<Grade> getGrades() {
+    public Set<Grade> getGrades() {
         return grades;
     }
 
-    public void setGrades(List<Grade> grades) {
+    public void setGrades(Set<Grade> grades) {
         this.grades = grades;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof GradeScale)) {
+            return false;
+        }
+        GradeScale otherScale = (GradeScale) other;
+        return new EqualsBuilder().append(id, otherScale.id).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).build();
     }
 
 }

@@ -1,10 +1,11 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('MachineCtrl', ['dialogs', '$scope', '$modal', '$routeParams', '$location', 'SoftwareResource', 'ExamMachineResource', 'EnrollRes', 'EXAM_CONF', 'dateService', '$translate',
-            function (dialogs, $scope, $modal, $routeParams, $location, SoftwareResource, ExamMachineResource, EnrollRes, EXAM_CONF, dateService, $translate) {
+        .controller('MachineCtrl', ['dialogs', '$scope', '$uibModal', '$routeParams', '$location', 'SoftwareResource',
+            'ExamMachineResource', 'EXAM_CONF', '$translate',
+            function (dialogs, $scope, $modal, $routeParams, $location, SoftwareResource, ExamMachineResource, EXAM_CONF,
+                      $translate) {
 
-                $scope.dateService = dateService;
                 $scope.machineTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/machine.html";
 
                 ExamMachineResource.get({id: $routeParams.id},
@@ -100,7 +101,7 @@
                         return item.id;
                     }).join(", ");
 
-                    $http.post('room/' + room.id + '/accessibility', {ids: ids})
+                    $http.post('/app/room/' + room.id + '/accessibility', {ids: ids})
                         .success(function () {
                             toastr.info($translate.instant('sitnet_room_updated'));
                         });

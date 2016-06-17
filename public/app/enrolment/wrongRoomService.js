@@ -31,20 +31,21 @@
                 if (now.isDST()) {
                     startsAt.add(-1, 'hour');
                 }
+                var parts;
                 if (startsAt.isAfter(now)) {
-                    var parts = ['sitnet_your_exam_will_start_at', 'sitnet_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
+                    parts = ['sitnet_your_exam_will_start_at', 'sitnet_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
                     $translate(parts).then(function (t) {
-                        toastr.warning(t.sitnet_your_exam_will_start_at + ' ' + startsAt.format('HH:mm') + ' '
-                            + t.sitnet_at_location + ': ' + data[0] + ', ' + data[1] + ' '
-                            + t.sitnet_at_room + ' ' + data[2] + ' '
-                            + t.sitnet_at_machine + ' ' + data[3]);
+                        toastr.warning(t.sitnet_your_exam_will_start_at + ' ' + startsAt.format('HH:mm') + ' ' +
+                            t.sitnet_at_location + ': ' + data[0] + ', ' + data[1] + ' ' +
+                            t.sitnet_at_room + ' ' + data[2] + ' ' +
+                            t.sitnet_at_machine + ' ' + data[3]);
                     });
                 } else {
                     parts = ['sitnet_you_have_ongoing_exam_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
                     $translate(parts).then(function (t) {
-                        toastr.error(t.sitnet_you_have_ongoing_exam_at_location + ': ' + data[0] + ', ' + data[1] + ' '
-                            + t.sitnet_at_room + ' ' + data[2] + ' '
-                            + t.sitnet_at_machine + ' ' + data[3]);
+                        toastr.error(t.sitnet_you_have_ongoing_exam_at_location + ': ' + data[0] + ', ' + data[1] + ' ' +
+                            t.sitnet_at_room + ' ' + data[2] + ' ' +
+                            t.sitnet_at_machine + ' ' + data[3]);
                     });
                 }
                 toastr.options = opts;

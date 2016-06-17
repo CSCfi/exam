@@ -1,9 +1,9 @@
 package models;
 
-import be.objectify.deadbolt.core.models.Subject;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import be.objectify.deadbolt.java.models.Subject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -32,11 +32,6 @@ public class User extends GeneratedIdentityModel implements Subject {
     private String employeeNumber;
 
     private String logoutUrl;
-
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "examOwners")
-    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "user_id"))
-    @JsonBackReference
-    private List<Exam> ownedExams;
 
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Role> roles;
@@ -199,14 +194,6 @@ public class User extends GeneratedIdentityModel implements Subject {
         return email;
     }
 
-    public List<Exam> getOwnedExams() {
-        return ownedExams;
-    }
-
-    public void setOwnedExams(List<Exam> ownedExams) {
-        this.ownedExams = ownedExams;
-    }
-
     public Date getLastLogin() {
         return lastLogin;
     }
@@ -219,7 +206,7 @@ public class User extends GeneratedIdentityModel implements Subject {
         return session != null && session.getLoginRole() != null && name.equals(session.getLoginRole());
     }
 
-    public boolean hasPermission(Permission.Type type) {
+    boolean hasPermission(Permission.Type type) {
         return permissions.stream().map(Permission::getType).collect(Collectors.toList()).contains(type);
     }
 

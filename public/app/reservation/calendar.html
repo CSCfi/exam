@@ -42,10 +42,14 @@
 
     <!-- FILTERS -->
     <div class="main-row" ng-hide="selectedRoom()">
-        <span class="col-md-12 alert-danger">
-            <i class="fa fa-exclamation-triangle"></i>
-            &nbsp;<strong>{{'sitnet_calendar_pick_room' | translate }}</strong>
-        </span>
+        <div class="col-md-12">
+            <div class="alert alert-info info-box">
+                <span class="form-group">
+                    <i class="fa fa-lg fa-info-circle text-info"></i>
+                    &nbsp;{{'sitnet_calendar_pick_room' | translate }}
+                </span>
+            </div>
+        </div>
     </div>
 
     <div class="detail-row">
@@ -53,8 +57,8 @@
             <label for="filters">{{'sitnet_search' | translate}}</label>
 
             <div id="filters" class="form-group">
-                <span class="dropdown" dropdown>
-                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                <span class="dropdown" uib-dropdown>
+                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
                             data-toggle="dropdown" aria-expanded="true">
                         {{'sitnet_room' | translate}}&nbsp;<span class="caret"></span>
                     </button>
@@ -71,13 +75,13 @@
                         <li ng-repeat="room in rooms | filter:limitations.rooms" ng-hide="room.filtered"
                             role="presentation" ng-class="room.outOfService ? 'disabled' : ''"
                             ng-click="selectRoom(room)">
-                            <a role="menuitem" popover-trigger="mouseenter" popover="{{getDescription(room)}}">{{room.name
+                            <a role="menuitem" popover-trigger="mouseenter" uib-popover="{{getDescription(room)}}">{{room.name
                                 | truncate:30}}</a>
                         </li>
                     </ul>
                 </span>
-                <span class="dropdown" dropdown>
-                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
+                <span class="dropdown" uib-dropdown>
+                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
                             data-toggle="dropdown" aria-expanded="true">
                         {{'sitnet_room_accessibility_info' | translate}}&nbsp;<span class="caret"></span>
                     </button>
@@ -136,7 +140,7 @@
         <span class="col-md-12" ng-show="exceptionHours.length > 0">
             <strong>{{'sitnet_exception_datetimes' | translate }}:</strong>&nbsp;
             <small><span ng-repeat="eh in exceptionHours" ng-class="eh.outOfService ? 'text-danger' : 'text-success'"
-                         popover-trigger="mouseenter" popover="{{eh.description | translate}}">
+                         popover-trigger="mouseenter" uib-popover="{{eh.description | translate}}">
                 {{eh.start}} - {{eh.end}} {{ $last ? '' : '| ';}}
             </span></small>
         </span>

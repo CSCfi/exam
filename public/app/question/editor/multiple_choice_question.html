@@ -1,8 +1,11 @@
-
+    <label for="question-editor">
+        <span>
+            {{'sitnet_question_options' | translate}}
+            <i ng-if="showWarning()" class="fa fa-lg fa-exclamation-circle text-info"></i>
+            <small ng-if="showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
+        </span>
+    </label>
     <div id="question-editor">
-        <div class="row">
-            <h4 class="sitnet-info-text">{{'sitnet_question_options' | translate}}</h4>
-        </div>
         <div ng-repeat="option in newQuestion.options" ng-include="newOptionTemplate" />
         <div class="row">
             <div class="col-md-11 col-md-offset-1 new-option" ng-click="addNewOption(newQuestion)">

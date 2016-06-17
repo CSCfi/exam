@@ -1,16 +1,8 @@
 logLevel := Level.Warn
 
 
-resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.2")
 
-resolvers += "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases"
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.3")
 
-resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
-
-resolvers += Resolver.url("GitHub repository", url("http://shaggyyeti.github.io/releases"))(Resolver.ivyStylePatterns)
-
-addSbtPlugin("default" % "sbt-sass" % "0.1.9")
-
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.6")
-
-addSbtPlugin("com.typesafe.sbt" % "sbt-play-ebean" % "1.0.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-play-ebean" % "3.0.0")

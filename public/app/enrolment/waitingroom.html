@@ -1,82 +1,30 @@
-<div id="sitnet-header" class="header">
-    <div class="col-md-12 header-wrapper">
-        <span class="header-text">{{'sitnet_welcome' | translate}}, {{getUsername()}}</span>
-    </div>
-</div>
-
 <div id="dashboard" class="main-row">
 
-    <div class="main-row">
-        <div class="col-md-12">
-            <div ng-hide="!enrolment">
-                <span class="exams-list-title-text pull-left">{{'sitnet_exam_is_about_to_begin' | translate}}</span>
+    <div class="waitingroom-jumbotron">
+        <h2 ng-hide="!enrolment">{{'sitnet_exam_is_about_to_begin' | translate}}</h2>
+        <h2 ng-hide="enrolment">{{'sitnet_you_dont_have_exams_today' | translate}}</h2>
+        <div class="main-row" ng-hide="!enrolment">
+            <h3>{{enrolment.exam.name}} - {{enrolment.exam.course.code}}</h3>
+            <div><small>{{ 'sitnet_course_name' | translate }}: {{ enrolment.exam.course.name }}</small></div>
+            <div><small>{{ 'sitnet_exam_duration' | translate }}: {{ printExamDuration(enrolment.exam) }}</small></div>
+            <div><small>{{ 'sitnet_exam_room' | translate }}: {{enrolment.reservation.machine.name}} |
+                {{enrolment.reservation.machine.room.name}} ({{enrolment.reservation.machine.room.roomCode}})</small></div>
+            <div><small>{{ 'sitnet_reservation_time' | translate }}: {{enrolment.reservation.startAt | date:'dd.MM.yyyy'}}
+                {{enrolment.reservation.occasion.startAt }} - {{enrolment.reservation.occasion.endAt }}
+                ({{enrolment.reservation.machine.room.localTimezone}})</small></div>
+            <div><small>{{ 'sitnet_instructions' | translate }}:
+                <a class="pointer" ng-if="enrolment.exam.enrollInstruction"
+                   ng-click="showInstructions(enrolment)">{{ 'sitnet_view' | translate }}
+                </a></small>
             </div>
-            <div ng-hide="enrolment">
-                <span class="exams-list-title-text pull-left">{{'sitnet_you_dont_have_exams_today' | translate}}</span>
-            </div>
-        </div>
-    </div>
-    <div class="main-row">
-        <div ng-hide="!enrolment" class="bottom-padding-2 light-table">
-            <div class="col-md-4">
-                <div class="info-row col-md-12 pull-left">
-                    <div class="info-row col-md-12 info-column info-header-bolditalic">{{enrolment.exam.name}} - {{enrolment.exam.course.code}}</div>
-                    <div class="info-row col-md-12 info-column">
-                        <span class="header col-md-5">{{ 'sitnet_course_name' | translate }}:</span>
-                        <span class="text col-md-7">{{ enrolment.exam.course.name }}</span>
-                    </div>
-                    <div class="info-row col-md-12 info-column">
-                        <span class="header col-md-5">{{ 'sitnet_exam_duration' | translate }}:</span>
-                        <span class="text col-md-7">{{ printExamDuration(enrolment.exam) }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-5">
-                <div class="info-row col-md-12 info-column">
-                    <span class="header col-md-3">{{ 'sitnet_exam_room' | translate }}:</span>
-                    <span class="text col-md-9">
-                        <span ng-if="enrolment.reservation" class="sitnet-text">{{enrolment.reservation.machine.name}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{{enrolment.reservation.machine.room.name}}({{enrolment.reservation.machine.room.roomCode}})</span><br/>
-                    </span>
-                </div>
-                <div class="info-row col-md-12 info-column">
-                    <span class="header col-md-3">{{ 'sitnet_reservation_time' | translate }}:</span>
-                    <span class="text col-md-9 sitnet-text-alarm">
-                        <span ng-show="enrolment.reservation.startAt">{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} {{enrolment.reservation.occasion.startAt }} - {{enrolment.reservation.occasion.endAt }} ({{enrolment.reservation.machine.room.localTimezone}})</span>
-                    </span>
-                </div>
-                <div class="info-row col-md-12 info-column">
-                    <span class="header col-md-3">{{ 'sitnet_instructions' | translate }}:</span>
-                    <span class="text col-md-9">
-                        <a ng-if="enrolment.exam.enrollInstruction"
-                           class="sitnet-text-theme"
-                           ng-click="showInstructions(enrolment)">{{ 'sitnet_view' | translate }}
-                        </a>
-                    </span>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="info-row col-md-12 info-column">
-                    <span class="header col-md-4">{{ 'sitnet_teachers' | translate }}:</span>
-                    <span class="light-text col-md-8">
-                        <teacher-list exam="enrolment.exam"></teacher-list>
-                    </span>
-                </div>
-                <div class="info-row col-md-12 info-column">
-                    <span class="header col-md-4">{{ 'sitnet_status' | translate }}:</span>
-                        <span class="text col-md-8">
-                            <span ng-if="enrolment.exam.state ==='PUBLISHED' && enrolment.reservation" class="light-text sitnet-text-ready">{{'sitnet_state_ready' | translate}}</span>
-                            <span ng-if="enrolment.exam.state ==='PUBLISHED' && !enrolment.reservation" class="light-text sitnet-text-alarm">{{'sitnet_state_needs_reservation' | translate}}</span>
-                            <span ng-if="enrolment.exam.state === 'STUDENT_STARTED'" class="light-text sitnet-text-alarm">{{'sitnet_state_started' | translate}}</span>
-                        </span>
-                </div>
+            <div><small>{{ 'sitnet_teachers' | translate }}:
+                <span ng-repeat="owner in enrolment.exam.examOwners">{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</span>
+                </small>
             </div>
         </div>
-    </div>
 
-    <div ng-hide="!enrolment" class="main-row">
-        <div class="col-md-12">
-            <span class="sitnet-text-theme">{{ 'sitnet_redirect_to_exam_notice' | translate }}</span>
-        </div>
+        <h3 class="text-info" ng-hide="!enrolment">{{ 'sitnet_redirect_to_exam_notice' | translate }}</h3>
+
     </div>
 
 </div>

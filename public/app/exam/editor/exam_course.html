@@ -1,13 +1,7 @@
 <script type="text/ng-template" id="course_template.html">
     <a style="cursor: pointer;">
         <span style="cursor:pointer;font-weight: 500;" bind-html-unsafe="match.label"></span>
-        <span style="font-size:0.70em;color:#bbb;text-transform: uppercase;cursor:pointer;">{{match.model.name}}</span>
-    </a>
-</script>
-<script type="text/ng-template" id="course_name_template.html">
-    <a style="cursor: pointer;">
-        <span style="cursor:pointer;font-weight: 500;" bind-html-unsafe="match.label"></span>
-        <span style="font-size:0.70em;color:#bbb;cursor:pointer;">{{match.model.code}}</span>
+        <span style="font-size:0.70em;color:#bbb;text-transform: uppercase;cursor:pointer;">{{match.model.code}} {{match.model.name}}</span>
     </a>
 </script>
 <div class="col-md-12" ng-controller="CourseTypeaheadCtrl">
@@ -22,15 +16,15 @@
                            ng-model="newExam.course.code"
                            ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
                            placeholder="{{'sitnet_search_course_by_code' | translate}}"
+                           uib-typeahead="c as c.code for c in getCourses('code', $viewValue)"
                            typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
-                           typeahead="c as c.code for c in getCourses('code', $viewValue)"
                            typeahead-wait-ms="200"
                            typeahead-focus-first="false"
                            typeahead-min-length="2"
                            typeahead-template-url="course_template.html"
                            typeahead-loading="loadingCoursesByCode">
                                <span class="input-group-addon">
-                                    <i ng-hide="loadingCoursesByCode" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_unique_code' | translate}}"></i>
+                                    <i ng-hide="loadingCoursesByCode" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" uib-popover="{{'sitnet_course_unique_code' | translate}}"></i>
                                     <i ng-show="loadingCoursesByCode" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
                                </span>
                 </div>
@@ -42,15 +36,15 @@
                            ng-disabled="!user.isAdmin && newExam.hasEnrolmentsInEffect"
                            ng-model="newExam.course.name"
                            ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
+                           uib-typeahead="c as c.name for c in getCourses('name', $viewValue)"
                            typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
-                           typeahead="c as c.name for c in getCourses('name', $viewValue)"
                            typeahead-wait-ms="200"
                            typeahead-focus-first="false"
                            typeahead-min-length="2"
-                           typeahead-template-url="course_name_template.html"
+                           typeahead-template-url="course_template.html"
                            typeahead-loading="loadingCoursesByName">
                                <span class="input-group-addon">
-                                   <i ng-hide="loadingCoursesByName" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_name' | translate}}"></i>
+                                   <i ng-hide="loadingCoursesByName" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" uib-popover="{{'sitnet_course_name' | translate}}"></i>
                                    <i ng-show="loadingCoursesByName" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
                                </span>
                 </div>
@@ -64,7 +58,7 @@
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits" disabled>
                             <span class="input-group-addon">
-                                <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_scope' | translate}}"></i>
+                                <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" uib-popover="{{'sitnet_course_scope' | translate}}"></i>
                             </span>
                 </div>
             </div>
@@ -75,7 +69,7 @@
                     <input disabled type="text" class="form-control ng-pristine ng-valid"
                            ng-model="newExam.course.organisation.name">
                             <span class="input-group-addon">
-                                <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_faculty_name' | translate}}"></i>
+                                <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" uib-popover="{{'sitnet_faculty_name' | translate}}"></i>
                             </span>
                 </div>
             </div>
@@ -92,8 +86,8 @@
             </div>
             <div class="row col-md-12">
                 <div class="col-md-12">
-                    <a href="{{ hostname.hostname }}/#/enroll/{{ newExam.course.code }}/exam/{{ newExam.id }}">
-                        {{ hostname.hostname }}/#/enroll/{{ newExam.course.code }}/exam/{{ newExam.id }}</a>
+                    <a href="{{ hostname.hostname }}/enroll/{{ newExam.course.code }}/exam/{{ newExam.id }}">
+                        {{ hostname.hostname }}/enroll/{{ newExam.course.code }}/exam/{{ newExam.id }}</a>
                 </div>
             </div>
         </div>

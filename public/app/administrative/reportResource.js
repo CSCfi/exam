@@ -4,7 +4,7 @@
         .factory("ReportResource", ['$resource', function ($resource) {
             return {
                 resbydate: $resource(
-                    "/statistics/resbydate/:roomId/:from/:to",
+                    "/app/statistics/resbydate/:roomId/:from/:to",
                     {
                         id: "@roomId",
                         from: "@from",
@@ -14,10 +14,10 @@
                         "get": {method: "GET", params: {id: "@roomId", from: "@from", to: "@to"}}
                     }),
                 examnames: $resource(
-                    "/statistics/examnames", null,
+                    "/app/statistics/examnames", null,
                     {}),
                 reviewsByDate: $resource(
-                    "/statistics/reviewsbydate/:from/:to",
+                    "/app/statistics/reviewsbydate/:from/:to",
                     {
                         from: "@from",
                         to: "@to"
@@ -26,7 +26,7 @@
                         "get": {method: "GET", params: {from: "@from", to: "@to"}}
                     }),
                 teacherExamsByDate: $resource(
-                    "/statistics/teacherexamsbydate/:uid/:from/:to",
+                    "/app/statistics/teacherexamsbydate/:uid/:from/:to",
                     {
                         uid: "@uid",
                         from: "@from",
@@ -35,11 +35,11 @@
                     {
                         "get": {method: "GET", params: {uid: "@uid", from: "@from", to: "@to"}}
                     }),
-                departments: $resource("/reports/departments"),
-                exams: $resource("/reports/exams"),
-                reservations: $resource("/reports/reservations"),
-                responses: $resource("/reports/responses"),
-                participations: $resource("/reports/participations", {}, {
+                departments: $resource("/app/reports/departments"),
+                exams: $resource("/app/reports/exams"),
+                reservations: $resource("/app/reports/reservations"),
+                responses: $resource("/app/reports/responses"),
+                participations: $resource("/app/reports/participations", {}, {
                     find: {
                         method: 'GET',
                         isArray: false,

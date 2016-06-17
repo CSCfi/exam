@@ -13,8 +13,6 @@ import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.data.DynamicForm;
-import play.data.Form;
-import play.libs.F;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
@@ -23,6 +21,7 @@ import util.java.EmailComposer;
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +35,7 @@ public class LanguageInspectionController extends BaseController {
     protected ActorSystem actor;
 
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
-    public Result listInspections(F.Option<String> month) {
+    public Result listInspections(Optional<String> month) {
         ExpressionList<LanguageInspection> query = Ebean.find(LanguageInspection.class)
                 .fetch("exam")
                 .fetch("exam.course")
@@ -46,7 +45,7 @@ public class LanguageInspectionController extends BaseController {
                 .fetch("creator", "firstName, lastName, email, userIdentifier")
                 .fetch("assignee", "firstName, lastName, email, userIdentifier")
                 .where();
-        if (month.isDefined()) {
+        if (month.isPresent()) {
             DateTime start = DateTime.parse(month.get()).withDayOfMonth(1).withMillisOfDay(0);
             DateTime end = start.plusMonths(1);
             query = query.between("finishedAt", start.toDate(), end.toDate());
@@ -64,7 +63,7 @@ public class LanguageInspectionController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result createInspection() {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         Long examId = Long.parseLong(df.get("examId"));
         Exam exam = Ebean.find(Exam.class, examId);
         if (exam == null) {
@@ -98,7 +97,7 @@ public class LanguageInspectionController extends BaseController {
 
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
     public Result setApproval(Long id) {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         boolean isApproved = Boolean.parseBoolean(df.get("approved"));
         LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
         if (inspection == null) {
@@ -132,7 +131,7 @@ public class LanguageInspectionController extends BaseController {
 
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
     public Result setStatement(Long id) {
-        DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest();
         String text = df.get("comment");
         if (text == null) {
             return badRequest();

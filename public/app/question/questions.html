@@ -22,8 +22,8 @@
                 <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
                 <i class="fa sitnet-white fa-list-ol fa-stack-1x"></i>
             </span>
-            <div class="dropdown" dropdown>
-                <a dropdown-toggle class="header-top-link dropdown-toggle" data-toggle="dropdown">
+            <div class="dropdown" uib-dropdown>
+                <a uib-dropdown-toggle class="header-top-link dropdown-toggle" data-toggle="dropdown">
                     {{'sitnet_toolbar_new_question' | translate}}
                 </a>
                 <ul class="dropdown-menu" role="menu">
@@ -46,8 +46,8 @@
             <label for="filters">{{'sitnet_search' | translate}}</label>
 
             <div id="filters" class="form-group">
-                <span class="dropdown" dropdown>
-                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                <span class="dropdown" uib-dropdown>
+                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
                             data-toggle="dropdown" aria-expanded="true" ng-click="listCourses()">
                         {{'sitnet_course' | translate}}&nbsp;<span class="caret"></span>
                     </button>
@@ -68,8 +68,8 @@
                         </li>
                     </ul>
                 </span>
-                <span class="dropdown" dropdown>
-                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
+                <span class="dropdown" uib-dropdown>
+                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
                             data-toggle="dropdown" aria-expanded="true" ng-click="listExams()">
                         {{'sitnet_exam' | translate}}&nbsp;<span class="caret"></span>
                     </button>
@@ -91,8 +91,8 @@
                     </ul>
                 </span>
 
-                <span class="dropdown" dropdown>
-                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu3"
+                <span class="dropdown" uib-dropdown>
+                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu3"
                             data-toggle="dropdown" aria-expanded="true" ng-click="listTags()">
                         {{'sitnet_category' | translate}}&nbsp;<span class="caret"></span>
                     </button>
@@ -156,19 +156,19 @@
     <div class="detail-row">
         <div id="question-listing" class="col-md-12">
             <table class="table table-striped table-condensed questions-table">
-                <thead><!-- ng-init="questionsPredicate='id'; reverse=true">-->
+                <thead>
                 <tr>
                     <th>
                         <input type="checkbox" name="select_all" class="selectAllQuestions"
-                               ng-click="selectAll('selectAllQuestions', 'questionToMove')" popover-placement="top"
-                               popover-trigger="mouseenter" popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
+                               ng-click="selectAll('selectAllQuestions', 'questionToUpdate')" popover-placement="top"
+                               popover-trigger="mouseenter" uib-popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
                     </th>
-                    <th colspan="2" sort by="id" title="sitnet_question" predicate="questionsPredicate" reverse="reverse"></th>
-                    <th sort by="modified" title="sitnet_modified" predicate="questionsPredicate" reverse="reverse"></th>
-                    <th sort by="displayedMaxScore" title="sitnet_max_score" predicate="questionsPredicate" reverse="reverse"></th>
-                    <th sort by="typeOrd" title="sitnet_question_type" predicate="questionsPredicate" reverse="reverse"></th>
-                    <th sort by="attachment.fileName" title="sitnet_attachment" predicate="questionsPredicate" reverse="reverse"></th>
-                    <th ng-show="user.isAdmin" sort by="ownerAggregate" title="sitnet_owner" predicate="questionsPredicate" reverse="reverse"></th>
+                    <th colspan="2" sort by="id" text="sitnet_question" predicate="questionsPredicate" reverse="reverse"></th>
+                    <th sort by="modified" text="sitnet_modified" predicate="questionsPredicate" reverse="reverse"></th>
+                    <th sort by="displayedMaxScore" text="sitnet_max_score" predicate="questionsPredicate" reverse="reverse"></th>
+                    <th sort by="typeOrd" text="sitnet_question_type" predicate="questionsPredicate" reverse="reverse"></th>
+                    <th sort by="attachment.fileName" text="sitnet_attachment" predicate="questionsPredicate" reverse="reverse"></th>
+                    <th ng-show="user.isAdmin" sort by="ownerAggregate" text="sitnet_owner" predicate="questionsPredicate" reverse="reverse"></th>
                     <th>{{ 'sitnet_copy' | translate }}</th>
                     <th>{{ 'sitnet_exam_remove' | translate }}</th>
                 </tr>
@@ -176,10 +176,10 @@
                 <tbody>
                 <tr ng-repeat="question in filteredQuestions | orderBy: questionsPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize">
                     <td>
-                        <input type="checkbox" class="questionToMove" value="{{question.id}}"/>
+                        <input type="checkbox" class="questionToUpdate" value="{{question.id}}"/>
                     </td>
                     <td>
-                        <a href="#/questions/{{question.id}}">{{question.id}}</a>
+                        <a href="/questions/{{question.id}}">{{question.id}}</a>
                     </td>
                     <td>
                         <span ng-if="question.question" mathjax ng-bind-html="question.question | truncate: 360"></span>
@@ -211,8 +211,10 @@
                                 class="fa fa-lg fa-copy text-info"></i></a>
                     </td>
                     <td>
-                        <a class="bold-button" ng-click="deleteQuestion(question)"><i
-                                class="fa fa-lg fa-times sitnet-red"></i></a>
+                        <i ng-if="!question.allowedToRemove" class="fa fa-lg fa-times text-muted" title="{{'sitnet_question_removal_disallowed' | translate}}"></i>
+                        <a class="bold-button" ng-if="question.allowedToRemove" ng-click="deleteQuestion(question)">
+                            <i  class="fa fa-lg fa-times sitnet-red"></i>
+                        </a>
                     </td>
                 </tr>
                 <!--Fill if page not full-->
@@ -235,9 +237,9 @@
             <div class="input-group">
                 <input type="text" class="form-control ng-pristine ng-valid"
                        ng-model="newTeacher"
-                       placeholder="{{'sitnet_select_teacher_to_move_the_questions_to' | translate}}"
+                       placeholder="{{'sitnet_add_question_owner' | translate}}"
+                       uib-typeahead="t as t.name for t in teachers | filter:$viewValue | limitTo:8"
                        typeahead-on-select="onTeacherSelect($item, $model, $label, newExam)"
-                       typeahead="t as t.name for t in teachers | filter:$viewValue | limitTo:8"
                        typeahead-wait-ms="100"
                        typeahead-focus-first="false"
                        typeahead-min-length="2"
@@ -246,13 +248,13 @@
                                 <i class="fa fa-question-circle fa-fw"
                                    popover-placement="left"
                                    popover-trigger="mouseenter"
-                                   popover="{{'sitnet_name' | translate}}"></i>
+                                   uib-popover="{{'sitnet_name' | translate}}"></i>
                            </span>
             </div>
         </div>
         <div class="col-md-2 bottom-padding-2">
-            <input type="button" class="btn btn-primary" ng-disabled="ownerProcess" ng-click="moveSelected()"
-                   value="{{'sitnet_change_owner' | translate}}"/>
+            <input type="button" class="btn btn-primary" ng-disabled="ownerProcess" ng-click="addOwnerForSelected()"
+                   value="{{'sitnet_add' | translate}}"/>
         </div>
     </div>
 </div>

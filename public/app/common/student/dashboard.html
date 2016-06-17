@@ -10,20 +10,20 @@
     </div>
 
     <div class="top-row">
-        <div class="col-md-6 list-item" ng-repeat="enrolment in userEnrolments">
+        <div class="col-md-6 list-item" ng-repeat="enrolment in userEnrolments | orderBy: 'reservation.startAt'">
             <div class="student-enrolment-wrapper">
                 <div class="col-md-12">
                     <div class="enrolment-row">
                         <span class="col-md-12 info-header-bold">
                             {{enrolment.exam.name}} - {{enrolment.exam.course.code}}&nbsp;&nbsp;
                             <a class="pointer"
-                               href="#/enroll/{{enrolment.exam.course.code}}/exam/{{enrolment.exam.id}}">
+                               href="/enroll/{{enrolment.exam.course.code}}/exam/{{enrolment.exam.id}}">
                                 <i class="fa fa-question text-info"></i>
                             </a>
                             <span class="pointer" ng-hide="enrolment.exam.executionType.type === 'PRIVATE'">&nbsp;&nbsp;
                                 <i class="fa fa-times text-danger" popover-placement="top"
                                    popover-popup-delay="500" popover-trigger="mouseenter"
-                                   popover="{{ 'sitnet_remove' | translate }}" ng-click="removeEnrolment(enrolment, userEnrolments)">
+                                   uib-popover="{{ 'sitnet_remove' | translate }}" ng-click="removeEnrolment(enrolment, userEnrolments)">
                                 </i>
                             </span>
                         </span>
@@ -93,14 +93,14 @@
                             <div class="col-md-9">
                                 <span>
                                     <a ng-if="enrolment.reservation" class="text-info"
-                                       href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation'
+                                       href="/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation'
                                         | translate}}</a>
                                     <span ng-if="enrolment.reservation">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
                                     <a ng-if="enrolment.reservation" class="text-danger pointer"
                                        ng-click="removeReservation(enrolment)">{{'sitnet_remove_reservation' |
                                         translate}}</a>
                                     <a ng-if="!enrolment.reservation" class="text-info"
-                                       href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_new_reservation'
+                                       href="/calendar/{{enrolment.exam.id}}">{{'sitnet_new_reservation'
                                         | translate}}</a>
                                 </span>
                             </div>
@@ -198,12 +198,13 @@
                 <span class="header col-md-12">{{ 'sitnet_teachers_comment' | translate }}:</span><br/>
                 <span class="light-text col-md-12">
                     <span ng-if="participation.exam.state === 'GRADED_LOGGED' || participation.exam.state === 'REJECTED'
-                            || participation.exam.state === 'ARCHIVED'" popover-placement="top"
-                          popover-popup-delay="1000" popover-trigger="mouseenter"
-                          popover="{{ 'sitnet_show' | translate }}" ng-click="showFeedback(participation.exam.id)"
+                            || participation.exam.state === 'ARCHIVED' ||
+                            (participation.exam.state === 'GRADED' && participation.exam.autoEvaluationNotified)"
+                          popover-placement="top" popover-popup-delay="1000" popover-trigger="mouseenter"
+                          uib-popover="{{ 'sitnet_show' | translate }}" ng-click="showFeedback(participation.exam.id)"
                           class="pointer text-info">{{'sitnet_comments' | translate}}</span>
-                    <span ng-if="participation.exam.state === 'GRADED' || participation.exam.state === 'REVIEW'
-                                    || participation.exam.state === 'REVIEW_STARTED'"
+                    <span ng-if="(participation.exam.state === 'GRADED' && !participation.exam.autoEvaluationNotified) ||
+                        participation.exam.state === 'REVIEW'|| participation.exam.state === 'REVIEW_STARTED'"
                           class="text-muted">{{'sitnet_no_comments' | translate}}</span>
                 </span>
             </div>

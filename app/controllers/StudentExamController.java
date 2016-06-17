@@ -5,17 +5,18 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
+import com.avaje.ebean.text.PathProperties;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
-import models.questions.Answer;
-import models.questions.MultipleChoiceOption;
-import models.questions.Question;
+import models.questions.EssayAnswer;
 import org.joda.time.DateTime;
-import play.Play;
+import play.Environment;
+import play.Logger;
 import play.data.DynamicForm;
-import play.data.Form;
-import play.libs.F;
+import play.db.ebean.Transactional;
 import play.libs.Json;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
@@ -25,9 +26,9 @@ import util.java.EmailComposer;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class StudentExamController extends BaseController {
 
@@ -39,21 +40,25 @@ public class StudentExamController extends BaseController {
     protected EmailComposer emailComposer;
     @Inject
     protected ActorSystem actor;
+    @Inject
+    protected Environment environment;
 
 
     @Restrict({@Group("STUDENT")})
-    public F.Promise<Result> listAvailableExams(final F.Option<String> filter) throws MalformedURLException {
+    public CompletionStage<Result> listAvailableExams(final Optional<String> filter) throws MalformedURLException {
         if (!PERM_CHECK_ACTIVE) {
-            return wrapAsPromise(listExams(filter, Collections.<String>emptyList()));
+            return wrapAsPromise(listExams(filter.orElse(null), Collections.emptyList()));
         }
-        F.Promise<Collection<String>> promise = externalAPI.getPermittedCourses(getLoggedUser());
-        return promise.map(codes -> {
-            if (codes.isEmpty()) {
-                return ok(Json.toJson(Collections.<Exam>emptyList())).as("application/json");
-            } else {
-                return listExams(filter, codes);
-            }
-        }).recover(throwable -> internalServerError(throwable.getMessage()));
+        return externalAPI.getPermittedCourses(getLoggedUser())
+                .thenApplyAsync(codes ->
+                        {
+                            if (codes.isEmpty()) {
+                                return ok(Json.toJson(Collections.<Exam>emptyList()));
+                            } else {
+                                return listExams(filter.orElse(null), codes);
+                            }
+                        }
+                ).exceptionally(throwable -> internalServerError(throwable.getMessage()));
     }
 
     @Restrict({@Group("STUDENT")})
@@ -101,6 +106,11 @@ public class StudentExamController extends BaseController {
                 .disjunction()
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .eq("state", Exam.State.ARCHIVED)
+                .conjunction()
+                .eq("state", Exam.State.GRADED)
+                .isNotNull("autoEvaluationConfig")
+                .isNotNull("autoEvaluationNotified")
+                .endJunction()
                 .endJunction()
                 .findUnique();
         if (exam == null) {
@@ -114,7 +124,7 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result getExamGeneralInfo(Long id) {
+    public Result getExamFeedback(Long id) {
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("creator", "firstName, lastName, email")
@@ -136,6 +146,11 @@ public class StudentExamController extends BaseController {
                 .eq("state", Exam.State.REJECTED)
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .eq("state", Exam.State.ARCHIVED)
+                .conjunction()
+                .eq("state", Exam.State.GRADED)
+                .isNotNull("autoEvaluationConfig")
+                .isNotNull("autoEvaluationNotified")
+                .endJunction()
                 .endJunction()
                 .findUnique();
         if (exam == null) {
@@ -244,7 +259,7 @@ public class StudentExamController extends BaseController {
     }
 
     private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
-        Exam studentExam = prototype.copy(user, true);
+        Exam studentExam = prototype.copyForStudent(user);
         studentExam.setState(Exam.State.STUDENT_STARTED);
         studentExam.setCreator(user);
         studentExam.setParent(prototype);
@@ -280,55 +295,57 @@ public class StudentExamController extends BaseController {
                 .findUnique();
     }
 
-    private static Result checkEnrolmentOK(ExamEnrolment enrolment) {
+    private Optional<Result> getEnrolmentError(ExamEnrolment enrolment) {
         // If this is null, it means someone is either trying to access an exam by wrong hash
         // or the reservation is not in effect right now.
         if (enrolment == null) {
-            return forbidden("sitnet_reservation_not_found");
+            return Optional.of(forbidden("sitnet_reservation_not_found"));
         }
         String clientIP = request().remoteAddress();
         // Exam and enrolment found. Is student on the right machine?
         if (enrolment.getReservation() == null) {
-            return forbidden("sitnet_reservation_not_found");
+            return Optional.of(forbidden("sitnet_reservation_not_found"));
         } else if (enrolment.getReservation().getMachine() == null) {
-            return forbidden("sitnet_reservation_machine_not_found");
-        } else if (!Play.isDev() && !enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+            return Optional.of(forbidden("sitnet_reservation_machine_not_found"));
+        } else if (!environment.isDev() && !enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
             ExamRoom examRoom = Ebean.find(ExamRoom.class)
                     .fetch("mailAddress")
                     .where()
                     .eq("id", enrolment.getReservation().getMachine().getRoom().getId())
                     .findUnique();
+            if (examRoom == null) {
+                return Optional.of(notFound());
+            }
             String message = "sitnet_wrong_exam_machine " + examRoom.getName()
                     + ", " + examRoom.getMailAddress().toString()
                     + ", sitnet_exam_machine " + enrolment.getReservation().getMachine().getName();
-            return forbidden(message);
+            return Optional.of(forbidden(message));
         }
-        return null;
+        return Optional.empty();
+    }
+
+    private static PathProperties getPath() {
+        return PathProperties.parse(
+                "(id, name, instruction, hash, duration, cloned, course(id, code, name), executionType(id, type), " + // (
+                        "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
+                        "examInspections(user(firstName, lastName))" +
+                        "examSections(id, name, sequenceNumber, description, " + // ((
+                        "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
+                        "question(id, type, question, attachment(fileName))" +
+                        "options(id, answered, option(id, option))" +
+                        "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
+                        ")))");
     }
 
     private static Query<Exam> createQuery() {
-
-        return Ebean.find(Exam.class)
-                .select("id, name, instruction, shared, hash, examActiveStartDate, examActiveEndDate, duration, answerLanguage, state, expanded, cloned")
-                .fetch("creator", "id")
-                .fetch("course", "id, code, name, credits, institutionName, department")
-                .fetch("examType", "id, type")
-                .fetch("executionType")
-                .fetch("examSections", "id, name")
-                .fetch("examSections.sectionQuestions", "sequenceNumber")
-                .fetch("examSections.sectionQuestions.question", "id, type, question, instruction, maxScore, maxCharacters, evaluationType, expanded")
-                .fetch("examSections.sectionQuestions.question.options", "id, option")
-                .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-                .fetch("examSections.sectionQuestions.question.answer", "id, type, answer, objectVersion")
-                .fetch("examSections.sectionQuestions.question.answer.options", "id, option")
-                .fetch("examSections.sectionQuestions.question.answer.attachment", "fileName")
-                .fetch("examLanguages", "code")
-                .fetch("attachment", "fileName")
-                .fetch("examOwners", "firstName, lastName")
-                .fetch("examInspections.user", "firstName, lastName");
+        Query<Exam> query = Ebean.find(Exam.class);
+        PathProperties props = getPath();
+        props.apply(query);
+        return query;
     }
 
     @Restrict({@Group("STUDENT")})
+    @Transactional
     public Result startExam(String hash) {
         User user = getLoggedUser();
         Exam prototype = getPrototype(hash);
@@ -337,40 +354,40 @@ public class StudentExamController extends BaseController {
         if (prototype == null && possibleClone == null) {
             return notFound();
         }
-        // exam has been started
-        if (possibleClone != null) {
-            Exam.State state = possibleClone.getState();
-            // sanity check
-            if (state != Exam.State.STUDENT_STARTED) {
-                return forbidden();
-            }
-        }
-
-        // Create new exam for student
+        // Exam not started yet, create new exam for student
         if (possibleClone == null) {
             ExamEnrolment enrolment = getEnrolment(user, prototype);
-            Result error = checkEnrolmentOK(enrolment);
-            if (error != null) {
-                return error;
-            }
-            // We are good to go (reservation and enrolment OK)
-            Exam newExam = createNewExam(prototype, user, enrolment);
-            //TODO: check how to do better
-            Exam studentExam = createQuery().where().idEq(newExam.getId()).findUnique();
-            studentExam.setCloned(true);
-            return ok(studentExam);
+            return getEnrolmentError(enrolment).orElseGet(() -> {
+                Exam newExam = createNewExam(prototype, user, enrolment);
+                newExam.setCloned(true);
+                newExam.setDerivedMaxScores();
+                return ok(newExam, getPath());
+            });
         } else {
-            // Returning an already existing student exam
+            // Exam started already
+            // sanity check
+            if (possibleClone.getState() != Exam.State.STUDENT_STARTED) {
+                return forbidden();
+            }
             possibleClone.setCloned(false);
-            return ok(possibleClone);
+            possibleClone.setDerivedMaxScores();
+            return ok(possibleClone, getPath());
         }
     }
 
     @Restrict({@Group("STUDENT")})
+    @Transactional
     public Result turnExam(String hash) {
         User user = getLoggedUser();
-        Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findUnique();
-
+        Exam exam = Ebean.find(Exam.class)
+                .fetch("examSections.sectionQuestions.question")
+                .where()
+                .eq("creator", user)
+                .eq("hash", hash)
+                .findUnique();
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         ExamParticipation p = Ebean.find(ExamParticipation.class)
                 .where()
                 .eq("exam.id", exam.getId())
@@ -393,6 +410,21 @@ public class StudentExamController extends BaseController {
             if (exam.isPrivate()) {
                 notifyTeachers(exam);
             }
+            AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
+            if (config != null) {
+                // Grade automatically
+                autoEvaluate(exam);
+                if (config.getReleaseType() == AutoEvaluationConfig.ReleaseType.IMMEDIATE) {
+                    // Notify student immediately
+                    exam.setAutoEvaluationNotified(new Date());
+                    exam.update();
+                    User student = exam.getCreator();
+                    actor.scheduler().scheduleOnce(Duration.create(5, TimeUnit.SECONDS),
+                            () -> emailComposer.composeInspectionReady(student, null, exam),
+                            actor.dispatcher());
+                    Logger.debug("Mail sent about automatic evaluation to {}", student.getEmail());
+                }
+            }
             return ok("Exam sent for review");
         } else {
             return forbidden("exam already returned");
@@ -400,10 +432,13 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
+    @Transactional
     public Result abortExam(String hash) {
         User user = getLoggedUser();
         Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findUnique();
-
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         ExamParticipation p = Ebean.find(ExamParticipation.class)
                 .where()
                 .eq("exam.id", exam.getId())
@@ -427,90 +462,65 @@ public class StudentExamController extends BaseController {
         }
     }
 
-    private Result checkEnrolment(String hash) {
+    private Optional<Result> getEnrolmentError(String hash) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .eq("exam.hash", hash)
                 .eq("exam.creator", getLoggedUser())
                 .eq("exam.state", Exam.State.STUDENT_STARTED)
                 .findUnique();
-        return checkEnrolmentOK(enrolment);
+        return getEnrolmentError(enrolment);
     }
 
     @Restrict({@Group("STUDENT")})
     public Result answerEssay(String hash, Long questionId) {
-        Result failure = checkEnrolment(hash);
-        if (failure != null) {
-            return failure;
-        }
-        DynamicForm df = Form.form().bindFromRequest();
-        String essayAnswer = df.get("answer");
-        Question question = Ebean.find(Question.class, questionId);
-        if (question == null) {
-            return forbidden();
-        }
-
-        Answer answer = question.getAnswer();
-        if (answer == null) {
-            answer = new Answer();
-            answer.setType(Answer.Type.EssayAnswer);
-        } else {
-            long objectVersion = Long.parseLong(df.get("objectVersion"));
-            answer.setObjectVersion(objectVersion);
-        }
-        answer.setAnswer(essayAnswer);
-        answer.save();
-
-        question.setAnswer(answer);
-        question.save();
-        return ok(answer);
+        return getEnrolmentError(hash).orElseGet(() -> {
+            DynamicForm df = formFactory.form().bindFromRequest();
+            String essayAnswer = df.get("answer");
+            ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, questionId);
+            if (question == null) {
+                return forbidden();
+            }
+            EssayAnswer answer = question.getEssayAnswer();
+            if (answer == null) {
+                answer = new EssayAnswer();
+            } else {
+                long objectVersion = Long.parseLong(df.get("objectVersion"));
+                answer.setObjectVersion(objectVersion);
+            }
+            answer.setAnswer(essayAnswer);
+            answer.save();
+            question.setEssayAnswer(answer);
+            question.save();
+            return ok(answer);
+        });
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result answerMultiChoice(String hash, Long qid, String oids) {
-        Result failure = checkEnrolment(hash);
-        if (failure != null) {
-            return failure;
-        }
-        List<Long> optionIds;
-        if (oids.equals("none")) { // not so elegant but will do for now
-            optionIds = new ArrayList<>();
-        } else {
-            optionIds = Stream.of(oids.split(",")).map(Long::parseLong).collect(Collectors.toList());
-        }
-        Question question = Ebean.find(Question.class).fetch("answer").where().idEq(qid).findUnique();
-        if (question == null) {
-            return forbidden();
-        }
-        Answer answer = question.getAnswer();
-        if (answer == null) {
-            answer = new Answer();
-            answer.setType(question.getType());
-            answer.save();
-            question.setAnswer(answer);
-            question.update();
-        }
-        answer.getOptions().stream().forEach(o -> {
-            o.setAnswer(null);
-            o.update();
+    public Result answerMultiChoice(String hash, Long qid) {
+        return getEnrolmentError(hash).orElseGet(() -> {
+            ArrayNode node = (ArrayNode) request().body().asJson().get("oids");
+            List<Long> optionIds = new ArrayList<>();
+            node.forEach(n -> optionIds.add(n.asLong()));
+            ExamSectionQuestion question =
+                    Ebean.find(ExamSectionQuestion.class, qid);
+            if (question == null) {
+                return forbidden();
+            }
+            question.getOptions().forEach(o -> {
+                o.setAnswered(optionIds.contains(o.getId()));
+                o.update();
+            });
+            return ok(Json.toJson(question.getOptions()));
         });
-        List<MultipleChoiceOption> options = optionIds.isEmpty()
-                ? new ArrayList<>() : Ebean.find(MultipleChoiceOption.class).where().idIn(optionIds).findList();
-        for (MultipleChoiceOption o : options) {
-            o.setAnswer(answer);
-            o.save();
-        }
-        answer.getOptions().clear();
-        answer.getOptions().addAll(options);
-        return ok(Json.toJson(answer));
     }
 
-    private Result listExams(F.Option<String> filter, Collection<String> courseCodes) {
+    private Result listExams(String filter, Collection<String> courseCodes) {
         ExpressionList<Exam> query = Ebean.find(Exam.class)
                 .select("id, name, examActiveStartDate, examActiveEndDate, enrollInstruction")
                 .fetch("course", "code")
                 .fetch("examOwners", "firstName, lastName")
                 .fetch("examInspections.user", "firstName, lastName")
-                .fetch("examLanguages", "code, name")
+                .fetch("examLanguages", "code, name", new FetchConfig().query())
                 .fetch("creator", "firstName, lastName")
                 .where()
                 .eq("state", Exam.State.PUBLISHED)
@@ -519,8 +529,8 @@ public class StudentExamController extends BaseController {
         if (!courseCodes.isEmpty()) {
             query.in("course.code", courseCodes);
         }
-        if (filter.isDefined() && !filter.get().isEmpty()) {
-            String condition = String.format("%%%s%%", filter.get());
+        if (filter != null) {
+            String condition = String.format("%%%s%%", filter);
             query = query.disjunction()
                     .ilike("name", condition)
                     .ilike("course.code", condition)
@@ -532,14 +542,65 @@ public class StudentExamController extends BaseController {
         return ok(exams);
     }
 
+    private Grade getGradeBasedOnScore(Exam exam) {
+        Double totalScore = exam.getTotalScore();
+        Double maxScore = exam.getMaxScore();
+        Double percentage = maxScore == 0 ? 0 : totalScore * 100 / maxScore;
+        List<GradeEvaluation> gradeEvaluations = new ArrayList<>(exam.getAutoEvaluationConfig().getGradeEvaluations());
+        gradeEvaluations.sort((o1, o2) -> o1.getPercentage() - o2.getPercentage());
+        Grade grade = null;
+        Iterator<GradeEvaluation> it = gradeEvaluations.iterator();
+        GradeEvaluation prev = null;
+        while (it.hasNext()) {
+            GradeEvaluation ge = it.next();
+            int threshold = 0;
+            if (ge.getPercentage() > percentage) {
+                grade = prev == null ? ge.getGrade() : prev.getGrade();
+                threshold = prev == null ? ge.getPercentage() : prev.getPercentage();
+            }
+            if (!it.hasNext()) {
+                // Highest possible grade
+                grade = ge.getGrade();
+                threshold = ge.getPercentage();
+            }
+            if (grade != null) {
+                Logger.info("Automatically grading exam #{}, {}/{} points ({}%) graded as {} using percentage threshold {}",
+                        exam.getId(), totalScore, maxScore, percentage, grade.getName(), threshold);
+                break;
+            }
+            prev = ge;
+        }
+        if (!exam.getGradeScale().getGrades().contains(grade)) {
+            throw new RuntimeException("Grade in auto evaluation configuration not found in exam grade scale!");
+        }
+        return grade;
+    }
+
+    private void autoEvaluate(Exam exam) {
+        Grade grade = getGradeBasedOnScore(exam);
+        if (grade != null) {
+            exam.setGrade(grade);
+            exam.setGradedTime(new Date());
+            exam.setCreditType(exam.getExamType());
+            // NOTE: do not set graded by person here, one who makes a record will get the honor
+            if (!exam.getExamLanguages().isEmpty()) {
+                exam.setAnswerLanguage(exam.getExamLanguages().get(0).getCode());
+            } else {
+                throw new RuntimeException("No exam language found!");
+            }
+            exam.setState(Exam.State.GRADED);
+            exam.update();
+        }
+    }
+
     private void notifyTeachers(Exam exam) {
         Set<User> recipients = new HashSet<>();
         recipients.addAll(exam.getParent().getExamOwners());
         recipients.addAll(exam.getExamInspections().stream().map(
                 ExamInspection::getUser).collect(Collectors.toSet()));
-        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer);
-        }, actor.dispatcher());
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
+                () -> AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer),
+                actor.dispatcher());
     }
 
 }

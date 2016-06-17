@@ -6,25 +6,35 @@ import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
-import models.*;
+import com.typesafe.config.ConfigFactory;
+import models.Attachment;
+import models.Comment;
+import models.Exam;
+import models.ExamSectionQuestion;
+import models.LanguageInspection;
+import models.User;
 import models.api.AttachmentContainer;
-import models.questions.Answer;
+import models.questions.EssayAnswer;
 import models.questions.Question;
+import play.Environment;
 import play.Logger;
-import play.Play;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 import util.AppUtil;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 
-import static util.java.AttachmentUtils.setData;
 
 public class AttachmentController extends BaseController {
+
+    @Inject
+    Environment environment;
 
     private static void removePrevious(AttachmentContainer container, boolean removeFromDisk) {
         if (container.getAttachment() != null) {
@@ -50,8 +60,8 @@ public class AttachmentController extends BaseController {
     @Restrict({@Group("STUDENT")})
     public Result addAttachmentToQuestionAnswer() {
 
-        MultipartFormData body = request().body().asMultipartFormData();
-        FilePart filePart = body.getFile("file");
+        MultipartFormData<File> body = request().body().asMultipartFormData();
+        FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
@@ -63,30 +73,29 @@ public class AttachmentController extends BaseController {
         Long qid = Long.parseLong(m.get("questionId")[0]);
 
         // first check if answer already exist
-        Question question = Ebean.find(Question.class).fetch("answer")
+        ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).fetch("essayAnswer")
                 .where()
                 .idEq(qid)
-                .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                .eq("examSection.exam.creator", getLoggedUser())
                 .findUnique();
         if (question == null) {
             return forbidden();
         }
-        if (question.getAnswer() == null) {
-            Answer answer = new Answer();
-            answer.setType(question.getType());
-            question.setAnswer(answer);
+        if (question.getEssayAnswer() == null) {
+            EssayAnswer answer = new EssayAnswer();
+            question.setEssayAnswer(answer);
             question.save();
         }
 
         String newFilePath;
         try {
-            newFilePath = copyFile(file, "question", qid.toString(), "answer", question.getAnswer().getId().toString());
+            newFilePath = copyFile(file, "question", qid.toString(), "answer", question.getEssayAnswer().getId().toString());
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_attachment");
         }
         // Remove existing one if found
-        Answer answer = question.getAnswer();
-        removePrevious(question.getAnswer(), true);
+        EssayAnswer answer = question.getEssayAnswer();
+        removePrevious(question.getEssayAnswer(), true);
 
         Attachment attachment = createNew(filePart, newFilePath);
         answer.setAttachment(attachment);
@@ -97,8 +106,8 @@ public class AttachmentController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addAttachmentToQuestion() {
 
-        MultipartFormData body = request().body().asMultipartFormData();
-        FilePart filePart = body.getFile("file");
+        MultipartFormData<File> body = request().body().asMultipartFormData();
+        FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
@@ -140,17 +149,17 @@ public class AttachmentController extends BaseController {
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result deleteQuestionAnswerAttachment(Long qid, String hash) {
         User user = getLoggedUser();
-        Question question;
+        ExamSectionQuestion question;
         if (user.hasRole("STUDENT", getSession())) {
-            question = Ebean.find(Question.class).where()
+            question = Ebean.find(ExamSectionQuestion.class).where()
                     .idEq(qid)
-                    .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                    .eq("examSection.exam.creator", getLoggedUser())
                     .findUnique();
         } else {
-            question = Ebean.find(Question.class, qid);
+            question = Ebean.find(ExamSectionQuestion.class, qid);
         }
-        if (question != null && question.getAnswer() != null && question.getAnswer().getAttachment() != null) {
-            Answer answer = question.getAnswer();
+        if (question != null && question.getEssayAnswer() != null && question.getEssayAnswer().getAttachment() != null) {
+            EssayAnswer answer = question.getEssayAnswer();
             Attachment aa = answer.getAttachment();
             answer.setAttachment(null);
             answer.save();
@@ -192,8 +201,8 @@ public class AttachmentController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addAttachmentToExam() {
-        MultipartFormData body = request().body().asMultipartFormData();
-        FilePart filePart = body.getFile("file");
+        MultipartFormData<File> body = request().body().asMultipartFormData();
+        FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
@@ -224,8 +233,8 @@ public class AttachmentController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addFeedbackAttachment(Long id) {
-        MultipartFormData body = request().body().asMultipartFormData();
-        FilePart filePart = body.getFile("file");
+        MultipartFormData<File> body = request().body().asMultipartFormData();
+        FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
@@ -261,8 +270,8 @@ public class AttachmentController extends BaseController {
 
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
     public Result addStatementAttachment(Long id) {
-        MultipartFormData body = request().body().asMultipartFormData();
-        FilePart filePart = body.getFile("file");
+        MultipartFormData<File> body = request().body().asMultipartFormData();
+        FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
@@ -296,6 +305,13 @@ public class AttachmentController extends BaseController {
         return ok(attachment);
     }
 
+    private Result serveAttachment(Attachment attachment) {
+        File file = new File(attachment.getFilePath());
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFileName() + "\"");
+        String body = Base64.getEncoder().encodeToString(setData(file).toByteArray());
+        return ok(body).as(attachment.getMimeType());
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result downloadQuestionAttachment(Long id) {
         User user = getLoggedUser();
@@ -303,7 +319,7 @@ public class AttachmentController extends BaseController {
         if (user.hasRole("STUDENT", getSession())) {
             question = Ebean.find(Question.class).where()
                     .idEq(id)
-                    .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                    .eq("examSectionQuestions.examSection.exam.creator", getLoggedUser())
                     .findUnique();
         } else {
             question = Ebean.find(Question.class, id);
@@ -311,34 +327,25 @@ public class AttachmentController extends BaseController {
         if (question == null || question.getAttachment() == null) {
             return notFound();
         }
-
-        Attachment aa = question.getAttachment();
-        File file = new File(aa.getFilePath());
-
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
+        return serveAttachment(question.getAttachment());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result downloadQuestionAnswerAttachment(Long qid, String hash) {
         User user = getLoggedUser();
-        Question question;
+        ExamSectionQuestion question;
         if (user.hasRole("STUDENT", getSession())) {
-            question = Ebean.find(Question.class).where()
+            question = Ebean.find(ExamSectionQuestion.class).where()
                     .idEq(qid)
-                    .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                    .eq("examSection.exam.creator", getLoggedUser())
                     .findUnique();
         } else {
-            question = Ebean.find(Question.class, qid);
+            question = Ebean.find(ExamSectionQuestion.class, qid);
         }
-        if (question == null || question.getAnswer() == null || question.getAnswer().getAttachment() == null) {
+        if (question == null || question.getEssayAnswer() == null || question.getEssayAnswer().getAttachment() == null) {
             return notFound();
         }
-        Attachment aa = question.getAnswer().getAttachment();
-        File file = new File(aa.getFilePath());
-
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
+        return serveAttachment(question.getEssayAnswer().getAttachment());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -347,10 +354,7 @@ public class AttachmentController extends BaseController {
         if (exam == null || exam.getAttachment() == null) {
             return notFound();
         }
-        Attachment aa = exam.getAttachment();
-        File file = new File(aa.getFilePath());
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
+        return serveAttachment(exam.getAttachment());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -365,10 +369,7 @@ public class AttachmentController extends BaseController {
         if (exam == null || exam.getExamFeedback() == null || exam.getExamFeedback().getAttachment() == null) {
             return notFound();
         }
-        Attachment aa = exam.getExamFeedback().getAttachment();
-        File file = new File(aa.getFilePath());
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
+        return serveAttachment(exam.getExamFeedback().getAttachment());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -383,19 +384,16 @@ public class AttachmentController extends BaseController {
         if (exam == null) {
             return notFound();
         }
-        Attachment aa = exam.getLanguageInspection().getStatement().getAttachment();
-        File file = new File(aa.getFilePath());
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
+        return serveAttachment(exam.getLanguageInspection().getStatement().getAttachment());
     }
 
-    private static String copyFile(File srcFile, String... pathParams) throws IOException {
-        String uploadPath = Play.application().configuration().getString("sitnet.attachments.path");
+    private String copyFile(File srcFile, String... pathParams) throws IOException {
+        String uploadPath = ConfigFactory.load().getString(("sitnet.attachments.path"));
         StringBuilder path = new StringBuilder();
         // Following does not work on windows, but we hopefully aren't using it anyway :)
         if (!uploadPath.startsWith(File.separator)) {
             // relative path
-            path.append(Play.application().path().getAbsolutePath()).append(File.separator);
+            path.append(environment.rootPath().getAbsolutePath()).append(File.separator);
         }
         path.append(uploadPath).append(File.separator);
         for (String param : pathParams) {

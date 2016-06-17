@@ -22,15 +22,15 @@
                            ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
                            placeholder="{{'sitnet_search' | translate }}" popover-placement="top"
                            popover-popup-delay="500"
-                           popover-trigger="mouseenter" popover="{{ 'sitnet_user_search_description' | translate }}">
+                           popover-trigger="mouseenter" uib-popover="{{ 'sitnet_user_search_description' | translate }}">
                     <div class="input-group-addon">
                         <i class="fa fa-search fa-fw"></i>
                     </div>
                 </div>
             </div>
             <span class="col-md-8">
-                <span class="dropdown" dropdown>
-                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                <span class="dropdown" uib-dropdown>
+                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
                             data-toggle="dropdown" aria-expanded="true">
                         {{'sitnet_filter_by_role' | translate}}&nbsp;<span class="caret"></span>
                     </button>
@@ -45,8 +45,8 @@
                     </ul>
                 </span>
             <!-- ng-show="permissions.length > 0" -->
-                <span class="dropdown" dropdown>
-                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
+                <span class="dropdown" uib-dropdown>
+                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
                             data-toggle="dropdown" aria-expanded="true">
                         {{'sitnet_filter_by_permission' | translate}}&nbsp;<span class="caret"></span>
                     </button>
@@ -101,8 +101,8 @@
                         <i ng-if="hasRole(user, 'STUDENT')" class="fa fa-graduation-cap"/>
 
                         <div class="pull-right">
-                            <span class="dropdown pointer" dropdown>
-                                <a href class="dropdown-toggle" dropdown-toggle>
+                            <span class="dropdown pointer" uib-dropdown>
+                                <a href class="dropdown-toggle" uib-dropdown-toggle>
                                     <i ng-if="user.availableRoles.length > 0" class="text-success fa fa-plus"></i>
                                     <i ng-if="user.availableRoles.length === 0" class="text-muted fa fa-plus"></i>
                                 </a>
@@ -116,13 +116,13 @@
                                     </li>
                                 </ul>
                             </span>
-                            <span class="dropdown pointer" dropdown>
-                                <a href class="dropdown-toggle" dropdown-toggle>
+                            <span class="dropdown pointer" uib-dropdown>
+                                <a href class="dropdown-toggle" uib-dropdown-toggle>
                                     <i ng-if="user.removableRoles.length > 1" class="text-danger fa fa-minus"></i>
                                     <i ng-if="user.removableRoles.length <= 1" class="text-muted fa fa-minus"
                                        popover-placement="left" popover-popup-delay="500"
                                        popover-trigger="mouseenter"
-                                       popover="{{ 'sitnet_at_least_one_role_required' | translate }}"></i>
+                                       uib-popover="{{ 'sitnet_at_least_one_role_required' | translate }}"></i>
                                 </a>
                                 <ul class="dropdown-menu pull-right" style="min-width: 17em" ng-if="user.removableRoles.length > 1">
                                     <li class="dropdown-header">{{'sitnet_remove' | translate}}</li>
@@ -139,8 +139,8 @@
                         <i ng-if="hasPermission(user, 'CAN_INSPECT_LANGUAGE')" class="fa fa-pencil"/>
 
                         <div class="pull-right">
-                            <span class="dropdown pointer" dropdown>
-                                <a href class="dropdown-toggle" dropdown-toggle>
+                            <span class="dropdown pointer" uib-dropdown>
+                                <a href class="dropdown-toggle" uib-dropdown-toggle>
                                     <i ng-if="user.availablePermissions.length > 0" class="text-success fa fa-plus"></i>
                                     <i ng-if="user.availablePermissions.length === 0" class="text-muted fa fa-plus"></i>
                                 </a>
@@ -154,8 +154,8 @@
                                     </li>
                                 </ul>
                             </span>
-                            <span class="dropdown pointer" dropdown>
-                                <a href class="dropdown-toggle" dropdown-toggle>
+                            <span class="dropdown pointer" uib-dropdown>
+                                <a href class="dropdown-toggle" uib-dropdown-toggle>
                                     <i ng-if="user.removablePermissions.length > 0" class="text-danger fa fa-minus"></i>
                                     <i ng-if="user.removablePermissions.length == 0" class="text-muted fa fa-minus"></i>
                                 </a>

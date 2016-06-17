@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .factory('fileService', ['$q', '$http', '$translate', '$timeout', '$cookies', 'SettingsResource',
-            function ($q, $http, $translate, $timeout, $cookies, SettingsResource) {
+        .factory('fileService', ['$q', '$http', '$translate', '$timeout', 'SettingsResource',
+            function ($q, $http, $translate, $timeout, SettingsResource) {
                 var _supportsBlobUrls;
                 var _maxFileSize;
 
@@ -12,16 +12,16 @@
                 );
                 var img = new Image();
                 img.onload = function () {
-                    _supportsBlobUrls = true
+                    _supportsBlobUrls = true;
                 };
                 img.onerror = function () {
-                    _supportsBlobUrls = false
+                    _supportsBlobUrls = false;
                 };
                 img.src = URL.createObjectURL(svg);
 
-                var saveFile = function (data, filename) {
+                var saveFile = function (data, fileName, contentType) {
                     if (!_supportsBlobUrls) {
-                        window.open('data:application/octet-stream;base64,' + data);
+                        window.open('data:' + contentType + ';base64,' + data);
                     } else {
                         var byteString = atob(data);
                         var ab = new ArrayBuffer(byteString.length);
@@ -29,17 +29,16 @@
                         for (var i = 0; i < byteString.length; i++) {
                             ia[i] = byteString.charCodeAt(i);
                         }
-                        var blob = new Blob([ia], {type: "application/octet-stream"});
-                        saveAs(blob, filename);
+                        var blob = new Blob([ia], {type: contentType});
+                        saveAs(blob, fileName);
                     }
                 };
 
                 var download = function (url, filename, params) {
-                    $http.get(url, {params: params}).
-                    success(function (data) {
-                        saveFile(data, filename);
-                    }).
-                    error(function (error) {
+                    $http.get(url, {params: params}).success(function (data, status, headers) {
+                        var contentType = headers()['content-type'].split(';')[0];
+                        saveFile(data, filename, contentType);
+                    }).error(function (error) {
                         toastr.error(error.data || error);
                     });
                 };
@@ -73,9 +72,8 @@
                             fd.append(k, params[k]);
                         }
                     }
-                    var csrfToken = $cookies.get('csrfToken');
-                    console.log('xsrf token: ' + csrfToken);
-                    $http.post(url + "?csrfToken=" + csrfToken, fd, {
+
+                    $http.post(url, fd, {
                             transformRequest: angular.identity,
                             headers: {'Content-Type': undefined}
                         })
@@ -86,10 +84,15 @@
                         });
                 };
 
-                var upload = function (url, file, params, parent, modal) {
+                var upload = function (url, file, params, parent, modal, callback) {
                     doUpload(url, file, params, parent, modal, function (attachment) {
                         modal.dismiss();
-                        parent.attachment = attachment;
+                        if (parent) {
+                            parent.attachment = attachment;
+                        }
+                        if (callback) {
+                            callback();
+                        }
                     });
                 };
 

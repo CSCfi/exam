@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('StatisticsController', ['$scope', '$translate', 'EXAM_CONF', 'ReportResource', 'RoomResource', 'dateService', '$filter', 'UserRes', 'fileService',
-            function ($scope, $translate, EXAM_CONF, ReportResource, RoomResource, dateService, $filter, UserRes, fileService) {
+        .controller('StatisticsController', ['$scope', '$translate', 'EXAM_CONF', 'ReportResource', 'RoomResource', 'dateService',
+            function ($scope, $translate, EXAM_CONF, ReportResource, RoomResource, dateService) {
 
                 $scope.dateService = dateService;
                 $scope.templates = {
@@ -19,7 +19,7 @@
 
                 ReportResource.departments.get(function (data) {
                     data.departments.forEach(function (d) {
-                        $scope.departments.push({name: d})
+                        $scope.departments.push({name: d});
                     });
                 });
 
@@ -36,7 +36,7 @@
                     });
                     if (departments.length > 0) {
                         params.dept = departments.map(function (d) {
-                            return d.name
+                            return d.name;
                         }).join();
                     }
                     return params;
@@ -44,19 +44,22 @@
 
                 $scope.totalParticipations = function (month, room) {
                     var total = 0;
+
+                    var isWithinBounds = function (p) {
+                        var date = new Date(p.exam.created);
+                        var current = new Date(month);
+                        var min = new Date(current.getFullYear(), current.getMonth(), 1);
+                        var max = new Date(current.getFullYear(), current.getMonth() + 1, 0, 23, 59, 59);
+                        return date > min && date < max;
+                    };
+
                     for (var k in $scope.participations) {
                         if ($scope.participations.hasOwnProperty(k)) {
                             if (room && k !== room) {
                                 continue;
                             }
                             if (month) {
-                                total += $scope.participations[k].filter(function (p) {
-                                    var date = new Date(p.exam.created);
-                                    var current = new Date(month);
-                                    var min = new Date(current.getFullYear(), current.getMonth(), 1);
-                                    var max = new Date(current.getFullYear(), current.getMonth() + 1, 0, 23, 59, 59);
-                                    return date > min && date < max;
-                                }).length;
+                                total += $scope.participations[k].filter(isWithinBounds).length;
                             } else {
                                 total += $scope.participations[k].length;
                             }
@@ -70,7 +73,7 @@
                 };
 
                 var groupByMonths = function () {
-                    if ($scope.participations.length == 0) {
+                    if ($scope.participations.length === 0) {
                         return [];
                     }
                     var months = [];
@@ -93,7 +96,7 @@
                         if ($scope.participations.hasOwnProperty(k)) {
                             dates = dates.concat($scope.participations[k].map(function (p) {
                                 return p.exam.created;
-                            }))
+                            }));
                         }
                     }
                     $scope.minDate = Math.min.apply(null, dates);
@@ -151,7 +154,7 @@
                 $scope.listResponses = function () {
                     ReportResource.responses.query(getQueryParams(), function (exams) {
                         $scope.assessedExams = exams.filter(function(e) {
-                            return ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'DELETED'].indexOf(e.state) > -1;
+                            return ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'REJECTED', 'DELETED'].indexOf(e.state) > -1;
                         });
                         $scope.unassessedExams = exams.filter(function(e) {
                             return ['STUDENT_STARTED', 'REVIEW', 'REVIEW_STARTED'].indexOf(e.state) > -1;

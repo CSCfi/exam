@@ -45,10 +45,11 @@
                                 if (!$scope.timeout) {
                                     var offset = calculateOffset();
                                     $scope.timeout = $timeout(function() {
-                                        $location.path('/student/doexam/' + $scope.enrolment.exam.hash);
+                                        $location.path('/student/exam/' + $scope.enrolment.exam.hash);
                                     }, offset);
-                                    toastr.info($translate.instant('sitnet_redirect_to_exam_offset') + " " +
-                                        Math.round(offset / 1000 / 60) + " " + $translate.instant('sitnet_minutes') + ". " +
+                                    toastr.info(
+                                        Math.round(offset / 1000 / 60) + " " + $translate.instant('sitnet_minutes') + " " +
+                                        $translate.instant('sitnet_redirect_to_exam_offset') + ". " +
                                         $translate.instant('sitnet_redirect_to_exam_notice') + ".");
                                 }
                             },
@@ -78,7 +79,7 @@
                 };
 
                 // This is just to get page refresh to route us back here
-                $http.get('/checkSession');
+                $http.get('/app/checkSession');
 
             }]);
 }());

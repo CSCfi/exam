@@ -17,12 +17,6 @@
 @import "partial/feedback";
 @import "partial/mainview";
 
-.essay-dialog .modal-dialog {
-  width: 80%;
-  margin-left: 17%;
-  min-width: 400px;
-}
-
 html {
   font-family: $sitnet-family-opensans;
 }
@@ -40,13 +34,13 @@ p {
 }
 
 .vmenu-on {
-  width: calc(100% - 230px);
-  margin-left: 229px;
+  width: auto;
+  margin-left: 230px;
 }
 
 .vmenu-off {
-  width: calc(100% - 50px);
-  margin-left: 49px;
+  width: auto;
+  margin-left: 50px;
 }
 
 .generic-header {
@@ -74,3 +68,48 @@ p {
     color: $sitnet-blue-highlight;
   }
 }
+
+label {
+  .text-info {
+    margin-left: 3em;
+  }
+}
+
+.info-box {
+  padding: 1em;
+  margin-bottom: 10px !important;
+  background-color: #216a9b;
+  color: white;
+  display: inline-block;
+  div {
+    clear: none;
+    float: left;
+  }
+  ul {
+    margin: 0;
+    li {
+      padding: 0;
+    }
+  }
+  .text-info {
+    color: white;
+    font-size: 30px;
+    margin-top: 5px;
+  }
+  .content-wrapper {
+    width: 93%;
+    margin-left: 1.5em;
+  }
+  .label-primary {
+    float: left;
+    padding: 0.7em;
+    font-size: 12px;
+    background-color: white;
+    color: #216a9b;
+  }
+}
+
+.question-editor-modal .modal-dialog {
+  width: 80%;
+}
+

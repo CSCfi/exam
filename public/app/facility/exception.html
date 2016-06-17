@@ -27,14 +27,17 @@
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <datetimepicker show-weeks="true" hour-step="1" minute-step="15" ng-model="exception.startDate"
-                                    show-meridian="false" starting-day="1"
-                                    date-format="dd-MM-yyyy" readonly-time="false"></datetimepicker>
+                    <datetimepicker hour-step="1" minute-step="15" ng-model="exception.startDate"
+                                    show-meridian="false" date-format="dateFormat" datepicker-options="dateOptions"
+                                    readonly-time="false">
+                    </datetimepicker>
                 </div>
                 <div class="col-md-6">
-                    <datetimepicker show-weeks="true" hour-step="1" minute-step="15" ng-model="exception.endDate"
-                                    show-meridian="false" starting-day="1"
-                                    date-format="dd-MM-yyyy" readonly-time="false"></datetimepicker>
+                    <datetimepicker hour-step="1" minute-step="15" ng-model="exception.endDate"
+                                    show-meridian="false" date-format="dateFormat" datepicker-options="dateOptions"
+                                    readonly-time="false">
+
+                    </datetimepicker>
                 </div>
             </div>
         </div>

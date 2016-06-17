@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('dashboardService', ['$q', '$location', '$modal', 'sessionService', 'examService', 'reservationService',
-            'StudentExamRes', 'ExamRes', 'EXAM_CONF',
-            function ($q, $location, $modal, sessionService, examService, reservationService, StudentExamRes, ExamRes, EXAM_CONF) {
+        .service('dashboardService', ['$q', 'sessionService', 'examService', 'reservationService', 'StudentExamRes',
+            'ExamRes', 'EXAM_CONF',
+            function ($q, sessionService, examService, reservationService, StudentExamRes, ExamRes, EXAM_CONF) {
 
                 var self = this;
 
@@ -16,7 +16,8 @@
                     var templates = {
                         dashboardToolbarPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html",
                         dashboardActiveExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/active_exams.html",
-                        dashboardFinishedExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/finished_exams.html"
+                        dashboardFinishedExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/finished_exams.html",
+                        dashboardArchivedExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/archived_exams.html"
                     };
                     var contentTemplatePath;
                     if (user.isStudent) {
@@ -74,6 +75,11 @@
                     return deferred.promise;
                 };
 
+                // Exam is private and has unfinished participants
+                var participationsInFuture = function (exam) {
+                    return exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0;
+                };
+
                 var showTeacherDashboard = function () {
                     var scope = {};
                     var deferred = $q.defer();
@@ -82,7 +88,8 @@
                         scope.executionTypes = types;
                         ExamRes.reviewerExams.query(function (reviewerExams) {
                             scope.activeExams = reviewerExams.filter(function (review) {
-                                return Date.now() <= new Date(review.examActiveEndDate);
+                                return Date.now() <= new Date(review.examActiveEndDate) &&
+                                    participationsInFuture(review);
                             });
                             scope.activeExams.forEach(function (ae) {
                                 ae.unassessedCount = examService.getReviewablesCount(ae);
@@ -92,15 +99,26 @@
                                     return o.firstName + " " + o.lastName;
                                 }).join();
                             });
-                            scope.finishedExams = reviewerExams.filter(function (review) {
-                                return Date.now() > new Date(review.examActiveEndDate);
+
+                            scope.finishedExams = [];
+                            scope.archivedExams = [];
+                            var endedExams = reviewerExams.filter(function (review) {
+                                return Date.now() > new Date(review.examActiveEndDate) || !participationsInFuture(review);
                             });
-                            scope.finishedExams.forEach(function (fe) {
-                                fe.unassessedCount = examService.getReviewablesCount(fe);
-                                fe.unfinishedCount = examService.getGradedCount(fe);
-                                fe.ownerAggregate = fe.examOwners.map(function (o) {
+                            endedExams.forEach(function (ee) {
+                                ee.ownerAggregate = ee.examOwners.map(function (o) {
                                     return o.firstName + " " + o.lastName;
                                 }).join();
+                                var unassessedCount = examService.getReviewablesCount(ee);
+                                var unfinishedCount = examService.getGradedCount(ee);
+                                if (unassessedCount + unfinishedCount > 0) {
+                                    ee.unassessedCount = unassessedCount;
+                                    ee.unfinishedCount = unfinishedCount;
+                                    scope.finishedExams.push(ee);
+                                } else {
+                                    ee.assessedCount = examService.getProcessedCount(ee);
+                                    scope.archivedExams.push(ee);
+                                }
                             });
                             return deferred.resolve(scope);
                         }, function (error) {

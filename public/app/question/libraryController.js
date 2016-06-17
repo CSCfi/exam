@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('LibraryCtrl', ['dialogs', '$q', '$scope', '$location', '$translate', 'sessionService', 'QuestionRes',
+        .controller('LibraryCtrl', ['dialogs', '$q', '$scope', '$rootScope', '$location', '$translate', 'sessionService', 'QuestionRes',
             'questionService', 'ExamRes', 'CourseRes', 'TagRes', 'UserRes',
-            function (dialogs, $q, $scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
+            function (dialogs, $q, $scope, $rootScope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
 
                 var step = 100;
 
@@ -35,18 +35,11 @@
                             if (isMatch) {
                                 return true;
                             }
-                            angular.forEach(question.children, function (child) {
-                                if (child &&
-                                    child.examSectionQuestion &&
-                                    child.examSectionQuestion.examSection &&
-                                    child.examSectionQuestion.examSection.exam &&
-                                    child.examSectionQuestion.examSection.exam.course &&
-                                    child.examSectionQuestion.examSection.exam.course.code &&
-                                    child.examSectionQuestion.examSection.exam.course.code.match(re)) {
-                                    isMatch = true;
-                                }
-                            });
-                            return isMatch;
+                            // match course code
+                            return question.examSectionQuestions.filter(function (esq) {
+                                    // Course can be empty in case of a copied exam
+                                    return esq.examSection.exam.course && esq.examSection.exam.course.code.match(re);
+                                }).length > 0;
                         });
                     } else {
                         $scope.filteredQuestions = $scope.questions;
@@ -96,12 +89,12 @@
                 };
 
                 $scope.ownerProcess = false;
-                $scope.moveSelected = function () {
+                $scope.addOwnerForSelected = function () {
                     $scope.ownerProcess = true;
 
                     // check that atleast one has been selected
                     var isEmpty = true,
-                        boxes = angular.element(".questionToMove"),
+                        boxes = angular.element(".questionToUpdate"),
                         ids = [];
 
                     angular.forEach(boxes, function (input) {
@@ -117,22 +110,21 @@
                         return;
                     }
                     if (!$scope.newTeacher) {
-                        toastr.warning($translate.instant('sitnet_select_teacher_to_move_the_questions_to'));
+                        toastr.warning($translate.instant('sitnet_add_question_owner'));
                         $scope.ownerProcess = false;
                         return;
                     }
 
-                    // print to file
-                    var questionToMove = {
+                    var data = {
                         "uid": $scope.newTeacher.id,
                         "questionIds": ids.toString()
                     };
 
-                    QuestionRes.questionOwner.update(questionToMove,
-                        function (result) {
-                            toastr.info($translate.instant('sitnet_question_owner_changed'));
+                    QuestionRes.questionOwner.update(data,
+                        function () {
+                            toastr.info($translate.instant('sitnet_question_owner_added'));
                             query();
-                        }, function (error) {
+                        }, function () {
                             toastr.info($translate.instant('sitnet_update_failed'));
                         });
                     $scope.ownerProcess = false;
@@ -206,19 +198,30 @@
                         });
                         $scope.questions = $scope.filteredQuestions = questionService.applyFilter(data);
 
-                        $scope.questions.forEach(function(q) {
-                            if (q.evaluationType ==="Points" || q.type === 'MultipleChoiceQuestion') {
-                                q.displayedMaxScore = q.maxScore;
-                            } else if (q.evaluationType ==="Select") {
+                        $scope.questions.forEach(function (q) {
+                            if (q.defaultEvaluationType === "Points" || q.type === 'MultipleChoiceQuestion') {
+                                q.displayedMaxScore = q.defaultMaxScore;
+                            } else if (q.defaultEvaluationType === "Selection") {
                                 q.displayedMaxScore = 'sitnet_evaluation_select';
-                            } else if (q.type ==="WeightedMultipleChoiceQuestion") {
+                            } else if (q.type === "WeightedMultipleChoiceQuestion") {
                                 q.displayedMaxScore = $scope.calculateMaxPoints(q);
                             }
                             q.typeOrd = ['EssayQuestion',
                                 'MultipleChoiceQuestion',
                                 'WeightedMultipleChoiceQuestion'].indexOf(q.type);
                             q.ownerAggregate = q.creator.lastName + q.creator.firstName;
+                            q.allowedToRemove = q.examSectionQuestions.filter(function (esq) {
+                                var exam = esq.examSection.exam;
+                                return exam.state === 'PUBLISHED' && exam.examActiveEndDate > new Date().getTime();
+                            }).length === 0;
                         });
+                        var filters = {
+                            exams: $scope.exams,
+                            courses: $scope.courses,
+                            tags: $scope.tags,
+                            text: $scope.filter.text
+                        };
+                        questionService.storeQuestions($scope.questions, filters);
                         $scope.currentPage = 0;
                         limitQuestions();
                     });
@@ -267,14 +270,20 @@
 
                 var doListTags = function (sections) {
                     var deferred = $q.defer();
+                    var examIds = getExamIds();
+                    var courseIds = getCourseIds();
                     TagRes.tags.query({
-                        examIds: getExamIds(),
-                        courseIds: getCourseIds(),
+                        examIds: examIds,
+                        courseIds: courseIds,
                         sectionIds: getSectionIds()
                     }, function (data) {
                         $scope.tags = union($scope.tags, data);
                         var examSections = [];
-                        $scope.exams.forEach(function (exam) {
+                        $scope.exams.filter(function (e) {
+                            var examMatch = examIds.length === 0 || examIds.indexOf(e.id) > -1;
+                            var courseMatch = courseIds.length === 0 || courseIds.indexOf(e.course.id) > -1;
+                            return examMatch && courseMatch;
+                        }).forEach(function (exam) {
                             examSections = examSections.concat(exam.examSections.filter(function (es) {
                                 return es.name;
                             }).map(function (section) {
@@ -299,8 +308,9 @@
                         $scope.listExams().then(function () {
                             return doListTags(sections);
                         });
+                    } else {
+                        return doListTags(sections);
                     }
-                    return doListTags(sections);
                 };
 
                 $scope.applyFilter = function (tag) {
@@ -309,7 +319,7 @@
                 };
 
                 $scope.calculateMaxPoints = function (question) {
-                    return questionService.calculateMaxPoints(question);
+                    return questionService.calculateDefaultMaxPoints(question);
                 };
 
                 $scope.stripHtml = function (text) {
@@ -356,6 +366,8 @@
                         QuestionRes.questions.delete({id: question.id}, function () {
                             $scope.questions.splice($scope.questions.indexOf(question), 1);
                             toastr.info($translate.instant('sitnet_question_removed'));
+                            // Clear cache to trigger a refresh now that there is a new entry
+                            questionService.clearQuestions();
                         });
                     });
                 };
@@ -364,8 +376,8 @@
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_copy_question'));
                     dialog.result.then(function (btn) {
                         QuestionRes.question.copy({id: question.id}, function (copy) {
-                            $scope.questions.unshift(copy);
                             toastr.info($translate.instant('sitnet_question_copied'));
+                            $location.path("/questions/" + copy.id);
                         });
                     });
                 };
@@ -384,7 +396,27 @@
 
                 };
 
-                query();
+                var refresh = function () {
+                    questionService.clearQuestions();
+                    query();
+                };
+
+                $rootScope.$on('questionAdded', refresh);
+                $rootScope.$on('questionUpdated', refresh);
+
+                var storedData = questionService.loadQuestions();
+                if (storedData.questions) {
+                    $scope.questions = $scope.filteredQuestions = storedData.questions;
+                    $scope.exams = storedData.filters.exams;
+                    $scope.courses = storedData.filters.courses;
+                    $scope.tags = storedData.filters.tags;
+                    $scope.filter.text = storedData.filters.text;
+                    $scope.currentPage = 0;
+                    limitQuestions();
+                    $scope.applyFreeSearchFilter();
+                } else {
+                    query();
+                }
 
             }
         ]);

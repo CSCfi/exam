@@ -3,13 +3,13 @@
     angular.module("exam.resources")
         .factory("CourseRes", ['$resource', function ($resource) {
             return {
-                course: $resource("/courses/:id",
+                course: $resource("/app/courses/:id",
                     {
                         id: "@id"
                     }
                 ),
-                courses: $resource("/courses"),
-                userCourses: $resource("/courses/user")
-            }
+                courses: $resource("/app/courses"),
+                userCourses: $resource("/app/courses/user")
+            };
         }]);
 }());

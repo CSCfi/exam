@@ -20,8 +20,8 @@
         <table class="table table-bordered table-striped exams-table">
             <thead ng-init="gradedPredicate='deadline'">
             <tr>
-                <th class="dropdown" dropdown>
-                    <button class="btn btn-xs btn-default" data-toggle="dropdown" dropdown-toggle>
+                <th class="dropdown" uib-dropdown>
+                    <button class="btn btn-xs btn-default" data-toggle="dropdown" uib-dropdown-toggle>
                         <i class="fa fa-square-o"></i>&nbsp;<i class="fa fa-angle-down"></i>
                     </button>
                     <ul class="dropdown-menu" role="menu">
@@ -37,13 +37,13 @@
                         </li>
                     </ul>
                 </th>
-                <th sort by="user.lastName" title="sitnet_student" predicate="gradedPredicate" reverse="reverse"></th>
-                <th sort by="user.email" title="sitnet_email" predicate="gradedPredicate" reverse="reverse"></th>
-                <th sort by="started" title="sitnet_exam_duration" predicate="gradedPredicate" reverse="reverse"></th>
-                <th sort by="deadline" title="sitnet_review_deadline" predicate="gradedPredicate" reverse="reverse"></th>
-                <th sort by="displayedGrade" title="sitnet_grade" predicate="gradedPredicate" reverse="reverse"></th>
-                <th sort by="displayedCredit" title="sitnet_exam_credit" predicate="gradedPredicate" reverse="reverse"></th>
-                <th sort by="exam.gradedTime" title="sitnet_graded" predicate="gradedPredicate" reverse="reverse"></th>
+                <th sort by="user.lastName" text="sitnet_student" predicate="gradedPredicate" reverse="reverse"></th>
+                <th sort by="user.email" text="sitnet_email" predicate="gradedPredicate" reverse="reverse"></th>
+                <th sort by="started" text="sitnet_exam_duration" predicate="gradedPredicate" reverse="reverse"></th>
+                <th sort by="deadline" text="sitnet_review_deadline" predicate="gradedPredicate" reverse="reverse"></th>
+                <th sort by="displayedGrade" text="sitnet_grade" predicate="gradedPredicate" reverse="reverse"></th>
+                <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="gradedPredicate" reverse="reverse"></th>
+                <th sort by="exam.gradedTime" text="sitnet_graded" predicate="gradedPredicate" reverse="reverse"></th>
             </tr>
             </thead>
 

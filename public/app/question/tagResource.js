@@ -3,7 +3,7 @@
     angular.module("exam.resources")
         .factory("TagRes", ['$resource', function ($resource) {
             return {
-                tags: $resource("/tags", null,
+                tags: $resource("/app/tags", null,
                     {
                         "query": {method: "GET", isArray: true},
                         "add": {
@@ -15,17 +15,17 @@
                             }
                         }
                     }),
-                tag: $resource("/tags/:tid",
+                tag: $resource("/app/tags/:tid",
                     {tid: "@tid"},
                     {
                         "remove": {method: "DELETE"}
                     }),
-                question: $resource("/tags/:tid/:qid",
+                question: $resource("/app/tags/:tid/:qid",
                     {tid: "@tid", qid: "@qid"},
                     {
                         "add": {method: "PUT"},
                         "remove": {method: "DELETE"}
                     })
-            }
+            };
         }]);
 }());

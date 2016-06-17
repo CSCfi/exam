@@ -1,10 +1,12 @@
 package models;
 
 
+import models.base.GeneratedIdentityModel;
+
 import javax.persistence.Entity;
 
 @Entity
-public class Role extends GeneratedIdentityModel implements be.objectify.deadbolt.core.models.Role {
+public class Role extends GeneratedIdentityModel implements be.objectify.deadbolt.java.models.Role {
 
     public enum Name {STUDENT, TEACHER, ADMIN}
 

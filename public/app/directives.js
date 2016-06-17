@@ -18,7 +18,7 @@
                                     ngModel.$setValidity('badDate', false);
                                 }
                             } else {
-                                if (!moment(value).isValid()) {
+                                if (!moment(value, "DD.MM.YYYY").isValid()) {
                                     ngModel.$setValidity('badDate', false);
                                 }
                             }
@@ -29,52 +29,49 @@
                         return ngModel.$viewValue;
                     }, validate);
                 }
-            }
+            };
         })
 
-        .directive('datepickerPopup', function () {
+        .directive('uniqueValue', function () {
             return {
-                restrict: 'EAC',
                 require: 'ngModel',
-                link: function (scope, element, attr, controller) {
-                    //remove the default formatter from the input directive to prevent conflict
-                    controller.$formatters.shift();
+                scope: {
+                    items: "=",
+                    property: "@property"
+                },
+                link: function (scope, elem, attrs, ngModel) {
+                    function validate(value) {
+                        var values = !scope.items ? [] : scope.items.map(function (i) {
+                            return i[scope.property];
+                        }).filter(function (i) {
+                            return i == value;
+                        });
+                        ngModel.$setValidity('uniqueness', values.length < 2);
+                    }
+
+                    scope.$watch('items', function (items) {
+                        validate(ngModel.$viewValue);
+                    }, true);
+
                 }
-            }
+            };
         })
+
         .directive('datetimepicker', [
             function () {
-                if (angular.version.full < '1.1.4') {
-                    return {
-                        restrict: 'EA',
-                        template: "<div class=\"alert alert-danger\">Angular 1.1.4 or above is required for datetimepicker to work correctly</div>"
-                    };
-                }
+
                 return {
                     restrict: 'EA',
                     require: 'ngModel',
                     scope: {
                         ngModel: '=',
-                        dayFormat: "=",
-                        monthFormat: "=",
-                        yearFormat: "=",
-                        dayHeaderFormat: "=",
-                        dayTitleFormat: "=",
-                        monthTitleFormat: "=",
-                        showWeeks: "=",
-                        startingDay: "=",
-                        yearRange: "=",
-                        dateFormat: "=",
-                        minDate: "=",
-                        maxDate: "=",
-                        dateOptions: "=",
-                        dateDisabled: "&",
+                        datepickerOptions: "=",
+                        dateFormat: "=dateFormat",
                         hourStep: "=",
                         minuteStep: "=",
                         showMeridian: "=",
                         meredians: "=",
                         mousewheel: "=",
-                        placeholder: "=",
                         readonlyTime: "@"
                     },
                     template: function (elem, attrs) {
@@ -112,30 +109,16 @@
                         }
 
                         function createAttrConcat(previousAttrs, attr) {
-                            return previousAttrs + createAttr.apply(null, attr)
+                            return previousAttrs + createAttr.apply(null, attr);
                         }
 
                         var tmpl = "<div id=\"datetimepicker\" class=\"datetimepicker-wrapper\">" +
-                            "<input class=\"form-control\" type=\"text\" ng-click=\"open($event)\" is-open=\"opened\" ng-model=\"ngModel\" " + [
-                                ["minDate"],
-                                ["maxDate"],
-                                ["dayFormat"],
-                                ["monthFormat"],
-                                ["yearFormat"],
-                                ["dayHeaderFormat"],
-                                ["dayTitleFormat"],
-                                ["monthTitleFormat"],
-                                ["startingDay"],
-                                ["yearRange"],
-                                ["datepickerOptions", "dateOptions"]
-                            ].reduce(createAttrConcat, '') +
-                            createFuncAttr("dateDisabled", "date: date, mode: mode") +
-                            createEvalAttr("datepickerPopup", "dateFormat") +
-                            createEvalAttr("placeholder", "placeholder") +
-                            "/>\n" +
+                            "<input type=\"text\" class=\"form-control\" uib-datepicker-popup=\"{{dateFormat}}\" ng-click=\"open($event)\" is-open=\"opened\" ng-model=\"ngModel\" " +
+                            "datepicker-options=\"datepickerOptions\" close-text=\"{{'sitnet_close' | translate}}\" " +
+                            "current-text=\"{{'sitnet_today' | translate}}\" date-validator />\n" +
                             "</div>\n" +
-                            "<div id=\"datetimepicker\" class=\"datetimepicker-wrapper\" ng-model=\"time\" ng-change=\"time_change()\" style=\"display:inline-block\">\n" +
-                            "<timepicker " + [
+                            "<div id=\"datetimepicker\" class=\"datetimepicker-wrapper\" ng-model=\"time\" ng-change=\"timeChange()\" style=\"display:inline-block\">\n" +
+                            "<uib-timepicker " + [
                                 ["hourStep"],
                                 ["minuteStep"],
                                 ["showMeridian"],
@@ -143,13 +126,13 @@
                                 ["mousewheel"]
                             ].reduce(createAttrConcat, '') +
                             createEvalAttr("readonlyInput", "readonlyTime") +
-                            "></timepicker>\n" +
+                            "></uib-timepicker>\n" +
                             "</div>";
                         return tmpl;
                     },
                     controller: ['$scope',
                         function ($scope) {
-                            $scope.time_change = function () {
+                            $scope.timeChange = function () {
                                 if ($scope.ngModel && $scope.time) {
                                     // convert from ISO format to Date
                                     if (typeof $scope.ngModel == "string") $scope.ngModel = new Date($scope.ngModel);
@@ -173,7 +156,7 @@
                             }
                         }, true);
                     }
-                }
+                };
             }])
 
 
@@ -289,93 +272,6 @@
             };
         })
 
-        // http://developer.the-hideout.de/?p=119
-        .directive('dateFix', ['dateFilter', 'datepickerPopupConfig', function (dateFilter, datepickerPopupConfig) {
-            // return the directive link function. (compile function not needed)
-            return {
-                restrict: 'EA',
-                require: 'ngModel', // get a hold of NgModelController
-
-                link: function (scope, element, attrs, ngModel) {
-
-                    var format = attrs.datepickerPopup;
-                    var maxDate = scope[attrs.max];
-                    var minDate = scope[attrs.min];
-                    var datefilter = dateFilter;
-                    var model = ngModel;
-
-                    ngModel.$parsers.push(function (viewValue) {
-                        var newDate = model.$viewValue;
-                        var date = null;
-
-                        // pass through if we clicked date from popup
-                        if (typeof newDate === "object" || newDate == "") {
-                            return newDate;
-                        }
-
-                        // build a new date according to initial localized date format
-                        if (format === "dd.MM.yyyy") {
-                            // extract day, month and year
-                            var splitted = newDate.split('.');
-
-                            var month = parseInt(splitted[1]) - 1;
-                            date = new Date(splitted[2], month, splitted[0]);
-                            // if maxDate,minDate is set make sure we do not allow greater values
-                            if (maxDate && date > maxDate) {
-                                date = maxDate;
-                            }
-                            if (minDate && date < minDate) {
-                                date = minDate;
-                            }
-
-                            model.$setValidity('date', true);
-                            model.$setViewValue(date);
-                        }
-                        return date ? date : viewValue;
-                    });
-
-                    element.on('keydown', {scope: scope, varOpen: attrs.isOpen}, function (e) {
-                        var response = true;
-                        // the scope of the date control
-                        var scope = e.data.scope;
-                        // the variable name for the open state of the popup (also controls it!)
-                        var openId = e.data.varOpen;
-
-                        switch (e.keyCode) {
-                            case 13: // ENTER
-                                scope[openId] = !scope[openId];
-                                // update manually view
-                                if (!scope.$$phase) {
-                                    scope.$apply();
-                                }
-                                response = false;
-                                break;
-
-                            case 9: // TAB
-                                scope[openId] = false;
-                                // update manually view
-                                if (!scope.$$phase) {
-                                    scope.$apply();
-                                }
-                                break;
-                        }
-
-                        return response;
-                    });
-
-                    // set input to the value set in the popup, which can differ if input was manually!
-                    element.on('blur', {scope: scope}, function (e) {
-                        // the value is an object if date has been changed! Otherwise it was set as a string.
-                        if (typeof model.$viewValue === "object") {
-                            element.context.value = isNaN(model.$viewValue) ? "" : dateFilter(model.$viewValue, format);
-                            if (element.context.value == "") {
-                                model.$setValidity('required', false);
-                            }
-                        }
-                    });
-                }
-            };
-        }])
         .directive('lowercase', [function () {
             return {
                 require: 'ngModel',
@@ -393,7 +289,7 @@
                     };
                     modelCtrl.$parsers.push(toLowerCase);
                 }
-            }
+            };
         }])
         .directive('sitnetHeader', [function () {
             return {
@@ -410,21 +306,21 @@
             return {
                 restrict: 'A',
                 template: '<span ng-class="predicate === by ? \'sorted-column\' : \'\'" class="pointer"' +
-                'ng-click="predicate = by; reverse = !reverse">{{ title | translate }}&nbsp;' +
+                'ng-click="predicate = by; reverse = !reverse">{{ text | translate }}&nbsp;' +
                 '<i class="fa" ng-class="getSortClass()"></i>' +
                 '</span>',
                 scope: {
                     predicate: '=',
                     by: '@by',
-                    title: '@title',
+                    text: '@text',
                     reverse: '='
                 }, link: function (scope, element, attrs) {
                     scope.getSortClass = function () {
                         return scope.predicate === scope.by ?
                             (scope.reverse ? 'fa-sort-down' : 'fa-sort-up') : 'fa-sort';
-                    }
+                    };
                 }
-            }
+            };
         }])
         .directive('teacherList', [function () {
             return {
@@ -528,6 +424,6 @@
                         scope.currentPage = n;
                     };
                 }
-            }
+            };
         });
 }());

@@ -20,7 +20,7 @@
             <a class="header-top-link" ng-click="manageSoftwares()">{{ 'sitnet_softwares' | translate }}</a>
         </div>
         <div class="col-md-3">
-            <a href="#/accessibility">
+            <a href="/accessibility">
                  <span class="pull-left fa-stack fa-lg header-top-icon">
                     <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
                     <i class="fa sitnet-white fa-wheelchair fa-stack-1x"></i>
@@ -41,22 +41,22 @@
         <div class="main-row">
             <span class="col-md-12">
                 <span class="exams-list-title-text">{{room.name}}</span>
-                <a href="#/rooms/{{room.id}}" popover-placement="top" popover-popup-delay="500"
-                   popover-trigger="mouseenter" popover="{{ 'sitnet_edit' | translate }}"
+                <a href="/rooms/{{room.id}}" popover-placement="top" popover-popup-delay="500"
+                   popover-trigger="mouseenter" uib-popover="{{ 'sitnet_edit' | translate }}"
                    class="fa-stack fa-lg">
                     <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
                     <i class="fa fa-wrench fa-stack-1x"></i>
                 </a>
                 <a ng-show="room.state !== 'INACTIVE'" ng-click="disableRoom(room)" popover-placement="top"
                    popover-popup-delay="500"
-                   popover-trigger="mouseenter" popover="{{ 'sitnet_inactivate_room' | translate }}"
+                   popover-trigger="mouseenter" uib-popover="{{ 'sitnet_inactivate_room' | translate }}"
                    class="fa-stack fa-lg">
                     <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
                     <i class="fa fa-trash-o text-warning fa-stack-1x"></i>
                 </a>
                 <a ng-show="room.state === 'INACTIVE'" ng-click="enableRoom(room)" popover-placement="top"
                    popover-popup-delay="500"
-                   popover-trigger="mouseenter" popover="{{ 'sitnet_activate_room' | translate }}"
+                   popover-trigger="mouseenter" uib-popover="{{ 'sitnet_activate_room' | translate }}"
                    class="fa-stack fa-lg">
                     <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
                     <i class="fa fa-plus text-success fa-stack-1x"></i>
@@ -143,25 +143,25 @@
                     </a>
                     {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp;
                     <span popover-placement="top" popover-popup-delay="500"
-                          popover-trigger="mouseenter" popover="{{ 'sitnet_status_machine_available' | translate }}">
+                          popover-trigger="mouseenter" uib-popover="{{ 'sitnet_status_machine_available' | translate }}">
                         <button class="btn btn-success btn-xs">
                             {{ room.examMachines.length - countMachineAlerts(room) - countMachineNotices(room) }}
                         </button>
                     </span>
                     <span popover-placement="top" popover-popup-delay="500"
-                          popover-trigger="mouseenter" popover="{{ 'sitnet_status_notice' | translate }}">
+                          popover-trigger="mouseenter" uib-popover="{{ 'sitnet_status_notice' | translate }}">
                         <button class="btn btn-warning btn-xs">
                             {{ countMachineNotices(room) }}
                         </button>
                     </span>
                     <span popover-placement="top" popover-popup-delay="500"
-                          popover-trigger="mouseenter" popover="{{ 'sitnet_status_inservice' | translate }}">
+                          popover-trigger="mouseenter" uib-popover="{{ 'sitnet_status_inservice' | translate }}">
                         <button class="btn btn-danger btn-xs">
                             {{ countMachineAlerts(room) }}
                         </button>
                     </span>
                     <a class="fa-stack fa-lg" ng-click="addNewMachine(room)" popover-placement="right"
-                       popover-popup-delay="500" popover-trigger="mouseenter" popover="{{ 'sitnet_add' | translate }}">
+                       popover-popup-delay="500" popover-trigger="mouseenter" uib-popover="{{ 'sitnet_add' | translate }}">
                         <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
                         <i class="fa fa-plus text-success fa-stack-1x"></i>
                     </a>
@@ -182,8 +182,12 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="machine in room.examMachines">
-                        <td><a class="room-info-title bold-button" ng-click="modifyMachine(machine)">{{ machine.name
-                            }}</a>
+                        <td><a ng-if="machine.name" class="room-info-title bold-button"
+                               ng-click="modifyMachine(machine)">{{ machine.name}}
+                            </a>
+                            <a ng-if="!machine.name" class="exams-info-title bold-button text-danger"
+                               ng-click="modifyMachine(machine)">{{'sitnet_no_name' | translate}}
+                            </a>
                         </td>
                         <td>{{ machine.otherIdentifier }}</td>
                         <td>{{ machine.accessibilityInfo }}</td>

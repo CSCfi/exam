@@ -62,7 +62,7 @@
     </div>
 
     <!-- Sections -->
-    <div ng-include="reviewSectionPath" ng-repeat="section in exam.examSections"></div>
+    <div ng-include="reviewSectionPath" ng-repeat="section in exam.examSections | orderBy: 'sequenceNumber'"></div>
 
     <!-- Grading -->
     <div ng-include="gradingPath"></div>

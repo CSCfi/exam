@@ -7,21 +7,24 @@
 <div class="bottom-row">
     <div class="col-md-10">
         <label for="examJson">{{'sitnet_select_exam' | translate}}</label>
-        <div id="examJson">
-            <select ui-select2 ng-model="selectedFields.exam.json"
-                    data-placeholder="{{'sitnet_pick_a_number' | translate}}" style="min-width: 50%;">
-                <option value=""></option>
-                <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.course.code}} - {{exam.name}}</option>
-            </select>
+        <div class="form-group" id="examJson">
+            <ui-select ng-model="ctrl.selectedFields.exam.json">
+                <ui-select-match allow-clear="true" placeholder="{{'sitnet_pick_a_number' | translate}}">
+                    {{$select.selected.course.code}} - {{$select.selected.name}}
+                </ui-select-match>
+                <ui-select-choices repeat="exam in (ctrl.examnames | filter: $select.search | limitTo: 50) track by exam.id">
+                    <div>{{exam.course.code}} - {{exam.name}}</div>
+                </ui-select-choices>
+            </ui-select>
         </div>
     </div>
 
     <div class="col-md-2">
         <label for="link"></label>
         <div id="link">
-            <a ng-click="getExamsJson(selectedFields.exam.json)" class="fa-stack fa-lg pull-right"
+            <a ng-click="ctrl.getExamsJson(ctrl.selectedFields.exam.json)" class="fa-stack fa-lg pull-right"
                download popover-trigger="mouseenter"
-               popover="{{'sitnet_download' | translate}}">
+               uib-popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                 <i class="fa fa-file-code-o sitnet-white fa-stack-1x"></i>
             </a>

@@ -1,17 +1,24 @@
 <div class="detail-row">
     <div class="detail-row">
-        <h4 class="col-md-12">
-            <span class="label label-info">{{$index + 1}}.</span>&nbsp; &nbsp;{{section.name}}
-        </h4>
-        <div class="detail-row">
-            <div class="col-md-12" ng-repeat="sectionQuestion in section.sectionQuestions">
-                <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
-                     ng-include="multiplechoiceQuestionPath"></div>
-                <div ng-if="sectionQuestion.question.type === 'EssayQuestion'"
-                     ng-include="essayQuestionPath"></div>
-                <div ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
-                     ng-include="multiplechoiceQuestionPath"></div>
-            </div>
+        <div class="col-md-12">
+            <h4>
+                <span class="label label-info">{{$index + 1}}.</span>&nbsp; &nbsp;{{section.name}}
+            </h4>
+        </div>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-12">
+            <span>{{section.description}}</span>
+        </div>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-12" ng-repeat="sectionQuestion in section.sectionQuestions | orderBy: 'sequenceNumbe'">
+            <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
+                 ng-include="multiplechoiceQuestionPath"></div>
+            <div ng-if="sectionQuestion.question.type === 'EssayQuestion'"
+                 ng-include="essayQuestionPath"></div>
+            <div ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
+                 ng-include="multiplechoiceQuestionPath"></div>
         </div>
     </div>
 </div>

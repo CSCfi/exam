@@ -5,80 +5,82 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.Attachment;
 import models.ExamSectionQuestion;
-import models.OwnedModel;
+import models.ExamSectionQuestionOption;
 import models.Tag;
+import models.User;
 import models.api.AttachmentContainer;
+import models.base.OwnedModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
-public class Question extends OwnedModel implements AttachmentContainer, Scorable {
+public class Question extends OwnedModel implements AttachmentContainer {
 
     @EnumMapping(integerType = true, nameValuePairs = "MultipleChoiceQuestion=1, EssayQuestion=2, WeightedMultipleChoiceQuestion=3")
     public enum Type {
         MultipleChoiceQuestion, EssayQuestion, WeightedMultipleChoiceQuestion
     }
 
+    @EnumMapping(integerType = true, nameValuePairs = "Points=1, Selection=2")
+    public enum EvaluationType {
+        Points, Selection
+    }
+
     @Column
-    protected Type type;
+    private Type type;
 
-    @Column(columnDefinition = "TEXT")
-    protected String question;
+    @Column
+    private String question;
 
-    protected boolean shared;
+    @Column
+    private boolean shared;
 
-    @Column(columnDefinition = "TEXT")
-    protected String instruction;
+    @Column
+    private String state;
 
-    protected String state;
+    @Column
+    private String defaultEvaluationCriteria;
 
-    @Column(columnDefinition = "numeric default 0")
-    protected Double maxScore = 0.0;
+    @Column
+    private EvaluationType defaultEvaluationType;
 
-    @Column(columnDefinition = "numeric default 0")
-    protected Double evaluatedScore;
+    @Column
+    private String defaultAnswerInstructions;
 
-    @ManyToOne(cascade = CascadeType.PERSIST) // do not delete parent question
-    protected Question parent;
+    @Column
+    private Integer defaultMaxScore;
+
+    @Column
+    private Integer defaultExpectedWordCount;
+
+    @ManyToOne
+    private Question parent;
 
     @OneToMany(mappedBy = "parent")
     @JsonBackReference
-    protected List<Question> children;
+    private List<Question> children;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    protected Answer answer;
-
-    @Column(columnDefinition = "TEXT")
-    protected String evaluationCriterias;
-
-    @OneToOne(mappedBy = "question")
+    @OneToMany(mappedBy = "question")
     @JsonBackReference
-    protected ExamSectionQuestion examSectionQuestion;
+    private Set<ExamSectionQuestion> examSectionQuestions;
 
     @OneToOne(cascade = CascadeType.ALL)
-    protected Attachment attachment;
-
-    // In UI, section has been expanded
-    @Column(columnDefinition = "boolean default false")
-    protected boolean expanded;
-
-    // not really max length, Just a recommendation
-    private Long maxCharacters;
-
-    // Points, Select
-    private String evaluationType;
+    private Attachment attachment;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, mappedBy = "question")
     @JsonManagedReference
     private List<MultipleChoiceOption> options;
 
+    @ManyToMany(cascade = CascadeType.ALL)
+    private List<Tag> tags;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    protected List<Tag> tags;
-
+    @JoinTable(name = "question_owner", joinColumns = @JoinColumn(name = "question_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> questionOwners;
 
     public String getState() {
         return state;
@@ -112,12 +114,44 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
         this.shared = shared;
     }
 
-    public String getInstruction() {
-        return instruction;
+    public String getDefaultEvaluationCriteria() {
+        return defaultEvaluationCriteria;
     }
 
-    public void setInstruction(String instruction) {
-        this.instruction = instruction;
+    public void setDefaultEvaluationCriteria(String defaultEvaluationCriteria) {
+        this.defaultEvaluationCriteria = defaultEvaluationCriteria;
+    }
+
+    public EvaluationType getDefaultEvaluationType() {
+        return defaultEvaluationType;
+    }
+
+    public void setDefaultEvaluationType(EvaluationType defaultEvaluationType) {
+        this.defaultEvaluationType = defaultEvaluationType;
+    }
+
+    public String getDefaultAnswerInstructions() {
+        return defaultAnswerInstructions;
+    }
+
+    public void setDefaultAnswerInstructions(String defaultAnswerInstructions) {
+        this.defaultAnswerInstructions = defaultAnswerInstructions;
+    }
+
+    public Integer getDefaultMaxScore() {
+        return defaultMaxScore;
+    }
+
+    public void setDefaultMaxScore(Integer defaultMaxScore) {
+        this.defaultMaxScore = defaultMaxScore;
+    }
+
+    public Integer getDefaultExpectedWordCount() {
+        return defaultExpectedWordCount;
+    }
+
+    public void setDefaultExpectedWordCount(Integer defaultExpectedWordCount) {
+        this.defaultExpectedWordCount = defaultExpectedWordCount;
     }
 
     public Question getParent() {
@@ -126,22 +160,6 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
 
     public void setParent(Question parent) {
         this.parent = parent;
-    }
-
-    public Answer getAnswer() {
-        return answer;
-    }
-
-    public void setAnswer(Answer answer) {
-        this.answer = answer;
-    }
-
-    public String getEvaluationCriterias() {
-        return evaluationCriterias;
-    }
-
-    public void setEvaluationCriterias(String evaluationCriterias) {
-        this.evaluationCriterias = evaluationCriterias;
     }
 
     @Override
@@ -154,22 +172,6 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
         this.attachment = attachment;
     }
 
-    public boolean getExpanded() {
-        return expanded;
-    }
-
-    public void setExpanded(boolean expanded) {
-        this.expanded = expanded;
-    }
-
-    public Double getMaxScore() {
-        return maxScore;
-    }
-
-    public void setMaxScore(Double maxScore) {
-        this.maxScore = maxScore;
-    }
-
     public List<MultipleChoiceOption> getOptions() {
         return options;
     }
@@ -178,36 +180,12 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
         this.options = options;
     }
 
-    public Double getEvaluatedScore() {
-        return evaluatedScore;
+    public Set<ExamSectionQuestion> getExamSectionQuestions() {
+        return examSectionQuestions;
     }
 
-    public void setEvaluatedScore(Double evaluatedScore) {
-        this.evaluatedScore = evaluatedScore;
-    }
-
-    public ExamSectionQuestion getExamSectionQuestion() {
-        return examSectionQuestion;
-    }
-
-    public void setExamSectionQuestion(ExamSectionQuestion examSectionQuestion) {
-        this.examSectionQuestion = examSectionQuestion;
-    }
-
-    public Long getMaxCharacters() {
-        return maxCharacters;
-    }
-
-    public void setMaxCharacters(Long maxCharacters) {
-        this.maxCharacters = maxCharacters;
-    }
-
-    public String getEvaluationType() {
-        return evaluationType;
-    }
-
-    public void setEvaluationType(String evaluationType) {
-        this.evaluationType = evaluationType;
+    public void setExamSectionQuestions(Set<ExamSectionQuestion> examSectionQuestions) {
+        this.examSectionQuestions = examSectionQuestions;
     }
 
     public List<Question> getChildren() {
@@ -226,76 +204,16 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
         this.tags = tags;
     }
 
-    @Transient
-    @Override
-    public Double getAssessedScore() {
-        switch (type) {
-            case EssayQuestion:
-                if (evaluationType != null && evaluationType.equals("Points")) {
-                    return evaluatedScore;
-                }
-                break;
-            case MultipleChoiceQuestion:
-                if (answer != null) {
-                    return answer.getOptions().get(0).isCorrectOption() ? maxScore : 0.0;
-                }
-                break;
-            case WeightedMultipleChoiceQuestion:
-                if (answer != null) {
-                    Double evaluation = answer.getOptions().stream()
-                            .map(MultipleChoiceOption::getScore)
-                            .filter(s -> s != null)
-                            .reduce(0.0, (sum, x) -> sum += x);
-                    // ATM minimum score is zero
-                    return Math.max(0.0, evaluation);
-                }
-                break;
-        }
-        return 0.0;
+    public Set<User> getQuestionOwners() {
+        return questionOwners;
     }
 
-    @Transient
-    @Override
-    public Double getMaxAssessedScore() {
-        switch (type) {
-            case EssayQuestion:
-                if (evaluationType != null && evaluationType.equals("Points")) {
-                    return maxScore;
-                }
-                break;
-            case MultipleChoiceQuestion:
-                return maxScore;
-            case WeightedMultipleChoiceQuestion:
-                return options.stream()
-                        .map(MultipleChoiceOption::getScore)
-                        .filter(s -> s != null && s > 0)
-                        .reduce(0.0, (sum, x) -> sum += x);
-        }
-        return 0.0;
+    public void setQuestionOwners(Set<User> questionOwners) {
+        this.questionOwners = questionOwners;
     }
 
-    @Transient
-    @Override
-    public boolean isRejected() {
-        return type == Type.EssayQuestion &&
-                evaluationType != null &&
-                evaluationType.equals("Select")
-                && evaluatedScore != null
-                && evaluatedScore == 0;
-    }
 
     @Transient
-    @Override
-    public boolean isApproved() {
-        return type == Type.EssayQuestion &&
-                evaluationType != null &&
-                evaluationType.equals("Select")
-                && evaluatedScore != null
-                && evaluatedScore == 1;
-    }
-
-    @Transient
-    @Override
     public String getValidationResult() {
         String reason = null;
         switch (type) {
@@ -320,7 +238,37 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
     }
 
     @Transient
-    public boolean hasCorrectOption() {
+    public Double getMaxDefaultScore() {
+        switch (getType()) {
+            case EssayQuestion:
+                if (defaultEvaluationType == EvaluationType.Points) {
+                    return defaultMaxScore == null ? 0 : defaultMaxScore.doubleValue();
+                }
+                break;
+            case MultipleChoiceQuestion:
+                return defaultMaxScore == null ? 0 : defaultMaxScore.doubleValue();
+            case WeightedMultipleChoiceQuestion:
+                return options.stream()
+                        .map(MultipleChoiceOption::getDefaultScore)
+                        .filter(score -> score != null && score > 0)
+                        .reduce(0.0, (sum, x) -> sum += x);
+        }
+        return 0.0;
+    }
+
+    @Transient
+    public Double getMinDefaultScore() {
+        if (getType() == Type.WeightedMultipleChoiceQuestion) {
+                return options.stream()
+                        .map(MultipleChoiceOption::getDefaultScore)
+                        .filter(score -> score != null && score < 0)
+                        .reduce(0.0, (sum, x) -> sum += x);
+        }
+        return 0.0;
+    }
+
+    @Transient
+    private boolean hasCorrectOption() {
         return options.stream().anyMatch(MultipleChoiceOption::isCorrectOption);
     }
 
@@ -338,7 +286,7 @@ public class Question extends OwnedModel implements AttachmentContainer, Scorabl
 
     public Question copy() {
         Question question = new Question();
-        BeanUtils.copyProperties(this, question, "id", "answer", "options", "tags", "children");
+        BeanUtils.copyProperties(this, question, "id", "options", "tags", "children");
         question.setParent(this);
         for (MultipleChoiceOption o : options) {
             question.getOptions().add(o.copy());

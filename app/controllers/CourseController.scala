@@ -7,41 +7,41 @@ import models.{Course, User}
 import play.api.cache.CacheApi
 import play.api.mvc.{Action, Controller}
 import play.libs.Json
-import util.scala.Binders.IdList
 import util.scala.{Authenticator, JsonResponder}
 
 import scala.collection.JavaConverters._
+import scala.compat.java8.FutureConverters
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) extends Controller with Authenticator with JsonResponder {
+
+class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) extends Controller
+  with Authenticator with JsonResponder {
 
   override val sessionCache = cache
   val CriteriaLengthLimiter = 2
 
-  def _getCourses(filterType: Option[String], criteria: Option[String], user: User) = {
+  def listCourses(filterType: Option[String], criteria: Option[String], user: User) = {
     (filterType, criteria) match {
       case (Some("code"), Some(x)) =>
-        externalApi.getCourseInfoByCode(user, x).wrapped.map(i => java2Response(i))
+        FutureConverters.toScala(externalApi.getCourseInfoByCode(user, x)).map(i => java2Response(i))
       case (Some("name"), Some(x)) if x.length >= CriteriaLengthLimiter =>
-        val courses = Future {
+        Future {
           Ebean.find(classOf[Course]).where
             .ilike("name", s"%$x%")
             .orderBy("code")
             .findList
-        }
-        courses.map(i => java2Response(i))
+        }.map(i => java2Response(i))
       case (Some("name"), Some(x)) =>
         throw new IllegalArgumentException("Too short criteria")
       case _ =>
-        val results = Future {
+        Future {
           Ebean.find(classOf[Course]).where.isNotNull("name").orderBy("code").findList
-        }
-        results.map(i => java2Response(i))
+        }.map(i => java2Response(i))
     }
   }
 
-  def _listUsersCourses(user: User, examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList], token: String) = {
+  def getUserCourses(user: User, examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]], token: String) = {
     var query = Ebean.find(classOf[Course]).where.isNotNull("name")
     if (!user.hasRole("ADMIN", getSession(token))) {
       query = query
@@ -57,7 +57,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
       query = query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get.asJava)
     }
     val results = query.orderBy("name desc").findList
-    wrapAsJson(Ok(Json.toJson(results).toString))
+    Ok(Json.toJson(results).toString)
   }
 
 
@@ -67,7 +67,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
     request => request.headers.get(getKey).map { token =>
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>
-          _getCourses(filterType, criteria, user)
+          listCourses(filterType, criteria, user)
         case _ =>
           Future.successful(forbid())
       }
@@ -81,7 +81,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>
           val results = Ebean.find(classOf[Course], id)
-          wrapAsJson(Ok(Json.toJson(results).toString))
+          Ok(Json.toJson(results).toString)
         case _ =>
           forbid()
       }
@@ -90,11 +90,11 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
     }
   }
 
-  def listUsersCourses(examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList]) = Action {
+  def listUsersCourses(examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]]) = Action {
     request => request.headers.get(getKey).map { token =>
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>
-          _listUsersCourses(user, examIds, sectionIds, tagIds, token)
+          getUserCourses(user, examIds, sectionIds, tagIds, token)
         case _ =>
           forbid()
       }

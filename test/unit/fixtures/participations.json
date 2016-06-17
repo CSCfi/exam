@@ -1,0 +1,6650 @@
+{
+  "141:Malmi": [
+    {
+      "id": 3842,
+      "user": {
+        "id": 341
+      },
+      "exam": {
+        "id": 6084,
+        "created": 1450355400170,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3903,
+        "startAt": 1450355400000,
+        "endAt": 1450358100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 227,
+          "name": "Kone 6",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 141,
+            "name": "Malmi",
+            "roomCode": "A123",
+            "buildingName": null,
+            "campus": "Malmi",
+            "organization": null,
+            "mailAddress": {
+              "id": 141
+            },
+            "transitionTime": "5",
+            "accessible": false,
+            "roomInstruction": null,
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 5
+        },
+        "user": {
+          "id": 341
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450354817529,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    }
+  ],
+  "361:Kirjoita tenttitilan nimi tähän": [],
+  "321:Pasin poistettava tila": [],
+  "121:LUT 1": [],
+  "261:Tenttierraario": [],
+  "683:Kirjoita tenttitilan nimi tähän": [],
+  "241:OAMK/Kotkantie": [],
+  "22:Examniarium": [
+    {
+      "id": 4021,
+      "user": {
+        "id": 361
+      },
+      "exam": {
+        "id": 6322,
+        "created": 1454494777200,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4101,
+        "startAt": 1454493600000,
+        "endAt": 1454496300000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 110,
+          "name": "3",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "130.231.93.185",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 22,
+            "name": "Examniarium",
+            "roomCode": "FY1035-36 X",
+            "buildingName": "Vanha puoli",
+            "campus": "Linnanmaa, Oulu",
+            "organization": null,
+            "mailAddress": {
+              "id": 22
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "TIlasta ei saa poistua kesken tentin.",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "Matti Matinpoika Mattila",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 2
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 3
+        },
+        "user": {
+          "id": 361
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1454492703502,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 4022,
+      "user": {
+        "id": 361
+      },
+      "exam": {
+        "id": 6324,
+        "created": 1454497635297,
+        "creator": {
+          "id": 361
+        },
+        "modified": 1454497635297,
+        "modifier": {
+          "id": 361
+        },
+        "name": "Äidinkielen Ouluversio",
+        "course": {
+          "id": 122
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole hyvä",
+        "enrollInstruction": "Varaa itsellesi kiva aika",
+        "shared": false,
+        "parent": {
+          "id": 6308
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "207527d36fbc6d498b5e8fc6ca0577b9",
+        "examActiveStartDate": 1454457600000,
+        "examActiveEndDate": 1457215199999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 24
+        },
+        "customCredit": 2.0,
+        "answerLanguage": "fi",
+        "state": "GRADED",
+        "grade": {
+          "id": 63
+        },
+        "gradedByUser": {
+          "id": 281
+        },
+        "gradedTime": 1455780302802,
+        "examFeedback": {
+          "id": 3161
+        },
+        "additionalInfo": null,
+        "trialCount": 3,
+        "creditType": {
+          "id": 1
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 6,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4102,
+        "startAt": 1454497200000,
+        "endAt": 1454499900000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 105,
+          "name": "7",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "130.231.93.185",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 22,
+            "name": "Examniarium",
+            "roomCode": "FY1035-36 X",
+            "buildingName": "Vanha puoli",
+            "campus": "Linnanmaa, Oulu",
+            "organization": null,
+            "mailAddress": {
+              "id": 22
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "TIlasta ei saa poistua kesken tentin.",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "Matti Matinpoika Mattila",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 2
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 3
+        },
+        "user": {
+          "id": 361
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1454495277315,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 4025,
+      "user": {
+        "id": 461
+      },
+      "exam": {
+        "id": 6326,
+        "created": 1454502995453,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4105,
+        "startAt": 1454500800000,
+        "endAt": 1454503500000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 109,
+          "name": "10",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "130.231.93.185",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 22,
+            "name": "Examniarium",
+            "roomCode": "FY1035-36 X",
+            "buildingName": "Vanha puoli",
+            "campus": "Linnanmaa, Oulu",
+            "organization": null,
+            "mailAddress": {
+              "id": 22
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "TIlasta ei saa poistua kesken tentin.",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "Matti Matinpoika Mattila",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 2
+          },
+          "expanded": false,
+          "statusComment": "",
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 3
+        },
+        "user": {
+          "id": 461
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1454498452952,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 4024,
+      "user": {
+        "id": 361
+      },
+      "exam": {
+        "id": 6327,
+        "created": 1454503245683,
+        "creator": {
+          "id": 361
+        },
+        "modified": 1454503245683,
+        "modifier": {
+          "id": 361
+        },
+        "name": "Oululainen apteekkari",
+        "course": {
+          "id": 561
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": null,
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 6321
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "33dc3b9f2bf55d3a32d0c3915671d7fb",
+        "examActiveStartDate": 1454457600000,
+        "examActiveEndDate": 1465592399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 24
+        },
+        "customCredit": 0.0,
+        "answerLanguage": "fi",
+        "state": "GRADED",
+        "grade": {
+          "id": 62
+        },
+        "gradedByUser": {
+          "id": 281
+        },
+        "gradedTime": 1458220634915,
+        "examFeedback": {
+          "id": 3062
+        },
+        "additionalInfo": null,
+        "trialCount": 3,
+        "creditType": {
+          "id": 1
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 16,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4104,
+        "startAt": 1454500800000,
+        "endAt": 1454503500000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 102,
+          "name": "6",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "130.231.93.185",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 22,
+            "name": "Examniarium",
+            "roomCode": "FY1035-36 X",
+            "buildingName": "Vanha puoli",
+            "campus": "Linnanmaa, Oulu",
+            "organization": null,
+            "mailAddress": {
+              "id": 22
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "TIlasta ei saa poistua kesken tentin.",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "Matti Matinpoika Mattila",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 2
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 3
+        },
+        "user": {
+          "id": 361
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1454497869550,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    }
+  ],
+  "2:Hankens e-tentakvarium i Helsingfors": [
+    {
+      "id": 3721,
+      "user": {
+        "id": 161
+      },
+      "exam": {
+        "id": 5966,
+        "created": 1449495597885,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3781,
+        "startAt": 1449493800000,
+        "endAt": 1449496500000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 4,
+          "name": "Kaien kannettava HP",
+          "otherIdentifier": null,
+          "accessibilityInfo": "koneen voi siirtää haluamasi paikkaan",
+          "accessible": true,
+          "ipAddress": "128.214.105.16",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 2,
+            "name": "Hankens e-tentakvarium i Helsingfors",
+            "roomCode": "A410",
+            "buildingName": "Huvudbyggnad",
+            "campus": "Helsingfors",
+            "organization": null,
+            "mailAddress": {
+              "id": 2
+            },
+            "transitionTime": "5",
+            "accessible": false,
+            "roomInstruction": "(FI) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "roomInstructionEN": "(SV) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "roomInstructionSV": "(EN) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "contactPerson": "eTentvärdinna",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 24
+        },
+        "user": {
+          "id": 161
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1449486601598,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3806,
+      "user": {
+        "id": 161
+      },
+      "exam": {
+        "id": 6051,
+        "created": 1450282922772,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3868,
+        "startAt": 1450281600000,
+        "endAt": 1450284300000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 4,
+          "name": "Kaien kannettava HP",
+          "otherIdentifier": null,
+          "accessibilityInfo": "koneen voi siirtää haluamasi paikkaan",
+          "accessible": true,
+          "ipAddress": "128.214.105.16",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 2,
+            "name": "Hankens e-tentakvarium i Helsingfors",
+            "roomCode": "A410",
+            "buildingName": "Huvudbyggnad",
+            "campus": "Helsingfors",
+            "organization": null,
+            "mailAddress": {
+              "id": 2
+            },
+            "transitionTime": "5",
+            "accessible": false,
+            "roomInstruction": "(FI) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "roomInstructionEN": "(SV) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "roomInstructionSV": "(EN) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "contactPerson": "eTentvärdinna",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 24
+        },
+        "user": {
+          "id": 161
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450278202669,
+      "information": "Kiva, että lisätietokenttä taas toimii! :-) Ei mulla muuta ollutkaan...",
+      "reservationCanceled": false,
+      "objectVersion": 4
+    },
+    {
+      "id": 3773,
+      "user": {
+        "id": 161
+      },
+      "exam": {
+        "id": 6121,
+        "created": 1450448580757,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3926,
+        "startAt": 1450447200000,
+        "endAt": 1450449900000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 4,
+          "name": "Kaien kannettava HP",
+          "otherIdentifier": null,
+          "accessibilityInfo": "koneen voi siirtää haluamasi paikkaan",
+          "accessible": true,
+          "ipAddress": "128.214.105.16",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 2,
+            "name": "Hankens e-tentakvarium i Helsingfors",
+            "roomCode": "A410",
+            "buildingName": "Huvudbyggnad",
+            "campus": "Helsingfors",
+            "organization": null,
+            "mailAddress": {
+              "id": 2
+            },
+            "transitionTime": "5",
+            "accessible": false,
+            "roomInstruction": "(FI) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "roomInstructionEN": "(SV) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "roomInstructionSV": "(EN) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "contactPerson": "eTentvärdinna",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 24
+        },
+        "user": {
+          "id": 161
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450171559851,
+      "information": "Kiitos, että sain uuden mahdollisuuden!",
+      "reservationCanceled": false,
+      "objectVersion": 4
+    }
+  ],
+  "381:OAMK/Teuvo Pakkalan katu": [],
+  "61:PB211-TTY": [
+    {
+      "id": 3175,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6006,
+        "created": 1450080000141,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1450080000141,
+        "modifier": {
+          "id": 342
+        },
+        "name": "**COPY**Markan tentti 10.9.",
+        "course": {
+          "id": 11
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ohjeistus",
+        "enrollInstruction": "Ohjeistus lisää",
+        "shared": false,
+        "parent": {
+          "id": 4935
+        },
+        "examRecord": {
+          "id": 1705
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "0b54209f9e5a3dd18efd311a1aaea07e",
+        "examActiveStartDate": 1450044000000,
+        "examActiveEndDate": 1450303199999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 5
+        },
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1450436428734,
+        "examFeedback": {
+          "id": 2887
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 16,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3823,
+        "startAt": 1450080000000,
+        "endAt": 1450082700000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 142,
+          "name": "Pöytäkone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 16
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1446105097707,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3763,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6009,
+        "created": 1450087560099,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1450087560099,
+        "modifier": {
+          "id": 342
+        },
+        "name": "**COPY**Markan tentti 10.9.",
+        "course": {
+          "id": 11
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ohjeistus",
+        "enrollInstruction": "Ohjeistus lisää",
+        "shared": false,
+        "parent": {
+          "id": 4935
+        },
+        "examRecord": {
+          "id": 1647
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "a735e74a0fa9fa0f0617e9389485eeb1",
+        "examActiveStartDate": 1450044000000,
+        "examActiveEndDate": 1450303199999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "ARCHIVED",
+        "grade": {
+          "id": 6
+        },
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1450123885862,
+        "examFeedback": {
+          "id": 2888
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 10,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3824,
+        "startAt": 1450087560000,
+        "endAt": 1450090260000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 161,
+          "name": "Pasin",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 17
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450080249033,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3770,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6021,
+        "created": 1450160477781,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1450160477781,
+        "modifier": {
+          "id": 342
+        },
+        "name": "**COPY**Markan tentti 10.9.",
+        "course": {
+          "id": 11
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ohjeistus",
+        "enrollInstruction": "Ohjeistus lisää",
+        "shared": false,
+        "parent": {
+          "id": 4935
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "6fd92a23e59fd72067c7ab7751aaf09a",
+        "examActiveStartDate": 1450044000000,
+        "examActiveEndDate": 1450303199999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": null,
+        "state": "REVIEW",
+        "grade": null,
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": null,
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 3,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3829,
+        "startAt": 1450159560000,
+        "endAt": 1450162260000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 521,
+          "name": "uusi testikone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 17
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450124146956,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 4182,
+      "user": {
+        "id": 28
+      },
+      "exam": {
+        "id": 6502,
+        "created": 1456320350578,
+        "creator": {
+          "id": 28
+        },
+        "modified": 1456320350578,
+        "modifier": {
+          "id": 28
+        },
+        "name": "Automaattisen arvioinnin testi",
+        "course": {
+          "id": 13
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "nullentin aikana näkyvä ohjeistus opiskelijalle:\nentin aikana näkyvä ohjeistus opiskelijalle:\nentin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:",
+        "enrollInstruction": "entin aikana näkyvä ohjeistus opiskelijalle:\nentin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:ventin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:",
+        "shared": false,
+        "parent": {
+          "id": 6482
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": {
+          "id": 41
+        },
+        "languageInspection": null,
+        "hash": "a3c85f5ef0eb82e580627626b37a8c24",
+        "examActiveStartDate": 1456012800000,
+        "examActiveEndDate": 1457301599999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "REVIEW_STARTED",
+        "grade": null,
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1456844428703,
+        "examFeedback": {
+          "id": 3222
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": 1456836682506,
+        "objectVersion": 8,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4263,
+        "startAt": 1456319400000,
+        "endAt": 1456322100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 142,
+          "name": "Pöytäkone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 16
+        },
+        "user": {
+          "id": 28
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1456317770517,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 4181,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6503,
+        "created": 1456320362583,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1456320362583,
+        "modifier": {
+          "id": 342
+        },
+        "name": "Automaattisen arvioinnin testi",
+        "course": {
+          "id": 13
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "nullentin aikana näkyvä ohjeistus opiskelijalle:\nentin aikana näkyvä ohjeistus opiskelijalle:\nentin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:",
+        "enrollInstruction": "entin aikana näkyvä ohjeistus opiskelijalle:\nentin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:ventin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:",
+        "shared": false,
+        "parent": {
+          "id": 6482
+        },
+        "examRecord": {
+          "id": 1861
+        },
+        "autoEvaluationConfig": {
+          "id": 42
+        },
+        "languageInspection": null,
+        "hash": "49b6db3a56ec8df945ea188b5c87bcbd",
+        "examActiveStartDate": 1456012800000,
+        "examActiveEndDate": 1457301599999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 4
+        },
+        "gradedByUser": {
+          "id": 27
+        },
+        "gradedTime": 1456760468390,
+        "examFeedback": {
+          "id": 3201
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 7,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4262,
+        "startAt": 1456319400000,
+        "endAt": 1456322100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 521,
+          "name": "uusi testikone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 17
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1456314921644,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3811,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6052,
+        "created": 1450334510056,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1450334510056,
+        "modifier": {
+          "id": 342
+        },
+        "name": "**COPY**Markan tentti 10.9.",
+        "course": {
+          "id": 11
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ohjeistus",
+        "enrollInstruction": "Ohjeistus lisää",
+        "shared": false,
+        "parent": {
+          "id": 4935
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "91b6d09e0ecff2df4dbeca19b0e67f10",
+        "examActiveStartDate": 1450044000000,
+        "examActiveEndDate": 1450994399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": null,
+        "state": "REVIEW",
+        "grade": null,
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": null,
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 3,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3873,
+        "startAt": 1450334400000,
+        "endAt": 1450337100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 442,
+          "name": "Testilisäys",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 18
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450334274336,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3813,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6057,
+        "created": 1450342325132,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1450342325132,
+        "modifier": {
+          "id": 342
+        },
+        "name": "**COPY**Markan tentti 10.9.",
+        "course": {
+          "id": 11
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ohjeistus",
+        "enrollInstruction": "Ohjeistus lisää",
+        "shared": false,
+        "parent": {
+          "id": 4935
+        },
+        "examRecord": {
+          "id": 1707
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "43b932f387ee468e36ae33dab8e12b60",
+        "examActiveStartDate": 1450044000000,
+        "examActiveEndDate": 1450994399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 4
+        },
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1450439492075,
+        "examFeedback": {
+          "id": 2949
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 1
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 9,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3878,
+        "startAt": 1450341600000,
+        "endAt": 1450344300000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 142,
+          "name": "Pöytäkone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 16
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450340343331,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3862,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6102,
+        "created": 1450422900537,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1450422900537,
+        "modifier": {
+          "id": 342
+        },
+        "name": "**COPY**Markan tentti 10.9.",
+        "course": {
+          "id": 11
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ohjeistus",
+        "enrollInstruction": "Ohjeistus lisää",
+        "shared": false,
+        "parent": {
+          "id": 4935
+        },
+        "examRecord": {
+          "id": 1706
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "237702f410a1be3d7e4f7a19c9773a50",
+        "examActiveStartDate": 1450044000000,
+        "examActiveEndDate": 1450994399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 8
+        },
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1450437753156,
+        "examFeedback": {
+          "id": 2945
+        },
+        "additionalInfo": "Meneekö excelliin",
+        "trialCount": null,
+        "creditType": {
+          "id": 1
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 12,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3921,
+        "startAt": 1450422900000,
+        "endAt": 1450425600000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 442,
+          "name": "Testilisäys",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 18
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450422780956,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3814,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6081,
+        "created": 1450352593805,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1450352593805,
+        "modifier": {
+          "id": 342
+        },
+        "name": "**COPY**Markan tentti 10.9.",
+        "course": {
+          "id": 11
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ohjeistus",
+        "enrollInstruction": "Ohjeistus lisää",
+        "shared": false,
+        "parent": {
+          "id": 4935
+        },
+        "examRecord": {
+          "id": 1703
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "bda71a2c8f9ea37b4d0d6bc00a501206",
+        "examActiveStartDate": 1450044000000,
+        "examActiveEndDate": 1450994399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 7
+        },
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1450431622060,
+        "examFeedback": {
+          "id": 2922
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 9,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3880,
+        "startAt": 1450352400000,
+        "endAt": 1450355100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 161,
+          "name": "Pasin",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 17
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450350301489,
+      "information": "Olen lukenut ja kaikki kirjat tähän tenttiin.",
+      "reservationCanceled": false,
+      "objectVersion": 6
+    },
+    {
+      "id": 3863,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6106,
+        "created": 1450430086294,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1450430086294,
+        "modifier": {
+          "id": 342
+        },
+        "name": "**COPY**Markan tentti 10.9.",
+        "course": {
+          "id": 11
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ohjeistus",
+        "enrollInstruction": "Ohjeistus lisää",
+        "shared": false,
+        "parent": {
+          "id": 4935
+        },
+        "examRecord": {
+          "id": 1702
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "e8e56d193e93985c35e5bed6eaa120b6",
+        "examActiveStartDate": 1450044000000,
+        "examActiveEndDate": 1450994399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 7
+        },
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1450430167594,
+        "examFeedback": {
+          "id": 2943
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 8,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3922,
+        "startAt": 1450427400000,
+        "endAt": 1450430100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 442,
+          "name": "Testilisäys",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 18
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450423349643,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3864,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6107,
+        "created": 1450431000239,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1450431000239,
+        "modifier": {
+          "id": 342
+        },
+        "name": "18.12.2015 testitentti",
+        "course": {
+          "id": 11
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": null,
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 6105
+        },
+        "examRecord": {
+          "id": 1704
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "2a546c4f352e63cff24d22ca636b403a",
+        "examActiveStartDate": 1450396800000,
+        "examActiveEndDate": 1450994399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 3
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 1
+        },
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1450433415076,
+        "examFeedback": {
+          "id": 2947
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 3
+        },
+        "expanded": true,
+        "attachment": {
+          "id": 3380
+        },
+        "autoEvaluationNotified": null,
+        "objectVersion": 8,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3923,
+        "startAt": 1450431000000,
+        "endAt": 1450433700000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 142,
+          "name": "Pöytäkone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 16
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450426667972,
+      "information": "Teen kypsärin tästä aiheesta!!!!",
+      "reservationCanceled": false,
+      "objectVersion": 4
+    },
+    {
+      "id": 3921,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6189,
+        "created": 1452688238373,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1452688238373,
+        "modifier": {
+          "id": 342
+        },
+        "name": "markan kypsäri",
+        "course": {
+          "id": 24
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": null,
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 6188
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": {
+          "id": 41
+        },
+        "hash": "6ceb85f4712d07e5c070a1920f9bcc8c",
+        "examActiveStartDate": 1452643200000,
+        "examActiveEndDate": 1453413599999,
+        "duration": 180,
+        "gradeScale": {
+          "id": 3
+        },
+        "customCredit": 0.0,
+        "answerLanguage": "fi",
+        "state": "GRADED",
+        "grade": {
+          "id": 1
+        },
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1452689502843,
+        "examFeedback": {
+          "id": 2981
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 3
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 6,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4001,
+        "startAt": 1452688200000,
+        "endAt": 1452699000000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 142,
+          "name": "Pöytäkone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 16
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1452687231297,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 4041,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6341,
+        "created": 1454506204046,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1454506204046,
+        "modifier": {
+          "id": 342
+        },
+        "name": "kypsäri",
+        "course": {
+          "id": 10
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "tee",
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 2122
+        },
+        "examRecord": {
+          "id": 1881
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "2dcced7f9174ddbf8205d4badc538dd0",
+        "examActiveStartDate": 1429563600000,
+        "examActiveEndDate": 1462049999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 27.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 5
+        },
+        "gradedByUser": {
+          "id": 541
+        },
+        "gradedTime": 1457076948609,
+        "examFeedback": {
+          "id": 3241
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 6,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4121,
+        "startAt": 1454506200000,
+        "endAt": 1454508900000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 442,
+          "name": "Testilisäys",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 18
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1454506049055,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 4061,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6362,
+        "created": 1454528402918,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1454528402918,
+        "modifier": {
+          "id": 342
+        },
+        "name": "Kypsäri, Anderson",
+        "course": {
+          "id": 13
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Tässä ohjeita!!!!!",
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 6361
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "4d1ab5587a165b391da0a61374d3cf82",
+        "examActiveStartDate": 1454457600000,
+        "examActiveEndDate": 1455314399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": null,
+        "state": "REVIEW",
+        "grade": null,
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": null,
+        "executionType": {
+          "id": 2
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 3,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4141,
+        "startAt": 1454527800000,
+        "endAt": 1454530500000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 161,
+          "name": "Pasin",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 17
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1454525541760,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 4062,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6368,
+        "created": 1454571000327,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1454571000327,
+        "modifier": {
+          "id": 342
+        },
+        "name": "Uusien kysymysten testi",
+        "course": {
+          "id": 14
+        },
+        "examType": {
+          "id": 1
+        },
+        "instruction": "Ohjeita tentin aikana",
+        "enrollInstruction": "Varaukseen ohjeita",
+        "shared": false,
+        "parent": {
+          "id": 6363
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "02b1c21fb16fbbd143c5be08c6b5797e",
+        "examActiveStartDate": 1454544000000,
+        "examActiveEndDate": 1455487199999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": null,
+        "state": "REVIEW",
+        "grade": null,
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": null,
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": {
+          "id": 3625
+        },
+        "autoEvaluationNotified": null,
+        "objectVersion": 3,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4142,
+        "startAt": 1454571000000,
+        "endAt": 1454573700000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 521,
+          "name": "uusi testikone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 61,
+            "name": "PB211-TTY",
+            "roomCode": "PB211",
+            "buildingName": "Päätalo",
+            "campus": "Hervanta",
+            "organization": null,
+            "mailAddress": {
+              "id": 61
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Tilaohjeet:fin",
+            "roomInstructionEN": "Tilaohjeet:eng",
+            "roomInstructionSV": "Tilaohjeet: swe",
+            "contactPerson": "Marjut",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 17
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1454567913727,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    }
+  ],
+  "41:Tampere": [
+    {
+      "id": 3964,
+      "user": {
+        "id": 242
+      },
+      "exam": {
+        "id": 6246,
+        "created": 1453363316320,
+        "creator": {
+          "id": 242
+        },
+        "modified": 1453363316320,
+        "modifier": {
+          "id": 242
+        },
+        "name": "21.päivän tentti",
+        "course": {
+          "id": 13
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Vastaa vain niihin kysymyksiin, jotka ilmoitit tenttiväsi",
+        "enrollInstruction": "Tässä tentissä tentitään seuraavat kirjat: \ntekijä 1\ntekijä 2\ntekijä 3",
+        "shared": false,
+        "parent": {
+          "id": 6245
+        },
+        "examRecord": {
+          "id": 1762
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "b33bc8223acbe96ae97338bcdc84df9b",
+        "examActiveStartDate": 1453334400000,
+        "examActiveEndDate": 1500757199999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 8
+        },
+        "gradedByUser": {
+          "id": 30
+        },
+        "gradedTime": 1453364086326,
+        "examFeedback": {
+          "id": 3022
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 11,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4044,
+        "startAt": 1453363200000,
+        "endAt": 1453365900000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 83,
+          "name": "Kone1",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "153.1.3.98",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 41,
+            "name": "Tampere",
+            "roomCode": "Tampere",
+            "buildingName": "Tampereen yliopisto",
+            "campus": "Keskusta",
+            "organization": null,
+            "mailAddress": {
+              "id": 41
+            },
+            "transitionTime": "5",
+            "accessible": false,
+            "roomInstruction": "Lue ohjeet luokassa",
+            "roomInstructionEN": "Read instructions",
+            "roomInstructionSV": null,
+            "contactPerson": "Suvi Junes",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 1
+        },
+        "user": {
+          "id": 242
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1453362814896,
+      "information": "Aion tenttiä teoksen 1 ja 2",
+      "reservationCanceled": false,
+      "objectVersion": 4
+    },
+    {
+      "id": 3966,
+      "user": {
+        "id": 242
+      },
+      "exam": {
+        "id": 6248,
+        "created": 1453374000292,
+        "creator": {
+          "id": 242
+        },
+        "modified": 1453374000292,
+        "modifier": {
+          "id": 242
+        },
+        "name": "Opiskelija 098765",
+        "course": {
+          "id": 24
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": null,
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 6247
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": {
+          "id": 61
+        },
+        "hash": "7d3722e731b91c387e78c23652e49062",
+        "examActiveStartDate": 1453334400000,
+        "examActiveEndDate": 1456610399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 3
+        },
+        "customCredit": 2.0,
+        "answerLanguage": "fi",
+        "state": "GRADED",
+        "grade": {
+          "id": 1
+        },
+        "gradedByUser": {
+          "id": 30
+        },
+        "gradedTime": 1453374144988,
+        "examFeedback": {
+          "id": 3023
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 3
+        },
+        "expanded": true,
+        "attachment": {
+          "id": 3509
+        },
+        "autoEvaluationNotified": null,
+        "objectVersion": 5,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4046,
+        "startAt": 1453374000000,
+        "endAt": 1453376700000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 83,
+          "name": "Kone1",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "153.1.3.98",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 41,
+            "name": "Tampere",
+            "roomCode": "Tampere",
+            "buildingName": "Tampereen yliopisto",
+            "campus": "Keskusta",
+            "organization": null,
+            "mailAddress": {
+              "id": 41
+            },
+            "transitionTime": "5",
+            "accessible": false,
+            "roomInstruction": "Lue ohjeet luokassa",
+            "roomInstructionEN": "Read instructions",
+            "roomInstructionSV": null,
+            "contactPerson": "Suvi Junes",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 1
+        },
+        "user": {
+          "id": 242
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1453365373299,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    }
+  ],
+  "701:Sannan testitila helmikuu 2016": [],
+  "221:Markan testitila": [],
+  "181:Oppitupa Kuopio": [],
+  "521:Tampere2": [],
+  "341:Porvoo": [],
+  "563:Katjan oma tenttitila": [],
+  "1:Pääkirjasto JY": [
+    {
+      "id": 3769,
+      "user": {
+        "id": 25
+      },
+      "exam": {
+        "id": 6053,
+        "created": 1450339244465,
+        "creator": {
+          "id": 25
+        },
+        "modified": 1450339244465,
+        "modifier": {
+          "id": 25
+        },
+        "name": "Testimatu_14.12.2015",
+        "course": {
+          "id": 17
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": null,
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 6019
+        },
+        "examRecord": {
+          "id": 1663
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": {
+          "id": 21
+        },
+        "hash": "5d363a804cb567dc8cb2eafae31d2a10",
+        "examActiveStartDate": 1450051200000,
+        "examActiveEndDate": 1450475999999,
+        "duration": 180,
+        "gradeScale": {
+          "id": 3
+        },
+        "customCredit": 0.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 1
+        },
+        "gradedByUser": {
+          "id": 21
+        },
+        "gradedTime": 1450339666670,
+        "examFeedback": {
+          "id": 2903
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 3
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 7,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3877,
+        "startAt": 1450339200000,
+        "endAt": 1450350000000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 641,
+          "name": "kone6",
+          "otherIdentifier": "kone 6",
+          "accessibilityInfo": null,
+          "accessible": true,
+          "ipAddress": "130.234.170.9",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 1,
+            "name": "Pääkirjasto JY",
+            "roomCode": "B44412",
+            "buildingName": "Pääkirjasto",
+            "campus": "Seminaarinmäki",
+            "organization": null,
+            "mailAddress": {
+              "id": 1
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Ohjeita tilasta.Tilaan ei saa viedä mukanaan mitään muuta kuin pakolliset lääkkeet. Tilasta ei saa poistua kesken tentin. Tilassa on kameravalvonta.",
+            "roomInstructionEN": "Guidance in English",
+            "roomInstructionSV": "Ohjeet ruotsiksi",
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 7
+        },
+        "user": {
+          "id": 25
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450123151218,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3661,
+      "user": {
+        "id": 28
+      },
+      "exam": {
+        "id": 6082,
+        "created": 1450353600190,
+        "creator": {
+          "id": 28
+        },
+        "modified": 1450353600190,
+        "modifier": {
+          "id": 28
+        },
+        "name": "testitentti: Etiikkaa",
+        "course": {
+          "id": 16
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Tässä on tentin aikana näkyvä ohjeistus: Onnea tenttiin!!",
+        "enrollInstruction": "Tässä tentissä tentitään seuraavat materiaalit: \nLuennot\nTekijä 1: teos 1\nTekijä 2: teos 2\nTekijä 3: teos 3\nTekijä 4: teos 4",
+        "shared": false,
+        "parent": {
+          "id": 2142
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "d1773f4ac0e80bd315400c7ce9191bd0",
+        "examActiveStartDate": 1449007200000,
+        "examActiveEndDate": 1474837199999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 5.0,
+        "answerLanguage": "fi",
+        "state": "REVIEW_STARTED",
+        "grade": null,
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1456840030353,
+        "examFeedback": {
+          "id": 3221
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 8,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3901,
+        "startAt": 1450353600000,
+        "endAt": 1450356300000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 701,
+          "name": "Kone x",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "130.234.230.22",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 1,
+            "name": "Pääkirjasto JY",
+            "roomCode": "B44412",
+            "buildingName": "Pääkirjasto",
+            "campus": "Seminaarinmäki",
+            "organization": null,
+            "mailAddress": {
+              "id": 1
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Ohjeita tilasta.Tilaan ei saa viedä mukanaan mitään muuta kuin pakolliset lääkkeet. Tilasta ei saa poistua kesken tentin. Tilassa on kameravalvonta.",
+            "roomInstructionEN": "Guidance in English",
+            "roomInstructionSV": "Ohjeet ruotsiksi",
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 17
+        },
+        "user": {
+          "id": 28
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1448545463401,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    }
+  ],
+  "621:LAY tenttiakvaario 1": [],
+  "301:VY / Tervahovi": [],
+  "81:Pasila": [
+    {
+      "id": 3843,
+      "user": {
+        "id": 341
+      },
+      "exam": {
+        "id": 6101,
+        "created": 1450422000862,
+        "creator": {
+          "id": 341
+        },
+        "modified": 1450422000862,
+        "modifier": {
+          "id": 341
+        },
+        "name": "Päivin harjoitustentti 17.12.2016",
+        "course": {
+          "id": 21
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Vastausohje",
+        "enrollInstruction": "varausohje",
+        "shared": false,
+        "parent": {
+          "id": 6083
+        },
+        "examRecord": {
+          "id": 1701
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "ad3e3ec379916347da17603730a65b84",
+        "examActiveStartDate": 1450310400000,
+        "examActiveEndDate": 1450475999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 6.0,
+        "answerLanguage": "fi",
+        "state": "ARCHIVED",
+        "grade": {
+          "id": 5
+        },
+        "gradedByUser": {
+          "id": 403
+        },
+        "gradedTime": 1450422351417,
+        "examFeedback": {
+          "id": 2942
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": {
+          "id": 3361
+        },
+        "autoEvaluationNotified": null,
+        "objectVersion": 12,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3904,
+        "startAt": 1450422000000,
+        "endAt": 1450424700000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 461,
+          "name": "Kone 5",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 81,
+            "name": "Pasila",
+            "roomCode": "PA3",
+            "buildingName": null,
+            "campus": "Pasila",
+            "organization": null,
+            "mailAddress": {
+              "id": 81
+            },
+            "transitionTime": "5",
+            "accessible": false,
+            "roomInstruction": "Pyörä",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 25
+        },
+        "user": {
+          "id": 341
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450357510908,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3990,
+      "user": {
+        "id": 341
+      },
+      "exam": {
+        "id": 6301,
+        "created": 1453982400582,
+        "creator": {
+          "id": 341
+        },
+        "modified": 1453982400582,
+        "modifier": {
+          "id": 341
+        },
+        "name": "21.päivän tentti",
+        "course": {
+          "id": 13
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Vastaa vain niihin kysymyksiin, jotka ilmoitit tenttiväsi",
+        "enrollInstruction": "Tässä tentissä tentitään seuraavat kirjat: \ntekijä 1\ntekijä 2\ntekijä 3",
+        "shared": false,
+        "parent": {
+          "id": 6245
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "b09c2174345b93d58287437cfc103ee6",
+        "examActiveStartDate": 1453334400000,
+        "examActiveEndDate": 1500757199999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": null,
+        "state": "ABORTED",
+        "grade": null,
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": null,
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 3,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4069,
+        "startAt": 1453982400000,
+        "endAt": 1453985100000,
+        "noShow": false,
+        "retrialPermitted": true,
+        "machine": {
+          "id": 562,
+          "name": "Kone 8",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": true,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 81,
+            "name": "Pasila",
+            "roomCode": "PA3",
+            "buildingName": null,
+            "campus": "Pasila",
+            "organization": null,
+            "mailAddress": {
+              "id": 81
+            },
+            "transitionTime": "5",
+            "accessible": false,
+            "roomInstruction": "Pyörä",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 7
+        },
+        "user": {
+          "id": 341
+        },
+        "objectVersion": 2
+      },
+      "enrolledOn": 1453981848559,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    }
+  ],
+  "143:Tenttitila II": [],
+  "561:TY esteetön tila": [],
+  "684:Tampere/Pinni B": [
+    {
+      "id": 4124,
+      "user": {
+        "id": 28
+      },
+      "exam": {
+        "id": 6461,
+        "created": 1455800400818,
+        "creator": {
+          "id": 28
+        },
+        "modified": 1455800400818,
+        "modifier": {
+          "id": 28
+        },
+        "name": "Etiikasta ja elämästä",
+        "course": {
+          "id": 16
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Tentin aikaiset ohjeet:  PlaaPlaaPlaaPlaaPlaaPlaaPlaaPlaaPlaaPlaa PlaaPl aaPlaa PlaaPl aPlaaPlaaPlaa  PlaaPlaaPlaa  PlaaPlaaPlaaPlaaPlaaPla aPlaaPlaaPla  aPlaaPlaaPla aPlaaPlaaP laaPlaaPl  aaPlaaPlaaPlaaP laaPlaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa",
+        "enrollInstruction": "ohjeet varaukseen: Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa",
+        "shared": false,
+        "parent": {
+          "id": 4446
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "52b7f921f1f8f02103dea4b64e8fd3ad",
+        "examActiveStartDate": 1432760400000,
+        "examActiveEndDate": 1458338399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": null,
+        "state": "REVIEW",
+        "grade": null,
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": 2,
+        "creditType": null,
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 3,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4201,
+        "startAt": 1455800400000,
+        "endAt": 1455803100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 988,
+          "name": "Kone 1",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "153.1.64.188",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 684,
+            "name": "Tampere/Pinni B",
+            "roomCode": "1060",
+            "buildingName": null,
+            "campus": null,
+            "organization": null,
+            "mailAddress": {
+              "id": 684
+            },
+            "transitionTime": null,
+            "accessible": false,
+            "roomInstruction": null,
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 3
+        },
+        "user": {
+          "id": 28
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1455712164240,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3993,
+      "user": {
+        "id": 28
+      },
+      "exam": {
+        "id": 6307,
+        "created": 1454335200187,
+        "creator": {
+          "id": 28
+        },
+        "modified": 1454335200187,
+        "modifier": {
+          "id": 28
+        },
+        "name": "Etiikasta ja elämästä",
+        "course": {
+          "id": 16
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Tentin aikaiset ohjeet:  PlaaPlaaPlaaPlaaPlaaPlaaPlaaPlaaPlaaPlaa PlaaPl aaPlaa PlaaPl aPlaaPlaaPlaa  PlaaPlaaPlaa  PlaaPlaaPlaaPlaaPlaaPla aPlaaPlaaPla  aPlaaPlaaPla aPlaaPlaaP laaPlaaPl  aaPlaaPlaaPlaaP laaPlaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa",
+        "enrollInstruction": "ohjeet varaukseen: Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa Plaa",
+        "shared": false,
+        "parent": {
+          "id": 4446
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "895901be8ec4cac2f613822388606966",
+        "examActiveStartDate": 1432760400000,
+        "examActiveEndDate": 1458338399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": null,
+        "state": "REVIEW",
+        "grade": null,
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": 2,
+        "creditType": null,
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 3,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4079,
+        "startAt": 1454335200000,
+        "endAt": 1454337900000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 988,
+          "name": "Kone 1",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "153.1.64.188",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 684,
+            "name": "Tampere/Pinni B",
+            "roomCode": "1060",
+            "buildingName": null,
+            "campus": null,
+            "organization": null,
+            "mailAddress": {
+              "id": 684
+            },
+            "transitionTime": null,
+            "accessible": false,
+            "roomInstruction": null,
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 3
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 3
+        },
+        "user": {
+          "id": 28
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1454332461057,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    }
+  ],
+  "702:Kirjoita tenttitilan nimi tähän": [],
+  "161:Kirjoita tenttitilan nimi tähän": [],
+  "142:Vallila": [],
+  "441:Hankenin uusi tenttiakvaario": [],
+  "681:Kirjoita tenttitilan nimi tähän": [],
+  "182:OAMK/Professorintie": [],
+  "564:Kirjoita tenttitilan nimi tähän": [],
+  "661:Matin tila": [
+    {
+      "id": 2876,
+      "user": {
+        "id": 28
+      },
+      "exam": {
+        "id": 6055,
+        "created": 1450339484723,
+        "creator": {
+          "id": 28
+        },
+        "modified": 1450339484723,
+        "modifier": {
+          "id": 28
+        },
+        "name": "Sähköisen tenttimisen perusteet",
+        "course": {
+          "id": 13
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Vastaa kaikkiin kysymyksiin",
+        "enrollInstruction": "Tenttimateriaalit: \nTeos 1: nimi\nTeos 2: Nimi",
+        "shared": false,
+        "parent": {
+          "id": 5032
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "66e8cd5fc4a62620280c7453f756b181",
+        "examActiveStartDate": 1443139200000,
+        "examActiveEndDate": 1464469199999,
+        "duration": 180,
+        "gradeScale": {
+          "id": 3
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "REVIEW_STARTED",
+        "grade": null,
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": {
+          "id": 3024
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": {
+          "id": 3285
+        },
+        "autoEvaluationNotified": null,
+        "objectVersion": 5,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3876,
+        "startAt": 1450339200000,
+        "endAt": 1450350000000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 961,
+          "name": "Masiina 1",
+          "otherIdentifier": "",
+          "accessibilityInfo": null,
+          "accessible": true,
+          "ipAddress": "81.75.100.91",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 661,
+            "name": "Matin tila",
+            "roomCode": "XXXX",
+            "buildingName": null,
+            "campus": null,
+            "organization": null,
+            "mailAddress": {
+              "id": 661
+            },
+            "transitionTime": null,
+            "accessible": false,
+            "roomInstruction": null,
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 2
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 3
+        },
+        "user": {
+          "id": 28
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1443179300907,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    }
+  ],
+  "682:LapinAMK\\Kosmos1119": [
+    {
+      "id": 3986,
+      "user": {
+        "id": 28
+      },
+      "exam": {
+        "id": 6292,
+        "created": 1453901472297,
+        "creator": {
+          "id": 28
+        },
+        "modified": 1453901472297,
+        "modifier": {
+          "id": 28
+        },
+        "name": "lapin_amk_testitentti",
+        "course": {
+          "id": 321
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": null,
+        "enrollInstruction": "Varaa nyt, maksa vasta helmikuussa",
+        "shared": false,
+        "parent": {
+          "id": 6288
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "281e4137eb457edce9c6819816298513",
+        "examActiveStartDate": 1453852800000,
+        "examActiveEndDate": 1454795999999,
+        "duration": 90,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": null,
+        "state": "REVIEW",
+        "grade": null,
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": null,
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 3,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4067,
+        "startAt": 1453901100000,
+        "endAt": 1453906500000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 985,
+          "name": "KO-1119W01",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "193.167.84.209",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 682,
+            "name": "LapinAMK\\Kosmos1119",
+            "roomCode": "1119",
+            "buildingName": "Kosmos",
+            "campus": "Kemi-Tornio",
+            "organization": null,
+            "mailAddress": {
+              "id": 682
+            },
+            "transitionTime": null,
+            "accessible": false,
+            "roomInstruction": null,
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 4
+        },
+        "user": {
+          "id": 28
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1453895122026,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 5
+    }
+  ],
+  "461:Exam Studio A": [],
+  "101:TY tila": [
+    {
+      "id": 3803,
+      "user": {
+        "id": 261
+      },
+      "exam": {
+        "id": 6042,
+        "created": 1450252800458,
+        "creator": {
+          "id": 261
+        },
+        "modified": 1450252800458,
+        "modifier": {
+          "id": 261
+        },
+        "name": "Testaaminen IE:llä",
+        "course": {
+          "id": 11
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Vastaa kaikkiin kysymyksiin",
+        "enrollInstruction": "Varaa tila",
+        "shared": false,
+        "parent": {
+          "id": 5228
+        },
+        "examRecord": {
+          "id": 1741
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "87448ee49975729927aa531972b63159",
+        "examActiveStartDate": 1444780800000,
+        "examActiveEndDate": 1451599199999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 3
+        },
+        "gradedByUser": {
+          "id": 141
+        },
+        "gradedTime": 1452856532516,
+        "examFeedback": {
+          "id": 3002
+        },
+        "additionalInfo": null,
+        "trialCount": 5,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 11,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3866,
+        "startAt": 1450252800000,
+        "endAt": 1450255500000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 821,
+          "name": "Teutori 06",
+          "otherIdentifier": null,
+          "accessibilityInfo": "",
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 101,
+            "name": "TY tila",
+            "roomCode": "TEUT123",
+            "buildingName": "Teutori",
+            "campus": "Sirkkala",
+            "organization": null,
+            "mailAddress": {
+              "id": 101
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": null,
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 15
+        },
+        "user": {
+          "id": 261
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450252496352,
+      "information": "Tenttikirjat: teen vain kirjan  Virtanen",
+      "reservationCanceled": false,
+      "objectVersion": 4
+    },
+    {
+      "id": 3941,
+      "user": {
+        "id": 261
+      },
+      "exam": {
+        "id": 6224,
+        "created": 1452856046842,
+        "creator": {
+          "id": 261
+        },
+        "modified": 1452856046842,
+        "modifier": {
+          "id": 261
+        },
+        "name": "Testaaminen IE:llä",
+        "course": {
+          "id": 11
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Vastaa kaikkiin kysymyksiin",
+        "enrollInstruction": "Varaa tila",
+        "shared": false,
+        "parent": {
+          "id": 5228
+        },
+        "examRecord": {
+          "id": 1821
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "880d66ed730a22201647bcd2a3e33874",
+        "examActiveStartDate": 1444780800000,
+        "examActiveEndDate": 1456783199999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 1.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 5
+        },
+        "gradedByUser": {
+          "id": 141
+        },
+        "gradedTime": 1455527127766,
+        "examFeedback": {
+          "id": 3003
+        },
+        "additionalInfo": null,
+        "trialCount": 5,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 32,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4021,
+        "startAt": 1452855600000,
+        "endAt": 1452858300000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 663,
+          "name": "Teutori 04",
+          "otherIdentifier": null,
+          "accessibilityInfo": "",
+          "accessible": false,
+          "ipAddress": "130.232.204.3",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 101,
+            "name": "TY tila",
+            "roomCode": "TEUT123",
+            "buildingName": "Teutori",
+            "campus": "Sirkkala",
+            "organization": null,
+            "mailAddress": {
+              "id": 101
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": null,
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 15
+        },
+        "user": {
+          "id": 261
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1452854146141,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3922,
+      "user": {
+        "id": 261
+      },
+      "exam": {
+        "id": 6306,
+        "created": 1454072400463,
+        "creator": {
+          "id": 261
+        },
+        "modified": 1454072400463,
+        "modifier": {
+          "id": 261
+        },
+        "name": "Testataan tentin avaamista",
+        "course": {
+          "id": 13
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": null,
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 6191
+        },
+        "examRecord": {
+          "id": 1804
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "418ffc1940ea44d687470ce3b465c424",
+        "examActiveStartDate": 1454018400000,
+        "examActiveEndDate": 1454795999999,
+        "duration": 180,
+        "gradeScale": {
+          "id": 4
+        },
+        "customCredit": 25.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 41
+        },
+        "gradedByUser": {
+          "id": 141
+        },
+        "gradedTime": 1455173006495,
+        "examFeedback": {
+          "id": 3103
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 3
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 7,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4076,
+        "startAt": 1454072400000,
+        "endAt": 1454083200000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 663,
+          "name": "Teutori 04",
+          "otherIdentifier": null,
+          "accessibilityInfo": "",
+          "accessible": false,
+          "ipAddress": "130.232.204.3",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 101,
+            "name": "TY tila",
+            "roomCode": "TEUT123",
+            "buildingName": "Teutori",
+            "campus": "Sirkkala",
+            "organization": null,
+            "mailAddress": {
+              "id": 101
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": null,
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 15
+        },
+        "user": {
+          "id": 261
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1452755630153,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 6
+    },
+    {
+      "id": 4102,
+      "user": {
+        "id": 261
+      },
+      "exam": {
+        "id": 6403,
+        "created": 1455289200530,
+        "creator": {
+          "id": 261
+        },
+        "modified": 1455289200530,
+        "modifier": {
+          "id": 261
+        },
+        "name": "Monivalintatentti",
+        "course": {
+          "id": 162
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": null,
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 6402
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "9417f31eb40775114274623f5afb9949",
+        "examActiveStartDate": 1455235200000,
+        "examActiveEndDate": 1456696799999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": null,
+        "state": "REVIEW",
+        "grade": null,
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": 3,
+        "creditType": null,
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 3,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4183,
+        "startAt": 1455289200000,
+        "endAt": 1455291900000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 184,
+          "name": "Teutori 02",
+          "otherIdentifier": null,
+          "accessibilityInfo": "",
+          "accessible": false,
+          "ipAddress": "130.232.38.241",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 101,
+            "name": "TY tila",
+            "roomCode": "TEUT123",
+            "buildingName": "Teutori",
+            "campus": "Sirkkala",
+            "organization": null,
+            "mailAddress": {
+              "id": 101
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": null,
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 15
+        },
+        "user": {
+          "id": 261
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1455288900579,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    }
+  ],
+  "501:SAMK Tiedepuisto testi": [
+    {
+      "id": 3723,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 5964,
+        "created": 1449493200134,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1449493200134,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: wwwww",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "DSAW",
+        "enrollInstruction": "DSAW",
+        "shared": false,
+        "parent": {
+          "id": 5963
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "3aae779f62c5afe771956ce8b24f2f45",
+        "examActiveStartDate": 1449446400000,
+        "examActiveEndDate": 1449611999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 4.0,
+        "answerLanguage": "fi",
+        "state": "REVIEW_STARTED",
+        "grade": {
+          "id": 8
+        },
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": {
+          "id": 2863
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": null,
+        "executionType": {
+          "id": 2
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 13,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3783,
+        "startAt": 1449493200000,
+        "endAt": 1449495900000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 741,
+          "name": "Katjan huone",
+          "otherIdentifier": "Harjoittelijan vanha kone Katjan huoneessa",
+          "accessibilityInfo": "ok",
+          "accessible": true,
+          "ipAddress": "193.166.153.99",
+          "surveillanceCamera": "ok",
+          "videoRecordings": "ok",
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 13
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1449491921870,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3729,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 5973,
+        "created": 1449734400079,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1449734400079,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: arrrrrrrrrseeeeeeenikki",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole selvä",
+        "enrollInstruction": "Ole selvä",
+        "shared": false,
+        "parent": {
+          "id": 5972
+        },
+        "examRecord": {
+          "id": 1649
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "7b95c681a4c924e25341fc291dc0ea45",
+        "examActiveStartDate": 1449705600000,
+        "examActiveEndDate": 1455227999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 16.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 7
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450168520282,
+        "examFeedback": {
+          "id": 2865
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 10,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3792,
+        "startAt": 1449734400000,
+        "endAt": 1449737100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 742,
+          "name": "Jaanan tenttikone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": true,
+          "ipAddress": "193.166.153.98",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 6
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1449729386709,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3761,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6002,
+        "created": 1449838800167,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1449838800167,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: Foucault & Chomsky",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole selvä",
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 6001
+        },
+        "examRecord": {
+          "id": 1642
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "1ff54ff234f473eff7fd7a56685ddc00",
+        "examActiveStartDate": 1449792000000,
+        "examActiveEndDate": 1450130399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 4.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 7
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450078417643,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 2
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 8,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3821,
+        "startAt": 1449838800000,
+        "endAt": 1449841500000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 741,
+          "name": "Katjan huone",
+          "otherIdentifier": "Harjoittelijan vanha kone Katjan huoneessa",
+          "accessibilityInfo": "ok",
+          "accessible": true,
+          "ipAddress": "193.166.153.99",
+          "surveillanceCamera": "ok",
+          "videoRecordings": "ok",
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 13
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1449835541172,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3762,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6005,
+        "created": 1450080000003,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450080000003,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: Georg Wilhelm Friedrich Hegel",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole selvä.",
+        "enrollInstruction": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+        "shared": false,
+        "parent": {
+          "id": 6004
+        },
+        "examRecord": {
+          "id": 1643
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "e3e402c1dca8f3cf9d17c00eae39aea0",
+        "examActiveStartDate": 1450051200000,
+        "examActiveEndDate": 1450475999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 40.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 7
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450080599638,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 1
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": {
+          "id": 3205
+        },
+        "autoEvaluationNotified": null,
+        "objectVersion": 12,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3822,
+        "startAt": 1450080000000,
+        "endAt": 1450082700000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 741,
+          "name": "Katjan huone",
+          "otherIdentifier": "Harjoittelijan vanha kone Katjan huoneessa",
+          "accessibilityInfo": "ok",
+          "accessible": true,
+          "ipAddress": "193.166.153.99",
+          "surveillanceCamera": "ok",
+          "videoRecordings": "ok",
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 13
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450078821975,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3764,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6008,
+        "created": 1450087200110,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450087200110,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: Georg Wilhelm Friedrich Hegel",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole selvä.",
+        "enrollInstruction": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+        "shared": false,
+        "parent": {
+          "id": 6004
+        },
+        "examRecord": {
+          "id": 1644
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "a8e9a50d60efb42f41c6ea507a3b25c7",
+        "examActiveStartDate": 1450051200000,
+        "examActiveEndDate": 1450475999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 4.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 3
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450092108770,
+        "examFeedback": {
+          "id": 2885
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 1
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": {
+          "id": 3209
+        },
+        "autoEvaluationNotified": null,
+        "objectVersion": 9,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3825,
+        "startAt": 1450087200000,
+        "endAt": 1450089900000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 741,
+          "name": "Katjan huone",
+          "otherIdentifier": "Harjoittelijan vanha kone Katjan huoneessa",
+          "accessibilityInfo": "ok",
+          "accessible": true,
+          "ipAddress": "193.166.153.99",
+          "surveillanceCamera": "ok",
+          "videoRecordings": "ok",
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 13
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450081126714,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 4143,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6463,
+        "created": 1455818512296,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1455818512296,
+        "modifier": {
+          "id": 681
+        },
+        "name": "Katjan demotentti",
+        "course": {
+          "id": 24
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "null",
+        "enrollInstruction": "null",
+        "shared": false,
+        "parent": {
+          "id": 6462
+        },
+        "examRecord": {
+          "id": 1841
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "c7361d6267181e31d7b67284076812a7",
+        "examActiveStartDate": 1455753600000,
+        "examActiveEndDate": 1457906399999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 24
+        },
+        "customCredit": 0.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 62
+        },
+        "gradedByUser": {
+          "id": 703
+        },
+        "gradedTime": 1456302812513,
+        "examFeedback": {
+          "id": 3181
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 8,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4221,
+        "startAt": 1455818400000,
+        "endAt": 1455821100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 1001,
+          "name": "Uusi tenttikone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "87.92.210.40",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 10
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1455817977074,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3771,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6022,
+        "created": 1450166538582,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450166538582,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: arrrrrrrrrseeeeeeenikki",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole selvä",
+        "enrollInstruction": "Ole selvä",
+        "shared": false,
+        "parent": {
+          "id": 5972
+        },
+        "examRecord": {
+          "id": 1648
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "7a920c6263b134eef2ba6994b7df7eef",
+        "examActiveStartDate": 1449705600000,
+        "examActiveEndDate": 1455227999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 4.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 6
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450168474161,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 7,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3830,
+        "startAt": 1450166400000,
+        "endAt": 1450169100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 742,
+          "name": "Jaanan tenttikone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": true,
+          "ipAddress": "193.166.153.98",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 6
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450160726716,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3775,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6041,
+        "created": 1450184514979,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450184514979,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: Georg Wilhelm Friedrich Hegel",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole selvä.",
+        "enrollInstruction": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+        "shared": false,
+        "parent": {
+          "id": 6004
+        },
+        "examRecord": {
+          "id": 1661
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "d3c04dea3b54793c76b7b52c093b42a5",
+        "examActiveStartDate": 1450051200000,
+        "examActiveEndDate": 1450475999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 4.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 6
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450186051407,
+        "examFeedback": {
+          "id": 2901
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": {
+          "id": 3262
+        },
+        "autoEvaluationNotified": null,
+        "objectVersion": 8,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3833,
+        "startAt": 1450184400000,
+        "endAt": 1450187100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 741,
+          "name": "Katjan huone",
+          "otherIdentifier": "Harjoittelijan vanha kone Katjan huoneessa",
+          "accessibilityInfo": "ok",
+          "accessible": true,
+          "ipAddress": "193.166.153.99",
+          "surveillanceCamera": "ok",
+          "videoRecordings": "ok",
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 13
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450182878211,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3841,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6085,
+        "created": 1450357202203,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450357202203,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: Georg Wilhelm Friedrich Hegel",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole selvä.",
+        "enrollInstruction": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+        "shared": false,
+        "parent": {
+          "id": 6004
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "104e69ba7df879c7f0623aeb480cf7e5",
+        "examActiveStartDate": 1450051200000,
+        "examActiveEndDate": 1450475999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 4.0,
+        "answerLanguage": "fi",
+        "state": "GRADED",
+        "grade": {
+          "id": 8
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450358681863,
+        "examFeedback": {
+          "id": 2924
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": {
+          "id": 3338
+        },
+        "autoEvaluationNotified": null,
+        "objectVersion": 8,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3902,
+        "startAt": 1450357200000,
+        "endAt": 1450359900000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 741,
+          "name": "Katjan huone",
+          "otherIdentifier": "Harjoittelijan vanha kone Katjan huoneessa",
+          "accessibilityInfo": "ok",
+          "accessible": true,
+          "ipAddress": "193.166.153.99",
+          "surveillanceCamera": "ok",
+          "videoRecordings": "ok",
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 13
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450354388267,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3804,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6043,
+        "created": 1450263600278,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450263600278,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: arrrrrrrrrseeeeeeenikki",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole selvä",
+        "enrollInstruction": "Ole selvä",
+        "shared": false,
+        "parent": {
+          "id": 5972
+        },
+        "examRecord": {
+          "id": 1662
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "e1eed16f0a6b2ac6af6289fc6799e164",
+        "examActiveStartDate": 1449705600000,
+        "examActiveEndDate": 1455227999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 4.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 7
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450269015702,
+        "examFeedback": {
+          "id": 2902
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 8,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3867,
+        "startAt": 1450263600000,
+        "endAt": 1450266300000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 741,
+          "name": "Katjan huone",
+          "otherIdentifier": "Harjoittelijan vanha kone Katjan huoneessa",
+          "accessibilityInfo": "ok",
+          "accessible": true,
+          "ipAddress": "193.166.153.99",
+          "surveillanceCamera": "ok",
+          "videoRecordings": "ok",
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 13
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450259112398,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3809,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6054,
+        "created": 1450339464196,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450339464196,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: Georg Wilhelm Friedrich Hegel",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole selvä.",
+        "enrollInstruction": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+        "shared": false,
+        "parent": {
+          "id": 6004
+        },
+        "examRecord": {
+          "id": 1664
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "9d8ba16cfc2c98b38112f4a810731836",
+        "examActiveStartDate": 1450051200000,
+        "examActiveEndDate": 1450475999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 1.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 5
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450341861410,
+        "examFeedback": {
+          "id": 2905
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": {
+          "id": 3283
+        },
+        "autoEvaluationNotified": null,
+        "objectVersion": 11,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3871,
+        "startAt": 1450339200000,
+        "endAt": 1450341900000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 741,
+          "name": "Katjan huone",
+          "otherIdentifier": "Harjoittelijan vanha kone Katjan huoneessa",
+          "accessibilityInfo": "ok",
+          "accessible": true,
+          "ipAddress": "193.166.153.99",
+          "surveillanceCamera": "ok",
+          "videoRecordings": "ok",
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 13
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450333357765,
+      "information": "tentaattorille opiskelijan antama lisätieto",
+      "reservationCanceled": false,
+      "objectVersion": 4
+    },
+    {
+      "id": 3812,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6058,
+        "created": 1450347032560,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450347032560,
+        "modifier": {
+          "id": 681
+        },
+        "name": "Kiinaa SAMKissa",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": null,
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 5384
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "ac42a23ec0f37cabe8287eff8e06da99",
+        "examActiveStartDate": 1446076800000,
+        "examActiveEndDate": 1451599199999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 4.0,
+        "answerLanguage": "fi",
+        "state": "GRADED",
+        "grade": {
+          "id": 4
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450348941613,
+        "examFeedback": {
+          "id": 2906
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": null,
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 5,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3875,
+        "startAt": 1450346400000,
+        "endAt": 1450349100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 742,
+          "name": "Jaanan tenttikone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": true,
+          "ipAddress": "193.166.153.98",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 6
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450335018405,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3810,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6104,
+        "created": 1450425600094,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450425600094,
+        "modifier": {
+          "id": 681
+        },
+        "name": "testitentti: Etiikkaa",
+        "course": {
+          "id": 16
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Tässä on tentin aikana näkyvä ohjeistus: Onnea tenttiin!!",
+        "enrollInstruction": "Tässä tentissä tentitään seuraavat materiaalit: \nLuennot\nTekijä 1: teos 1\nTekijä 2: teos 2\nTekijä 3: teos 3\nTekijä 4: teos 4",
+        "shared": false,
+        "parent": {
+          "id": 2142
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "33c0d678206d44905bef5e02b2407154",
+        "examActiveStartDate": 1449007200000,
+        "examActiveEndDate": 1474837199999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 5.0,
+        "answerLanguage": "fi",
+        "state": "REVIEW_STARTED",
+        "grade": null,
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1456840030400,
+        "examFeedback": {
+          "id": 3041
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 10,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3872,
+        "startAt": 1450425600000,
+        "endAt": 1450428300000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 741,
+          "name": "Katjan huone",
+          "otherIdentifier": "Harjoittelijan vanha kone Katjan huoneessa",
+          "accessibilityInfo": "ok",
+          "accessible": true,
+          "ipAddress": "193.166.153.99",
+          "surveillanceCamera": "ok",
+          "videoRecordings": "ok",
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 13
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450334221154,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3882,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6141,
+        "created": 1450692000227,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450692000227,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: arrrrrrrrrseeeeeeenikki",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole selvä",
+        "enrollInstruction": "Ole selvä",
+        "shared": false,
+        "parent": {
+          "id": 5972
+        },
+        "examRecord": {
+          "id": 1721
+        },
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "75ca2f4f820b37d851c59eb46ca77f1d",
+        "examActiveStartDate": 1449705600000,
+        "examActiveEndDate": 1455227999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 400.0,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 7
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450694506029,
+        "examFeedback": {
+          "id": 2961
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 8,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3963,
+        "startAt": 1450692000000,
+        "endAt": 1450694700000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 741,
+          "name": "Katjan huone",
+          "otherIdentifier": "Harjoittelijan vanha kone Katjan huoneessa",
+          "accessibilityInfo": "ok",
+          "accessible": true,
+          "ipAddress": "193.166.153.99",
+          "surveillanceCamera": "ok",
+          "videoRecordings": "ok",
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 13
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450686855873,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3884,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6142,
+        "created": 1450699200379,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450699200379,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK vertexpiste",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Plää plääh.",
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 5745
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "606ce5fac7f3359fa4f8b2ba954e58e9",
+        "examActiveStartDate": 1447891200000,
+        "examActiveEndDate": 1455227999999,
+        "duration": 90,
+        "gradeScale": {
+          "id": 2
+        },
+        "customCredit": 4.0,
+        "answerLanguage": "fi",
+        "state": "GRADED",
+        "grade": {
+          "id": 15
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450773145556,
+        "examFeedback": {
+          "id": 2962
+        },
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 9,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3964,
+        "startAt": 1450699200000,
+        "endAt": 1450704600000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 741,
+          "name": "Katjan huone",
+          "otherIdentifier": "Harjoittelijan vanha kone Katjan huoneessa",
+          "accessibilityInfo": "ok",
+          "accessible": true,
+          "ipAddress": "193.166.153.99",
+          "surveillanceCamera": "ok",
+          "videoRecordings": "ok",
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 13
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450695936230,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3886,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6143,
+        "created": 1450771200127,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450771200127,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: arrrrrrrrrseeeeeeenikki",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole selvä",
+        "enrollInstruction": "Ole selvä",
+        "shared": false,
+        "parent": {
+          "id": 5972
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "4a60899342b5bef60ba94527c5b2ee01",
+        "examActiveStartDate": 1449705600000,
+        "examActiveEndDate": 1455227999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": 4.0,
+        "answerLanguage": "fi",
+        "state": "GRADED",
+        "grade": {
+          "id": 6
+        },
+        "gradedByUser": {
+          "id": 2
+        },
+        "gradedTime": 1450773568409,
+        "examFeedback": {
+          "id": 2963
+        },
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 7,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3965,
+        "startAt": 1450771200000,
+        "endAt": 1450773900000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 741,
+          "name": "Katjan huone",
+          "otherIdentifier": "Harjoittelijan vanha kone Katjan huoneessa",
+          "accessibilityInfo": "ok",
+          "accessible": true,
+          "ipAddress": "193.166.153.99",
+          "surveillanceCamera": "ok",
+          "videoRecordings": "ok",
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 13
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450767925122,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3887,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6144,
+        "created": 1450782000020,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1450782000020,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: arrrrrrrrrseeeeeeenikki",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "Ole selvä",
+        "enrollInstruction": "Ole selvä",
+        "shared": false,
+        "parent": {
+          "id": 5972
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "19012274dcf00693c7ca3b7c6c08c6f4",
+        "examActiveStartDate": 1449705600000,
+        "examActiveEndDate": 1455227999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": null,
+        "state": "REVIEW",
+        "grade": null,
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": null,
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 3,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3966,
+        "startAt": 1450782000000,
+        "endAt": 1450784700000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 742,
+          "name": "Jaanan tenttikone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": true,
+          "ipAddress": "193.166.153.98",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 6
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450777763470,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3901,
+      "user": {
+        "id": 681
+      },
+      "exam": {
+        "id": 6162,
+        "created": 1451300841195,
+        "creator": {
+          "id": 681
+        },
+        "modified": 1451300841195,
+        "modifier": {
+          "id": 681
+        },
+        "name": "SAMK: 2015 viimeinen",
+        "course": {
+          "id": 101
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "e-e-e-e-e--",
+        "enrollInstruction": null,
+        "shared": false,
+        "parent": {
+          "id": 6161
+        },
+        "examRecord": null,
+        "autoEvaluationConfig": null,
+        "languageInspection": null,
+        "hash": "47e66f52fc365e0a665b40cf684b52ab",
+        "examActiveStartDate": 1451260800000,
+        "examActiveEndDate": 1455227999999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": null,
+        "state": "REVIEW",
+        "grade": null,
+        "gradedByUser": null,
+        "gradedTime": null,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": null,
+        "creditType": null,
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": null,
+        "objectVersion": 3,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3981,
+        "startAt": 1451300400000,
+        "endAt": 1451303100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 742,
+          "name": "Jaanan tenttikone",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": true,
+          "ipAddress": "193.166.153.98",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 501,
+            "name": "SAMK Tiedepuisto testi",
+            "roomCode": "SAMK Tiedepuisto",
+            "buildingName": "Katjan huone",
+            "campus": "Tiedepuisto A",
+            "organization": null,
+            "mailAddress": {
+              "id": 501
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": "Liika mekkalointi kielletty, Paperit pois,",
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": "KAtja Lempinen",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "ACTIVE",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 9
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": true,
+          "objectVersion": 6
+        },
+        "user": {
+          "id": 681
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1451298181235,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    }
+  ],
+  "162:Kirjoita tenttitilan nimi tähän": [],
+  "583:Esteettömät koneet (1-2)": [],
+  "421:Jukan tenttitila": [],
+  "542:SAMK Testi 2 Tiedepuisto": [],
+  "481:Kirjoita tenttitilan nimi tähän": [],
+  "562:Åbo-Turku-tentrum": [],
+  "401:Kirjoita tenttitilan nimi tähän": [],
+  "281:Marjutin testi": [],
+  "541:Testitila 3.0": [],
+  "201:ANNINLUOKKA": [
+    {
+      "id": 4162,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6483,
+        "created": 1456122537273,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1456122537273,
+        "modifier": {
+          "id": 342
+        },
+        "name": "Automaattisen arvioinnin testi",
+        "course": {
+          "id": 13
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "nullentin aikana näkyvä ohjeistus opiskelijalle:\nentin aikana näkyvä ohjeistus opiskelijalle:\nentin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:",
+        "enrollInstruction": "entin aikana näkyvä ohjeistus opiskelijalle:\nentin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:ventin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:",
+        "shared": false,
+        "parent": {
+          "id": 6482
+        },
+        "examRecord": {
+          "id": 1842
+        },
+        "autoEvaluationConfig": {
+          "id": 22
+        },
+        "languageInspection": null,
+        "hash": "a853b33c95b690fe109b1b6745285465",
+        "examActiveStartDate": 1456012800000,
+        "examActiveEndDate": 1457301599999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 3
+        },
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1456122611040,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": 1456139646396,
+        "objectVersion": 6,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4243,
+        "startAt": 1456120800000,
+        "endAt": 1456123500000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 342,
+          "name": "ANNINKONE",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 201,
+            "name": "ANNINLUOKKA",
+            "roomCode": "1",
+            "buildingName": "1",
+            "campus": "1",
+            "organization": null,
+            "mailAddress": {
+              "id": 201
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": null,
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 7
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1456088569599,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 5
+    }
+  ],
+  "581:Koneet (3-20)": [],
+  "582:Kirjoita tenttitilan nimi tähän": []
+}

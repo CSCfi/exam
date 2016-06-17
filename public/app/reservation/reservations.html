@@ -13,13 +13,13 @@
                     <div class="col-md-6">
                         <strong>{{'sitnet_begin' | translate}}</strong>
                         <div class="input-group">
-                            <input type="text" class="form-control" datepicker-popup="{{format}}"
+                            <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
                                    ng-model="dateService.startDate"
                                    is-open="startDateOpened" datepicker-options="dateOptions"
                                    close-text="{{'sitnet_close' | translate}}"
                                    current-text="{{'sitnet_today' | translate}}"
                                    toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                                   clear-text="{{'sitnet_clear' | translate}}" required ng-change="query()"
+                                   clear-text="{{'sitnet_clear' | translate}}" ng-change="query()"
                                     >
                             <span class="input-group-btn">
                                 <button class="btn btn-default" ng-click="openStartDate($event)">
@@ -32,13 +32,13 @@
                     <div class="col-md-6">
                         <strong>{{'sitnet_end' | translate}}</strong>
                         <div class="input-group">
-                            <input type="text" class="form-control" datepicker-popup="{{format}}"
+                            <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
                                    ng-model="dateService.endDate"
                                    is-open="endDateOpened" datepicker-options="dateOptions"
                                    close-text="{{'sitnet_close' | translate}}"
                                    current-text="{{'sitnet_today' | translate}}"
                                    toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                                   clear-text="{{'sitnet_clear' | translate}}" required ng-change="query()">
+                                   clear-text="{{'sitnet_clear' | translate}}" ng-change="query()">
 
                             <span class="input-group-btn">
                                 <button class="btn btn-default" ng-click="openEndDate($event)">
@@ -52,19 +52,19 @@
                     <div class="col-md-4">
                         <strong>{{'sitnet_exam_owner' | translate}}</strong>
                         <input class="wide-select" ui-select2="teacherOptions"
-                                ng-model="selection.ownerId" ng-change="teacherChanged()">
+                                ng-model="selection.ownerId" ng-click="query()">
                         </input>
                     </div>
                     <div class="col-md-4">
                         <strong>{{'sitnet_exam_state' | translate}}</strong>
                         <input class="wide-select" ui-select2="stateOptions"
-                                ng-model="selection.state" ng-change="stateChanged()">
+                                ng-model="selection.state" ng-click="query()">
                         </input>
                     </div>
                     <div class="col-md-4">
                         <strong>{{'sitnet_student' | translate}}</strong>
                         <input class="wide-select" ui-select2="studentOptions"
-                                ng-model="selection.studentId" ng-change="studentChanged()">
+                                ng-model="selection.studentId" ng-click="query()">
                         </input>
                     </div>
                 </div>
@@ -72,19 +72,19 @@
                     <div class="col-md-4">
                         <strong>{{'sitnet_room' | translate}}</strong>
                         <input class="wide-select" ui-select2="roomOptions"
-                                ng-model="selection.roomId" ng-change="roomChanged()">
+                                ng-model="selection.roomId" ng-click="roomChanged()">
                         </input>
                     </div>
                     <div class="col-md-4">
                         <strong>{{'sitnet_exam_machine' | translate}}</strong>
                         <input class="wide-select" ui-select2="machineOptions"
-                                ng-model="selection.machineId" ng-change="machineChanged()">
+                                ng-model="selection.machineId" ng-click="query()">
                         </input>
                     </div>
                     <div class="col-md-4">
                         <strong>{{'sitnet_exam' | translate}}</strong>
                         <input class="wide-select" ui-select2="examOptions"
-                                ng-model="selection.examId" ng-change="examChanged()">
+                                ng-model="selection.examId" ng-click="query()">
                         </input>
                     </div>
                 </div>

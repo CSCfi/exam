@@ -1,6 +1,7 @@
 package models;
 
 import models.api.AttachmentContainer;
+import models.base.OwnedModel;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;

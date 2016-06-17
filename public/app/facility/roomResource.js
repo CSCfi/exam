@@ -3,7 +3,7 @@
     angular.module("exam.resources")
         .factory("RoomResource", ['$resource', function ($resource) {
             return {
-                rooms: $resource("/rooms/:id",
+                rooms: $resource("/app/rooms/:id",
                     {
                         id: "@id"
                     },
@@ -13,7 +13,7 @@
                         "activate": {method: "POST"}
                     }),
 
-                addresses: $resource("/address/:id",
+                addresses: $resource("/app/address/:id",
                     {
                         id: "@id"
                     },
@@ -21,15 +21,15 @@
                         "update": {method: "PUT"}
                     }),
 
-                workingHours: $resource("/workinghours/", null, {
+                workingHours: $resource("/app/workinghours/", null, {
                     "update": {method: "PUT"}
                 }),
-                examStartingHours: $resource("/startinghours/", null,
+                examStartingHours: $resource("/app/startinghours/", null,
                     {
                         "update": {method: "PUT"}
                     }
                 ),
-                exception: $resource("/exception/:id",
+                exception: $resource("/app/exception/:id",
                     {
                         id: "@id"
                     },
@@ -38,7 +38,7 @@
                         "remove": {method: "DELETE"}
                     }),
 
-                draft: $resource("draft/rooms")
-            }
+                draft: $resource("/app/draft/rooms")
+            };
         }]);
 }());

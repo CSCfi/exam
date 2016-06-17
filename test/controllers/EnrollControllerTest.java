@@ -56,7 +56,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Ebean.delete(Ebean.find(ExamEnrolment.class).findList());
+        Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
         exam = Ebean.find(Exam.class, 1);
         user = Ebean.find(User.class, userId);
         enrolment = new ExamEnrolment();
@@ -72,7 +72,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
     public void testCreateEnrolment() throws Exception {
         // Execute
         Result result = request(Helpers.POST,
-                String.format("/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
+                String.format("/app/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -91,7 +91,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.POST,
-                String.format("/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
+                String.format("/app/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualTo("sitnet_error_enrolment_exists");
 
@@ -118,7 +118,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.POST,
-                String.format("/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
+                String.format("/app/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -145,7 +145,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.POST,
-                String.format("/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
+                String.format("/app/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
         assertThat(result.status()).isEqualTo(403); // Not found
         assertThat(contentAsString(result)).isEqualTo("sitnet_reservation_in_effect");
 
@@ -171,7 +171,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.POST,
-                String.format("/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
+                String.format("/app/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
         assertThat(result.status()).isEqualTo(200);
 
         // Verify

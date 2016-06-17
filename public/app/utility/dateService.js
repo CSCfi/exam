@@ -9,11 +9,11 @@
                     var h = Math.floor(exam.duration / 60);
                     var m = exam.duration % 60;
                     if (h === 0) {
-                        return m + "min";
+                        return m + " min";
                     } else if (m === 0) {
-                        return h + "h ";
+                        return h + " h";
                     } else {
-                        return h + "h " + m + "min";
+                        return h + " h " + m + " min";
                     }
                 } else {
                     return "";
