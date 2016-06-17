@@ -270,6 +270,7 @@ public class ExamSectionController extends BaseController {
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("sitnet_error_access_forbidden");
         }
+        // TODO: response payload should be trimmed down (use path properties)
         return insertQuestion(exam, section, question, user, seq)
                 .orElse(ok(Json.toJson(section)));
     }

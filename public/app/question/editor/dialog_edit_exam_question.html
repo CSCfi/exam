@@ -257,13 +257,13 @@
         </div>
     </div>
     <div class="modal-footer">
-        <!-- SIT-1566 hide this until we have atomic question save operation
         <div class="col-md-6">
-            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel(question, sectionQuestion)">
-                {{'sitnet_close' | translate}}
-            </button>
+            <!-- SIT-1566 hide this until we have atomic question save operation
+                <button class="btn btn-sm btn-danger pull-left" ng-click="cancel(question, sectionQuestion)">
+                    {{'sitnet_close' | translate}}
+                </button>
+            -->
         </div>
-        -->
         <div class="col-md-6">
             <button ng-disabled="!questionForm.$valid" ng-click="submit(question, sectionQuestion)"
                     type="submit" class="btn btn-sm btn-primary">{{'sitnet_save' | translate}}
