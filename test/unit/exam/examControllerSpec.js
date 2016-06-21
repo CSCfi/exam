@@ -1,7 +1,7 @@
 'use strict';
 describe('ExamController', function () {
 
-    var ctrl, scope, $httpBackend, q, ExamRes;
+    var ctrl, scope, $httpBackend, q, ExamRes, window;
 
     beforeEach(function () {
         module('exam');
@@ -16,8 +16,10 @@ describe('ExamController', function () {
             .preferredLanguage('en');
     }));
 
-    beforeEach(inject(function ($controller, $rootScope, $injector, $q) {
+    beforeEach(inject(function ($controller, $rootScope, $injector, $q, $window) {
         scope = $rootScope.$new();
+        window = $window;
+        window['toastr'] = {error: jasmine.createSpy('error'), warning: jasmine.createSpy('warning')};
         $httpBackend = $injector.get('$httpBackend');
         q = $q;
         var languageRes = $injector.get('LanguageRes');
@@ -28,6 +30,7 @@ describe('ExamController', function () {
         $httpBackend.expectGET('/app/settings/durations').respond(200, {});
         $httpBackend.expectGET('/app/settings/gradescale').respond(200, {});
         $httpBackend.expectGET('/app/languages').respond(200, []);
+        $httpBackend.expectGET('/app/exams').respond(404, {});
         $httpBackend.expectGET('/app/settings/hostname').respond(200, {});
         $httpBackend.expectGET('/app/softwares').respond(200, []);
 
@@ -68,7 +71,7 @@ describe('ExamController', function () {
         section.sectionQuestions = [{id: 1, question: {}}, {id: 2, question:{}}];
         scope.newExam = {id: 1};
 
-        $httpBackend.expectPUT('/app/exams/1/section/1', section).respond(200, section);
+        $httpBackend.expectPUT('/app/exams/1/section/1').respond(200, section);
 
         scope.toggleLottery(section);
 

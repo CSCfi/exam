@@ -32,6 +32,7 @@ libraryDependencies ++= Seq(
   "org.webjars.bower" % "angular-i18n" % "1.4.7",
   "org.webjars.bower" % "angular-resource" % "1.4.7",
   "org.webjars.bower" % "angular-route" % "1.4.7",
+  "org.webjars.bower" % "angular-mocks" % "1.4.7",
   "org.webjars.bower" % "angular-sanitize" % "1.4.7",
   "org.webjars.bower" % "angular-translate" % "2.11.0",
   "org.webjars.bower" % "angular-translate-loader-static-files" % "2.11.0",
@@ -68,4 +69,17 @@ routesImport += "util.scala.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 
-// PlayKeys.playRunHooks += Karma(baseDirectory.value)
+/**
+ * Karma test task.
+ */
+lazy val karmaTest = taskKey[Int]("karmaTest")
+karmaTest := {
+  baseDirectory.value + "/node_modules/karma/bin/karma start karma.conf.ci.js" !
+}
+test in Test := {
+  if (karmaTest.value != 0)
+    sys.error("Karma tests failed!")
+  (test in Test).value
+}
+
+PlayKeys.playRunHooks += Karma(baseDirectory.value)
