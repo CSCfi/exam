@@ -1,3 +1,5 @@
+import scala.util.Properties
+
 name := "exam"
 
 version := "3.2.0"
@@ -72,14 +74,30 @@ routesGenerator := InjectedRoutesGenerator
 /**
  * Karma test task.
  */
-lazy val karmaTest = taskKey[Int]("karmaTest")
+lazy val karmaTest = taskKey[Int]("Karma test task")
 karmaTest := {
   baseDirectory.value + "/node_modules/karma/bin/karma start karma.conf.ci.js" !
 }
+
+/**
+ * Web driver update task.
+ */
+lazy val webDriver = taskKey[Int]("Web driver update task")
+webDriver := {
+  baseDirectory.value + "/node_modules/protractor/bin/webdriver-manager update" !
+}
+
 test in Test := {
   if (karmaTest.value != 0)
     sys.error("Karma tests failed!")
   (test in Test).value
 }
 
-PlayKeys.playRunHooks += Karma(baseDirectory.value)
+val conf = Properties.propOrEmpty("config.resource")
+
+PlayKeys.playRunHooks += {
+  if (conf.equals("protractor.conf") && webDriver.value == 0)
+    Protractor(baseDirectory.value)
+  else
+    Karma(baseDirectory.value)
+}

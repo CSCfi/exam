@@ -8,6 +8,10 @@ EXAM Quickstart for developers
     For tests
     
         $ createdb sitnet_test --owner=sitnet
+        
+    For protractor
+        
+        $ createdb sitnet_protractor --owner=sitnet
 
     Requires that you have postgres installed, appropriate user created, pg_hba.conf set up to accept local connections etc).  
     Note that you can configure database related parameters (and others) in the dev config file (conf/dev.conf)
