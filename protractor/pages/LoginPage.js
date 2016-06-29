@@ -10,6 +10,11 @@ var LoginPage = function () {
         element(by.id('submit')).click();
     };
 
+    this.logout = function () {
+        element(by.xpath('//a[@href=\'/logout\']')).click();
+        expect(browser.getCurrentUrl()).toContain('/login');
+    };
+
     this.selectRole = function (role) {
         var roleLocator = element(by.id('dropDownMenu1'));
         browser.wait(EC.visibilityOf(roleLocator), 5000);

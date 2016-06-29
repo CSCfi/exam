@@ -1,13 +1,20 @@
 var LoginPage = require('../pages/LoginPage');
 var StudentDashboard = require('../pages/StudentDashboard');
+var Fixture = require('../fixtures/Fixture');
 
-describe('exam student login', function () {
+describe('Exam student login', function () {
 
     var loginPage = new LoginPage();
     var studentDashboard = new StudentDashboard();
+    var fixture = new Fixture();
 
     beforeEach(function () {
+        fixture.loadFixture();
         loginPage.load();
+    });
+
+    afterEach(function () {
+        loginPage.logout();
     });
 
     it('should open student dashboard', function () {
@@ -18,13 +25,13 @@ describe('exam student login', function () {
 
         // CHECK LANGUAGE SELECTION
         studentDashboard.selectLanguage(0); // fi
-        studentDashboard.checkGreeting('Tervetuloa, Sauli Student');
+        studentDashboard.checkHeader('Tervetuloa, Sauli Student');
 
         studentDashboard.selectLanguage(1); // sv
-        studentDashboard.checkGreeting('Välkommen, Sauli Student');
+        studentDashboard.checkHeader('Välkommen, Sauli Student');
 
         studentDashboard.selectLanguage(2); // en
-        studentDashboard.checkGreeting('Welcome, Sauli Student');
+        studentDashboard.checkHeader('Welcome, Sauli Student');
 
         // CHECK NAVBAR USER NAME
         studentDashboard.checkNavbarUserName('Sauli', 'Student');

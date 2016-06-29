@@ -5,24 +5,6 @@ exports.config = {
     framework: 'jasmine2',
     onPrepare: function () {
         global.EC = protractor.ExpectedConditions;
-        loadFixtures();
+        browser.driver.manage().window().setSize(1200, 1000);
     }
 };
-
-function loadFixtures() {
-    console.log('Loading fixtures');
-
-    var PostgresFixture = require('easy-postgresql-fixture');
-    var fixture = require('easy-fixture');
-
-    var postgresFixture = new PostgresFixture({
-        database: 'sitnet_test',
-        dir: 'fixtures',
-        out: 'test_dump.sql',
-        options: '-U sitnet'
-    });
-
-    fixture.use(postgresFixture);
-
-    fixture.load()
-}

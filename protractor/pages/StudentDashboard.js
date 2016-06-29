@@ -1,6 +1,6 @@
 var StudentDashboard = function () {
 
-    this.checkGreeting = function (greeting) {
+    this.checkHeader = function (greeting) {
         var el = element(by.css('.header-text'));
         expect(el.getText()).toContain(greeting);
     };
