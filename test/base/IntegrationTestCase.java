@@ -308,8 +308,8 @@ public class IntegrationTestCase {
             Ebean.saveAll(all.get("exam-participations"));
             Ebean.saveAll(all.get("exam-inspections"));
             Ebean.saveAll(all.get("mail-addresses"));
-            Ebean.saveAll(all.get("calendar-events"));
             Ebean.saveAll(all.get("exam-rooms"));
+            Ebean.saveAll(all.get("calendar-events"));
             Ebean.saveAll(all.get("exam-machines"));
             Ebean.saveAll(all.get("exam-room-reservations"));
             Ebean.saveAll(all.get("exam-enrolments"));
