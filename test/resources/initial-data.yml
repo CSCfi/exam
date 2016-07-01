@@ -1110,13 +1110,6 @@ mail-addresses:
 
 ################################################################
 
-calendar-events:
-  - &cal-event !!models.calendar.DefaultWorkingHours
-    startTime: 2014-05-05 08:00:00.000
-    endTime: 2014-05-05 16:00:00.000
-
-################################################################
-
 exam-rooms:
   - &room-pegasus !!models.ExamRoom
     name: Tenttiakvaario Pegasus
@@ -1130,11 +1123,17 @@ exam-rooms:
     roomInstruction: Tilaan ei saa tuoda juomia tai ruokia.
     contactPerson: Kiinteistöinsinööri Timppa Vaksi. puh. 040 123 4567
     videoRecordingsURL: www.utu.fi/videot
-#    examMachines:
-#      - *exam-machine1
-#      - *exam-machine2
-#      - *exam-machine3
     outOfService: false
+################################################################
+
+calendar-events:
+  - &cal-event !!models.calendar.DefaultWorkingHours
+    startTime: 2014-05-05 08:00:00.000
+    endTime: 2014-05-05 16:00:00.000
+    weekday: MONDAY
+    timezoneOffset: 7200000
+    room: *room-pegasus
+
 ################################################################
 
 exam-machines:

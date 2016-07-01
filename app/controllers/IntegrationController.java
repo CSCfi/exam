@@ -4,6 +4,9 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.Query;
+import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +17,7 @@ import com.typesafe.config.ConfigFactory;
 import models.*;
 import models.dto.ExamScore;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
 import play.libs.Json;
@@ -30,7 +34,13 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -349,6 +359,62 @@ public class IntegrationController extends BaseController implements ExternalAPI
             Logger.error("Failed to load config", e);
             return false;
         }
+    }
+
+    @ActionMethod
+    public Result getReservations(Optional<String> start, Optional<String> end) {
+        PathProperties pp = PathProperties.parse("(startAt, endAt, noShow, " +
+                "user(firstName, lastName, email, userIdentifier), " +
+                "enrolment(exam(name, examOwners(firstName, lastName, email))), " +
+                "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))");
+        Query<Reservation> query = Ebean.find(Reservation.class);
+        pp.apply(query);
+        ExpressionList<Reservation> el = query.where()
+                .isNotNull("enrolment")
+                .ne("enrolment.exam.state", Exam.State.DELETED);
+        if (start.isPresent()) {
+            DateTime startDate = ISODateTimeFormat.dateTimeParser().parseDateTime(start.get());
+            el = el.ge("startAt", startDate.toDate());
+        }
+
+        if (end.isPresent()) {
+            DateTime endDate = ISODateTimeFormat.dateTimeParser().parseDateTime(end.get());
+            el = el.lt("endAt", endDate.toDate());
+        }
+        List<Reservation> reservations = el.orderBy("startAt").findList();
+        return ok(reservations, pp);
+    }
+
+    @ActionMethod
+    public Result getRooms() {
+        PathProperties pp = PathProperties.parse("(*, defaultWorkingHours(*), " +
+                "organization(*), mailAddress(*), examMachines(*))");
+        Query<ExamRoom> query = Ebean.find(ExamRoom.class);
+        pp.apply(query);
+        List<ExamRoom> rooms = query.orderBy("name").findList();
+        return ok(rooms, pp);
+    }
+
+    @ActionMethod
+    public Result getRoomOpeningHours(Long roomId, Optional<String> date) {
+        if (!date.isPresent()) {
+            return badRequest("no search date given");
+        }
+        LocalDate searchDate = ISODateTimeFormat.dateParser().parseLocalDate(date.get());
+        PathProperties pp = PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))");
+        Query<ExamRoom> query = Ebean.find(ExamRoom.class);
+        pp.apply(query);
+        ExamRoom room = query.where().idEq(roomId).findUnique();
+        if (room == null) {
+            return notFound("room not found");
+        }
+        room.setCalendarExceptionEvents(room.getCalendarExceptionEvents().stream().filter(ee -> {
+            LocalDate start = new LocalDate(ee.getStartDate()).withDayOfMonth(1);
+            LocalDate end = new LocalDate(ee.getEndDate()).dayOfMonth().withMaximumValue();
+            return !start.isAfter(searchDate) && !end.isBefore(searchDate);
+
+        }).collect(Collectors.toList()));
+        return ok(room, pp);
     }
 
 }
