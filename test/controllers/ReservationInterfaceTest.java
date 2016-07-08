@@ -19,12 +19,19 @@ public class ReservationInterfaceTest extends IntegrationTestCase {
     @Test
     public void testGetReservations() {
         String filter = DateTime.now().withYear(1999).toString("yyyy-MM-dd");
-        Result result = get("/integration/reservations?start=" + filter);
+        Result result = get("/integration/reservations?start=" + filter + "&roomId=1");
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node.isArray()).isTrue();
         ArrayNode records = (ArrayNode) node;
         assertThat(records).hasSize(2);
+
+        result = get("/integration/reservations?start=" + filter + "&roomId=10");
+        assertThat(result.status()).isEqualTo(200);
+        node = Json.parse(contentAsString(result));
+        assertThat(node.isArray()).isTrue();
+        records = (ArrayNode) node;
+        assertThat(records).isEmpty();
     }
 
     @Test
