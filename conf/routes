@@ -249,7 +249,7 @@ GET           /integration/record/:startDate                             control
 GET           /integration/recordalphabetic/:startDate                   controllers.IntegrationController.getNewRecordsAlphabeticKeyOrder(startDate: String)
 
 # reservations
-GET           /integration/reservations                                  controllers.IntegrationController.getReservations(start: java.util.Optional[String], end: java.util.Optional[String])
+GET           /integration/reservations                                  controllers.IntegrationController.getReservations(start: java.util.Optional[String], end: java.util.Optional[String], roomId: java.util.Optional[java.lang.Long])
 GET           /integration/rooms                                         controllers.IntegrationController.getRooms
 GET           /integration/rooms/:id/openinghours                        controllers.IntegrationController.getRoomOpeningHours(id: Long, date: java.util.Optional[String])
 
