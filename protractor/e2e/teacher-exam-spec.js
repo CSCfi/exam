@@ -43,6 +43,6 @@ describe('Exam teacher', function () {
 
         var question = examEditor.findQuestion(0);
         examEditor.dragQuestionFromLibrary(section, question);
-        examEditor.publishExam();
+        examEditor.publishExam(); 
     });
 });

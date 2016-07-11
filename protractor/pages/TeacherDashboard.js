@@ -50,5 +50,11 @@ var TeacherDashboard = function () {
         element(by.xpath('//input[@type=\'button\']')).click();
         expect(browser.getCurrentUrl()).toMatch(/.+\/exams\/\d{4}/);
     }
+
+    this.questionPage = function () {
+        element.all(by.repeater('link in links')).get(2).click();
+        expect(browser.getCurrentUrl()).toMatch(/.+\/questions/);
+    };
+
 };
 module.exports = TeacherDashboard;
