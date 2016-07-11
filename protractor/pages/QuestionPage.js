@@ -1,9 +1,8 @@
 var QuestionPage = function () {
 
 
-    this.findQuestion = function () {
-        return element.all(by.repeater('question in filteredQuestions')).get(0).click();
-        
+    this.findQuestions = function (index) {
+        return element.all(by.repeater('question in filteredQuestions')).get(index);
     };
 
 
