@@ -84,7 +84,7 @@
             <span ng-show="sectionQuestion.evaluationType === 'Points'">
                 {{sectionQuestion.essayAnswer.evaluatedScore}} / {{ sectionQuestion.maxScore}}
             </span>
-            <span ng-show="sectionQuestion.question.evaluationType === 'Selection'">
+            <span ng-show="sectionQuestion.evaluationType === 'Selection'">
                 <div ng-if="sectionQuestion.essayAnswer.evaluatedScore == 1">{{ 'sitnet_approved' |
                     translate
                     }}
