@@ -125,7 +125,6 @@ public class ExamController extends BaseController {
                 .eq("state", Exam.State.PUBLISHED)
                 .disjunction()
                 .eq("examInspections.user", user)
-                .eq("creator", user)
                 .eq("examOwners", user)
                 .endJunction()
                 .isNull("parent")
