@@ -39,6 +39,7 @@ public class EnrolmentController extends BaseController {
                 .fetch("course", "code, name")
                 .where()
                 .eq("course.code", code)
+                .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
                 .eq("state", Exam.State.PUBLISHED)
                 .ge("examActiveEndDate", new Date())
                 .findList();
