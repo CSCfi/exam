@@ -192,10 +192,17 @@ public class ReviewController extends BaseController {
     public Result scoreExamQuestion(Long id) {
         DynamicForm df = formFactory.form().bindFromRequest();
         ExamSectionQuestion essayQuestion = Ebean.find(ExamSectionQuestion.class, id);
-        if (essayQuestion == null || essayQuestion.getEssayAnswer() == null) {
-            return notFound("answer not found");
+        if (essayQuestion == null) {
+            return notFound("question not found");
         }
         EssayAnswer answer = essayQuestion.getEssayAnswer();
+        if (answer == null) {
+            // Question was not answered at all.
+            answer = new EssayAnswer();
+            answer.save();
+            essayQuestion.setEssayAnswer(answer);
+            essayQuestion.update();
+        }
         answer.setEvaluatedScore(Integer.parseInt(df.get("evaluatedScore")));
         answer.update();
         return ok(Json.toJson(essayQuestion));
