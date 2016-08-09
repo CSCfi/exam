@@ -20,23 +20,17 @@ EXAM Quickstart for developers
 
         $ brew install sbt
 
-3.  Install SASS
-
-        $ gem install sass
-
-    Requires that you have ruby and ruby gem installed.
-
-4.  Start sbt console
+3.  Start sbt console
         
         $ sbt -Dconfig.resource=dev.conf -jvm-debug 9999
 
     This opens up a debug port at 9999.
 
-5.  Start the app
+4.  Start the app
 
         [exam] $ run
 
-6.  Navigate to http://localhost:9000
+5.  Navigate to http://localhost:9000
     Accept the database migrations in case you see a prompt.
 
 
