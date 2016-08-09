@@ -1,11 +1,18 @@
 package controllers;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
-import models.*;
+import com.typesafe.config.ConfigFactory;
+import controllers.iop.api.ExternalFacilityAPI;
+import models.Accessibility;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.ExamStartingHour;
+import models.MailAddress;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
@@ -14,17 +21,54 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.BeanUtils;
+import play.Logger;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 import util.java.DateTimeUtils;
 
+import javax.inject.Inject;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 
 public class RoomController extends BaseController {
+
+    private static final boolean IOP_ACTIVATED = ConfigFactory.load().getBoolean("sitnet.integration.iop.active");
+
+    @Inject
+    protected ExternalFacilityAPI externalApi;
+
+    @Inject
+    protected ActorSystem system;
+
+    private CompletionStage<Result> updateRemote(ExamRoom room, Object response) throws MalformedURLException {
+        if (room.getExternalRef() != null && IOP_ACTIVATED) {
+            return externalApi.updateFacility(room)
+                    .thenApplyAsync(result -> ok(Json.toJson(room)))
+                    .exceptionally(throwable -> internalServerError(throwable.getMessage()));
+        } else {
+            return wrapAsPromise(response == null ? ok() : ok(Json.toJson(response)));
+        }
+    }
+
+    private void asyncUpdateRemote(ExamRoom room) {
+        // Handle remote updates in dedicated threads
+        if (room.getExternalRef() != null && IOP_ACTIVATED) {
+            system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+                try {
+                    externalApi.updateFacility(room);
+                } catch (MalformedURLException e) {
+                    Logger.error("Remote update of exam room #{} failed", room.getExternalRef());
+                }
+            }, system.dispatcher());
+        }
+    }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result getExamRooms() {
@@ -69,7 +113,7 @@ public class RoomController extends BaseController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result updateExamRoom(Long id) {
+    public CompletionStage<Result> updateExamRoom(Long id) throws MalformedURLException {
         ExamRoom room = formFactory.form(ExamRoom.class).bindFromRequest(
                 "name",
                 "roomCode",
@@ -90,7 +134,7 @@ public class RoomController extends BaseController {
                 "expanded").get();
         ExamRoom existing = ExamRoom.find.ref(id);
         if (existing == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         existing.setName(room.getName());
         existing.setRoomCode(room.getRoomCode());
@@ -110,21 +154,26 @@ public class RoomController extends BaseController {
 
         existing.update();
 
-        return ok(Json.toJson(existing));
+        return updateRemote(existing, existing);
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result updateExamRoomAddress(Long id) {
+    public CompletionStage<Result> updateExamRoomAddress(Long id) throws MalformedURLException {
         MailAddress address = bindForm(MailAddress.class);
-        MailAddress existing = Ebean.find(MailAddress.class, id);
+        ExamRoom room = Ebean.find(ExamRoom.class, id);
+        if (room == null) {
+            return wrapAsPromise(notFound());
+        }
+        MailAddress existing = room.getMailAddress();
         if (existing == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         existing.setCity(address.getCity());
         existing.setStreet(address.getStreet());
         existing.setZip(address.getZip());
         existing.update();
-        return ok(Json.toJson(address));
+
+        return updateRemote(room, address);
     }
 
     private List<DefaultWorkingHours> parseWorkingHours(JsonNode root) {
@@ -158,6 +207,7 @@ public class RoomController extends BaseController {
         for (ExamRoom examRoom : rooms) {
             List<DefaultWorkingHours> previous = examRoom.getDefaultWorkingHours();
             Ebean.deleteAll(previous);
+            previous.clear();
             for (DefaultWorkingHours blueprint : blueprints) {
                 DefaultWorkingHours copy = new DefaultWorkingHours();
                 BeanUtils.copyProperties(blueprint, copy, "id", "room");
@@ -168,7 +218,9 @@ public class RoomController extends BaseController {
                 copy.setEndTime(end.withMillisOfDay(endMillisOfDay).toDate());
                 copy.setTimezoneOffset(offset);
                 copy.save();
+                previous.add(copy);
             }
+            asyncUpdateRemote(examRoom);
         }
         return ok();
     }
@@ -249,6 +301,8 @@ public class RoomController extends BaseController {
                 hours.setMassEdited(true);
             }
             hours.save();
+            examRoom.getCalendarExceptionEvents().add(hours);
+            asyncUpdateRemote(examRoom);
         }
 
         return ok(Json.toJson(hours));
@@ -278,44 +332,58 @@ public class RoomController extends BaseController {
                 Accessibility accessibility = Ebean.find(Accessibility.class, accessibilityId);
                 room.getAccessibility().add(accessibility);
                 room.save();
+                asyncUpdateRemote(room);
             }
         }
         return ok();
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result removeRoomExceptionHour(Long id) {
-        ExceptionWorkingHours exception = Ebean.find(ExceptionWorkingHours.class, id);
-        if (exception == null) {
-            return notFound();
+    public CompletionStage<Result> removeRoomExceptionHour(Long roomId, Long exceptionId) throws MalformedURLException {
+        ExceptionWorkingHours exception = Ebean.find(ExceptionWorkingHours.class, exceptionId);
+        ExamRoom room = Ebean.find(ExamRoom.class, roomId);
+        if (exception == null || room == null) {
+            return wrapAsPromise(notFound());
         }
         exception.delete();
-
-        return ok();
+        room.getCalendarExceptionEvents().remove(exception);
+        return updateRemote(room, null);
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result inactivateExamRoom(Long id) {
+    public CompletionStage<Result> inactivateExamRoom(Long id) throws MalformedURLException {
 
         ExamRoom room = Ebean.find(ExamRoom.class, id);
         if (room == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         room.setState(ExamRoom.State.INACTIVE.toString());
         room.update();
-        return ok(Json.toJson(room));
+
+        if (room.getExternalRef() != null && IOP_ACTIVATED) {
+            return externalApi.inactivateFacility(room.getId())
+                    .thenApplyAsync(response -> ok(Json.toJson(room)));
+        } else {
+            return wrapAsPromise(ok(Json.toJson(room)));
+        }
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result activateExamRoom(Long id) {
+    public CompletionStage<Result> activateExamRoom(Long id) throws MalformedURLException {
 
         ExamRoom room = Ebean.find(ExamRoom.class, id);
         if (room == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         room.setState(ExamRoom.State.ACTIVE.toString());
         room.update();
-        return ok(Json.toJson(room));
+
+        if (room.getExternalRef() != null && IOP_ACTIVATED) {
+            return externalApi.activateFacility(room.getId())
+                    .thenApplyAsync(response -> ok(Json.toJson(room)));
+        } else {
+            return wrapAsPromise(ok(Json.toJson(room)));
+        }
     }
 }
 

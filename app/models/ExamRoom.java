@@ -39,6 +39,8 @@ public class ExamRoom extends GeneratedIdentityModel {
 
     private String campus;
 
+    private String externalRef;
+
     @OneToOne
     private Organisation organization;
 
@@ -253,6 +255,14 @@ public class ExamRoom extends GeneratedIdentityModel {
 
     public void setOrganization(Organisation organization) {
         this.organization = organization;
+    }
+
+    public String getExternalRef() {
+        return externalRef;
+    }
+
+    public void setExternalRef(String externalRef) {
+        this.externalRef = externalRef;
     }
 
     public boolean getAccessible() {

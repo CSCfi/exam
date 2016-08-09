@@ -182,7 +182,7 @@ PUT           /app/address/:id                                           control
 PUT           /app/workinghours                                          controllers.RoomController.updateExamRoomWorkingHours()
 PUT           /app/startinghours                                         controllers.RoomController.updateExamStartingHours()
 PUT           /app/exception                                             controllers.RoomController.addRoomExceptionHour()
-DELETE        /app/exception/:id                                         controllers.RoomController.removeRoomExceptionHour(id: Long)
+DELETE        /app/rooms/:roomId/exception/:exceptionId                  controllers.RoomController.removeRoomExceptionHour(roomId: Long, exceptionId: Long)
 
 POST          /app/room/:id/accessibility                                controllers.RoomController.updateExamRoomAccessibility(id: Long)
 
@@ -252,6 +252,9 @@ GET           /integration/recordalphabetic/:startDate                   control
 GET           /integration/reservations                                  controllers.IntegrationController.getReservations(start: java.util.Optional[String], end: java.util.Optional[String], roomId: java.util.Optional[java.lang.Long])
 GET           /integration/rooms                                         controllers.IntegrationController.getRooms
 GET           /integration/rooms/:id/openinghours                        controllers.IntegrationController.getRoomOpeningHours(id: Long, date: java.util.Optional[String])
+
+# interoperability
+PUT           /integration/iop/facilities/:id                            controllers.iop.FacilityController.updateFacility(id: Long)
 
 ################# Time interface ######################
 GET           /app/time                                                  controllers.TimeController.getTime

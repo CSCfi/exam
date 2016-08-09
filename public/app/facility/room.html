@@ -87,6 +87,12 @@
             </form>
         </div>
     </div>
+    <div class="top-row" ng-hide="editingMultipleRooms()">
+        <div class="col-md-12">
+            <input type="checkbox" ng-model="roomInstance.availableForExternals" ng-change="updateInteroperability(roomInstance)">
+            <strong>{{'Yhteiskäytössä' | translate}}</strong>
+        </div>
+    </div>
     <div class="top-row">
         <h3 class="col-md-12 header-text">{{'sitnet_room_default_working_hours' | translate}}</h3>
     </div>
