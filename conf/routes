@@ -255,6 +255,8 @@ GET           /integration/rooms/:id/openinghours                        control
 
 # interoperability
 PUT           /integration/iop/facilities/:id                            controllers.iop.FacilityController.updateFacility(id: Long)
+GET           /integration/iop/organisations                             controllers.iop.OrganisationController.listOrganisations
+GET           /integration/iop/facilities                                controllers.iop.FacilityController.listFacilities(org: java.util.Optional[String])
 
 ################# Time interface ######################
 GET           /app/time                                                  controllers.TimeController.getTime
@@ -288,6 +290,7 @@ GET           /app/settings/durations                                    control
 GET           /app/settings/gradescale                                   controllers.SettingsController.isExamGradeScaleOverridable
 GET           /app/settings/enrolmentPermissionCheck                     controllers.SettingsController.isEnrolmentPermissionCheckActive
 GET           /app/settings/environment                                  controllers.SettingsController.isProd
+GET           /app/settings/iop                                          controllers.SettingsController.isInteroperable
 GET           /app/settings/maxfilesize                                  controllers.SettingsController.getMaxFilesize
 GET           /app/settings/appVersion                                   controllers.SettingsController.getAppVersion
 GET           /app/settings/maturityInstructions                         controllers.SettingsController.getMaturityInstructions(lang: String)
@@ -319,5 +322,5 @@ GET           /webjars/*file                                             control
 GET           /attributes                                                controllers.SessionController.getAttributes
 
 # reroute to front
-GET           /*path                                                     controllers.FrontendRouterController.routeToFront(path: String)
+GET           /*path                                                     controllers.base.FrontendRouterController.routeToFront(path: String)
 

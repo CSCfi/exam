@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$routeParams', 'dateService',
+        .controller('ExternalCalendarCtrl', ['$scope', '$http', '$location', '$translate', '$routeParams', 'dateService',
             '$locale', 'StudentExamRes', 'reservationService', 'dialogs', 'SettingsResource', 'CalendarRes',
             'uiCalendarConfig', 'InteroperabilityResource',
             function ($scope, $http, $location, $translate, $routeParams, dateService, $locale, StudentExamRes,
@@ -9,7 +9,6 @@
 
                 $scope.limitations = {};
                 $scope.rooms = [];
-                $scope.accessibilities = [];
                 $scope.openingHours = [];
                 $scope.exceptionHours = [];
                 $scope.loader = {
@@ -17,13 +16,9 @@
                 };
                 $scope.eventSources = [];
 
-                SettingsResource.iop.get(function (data) {
-                    $scope.isInteroperable = data.isInteroperable;
-                });
-
                 StudentExamRes.examInfo.get({eid: $routeParams.id}, function (info) {
                     $scope.examInfo = info;
-                    uiCalendarConfig.calendars.myCalendar.fullCalendar('gotoDate', moment.max(moment(),
+                    uiCalendarConfig.calendars.externalCalendar.fullCalendar('gotoDate', moment.max(moment(),
                         moment($scope.examInfo.examActiveStartDate)));
                 });
                 SettingsResource.reservationWindow.get(function (setting) {
@@ -55,18 +50,8 @@
                     return room;
                 };
 
-                $scope.selectedAccessibilities = function () {
-                    return $scope.accessibilities.filter(function (a) {
-                        return a.filtered;
-                    });
-                };
-
-                $http.get('/app/accessibility').success(function (data) {
-                    $scope.accessibilities = data;
-                });
-
-                $scope.makeExternalReservation = function () {
-                    $location.path('/iop/calendar/' + $routeParams.id);
+                $scope.makeInternalReservation = function () {
+                    $location.path('/calendar/' + $routeParams.id);
                 };
 
                 var adjust = function (date, tz) {
@@ -104,18 +89,13 @@
                 var refresh = function (start, callback) {
                     var date = start.format();
                     var room = $scope.selectedRoom();
-                    var accessibility = $scope.accessibilities.filter(function (item) {
-                        return item.filtered;
-                    }).map(function (item) {
-                        return item.id;
-                    });
                     if (room) {
                         $scope.loader.loading = true;
                         CalendarRes.slots.query({
                                 eid: $routeParams.id,
                                 rid: room.id,
                                 day: date,
-                                aids: accessibility
+                                aids: []
                             },
                             function (slots) {
                                 var tz = room.localTimezone;
@@ -142,9 +122,28 @@
                     }
                 };
 
-                $http.get('/app/rooms').then(function (reply) {
-                    $scope.rooms = reply.data;
+                var listExternalRooms = function () {
+                    if ($scope.selectedOrganisation) {
+                        InteroperabilityRes.facilities.query({org: $scope.selectedOrganisation._id}, function (data) {
+                            $scope.rooms = data;
+                        });
+                    }
+                };
+
+                InteroperabilityRes.organisations.query(function (data) {
+                    $scope.organisations = data.filter(function (org) {
+                        return !org.homeOrg;
+                    });
                 });
+
+                $scope.setOrganisation = function (org) {
+                    $scope.selectedOrganisation = org;
+                    $scope.rooms.forEach(function (r) {
+                        delete r.filtered;
+                    });
+                    uiCalendarConfig.calendars.externalCalendar.fullCalendar('refetchEvents');
+                    listExternalRooms();
+                };
 
                 $scope.$on('$localeChangeSuccess', function () {
                     $scope.calendarConfig.buttonText.today = $translate.instant('sitnet_today');
@@ -158,12 +157,7 @@
                     slot.end = adjustBack(end, tz);
                     slot.examId = $routeParams.id;
                     slot.roomId = $scope.selectedRoom().id;
-                    slot.aids = $scope.accessibilities.filter(
-                        function (item) {
-                            return item.filtered;
-                        }).map(function (item) {
-                        return item.id;
-                    });
+                    slot.aids = [];
                     $http.post('/app/calendar/reservation', slot).then(function () {
                         $location.path('/');
                     }, function (error) {
@@ -182,11 +176,6 @@
                         .then(function () {
                             reserve(start, end);
                         });
-                };
-
-                $scope.selectAccessibility = function (accessibility) {
-                    accessibility.filtered = !accessibility.filtered;
-                    uiCalendarConfig.calendars.myCalendar.fullCalendar('refetchEvents');
                 };
 
                 $scope.getDescription = function (room) {

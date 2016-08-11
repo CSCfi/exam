@@ -4,6 +4,7 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import controllers.base.BaseController;
 import models.Exam;
 import models.ExamParticipation;
 import models.ExamRecord;

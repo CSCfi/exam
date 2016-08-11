@@ -5,11 +5,16 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
+import controllers.base.BaseController;
 import exceptions.NotFoundException;
 import models.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.joda.time.*;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Interval;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
 import play.libs.Json;
@@ -21,6 +26,7 @@ import util.java.EmailComposer;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -118,7 +124,7 @@ public class CalendarController extends BaseController {
             return forbidden("sitnet_no_trials_left");
         }
 
-        Optional<ExamMachine>  machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
+        Optional<ExamMachine> machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
         if (!machine.isPresent()) {
             return forbidden("sitnet_no_machines_available");
         }
@@ -203,66 +209,35 @@ public class CalendarController extends BaseController {
         return ok(Json.toJson(slots));
     }
 
+    protected Collection<Interval> gatherSuitableSlots(ExamRoom room, LocalDate date, Integer examDuration) {
+        Collection<Interval> examSlots = new ArrayList<>();
+        // Resolve the opening hours for room and day
+        List<ExamRoom.OpeningHours> openingHours = room.getWorkingHoursForDate(date);
+        if (!openingHours.isEmpty()) {
+            // Get suitable slots based on exam duration
+            for (Interval slot : allSlots(openingHours, room, date)) {
+                DateTime beginning = slot.getStart();
+                DateTime openUntil = getEndOfOpeningHours(beginning, openingHours);
+                if (!beginning.plusMinutes(examDuration).isAfter(openUntil)) {
+                    DateTime end = beginning.plusMinutes(examDuration);
+                    examSlots.add(new Interval(beginning, end));
+                }
+            }
+        }
+        return examSlots;
+    }
+
     /**
      * Queries for slots for given room and day
      */
-    private Set<TimeSlot> getExamSlots(
-            User user, ExamRoom room, Exam exam, LocalDate date, Collection<Reservation> reservations,
-            Collection<ExamMachine> machines) {
-
-        Set<TimeSlot> slots = new LinkedHashSet<>();
-        // Resolve the opening hours for room and day
-        List<ExamRoom.OpeningHours> openingHours = room.getWorkingHoursForDate(date);
-        if (openingHours.isEmpty()) {
-            return slots;
-        }
-
-        // Get suitable slots based on exam duration
-        Collection<Interval> examSlots = new ArrayList<>();
+    private Set<TimeSlot> getExamSlots(User user, ExamRoom room, Exam exam, LocalDate date,
+                                       Collection<Reservation> reservations, Collection<ExamMachine> machines) {
         Integer examDuration = exam.getDuration();
-        for (Interval slot : allSlots(openingHours, room, date)) {
-            DateTime beginning = slot.getStart();
-            DateTime openUntil = getEndOfOpeningHours(beginning, openingHours);
-            if (!beginning.plusMinutes(examDuration).isAfter(openUntil)) {
-                DateTime end = beginning.plusMinutes(examDuration);
-                examSlots.add(new Interval(beginning, end));
-            }
-        }
-
+        Collection<Interval> examSlots = gatherSuitableSlots(room, date, examDuration);
+        Map<Interval, Optional<Integer>> map = examSlots.stream().collect(
+                Collectors.toMap(Function.identity(), es -> Optional.empty()));
         // Check reservation status and machine availability for each slot
-        for (Interval slot : examSlots) {
-            List<Reservation> conflicting = getReservationsDuring(reservations, slot);
-            if (!conflicting.isEmpty()) {
-                Optional<Reservation> concernsAnotherExam = conflicting.stream()
-                        .filter(c -> !c.getEnrolment().getExam().equals(exam))
-                        .findFirst();
-                if (concernsAnotherExam.isPresent()) {
-                    // User has a reservation to another exam, do not allow making overlapping reservations
-                    Reservation reservation = concernsAnotherExam.get();
-                    String conflictingExam = reservation.getEnrolment().getExam().getName();
-                    slots.add(new TimeSlot(reservation.toInterval(), -1, conflictingExam));
-                    continue;
-                } else {
-                    // User has an existing reservation to this exam
-                    Reservation reservation = conflicting.get(0);
-                    if (!reservation.toInterval().equals(slot)) {
-                        // No matching slot found in this room, add the reservation as-is.
-                        slots.add(new TimeSlot(reservation.toInterval(), -1, null));
-                    } else {
-                        // This is exactly the same slot, avoid duplicates and continue.
-                        slots.add(new TimeSlot(slot, -1, null));
-                        continue;
-                    }
-                }
-            }
-            // Check machine availability
-            int availableMachineCount = machines.stream()
-                    .filter(m -> !isReservedByOthersDuring(m, slot, user))
-                    .collect(Collectors.toList())
-                    .size();
-            slots.add(new TimeSlot(slot, availableMachineCount, null));
-        }
-        return slots;
+        return handleReservations(map, reservations, exam, machines, user);
     }
 
     // HELPERS -->
@@ -318,7 +293,7 @@ public class CalendarController extends BaseController {
         return endOfWeek.isBefore(endOfSearchDate) ? endOfWeek : endOfSearchDate;
     }
 
-    private Exam getEnrolledExam(Long examId, User user) {
+    protected Exam getEnrolledExam(Long examId, User user) {
         DateTime now = AppUtil.adjustDST(DateTime.now());
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
@@ -372,6 +347,53 @@ public class CalendarController extends BaseController {
         return intervals;
     }
 
+    // Go through the slots and check if conflicting reservations exist. Decorate such slots with conflict information.
+    // Available machine count can be either pre-calculated (in which case the amount comes in form of map value) or not
+    // (in which case the calculation is done based on machines provided).
+    protected Set<TimeSlot> handleReservations(Map<Interval, Optional<Integer>> examSlots, Collection<Reservation> reservations,
+                                               Exam exam, Collection<ExamMachine> machines, User user) {
+        Set<TimeSlot> results = new LinkedHashSet<>();
+        for (Map.Entry<Interval, Optional<Integer>> entry : examSlots.entrySet()) {
+            Interval slot = entry.getKey();
+            List<Reservation> conflicting = getReservationsDuring(reservations, slot);
+            if (!conflicting.isEmpty()) {
+                Optional<Reservation> concernsAnotherExam = conflicting.stream()
+                        .filter(c -> !c.getEnrolment().getExam().equals(exam))
+                        .findFirst();
+                if (concernsAnotherExam.isPresent()) {
+                    // User has a reservation to another exam, do not allow making overlapping reservations
+                    Reservation reservation = concernsAnotherExam.get();
+                    String conflictingExam = reservation.getEnrolment().getExam().getName();
+                    results.add(new TimeSlot(reservation.toInterval(), -1, conflictingExam));
+                    continue;
+                } else {
+                    // User has an existing reservation to this exam
+                    Reservation reservation = conflicting.get(0);
+                    if (!reservation.toInterval().equals(slot)) {
+                        // No matching slot found in this room, add the reservation as-is.
+                        results.add(new TimeSlot(reservation.toInterval(), -1, null));
+                    } else {
+                        // This is exactly the same slot, avoid duplicates and continue.
+                        results.add(new TimeSlot(slot, -1, null));
+                        continue;
+                    }
+                }
+            }
+            // Resolve available machine count. Assume precalculated values within the map if no machines provided
+            int availableMachineCount;
+            if (entry.getValue().isPresent()) {
+                availableMachineCount = entry.getValue().get();
+            } else {
+                availableMachineCount = machines.stream()
+                        .filter(m -> !isReservedByOthersDuring(m, slot, user))
+                        .collect(Collectors.toList())
+                        .size();
+            }
+            results.add(new TimeSlot(slot, availableMachineCount, null));
+        }
+        return results;
+    }
+
     private boolean isReservedByOthersDuring(ExamMachine machine, Interval interval, User user) {
         return machine.getReservations()
                 .stream()
@@ -379,7 +401,7 @@ public class CalendarController extends BaseController {
                 .anyMatch(r -> interval.overlaps(r.toInterval()));
     }
 
-    private static List<Reservation> getReservationsDuring(Collection<Reservation> reservations, Interval interval) {
+    protected static List<Reservation> getReservationsDuring(Collection<Reservation> reservations, Interval interval) {
         return reservations.stream().filter(r -> interval.overlaps(r.toInterval())).collect(Collectors.toList());
     }
 
@@ -462,14 +484,14 @@ public class CalendarController extends BaseController {
     }
 
     // DTO aimed for clients
-    private static class TimeSlot {
+    protected static class TimeSlot {
         private final String start;
         private final String end;
         private final int availableMachines;
         private final boolean ownReservation;
         private final String conflictingExam;
 
-        TimeSlot(Interval interval, int machineCount, String exam) {
+        public TimeSlot(Interval interval, int machineCount, String exam) {
             start = ISODateTimeFormat.dateTime().print(interval.getStart());
             end = ISODateTimeFormat.dateTime().print(interval.getEnd());
             availableMachines = machineCount;

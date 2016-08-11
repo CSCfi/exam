@@ -7,6 +7,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
+import controllers.base.BaseController;
 import controllers.iop.api.ExternalFacilityAPI;
 import models.Accessibility;
 import models.ExamMachine;

@@ -6,6 +6,7 @@ import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import controllers.base.BaseController;
 import models.Comment;
 import models.Exam;
 import models.LanguageInspection;

@@ -3,6 +3,7 @@ package controllers
 import javax.inject.Inject
 
 import com.avaje.ebean.Ebean
+import controllers.api.ExternalAPI
 import models.{Course, User}
 import play.api.cache.CacheApi
 import play.api.mvc.{Action, Controller}

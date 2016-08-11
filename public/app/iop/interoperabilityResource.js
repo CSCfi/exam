@@ -9,7 +9,9 @@
                     },
                     {
                         "update": {method: "PUT"}
-                    })
+                    }),
+                facilities: $resource("/integration/iop/facilities"),
+                organisations: $resource("/integration/iop/organisations")
             };
         }]);
 }());

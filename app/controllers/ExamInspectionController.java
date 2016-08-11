@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Model;
+import controllers.base.BaseController;
 import models.Comment;
 import models.Exam;
 import models.ExamInspection;

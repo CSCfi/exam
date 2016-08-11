@@ -48,6 +48,10 @@ public class AppUtil {
         return ConfigFactory.load().getBoolean("sitnet.integration.enrolmentPermissionCheck.active");
     }
 
+    public static boolean isInteroperable() {
+        return ConfigFactory.load().getBoolean("sitnet.integration.iop.active");
+    }
+
     public static DateTimeZone getDefaultTimeZone() {
         String config = ConfigFactory.load().getString("sitnet.application.timezone");
         return DateTimeZone.forID(config);
@@ -130,6 +134,5 @@ public class AppUtil {
             Logger.info("Email sent to {}", r.getEmail());
         }
     }
-
 
 }

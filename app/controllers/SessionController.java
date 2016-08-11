@@ -5,6 +5,8 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+import controllers.base.ActionMethod;
+import controllers.base.BaseController;
 import exceptions.NotFoundException;
 import models.*;
 import models.dto.Credentials;

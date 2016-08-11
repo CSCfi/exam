@@ -3,6 +3,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import controllers.base.BaseController;
 import models.Accessibility;
 import models.ExamRoom;
 import play.libs.Json;

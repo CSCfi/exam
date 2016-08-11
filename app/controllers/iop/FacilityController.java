@@ -7,7 +7,7 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.typesafe.config.ConfigFactory;
-import controllers.BaseController;
+import controllers.base.BaseController;
 import controllers.iop.api.ExternalFacilityAPI;
 import models.ExamRoom;
 import play.libs.Json;
@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -58,6 +59,11 @@ public class FacilityController extends BaseController implements ExternalFacili
             url.append(String.format("/%s", facilityRef));
         }
         return new URL(url.toString());
+    }
+
+    private static URL parseExternalUrl(String orgRef) throws MalformedURLException {
+        return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host") +
+                String.format("/api/organisations/%s/facilities", orgRef));
     }
 
     @Restrict({@Group("ADMIN")})
@@ -100,6 +106,23 @@ public class FacilityController extends BaseController implements ExternalFacili
             return CompletableFuture.supplyAsync(Results::badRequest);
         }
     }
+
+    @Restrict({@Group("STUDENT")})
+    public CompletionStage<Result> listFacilities(Optional<String> organisation) throws MalformedURLException {
+        if (!organisation.isPresent()) {
+            return wrapAsPromise(badRequest());
+        }
+        URL url = parseExternalUrl(organisation.get());
+        WSRequest request = wsClient.url(url.toString());
+        RemoteFunction<WSResponse, Result>  onSuccess = response -> {
+            JsonNode root = response.asJson();
+            if (root.has("error") || response.getStatus() != 200) {
+                throw new RemoteException(root.get("error").asText());
+            }
+            return ok(root);
+        };
+        return request.get().thenApplyAsync(onSuccess);
+    };
 
     @Override
     public CompletionStage<Result> updateFacility(ExamRoom room) throws MalformedURLException {

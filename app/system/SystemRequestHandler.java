@@ -3,7 +3,7 @@ package system;
 
 import com.avaje.ebean.Ebean;
 import com.google.inject.Inject;
-import controllers.BaseController;
+import controllers.base.BaseController;
 import models.*;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;

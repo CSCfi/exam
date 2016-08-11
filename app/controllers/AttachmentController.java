@@ -7,6 +7,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.typesafe.config.ConfigFactory;
+import controllers.base.BaseController;
 import models.Attachment;
 import models.Comment;
 import models.Exam;

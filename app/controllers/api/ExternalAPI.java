@@ -1,7 +1,8 @@
-package controllers;
+package controllers.api;
 
 
 import com.google.inject.ImplementedBy;
+import controllers.IntegrationController;
 import models.Course;
 import models.User;
 
