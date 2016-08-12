@@ -25,6 +25,7 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
+import util.AppUtil;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -72,11 +73,9 @@ public class ExternalCalendarController extends CalendarController {
         return new URL(sb.toString());
     }
 
-    private Set<TimeSlot> postProcessSlots(JsonNode node, String date, Long examId) {
+    private Set<TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user) {
         // Filter out slots that user has a conflicting reservation with
-        User user = getLoggedUser();
-        Exam exam = getEnrolledExam(examId, user);
-        if (exam != null && node.isArray()) {
+        if (node.isArray()) {
             ArrayNode root = (ArrayNode) node;
             LocalDate searchDate = LocalDate.parse(date, ISODateTimeFormat.dateParser());
             // users reservations starting from now
@@ -88,10 +87,14 @@ public class ExternalCalendarController extends CalendarController {
                     .findList();
             Stream<JsonNode> stream = StreamSupport.stream(root.spliterator(), false);
             Map<Interval, Optional<Integer>> map = stream.collect(Collectors.toMap(n -> {
-                DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("start").asText());
-                DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("end").asText());
-                return new Interval(start, end);
-            }, n -> Optional.of(n.get("availableMachines").asInt())));
+                    DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("start").asText());
+                    DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("end").asText());
+                    return new Interval(start, end);
+                }, n -> Optional.of(n.get("availableMachines").asInt()),
+                (u, v) -> {
+                    throw new IllegalStateException(String.format("Duplicate key %s", u));
+                },
+                LinkedHashMap::new));
             return handleReservations(map, reservations, exam, null, user);
         }
         return Collections.emptySet();
@@ -99,19 +102,35 @@ public class ExternalCalendarController extends CalendarController {
 
 
     @Restrict(@Group("STUDENT"))
-    public CompletionStage<Result> requestSlots(Optional<Long> examId, Optional<String> org, Optional<String> roomId, Optional<String> date,
-                                                Optional<String> start, Optional<String> end, Optional<Integer> duration)
+    public CompletionStage<Result> requestSlots(Optional<Long> examId, Optional<String> org, Optional<String> roomId,
+                                                Optional<String> date)
             throws MalformedURLException {
-        if (org.isPresent() && roomId.isPresent() && date.isPresent() && start.isPresent() && end.isPresent() &&
-                duration.isPresent()) {
-            URL url = parseUrl(org.get(), roomId.get(), date.get(), start.get(), end.get(), duration.get());
+        if (org.isPresent() && roomId.isPresent() && date.isPresent()) {
+            // First check that exam exists
+            User user = getLoggedUser();
+            Exam exam = getEnrolledExam(examId.get(), user);
+            if (exam == null) {
+                return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
+            }
+
+            // Also sanity check the provided search date
+            try {
+                parseSearchDate(date.get(), exam, null);
+            } catch (NotFoundException e) {
+                return wrapAsPromise(notFound());
+            }
+            // Ready to shoot
+            String start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveStartDate()));
+            String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveEndDate()));
+            Integer duration = exam.getDuration();
+            URL url = parseUrl(org.get(), roomId.get(), date.get(), start, end, duration);
             WSRequest request = wsClient.url(url.toString().split("\\?")[0]).setQueryString(url.getQuery());
             RemoteFunction<WSResponse, Result> onSuccess = response -> {
                 JsonNode root = response.asJson();
                 if (root.has("error") || response.getStatus() != 200) {
                     throw new RemoteException(root.get("error").asText());
                 }
-                Set<TimeSlot> slots = postProcessSlots(root, date.get(), examId.get());
+                Set<TimeSlot> slots = postProcessSlots(root, date.get(), exam, user);
                 return ok(Json.toJson(slots));
             };
             return request.get().thenApplyAsync(onSuccess);
@@ -188,7 +207,9 @@ public class ExternalCalendarController extends CalendarController {
         if (reservationWindow != null) {
             windowSize = Integer.parseInt(reservationWindow);
         }
-        int offset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now());
+        int offset = room != null ?
+                DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()) :
+                AppUtil.getDefaultTimeZone().getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
         LocalDate examEndDate = DateTime.parse(endDate, ISODateTimeFormat.dateTimeParser()).plusMillis(offset).toLocalDate();

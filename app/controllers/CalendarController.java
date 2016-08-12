@@ -235,7 +235,13 @@ public class CalendarController extends BaseController {
         Integer examDuration = exam.getDuration();
         Collection<Interval> examSlots = gatherSuitableSlots(room, date, examDuration);
         Map<Interval, Optional<Integer>> map = examSlots.stream().collect(
-                Collectors.toMap(Function.identity(), es -> Optional.empty()));
+                Collectors.toMap(
+                        Function.identity(),
+                        es -> Optional.empty(),
+                        (u, v) -> {
+                            throw new IllegalStateException(String.format("Duplicate key %s", u));
+                        },
+                        LinkedHashMap::new));
         // Check reservation status and machine availability for each slot
         return handleReservations(map, reservations, exam, machines, user);
     }
@@ -246,14 +252,16 @@ public class CalendarController extends BaseController {
      * Search date is the current date if searching for current week or earlier,
      * If searching for upcoming weeks, day of week is one.
      */
-    private static LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException {
+    protected static LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException {
         String reservationWindow = SettingsController.getOrCreateSettings(
                 "reservation_window_size", null, null).getValue();
         int windowSize = 0;
         if (reservationWindow != null) {
             windowSize = Integer.parseInt(reservationWindow);
         }
-        int offset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now());
+        int offset = room != null ?
+                DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()) :
+                AppUtil.getDefaultTimeZone().getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
         LocalDate examEndDate = new DateTime(exam.getExamActiveEndDate()).plusMillis(offset).toLocalDate();

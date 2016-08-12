@@ -1,5 +1,6 @@
 package helpers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.io.IOUtils;
@@ -24,6 +25,16 @@ public class RemoteServerHelper {
         try (FileInputStream fis = new FileInputStream(new File(filePath)); ServletOutputStream sos = response.getOutputStream()) {
             IOUtils.copy(fis, sos);
             sos.flush();
+        } catch (IOException e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public static void writeJsonResponse(HttpServletResponse response, JsonNode node) {
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_OK);
+        try {
+            response.getWriter().write(node.toString());
         } catch (IOException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }

@@ -84,10 +84,4 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
         assertThat(node).isEmpty();
    }
 
-    @Test
-    public void testX() {
-        Exam exam = Ebean.find(Exam.class).fetch("examOwners").where().idEq(1L).findUnique();
-        System.out.println(exam);
-    }
-
 }
