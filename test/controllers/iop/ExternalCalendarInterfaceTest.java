@@ -18,7 +18,6 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import play.libs.Json;
@@ -27,6 +26,8 @@ import play.mvc.Result;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -69,10 +70,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
                 String.format("/api/organisations/%s/facilities/%s/slots", ORG_REF, ROOM_REF));
     }
 
-    @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    public void initialize() throws Exception {
         Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
         exam = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED).findList().get(0);
         exam.setExamActiveStartDate(DateTime.now().minusDays(1).toDate());
@@ -101,8 +99,9 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testGetSlots() throws Exception {
-        String url = String.format("/integration/iop/calendar?examId=%d&org=%s&roomId=%s&date=%s",
-                exam.getId(), ORG_REF, room.getExternalRef(), ISODateTimeFormat.date().print(LocalDate.now()));
+        initialize();
+        String url = String.format("/integration/iop/calendar/%d/%s?&org=%s&date=%s",
+                exam.getId(), room.getExternalRef(), ORG_REF, ISODateTimeFormat.date().print(LocalDate.now()));
         Result result = get(url);
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
@@ -115,6 +114,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testGetSlotsWithConflictingReservation() throws Exception {
+        // Setup a conflicting reservation
+        initialize();
         Exam exam2 = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED).findList().get(1);
         Reservation reservation = new Reservation();
         reservation.setUser(user);
@@ -128,16 +129,54 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         enrolment2.setReservation(reservation);
         enrolment2.save();
 
-        String url = String.format("/integration/iop/calendar?examId=%d&org=%s&roomId=%s&date=%s",
-                exam.getId(), ORG_REF, room.getExternalRef(), ISODateTimeFormat.date().print(LocalDate.now()));
+        // Execute
+        String url = String.format("/integration/iop/calendar/%d/%s?&org=%s&date=%s",
+                exam.getId(), room.getExternalRef(), ORG_REF, ISODateTimeFormat.date().print(LocalDate.now()));
         Result result = get(url);
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(2);
         ArrayNode an = (ArrayNode)node;
+
+        // Ensure that first slot got marked as reserved (due conflicting reservation)
         assertThat(an.get(0).get("availableMachines").asInt()).isEqualTo(-1);
         assertThat(an.get(0).get("conflictingExam").asText()).isEqualTo(exam2.getName());
         assertThat(an.get(1).get("availableMachines").asInt()).isEqualTo(7);
+    }
+
+    @Test
+    public void testProvideSlots() throws Exception {
+        // We need a room with extref = ROOM_REF
+        room = Ebean.find(ExamRoom.class, 1L);
+        room.setExternalRef(ROOM_REF);
+        room.update();
+        int machineCount = room.getExamMachines().stream()
+                .filter(em -> !em.getOutOfService())
+                .collect(Collectors.toList())
+                .size();
+
+        GeneralSettings gs = new GeneralSettings();
+        gs.setName("reservation_window_size");
+        gs.setValue("60");
+        gs.setId(3l);
+        gs.save();
+
+        String url = String.format("/integration/iop/slots?roomId=%s&date=%s&start=%s&end=%s&duration=%d",
+                room.getExternalRef(),
+                ISODateTimeFormat.date().print(LocalDate.now()),
+                ISODateTimeFormat.dateTime().print(DateTime.now().minusDays(7)),
+                ISODateTimeFormat.dateTime().print(DateTime.now().plusDays(7)),
+                180);
+        Result result = get(url);
+        assertThat(result.status()).isEqualTo(200);
+        JsonNode node = Json.parse(contentAsString(result));
+        ArrayNode an = (ArrayNode)node;
+        // This could be empty if we ran this on a Sunday after 13 PM :)
+        for (JsonNode slot : an) {
+            assertThat(slot.get("availableMachines").asInt()).isEqualTo(machineCount);
+            assertThat(slot.get("ownReservation").asBoolean()).isFalse();
+            assertThat(slot.get("conflictingExam").isNull()).isTrue();
+        }
     }
 
 }

@@ -102,13 +102,12 @@ public class ExternalCalendarController extends CalendarController {
 
 
     @Restrict(@Group("STUDENT"))
-    public CompletionStage<Result> requestSlots(Optional<Long> examId, Optional<String> org, Optional<String> roomId,
-                                                Optional<String> date)
+    public CompletionStage<Result> requestSlots(Long examId, String roomRef, Optional<String> org, Optional<String> date)
             throws MalformedURLException {
-        if (org.isPresent() && roomId.isPresent() && date.isPresent()) {
+        if (org.isPresent() && date.isPresent()) {
             // First check that exam exists
             User user = getLoggedUser();
-            Exam exam = getEnrolledExam(examId.get(), user);
+            Exam exam = getEnrolledExam(examId, user);
             if (exam == null) {
                 return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
             }
@@ -123,7 +122,7 @@ public class ExternalCalendarController extends CalendarController {
             String start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveStartDate()));
             String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveEndDate()));
             Integer duration = exam.getDuration();
-            URL url = parseUrl(org.get(), roomId.get(), date.get(), start, end, duration);
+            URL url = parseUrl(org.get(), roomRef, date.get(), start, end, duration);
             WSRequest request = wsClient.url(url.toString().split("\\?")[0]).setQueryString(url.getQuery());
             RemoteFunction<WSResponse, Result> onSuccess = response -> {
                 JsonNode root = response.asJson();
@@ -139,7 +138,6 @@ public class ExternalCalendarController extends CalendarController {
         }
 
     }
-
 
     @ActionMethod
     public Result provideSlots(Optional<String> roomId, Optional<String> date, Optional<String> start, Optional<String> end,
@@ -237,7 +235,7 @@ public class ExternalCalendarController extends CalendarController {
      */
     private static LocalDate getEndSearchDate(String endDate, LocalDate searchDate) {
         LocalDate endOfWeek = searchDate.dayOfWeek().withMaximumValue();
-        LocalDate examEnd = LocalDate.parse(endDate, ISODateTimeFormat.dateParser());
+        LocalDate examEnd = LocalDate.parse(endDate, ISODateTimeFormat.dateTimeParser());
         String reservationWindow = SettingsController.getOrCreateSettings(
                 "reservation_window_size", null, null).getValue();
         int windowSize = 0;

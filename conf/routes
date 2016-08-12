@@ -257,7 +257,8 @@ GET           /integration/rooms/:id/openinghours                        control
 PUT           /integration/iop/facilities/:id                            controllers.iop.FacilityController.updateFacility(id: Long)
 GET           /integration/iop/organisations                             controllers.iop.OrganisationController.listOrganisations
 GET           /integration/iop/facilities                                controllers.iop.FacilityController.listFacilities(org: java.util.Optional[String])
-GET           /integration/iop/calendar                                  controllers.iop.ExternalCalendarController.requestSlots(examId: java.util.Optional[java.lang.Long], org: java.util.Optional[String], roomId: java.util.Optional[String], date: java.util.Optional[String])
+GET           /integration/iop/calendar/:examId/:roomRef                 controllers.iop.ExternalCalendarController.requestSlots(examId: Long, roomRef: String, org: java.util.Optional[String], date: java.util.Optional[String])
+GET           /integration/iop/slots                                     controllers.iop.ExternalCalendarController.provideSlots(roomId: java.util.Optional[String], date: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String], duration: java.util.Optional[java.lang.Integer])
 
 ################# Time interface ######################
 GET           /app/time                                                  controllers.TimeController.getTime
