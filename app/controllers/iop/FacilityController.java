@@ -20,33 +20,12 @@ import play.mvc.Results;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.ParseException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 public class FacilityController extends BaseController implements ExternalFacilityAPI {
-
-    private static class RemoteException extends Exception {
-        RemoteException(String message) {
-            super(message);
-        }
-    }
-
-    @FunctionalInterface
-    private interface RemoteFunction<T, R> extends Function<T, R> {
-        @Override
-        default R apply(T t) {
-            try {
-                return exec(t);
-            } catch (RemoteException | ParseException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        R exec(T t) throws RemoteException, ParseException;
-    }
 
     @Inject
     protected WSClient wsClient;
@@ -76,10 +55,10 @@ public class FacilityController extends BaseController implements ExternalFacili
         WSRequest request = wsClient.url(url.toString());
         if (room.getExternalRef() == null && !room.getState().equals(ExamRoom.State.INACTIVE.toString())) {
             // Add new
-            RemoteFunction<WSResponse, Result>  onSuccess = response -> {
+            Function<WSResponse, Result>  onSuccess = response -> {
                 JsonNode root = response.asJson();
-                if (root.has("error") || response.getStatus() != 201) {
-                    throw new RemoteException(root.get("error").asText());
+                if (response.getStatus() != 201) {
+                    return internalServerError(root.get("message").asText("Connection refused"));
                 }
                 String externalRef = root.get("id").asText();
                 room.setExternalRef(externalRef);
@@ -89,14 +68,14 @@ public class FacilityController extends BaseController implements ExternalFacili
             return request.post(Json.toJson(room)).thenApplyAsync(onSuccess);
         } else if (room.getExternalRef() != null){
             // Remove
-            RemoteFunction<WSResponse, Result>  onSuccess = response -> {
+            Function<WSResponse, Result>  onSuccess = response -> {
                 int status = response.getStatus();
                 if (status == 404 || status == 200) {
                     // 404 would mean that facility does not exist remotely, remove its reference here also
                     room.setExternalRef(null);
                     room.update();
                 } else {
-                    throw new RemoteException("something wrong with remote end");
+                    return internalServerError("Connection refused");
                 }
                 return ok(Json.newObject().set("externalRef", NullNode.getInstance()));
             };
@@ -114,10 +93,10 @@ public class FacilityController extends BaseController implements ExternalFacili
         }
         URL url = parseExternalUrl(organisation.get());
         WSRequest request = wsClient.url(url.toString());
-        RemoteFunction<WSResponse, Result>  onSuccess = response -> {
+        Function<WSResponse, Result>  onSuccess = response -> {
             JsonNode root = response.asJson();
-            if (root.has("error") || response.getStatus() != 200) {
-                throw new RemoteException(root.get("error").asText());
+            if (response.getStatus() != 200) {
+                return internalServerError(root.get("message").asText("Connection refused"));
             }
             return ok(root);
         };

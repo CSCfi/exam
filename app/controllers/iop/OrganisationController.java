@@ -13,34 +13,12 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.ParseException;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 public class OrganisationController extends BaseController {
-
-    private static class RemoteException extends Exception {
-        RemoteException(String message) {
-            super(message);
-        }
-    }
-
-    @FunctionalInterface
-    private interface RemoteFunction<T, R> extends Function<T, R> {
-        @Override
-        default R apply(T t) {
-            try {
-                return exec(t);
-            } catch (RemoteException | ParseException | IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        R exec(T t) throws RemoteException, ParseException, IOException;
-    }
 
     @Inject
     protected WSClient wsClient;
@@ -57,10 +35,10 @@ public class OrganisationController extends BaseController {
         WSRequest request = wsClient.url(url.toString());
         String localRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
 
-        RemoteFunction<WSResponse, Result>  onSuccess = response -> {
+        Function<WSResponse, Result>  onSuccess = response -> {
             JsonNode root = response.asJson();
-            if (root.has("error") || response.getStatus() != 200) {
-                throw new RemoteException(root.get("error").asText());
+            if (response.getStatus() != 200) {
+                return internalServerError(root.get("message").asText("Connection refused"));
             }
             if (root instanceof ArrayNode) {
                 ArrayNode node = (ArrayNode) root;

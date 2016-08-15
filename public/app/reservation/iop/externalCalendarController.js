@@ -91,11 +91,11 @@
                     var room = $scope.selectedRoom();
                     if (room) {
                         $scope.loader.loading = true;
-                        CalendarRes.slots.query({
-                                eid: $routeParams.id,
-                                rid: room.id,
-                                day: date,
-                                aids: []
+                        InteroperabilityRes.slots.query({
+                                examId: $routeParams.id,
+                                roomRef: room.id,
+                                org: $scope.selectedOrganisation._id,
+                                date: date
                             },
                             function (slots) {
                                 var tz = room.localTimezone;
@@ -114,7 +114,10 @@
                                 $scope.loader.loading = false;
                                 if (error && error.status === 404) {
                                     toastr.error($translate.instant('sitnet_exam_not_active_now'));
-                                } else {
+                                } else if (error) {
+                                    toastr.error(error.data.message);
+                                }
+                                else {
                                     toastr.error($translate.instant('sitnet_no_suitable_enrolment_found'));
                                 }
                             });

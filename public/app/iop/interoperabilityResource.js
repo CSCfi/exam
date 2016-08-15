@@ -11,7 +11,8 @@
                         "update": {method: "PUT"}
                     }),
                 facilities: $resource("/integration/iop/facilities"),
-                organisations: $resource("/integration/iop/organisations")
+                organisations: $resource("/integration/iop/organisations"),
+                slots: $resource("/integration/iop/calendar/:examId/:roomRef", {examId: "@examId", roomRef: "@roomRef"})
             };
         }]);
 }());

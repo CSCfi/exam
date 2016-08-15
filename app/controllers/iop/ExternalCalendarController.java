@@ -28,10 +28,8 @@ import play.mvc.Result;
 import util.AppUtil;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -41,26 +39,6 @@ import java.util.stream.StreamSupport;
 
 
 public class ExternalCalendarController extends CalendarController {
-
-    private static class RemoteException extends Exception {
-        RemoteException(String message) {
-            super(message);
-        }
-    }
-
-    @FunctionalInterface
-    private interface RemoteFunction<T, R> extends Function<T, R> {
-        @Override
-        default R apply(T t) {
-            try {
-                return exec(t);
-            } catch (RemoteException | ParseException | IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        R exec(T t) throws RemoteException, ParseException, IOException;
-    }
 
     @Inject
     protected WSClient wsClient;
@@ -124,10 +102,10 @@ public class ExternalCalendarController extends CalendarController {
             Integer duration = exam.getDuration();
             URL url = parseUrl(org.get(), roomRef, date.get(), start, end, duration);
             WSRequest request = wsClient.url(url.toString().split("\\?")[0]).setQueryString(url.getQuery());
-            RemoteFunction<WSResponse, Result> onSuccess = response -> {
+            Function<WSResponse, Result> onSuccess = response -> {
                 JsonNode root = response.asJson();
-                if (root.has("error") || response.getStatus() != 200) {
-                    throw new RemoteException(root.get("error").asText());
+                if (response.getStatus() != 200) {
+                    return internalServerError(root.get("message").asText("Connection refused"));
                 }
                 Set<TimeSlot> slots = postProcessSlots(root, date.get(), exam, user);
                 return ok(Json.toJson(slots));
