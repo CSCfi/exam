@@ -33,6 +33,10 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
     @JsonBackReference
     private User user;
 
+    private String externalRef;
+
+    private String externalUserRef;
+
     public Date getStartAt() {
         return startAt;
     }
@@ -89,7 +93,21 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
         this.enrolment = enrolment;
     }
 
+    public String getExternalRef() {
+        return externalRef;
+    }
 
+    public void setExternalRef(String externalRef) {
+        this.externalRef = externalRef;
+    }
+
+    public String getExternalUserRef() {
+        return externalUserRef;
+    }
+
+    public void setExternalUserRef(String externalUserRef) {
+        this.externalUserRef = externalUserRef;
+    }
 
     @Transient
     public Interval toInterval() {

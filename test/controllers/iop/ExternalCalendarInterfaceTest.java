@@ -22,11 +22,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
+import play.test.Helpers;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import java.util.Date;
 import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -36,6 +37,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
     private static final String ORG_REF = "thisissomeorgref";
     private static final String ROOM_REF = "0e6d16c51f857a20ab578f57f1018456";
+    private static final String RESERVATION_REF = "0e6d16c51f857a20ab578f57f105032e";
 
     private static Server server;
     private Exam exam;
@@ -146,7 +148,6 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
     @Test
     public void testProvideSlots() throws Exception {
-        // We need a room with extref = ROOM_REF
         room = Ebean.find(ExamRoom.class, 1L);
         room.setExternalRef(ROOM_REF);
         room.update();
@@ -178,5 +179,48 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
             assertThat(slot.get("conflictingExam").isNull()).isTrue();
         }
     }
+
+    @Test
+    public void testProvideReservation() throws Exception {
+        room = Ebean.find(ExamRoom.class, 1L);
+        room.setExternalRef(ROOM_REF);
+        room.update();
+
+        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
+        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+
+        Result result = request(Helpers.POST, "/integration/iop/reservations", Json.newObject()
+                .put("id", RESERVATION_REF)
+                .put("roomId", ROOM_REF)
+                .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
+                .put("end", ISODateTimeFormat.dateTime().print(end.getTime()))
+                .put("user", "studentone@uni.org"));
+        assertThat(result.status()).isEqualTo(201);
+        Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findUnique();
+        assertThat(reservation).isNotNull();
+        assertThat(reservation.getMachine().getRoom().getExternalRef()).isEqualTo(ROOM_REF);
+        assertThat(reservation.getStartAt()).isEqualTo(start);
+        assertThat(reservation.getEndAt()).isEqualTo(end);
+    }
+
+    @Test
+    public void testDeleteProvidedReservation() throws Exception {
+        room = Ebean.find(ExamRoom.class, 1L);
+        room.setExternalRef(ROOM_REF);
+        room.update();
+
+        Reservation reservation = new Reservation();
+        reservation.setExternalRef(RESERVATION_REF);
+        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
+        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
+        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.save();
+
+        Result result = request(Helpers.DELETE, "/integration/iop/reservations/" + RESERVATION_REF, null);
+        assertThat(result.status()).isEqualTo(200);
+        Reservation removed = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findUnique();
+        assertThat(removed).isNull();
+    }
+
 
 }

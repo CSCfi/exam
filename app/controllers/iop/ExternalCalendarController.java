@@ -78,6 +78,58 @@ public class ExternalCalendarController extends CalendarController {
         return Collections.emptySet();
     }
 
+    @ActionMethod
+    public Result provideReservation() {
+        // Parse request body
+        JsonNode node = request().body().asJson();
+        String reservationRef = node.get("id").asText();
+        String roomRef = node.get("roomId").asText();
+        DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("start").asText());
+        DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("end").asText());
+        String userEppn = node.get("user").asText();
+        if (start.isBeforeNow() || end.isBefore(start)) {
+            return badRequest("invalid dates");
+        }
+        ExamRoom room = Ebean.find(ExamRoom.class).where().eq("externalRef", roomRef).findUnique();
+        if (room == null) {
+            return notFound("room not found");
+        }
+        Optional<ExamMachine> machine = getRandomMachine(room, null, start, end, Collections.emptyList());
+        if (!machine.isPresent()) {
+            return forbidden("sitnet_no_machines_available");
+        }
+        // We are good to go :)
+        Reservation reservation = new Reservation();
+        reservation.setExternalRef(reservationRef);
+        reservation.setEndAt(end.toDate());
+        reservation.setStartAt(start.toDate());
+        reservation.setMachine(machine.get());
+        reservation.setExternalUserRef(userEppn);
+
+        Ebean.save(reservation);
+
+        return created();
+    }
+
+    @ActionMethod
+    public Result removeProvidedReservation(String ref) {
+        Reservation reservation = Ebean.find(Reservation.class)
+                .fetch("machine")
+                .fetch("machine.room")
+                .where()
+                .eq("externalRef", ref)
+                .findUnique();
+        if (reservation == null) {
+            return notFound("reservation not found");
+        }
+        DateTime now = AppUtil.adjustDST(DateTime.now(), reservation);
+        if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
+            return forbidden("sitnet_reservation_in_effect");
+        }
+        reservation.delete();
+        return ok();
+    };
+
 
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestSlots(Long examId, String roomRef, Optional<String> org, Optional<String> date)

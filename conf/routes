@@ -259,6 +259,8 @@ GET           /integration/iop/organisations                             control
 GET           /integration/iop/facilities                                controllers.iop.FacilityController.listFacilities(org: java.util.Optional[String])
 GET           /integration/iop/calendar/:examId/:roomRef                 controllers.iop.ExternalCalendarController.requestSlots(examId: Long, roomRef: String, org: java.util.Optional[String], date: java.util.Optional[String])
 GET           /integration/iop/slots                                     controllers.iop.ExternalCalendarController.provideSlots(roomId: java.util.Optional[String], date: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String], duration: java.util.Optional[java.lang.Integer])
+POST          /integration/iop/reservations                              controllers.iop.ExternalCalendarController.provideReservation
+DELETE        /integration/iop/reservations/:ref                         controllers.iop.ExternalCalendarController.removeProvidedReservation(ref: String)
 
 ################# Time interface ######################
 GET           /app/time                                                  controllers.TimeController.getTime

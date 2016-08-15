@@ -156,7 +156,7 @@ public class CalendarController extends BaseController {
         return ok("ok");
     }
 
-    private Optional<ExamMachine> getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end, Collection<Integer> aids) {
+    protected Optional<ExamMachine> getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end, Collection<Integer> aids) {
         List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
         Collections.shuffle(machines);
         Interval wantedTime = new Interval(start, end);
@@ -426,7 +426,7 @@ public class CalendarController extends BaseController {
             if (!isMachineAccessibilitySatisfied(machine, access)) {
                 it.remove();
             }
-            if (!machine.hasRequiredSoftware(exam)) {
+            if (exam != null && !machine.hasRequiredSoftware(exam)) {
                 it.remove();
             }
         }
