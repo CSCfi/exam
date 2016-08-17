@@ -10,6 +10,7 @@ import com.typesafe.config.ConfigFactory;
 import controllers.CalendarController;
 import controllers.SettingsController;
 import controllers.base.ActionMethod;
+import controllers.iop.api.ExternalCalendarAPI;
 import exceptions.NotFoundException;
 import models.Exam;
 import models.ExamEnrolment;
@@ -44,7 +45,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 
-public class ExternalCalendarController extends CalendarController {
+public class ExternalCalendarController extends CalendarController implements ExternalCalendarAPI {
 
     @Inject
     protected WSClient wsClient;
@@ -434,4 +435,15 @@ public class ExternalCalendarController extends CalendarController {
                 .anyMatch(r -> interval.overlaps(r.toInterval()));
     }
 
+    @Override
+    public CompletionStage<Result> removeReservation(ExamEnrolment enrolment) {
+        if (enrolment.getReservation().getExternalReservation() == null) {
+            return wrapAsPromise(ok());
+        }
+        try {
+            return requestReservationRemoval(enrolment.getReservation().getExternalRef());
+        } catch (MalformedURLException e) {
+            return wrapAsPromise(internalServerError(e.getMessage()));
+        }
+    }
 }

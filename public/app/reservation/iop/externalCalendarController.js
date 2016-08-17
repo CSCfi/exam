@@ -158,10 +158,15 @@
                     var slot = {};
                     slot.start = adjustBack(start, tz);
                     slot.end = adjustBack(end, tz);
+                    slot.orgId = $scope.selectedOrganisation.id;
                     slot.examId = $routeParams.id;
                     slot.roomId = $scope.selectedRoom().id;
-                    slot.aids = [];
-                    $http.post('/app/calendar/reservation', slot).then(function () {
+                    InteroperabilityRes.reservations.create(slot, function () {
+                        $location.path('/');
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+                    $http.post('/integration/iop/calendar/reservations/external', slot).then(function () {
                         $location.path('/');
                     }, function (error) {
                         toastr.error(error.data);

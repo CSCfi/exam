@@ -75,7 +75,9 @@ public class AppUtil {
     }
 
     public static DateTime adjustDST(DateTime dateTime, Reservation reservation) {
-        return doAdjustDST(dateTime, reservation.getMachine().getRoom());
+        return reservation.getExternalReservation() != null ?
+                adjustDST(dateTime, reservation.getExternalReservation()) :
+                doAdjustDST(dateTime, reservation.getMachine().getRoom());
     }
 
     public static DateTime adjustDST(DateTime dateTime, ExternalReservation externalReservation) {
