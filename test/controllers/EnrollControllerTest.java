@@ -3,6 +3,7 @@ package controllers;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
+import com.google.common.collect.ImmutableMap;
 import helpers.RemoteServerHelper;
 import models.*;
 import org.eclipse.jetty.server.Server;
@@ -44,7 +45,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
 
     @BeforeClass
     public static void startServer() throws Exception {
-        server = RemoteServerHelper.createAndStartServer(31246, CourseInfoServlet.class, "/enrolments");
+        server = RemoteServerHelper.createAndStartServer(31246, ImmutableMap.of(CourseInfoServlet.class, "/enrolments"));
     }
 
     @AfterClass

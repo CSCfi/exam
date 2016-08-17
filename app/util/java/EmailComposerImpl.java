@@ -259,8 +259,6 @@ class EmailComposerImpl implements EmailComposer {
         attachment.setDisposition(EmailAttachment.ATTACHMENT);
         attachment.setName(messaging.get(lang, "ical.reservation.filename", ".ics"));
 
-        //Attachment attachment = new Attachment(messaging.get(lang, "ical.reservation.filename", ".ics"), file);
-
         emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content, attachment);
     }
 
@@ -354,7 +352,9 @@ class EmailComposerImpl implements EmailComposer {
         }
 
         String date = DF.print(adjustDST(reservation.getStartAt(), TZ));
-        String room = reservation.getMachine().getRoom().getName();
+        String room = reservation.getMachine() != null ?
+                reservation.getMachine().getRoom().getName() :
+                reservation.getExternalReservation().getRoomName();
         String info = messaging.get(lang, "email.reservation.cancellation.info");
 
         Map<String, String> stringValues = new HashMap<>();

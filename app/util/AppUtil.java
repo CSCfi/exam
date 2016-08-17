@@ -3,6 +3,7 @@ package util;
 import com.typesafe.config.ConfigFactory;
 import models.*;
 import models.base.OwnedModel;
+import models.iop.ExternalReservation;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -75,6 +76,15 @@ public class AppUtil {
 
     public static DateTime adjustDST(DateTime dateTime, Reservation reservation) {
         return doAdjustDST(dateTime, reservation.getMachine().getRoom());
+    }
+
+    public static DateTime adjustDST(DateTime dateTime, ExternalReservation externalReservation) {
+        DateTime result = dateTime;
+        DateTimeZone dtz = DateTimeZone.forID(externalReservation.getRoomTz());
+        if (!dtz.isStandardOffset(System.currentTimeMillis())) {
+            result = dateTime.plusHours(1);
+        }
+        return result;
     }
 
     public static DateTime adjustDST(DateTime dateTime, ExamRoom room) {

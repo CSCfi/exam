@@ -57,7 +57,6 @@ public class ExamRoom extends GeneratedIdentityModel {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
     private List<ExamStartingHour> examStartingHours;
 
-    // Tentin siirtymäaika, oletuksena 5min, joka on pois tentin suoritusajasta, esim. 60min tentissä tenttiaikaa on 55min.
     private String transitionTime;
 
     // Accessibility info describes what accessibility issues there are regarding the room

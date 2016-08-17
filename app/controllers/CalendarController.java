@@ -74,6 +74,24 @@ public class CalendarController extends BaseController {
         return ok("removed");
     }
 
+    protected Optional<Result> checkEnrolment(ExamEnrolment enrolment, User user) {
+        if (enrolment == null) {
+            return Optional.of(forbidden("sitnet_error_enrolment_not_found"));
+        }
+        // Removal not permitted if old reservation is in the past or if exam is already started
+        Reservation oldReservation = enrolment.getReservation();
+        if (enrolment.getExam().getState() == Exam.State.STUDENT_STARTED ||
+                (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now()))) {
+            return Optional.of(forbidden("sitnet_reservation_in_effect"));
+        }
+        // No previous reservation or it's in the future
+        // If no previous reservation, check if allowed to participate. This check is skipped if user already
+        // has a reservation to this exam so that change of reservation is always possible.
+        if (oldReservation == null && !isAllowedToParticipate(enrolment.getExam(), user, emailComposer)) {
+            return Optional.of(forbidden("sitnet_no_trials_left"));
+        }
+        return Optional.empty();
+    }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result createReservation() {
@@ -108,52 +126,40 @@ public class CalendarController extends BaseController {
                 .gt("reservation.startAt", now.toDate())
                 .endJunction()
                 .findUnique();
-        if (enrolment == null) {
-            return forbidden("sitnet_error_enrolment_not_found");
-        }
-        // Removal not permitted if old reservation is in the past or if exam is already started
-        Reservation oldReservation = enrolment.getReservation();
-        if (enrolment.getExam().getState() == Exam.State.STUDENT_STARTED ||
-                (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now()))) {
-            return forbidden("sitnet_reservation_in_effect");
-        }
-        // No previous reservation or it's in the future
-        // If no previous reservation, check if allowed to participate. This check is skipped if user already
-        // has a reservation to this exam so that change of reservation is always possible.
-        if (oldReservation == null && !isAllowedToParticipate(enrolment.getExam(), user, emailComposer)) {
-            return forbidden("sitnet_no_trials_left");
-        }
+        return checkEnrolment(enrolment, user).orElseGet(() -> {
+            Optional<ExamMachine> machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
+            if (!machine.isPresent()) {
+                return forbidden("sitnet_no_machines_available");
+            }
 
-        Optional<ExamMachine> machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
-        if (!machine.isPresent()) {
-            return forbidden("sitnet_no_machines_available");
-        }
+            // We are good to go :)
+            Reservation oldReservation = enrolment.getReservation();
+            final Reservation reservation = new Reservation();
+            reservation.setEndAt(end.toDate());
+            reservation.setStartAt(start.toDate());
+            reservation.setMachine(machine.get());
+            reservation.setUser(user);
 
-        // We are good to go :)
-        final Reservation reservation = new Reservation();
-        reservation.setEndAt(end.toDate());
-        reservation.setStartAt(start.toDate());
-        reservation.setMachine(machine.get());
-        reservation.setUser(user);
+            Ebean.save(reservation);
+            enrolment.setReservation(reservation);
+            enrolment.setReservationCanceled(false);
+            Ebean.save(enrolment);
 
-        Ebean.save(reservation);
-        enrolment.setReservation(reservation);
-        enrolment.setReservationCanceled(false);
-        Ebean.save(enrolment);
 
-        // Finally nuke the old reservation if any
-        if (oldReservation != null) {
-            Ebean.delete(oldReservation);
-        }
-        Exam exam = enrolment.getExam();
+            // Finally nuke the old reservation if any
+            if (oldReservation != null) {
+                Ebean.delete(oldReservation);
+            }
+            Exam exam = enrolment.getExam();
 
-        // Send some emails asynchronously
-        system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeReservationNotification(user, reservation, exam);
-            Logger.info("Reservation confirmation email sent to {}", user.getEmail());
-        }, system.dispatcher());
+            // Send some emails asynchronously
+            system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+                emailComposer.composeReservationNotification(user, reservation, exam);
+                Logger.info("Reservation confirmation email sent to {}", user.getEmail());
+            }, system.dispatcher());
 
-        return ok("ok");
+            return ok("ok");
+        });
     }
 
     protected Optional<ExamMachine> getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end, Collection<Integer> aids) {

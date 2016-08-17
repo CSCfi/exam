@@ -5,26 +5,31 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.CalendarController;
 import controllers.SettingsController;
 import controllers.base.ActionMethod;
 import exceptions.NotFoundException;
 import models.Exam;
+import models.ExamEnrolment;
 import models.ExamMachine;
 import models.ExamRoom;
 import models.Reservation;
 import models.User;
+import models.iop.ExternalReservation;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
+import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 import util.AppUtil;
 
 import javax.inject.Inject;
@@ -32,6 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,6 +54,16 @@ public class ExternalCalendarController extends CalendarController {
         StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
         sb.append(String.format("/api/organisations/%s/facilities/%s/slots?", orgRef, facilityRef));
         sb.append(String.format("?date=%s&startAt=%s&endAt=%s&duration=%d", date, start, end, duration));
+        return new URL(sb.toString());
+    }
+
+    private static URL parseUrl(String orgRef, String facilityRef, String reservationRef)
+            throws MalformedURLException {
+        StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
+        sb.append(String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
+        if (reservationRef != null) {
+            sb.append("/").append(reservationRef);
+        }
         return new URL(sb.toString());
     }
 
@@ -108,7 +124,7 @@ public class ExternalCalendarController extends CalendarController {
 
         Ebean.save(reservation);
 
-        return created();
+        return created(Json.toJson(reservation));
     }
 
     @ActionMethod
@@ -122,14 +138,148 @@ public class ExternalCalendarController extends CalendarController {
         if (reservation == null) {
             return notFound("reservation not found");
         }
+        // TODO: might need additional checks
         DateTime now = AppUtil.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
         reservation.delete();
         return ok();
-    };
+    }
 
+    private void handleExternalReservation(ExamEnrolment enrolment, JsonNode node, DateTime start, DateTime end,
+                                           User user, String orgRef, String roomRef) {
+        Reservation oldReservation = enrolment.getReservation();
+        final Reservation reservation = new Reservation();
+        reservation.setEndAt(end.toDate());
+        reservation.setStartAt(start.toDate());
+        reservation.setUser(user);
+        reservation.setExternalRef(node.get("id").asText());
+
+        ExternalReservation external = new ExternalReservation();
+        external.setOrgRef(orgRef);
+        external.setRoomRef(roomRef);
+        JsonNode machineNode = node.get("machine");
+        JsonNode roomNode = machineNode.get("room");
+        external.setMachineName(machineNode.get("name").asText());
+        external.setRoomName(roomNode.get("name").asText());
+        external.setRoomCode(roomNode.get("roomCode").asText());
+        external.setRoomTz(roomNode.get("localTimezone").asText());
+        external.save();
+
+        Ebean.save(reservation);
+        enrolment.setReservation(reservation);
+        enrolment.setReservationCanceled(false);
+        Ebean.save(enrolment);
+
+        // Finally nuke the old reservation if any
+        if (oldReservation != null) {
+            Ebean.delete(oldReservation);
+        }
+        Exam exam = enrolment.getExam();
+        // Attach the external machine data just so that email can be generated
+        ExamMachine externalMachine = formFactory.form(ExamMachine.class).bind(machineNode).get();
+        reservation.setMachine(externalMachine);
+        // Send some emails asynchronously
+        system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            emailComposer.composeReservationNotification(user, reservation, exam);
+            Logger.info("Reservation confirmation email sent to {}", user.getEmail());
+        }, system.dispatcher());
+    }
+
+    @Restrict(@Group("STUDENT"))
+    public CompletionStage<Result> requestReservation() throws MalformedURLException {
+        User user = getLoggedUser();
+        // Parse request body
+        JsonNode node = request().body().asJson();
+        String orgRef = node.get("orgId").asText();
+        String roomRef = node.get("roomId").asText();
+        DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("start").asText());
+        DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("end").asText());
+        Long examId = node.get("examId").asLong();
+        if (start.isBeforeNow() || end.isBefore(start)) {
+            return wrapAsPromise(badRequest("invalid dates"));
+        }
+        //TODO: See if this offset thing works as intended
+        DateTime now = AppUtil.adjustDST(DateTime.now());
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .where()
+                .eq("user.id", user.getId())
+                .eq("exam.id", examId)
+                .eq("exam.state", Exam.State.PUBLISHED)
+                .disjunction()
+                .isNull("reservation")
+                .gt("reservation.startAt", now.toDate())
+                .endJunction()
+                .findUnique();
+        Optional<Result> error = checkEnrolment(enrolment, user);
+        if (error.isPresent()) {
+            return wrapAsPromise(error.get());
+        }
+        // Lets do this
+        URL url = parseUrl(orgRef, roomRef, null);
+        ObjectNode body = Json.newObject();
+        body.put("start", ISODateTimeFormat.dateTime().print(start));
+        body.put("end", ISODateTimeFormat.dateTime().print(end));
+        body.put("user", user.getEppn());
+        WSRequest request = wsClient.url(url.toString());
+        Function<WSResponse, Result> onSuccess = response -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != 201) {
+                return internalServerError(root.get("message").asText("Connection refused"));
+            }
+            handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef);
+            return created(root.get("id"));
+        };
+        return request.post(body).thenApplyAsync(onSuccess);
+    }
+
+    @Restrict(@Group("STUDENT"))
+    public CompletionStage<Result> requestReservationRemoval(String ref) throws MalformedURLException {
+        User user = getLoggedUser();
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .where()
+                .eq("user.id", user.getId())
+                .eq("reservation.externalRef", ref)
+                .findUnique();
+        if (enrolment == null) {
+            return wrapAsPromise(notFound(String.format("No reservation with ref %s for current user.", ref)));
+        }
+        // Removal not permitted if reservation is in the past or ongoing
+        final Reservation reservation = enrolment.getReservation();
+        DateTime now = AppUtil.adjustDST(DateTime.now(), reservation.getExternalReservation());
+        if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
+            return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
+        }
+        // good to go
+        ExternalReservation external = reservation.getExternalReservation();
+        URL url = parseUrl(external.getOrgRef(), external.getRoomRef(), ref);
+        WSRequest request = wsClient.url(url.toString());
+        Function<WSResponse, Result> onSuccess = response -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != 200) {
+                return internalServerError(root.get("message").asText("Connection refused"));
+            }
+            enrolment.setReservation(null);
+            enrolment.setReservationCanceled(true);
+            Ebean.save(enrolment);
+            reservation.delete();
+
+            // send email asynchronously
+            boolean isStudentUser = user.equals(enrolment.getUser());
+            system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+                emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
+                Logger.info("Reservation cancellation confirmation email sent");
+            }, system.dispatcher());
+
+            return ok();
+        };
+        return request.delete().thenApplyAsync(onSuccess);
+    }
 
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestSlots(Long examId, String roomRef, Optional<String> org, Optional<String> date)
