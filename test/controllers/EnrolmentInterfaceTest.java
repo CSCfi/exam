@@ -4,6 +4,7 @@ import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableMap;
 import helpers.RemoteServerHelper;
 import models.Exam;
 import org.eclipse.jetty.server.Server;
@@ -41,7 +42,7 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
 
     @BeforeClass
     public static void startServer() throws Exception {
-        server = RemoteServerHelper.createAndStartServer(31246, CourseInfoServlet.class, "/enrolments");
+        server = RemoteServerHelper.createAndStartServer(31246, ImmutableMap.of(CourseInfoServlet.class, "/enrolments"));
     }
 
     @Before
@@ -83,11 +84,5 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).isEmpty();
    }
-
-    @Test
-    public void testX() {
-        Exam exam = Ebean.find(Exam.class).fetch("examOwners").where().idEq(1L).findUnique();
-        System.out.println(exam);
-    }
 
 }

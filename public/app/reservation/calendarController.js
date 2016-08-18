@@ -2,9 +2,10 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$routeParams', 'dateService',
-            '$locale', 'StudentExamRes', 'reservationService', 'dialogs', 'SettingsResource', 'CalendarRes', 'uiCalendarConfig',
+            '$locale', 'StudentExamRes', 'reservationService', 'dialogs', 'SettingsResource', 'CalendarRes',
+            'uiCalendarConfig', 'InteroperabilityResource',
             function ($scope, $http, $location, $translate, $routeParams, dateService, $locale, StudentExamRes,
-                      reservationService, dialogs, SettingsResource, CalendarRes, uiCalendarConfig) {
+                      reservationService, dialogs, SettingsResource, CalendarRes, uiCalendarConfig, InteroperabilityRes) {
 
                 $scope.limitations = {};
                 $scope.rooms = [];
@@ -15,6 +16,10 @@
                     loading: false
                 };
                 $scope.eventSources = [];
+
+                SettingsResource.iop.get(function (data) {
+                    $scope.isInteroperable = data.isInteroperable;
+                });
 
                 StudentExamRes.examInfo.get({eid: $routeParams.id}, function (info) {
                     $scope.examInfo = info;
@@ -59,6 +64,10 @@
                 $http.get('/app/accessibility').success(function (data) {
                     $scope.accessibilities = data;
                 });
+
+                $scope.makeExternalReservation = function () {
+                    $location.path('/iop/calendar/' + $routeParams.id);
+                };
 
                 var adjust = function (date, tz) {
                     date = moment.tz(date, tz);
@@ -210,7 +219,7 @@
                             info = $scope.selectedRoom().roomInstructionSV;
                             break;
                         case "en":
-                            /* falls through */
+                        /* falls through */
                         default:
                             info = $scope.selectedRoom().roomInstructionEN;
                             break;

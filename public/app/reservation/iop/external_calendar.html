@@ -1,0 +1,159 @@
+<script>
+    $(document).ready(function () {
+
+        $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function (e) {
+            e.stopPropagation();
+        });
+
+    });
+</script>
+
+<div id='sitnet-header' class='header'>
+    <div class='col-md-12 header-wrapper'>
+        <span class='header-text'>{{'sitnet_calendar' | translate}}</span>
+    </div>
+</div>
+
+
+<div id='dashboard' ng-controller='ExternalCalendarCtrl'>
+
+    <div class="main-row">
+        <div class="col-md-6">
+            <h4>{{ examInfo.course.code }} - {{ examInfo.name }}</h4>
+
+            <div>
+                <strong>{{'sitnet_exam_duration' | translate}}:&nbsp;</strong>
+                {{ printExamDuration(examInfo) }}
+            </div>
+            <div>
+                <strong>{{'sitnet_exam_validity' | translate}}:&nbsp;</strong>
+                {{ examInfo.examActiveStartDate | date:'dd.MM.yyyy' }} - {{examInfo.examActiveEndDate |
+                date:'dd.MM.yyyy' }}
+                <span ng-if="showReservationWindowInfo()" class="text-info"><i class="fa fa-info-circle"></i>
+                    <small> {{ getReservationWindowDescription() }}</small></span>
+            </div>
+        </div>
+        <div class="col-md-6" ng-if="examInfo.enrollInstruction">
+            <h4>{{ 'sitnet_instruction' | translate }}</h4>
+
+            <p mathjax ng-bind-html="examInfo.enrollInstruction"></p>
+        </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="main-row" ng-hide="selectedRoom()">
+        <div class="col-md-12">
+            <div class="alert alert-info info-box">
+                <span class="form-group">
+                    <i class="fa fa-lg fa-info-circle"></i>
+                    &nbsp;{{'sitnet_calendar_pick_room' | translate }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-row">
+        <div class="col-md-12">
+            <label for="filters">{{'sitnet_search' | translate}}</label>
+            <div id="filters" class="form-group">
+                <span class="dropdown" uib-dropdown>
+                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu3"
+                            data-toggle="dropdown" aria-expanded="true">
+                        {{ 'sitnet_faculty_name' | translate }}&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                        aria-labelledby="dropDownMenu3">
+                        <li role="presentation" class="input-group">
+                            <input ng-model="limitations.organisations" type="text" class="form-control"
+                                   placeholder="{{'sitnet_search' | translate }}">
+
+                            <div class="input-group-addon">
+                                <i class="fa fa-search fa-fw"></i>
+                            </div>
+                        </li>
+                        <li ng-repeat="org in organisations | filter:limitations.organisations" ng-hide="organisation.filtered"
+                            role="presentation" ng-class="!org.homeOrg ? 'strong' : ''"
+                            ng-click="setOrganisation(org)">
+                            <a role="menuitem">{{org.code}}&nbsp;({{org.name}})</a>
+                        </li>
+                    </ul>
+                </span>
+                <span class="dropdown" uib-dropdown>
+                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                            data-toggle="dropdown" aria-expanded="true" ng-disabled="!selectedOrganisation">
+                        {{'sitnet_room' | translate}}&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                        aria-labelledby="dropDownMenu1">
+                        <li role="presentation" class="input-group">
+                            <input ng-model="limitations.rooms" type="text" class="form-control"
+                                   placeholder="{{'sitnet_search' | translate }}">
+
+                            <div class="input-group-addon">
+                                <i class="fa fa-search fa-fw"></i>
+                            </div>
+                        </li>
+                        <li ng-repeat="room in rooms | filter:limitations.rooms" ng-hide="room.filtered"
+                            role="presentation" ng-class="room.outOfService ? 'disabled' : ''"
+                            ng-click="selectRoom(room)">
+                            <a role="menuitem" popover-trigger="mouseenter" uib-popover="{{getDescription(room)}}">{{room.name
+                                | truncate:30}}</a>
+                        </li>
+                    </ul>
+                </span>
+                <span>
+                    <button class="btn btn-success btn-link" ng-click="makeInternalReservation()">
+                        {{'Tilavaraus omasta oppilaitoksesta' | translate }}&nbsp;<i class="fa fa-angle-double-right" />
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SELECTED ROOM  -->
+    <div class="bottom-row" ng-show="selectedOrganisation">
+        <h4 class="col-md-12">{{ selectedOrganisation.name }}</h4>
+        <div ng-show="selectedRoom()">
+            <h5 class="col-md-12">{{ selectedRoom().name }}</h5>
+            <span class="col-md-12">
+                <strong>{{'sitnet_exam_room_address' | translate}}:</strong>&nbsp;
+                {{selectedRoom().mailAddress.street}} {{selectedRoom().mailAddress.zip}} {{selectedRoom().mailAddress.city}}
+            </span>
+            <span class="col-md-12" ng-show="getRoomAccessibility()">
+                <strong>{{'sitnet_room_accessibility' | translate}}:</strong>&nbsp;
+                {{getRoomAccessibility()}}
+            </span>
+            <span class="col-md-12" ng-show="getRoomInstructions()">
+                <strong>{{'sitnet_instructions' | translate }}:</strong>&nbsp;
+                {{getRoomInstructions()}}
+            </span>
+            <span class="col-md-12">
+                <strong>{{'sitnet_room_default_working_hours' | translate }}:</strong>&nbsp;
+                <small><span ng-repeat="oh in openingHours">
+                    {{oh.name}}: {{oh.periods}} {{ $last ? '' : '| ';}}
+                </span><span>({{ selectedRoom().localTimezone }})</span></small>
+            </span>
+            <span class="col-md-12" ng-show="exceptionHours.length > 0">
+                <strong>{{'sitnet_exception_datetimes' | translate }}:</strong>&nbsp;
+                <small><span ng-repeat="eh in exceptionHours" ng-class="eh.outOfService ? 'text-danger' : 'text-success'"
+                             popover-trigger="mouseenter" uib-popover="{{eh.description | translate}}">
+                    {{eh.start}} - {{eh.end}} {{ $last ? '' : '| ';}}
+                </span></small>
+            </span>
+        </div>
+    </div>
+    <div class="main-row" ng-show="loader.loading">
+        <div class="col-md-12">
+            <button class="btn btn-success">{{'sitnet_searching' | translate }}...
+                <i class="fa fa-spinner fa-spin"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="bottom-row">
+        <div class="col-md-12" id="calendar" config="calendarConfig" ng-model="eventSources"
+             ui-calendar="calendarConfig" calendar="externalCalendar"></div>
+    </div>
+
+</div>

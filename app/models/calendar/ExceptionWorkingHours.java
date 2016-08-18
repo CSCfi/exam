@@ -2,8 +2,11 @@ package models.calendar;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import models.Exam;
 import models.ExamRoom;
 import models.base.GeneratedIdentityModel;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -83,4 +86,19 @@ public class ExceptionWorkingHours extends GeneratedIdentityModel {
     public void setMassEdited(boolean massEdited) {this.massEdited = massEdited; }
 
     public boolean getMassEdited() {return massEdited;}
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof ExceptionWorkingHours)) {
+            return false;
+        }
+        ExceptionWorkingHours otherException = (ExceptionWorkingHours) other;
+        return new EqualsBuilder().append(id, otherException.id).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).build();
+    }
 }

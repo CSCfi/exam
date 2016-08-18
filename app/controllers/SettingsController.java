@@ -7,6 +7,8 @@ import com.avaje.ebean.Update;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
+import controllers.base.ActionMethod;
+import controllers.base.BaseController;
 import models.GeneralSettings;
 import models.User;
 import play.Environment;
@@ -23,7 +25,7 @@ public class SettingsController  extends BaseController {
 
     @Inject
     private Langs langs;
-    
+
     @Inject
     private Environment environment;
 
@@ -150,6 +152,13 @@ public class SettingsController  extends BaseController {
     public Result isProd() {
         ObjectNode node = Json.newObject();
         node.put("isProd", environment.isProd());
+        return ok(Json.toJson(node));
+    }
+
+    @ActionMethod
+    public Result isInteroperable() {
+        ObjectNode node = Json.newObject();
+        node.put("isInteroperable", AppUtil.isInteroperable());
         return ok(Json.toJson(node));
     }
 

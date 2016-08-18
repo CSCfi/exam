@@ -8,6 +8,7 @@ import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Model;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
+import controllers.base.BaseController;
 import models.Exam;
 import models.ExamSectionQuestion;
 import models.ExamSectionQuestionOption;

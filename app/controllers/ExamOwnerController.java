@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.base.BaseController;
 import models.Exam;
 import models.User;
 import play.libs.Json;

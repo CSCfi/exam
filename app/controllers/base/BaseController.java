@@ -1,4 +1,4 @@
-package controllers;
+package controllers.base;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
@@ -26,8 +26,8 @@ import java.util.concurrent.CompletionStage;
 public class BaseController extends Controller {
 
     public static final String SITNET_CACHE_KEY = "user.session.";
-    static final int SITNET_TIMEOUT_MINUTES = 30;
-    static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
+    protected static final int SITNET_TIMEOUT_MINUTES = 30;
+    protected static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
     private static final int KB = 1024;
     private static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
 
@@ -36,7 +36,7 @@ public class BaseController extends Controller {
     @Inject
     protected FormFactory formFactory;
 
-    <T> T bindForm(final Class<T> clazz) {
+    protected <T> T bindForm(final Class<T> clazz) {
         final Form<T> form = formFactory.form(clazz);
         if (form.hasErrors()) {
             throw new MalformedDataException(form.errorsAsJson().asText());
@@ -103,17 +103,17 @@ public class BaseController extends Controller {
         return cache.get(SITNET_CACHE_KEY + getToken());
     }
 
-    void updateSession(Session session) {
+    protected void updateSession(Session session) {
         cache.set(SITNET_CACHE_KEY + getToken(), session);
     }
 
-    String createSession(Session session) {
+    protected String createSession(Session session) {
         String token = createToken();
         cache.set(SITNET_CACHE_KEY + token, session);
         return token;
     }
 
-    List<String> parseArrayFieldFromBody(String field) {
+    protected List<String> parseArrayFieldFromBody(String field) {
         DynamicForm df = formFactory.form().bindFromRequest();
         String args = df.get(field);
         String[] array;
@@ -125,7 +125,7 @@ public class BaseController extends Controller {
         return Arrays.asList(array);
     }
 
-    <T> ExpressionList<T> applyUserFilter(String prefix, ExpressionList<T> query, String filter) {
+    protected <T> ExpressionList<T> applyUserFilter(String prefix, ExpressionList<T> query, String filter) {
         ExpressionList<T> result = query;
         String rawFilter = filter.replaceAll(" +", " ").trim();
         String condition = String.format("%%%s%%", rawFilter);
@@ -149,7 +149,7 @@ public class BaseController extends Controller {
         return result;
     }
 
-    ByteArrayOutputStream setData(File file) {
+    protected ByteArrayOutputStream setData(File file) {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
@@ -183,7 +183,7 @@ public class BaseController extends Controller {
         NoShowHandlerUtil.handleNoShows(enrolments, composer, null);
     }
 
-    boolean isAllowedToParticipate(Exam exam, User user, EmailComposer composer) {
+    protected boolean isAllowedToParticipate(Exam exam, User user, EmailComposer composer) {
         handleNoShow(user, exam.getId(), composer);
         Integer trialCount = exam.getTrialCount();
         if (trialCount == null) {
@@ -217,7 +217,7 @@ public class BaseController extends Controller {
         return true;
     }
 
-    CompletionStage<Result> wrapAsPromise(final Result result) {
+    protected CompletionStage<Result> wrapAsPromise(final Result result) {
         return CompletableFuture.supplyAsync(() -> result);
     }
 }

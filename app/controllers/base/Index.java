@@ -1,5 +1,6 @@
-package controllers;
+package controllers.base;
 
+import controllers.WebJarAssets;
 import play.Environment;
 import play.mvc.Controller;
 import play.mvc.Result;

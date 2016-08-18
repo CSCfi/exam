@@ -10,6 +10,8 @@ import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.api.ExternalAPI;
+import controllers.base.BaseController;
 import models.*;
 import models.questions.EssayAnswer;
 import org.joda.time.DateTime;
@@ -193,7 +195,8 @@ public class StudentExamController extends BaseController {
                 .fetch("exam.examLanguages")
                 .fetch("exam.examOwners", "firstName, lastName")
                 .fetch("exam.examInspections.user", "firstName, lastName")
-                .fetch("reservation", "startAt, endAt")
+                .fetch("reservation", "startAt, endAt, externalRef")
+                .fetch("reservation.externalReservation")
                 .fetch("reservation.machine", "name")
                 .fetch("reservation.machine.room", "name, roomCode, localTimezone")
                 .where()

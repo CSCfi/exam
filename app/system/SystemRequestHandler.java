@@ -3,7 +3,7 @@ package system;
 
 import com.avaje.ebean.Ebean;
 import com.google.inject.Inject;
-import controllers.BaseController;
+import controllers.base.BaseController;
 import models.*;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
@@ -212,6 +212,7 @@ public class SystemRequestHandler implements ActionCreator {
                 .endJunction()
                 .le("reservation.startAt", future)
                 .gt("reservation.endAt", now)
+                .isNotNull("reservation.machine")
                 .orderBy("reservation.startAt")
                 .findList();
         if (results.isEmpty()) {

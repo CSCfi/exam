@@ -5,7 +5,14 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
-import models.*;
+import controllers.api.ExternalAPI;
+import controllers.base.BaseController;
+import controllers.iop.api.ExternalCalendarAPI;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamExecutionType;
+import models.Reservation;
+import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Result;
@@ -14,9 +21,11 @@ import util.java.EmailComposer;
 
 import javax.inject.Inject;
 import java.net.MalformedURLException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 public class EnrolmentController extends BaseController {
 
@@ -27,6 +36,9 @@ public class EnrolmentController extends BaseController {
 
     @Inject
     protected ExternalAPI externalAPI;
+
+    @Inject
+    protected ExternalCalendarAPI externalCalendarAPI;
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result enrollExamList(String code) {
@@ -169,7 +181,7 @@ public class EnrolmentController extends BaseController {
         return ok();
     }
 
-    private Result doCreateEnrolment(Long eid, ExamExecutionType.Type type, User user) {
+    private CompletionStage<Result> doCreateEnrolment(Long eid, ExamExecutionType.Type type, User user) {
         Exam exam = Ebean.find(Exam.class)
                 .where()
                 .eq("id", eid)
@@ -180,7 +192,7 @@ public class EnrolmentController extends BaseController {
                 .eq("executionType.type", type.toString())
                 .findUnique();
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
@@ -205,46 +217,56 @@ public class EnrolmentController extends BaseController {
             Reservation reservation = enrolment.getReservation();
             if (reservation == null) {
                 // enrolment without reservation already exists, no need to create a new one
-                return forbidden("sitnet_error_enrolment_exists");
+                return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));
             } else if (reservation.toInterval().contains(AppUtil.adjustDST(DateTime.now(), reservation))) {
                 // reservation in effect
                 if (exam.getState() == Exam.State.STUDENT_STARTED) {
                     // exam for reservation is ongoing
-                    return forbidden("sitnet_reservation_in_effect");
+                    return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
                 } else if (exam.getState() == Exam.State.PUBLISHED) {
                     // exam for reservation not started (yet?)
-                    return forbidden("sitnet_reservation_in_effect");
+                    return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
                 }
             } else if (reservation.toInterval().isAfterNow()) {
                 // reservation in the future, replace it
-                enrolment.delete();
+                // pass this through externalAPI to see if there's something to remove externally also
+                return externalCalendarAPI.removeReservation(enrolment).thenApplyAsync(result -> {
+                    enrolment.delete();
+                    ExamEnrolment newEnrolment = makeEnrolment(exam, user);
+                    return ok(newEnrolment);
+                });
             }
         }
         ExamEnrolment newEnrolment = makeEnrolment(exam, user);
-        return ok(newEnrolment);
+        return wrapAsPromise(ok(newEnrolment));
+    }
+
+    private CompletionStage<Result> checkPermission(Long id, Collection<String> codes, String code, User user) {
+        if (codes.contains(code)) {
+            return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
+        } else {
+            Logger.warn("Attempt to enroll for a course without permission from {}", user.toString());
+            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+        }
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public CompletionStage<Result> createEnrolment(final String code, final Long id) throws MalformedURLException {
-        final User user = getLoggedUser();
+        User user = getLoggedUser();
         if (!PERM_CHECK_ACTIVE) {
-            return wrapAsPromise(doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user));
+            return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
         }
-        return externalAPI.getPermittedCourses(user).thenApplyAsync(codes -> {
-            if (codes.contains(code)) {
-                return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
-            } else {
-                Logger.warn("Attempt to enroll for a course without permission from {}", user.toString());
-                return forbidden("sitnet_error_access_forbidden");
-            }
-        }).exceptionally(throwable -> internalServerError(throwable.getMessage()));
+        return externalAPI.getPermittedCourses(user)
+                .thenApplyAsync(codes -> checkPermission(id, codes, code, user))
+                .thenCompose(Function.identity())
+                .exceptionally(throwable -> internalServerError(throwable.getMessage()));
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result createStudentEnrolment(Long eid, Long uid) {
+    public CompletionStage<Result> createStudentEnrolment(Long eid, Long uid) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
         User user = Ebean.find(User.class, uid);
         return doCreateEnrolment(eid, ExamExecutionType.Type.valueOf(exam.getExecutionType().getType()), user);

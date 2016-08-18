@@ -14,6 +14,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
+import controllers.api.ExternalAPI;
+import controllers.base.ActionMethod;
+import controllers.base.BaseController;
 import models.*;
 import models.dto.ExamScore;
 import org.joda.time.DateTime;
@@ -34,13 +37,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -124,8 +121,13 @@ public class IntegrationController extends BaseController implements ExternalAPI
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public CompletionStage<Collection<String>> getPermittedCourses(User user) throws MalformedURLException {
-        URL url = parseUrl(user);
+    public CompletionStage<Collection<String>> getPermittedCourses(User user) {
+        URL url;
+        try {
+            url = parseUrl(user);
+        } catch (MalformedURLException e) {
+           return CompletableFuture.supplyAsync(Collections::emptyList);
+        }
         WSRequest request = wsClient.url(url.toString().split("\\?")[0]);
         if (url.getQuery() != null) {
             request = request.setQueryString(url.getQuery());

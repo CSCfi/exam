@@ -2,6 +2,7 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.base.GeneratedIdentityModel;
+import models.iop.ExternalReservation;
 import org.joda.time.Interval;
 
 import javax.annotation.Nonnull;
@@ -32,6 +33,13 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
     @OneToOne
     @JsonBackReference
     private User user;
+
+    private String externalRef;
+
+    private String externalUserRef;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private ExternalReservation externalReservation;
 
     public Date getStartAt() {
         return startAt;
@@ -89,7 +97,29 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
         this.enrolment = enrolment;
     }
 
+    public String getExternalRef() {
+        return externalRef;
+    }
 
+    public void setExternalRef(String externalRef) {
+        this.externalRef = externalRef;
+    }
+
+    public String getExternalUserRef() {
+        return externalUserRef;
+    }
+
+    public ExternalReservation getExternalReservation() {
+        return externalReservation;
+    }
+
+    public void setExternalReservation(ExternalReservation externalReservation) {
+        this.externalReservation = externalReservation;
+    }
+
+    public void setExternalUserRef(String externalUserRef) {
+        this.externalUserRef = externalUserRef;
+    }
 
     @Transient
     public Interval toInterval() {

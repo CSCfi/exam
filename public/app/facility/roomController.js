@@ -3,8 +3,10 @@
     angular.module("exam.controllers")
         .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'sessionService', '$location', '$uibModal', '$http',
             'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'EXAM_CONF', 'dateService', '$translate', '$route',
+            'SettingsResource', 'InteroperabilityResource',
             function (dialogs, $scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource,
-                      RoomResource, ExamMachineResource, EXAM_CONF, dateService, $translate, $route) {
+                      RoomResource, ExamMachineResource, EXAM_CONF, dateService, $translate, $route, SettingsRes,
+                      InteroperabilityRes) {
 
                 $scope.dateService = dateService;
 
@@ -214,6 +216,7 @@
                     } else {
                         RoomResource.rooms.get({id: $routeParams.id},
                             function (room) {
+                            room.availableForExternals = room.externalRef != null;
                                 $scope.times = times;
                                 room.defaultWorkingHours.forEach(function (daySlot) {
                                     var timeSlots = slotToTimes(daySlot);
@@ -574,7 +577,7 @@
 
                 $scope.deleteException = function (exception) {
 
-                    RoomResource.exception.remove({id: exception.id},
+                    RoomResource.exception.remove({roomId: $scope.roomInstance.id, exceptionId: exception.id},
                         function () {
                             if ($scope.editingMultipleRooms()) {
                                 $scope.getMassEditedRooms();
@@ -648,7 +651,7 @@
                             roomIds = [$scope.roomInstance.id];
                         }
 
-                        RoomResource.exception.update({roomIds: roomIds}, exception,
+                        RoomResource.exceptions.update({roomIds: roomIds}, exception,
                             function (data) {
                                 toastr.info($translate.instant('sitnet_exception_time_added'));
                                 if ($scope.editingMultipleRooms()) {
@@ -686,6 +689,17 @@
                 $scope.massEditedExceptionFilter = function (exception) {
                     return exception.massEdited;
                 };
+
+                SettingsRes.iop.get(function(data) {
+                    $scope.isInteroperable = data.isInteroperable;
+                });
+
+                $scope.updateInteroperability = function(roomInstance) {
+                    InteroperabilityRes.facility.update(roomInstance, function(data) {
+                        roomInstance.externalRef = data.externalRef;
+                        roomInstance.availableForExternals = data.externalRef != null;
+                    });
+                }
 
             }]);
 }());

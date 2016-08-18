@@ -39,6 +39,8 @@ public class ExamRoom extends GeneratedIdentityModel {
 
     private String campus;
 
+    private String externalRef;
+
     @OneToOne
     private Organisation organization;
 
@@ -55,7 +57,6 @@ public class ExamRoom extends GeneratedIdentityModel {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
     private List<ExamStartingHour> examStartingHours;
 
-    // Tentin siirtymäaika, oletuksena 5min, joka on pois tentin suoritusajasta, esim. 60min tentissä tenttiaikaa on 55min.
     private String transitionTime;
 
     // Accessibility info describes what accessibility issues there are regarding the room
@@ -253,6 +254,14 @@ public class ExamRoom extends GeneratedIdentityModel {
 
     public void setOrganization(Organisation organization) {
         this.organization = organization;
+    }
+
+    public String getExternalRef() {
+        return externalRef;
+    }
+
+    public void setExternalRef(String externalRef) {
+        this.externalRef = externalRef;
     }
 
     public boolean getAccessible() {

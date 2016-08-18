@@ -4,6 +4,7 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import controllers.base.BaseController;
 import models.Exam;
 import models.ExamParticipation;
 import models.ExamRecord;
@@ -149,7 +150,7 @@ public class ExamRecordController extends BaseController {
         try {
             bos = ExcelBuilder.build(examId, childIds);
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_csv_file");
+            return internalServerError("sitnet_error_creating_csv_file" );
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"");
         return ok(Base64.getEncoder().encodeToString(bos.toByteArray()));

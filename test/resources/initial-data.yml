@@ -1124,13 +1124,57 @@ exam-rooms:
     contactPerson: Kiinteistöinsinööri Timppa Vaksi. puh. 040 123 4567
     videoRecordingsURL: www.utu.fi/videot
     outOfService: false
+    state: ACTIVE
+
 ################################################################
 
 calendar-events:
-  - &cal-event !!models.calendar.DefaultWorkingHours
+  - !!models.calendar.DefaultWorkingHours
     startTime: 2014-05-05 08:00:00.000
     endTime: 2014-05-05 16:00:00.000
     weekday: MONDAY
+    timezoneOffset: 7200000
+    room: *room-pegasus
+
+  - !!models.calendar.DefaultWorkingHours
+    startTime: 2014-05-05 08:00:00.000
+    endTime: 2014-05-05 16:00:00.000
+    weekday: TUESDAY
+    timezoneOffset: 7200000
+    room: *room-pegasus
+
+  - !!models.calendar.DefaultWorkingHours
+    startTime: 2014-05-05 08:00:00.000
+    endTime: 2014-05-05 16:00:00.000
+    weekday: WEDNESDAY
+    timezoneOffset: 7200000
+    room: *room-pegasus
+
+  - !!models.calendar.DefaultWorkingHours
+    startTime: 2014-05-05 08:00:00.000
+    endTime: 2014-05-05 16:00:00.000
+    weekday: THURSDAY
+    timezoneOffset: 7200000
+    room: *room-pegasus
+
+  - !!models.calendar.DefaultWorkingHours
+    startTime: 2014-05-05 08:00:00.000
+    endTime: 2014-05-05 16:00:00.000
+    weekday: FRIDAY
+    timezoneOffset: 7200000
+    room: *room-pegasus
+
+  - !!models.calendar.DefaultWorkingHours
+    startTime: 2014-05-05 08:00:00.000
+    endTime: 2014-05-05 16:00:00.000
+    weekday: SATURDAY
+    timezoneOffset: 7200000
+    room: *room-pegasus
+
+  - !!models.calendar.DefaultWorkingHours
+    startTime: 2014-05-05 08:00:00.000
+    endTime: 2014-05-05 21:00:00.000
+    weekday: SUNDAY
     timezoneOffset: 7200000
     room: *room-pegasus
 

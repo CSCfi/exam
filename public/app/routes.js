@@ -24,6 +24,7 @@
 
             /* booking */
             $routeProvider.when('/calendar/:id', { templateUrl: tmpl + 'reservation/calendar.html'});
+            $routeProvider.when('/iop/calendar/:id', { templateUrl: tmpl + 'reservation/iop/external_calendar.html'});
 
             $routeProvider.when('/invalid_session', { templateUrl: tmpl + 'common/invalid_session.html'});
 

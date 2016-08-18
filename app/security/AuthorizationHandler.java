@@ -4,7 +4,7 @@ import be.objectify.deadbolt.java.DeadboltHandler;
 import be.objectify.deadbolt.java.DynamicResourceHandler;
 import be.objectify.deadbolt.java.models.Subject;
 import com.avaje.ebean.Ebean;
-import controllers.BaseController;
+import controllers.base.BaseController;
 import models.Session;
 import models.User;
 import net.sf.ehcache.Cache;
