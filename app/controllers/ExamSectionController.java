@@ -214,7 +214,11 @@ public class ExamSectionController extends BaseController {
         ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
         sectionQuestion.setExamSection(section);
         sectionQuestion.setQuestion(question);
-        if (section.getSectionQuestions().contains(sectionQuestion)) {
+        // Assert that the sequence number provided is within limits
+        Integer sequence = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
+        updateSequences(section.getSectionQuestions(), sequence);
+        sectionQuestion.setSequenceNumber(sequence);
+        if (section.getSectionQuestions().contains(sectionQuestion) || section.hasQuestion(question)) {
             return Optional.of(badRequest("sitnet_question_already_in_section"));
         }
 
@@ -229,9 +233,6 @@ public class ExamSectionController extends BaseController {
             }
         }
 
-        // Assert that the sequence number provided is within limits
-        Integer sequence = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
-        updateSequences(section.getSectionQuestions(), sequence);
         Ebean.updateAll(section.getSectionQuestions());
 
         // Insert new section question
@@ -239,7 +240,6 @@ public class ExamSectionController extends BaseController {
         sectionQuestion.setCreated(new Date());
         sectionQuestion.setExamSection(section);
         sectionQuestion.setQuestion(question);
-        sectionQuestion.setSequenceNumber(sequence);
         sectionQuestion.setMaxScore(question.getDefaultMaxScore());
         sectionQuestion.setAnswerInstructions(question.getDefaultAnswerInstructions());
         sectionQuestion.setEvaluationCriteria(question.getDefaultEvaluationCriteria());
@@ -289,15 +289,17 @@ public class ExamSectionController extends BaseController {
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("sitnet_error_access_forbidden");
         }
+        int sequence = seq;
         for (String s : questions.split(",")) {
             Question question = Ebean.find(Question.class, Long.parseLong(s));
             if (question == null) {
                 continue;
             }
-            Optional<Result> result = insertQuestion(exam, section, question, user, seq);
+            Optional<Result> result = insertQuestion(exam, section, question, user, sequence);
             if (result.isPresent()) {
                 return result.get();
             }
+            ++sequence;
         }
         return ok(section);
     }
