@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.Attachment;
 import models.ExamSectionQuestion;
-import models.ExamSectionQuestionOption;
 import models.Tag;
 import models.User;
 import models.api.AttachmentContainer;
 import models.base.OwnedModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
@@ -282,6 +282,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
         }
         Question other = (Question) object;
         return new EqualsBuilder().append(id, other.getId()).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).build();
     }
 
     public Question copy() {
