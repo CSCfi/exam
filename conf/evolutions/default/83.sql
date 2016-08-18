@@ -25,3 +25,4 @@ ALTER TABLE reservation DROP external_user_ref;
 ALTER TABLE reservation DROP external_reservation_id;
 
 DROP TABLE external_reservation CASCADE;
+DROP SEQUENCE external_reservation_seq;

@@ -103,8 +103,8 @@
                     </ul>
                 </span>
                 <span>
-                    <button class="btn btn-success btn-link" ng-click="makeExternalReservation()">
-                        {{'Tilavaraus ulkopuolisesta oppilaitoksesta' | translate }}&nbsp;<i class="fa fa-angle-double-right" />
+                    <button class="btn btn-success btn-link" ng-click="makeExternalReservation()" ng-if="isInteroperable">
+                        {{'sitnet_external_reservation' | translate }}&nbsp;<i class="fa fa-angle-double-right" />
                     </button>
                 </span>
             </div>

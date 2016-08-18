@@ -689,5 +689,7 @@
   "sitnet_unrestricted": "Obegränsad",
   "sitnet_question_removal_disallowed": "Man kan inte radera denna fråga, den används i publicerade tentamina",
   "sitnet_action_disabled_lottery_on": "Man kan inte göra det för att utlottning är i bruk",
-  "sitnet_shared_question_property_info": "De här ändringar uppdateras också i andra tentamina."
+  "sitnet_shared_question_property_info": "De här ändringar uppdateras också i andra tentamina.",
+  "sitnet_interoperable": "Yhteiskäytössä SV",
+  "sitnet_external_reservation": "Tilavaraus ulkopuolisesta oppilaitoksesta SV"
 }

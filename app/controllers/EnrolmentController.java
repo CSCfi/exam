@@ -252,7 +252,7 @@ public class EnrolmentController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public CompletionStage<Result> createEnrolment(final String code, final Long id) throws MalformedURLException {
-        final User user = getLoggedUser();
+        User user = getLoggedUser();
         if (!PERM_CHECK_ACTIVE) {
             return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
         }

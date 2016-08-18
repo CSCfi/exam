@@ -3,9 +3,10 @@
     angular.module("exam.controllers")
         .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'sessionService', '$location', '$uibModal', '$http',
             'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'EXAM_CONF', 'dateService', '$translate', '$route',
-            'InteroperabilityResource',
+            'SettingsResource', 'InteroperabilityResource',
             function (dialogs, $scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource,
-                      RoomResource, ExamMachineResource, EXAM_CONF, dateService, $translate, $route, InteroperabilityRes) {
+                      RoomResource, ExamMachineResource, EXAM_CONF, dateService, $translate, $route, SettingsRes,
+                      InteroperabilityRes) {
 
                 $scope.dateService = dateService;
 
@@ -688,6 +689,10 @@
                 $scope.massEditedExceptionFilter = function (exception) {
                     return exception.massEdited;
                 };
+
+                SettingsRes.iop.get(function(data) {
+                    $scope.isInteroperable = data.isInteroperable;
+                });
 
                 $scope.updateInteroperability = function(roomInstance) {
                     InteroperabilityRes.facility.update(roomInstance, function(data) {
