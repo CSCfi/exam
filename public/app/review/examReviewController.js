@@ -107,7 +107,7 @@
 
                 var setQuestionAmounts = function () {
                     var amounts = questionService.getQuestionAmounts($scope.exam);
-                    $scope.hasEssayQuestions = amounts.hasEssayQuestions;
+                    $scope.hasEssayQuestions = amounts.hasEssays;
                     $scope.acceptedEssays = amounts.accepted;
                     $scope.rejectedEssays = amounts.rejected;
                 };
@@ -385,7 +385,7 @@
 
                     QuestionRes.score.update({id: sectionQuestion.id, evaluatedScore: answer.evaluatedScore}, function (q) {
                         toastr.info($translate.instant("sitnet_graded"));
-                        if (q.evaluationType === "Select") {
+                        if (q.evaluationType === "Selection") {
                             setQuestionAmounts();
                         }
                         $scope.startReview();

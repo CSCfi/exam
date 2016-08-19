@@ -26,7 +26,8 @@
                             maxScore: exam.maxScore,
                             totalScore: exam.totalScore,
                             approvedAnswerCount: exam.approvedAnswerCount,
-                            rejectedAnswerCount: exam.rejectedAnswerCount
+                            rejectedAnswerCount: exam.rejectedAnswerCount,
+                            hasApprovedRejectedAnswers: exam.approvedAnswerCount + exam.rejectedAnswerCount > 0
                         };
                     });
 
