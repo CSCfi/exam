@@ -39,18 +39,16 @@
                 </div>
                 <!-- only show if not maturity and actual grade given -->
                 <div ng-hide="reviewedExam.executionType.type === 'MATURITY' || reviewedExam.grade.name === 'NONE'">
-                    <div class="info-row col-md-12 info-column" ng-if="reviewedExam.maxScore != (reviewedExam.approvedAnswerCount + reviewedExam.rejectedAnswerCount)">
+                    <div class="info-row col-md-12 info-column">
                         <span class="header col-md-4">{{'sitnet_total_score' | translate}}:</span>
                         <span class="text col-md-8">{{ scores.totalScore}} / {{scores.maxScore}}</span>
                     </div>
                     <div class="info-row col-md-12 info-column"
-                         ng-if="(reviewedExam.approvedAnswerCount && reviewedExam.approvedAnswerCount > 0) ||
-                          (reviewedExam.rejectedAnswerCount && reviewedExam.rejectedAnswerCount > 0)">
+                         ng-if="scores.hasApprovedRejectedAnswers">
                         <span class="header col-md-4">{{'sitnet_approved' | translate}}:</span>
                         <span class="text col-md-8">{{ scores.approvedAnswerCount}}</span>
                     </div>
-                    <div class="info-row col-md-12 info-column" ng-if="(reviewedExam.approvedAnswerCount && reviewedExam.approvedAnswerCount > 0) ||
-                          (reviewedExam.rejectedAnswerCount && reviewedExam.rejectedAnswerCount > 0)">
+                    <div class="info-row col-md-12 info-column" ng-if="scores.hasApprovedRejectedAnswers">
                         <span class="header col-md-4">{{'sitnet_rejected' | translate}}:</span>
                         <span class="text col-md-8">{{ scores.rejectedAnswerCount}}</span>
                     </div>
