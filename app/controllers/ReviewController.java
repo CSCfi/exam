@@ -540,7 +540,7 @@ public class ReviewController extends BaseController {
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"" + tarball.getName() + "\"");
         String body = Base64.getEncoder().encodeToString(setData(tarball).toByteArray());
-        return ok(body).as("application/gzip");
+        return ok(body);
     }
 
     private void notifyPartiesAboutPrivateExamRejection(Exam exam) {
