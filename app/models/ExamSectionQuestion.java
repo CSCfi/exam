@@ -168,6 +168,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         if (!preserveOriginalQuestion) {
             blueprint = question.copy();
             blueprint.setParent(question);
+            blueprint.save();
         } else {
             blueprint = question;
         }
