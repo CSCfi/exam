@@ -27,6 +27,7 @@ import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
+import util.AppUtil;
 import util.java.DateTimeUtils;
 
 import javax.inject.Inject;
@@ -109,6 +110,7 @@ public class RoomController extends BaseController {
         ExamRoom examRoom = new ExamRoom();
         examRoom.setName("Kirjoita tenttitilan nimi tähän"); // TODO: i18n
         examRoom.setState("SAVED");
+        examRoom.setLocalTimezone(AppUtil.getDefaultTimeZone().getID());
         examRoom.save();
         return ok(Json.toJson(examRoom));
     }

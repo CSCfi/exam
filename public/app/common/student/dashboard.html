@@ -64,9 +64,13 @@
                             <div class="col-md-3 header">
                                 {{ 'sitnet_exam_room' | translate }}:
                             </div>
-                            <div class="col-md-9" ng-show="enrolment.reservation">
+                            <div class="col-md-9" ng-show="enrolment.reservation.machine">
                                 {{ enrolment.reservation.machine.name}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                                {{enrolment.reservation.machine.room.name}}({{enrolment.reservation.machine.room.roomCode}})
+                                {{enrolment.reservation.machine.room.name}} ({{enrolment.reservation.machine.room.roomCode}})
+                            </div>
+                            <div class="col-md-9" ng-show="enrolment.reservation.externalReservation">
+                                {{ enrolment.reservation.externalReservation.machineName}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+                                {{enrolment.reservation.externalReservation.roomName}} ({{enrolment.reservation.externalReservation.roomCode}})
                             </div>
                         </div>
                     </div>
@@ -78,7 +82,10 @@
                             <div class="col-md-9" ng-if="enrolment.reservation">
                                 {{enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}}
                                 {{enrolment.reservation.occasion.startAt}} -
-                                {{enrolment.reservation.occasion.endAt}} ({{enrolment.reservation.machine.room.localTimezone}})
+                                {{enrolment.reservation.occasion.endAt}} (
+                                <span ng-if="enrolment.reservation.machine">{{enrolment.reservation.machine.room.localTimezone}}</span>
+                                <span ng-if="enrolment.reservation.externalReservation">{{enrolment.reservation.externalReservation.roomTz}}</span>
+                                )
                             </div>
                             <div class="col-md-9" ng-if="enrolment.reservationCanceled">
                                 {{ 'sitnet_canceled' | translate }}
@@ -92,8 +99,11 @@
                             </div>
                             <div class="col-md-9">
                                 <span>
-                                    <a ng-if="enrolment.reservation" class="text-info"
+                                    <a ng-if="enrolment.reservation.machine" class="text-info"
                                        href="/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation'
+                                        | translate}}</a>
+                                    <a ng-if="enrolment.reservation.externalReservation" class="text-info"
+                                       href="/iop/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation'
                                         | translate}}</a>
                                     <span ng-if="enrolment.reservation">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
                                     <a ng-if="enrolment.reservation" class="text-danger pointer"

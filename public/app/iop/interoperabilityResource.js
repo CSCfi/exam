@@ -13,8 +13,8 @@
                 facilities: $resource("/integration/iop/facilities"),
                 organisations: $resource("/integration/iop/organisations"),
                 slots: $resource("/integration/iop/calendar/:examId/:roomRef", {examId: "@examId", roomRef: "@roomRef"}),
-                reservations: $resource("/integration/iop/reservations", {}, {"create": {method: "POST"}}),
-                reservation: $resource("/integration/iop/reservations/:ref", {ref: "@ref"}, {"remove": {method: "DELETE"}})
+                reservations: $resource("/integration/iop/reservations/external", {}, {"create": {method: "POST"}}),
+                reservation: $resource("/integration/iop/reservations/external/:ref", {ref: "@ref"}, {"remove": {method: "DELETE"}})
             };
         }]);
 }());

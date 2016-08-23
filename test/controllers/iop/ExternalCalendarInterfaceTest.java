@@ -302,6 +302,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         JsonNode body = Json.parse(contentAsString(result));
         assertThat(body.asText()).isEqualTo(RESERVATION_REF);
+
         Reservation created = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findUnique();
         assertThat(created).isNotNull();
 

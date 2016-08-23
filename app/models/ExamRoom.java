@@ -10,17 +10,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
-import util.AppUtil;
 import util.java.DateTimeUtils;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -102,7 +94,7 @@ public class ExamRoom extends GeneratedIdentityModel {
     @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
-    private String localTimezone = AppUtil.getDefaultTimeZone().getID();
+    private String localTimezone;
 
     public boolean getExpanded() {
         return expanded;

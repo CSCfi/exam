@@ -54,6 +54,11 @@ public class BaseController extends Controller {
         return ok(body).as("application/json");
     }
 
+    protected Result created(Object object, PathProperties props) {
+        String body = Ebean.json().toJson(object, props);
+        return created(body).as("application/json");
+    }
+
     private String createToken() {
         String token;
         if (LOGIN_TYPE.equals("HAKA")) {

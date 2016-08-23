@@ -93,7 +93,7 @@
                         $scope.loader.loading = true;
                         InteroperabilityRes.slots.query({
                                 examId: $routeParams.id,
-                                roomRef: room.id,
+                                roomRef: room._id,
                                 org: $scope.selectedOrganisation._id,
                                 date: date
                             },
@@ -158,15 +158,10 @@
                     var slot = {};
                     slot.start = adjustBack(start, tz);
                     slot.end = adjustBack(end, tz);
-                    slot.orgId = $scope.selectedOrganisation.id;
+                    slot.orgId = $scope.selectedOrganisation._id;
                     slot.examId = $routeParams.id;
-                    slot.roomId = $scope.selectedRoom().id;
+                    slot.roomId = $scope.selectedRoom()._id;
                     InteroperabilityRes.reservations.create(slot, function () {
-                        $location.path('/');
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
-                    $http.post('/integration/iop/calendar/reservations/external', slot).then(function () {
                         $location.path('/');
                     }, function (error) {
                         toastr.error(error.data);

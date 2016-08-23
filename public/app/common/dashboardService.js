@@ -32,7 +32,9 @@
                 };
 
                 var setOccasion = function(reservation) {
-                    var tz = reservation.machine.room.localTimezone;
+                    var machine = reservation.machine;
+                    var external = reservation.externalReservation;
+                    var tz = machine ? machine.room.localTimezone : external.roomTz;
                     var start = moment.tz(reservation.startAt, tz);
                     var end = moment.tz(reservation.endAt, tz);
                     if (start.isDST()) {

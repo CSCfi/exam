@@ -3,6 +3,7 @@ package controllers.iop;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -16,6 +17,7 @@ import models.Exam;
 import models.ExamEnrolment;
 import models.ExamMachine;
 import models.ExamRoom;
+import models.MailAddress;
 import models.Reservation;
 import models.User;
 import models.iop.ExternalReservation;
@@ -53,7 +55,7 @@ public class ExternalCalendarController extends CalendarController implements Ex
     private static URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration)
             throws MalformedURLException {
         StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
-        sb.append(String.format("/api/organisations/%s/facilities/%s/slots?", orgRef, facilityRef));
+        sb.append(String.format("/api/organisations/%s/facilities/%s/slots", orgRef, facilityRef));
         sb.append(String.format("?date=%s&startAt=%s&endAt=%s&duration=%d", date, start, end, duration));
         return new URL(sb.toString());
     }
@@ -122,10 +124,10 @@ public class ExternalCalendarController extends CalendarController implements Ex
         reservation.setStartAt(start.toDate());
         reservation.setMachine(machine.get());
         reservation.setExternalUserRef(userEppn);
+        reservation.save();
+        PathProperties pp = PathProperties.parse("(*, machine(*, room(*, mailAddress(*))))");
 
-        Ebean.save(reservation);
-
-        return created(Json.toJson(reservation));
+        return created(reservation, pp);
     }
 
     @ActionMethod
@@ -167,7 +169,7 @@ public class ExternalCalendarController extends CalendarController implements Ex
         external.setRoomCode(roomNode.get("roomCode").asText());
         external.setRoomTz(roomNode.get("localTimezone").asText());
         external.save();
-
+        reservation.setExternalReservation(external);
         Ebean.save(reservation);
         enrolment.setReservation(reservation);
         enrolment.setReservationCanceled(false);
@@ -179,13 +181,46 @@ public class ExternalCalendarController extends CalendarController implements Ex
         }
         Exam exam = enrolment.getExam();
         // Attach the external machine data just so that email can be generated
-        ExamMachine externalMachine = formFactory.form(ExamMachine.class).bind(machineNode).get();
-        reservation.setMachine(externalMachine);
+        reservation.setMachine(parseExternalMachineData(machineNode));
         // Send some emails asynchronously
         system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             emailComposer.composeReservationNotification(user, reservation, exam);
             Logger.info("Reservation confirmation email sent to {}", user.getEmail());
         }, system.dispatcher());
+    }
+
+
+
+    private ExamMachine parseExternalMachineData(JsonNode machineNode) {
+        ExamMachine machine = new ExamMachine();
+        machine.setName(machineNode.get("name").asText());
+        JsonNode roomNode = machineNode.get("room");
+        ExamRoom room = new ExamRoom();
+        room.setName(roomNode.get("name").asText());
+        room.setLocalTimezone(roomNode.get("localTimezone").asText());
+        if (roomNode.has("roomCode")) {
+            room.setRoomCode(roomNode.get("roomCode").asText());
+        }
+        if (roomNode.has("buildingName")) {
+            room.setBuildingName(roomNode.get("buildingName").asText());
+        }
+        if (roomNode.has("roomInstruction")) {
+            room.setRoomInstruction(roomNode.get("roomInstruction").asText());
+        }
+        if (roomNode.has("roomInstructionEN")) {
+            room.setRoomInstruction(roomNode.get("roomInstructionEN").asText());
+        }
+        if (roomNode.has("roomInstructionSV")) {
+            room.setRoomInstruction(roomNode.get("roomInstructionSV").asText());
+        }
+        JsonNode addressNode = roomNode.get("mailAddress");
+        MailAddress address = new MailAddress();
+        address.setStreet(addressNode.get("street").asText());
+        address.setCity(addressNode.get("city").asText());
+        address.setZip(addressNode.get("zip").asText());
+        room.setMailAddress(address);
+        machine.setRoom(room);
+        return machine;
     }
 
     @Restrict(@Group("STUDENT"))
