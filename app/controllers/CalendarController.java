@@ -6,6 +6,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
+import controllers.iop.api.ExternalCalendarAPI;
 import exceptions.NotFoundException;
 import models.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -25,6 +26,7 @@ import util.java.EmailComposer;
 
 import javax.inject.Inject;
 import java.util.*;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,6 +39,9 @@ public class CalendarController extends BaseController {
 
     @Inject
     protected ActorSystem system;
+
+    @Inject
+    protected ExternalCalendarAPI externalCalendarAPI;
 
     private static final int LAST_HOUR = 23;
 
@@ -94,7 +99,7 @@ public class CalendarController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public Result createReservation() {
+    public CompletionStage<Result> createReservation() {
         // Parse request body
         JsonNode json = request().body().asJson();
         Long roomId = json.get("roomId").asLong();
@@ -109,7 +114,7 @@ public class CalendarController extends BaseController {
         DateTime start = DateTime.parse(json.get("start").asText(), ISODateTimeFormat.dateTimeParser());
         DateTime end = DateTime.parse(json.get("end").asText(), ISODateTimeFormat.dateTimeParser());
         if (start.isBeforeNow() || end.isBefore(start)) {
-            return badRequest("invalid dates");
+            return wrapAsPromise(badRequest("invalid dates"));
         }
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
@@ -126,40 +131,55 @@ public class CalendarController extends BaseController {
                 .gt("reservation.startAt", now.toDate())
                 .endJunction()
                 .findUnique();
-        return checkEnrolment(enrolment, user).orElseGet(() -> {
-            Optional<ExamMachine> machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
-            if (!machine.isPresent()) {
-                return forbidden("sitnet_no_machines_available");
+        Optional<Result> badEnrolment = checkEnrolment(enrolment, user);
+        if (badEnrolment.isPresent()) {
+            return wrapAsPromise(badEnrolment.get());
+        }
+        Optional<ExamMachine> machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
+        if (!machine.isPresent()) {
+            return wrapAsPromise(forbidden("sitnet_no_machines_available"));
+        }
+
+        // We are good to go :)
+        Reservation oldReservation = enrolment.getReservation();
+        Reservation reservation = new Reservation();
+        reservation.setEndAt(end.toDate());
+        reservation.setStartAt(start.toDate());
+        reservation.setMachine(machine.get());
+        reservation.setUser(user);
+
+        // Nuke the old reservation if any
+        if (oldReservation != null) {
+            String externalReference = oldReservation.getExternalRef();
+            if (externalReference != null) {
+                return externalCalendarAPI.removeReservation(oldReservation)
+                        .thenCompose(result -> {
+                            // Refetch enrolment, otherwise
+                            ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());
+                            return makeNewReservation(updatedEnrolment, reservation, user);
+                        });
+            } else {
+                enrolment.setReservation(null);
+                enrolment.update();
+                oldReservation.delete();
             }
+        }
+        return makeNewReservation(enrolment, reservation, user);
+    }
 
-            // We are good to go :)
-            Reservation oldReservation = enrolment.getReservation();
-            final Reservation reservation = new Reservation();
-            reservation.setEndAt(end.toDate());
-            reservation.setStartAt(start.toDate());
-            reservation.setMachine(machine.get());
-            reservation.setUser(user);
+    private CompletionStage<Result> makeNewReservation(ExamEnrolment enrolment, Reservation reservation, User user) {
+        Ebean.save(reservation);
+        enrolment.setReservation(reservation);
+        enrolment.setReservationCanceled(false);
+        Ebean.save(enrolment);
+        Exam exam = enrolment.getExam();
+        // Send some emails asynchronously
+        system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            emailComposer.composeReservationNotification(user, reservation, exam);
+            Logger.info("Reservation confirmation email sent to {}", user.getEmail());
+        }, system.dispatcher());
 
-            Ebean.save(reservation);
-            enrolment.setReservation(reservation);
-            enrolment.setReservationCanceled(false);
-            Ebean.save(enrolment);
-
-
-            // Finally nuke the old reservation if any
-            if (oldReservation != null) {
-                Ebean.delete(oldReservation);
-            }
-            Exam exam = enrolment.getExam();
-
-            // Send some emails asynchronously
-            system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composeReservationNotification(user, reservation, exam);
-                Logger.info("Reservation confirmation email sent to {}", user.getEmail());
-            }, system.dispatcher());
-
-            return ok("ok");
-        });
+        return wrapAsPromise(ok("ok"));
     }
 
     protected Optional<ExamMachine> getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end, Collection<Integer> aids) {

@@ -230,7 +230,7 @@ public class EnrolmentController extends BaseController {
             } else if (reservation.toInterval().isAfterNow()) {
                 // reservation in the future, replace it
                 // pass this through externalAPI to see if there's something to remove externally also
-                return externalCalendarAPI.removeReservation(enrolment).thenApplyAsync(result -> {
+                return externalCalendarAPI.removeReservation(reservation).thenApplyAsync(result -> {
                     enrolment.delete();
                     ExamEnrolment newEnrolment = makeEnrolment(exam, user);
                     return ok(newEnrolment);

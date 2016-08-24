@@ -296,8 +296,8 @@ public class ExternalCalendarController extends CalendarController implements Ex
         URL url = parseUrl(external.getOrgRef(), external.getRoomRef(), ref);
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, Result> onSuccess = response -> {
-            JsonNode root = response.asJson();
             if (response.getStatus() != 200) {
+                JsonNode root = response.asJson();
                 return internalServerError(root.get("message").asText("Connection refused"));
             }
             enrolment.setReservation(null);
@@ -471,12 +471,12 @@ public class ExternalCalendarController extends CalendarController implements Ex
     }
 
     @Override
-    public CompletionStage<Result> removeReservation(ExamEnrolment enrolment) {
-        if (enrolment.getReservation().getExternalReservation() == null) {
+    public CompletionStage<Result> removeReservation(Reservation reservation) {
+        if (reservation.getExternalReservation() == null) {
             return wrapAsPromise(ok());
         }
         try {
-            return requestReservationRemoval(enrolment.getReservation().getExternalRef());
+            return requestReservationRemoval(reservation.getExternalRef());
         } catch (MalformedURLException e) {
             return wrapAsPromise(internalServerError(e.getMessage()));
         }
