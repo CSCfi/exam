@@ -24,7 +24,7 @@
                                 if (sectionQuestion.evaluationType === "Selection") {
                                     if (sectionQuestion.essayAnswer.evaluatedScore == 1) {
                                         data.accepted++;
-                                    } else if (sectionQuestion.evaluatedScore === 0) {
+                                    } else if (sectionQuestion.essayAnswer.evaluatedScore == 0) {
                                         data.rejected++;
                                     }
                                 }
