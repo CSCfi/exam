@@ -155,7 +155,7 @@ public class ReviewController extends BaseController {
                 .fetch("exam", "id, name, state, gradedTime, customCredit, creditType, answerLanguage, trialCount")
                 .fetch("exam.grade", "id, name")
                 .fetch("exam.gradeScale")
-                .fetch("exam.gradeScale.grades")
+                .fetch("exam.gradeScale.grades", new FetchConfig().query())
                 .fetch("exam.creditType")
                 .fetch("exam.examType")
                 .fetch("exam.executionType")
