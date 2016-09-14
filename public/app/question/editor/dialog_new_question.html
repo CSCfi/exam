@@ -10,7 +10,7 @@
                       class="header-text">{{'sitnet_questions_new_weighted_multiplechoice' | translate}}</span>
             </span>
             <span ng-show="baseQuestionId">
-                <span class="header-text">{{'sitnet_base_question_edit' | translate}}</span>
+                <span class="header-text">{{'sitnet_questions_edit' | translate}}</span>
             </span>
         </h4>
     </div>
@@ -25,21 +25,13 @@
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <!-- We are creating a new question -->
-            <button ng-if="!baseQuestionId" class="btn btn-sm btn-danger pull-left" ng-click="cancel()">
-                <span>{{'sitnet_button_cancel' | translate}}</span>
+            <button ng-disabled="!questionForm.$valid" ng-click="submit(newQuestion)"
+                    type="submit" class="btn btn-sm btn-primary pull-left">{{'sitnet_save' | translate}}
             </button>
-            <!-- We are editing an unshared exam question -->
-            <!-- SIT-1566 hide this until we have atomic question save operation
-
-            <button ng-if="baseQuestionId" class="btn btn-sm btn-danger pull-left" ng-click="cancel(newQuestion)">
-                <span>{{'sitnet_close' | translate}}</span>
-            </button>
-            -->
         </div>
         <div class="col-md-6">
-            <button ng-disabled="!questionForm.$valid" ng-click="submit(newQuestion)"
-                    type="submit" class="btn btn-sm btn-primary">{{'sitnet_save' | translate}}
+            <button class="btn btn-sm btn-danger pull-right" ng-click="cancelEdit()">
+                {{'sitnet_button_cancel' | translate}}
             </button>
         </div>
     </div>

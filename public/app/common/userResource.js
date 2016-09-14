@@ -37,9 +37,8 @@
                         eid: "@eid",
                         role: "@role"
                     }),
-                filterOwnersByQuestion: $resource("/app/users/question/owners/:role/:qid",
+                filterOwnersByQuestion: $resource("/app/users/question/owners/:role",
                     {
-                        qid: "@qid",
                         role: "@role"
                     }),
 

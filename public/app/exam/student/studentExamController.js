@@ -296,7 +296,7 @@
                         return;
                     }
                     var userNo = user.userNo ? ' (' + user.userNo + ')' : '';
-                    return user.firstname + " " + user.lastname + userNo;
+                    return user.firstName + " " + user.lastName + userNo;
                 };
 
                 // Called when the exit button is clicked

@@ -5,8 +5,9 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.text.PathProperties;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import controllers.base.BaseController;
 import models.Exam;
 import models.ExamSection;
 import models.ExamSectionQuestion;
@@ -23,9 +24,10 @@ import util.AppUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 
-public class ExamSectionController extends BaseController {
+public class ExamSectionController extends QuestionController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertSection(Long id) {
@@ -210,6 +212,37 @@ public class ExamSectionController extends BaseController {
         }
     }
 
+    private void updateOptions(ExamSectionQuestion sectionQuestion, Question question) {
+        sectionQuestion.getOptions().clear();
+        for (MultipleChoiceOption option : question.getOptions()) {
+            ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+            esqo.setOption(option);
+            esqo.setScore(option.getDefaultScore());
+            sectionQuestion.getOptions().add(esqo);
+        }
+    }
+
+    private void updateOptions(ExamSectionQuestion sectionQuestion, ArrayNode options) {
+
+    }
+
+    private void updateExamQuestion(ExamSectionQuestion sectionQuestion, Question question) {
+        sectionQuestion.setQuestion(question);
+        sectionQuestion.setMaxScore(question.getDefaultMaxScore());
+        sectionQuestion.setAnswerInstructions(question.getDefaultAnswerInstructions());
+        sectionQuestion.setEvaluationCriteria(question.getDefaultEvaluationCriteria());
+        sectionQuestion.setEvaluationType(question.getDefaultEvaluationType());
+        sectionQuestion.setExpectedWordCount(question.getDefaultExpectedWordCount());
+    }
+
+    private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body) {
+        sectionQuestion.setMaxScore(parse("maxScore", body, Integer.class));
+        sectionQuestion.setAnswerInstructions(parse("answerInstructions", body, String.class));
+        sectionQuestion.setEvaluationCriteria(parse("evaluationCriteria", body, String.class));
+        sectionQuestion.setEvaluationType(parseEnum("evaluationType", body, Question.EvaluationType.class));
+        sectionQuestion.setExpectedWordCount(parse("expectedWordCount", body, Integer.class));
+    }
+
     private Optional<Result> insertQuestion(Exam exam, ExamSection section, Question question, User user, Integer seq) {
         ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
         sectionQuestion.setExamSection(section);
@@ -220,11 +253,6 @@ public class ExamSectionController extends BaseController {
         sectionQuestion.setSequenceNumber(sequence);
         if (section.getSectionQuestions().contains(sectionQuestion) || section.hasQuestion(question)) {
             return Optional.of(badRequest("sitnet_question_already_in_section"));
-        }
-
-        String validationResult = question.getValidationResult();
-        if (validationResult != null) {
-            return Optional.of(forbidden(validationResult));
         }
         if (question.getType().equals(Question.Type.EssayQuestion)) {
             // disable auto evaluation for this exam
@@ -239,18 +267,9 @@ public class ExamSectionController extends BaseController {
         sectionQuestion.setCreator(user);
         sectionQuestion.setCreated(new Date());
         sectionQuestion.setExamSection(section);
-        sectionQuestion.setQuestion(question);
-        sectionQuestion.setMaxScore(question.getDefaultMaxScore());
-        sectionQuestion.setAnswerInstructions(question.getDefaultAnswerInstructions());
-        sectionQuestion.setEvaluationCriteria(question.getDefaultEvaluationCriteria());
-        sectionQuestion.setEvaluationType(question.getDefaultEvaluationType());
-        sectionQuestion.setExpectedWordCount(question.getDefaultExpectedWordCount());
-        for (MultipleChoiceOption option : question.getOptions()) {
-            ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
-            esqo.setOption(option);
-            esqo.setScore(option.getDefaultScore());
-            sectionQuestion.getOptions().add(esqo);
-        }
+
+        updateExamQuestion(sectionQuestion, question);
+
         section.getSectionQuestions().add(sectionQuestion);
 
         AppUtil.setModifier(section, user);
@@ -388,11 +407,85 @@ public class ExamSectionController extends BaseController {
         return ok(examQuestion);
     }
 
+    private void processExamQuestionOptions(Question question, ExamSectionQuestion esq, ArrayNode node) { // esq.options
+        Set<Long> persistedIds = question.getOptions().stream()
+                .map(MultipleChoiceOption::getId)
+                .collect(Collectors.toSet());
+        Set<Long> providedIds = StreamSupport.stream(node.spliterator(), false)
+                .map(n -> n.get("option"))
+                .filter(n -> parse("id", n, Long.class) != null)
+                .map(n -> parse("id", n, Long.class))
+                .collect(Collectors.toSet());
+        // Updates
+        StreamSupport.stream(node.spliterator(), false)
+                .map(n -> n.get("option"))
+                .filter(o -> {
+                    Long id = parse("id", o, Long.class);
+                    return id != null && persistedIds.contains(id);
+                }).forEach(o -> updateOption(o, true));
+        // Removals
+        question.getOptions().stream()
+                .filter(o -> !providedIds.contains(o.getId()))
+                .forEach(this::deleteOption);
+        // Additions
+        StreamSupport.stream(node.spliterator(), false)
+                .filter(o -> parse("id", o, Long.class) == null)
+                .forEach(o -> createOptionBasedOnExamQuestion(question, esq, o));
+        // Finally update own option scores:
+        for (JsonNode option : node) {
+            Long id = parse("id", option, Long.class);
+            if (id != null) {
+                ExamSectionQuestionOption esqo = Ebean.find(ExamSectionQuestionOption.class, id);
+                if (esqo != null) {
+                    esqo.setScore(parse("score", option, Double.class));
+                    esqo.update();
+                }
+            }
+        }
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateExamQuestion(Long id) {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result updateDistributedExamQuestion(Long esqId) {
         User user = getLoggedUser();
-        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(id);
+        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(esqId);
+        if (user.hasRole("TEACHER", getSession())) {
+            query = query.eq("examSection.exam.examOwners", user);
+        }
+        PathProperties pp = PathProperties.parse("(*, question(*, options(*)), options(*, option(*)))");
+        query.apply(pp);
+        ExamSectionQuestion examSectionQuestion = query.findUnique();
+        if (examSectionQuestion == null) {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+        Question question = Ebean.find(Question.class)
+                .fetch("examSectionQuestions")
+                .fetch("examSectionQuestions.options")
+                .where()
+                .idEq(examSectionQuestion.getQuestion().getId())
+                .findUnique();
+        if (question == null) {
+            return notFound();
+        }
+        JsonNode body = request().body().asJson();
+        // Update question: text
+        JsonNode questionNode = body.get("question");
+        question.setQuestion(parse("question", questionNode, String.class));
+        question.update();
+        updateExamQuestion(examSectionQuestion, body);
+        examSectionQuestion.update();
+        if (question.getType() != Question.Type.EssayQuestion) {
+            // Process the options, this has an impact on the base question options as well as all the section questions
+            // utilizing those.
+            processExamQuestionOptions(question, examSectionQuestion, (ArrayNode)body.get("options"));
+        }
+        // Bit dumb, refetch from database to get the updated options right in response. Could be made more elegantly
+        return ok(query.findUnique(), pp);
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result updateUndistributedExamQuestion(Long esqId) {
+        User user = getLoggedUser();
+        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(esqId);
         if (user.hasRole("TEACHER", getSession())) {
             query = query.eq("examSection.exam.examOwners", user);
         }
@@ -404,50 +497,10 @@ public class ExamSectionController extends BaseController {
         if (question == null) {
             return notFound();
         }
-        String validationResult = question.getValidationResult();
-        if (validationResult != null) {
-            return forbidden(validationResult);
-        }
-        question.setQuestion(df.get("question.question"));
-        question.update();
-        doUpdateQuestion(examSectionQuestion, df, user);
+        updateExamQuestion(examSectionQuestion, question);
+        updateOptions(examSectionQuestion, question);
+        examSectionQuestion.update();
         return ok(examSectionQuestion);
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateExamQuestionOption(Long id, Long oid) {
-        ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, id);
-        if (esq == null) {
-            return notFound();
-        }
-        Optional<ExamSectionQuestionOption> optional = esq.getOptions().stream()
-                .filter(o -> o.getId().equals(oid))
-                .findFirst();
-        if (!optional.isPresent()) {
-            return notFound();
-        }
-        ExamSectionQuestionOption option = optional.get();
-        DynamicForm df = formFactory.form().bindFromRequest();
-        Double score = Double.parseDouble(df.get("score"));
-        option.setScore(score);
-        option.update();
-        return ok(option);
-    }
-
-    private static void doUpdateQuestion(ExamSectionQuestion question, DynamicForm df, User user) {
-        if (df.get("maxScore") != null) {
-            question.setMaxScore(Integer.parseInt(df.get("maxScore")));
-        }
-        question.setAnswerInstructions(df.get("answerInstructions"));
-        question.setEvaluationCriteria(df.get("evaluationCriteria"));
-        if (df.get("evaluationType") != null) {
-            question.setEvaluationType(Question.EvaluationType.valueOf(df.get("evaluationType")));
-        }
-        if (df.get("expectedWordCount") != null) {
-            question.setExpectedWordCount(Integer.parseInt(df.get("expectedWordCount")));
-        }
-        AppUtil.setModifier(question, user);
-        question.update();
     }
 
     private Optional<Result> checkBounds(Integer from, Integer to) {

@@ -63,8 +63,7 @@
                         </span>
                     </label>
                     <textarea id="editor" name="editor" ck-editor rows="10" cols="80"
-                              ng-model="question.question"
-                              ui-change="updateBaseQuestion()" required>
+                              ng-model="question.question" required>
                     </textarea>
                 </div>
 
@@ -87,7 +86,7 @@
                                     <div class="form-group">
                                         <div class="col-md-10">
                                             <input id="optionText" type="text" focus-on="opt{{option.id}}" class="form-control"
-                                                   ng-model="option.option.option" ui-blur="option.id ? updateOptionText(option) : saveOption(option)"
+                                                   ng-model="option.option.option"
                                                    ng-click="selectIfDefault(option.option.option, $event)"
                                                    required="true"/>
                                         </div>
@@ -120,7 +119,7 @@
                                         <div class="col-md-2">
                                             <input id="optionScore" class="form-control" name="maxScore"
                                                    type="number"
-                                                   class="form-control" ng-change="option.id ? updateOption(option) : saveOption(option)"
+                                                   class="form-control"
                                                    ng-model-options="{ updateOn: 'blur' }"
                                                    ng-model="option.score"
                                                    required ng-disabled="lotteryOn">
@@ -130,7 +129,7 @@
                                         <label for="weightedOptionText" class="col-md-1 control-label"></label>
                                         <div class="col-md-10">
                                             <input id="weightedOptionText" type="text" focus-on="opt{{option.id}}" class="form-control"
-                                                   ng-model="option.option.option" ui-blur="option.id ? updateOptionText(option) : saveOption(option)"
+                                                   ng-model="option.option.option"
                                                    ng-click="selectIfDefault(option.option, $event)"
                                                    required="true"/>
                                         </div>
@@ -163,7 +162,7 @@
                                 <input name="expectedWordCount" type="number" class="form-control"
                                        ng-model="sectionQuestion.expectedWordCount"
                                        ng-model-options="{ updateOn: 'blur' }"
-                                       ui-change="estimateCharacters(sectionQuestion); questionForm.expectedWordCount.$valid ? updateExamQuestion() : false"
+                                       ui-change="estimateCharacters(sectionQuestion)"
                                        min="1"
                                        max="1000000">
                                     <span class="input-group-addon"
@@ -199,8 +198,6 @@
                         </label>
                         <input id="maxScore" name="maxScore" type="number" class="col-md-2 form-control"
                                ng-model="sectionQuestion.maxScore"
-                               ng-model-options="{ updateOn: 'blur'}"
-                               ng-change="updateExamQuestion()"
                                min="1" max="1000000"
                                required
                                ng-disabled="lotteryOn"/>
@@ -211,8 +208,6 @@
                 <div class="form-group">
                     <label for="instruction">{{'sitnet_question_instruction' | translate}}</label>
                         <textarea id="instruction" class="form-control" rows="3"
-                                  ng-model-options="{ updateOn: 'blur'}"
-                                  ng-change="updateExamQuestion()"
                                   ng-model="sectionQuestion.answerInstructions"
                                   placeholder="{{'sitnet_question_instruction' | translate}}">
                         </textarea>
@@ -223,8 +218,6 @@
                     <label for="evaluationCriteria">{{'sitnet_exam_evaluation_criteria' |
                         translate}}</label>
                         <textarea id="evaluationCriteria" class="form-control" rows="3"
-                                  ng-model-options="{ updateOn: 'blur'}"
-                                  ng-change="updateExamQuestion()"
                                   ng-model="sectionQuestion.evaluationCriteria"
                                   placeholder="{{'sitnet_question_instruction' | translate}}">
                         </textarea>
@@ -232,22 +225,27 @@
 
                 <!-- Attachment -->
                 <div ng-controller="AttachmentController" class="form-group">
-                    <label for="attachment">
-                        <span>
-                            {{ 'sitnet_question_attachment' | translate }}
-                            <i class="fa fa-lg fa-exclamation-circle text-info"></i>
-                            <small>{{'sitnet_shared_question_property_info' | translate}}</small>
-                        </span>
+                    <label class="sitnet-info-text" for="attachment">
+                        {{ 'sitnet_question_attachment' | translate}}
+                        <i ng-if="showWarning()" class="fa fa-lg fa-info-circle text-info"></i>
+                        <small ng-if="showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
                     </label>
+
                     <div id="attachment">
-                        <div ng-show="question.attachment">
-                            <a class="pointer" ng-click="downloadQuestionAttachment(question)">{{
-                                question.attachment.fileName }}</a>
-                                    <span class="sitnet-red pointer" ng-click="removeQuestionAttachment(question)">
-                                        <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
-                                    </span>
+                        <div ng-show="question.attachment && !question.attachment.removed" class="bottom-padding-1">
+                            <!-- Uploaded -->
+                            <a ng-if="question.attachment.id" class="pointer" ng-click="downloadQuestionAttachment(question)">
+                                {{question.attachment.fileName}}
+                            </a>
+                            <!-- Not yet uploaded -->
+                            <span ng-if="!question.attachment.id" class="text">
+                                {{question.attachment.name}} <small>({{ getFileSize(question.attachment) }})</small>
+                            </span>
+                            <span class="sitnet-red pointer" ng-click="removeQuestionAttachment(question)">
+                                <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
+                            </span>
                         </div>
-                        <button type="button" ng-click="selectFile()" class="btn btn-default btn-sm top-margin-1">
+                        <button type="button" ng-click="selectFile()" class="btn btn-default btn-sm">
                             {{ 'sitnet_attach_file' | translate }}
                         </button>
                     </div>
@@ -258,15 +256,13 @@
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <!-- SIT-1566 hide this until we have atomic question save operation
-                <button class="btn btn-sm btn-danger pull-left" ng-click="cancel(question, sectionQuestion)">
-                    {{'sitnet_close' | translate}}
-                </button>
-            -->
+            <button ng-disabled="!questionForm.$valid" ng-click="submit(question, sectionQuestion)"
+                    type="submit" class="btn btn-sm btn-primary pull-left">{{'sitnet_save' | translate}}
+            </button>
         </div>
         <div class="col-md-6">
-            <button ng-disabled="!questionForm.$valid" ng-click="submit(question, sectionQuestion)"
-                    type="submit" class="btn btn-sm btn-primary">{{'sitnet_save' | translate}}
+            <button class="btn btn-sm btn-danger pull-right" ng-click="cancelEdit()">
+                {{ 'sitnet_close' | translate }}
             </button>
         </div>
     </div>

@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import models.api.Scorable;
 import models.api.Sortable;
 import models.base.OwnedModel;
@@ -10,16 +11,10 @@ import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
+import play.mvc.Result;
 
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -214,8 +209,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @Transient
     @Override
-    public String getValidationResult() {
-        return question.getValidationResult();
+    public Optional<Result> getValidationResult(JsonNode node) {
+        return question.getValidationResult(node);
     }
 
     @Transient
@@ -297,10 +292,10 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     /**
      * Adds new answer option.
-     * If question type equals WeightedMultiChoiceQuestion, recalculates scores for old options so that max assessed score won't change.
+     * If question type equals WeightedMultiChoiceQuestion, recalculates scores for old options so that max assessed
+     * score won't change.
      *
      * @param option         New option to add.
-     * @param preserveScores If true other options scores will not be recalculated.
      */
     @Transient
     public void addOption(ExamSectionQuestionOption option, boolean preserveScores) {
@@ -311,12 +306,12 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         }
 
         if (option.getScore() > 0) {
-            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() > 0)
+            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() != null && o.getScore() > 0)
                     .collect(Collectors.toList());
             BigDecimal delta = calculateOptionScores(option.getScore(), opts);
             option.setScore(new BigDecimal(option.getScore()).add(delta).doubleValue());
         } else if (option.getScore() < 0) {
-            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() < 0)
+            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() != null && o.getScore() < 0)
                     .collect(Collectors.toList());
             BigDecimal delta = calculateOptionScores(option.getScore(), opts);
             option.setScore(new BigDecimal(option.getScore()).add(delta).doubleValue());
@@ -342,7 +337,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         }
 
         if (score > 0) {
-            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() > 0)
+            List<ExamSectionQuestionOption> opts = options.stream()
+                    .filter(o -> o.getScore() != null && o.getScore() > 0)
                     .collect(Collectors.toList());
             BigDecimal delta = calculateOptionScores(score*-1, opts);
             if (opts.size() > 0) {
@@ -350,7 +346,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
             }
         } else if (score < 0) {
-            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() < 0)
+            List<ExamSectionQuestionOption> opts = options.stream()
+                    .filter(o -> o.getScore() != null && o.getScore() < 0)
                     .collect(Collectors.toList());
             BigDecimal delta = calculateOptionScores(score*-1, opts);
             if (opts.size() > 0) {

@@ -73,15 +73,11 @@
                 };
 
                 $scope.estimateCharacters = function (question) {
-                    return !question ? NaN : question.defaultExpectedWordCount * 8;
+                    return (question.defaultExpectedWordCount || 0) * 8;
                 };
 
                 $scope.calculateMaxPoints = function (question) {
                     return questionService.calculateMaxPoints(question);
-                };
-
-                var update = function (displayErrors) {
-                    return questionService.updateQuestion($scope.newQuestion, displayErrors);
                 };
 
                 $scope.deleteQuestion = function () {
@@ -103,38 +99,42 @@
                     });
                 };
 
+                var create = function () {
+                    return questionService.createQuestion($scope.newQuestion);
+                };
+
+                var update = function (displayErrors) {
+                    return questionService.updateQuestion($scope.newQuestion, displayErrors);
+                };
+
+                $scope.cancel = function () {
+                    toastr.info($translate.instant('sitnet_canceled'));
+                    $location.path('/questions');
+                };
+
                 $scope.saveQuestion = function () {
-                    update(true).then(function () {
+                    var successFn = function () {
                         $location.path('/questions');
                         questionService.clearQuestions();
-                    }, function () {
+                    };
+                    var errFn = function (error) {
                         toastr.error(error.data);
-                    });
+                    };
+                    if ($scope.newQuestion.id) {
+                        update(true).then(successFn, errFn);
+                    } else {
+                        create().then(successFn, errFn);
+                    }
                 };
 
                 $scope.updateEvaluationType = function () {
-                    if ($scope.newQuestion.defaultEvaluationType && $scope.newQuestion.defaultEvaluationType === 'Selection') {
-                        $scope.newQuestion.defaultMaxScore = undefined;
+                    if ($scope.newQuestion.defaultEvaluationType === 'Selection') {
+                        delete $scope.newQuestion.defaultMaxScore;
                     }
-                    $scope.updateQuestion();
-                };
-
-                $scope.updateQuestion = function () {
-                    update();
                 };
 
                 $scope.removeTag = function (tag) {
-                    TagRes.question.remove({tid: tag.id, qid: $scope.newQuestion.id}, function () {
-                        toastr.info($translate.instant('sitnet_question_disassociated_with_tag'));
-                        $scope.newQuestion.tags.splice($scope.newQuestion.tags.indexOf(tag), 1);
-                    }, function (err) {
-                        toastr.error(err);
-                    });
-                };
-
-                // from the editor directive activated "onblur"
-                $scope.updateProperties = function () {
-                    $scope.updateQuestion();
+                    $scope.newQuestion.tags.splice($scope.newQuestion.tags.indexOf(tag), 1);
                 };
 
                 $scope.addNewOption = function (newQuestion) {
@@ -142,41 +142,19 @@
                         toastr.error($translate.instant("sitnet_action_disabled_lottery_on"));
                         return;
                     }
-                    newQuestion.options.push({});
+                    newQuestion.options.push({correctOption: false});
                 };
-
-                function radioChecked(option) {
-                    option.correctOption = true;
-
-                    angular.forEach($scope.newQuestion.options, function (value) {
-                        if (value.id !== option.id) {
-                            value.correctOption = false;
-                        }
-                    });
-                }
 
                 function removeOption(option) {
                     $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
-                    toastr.info($translate.instant('sitnet_option_removed'));
                 }
 
                 $scope.removeOption = function (option) {
                     if ($scope.lotteryOn) {
                         toastr.error($translate.instant("sitnet_action_disabled_lottery_on"));
-                        return;
-                    }
-                    if (angular.isUndefined(option.id)) {
+                    } else {
                         removeOption(option);
-                        return;
                     }
-                    QuestionRes.options.delete({qid: null, oid: option.id},
-                        function () {
-                            removeOption(option);
-                        }, function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
-
                 };
 
                 $scope.selectIfDefault = function (value, $event) {
@@ -185,66 +163,12 @@
                     }
                 };
 
-                $scope.saveOption = function (option) {
-                    var type = $scope.newQuestion.type;
-                    if (type === "WeightedMultipleChoiceQuestion" && angular.isUndefined(option.defaultScore)) {
-                        return;
-                    }
-
-                    if (angular.isUndefined(option.option)) {
-                        return;
-                    }
-
-                    var data = {
-                        defaultScore: option.defaultScore,
-                        correctOption: option.correctOption,
-                        option: option.option
-                    };
-                    if (angular.isUndefined(option.id)) {
-                        QuestionRes.options.create({qid: $scope.newQuestion.id}, data,
-                            function (response) {
-                                option.id = response.id;
-                                toastr.info($translate.instant('sitnet_option_added'));
-                            }, function (error) {
-                                toastr.error(error.data);
-                            }
-                        );
-                    }
-                };
-
-                $scope.updateOption = function (option) {
-                    var type = $scope.newQuestion.type;
-                    if (type === "WeightedMultipleChoiceQuestion" && angular.isUndefined(option.defaultScore)) {
-                        return;
-                    }
-                    if (angular.isUndefined(option.option)) {
-                        return;
-                    }
-                    QuestionRes.options.update({oid: option.id}, option,
-                        function () {
-                            toastr.info($translate.instant('sitnet_option_updated'));
-                        }, function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
-                };
-
                 $scope.correctAnswerToggled = function (option) {
-                    if (angular.isUndefined(option.id)) {
-                        return;
-                    }
-                    QuestionRes.correctOption.update({oid: option.id}, option,
-                        function (question) {
-                            radioChecked(option);
-                            toastr.info($translate.instant('sitnet_correct_option_updated'));
-                        }, function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
+                    questionService.toggleCorrectOption(option, $scope.newQuestion.options);
                 };
 
                 $scope.optionDisabled = function (option) {
-                    return angular.isUndefined(option.id) || option.correctOption;
+                    return option.correctOption == true;
                 };
 
                 $scope.openQuestionOwnerModal = function () {
@@ -280,16 +204,10 @@
                         // disallow clearing the owners
                         return;
                     }
-                    QuestionRes.questionOwner.remove({questionId: $scope.newQuestion.id, uid: user.id},
-                        function () {
-                            var i = $scope.newQuestion.questionOwners.indexOf(user);
-                            if (i > 0) {
-                                $scope.newQuestion.questionOwners.splice(i, 1);
-                            }
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        });
+                    var i = $scope.newQuestion.questionOwners.indexOf(user);
+                    if (i > 0) {
+                        $scope.newQuestion.questionOwners.splice(i, 1);
+                    }
                 };
 
                 $scope.selectFile = function () {
@@ -305,9 +223,11 @@
                         });
 
                         $scope.submit = function () {
-                            fileService.upload("/app/attachment/question", $scope.attachmentFile, {questionId: $scope.newQuestion.id}, $scope.newQuestion, $modalInstance);
+                            if (!fileService.isFileTooBig($scope.attachmentFile)) {
+                                $modalInstance.close($scope.attachmentFile);
+                            }
                         };
-                        // Cancel button is pressed in the modal dialog
+
                         $scope.cancel = function () {
                             $modalInstance.dismiss('Canceled');
                         };
@@ -321,18 +241,20 @@
                         controller: ctrl
                     });
 
-                    modalInstance.result.then(function () {
-                        // OK button
-                        $location.path('/questions/' + $scope.newQuestion.id);
-                    }, function () {
-                        // Cancel button
+                    modalInstance.result.then(function (attachment) {
+                        attachment.modified = true;
+                        $scope.newQuestion.attachment = attachment;
                     });
                 };
 
                 // Action
-                if ($scope.newQuestion) {
+                var type = $routeParams.type || $scope.questionType;
+                if (type) {
+                    // Create new question
+                    $scope.newQuestion = questionService.getQuestionDraft(type);
                     initQuestion();
                 } else {
+                    // Edit saved question
                     var id = $scope.baseQuestionId || $routeParams.id;
                     QuestionRes.questions.get({id: id},
                         function (question) {

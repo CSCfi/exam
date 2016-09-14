@@ -8,7 +8,7 @@
                         id: "@id"
                     },
                     {
-                        "update": {method: "PUT", params: {id: "@id"}},
+                        "update": {method: "PUT"},
                         "delete": {method: "DELETE", params: {id: "@id"}},
                         "create": {method: "POST"}
 
@@ -19,8 +19,7 @@
                         uid: "@uid"
                     },
                     {
-                        "update": {method: "POST"},
-                        "remove": {method: "DELETE"}
+                        "update": {method: "POST"}
                     }),
 
                 score: $resource("/app/review/examquestion/:id/score",
@@ -39,23 +38,7 @@
                         "copy": {method: "POST"}
                     }),
 
-                questionlist: $resource("/app/questions"),
-                options: $resource("/app/questions/:qid/option/:oid",
-                    {
-                        qid: "@qid", oid: "@oid"
-                    },
-                    {
-                        "update": {method: "PUT", params: {oid: "@oid"}},
-                        "create": {method: "POST", params: {qid: "@qid"}},
-                        "delete": {method: "DELETE", params: {oid: "@oid"}}
-                    }),
-                correctOption: $resource("/app/questions/correctoption/:oid",
-                    {
-                        oid: "@oid"
-                    },
-                    {
-                        "update": {method: "PUT", params: {oid: "@oid"}}
-                    })
+                questionlist: $resource("/app/questions")
             };
         }]);
 }());

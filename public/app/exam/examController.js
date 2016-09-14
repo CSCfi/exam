@@ -1053,32 +1053,24 @@
                     getQuestionDistribution(sectionQuestion).then(function (data) {
                         if (!data.distributed) {
                             // If this is not distributed, treat it as a plain question (or at least trick the user to
-                            // believe so :( )
-                            openBaseQuestionEditor(sectionQuestion.question, section, sectionQuestion);
+                            // believe so)
+                            openBaseQuestionEditor(section, sectionQuestion.question, sectionQuestion);
                         } else {
+                            // Edit distributed question
                             var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
-                                $scope.sectionQuestion = sectionQuestion;
+                                // Copy so we won't mess up the scope in case user cancels out in the middle of editing
+                                $scope.sectionQuestion = angular.copy(sectionQuestion);
                                 $scope.lotteryOn = section.lotteryOn;
 
                                 $scope.submit = function (baseQuestion, examQuestion) {
-                                    sectionQuestion = examQuestion;
-                                    sectionQuestion.question = baseQuestion;
-                                    ExamSectionQuestionRes.questions.update({id: $scope.sectionQuestion.id}, sectionQuestion,
-                                        function () {
-                                            toastr.info($translate.instant("sitnet_question_saved"));
-                                            $modalInstance.dismiss("done");
-                                        }, function (error) {
-                                            toastr.error(error.data);
-                                        }
-                                    );
+                                    questionService.updateDistributedExamQuestion(baseQuestion, examQuestion).then(function (esq) {
+                                        toastr.info($translate.instant("sitnet_question_saved"));
+                                        $modalInstance.close(esq);
+                                    });
                                 };
 
-                                $scope.cancel = function (baseQuestion, examQuestion) {
-                                    ExamSectionQuestionRes.questions.get({id: examQuestion.id}, function (q) {
-                                        $modalInstance.close(q);
-                                    }, function (err) {
-                                        $modalInstance.dismiss();
-                                    });
+                                $scope.cancelEdit = function () {
+                                    $modalInstance.dismiss();
                                 };
 
                             }];
@@ -1093,26 +1085,13 @@
 
                             modalInstance.result.then(function (data) {
                                 if (data) {
+                                    // apply changes back to scope
                                     angular.extend(sectionQuestion, data);
                                 }
                                 modalInstance.dismiss();
                             });
                         }
                     });
-                };
-
-                var removeExamQuestion = function (examId, sectionId, questionId) {
-                    var deferred = $q.defer();
-                    ExamRes.questions.remove({
-                        eid: examId,
-                        sid: sectionId,
-                        qid: questionId
-                    }, function () {
-                        deferred.resolve();
-                    }, function () {
-                        deferred.reject();
-                    });
-                    return deferred.promise;
                 };
 
                 var insertExamQuestion = function (examId, sectionId, questionId, sequenceNumber, modal, silent) {
@@ -1134,52 +1113,51 @@
                     );
                 };
 
-                var openBaseQuestionEditor = function (question, section, sectionQuestion) {
+                var openBaseQuestionEditor = function (section, question, sectionQuestion, type) {
                     var examId = $scope.newExam.id;
                     var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         $scope.lotteryOn = section.lotteryOn;
-                        if (!sectionQuestion) {
-                            $scope.newQuestion = question;
+                        if (!question) {
+                            // Create new base question
+                            $scope.questionType = type;
                         } else {
+                            // Edit base question
                             $scope.baseQuestionId = question.id;
                         }
 
-                        $scope.submit = function (baseQuestion) {
-                            questionService.updateQuestion(baseQuestion, true).then(function () {
-                                if (!sectionQuestion) {
-                                    insertExamQuestion(examId, section.id, baseQuestion.id, section.sectionQuestions.length,
-                                        $modalInstance);
-                                } else {
-                                    // Hideous hack to have the changes in base question be automatically reflected onto the exam question
-                                    // We did not want this but were forced to implement it so here it is :)
-                                    removeExamQuestion(examId, section.id, baseQuestion.id)
-                                        .then(function () {
-                                            insertExamQuestion(examId, section.id, baseQuestion.id, sectionQuestion.sequenceNumber,
-                                                $modalInstance, true);
-                                        });
-                                }
-                            });
-
+                        var saveQuestion = function (baseQuestion) {
+                            var errFn = function (error) {
+                                toastr.error(error.data);
+                                $modalInstance.dismiss("Cancelled");
+                            };
+                            if (!question) {
+                                // Create new base question
+                                questionService.createQuestion(baseQuestion).then(function (newQuestion) {
+                                    // Now that new base question was created we make an exam section question out of it
+                                    insertExamQuestion(examId, section.id, newQuestion.id,
+                                        section.sectionQuestions.length, $modalInstance);
+                                }, errFn);
+                            } else {
+                                // Edit undistributed base question
+                                questionService.updateQuestion(baseQuestion, true).then(function (updatedQuestion) {
+                                    // Reflect changes in base question to exam question as well
+                                    ExamSectionQuestionRes.undistributed.update({id: sectionQuestion.id},
+                                        function (esq) {
+                                            angular.extend(sectionQuestion, esq);
+                                            $modalInstance.dismiss("done");
+                                            $rootScope.$emit('questionAdded'); // Emit event for question library.
+                                        }, errFn);
+                                }, errFn);
+                            }
                         };
 
-                        $scope.cancel = function (baseQuestion) {
-                            // If editing a non-shared exam question DO NOT go and DELETE it
-                            if (!sectionQuestion) {
-                                QuestionRes.questions.delete({id: question.id}, function () {
-                                    toastr.info($translate.instant("sitnet_question_removed"));
-                                    $modalInstance.dismiss("Cancelled");
-                                });
-                            } else {
-                                $modalInstance.dismiss("Cancelled");
-                                // This is horrible. We have to replace the previous exam question even with cancel :)
-                                // Something might have changed in the editor and we really have no reliable way of
-                                // detecting it. Best to just replace and forget about it.
-                                removeExamQuestion(examId, section.id, baseQuestion.id)
-                                    .then(function () {
-                                        insertExamQuestion(examId, section.id, baseQuestion.id, sectionQuestion.sequenceNumber,
-                                            $modalInstance, true);
-                                    });
-                            }
+                        $scope.submit = function (baseQuestion) {
+                            saveQuestion(baseQuestion);
+                        };
+
+                        $scope.cancelEdit = function () {
+                            // Well this is nice now :)
+                            $modalInstance.dismiss("Cancelled");
                         };
                     }];
 
@@ -1203,13 +1181,7 @@
                         toastr.error($translate.instant("sitnet_error_drop_disabled_lottery_on"));
                         return;
                     }
-                    QuestionRes.questions.create({type: type},
-                        function (question) {
-                            question.examSectionQuestions = [];
-                            openBaseQuestionEditor(question, section);
-                        }, function (error) {
-                            toastr.error(error.data);
-                        });
+                    openBaseQuestionEditor(section, null, null, type);
                 };
 
                 $scope.editQuestion = function (section, sectionQuestion) {

@@ -1,9 +1,8 @@
 <div class="form-horizontal question-editor-option" ng-class="option.correctOption ? 'alert-success' : 'alert-danger'">
     <div class="form-group">
-        <!--label for="optionText" class="col-md-1 control-label">{{'sitnet_default_option_description' | translate}}:</label-->
         <div class="col-md-11">
             <input id="optionText" type="text" focus-on="opt{{option.id}}" class="form-control"
-                   ng-model="option.option" ui-blur="option.id ? updateOption(option) : saveOption(option)"
+                   ng-model="option.option"
                    ng-click="selectIfDefault(option.option, $event)"
                    required="true"/>
         </div>
@@ -18,7 +17,7 @@
             <div class="radio">
                 <label>
                     <input name="correctOption" type="radio" ng-model="option.correctOption" ng-value="true" ng-click="correctAnswerToggled(option)"
-                            ng-disabled="optionDisabled(option)">{{'sitnet_correct_option' | translate }}
+                            ng-disabled="option.correctOption == true">{{'sitnet_correct_option' | translate }}
                 </label>
             </div>
         </div>

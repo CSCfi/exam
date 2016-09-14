@@ -8,25 +8,29 @@ import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Model;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import controllers.base.BaseController;
 import models.Exam;
 import models.ExamSectionQuestion;
 import models.ExamSectionQuestionOption;
+import models.Tag;
 import models.User;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import play.data.DynamicForm;
 import play.libs.Json;
+import play.mvc.BodyParser;
 import play.mvc.Result;
 import util.AppUtil;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class QuestionController extends BaseController {
 
@@ -120,45 +124,71 @@ public class QuestionController extends BaseController {
         return ok(Json.toJson(copy));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result createQuestion() {
-        Question question = bindForm(Question.class);
-        question.setQuestionOwners(new HashSet<>());
-        question.getQuestionOwners().add(getLoggedUser());
-        User user = getLoggedUser();
-        AppUtil.setCreator(question, user);
-        AppUtil.setModifier(question, user);
-        question.setState(QuestionState.NEW.toString());
-        question.save();
-        return ok(Json.toJson(question));
-    }
+    Question parseFromBody(JsonNode node, User user, Question existing) {
+        String questionText = parse("question", node, String.class);
+        Integer defaultMaxScore = parse("defaultMaxScore", node, Integer.class);
+        Integer defaultWordCount = parse("defaultExpectedWordCount", node, Integer.class);
+        Question.EvaluationType defaultEvaluationType = parseEnum("defaultEvaluationType", node, Question.EvaluationType.class);
+        String defaultInstructions = parse("defaultAnswerInstructions", node, String.class);
+        String defaultCriteria = parse("defaultEvaluationCriteria", node, String.class);
+        Question.Type type = parseEnum("type", node, Question.Type.class);
 
-    private static void doUpdateQuestion(Question question, DynamicForm df, User user) {
-        if (df.get("question") != null) {
-            question.setQuestion(df.get("question"));
-        }
-        if (df.get("defaultMaxScore") != null) {
-            question.setDefaultMaxScore(Integer.parseInt(df.get("defaultMaxScore")));
-        }
-        if (df.get("defaultExpectedWordCount") != null) {
-            question.setDefaultExpectedWordCount(Integer.parseInt(df.get("defaultExpectedWordCount")));
-        }
-        if (df.get("defaultEvaluationType") != null) {
-            question.setDefaultEvaluationType(Question.EvaluationType.valueOf(df.get("defaultEvaluationType")));
-        }
-        question.setDefaultAnswerInstructions(df.get("defaultAnswerInstructions"));
-        question.setDefaultEvaluationCriteria(df.get("defaultEvaluationCriteria"));
-        question.setShared(Boolean.parseBoolean(df.get("shared")));
-        if (!QuestionState.DELETED.toString().equals(question.getState())) {
+        Question question = existing == null ? new Question() : existing;
+        question.setType(type);
+        question.setQuestion(questionText);
+        question.setDefaultMaxScore(defaultMaxScore);
+        question.setDefaultExpectedWordCount(defaultWordCount);
+        question.setDefaultEvaluationType(defaultEvaluationType);
+        question.setDefaultAnswerInstructions(defaultInstructions);
+        question.setDefaultEvaluationCriteria(defaultCriteria);
+        if (question.getState() == null || !question.getState().equals(QuestionState.DELETED.toString())) {
             question.setState(QuestionState.SAVED.toString());
         }
+        if (question.getId() == null) {
+            AppUtil.setCreator(question, user);
+        }
         AppUtil.setModifier(question, user);
-        question.update();
+
+        question.getQuestionOwners().clear();
+        for (JsonNode ownerNode : node.get("questionOwners")) {
+            User owner = Ebean.find(User.class, ownerNode.get("id").asLong());
+            if (owner != null) {
+                question.getQuestionOwners().add(owner);
+            }
+        }
+        question.getTags().clear();
+        for (JsonNode tagNode : node.get("tags")) {
+            Tag tag = Ebean.find(Tag.class, tagNode.get("id").asLong());
+            if (tag == null) {
+                tag = new Tag();
+                tag.setName(tagNode.get("name").asText());
+                AppUtil.setCreator(tag, user);
+                AppUtil.setModifier(tag, user);
+            }
+            question.getTags().add(tag);
+        }
+        return question;
     }
 
+    @BodyParser.Of(BodyParser.Json.class)
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result createQuestion() {
+        User user = getLoggedUser();
+        JsonNode body = request().body().asJson();
+        Question question = parseFromBody(body, user, null);
+        question.getQuestionOwners().add(user);
+        return question.getValidationResult(body).orElseGet(() -> {
+            if (question.getType() != Question.Type.EssayQuestion) {
+                processOptions(question, (ArrayNode) body.get("options"));
+            }
+            question.save();
+            return ok(Json.toJson(question));
+        });
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateQuestion(Long id) {
-        DynamicForm df = formFactory.form().bindFromRequest();
         User user = getLoggedUser();
         ExpressionList<Question> query = Ebean.find(Question.class).where().idEq(id);
         if (user.hasRole("TEACHER", getSession())) {
@@ -172,44 +202,15 @@ public class QuestionController extends BaseController {
         if (question == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        String validationResult = question.getValidationResult();
-        if (validationResult != null) {
-            return forbidden(validationResult);
-        }
-        doUpdateQuestion(question, df, user);
-        return ok(Json.toJson(question));
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateOption(Long oid) {
-        MultipleChoiceOption form = bindForm(MultipleChoiceOption.class);
-        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, oid);
-        if (option == null) {
-            return notFound();
-        }
-        option.setOption(form.getOption());
-        option.setDefaultScore(form.getDefaultScore());
-        option.update();
-        return ok(Json.toJson(option));
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result toggleCorrectOption(Long oid) {
-        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, oid);
-        if (option == null) {
-            return notFound();
-        }
-        Question question = option.getQuestion();
-        for (MultipleChoiceOption mco : option.getQuestion().getOptions()) {
-            if (mco.equals(option)) {
-                mco.setCorrectOption(true);
-            } else {
-                mco.setCorrectOption(false);
+        JsonNode body = request().body().asJson();
+        Question updatedQuestion = parseFromBody(body, user, question);
+        return question.getValidationResult(body).orElseGet(() -> {
+            if (updatedQuestion.getType() != Question.Type.EssayQuestion) {
+                processOptions(updatedQuestion, (ArrayNode) body.get("options"));
             }
-            mco.update();
-        }
-        Collections.sort(question.getOptions());
-        return ok(Json.toJson(question));
+            updatedQuestion.update();
+            return ok(Json.toJson(updatedQuestion));
+        });
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -245,74 +246,107 @@ public class QuestionController extends BaseController {
         return ok();
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result deleteOption(Long oid) {
-        return deleteOptionQ(null, oid);
+    private void processOptions(Question question, ArrayNode node) {
+        Set<Long> persistedIds = question.getOptions().stream()
+                .map(MultipleChoiceOption::getId)
+                .collect(Collectors.toSet());
+        Set<Long> providedIds = StreamSupport.stream(node.spliterator(), false)
+                .filter(n -> parse("id", n, Long.class) != null)
+                .map(n -> parse("id", n, Long.class))
+                .collect(Collectors.toSet());
+        // Updates
+        StreamSupport.stream(node.spliterator(), false)
+                .filter(o -> {
+                    Long id = parse("id", o, Long.class);
+                    return id != null && persistedIds.contains(id);
+                }).forEach(o -> updateOption(o, false));
+        // Removals
+        question.getOptions().stream()
+                .filter(o -> !providedIds.contains(o.getId()))
+                .forEach(this::deleteOption);
+        // Additions
+        StreamSupport.stream(node.spliterator(), false)
+                .filter(o -> parse("id", o, Long.class) == null)
+                .forEach(o -> createOption(question, o));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result deleteOptionQ(Long qid, Long oid) {
-        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, oid);
-        if (option == null) {
-            return ok();
-        }
-        Question question = option.getQuestion();
-        if (question.getType() == Question.Type.WeightedMultipleChoiceQuestion) {
-            for (ExamSectionQuestion esq : question.getExamSectionQuestions()) {
-                boolean preserveScores = false;
-                if (esq.getId().equals(qid)) {
-                    preserveScores = true;
-                }
-                esq.removeOption(option, preserveScores);
-                esq.save();
-            }
-        }
-        option.delete();
-        return ok();
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addOption(Long qid) {
-        Question question = Ebean.find(Question.class, qid);
-        if (question == null) {
-            return notFound();
-        }
-        final DynamicForm df = formFactory.form().bindFromRequest();
-        String examSectionQuestionId = df.get("examSectionQuestionId");
-        MultipleChoiceOption option = bindForm(MultipleChoiceOption.class);
+    void createOption(Question question, JsonNode node) {
+        MultipleChoiceOption option = new MultipleChoiceOption();
+        option.setOption(parse("option", node, String.class));
+        String scoreFieldName = node.has("defaultScore") ? "defaultScore" : "score";
+        option.setDefaultScore(parse(scoreFieldName, node, Double.class));
+        Boolean correctOption = parse("correctOption", node, Boolean.class);
+        option.setCorrectOption(correctOption == null ? false : correctOption);
         question.getOptions().add(option);
         AppUtil.setModifier(question, getLoggedUser());
         question.save();
         option.save();
+        propagateOptionCreationToExamQuestions(question, null, option);
+    }
 
+    void createOptionBasedOnExamQuestion(Question question, ExamSectionQuestion esq, JsonNode node) {
+        MultipleChoiceOption option = new MultipleChoiceOption();
+        JsonNode baseOptionNode = node.get("option");
+        option.setOption(parse("option", baseOptionNode, String.class));
+        option.setDefaultScore(parse("score", node, Double.class));
+        Boolean correctOption = parse("correctOption", baseOptionNode, Boolean.class);
+        option.setCorrectOption(correctOption == null ? false : correctOption);
+        question.getOptions().add(option);
+        AppUtil.setModifier(question, getLoggedUser());
+        question.save();
+        option.save();
+        propagateOptionCreationToExamQuestions(question, esq, option);
+    }
+
+    private void propagateOptionCreationToExamQuestions(Question question, ExamSectionQuestion modifiedExamQuestion,
+                                                        MultipleChoiceOption option) {
         // Need to add the new option to bound exam section questions as well
         if (question.getType() == Question.Type.MultipleChoiceQuestion
                 || question.getType() == Question.Type.WeightedMultipleChoiceQuestion) {
-            for (ExamSectionQuestion esq : question.getExamSectionQuestions()) {
-                Double score = calculateOptionScore(question, option, esq);
-                boolean preserveScores = false;
-                if (esq.getId().toString().equals(examSectionQuestionId)) {
-                    //Use original score for calling exam section question.
-                    score = option.getDefaultScore();
-                    preserveScores = true;
-                }
+            for (ExamSectionQuestion examQuestion : question.getExamSectionQuestions()) {
                 ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+                // Preserve scores for the exam question that is under modification right now
+                boolean preserveScore = modifiedExamQuestion != null && modifiedExamQuestion.equals(examQuestion);
+                Double score = preserveScore ? option.getDefaultScore() :
+                        calculateOptionScore(question, option, examQuestion);
                 esqo.setScore(score);
                 esqo.setOption(option);
-
-                esq.addOption(esqo, preserveScores);
-                esq.update();
+                examQuestion.addOption(esqo, preserveScore);
+                examQuestion.update();
             }
         }
-        return ok(Json.toJson(option));
+    }
+
+    void updateOption(JsonNode node, boolean skipDefaults) {
+        Long id = parse("id", node, Long.class);
+        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, id);
+        if (option != null) {
+            option.setOption(parse("option", node, String.class));
+            if (!skipDefaults) {
+                option.setDefaultScore(parse("defaultScore", node, Double.class));
+            }
+            option.setCorrectOption(parse("correctOption", node, Boolean.class));
+            option.update();
+        }
+    }
+
+    void deleteOption(MultipleChoiceOption option) {
+        Question question = option.getQuestion();
+        if (question.getType() == Question.Type.WeightedMultipleChoiceQuestion) {
+            for (ExamSectionQuestion esq : question.getExamSectionQuestions()) {
+                esq.removeOption(option, false);
+                esq.save();
+            }
+        }
+        option.delete();
     }
 
     /**
      * Calculates new option score for ExamSectionQuestionOption.
      *
      * @param question Base question.
-     * @param option New added option.
-     * @param esq ExamSectionQuestion.
+     * @param option   New added option.
+     * @param esq      ExamSectionQuestion.
      * @return New calculated score rounded to two decimals.
      */
     private Double calculateOptionScore(Question question, MultipleChoiceOption option, ExamSectionQuestion esq) {
@@ -367,41 +401,6 @@ public class QuestionController extends BaseController {
         }
         questions.forEach(q -> addOwner(q, newOwner, modifier));
         return ok(newOwner);
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result removeOwner(Long uid) {
-        User owner = Ebean.find(User.class, uid);
-        if (owner == null) {
-            return notFound();
-        }
-        final DynamicForm df = formFactory.form().bindFromRequest();
-        final String questionId = df.data().get("questionId");
-
-        if (questionId == null || questionId.isEmpty()) {
-            return badRequest();
-        }
-        User user = getLoggedUser();
-        ExpressionList<Question> expr = Ebean.find(Question.class).where().idEq(questionId);
-        if (user.hasRole("TEACHER", getSession())) {
-            expr = expr.disjunction()
-                    .eq("shared", true)
-                    .eq("questionOwners", user)
-                    .endJunction();
-        }
-        Question question = expr.findUnique();
-
-        if (question == null) {
-            return notFound();
-        }
-        if (question.getQuestionOwners().size() < 2) {
-            // Minimum of one owners must remain
-            return forbidden();
-        }
-        AppUtil.setModifier(question, getLoggedUser());
-        question.getQuestionOwners().remove(owner);
-        question.update();
-        return ok();
     }
 
     private void addOwner(Question question, User user, User modifier) {

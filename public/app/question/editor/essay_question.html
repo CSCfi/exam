@@ -6,8 +6,7 @@
         </label>
         <div class="input-group" id="defaultExpectedWordCount">
             <input name="defaultExpectedWordCount" type="number" class="form-control" ng-model="newQuestion.defaultExpectedWordCount"
-                   ui-change="estimateCharacters(); questionForm.defaultExpectedWordCount.$valid ? updateQuestion() : false" min="1"
-                   max="1000000">
+                   ui-change="estimateCharacters(newQuestion)" min="1" max="1000000">
             <span class="input-group-addon" title="{{'sitnet_average_word_length_finnish' | translate}}">
                 {{'sitnet_approximately' | translate}} {{estimateCharacters(newQuestion)}} {{'sitnet_characters' | translate}}
             </span>

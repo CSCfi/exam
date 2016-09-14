@@ -12,7 +12,7 @@ GET           /app/users/byrole/:role                                    control
 GET           /app/users/filter/:role                                    controllers.UserController.getUsersByRoleFilter(role: String, q: String)
 GET           /app/users/filter/:role/:eid                               controllers.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
 GET           /app/users/exam/owners/:role/:eid                          controllers.UserController.getExamOwnersByRoleFilter(role: String, eid: Long, q: String)
-GET           /app/users/question/owners/:role/:qid                      controllers.UserController.getQuestionOwnersByRoleFilter(role: String, qid: Long, q: String)
+GET           /app/users/question/owners/:role                           controllers.UserController.getQuestionOwnersByRoleFilter(role: String, q: String, qid: java.util.Optional[java.lang.Long])
 PUT           /app/users/agreement                                       controllers.UserController.updateUserAgreementAccepted()
 PUT           /app/user/lang                                             controllers.UserController.updateLanguage()
 GET           /app/users                                                 controllers.UserController.findUsers(filter: java.util.Optional[String])
@@ -152,22 +152,16 @@ GET           /app/questions                                             control
 GET           /app/questions/:id                                         controllers.QuestionController.getQuestion(id: Long)
 PUT           /app/questions/:id                                         controllers.QuestionController.updateQuestion(id: Long)
 
-PUT           /app/questions/option/:oid                                 controllers.QuestionController.updateOption(oid: Long)
-PUT           /app/questions/correctoption/:oid                          controllers.QuestionController.toggleCorrectOption(oid: Long)
-
 POST          /app/questions                                             controllers.QuestionController.createQuestion()
 POST          /app/question/:id                                          controllers.QuestionController.copyQuestion(id: Long)
-POST          /app/questions/:qid/option                                 controllers.QuestionController.addOption(qid: Long)
 DELETE        /app/questions/:id                                         controllers.QuestionController.deleteQuestion(id: Long)
-DELETE        /app/questions/option/:oid                                 controllers.QuestionController.deleteOption(oid: Long)
-DELETE        /app/questions/:qid/option/:oid                            controllers.QuestionController.deleteOptionQ(qid: Long, oid: Long)
 POST          /app/questions/owner/:uid                                  controllers.QuestionController.addOwner(uid: Long)
-DELETE        /app/questions/owner/:uid                                  controllers.QuestionController.removeOwner(uid: Long)
 
 ############### Section question interface ##########
+
 GET           /app/examquestions/:id                                     controllers.ExamSectionController.getExamQuestion(id: Long)
-PUT           /app/examquestions/:id                                     controllers.ExamSectionController.updateExamQuestion(id: Long)
-PUT           /app/examquestions/:id/option/:oid                         controllers.ExamSectionController.updateExamQuestionOption(id: Long, oid: Long)
+PUT           /app/examquestions/undistributed/:id                       controllers.ExamSectionController.updateUndistributedExamQuestion(id: Long)
+PUT           /app/examquestions/distributed/:id                         controllers.ExamSectionController.updateDistributedExamQuestion(id: Long)
 
 ############### Reservation interface ###############
 
@@ -197,7 +191,7 @@ GET           /app/reservations/students                                 control
 GET           /app/reservations/teachers                                 controllers.ReservationController.getTeachers
 GET           /app/reservations/examrooms                                controllers.ReservationController.getExamRooms
 GET           /app/reservations/exams                                    controllers.ReservationController.getExams
-GET           /app/reservations                                          controllers.ReservationController.getReservations(state: java.util.Optional[java.lang.String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], roomId: java.util.Optional[java.lang.Long], machineId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
+GET           /app/reservations                                          controllers.ReservationController.getReservations(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], roomId: java.util.Optional[java.lang.Long], machineId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
 DELETE        /app/reservations/:id                                      controllers.ReservationController.removeReservation(id: Long)
 PUT           /app/reservations/:id                                      controllers.ReservationController.permitRetrial(id: Long)
 GET           /app/reservations/:id/machines                             controllers.ReservationController.findAvailableMachines(id: Long)

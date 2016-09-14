@@ -3,7 +3,7 @@
     <!-- Shared -->
     <!--div class="row">
         <div class="checkbox">
-            <label><input type="checkbox" ng-model="newQuestion.shared" ng-click="updateQuestion()">
+            <label><input type="checkbox" ng-model="newQuestion.shared">
                 <strong class="sitnet-info-text">{{ 'sitnet_public_question' | translate }}</strong></label>
         </div>
     </div-->
@@ -78,8 +78,7 @@
             </span>
         </label>
         <textarea id="editor" name="editor" ck-editor rows="10" cols="80"
-                  ng-model="newQuestion.question"
-                  ui-change="updateQuestion()" required>
+                  ng-model="newQuestion.question" required>
         </textarea>
     </div>
 
@@ -110,7 +109,6 @@
                 {{ 'sitnet_positive_integer_required' | translate }}
             </label>
             <input id="defaultMaxScore" name="defaultMaxScore" type="number" class="col-md-2 form-control"
-                   ui-change="updateQuestion()"
                    ng-model="newQuestion.defaultMaxScore"
                    min="1" max="1000000"
                    required ng-disabled="lotteryOn"/>
@@ -152,14 +150,7 @@
                 <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_added_to_categories' |
                     translate}}:
                 </div>
-                <div ng-show="newQuestion.parent" class="col-md-9">
-                    <div ng-repeat="tag in newQuestion.parent.tags">
-                                            <span class="sitnet-badge pull-left inline">
-                                                {{ tag.name }}
-                                            </span>
-                    </div>
-                </div>
-                <div ng-hide="newQuestion.parent" class="col-md-9">
+                <div class="col-md-9">
                     <div ng-repeat="tag in newQuestion.tags">
                         <span class="pointer sitnet-badge pull-left inline"
                               popover-placement="top" popover-popup-delay="500"
@@ -180,7 +171,6 @@
         </label>
         <textarea id="defaultInstructions" class="form-control" rows="3"
                   ng-model="newQuestion.defaultAnswerInstructions"
-                  ui-change="updateQuestion()"
                   placeholder="{{'sitnet_question_instruction' | translate}}">
         </textarea>
     </div>
@@ -192,8 +182,7 @@
         </label>
         <textarea id="defaultEvaluationCriteria" class="form-control" rows="3"
                   ng-model="newQuestion.defaultEvaluationCriteria"
-                  ui-change="updateQuestion()"
-                  placeholder="{{'sitnet_question_instruction' | translate}}">
+                  placeholder="{{'sitnet_exam_evaluation_criteria' | translate}}">
         </textarea>
     </div>
 
@@ -206,12 +195,18 @@
         </label>
 
         <div id="attachment">
-            <div ng-show="newQuestion.attachment">
-                <a class="pointer" ng-click="downloadQuestionAttachment(newQuestion)">{{
-                    newQuestion.attachment.fileName }}</a>
-                                    <span class="sitnet-red pointer" ng-click="removeQuestionAttachment(newQuestion)">
-                                        <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
-                                    </span>
+            <div ng-show="newQuestion.attachment && !newQuestion.attachment.removed" class="bottom-padding-1">
+                <!-- Uploaded -->
+                <a ng-if="newQuestion.attachment.id" class="pointer" ng-click="downloadQuestionAttachment(newQuestion)">
+                    {{newQuestion.attachment.fileName}}
+                </a>
+                <!-- Not yet uploaded -->
+                <span ng-if="!newQuestion.attachment.id" class="text">
+                    {{newQuestion.attachment.name}} <small>({{ getFileSize(newQuestion.attachment) }})</small></span>
+                <span class="sitnet-red pointer" ng-click="removeQuestionAttachment(newQuestion)">
+                    <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
+                </span>
+
             </div>
             <button type="button" ng-click="selectFile()" class="btn btn-default btn-sm">{{
                 'sitnet_attach_file' |

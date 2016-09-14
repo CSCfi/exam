@@ -3,6 +3,7 @@ package controllers.base;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.text.PathProperties;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.typesafe.config.ConfigFactory;
 import exceptions.MalformedDataException;
@@ -43,6 +44,43 @@ public class BaseController extends Controller {
         }
         return form.bindFromRequest().get();
     }
+
+    protected <E extends Enum<E>> E parseEnum(String fieldName, JsonNode node, Class<E> type) {
+        JsonNode field = node.get(fieldName);
+        if (field != null && field.isTextual()) {
+            return Enum.valueOf(type, node.get(fieldName).asText());
+        }
+        return null;
+    }
+
+    protected <T> T parse(String fieldName, JsonNode node, Class<T> type) {
+        JsonNode field = node.get(fieldName);
+        if (field != null && !field.isNull()) {
+            if (type.equals(Long.class)) {
+                return type.cast(field.asLong());
+            }
+            if (type.equals(Integer.class)) {
+                return type.cast(field.asInt());
+            }
+            if (field.isTextual()) {
+                return type.cast(field.asText());
+            }
+            if (field.isDouble() || type.equals(Double.class)) {
+                return type.cast(field.asDouble());
+            }
+            if (field.isBoolean()) {
+                return type.cast(field.asBoolean());
+            }
+        }
+        return null;
+    }
+
+    <T> T parse(String fieldName, JsonNode node, Class<T> type, T defaultValue) {
+        T value = parse(fieldName, node, type);
+        return value == null ? defaultValue : value;
+    }
+
+
 
     protected Result ok(Object object) {
         String body = Ebean.json().toJson(object);

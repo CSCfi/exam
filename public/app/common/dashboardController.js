@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('DashboardCtrl', ['$scope', 'dashboardService', 'examService', 'questionService',
+        .controller('DashboardCtrl', ['$scope', '$location', 'dashboardService', 'examService', 'questionService',
             'reservationService', 'dateService', 'enrolmentService', 'sessionService',
-            function ($scope, dashboardService, examService, questionService, reservationService, dateService,
+            function ($scope, $location, dashboardService, examService, questionService, reservationService, dateService,
                       enrolmentService, sessionService) {
 
                 $scope.templates = dashboardService.getTemplates();
@@ -44,7 +44,7 @@
                 };
 
                 $scope.createQuestion = function (type) {
-                    questionService.createQuestion(type);
+                    $location.path("/questions/new/" + type);
                 };
 
                 $scope.removeEnrolment = function (enrolment, enrolments) {

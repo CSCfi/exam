@@ -172,8 +172,8 @@ public class SessionController extends BaseController {
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
         result.put("token", token);
-        result.put("firstname", user.getFirstName());
-        result.put("lastname", user.getLastName());
+        result.put("firstName", user.getFirstName());
+        result.put("lastName", user.getLastName());
         result.put("lang", user.getLanguage().getCode());
         result.set("roles", Json.toJson(user.getRoles()));
         result.set("permissions", Json.toJson(user.getPermissions()));

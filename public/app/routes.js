@@ -16,6 +16,8 @@
 
             // edit question
             $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question/editor/question.html'});
+            // new question
+            $routeProvider.when('/questions/new/:type', { templateUrl: tmpl + 'question/editor/question.html'});
 
             /* exams */
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});

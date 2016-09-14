@@ -8,14 +8,7 @@
 
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant("sitnet_are_you_sure"));
                     dialog.result.then(function (btn) {
-                        AttachmentRes.questionAttachment.remove({id: question.id},
-
-                            function () {
-                                toastr.info($translate.instant("sitnet_attachment_removed"));
-                                question.attachment = null;
-                            }, function (error) {
-                                toastr.error(error.data);
-                            });
+                        question.attachment.removed = true;
                     });
                 };
 
@@ -79,7 +72,9 @@
                 };
 
                 $scope.downloadQuestionAttachment = function (question) {
-                    fileService.download('/app/attachment/question/' + question.id, question.attachment.fileName);
+                    if (question.attachment.id) {
+                        fileService.download('/app/attachment/question/' + question.id, question.attachment.fileName);
+                    }
                 };
 
                 $scope.downloadQuestionAnswerAttachment = function (question, hash) {
@@ -97,6 +92,10 @@
 
                 $scope.downloadStatementAttachment = function (exam) {
                     fileService.download('/app/attachment/exam/' + exam.id + '/statement', exam.languageInspection.statement.attachment.fileName);
+                };
+
+                $scope.getFileSize = function (attachment) {
+                    return attachment ? Math.round(attachment.size / 1000) + " kB" : null;
                 };
 
             }]);

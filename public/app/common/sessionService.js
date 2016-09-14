@@ -47,7 +47,7 @@
 
                 self.getUserName = function () {
                     if (_user) {
-                        return _user.firstname + " " + _user.lastname;
+                        return _user.firstName + " " + _user.lastName;
                     }
                 };
 
@@ -222,7 +222,7 @@
                     self.restartSessionCheck();
                     $rootScope.$broadcast('userUpdated');
                     var welcome = function () {
-                        toastr.success($translate.instant("sitnet_welcome") + " " + _user.firstname + " " + _user.lastname);
+                        toastr.success($translate.instant("sitnet_welcome") + " " + _user.firstName + " " + _user.lastName);
                     };
                     $timeout(welcome, 2000);
                     if (!_user.loginRole) {
@@ -263,8 +263,8 @@
 
                     _user = {
                         id: user.id,
-                        firstname: user.firstname,
-                        lastname: user.lastname,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
                         lang: user.lang,
                         loginRole: user.roles.length == 1 ? user.roles[0] : undefined,
                         roles: user.roles,

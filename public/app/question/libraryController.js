@@ -357,7 +357,7 @@
                 };
 
                 $scope.createQuestion = function (type) {
-                    questionService.createQuestion(type);
+                    $location.path("/questions/new/" + type);
                 };
 
                 $scope.deleteQuestion = function (question) {

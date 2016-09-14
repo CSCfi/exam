@@ -39,13 +39,13 @@ public class AttachmentController extends BaseController {
 
     private static void removePrevious(AttachmentContainer container, boolean removeFromDisk) {
         if (container.getAttachment() != null) {
-            Attachment aa = container.getAttachment();
+            Attachment a = container.getAttachment();
             container.setAttachment(null);
             container.save();
             if (removeFromDisk) {
-                AppUtil.removeAttachmentFile(aa.getFilePath());
+                AppUtil.removeAttachmentFile(a.getFilePath());
             }
-            aa.delete();
+            a.delete();
         }
     }
 
@@ -104,6 +104,10 @@ public class AttachmentController extends BaseController {
         return ok(answer);
     }
 
+    private boolean isAttachmentUsedInStudentExams(Question question) {
+        return !question.getChildren().isEmpty();
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addAttachmentToQuestion() {
 
@@ -118,7 +122,11 @@ public class AttachmentController extends BaseController {
         }
         Map<String, String[]> m = body.asFormUrlEncoded();
         Long qid = Long.parseLong(m.get("questionId")[0]);
-        Question question = Ebean.find(Question.class, qid);
+        Question question = Ebean.find(Question.class)
+                .fetch("examSectionQuestions.examSection.exam.parent")
+                .where()
+                .idEq(qid)
+                .findUnique();
         if (question == null) {
             return notFound();
         }
@@ -129,7 +137,7 @@ public class AttachmentController extends BaseController {
             return internalServerError("sitnet_error_creating_attachment");
         }
         // Remove existing one if found
-        removePrevious(question, true);
+        removePrevious(question, !isAttachmentUsedInStudentExams(question));
 
         Attachment attachment = createNew(filePart, newFilePath);
 

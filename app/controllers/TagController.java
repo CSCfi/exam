@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import controllers.base.BaseController;
+import com.avaje.ebean.text.PathProperties;
 import models.Tag;
 import models.User;
 import models.questions.Question;
@@ -40,7 +41,7 @@ public class TagController extends BaseController {
             query = query.in("questions.examSectionQuestions.examSection.id", sectionIds.get());
         }
         Set<Tag> tags = query.findSet();
-        return ok(Json.toJson(tags));
+        return ok(tags, PathProperties.parse("(*, creator(id))"));
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})

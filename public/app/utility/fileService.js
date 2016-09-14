@@ -43,6 +43,15 @@
                     });
                 };
 
+                var open = function (file, filename) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        var f = reader.result;
+                        window.open(f);
+                    };
+                    reader.readAsDataURL(file);
+                };
+
                 var getMaxFilesize = function () {
                     var deferred = $q.defer();
 
@@ -60,9 +69,16 @@
                     return deferred.promise;
                 };
 
-                var doUpload = function (url, file, params, parent, modal, callback) {
+                var isFileTooBig = function (file) {
                     if (file.size > _maxFileSize) {
                         toastr.error($translate.instant('sitnet_file_too_large'));
+                        return true;
+                    }
+                    return false;
+                };
+
+                var doUpload = function (url, file, params, parent, modal, callback) {
+                    if (isFileTooBig(file)) {
                         return;
                     }
                     var fd = new FormData();
@@ -86,7 +102,9 @@
 
                 var upload = function (url, file, params, parent, modal, callback) {
                     doUpload(url, file, params, parent, modal, function (attachment) {
-                        modal.dismiss();
+                        if (modal) {
+                            modal.dismiss();
+                        }
                         if (parent) {
                             parent.attachment = attachment;
                         }
@@ -108,7 +126,9 @@
                     download: download,
                     upload: upload,
                     uploadAnswerAttachment: uploadAnswerAttachment,
-                    getMaxFilesize: getMaxFilesize
+                    getMaxFilesize: getMaxFilesize,
+                    isFileTooBig: isFileTooBig,
+                    open: open
                 };
             }]);
 }());
