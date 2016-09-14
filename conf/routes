@@ -247,7 +247,6 @@ GET           /integration/reservations                                  control
 GET           /integration/rooms                                         controllers.IntegrationController.getRooms
 GET           /integration/rooms/:id/openinghours                        controllers.IntegrationController.getRoomOpeningHours(id: Long, date: java.util.Optional[String])
 
-# interoperability
 PUT           /integration/iop/facilities/:id                            controllers.iop.FacilityController.updateFacility(id: Long)
 GET           /integration/iop/organisations                             controllers.iop.OrganisationController.listOrganisations
 GET           /integration/iop/facilities                                controllers.iop.FacilityController.listFacilities(org: java.util.Optional[String])

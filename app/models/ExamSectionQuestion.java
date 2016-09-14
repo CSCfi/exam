@@ -163,7 +163,6 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         if (!preserveOriginalQuestion) {
             blueprint = question.copy();
             blueprint.setParent(question);
-            blueprint.save();
         } else {
             blueprint = question;
         }
@@ -183,13 +182,13 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             return false;
         }
         ExamSectionQuestion other = (ExamSectionQuestion) o;
-        return new EqualsBuilder().append(examSection, other.examSection)
-                .append(question, other.question).build();
+        return new EqualsBuilder().append(getExamSection(), other.getExamSection())
+                .append(getQuestion(), other.getQuestion()).build();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(examSection).append(question).build();
+        return new HashCodeBuilder().append(getExamSection()).append(getQuestion()).build();
     }
 
     @Override

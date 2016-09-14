@@ -1,0 +1,106 @@
+<div id="dashboard">
+
+<!-- Finished exams list -->
+<div class="top-row">
+    <div class="student-details-title-wrap">
+        <div class="student-exam-details-title nomar">{{'sitnet_exam_responses' | translate}}</div>
+    </div>
+</div>
+
+<!-- List of finished exams -->
+<div class="pad-15">
+    <div class="col-md-12 list-item" ng-repeat="participation in participations | orderBy: '-ended' | offset: currentPage*pageSize | limitTo: pageSize">
+        <div class="student-enrolment-wrapper">
+            <div class="col-md-12">
+
+                <div class="student-exam-header-row">
+
+                    <div>
+                        <!-- exam title n stuff -->
+                        <div class="student-enrolment-exam">
+                            {{ participation.exam.name }} <span class="exam-code">{{ participation.exam.course.code }}</span>
+                        </div>
+                    </div>
+
+                    <div class="row evaluation-padtop">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                                    {{ 'sitnet_course_name' | translate }}:
+                                </div>
+                                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                                    {{ participation.exam.course.name }}
+                                </div>
+                                <div class="clearfix visible-xs"></div>
+                                <div class="clearfix visible-sm"></div>
+                                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                                    {{ 'sitnet_teachers' | translate }}:
+                                </div>
+                                <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                                    <div><assessment-teacher-list exam="participation.exam" /></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row evaluation-padtop">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                                    {{ 'sitnet_exam_endtime' | translate }}:
+                                </div>
+                                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                                    {{ participation.ended  | adjustdst | date:'dd.MM.yyyy HH:mm'}}
+                                </div>
+                                <div class="clearfix visible-xs"></div>
+                                <div class="clearfix visible-sm"></div>
+                                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                                    &nbsp;
+                                </div>
+                                <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                                    &nbsp;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="student-exam-row" ng-if="participation.exam.state === 'GRADED_LOGGED' || participation.exam.state === 'REJECTED'
+                    || participation.exam.state === 'ARCHIVED' ||
+                    (participation.exam.state === 'GRADED' && participation.exam.autoEvaluationNotified)">
+                        <div class="student-exam-row-infolink">
+                            <a class="infolink pointer" ng-click="showEvaluations(participation.exam.id)">
+                                <span ng-show="showEval!=participation.exam.id">{{ 'sitnet_comments_open' | translate}}</span>
+                                <span ng-show="showEval==participation.exam.id">{{ 'sitnet_comments_hide' | translate}}</span>
+                                <img class="arrow_icon" ng-show="showEval!=participation.exam.id" src="../../assets/assets/images/arrow_right.png"><img class="arrow_icon" ng-show="showEval==participation.exam.id" src="../../assets/assets/images/arrow_down.png"></a>
+                        </div>
+                        <div class="student-exam-row-infobox" ng-show="showEval==participation.exam.id" ng-controller="ExamFeedbackController" ng-include="evaluationPath" ng-init="loadReview(participation.exam.id);">
+
+                        </div>
+                    </div>
+                    <div class="student-exam-row" ng-if="(participation.exam.state === 'GRADED' && !participation.exam.autoEvaluationNotified) ||
+                    participation.exam.state === 'REVIEW'|| participation.exam.state === 'REVIEW_STARTED'"
+                    class="text-muted">
+                        <div class="student-exam-row-infolink">{{'sitnet_no_comments' | translate}}</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Div structure is same, as in exams list. This ensures that they are aligned similarly -->
+<div class="detail-row">
+    <div class="bottom-row">
+        <div col-md-12 ng-show="participations.length > pageSize">
+            <paginator items="participations" page-size="pageSize" current-page="currentPage"/>
+        </div>
+    </div>
+</div>
+
+</div>
+
+
+
+
+

@@ -1,91 +1,89 @@
-<form class="form-inline" role="form">
+<form class="form-inline pad-15" role="form">
     <div ng-show="guide">
         <div class="guide-instruction col-md-12" ng-bind-html="exam.instruction"></div>
     </div>
-    <div ng-show="!guide">
-        <div class="col-md-12 info-row">
-            {{activeSection.description}}
-        </div>
-        <div class="{{sectionQuestion.selectedAnsweredState}} col-md-12 info-row"
-             ng-repeat="sectionQuestion in activeSection.sectionQuestions | orderBy: 'sequenceNumber'"
-             ng-init="examService.setQuestionColors(sectionQuestion.question); sectionQuestion.expanded = true;">
+    <div class="row studentexam-header" ng-show="!guide">
 
-            <div class="row">
-                <!-- chevron -->
-                <div class="col-md-1 fa-stack fa-lg pointer " ng-click="chevronClicked(sectionQuestion)">
-                    <i ng-class="sectionQuestion.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
-                       class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
-                    </i>
-                </div>
-                <!-- question type icon -->
-                <div class="col-md-1 fa-stack fa-lg">
-                    <i class="fa fa-stop fa-stack-2x question-icon-bg"></i>
-                    <i class="fa fa-stack-1x question-icon fa-list-ul"
-                       ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'"></i>
-                    <i class="fa fa-stack-1x question-icon fa-balance-scale"
-                       ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"></i>
-                    <i class="fa fa-stack-1x question-icon fa-pencil-square-o"
-                       ng-if="sectionQuestion.question.type === 'EssayQuestion'">
-                    </i>
-                </div>
-                <span class="col-md-7 question-type-text">
-                    <strong ng-if="sectionQuestion.question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</strong>
-                    <strong ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</strong>
-                    <strong ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc' | translate }}</strong>
-                </span>
-                <div class="col-md-3 question-type-text">
-                    <span class="pull-right">
-                         <i class="text-info fa fa-star"></i>
-                        <span ng-if="sectionQuestion.evaluationType == 'Selection'">
-                             {{'sitnet_evaluation_select' | translate}}
-                        </span>
-                        <span ng-if="sectionQuestion.evaluationType !== 'Selection'">
-                            {{sectionQuestion.derivedMaxScore}} {{'sitnet_unit_points' | translate}}
-                        </span>
-                    </span>
-
-
-                </div>
-            </div>
-            <!-- question text -->
-            <div class="row bottom-padding-2">
-                <div class="col-md-12 question-text">
-                    <div ng-if="sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></div>
-                    <div ng-if="!sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(truncate(sectionQuestion.question.question, 240))"></div>
-                </div>
+            <div class="col-md-12 info-row">
+                {{activeSection.description}}
             </div>
 
-            <!-- attachment -->
-            <div class="row" ng-show="sectionQuestion.question.attachment">
-                <div class="col-md-12" ng-controller="AttachmentController">
-                    <a class="pointer question-text question-type-text"
-                       ng-click="downloadQuestionAttachment(sectionQuestion.question)">
-                        <i class="text-success fa fa-download"></i>
-                        {{'sitnet_download_question_attachment' | translate }}
-                        <span class="text"><small>({{sectionQuestion.question.attachment.fileName}})</small>
-                        </span>
-                    </a>
+            <div class="{{sectionQuestion.selectedAnsweredState}} col-md-12 info-row guide-wrapper"
+                 ng-class="sectionQuestion.answered ? '' : 'notactive'"
+                 ng-repeat="sectionQuestion in activeSection.sectionQuestions | orderBy: 'sequenceNumber'"
+                 ng-init="examService.setQuestionColors(sectionQuestion.question); sectionQuestion.expanded = true;">
+
+                <div class="row">
+                    <!-- question text -->
+                    <div class="row">
+                        <div class="col-md-12 question-text">
+                            <div class="section-box-title" ng-if="sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></div>
+                            <div class="section-box-title" ng-if="!sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(truncate(sectionQuestion.question.question, 240))"></div>
+                            <!-- chevron -->
+                            <div class="col-md-1 fa-stack fa-lg pointer section-box-title arrow" ng-click="chevronClicked(sectionQuestion)">
+                                <i ng-class="sectionQuestion.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
+                                   class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
+                                </i>
+                            </div>
+                            <div class="question-type">
+                               <div class="col-md-7 question-type-text" ng-if="sectionQuestion.question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</div>
+                               <div class="col-md-7 question-type-text multiple-choice" ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</div>
+                               <div class="col-md-7 question-type-text multiple-choice" ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc' | translate }}</div>
+                               <div class="question-type-img-wrap" ng-if="sectionQuestion.answered"><img src="../../../assets/assets/images/icon_question_type_ready.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_ready.png'" /></div>
+                               <div class="question-type-img-wrap" ng-if="!sectionQuestion.answered"><img src="../../../assets/assets/images/icon_question_type_waiting.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_waiting.png'" /></div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+
+
+                <!-- attachment -->
+                <div class="row" ng-show="sectionQuestion.question.attachment">
+                    <div class="col-md-12" ng-controller="AttachmentController">
+                        <a class="pointer question-text question-type-text"
+                           ng-click="downloadQuestionAttachment(sectionQuestion.question)">
+                            <i class="text-success fa fa-download"></i>
+                            {{'sitnet_download_question_attachment' | translate }}
+                            <span class="text"><small>({{sectionQuestion.question.attachment.fileName}})</small>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
+
+
+                <!-- answer -->
+                <div class="exam-question-container" ng-show="sectionQuestion.expanded">
+
+                    <!-- instruction -->
+                    <div class="row" ng-show="sectionQuestion.answerInstructions">
+                        <div class="col-md-12">
+                            <p class="question-text question-type-text info">
+                                <img src="../../../assets/assets/images/icon_info.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'" />
+                                {{'sitnet_instructions' | translate }}:&nbsp;{{sectionQuestion.answerInstructions}}</p>
+                        </div>
+                    </div>
+                    <hr class="info-question-separator">
+                    <div class="question">
+                        <!-- content-->
+                        <div ng-include="sectionQuestion.question.template"></div>
+                    </div>
+
+
+                    <div class="col-md-3 question-type-text">
+                            <span ng-if="sectionQuestion.evaluationType == 'Selection'">
+                                 {{'sitnet_evaluation_select' | translate}}
+                            </span>
+                            <span ng-if="sectionQuestion.evaluationType !== 'Selection'">
+                                0 / {{sectionQuestion.derivedMaxScore}} {{'sitnet_unit_points' | translate}}
+                            </span>
+                    </div>
+
+                </div>
+
             </div>
 
-            <!-- instruction -->
-            <div class="row" ng-show="sectionQuestion.answerInstructions">
-                <div class="col-md-12">
-                    <p class="question-text question-type-text">
-                        <i class="text-info fa fa-info-circle"></i>
-                        {{'sitnet_instructions' | translate }}:&nbsp;{{sectionQuestion.answerInstructions}}</p>
-                </div>
-            </div>
 
-            <!-- answer -->
-            <div class="exam-question-container" ng-show="sectionQuestion.expanded">
-
-                <div class="question">
-                    <!-- content-->
-                    <div ng-include="sectionQuestion.question.template"></div>
-                </div>
-            </div>
-
-        </div>
     </div>
 </form>

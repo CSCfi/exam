@@ -1,10 +1,14 @@
 #sitnet-dialog {
 
+  .student-message-dialog-wrapper-padding {
+    padding: 30px;
+  }
+
   .terms-dialog-header {
-    background-color: $sitnet-dark-blue;
     padding-top: 1em;
     padding-bottom: 1em;
     padding-left: 1em;
+    border-radius: 4px;
   }
 
   .arrow-right-button {

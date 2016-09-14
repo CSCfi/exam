@@ -7,33 +7,77 @@
   padding: 0;
   position: fixed;
 
-  i {
-    vertical-align: middle;
+  @media (max-width: $sitnet-mobile) {
+    position: relative;
+    z-index: 1;
   }
 
-  a {
-    color: $sitnet-dark-grey;
+
+    i {
+    vertical-align: middle;
   }
 
   .logo {
 
     img {
       display: block;
-      margin: auto;
+      margin-left: 3.57em;
+      margin-right: 3.57em;
+      margin-top: 1.07em;
+
+      @media (max-width: $sitnet-mobile) {
+        margin-top:0em;
+        margin-left: 20px;
+        padding-top: 15px;
+      }
+
+
     }
   }
 
-  nav a {
+  a {
     display: block;
-    padding: 0.5em;
+    background-color: $sitnet-light-grey_new;
+    color: $sitnet-white;
+    text-decoration: none;
+    padding-left:1.5em;
+    border-left:3px solid $sitnet-light-grey_new;
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 1.5em;
+    }
+
   }
 
   a:hover {
     text-decoration: none;
+    color: $sitnet-white;
+    border-left:3px solid #3CA34F;
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 1.5em;
+    }
+
+  }
+
+  .selected {
+    a {
+      background-color: $sitnet-light-grey_new;
+      border-left:3px solid #3CA34F;
+      color: $sitnet-white;
+      text-decoration: none;
+      padding-left:1.5em;
+      @media (max-width: $sitnet-mobile) {
+        margin-left: 1.5em;
+      }
+
+    }
   }
 
   li {
     list-style: none;
+    margin-bottom: 2.5em;
+    @media (max-width: $sitnet-mobile) {
+      margin-bottom: 1.0em;
+    }
   }
 
   ul {
@@ -41,45 +85,78 @@
   }
 
   .nav-header {
-    background-color: $sitnet-light-grey;
+    background-color: $sitnet-light-grey_new;
     color: $sitnet-dark-grey;
     position: fixed;
     top: 0;
     left: 0;
     display: block;
-    height: 300px;
-    width: 230px;
+    height: 162px;
+    width: 17.125em;
+
+    @media (max-width: $sitnet-mobile) {
+      position: relative;
+      width: 100%;
+      height: 80px;
+    }
+
+    .mobile-menu {
+      float:right;
+
+      img {
+        padding-top: 30px;
+      }
+    }
+
   }
 
   .nav-body {
     position: fixed;
-    background-color: $sitnet-light-grey;
+    background-color: $sitnet-light-grey_new;
     color: $sitnet-dark-grey;
-    top: 300px;
-    bottom: 60px;
+    top: 162px;
+    bottom: 40px;
     overflow-y: auto;
-    width: 230px;
+    width: 17.125em;
+
+    @media (max-width: $sitnet-mobile) {
+      display: none; /* oletuksena piiloon, napista aukeaa valikko */
+    }
+
   }
 
-  .links {
-    li {
-      a:hover {
-        color: $sitnet-blue-highlight;
-        .menu-item {
-          color: $sitnet-blue-highlight;
-        }
-      }
+  .nav-body-mobile {
+
+    @media (max-width: $sitnet-mobile) {
+      background-color: $sitnet-light-grey_new;
+      color: $sitnet-dark-grey;
+      position: relative;
+      width: 100%;
+      padding-top:15px;
+      padding-bottom: 39px;
     }
+
   }
 
   .nav-footer {
-    background-color: $sitnet-light-grey;
+    background-color: $sitnet-light-green_new;
     color: $sitnet-dark-grey;
     display: block;
-    height: 60px;
+    height: 40px;
     position: fixed;
     bottom: 0;
-    width: 230px;
+    width: 17.125em;
+
+    @media (max-width: $sitnet-mobile) {
+      display: none;
+    }
+
+  }
+
+  .nav-user {
+    @media (max-width: $sitnet-mobile) {
+      display: none;
+    }
   }
 
   .minimize .nav-header {
@@ -102,17 +179,10 @@
     padding-bottom: 1em;
     font-size: 1em;
     font-family: $sitnet-family-opensans-light;
-    color: $sitnet-text;
+    color: $sitnet-white;
     font-weight: 300;
     letter-spacing: 1px;
-  }
-
-  .selected {
-    a {
-      background-color: $sitnet-white;
-      color: $sitnet-blue;
-      text-decoration: none;
-    }
+    padding-left: 1em;
   }
 
   .app-version {
@@ -120,7 +190,10 @@
   }
 
   .user {
-    width: 100%;
+
+    position: fixed;
+    bottom: 60px;
+    color: white;
   }
 
   .user-name {
@@ -130,7 +203,7 @@
     left: 0;
     font-size: 1em;
     font-family: $sitnet-family-opensans-light;
-    color: $sitnet-text;
+    color: white;
     font-weight: 300;
     letter-spacing: 1px;
   }
@@ -147,18 +220,37 @@
   }
 
   .locale-bar {
-    margin: 1em;
+    margin-left: 1.7em;
+    margin-top: 0.4em;
   }
 
   .locale-item {
-    padding-left: 1.2em;
-    padding-right: 1.2em;
     cursor: pointer;
     font-size: 1em;
     font-family: $sitnet-family-opensans-light;
     color: $sitnet-text;
     font-weight: 300;
     letter-spacing: 1px;
+    display: inline-block;
+
+    a {
+      color:$sitnet-language-link-text;
+      display: block;
+      padding: 0.5em;
+      margin-left: 1.5em;
+      background-color: transparent;
+      border:0px;
+      text-decoration: none;
+
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    a:active {
+      font-weight: bold;
+    }
+
   }
 
   .minimize .locale-item {
@@ -168,7 +260,8 @@
 
   .locale-item:hover {
     a {
-      color: $sitnet-blue-highlight;
+      color: $sitnet-language-link-text;
+      font-weight: bold;
     }
   }
 
@@ -176,5 +269,16 @@
     .nav-container {
       display: none !important;
     }
+  }
+
+  .user-logo {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+
+  .user-data {
+    display: inline-block;
   }
 }

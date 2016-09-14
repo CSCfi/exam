@@ -157,6 +157,7 @@ class SystemInitializer {
     }
 
     private void cancelTasks() {
-        tasks.values().forEach(Cancellable::cancel);
+        tasks.values().stream()
+                .forEach(Cancellable::cancel);
     }
 }

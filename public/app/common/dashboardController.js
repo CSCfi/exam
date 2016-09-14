@@ -2,13 +2,17 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('DashboardCtrl', ['$scope', '$location', 'dashboardService', 'examService', 'questionService',
-            'reservationService', 'dateService', 'enrolmentService', 'sessionService',
+            'reservationService', 'dateService', 'enrolmentService', 'sessionService','EXAM_CONF',
             function ($scope, $location, dashboardService, examService, questionService, reservationService, dateService,
-                      enrolmentService, sessionService) {
+                      enrolmentService, sessionService, EXAM_CONF) {
+
+                $scope.evaluationPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/exam_feedback.html";
 
                 $scope.templates = dashboardService.getTemplates();
                 // Pagesize for showing finished exams
                 $scope.pageSize = 10;
+                $scope.showInst = 0;
+                $scope.showEval = 0;
 
                 $scope.printExamDuration = function (exam) {
                     return dateService.printExamDuration(exam);
@@ -18,8 +22,24 @@
                     reservationService.removeReservation(enrolment);
                 };
 
-                $scope.showInstructions = function (enrolment) {
-                    enrolmentService.showInstructions(enrolment);
+                $scope.showInstructions = function (id) {
+
+                    if($scope.showInst == id) {
+                        $scope.showInst = 0;
+                    }
+                    else {
+                        $scope.showInst = id;
+                    }
+                };
+
+                $scope.showEvaluations = function (id) {
+
+                    if($scope.showEval == id) {
+                        $scope.showEval = 0;
+                    }
+                    else {
+                        $scope.showEval = id;
+                    }
                 };
 
                 $scope.showMaturityInstructions = function (enrolment) {
@@ -27,6 +47,7 @@
                 };
 
                 $scope.addEnrolmentInformation = function (enrolment) {
+                    console.log('clicked');
                     enrolmentService.addEnrolmentInformation(enrolment);
                 };
 

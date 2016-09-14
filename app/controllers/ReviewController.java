@@ -234,7 +234,7 @@ public class ReviewController extends BaseController {
             } else {
                 return badRequest("Invalid grade for this grade scale");
             }
-        } else if (df.get("gradeless").equals("true")) {
+        } else if (df.get("gradeless") != null) {
             exam.setGrade(null);
             exam.setGradeless(true);
         } else {
@@ -541,7 +541,7 @@ public class ReviewController extends BaseController {
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"" + tarball.getName() + "\"");
         String body = Base64.getEncoder().encodeToString(setData(tarball).toByteArray());
-        return ok(body);
+        return ok(body).as("application/gzip");
     }
 
     private void notifyPartiesAboutPrivateExamRejection(Exam exam) {

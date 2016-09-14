@@ -6,6 +6,10 @@
 
   // Basic bootstrap grid rows with different kind of padding
 
+  .message-to-teacher {
+    padding-left:0px;
+  }
+
   .detail-row {
     @extend .row;
     margin: 0;
@@ -15,7 +19,222 @@
 
   .student-enrolment-wrapper {
     @extend .row;
-    padding-bottom: 1em;
+    border-radius: 4px;
+    border: 2px solid #EDEDED;
+    border-left: #5BC26E 4px solid;
+    margin-left: 1.4em;
+    margin-right: 1.4em;
+    padding: 30px;
+    margin-bottom: 10px;
+
+    &.details-view {
+      margin-left: 3.7em;
+      @media (max-width: $sitnet-mobile) {
+        margin-left: 1em;
+        margin-right: 1em;
+      }
+    }
+
+    &.notactive {
+      border-left: #B1B1B1 4px solid;
+    }
+
+    &.phase-three {
+      width: 60%;
+      display: inline-block;
+      margin-right: 0.8em;
+    }
+
+    &.waitingroom {
+      margin-left:2.4em
+    }
+
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 0em;
+      margin-right: 0em;
+    }
+
+  }
+
+  .student-enrolment-date-box {
+    display: inline-block;
+    border: 2px solid #EDEDED;
+    border-radius: 3px;
+    text-align: center;
+    padding: 3px;
+    font-weight: bold;
+    font-family: 'Helvetica Neue';
+    font-size: 20px;
+    width:46px;
+    line-height: 16px;
+    margin-right: 15px;
+
+    .month-name {
+      font-size:14px;
+    }
+  }
+
+  .student-enrolment-exam {
+     display: inline-block;
+
+     font-size: 16px;
+     font-family: 'Helvetica Neue';
+     color: #266B99;
+     font-weight: bold;
+
+     a {
+       font-size: 16px;
+       font-family: 'Helvetica Neue';
+       color: #266B99;
+       font-weight: bold;
+       text-decoration: none;
+     }
+
+     .exam-ready {
+       color:#3CA34F;
+       font-size:13px;
+     }
+
+     .exam-needs-reservation {
+       color: #ED4459;
+       font-size:13px;
+     }
+
+    .exam-in-progress {
+      color: black;
+      font-size:13px;
+    }
+
+     .exam-code {
+       color: #555555;
+       font-size: 13px;
+       padding-left: 19px;
+     }
+  }
+
+  .student-exam-header-row {
+    margin-bottom: 10px;
+
+    .student-details-title {
+      font-size: 16px;
+      font-weight: bold;
+      font-family: 'Helvetica Neue';
+      color: #2C2C2C;
+    }
+
+    .student-details-subtitle {
+      font-size: 13px;
+      font-weight: bold;
+      color: #555555;
+      font-family: 'Helvetica Neue';
+    }
+
+    .student-details-indicator {
+      float: right;
+      color: #3CA34F;
+      font-size: 16px;
+      font-family: 'Helvetica Neue';
+
+    }
+
+
+  }
+
+  .student-exam-row-title-blue {
+    font-family: 'Helvetica Neue';
+    font-size: 16px;
+    color: #266B99;
+    font-weight: bold;
+  }
+
+
+  .student-exam-row {
+
+    clear:both;
+    padding-top: 10px;
+    color: #555555;
+
+    .student-exam-row-title {
+      padding-left: 0px;
+
+      .student-exam-row-title-grey {
+        font-family: 'Helvetica Neue';
+        font-size: 13px;
+        color: #555555;
+        font-weight: bold;
+      }
+
+    }
+
+    .student-exam-list-row {
+      display: inline-block;
+
+      &.enroll-button {
+        float: right;
+        color: #3CA34F;
+        font-size: 16px;
+        font-family: 'Helvetica Neue';
+      }
+    }
+  }
+
+  .student-exam-row-infolink {
+
+    padding-top:1em;
+    display: inline-block;
+    width:100%;
+
+    &.infotitle {
+      color: #2C2C2C;
+      font-family: 'Helvetica Neue';
+      font-weight: bold;
+    }
+
+    &.infotitle-calendar {
+      color: #2C2C2C;
+      font-family: 'Helvetica Neue';
+      font-weight: normal;
+      font-size: 14px;
+    }
+
+    .infolink {
+      color:#266B99;
+      font-family:'Helvetica Neue';
+      font-weight: bold;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .arrow_icon {
+      vertical-align: baseline;
+      padding-left:3px;
+    }
+
+  }
+
+  .student-exam-row-infobox {
+    padding-top:1em;
+  }
+
+  .student-exam-settings {
+    display: inline-block;
+    float: right;
+
+    a {
+      color: #2c2c2c;
+      font-size: 12px;
+      font-family: 'Helvetica Neue';
+      text-decoration: none;
+    }
+
+    ul a:hover {
+      text-decoration: underline;
+    }
+
+    img {
+      vertical-align: baseline;
+      margin-left: 10px;
+    }
   }
 
   .detail-row-tall {
@@ -33,7 +252,11 @@
 
   .top-row {
     @extend .detail-row;
-    padding-top: 1em;
+    padding-top: 45px;
+
+    @media (max-width: $sitnet-mobile) {
+      padding-top: 15px;
+    }
   }
 
   .top-row-narrow {
@@ -84,8 +307,8 @@
   }
 
   .enrolment-row {
-    @extend .row;
-    margin-left: 0.5em;
+    //@extend .row;
+    //margin-left: 0.5em;
   }
 
   .exams-table {
@@ -313,4 +536,39 @@
 
   }
 
+  .evaluation-padtop {
+    padding-top: 10px;
+  }
+
+  .margin-10 {
+    margin-top:10px;
+  }
+
+  .margin-20 {
+    margin-top:20px;
+  }
+
+  .pad-15 {
+    padding-left: 15px;
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 0px;
+    }
+  }
+
+  .notice-wrap {
+    margin-left: 1.0em;
+    display: inline-block;
+    margin-bottom: 30px;
+    margin-top: 10px;
+  }
+
+  .mobile-pads {
+
+    @media (max-width: 991px) {
+
+      padding-left: 0px;
+      margin-top: 10px;
+
+    }
+  }
 }

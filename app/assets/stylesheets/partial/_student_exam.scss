@@ -19,43 +19,37 @@
     margin-left: -400px;
     height: 100%;
     overflow-y: auto;
-    .floating-clock {
+    margin-top: 168px;
 
-      .header-wrapper {
-        height: 4em;
-        padding: 0 2em 0 0;
-        width: 100%;
-        background-color: #e6e6e6
-      }
-
-      .exam-clock {
-        font-size: 1.8em;
-        font-style: italic;
-        font-family: $sitnet-family-opensans-bold;
-        color: $sitnet-common-medium;
-        line-height: 2.2em;
-        font-weight: 100;
-        text-align: right;
-        text-spacing: 0.2em;
-      }
-      .exam-clock-text {
-        text-align: right;
-        line-height: 4em;
-        font-size: 1.1em;
-        font-style: italic;
-        font-family: $sitnet-family-opensans-bold;
-        color: $sitnet-common-medium;
-        margin-right: 1em;
-        margin-left: 1em;
-      }
+    .top-padding-2 {
+      padding-top:0px;
     }
+
+  }
+
+  .top-padding-6 {
+    padding-top: 6.3em;
+  }
+
+  .more-separators {
+    border-bottom: 1px solid #B1B1B1;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    margin-right: 45px;
+    margin-left: 15px;
+  }
+
+  .right-title {
+    color: #2C2C2C;
+    font-size: 20px;
+    font-family: 'Helvetica Neue';
   }
 
   margin: 0 14px 0 16px;
 
   .studentexam-header {
     padding-left: 1.2em;
-    margin-top: 0.5em;
+    margin-top: 30px;
     font-size: 1.2em;
   }
   .question-unanswered-header,
@@ -90,7 +84,6 @@
 
   .question-text {
     display: inline;
-    padding-top: 1em;
     margin: 0;
     line-height: 1.5em;
     font-size: 0.9em;
@@ -123,8 +116,7 @@
 
   .guide-instruction {
     font-weight: normal;
-    padding: 0.5em 0;
-    font-size: 0.9em;
+    font-size: 16px;
     line-height: 1.8em;
     white-space: pre-wrap;
   }
@@ -135,22 +127,95 @@
     background-color: $sitnet-white;
   }
 
-  .blue_button {
+  .green_button {
 
     cursor: pointer;
     text-decoration: none;
+    float: right;
+    font-size: 16px;
+    font-family: 'Helvetica Neue';
+    background-color: #3CA34F;
+    border: 1px solid #358F45;
+    //width: 150px;
+    margin-left: 10px;
+    border-radius: 3px;
+    padding: 8px;
+    padding-left: 20px;
+    padding-right: 20px;
+    color:white;
+    font-weight:200;
 
-    span {
-      text-decoration: none;
-      margin: 1em;
-      padding: 0.5em 1em;
-      background-color: $sitnet-theme;
-      color: $sitnet-white;
-      font-size: 0.9em;
-    }
-    :hover {
+    :hover, :active, :focus, :active:focus {
+      background-color: #358F45;
+      border: 1px solid #358F45;
       text-decoration: none;
     }
+
+    &.left-floater {
+      float:left;
+      width: 167px;
+      padding: 5px;
+      padding-left: 20px;
+      display: inline-block;
+      margin-right: 15px;
+      font-size: 14px;
+      a:hover {
+        font-size: 14px;
+      }
+    }
+
+    &.previous {
+      float:left;
+      padding-right: 40px;
+    }
+
+    &.attachment {
+      float:left;
+      margin-left:0px;
+    }
+  }
+
+  .green_button:hover, .green_button:active, .green_button:focus, .green_button:active:focus {
+      background-color: #358F45;
+      border: 1px solid #358F45;
+      text-decoration: none;
+  }
+
+  .grey-button {
+
+    cursor: pointer;
+    text-decoration: none;
+    float: right;
+    font-size: 16px;
+    font-family: 'Helvetica Neue';
+    background-color: #fff;
+    border: 1px solid #979797;
+    width: 150px;
+    margin-left: 10px;
+    border-radius: 3px;
+    padding: 8px;
+    padding-left: 20px;
+    padding-right: 20px;
+    color:#555555;
+    font-weight:200;
+
+    :hover, :active, :focus, :active:focus {
+      background-color: #efefef;
+      border: 1px solid #efefef;
+      text-decoration: none;
+    }
+
+  }
+
+  .grey-button:hover, .grey-button:active, .grey-button:focus, .grey-button:active:focus {
+    background-color: #efefef;
+    border: 1px solid #efefef;
+    text-decoration: none;
+  }
+
+  .arrow_icon {
+    vertical-align: baseline;
+    padding-left:13px;
   }
 
   // to highlight ck-editor content marked with this class
@@ -192,4 +257,268 @@
     user-select: none;
     outline-style: none;
   */
+
+  .exam-header {
+    background-color: black;
+    height:80px;
+
+    img {
+      margin-top: 15px;
+      padding-left: 30px;
+      vertical-align: initial;
+    }
+
+  }
+
+  .exam-header-img-wrap {
+    display: inline-block;
+  }
+
+  .exam-header-title {
+
+    display: inline-block;
+    color: white;
+    line-height: 55px;
+    font-size: 28px;
+    padding-left: 18px;
+    height: 40px;
+    vertical-align: text-bottom;
+
+    &.divider {
+      border-left: 1px solid white;
+      margin-left: 18px;
+
+    }
+
+    span {
+      font-size: 15px;
+    }
+
+
+  }
+
+  .floating-clock {
+
+    margin-top: 26px;
+    display: inline-block;
+    margin-right: 40px;
+    position: fixed;
+    right: 0;
+    z-index: 9999;
+
+    .header-wrapper {
+      width: 100%;
+      background-color: black;
+      margin-right: 20px;
+
+      img {
+        margin-left: 10px;
+        margin-top: 5px;
+        vertical-align: top;
+      }
+    }
+
+    .exam-clock {
+      font-family: 'Helvetica Neue';
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      color: #fff;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    .exam-clock-text {
+      font-family: 'Helvetica Neue';
+      font-size: 18px;
+      font-weight: 100;
+      letter-spacing: 1.5px;
+      color: #fff;
+      margin-left: 20px;
+    }
+
+    .clock-hide {
+      font-size: 14px;
+      font-family: 'Helvetica Neue';
+      font-weight: normal;
+    }
+
+  }
+
+  .content-wrap {
+    margin-left: 30px;
+  }
+
+  .exam-title {
+    font-family: "Helvetica Neue",Helvetica;
+    font-size: 2em;
+    color: #2c2c2c;
+    border-bottom: 2px solid #3CA34F;
+    padding-bottom: 7px;
+  }
+
+  .guide-wrapper {
+    border-radius: 4px;
+    border: 2px solid #EDEDED;
+    border-left: #5BC26E 4px solid;
+    margin-right: 1.4em;
+    padding: 30px;
+    margin-bottom: 10px;
+    margin-top:30px;
+
+    .guide-column {
+      color: #555555;
+      font-size: 16px;
+      font-family: 'Helvetica Neue';
+
+      &.padtop {
+        padding-top: 120px;
+        padding-left: 15px;
+      }
+    }
+
+    &.notactive {
+      border-left: #B1B1B1 4px solid;
+    }
+  }
+
+  .right-column-box {
+    width: 332px;
+    border: 2px solid #EDEDED;
+    border-radius: 4px;
+    margin-left: 15px;
+    padding-top:20px;
+
+    .user-span {
+      font-family: 'Helvetica Neue';
+      font-size: 18px;
+      color: #2C2C2C;
+      padding-left: 15px;
+      vertical-align: middle;
+    }
+
+    a.save-and-exit {
+      width: 300px;
+      text-align: center;
+    }
+
+    .abort-and-exit {
+      padding-left: 15px;
+      vertical-align: middle;
+    }
+
+    a.abort-and-exit {
+      width: 300px;
+      text-align: center;
+    }
+
+    .bot-border {
+      border-bottom: 1px solid #B1B1B1;
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+    }
+
+    .button-separator {
+      margin-top:10px;
+    }
+  }
+
+  .attachment-button {
+    display: inline-block;
+    margin-top: 20px;
+
+  }
+
+  .attachment-name {
+    display: inline-block;
+    font-family:'Helvetica Neue';
+    font-size:12px;
+    color:#555555;
+    float: right;
+    margin-top: 30px;
+    margin-right: 30px;
+  }
+
+  .phase-box {
+    border-radius: 4px;
+    border: 2px solid #EDEDED;
+    border-left: #5BC26E 4px solid;
+    margin-right: 1.9em;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-family:'Helvetica Neue';
+    font-size:16px;
+    color:#555555;
+    font-weight:500;
+
+    &.notactive {
+      border-left: #B1B1B1 4px solid;
+    }
+
+  }
+
+  .phase-box:hover {
+    border-left: #5BC26E 4px solid;
+  }
+
+  .section-box-title {
+    display: inline-block;
+    float: left;
+    margin-left: 15px;
+    margin-top: 10px;
+    color: #2C2C2C;
+    font-size: 20px;
+    font-family: 'Helvetica Neue';
+
+    &.arrow {
+      margin-left: 0px;
+      padding-left: 0px;
+      margin-top: 0px;
+    }
+
+  }
+
+  .question-type {
+    display: inline-block;
+    float: right;
+    margin-right: 10px;
+  }
+
+  .question-type-text {
+    color: #2C2C2C;
+    font-family: 'Helvetica Neue';
+    font-size: 16px;
+    font-weight: 400;
+    margin-right:10px;
+    display: inline-block;
+
+    &.info {
+      color: #555555;
+      font-size: 14px;
+    }
+
+  }
+  .pad-15 {
+    margin-left: 15px;
+
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 0px;
+    }
+
+  }
+
+  .info-question-separator {
+    width: 33%;
+    margin-left: 0px;
+    color: #b1b1b1;
+  }
+
+  .multiple-choice {
+    white-space: nowrap;
+  }
+
+  .question-type-img-wrap {
+    display: inline-block;
+    float: right;
+  }
+
+
 }

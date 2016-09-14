@@ -65,7 +65,7 @@ public class StudentExamController extends BaseController {
 
     @Restrict({@Group("STUDENT")})
     public Result getExam(Long eid) {
-        Exam exam = Ebean.find(Exam.class).fetch("course", "code")
+        Exam exam = Ebean.find(Exam.class).fetch("course", "code, name")
                 .where()
                 .idEq(eid)
                 .eq("state", Exam.State.PUBLISHED)
@@ -85,7 +85,7 @@ public class StudentExamController extends BaseController {
                 .select("ended")
                 .fetch("exam", "id, state, name")
                 .fetch("exam.creator", "id")
-                .fetch("exam.course", "code")
+                .fetch("exam.course", "code, name")
                 .fetch("exam.parent.examOwners", "firstName, lastName, id")
                 .fetch("exam.examInspections.user", "firstName, lastName, id")
                 .where()
@@ -520,7 +520,7 @@ public class StudentExamController extends BaseController {
     private Result listExams(String filter, Collection<String> courseCodes) {
         ExpressionList<Exam> query = Ebean.find(Exam.class)
                 .select("id, name, examActiveStartDate, examActiveEndDate, enrollInstruction")
-                .fetch("course", "code")
+                .fetch("course", "code, name")
                 .fetch("examOwners", "firstName, lastName")
                 .fetch("examInspections.user", "firstName, lastName")
                 .fetch("examLanguages", "code, name", new FetchConfig().query())

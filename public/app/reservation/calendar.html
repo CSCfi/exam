@@ -8,56 +8,100 @@
     });
 </script>
 
-<div id='sitnet-header' class='header'>
-    <div class='col-md-12 header-wrapper'>
-        <span class='header-text'>{{'sitnet_calendar' | translate}}</span>
-    </div>
-</div>
-
-
 <div id='dashboard' ng-controller='CalendarCtrl'>
 
-    <div class="main-row">
-        <div class="col-md-6">
-            <h4>{{ examInfo.course.code }} - {{ examInfo.name }}</h4>
-
-            <div>
-                <strong>{{'sitnet_exam_duration' | translate}}:&nbsp;</strong>
-                {{ printExamDuration(examInfo) }}
-            </div>
-            <div>
-                <strong>{{'sitnet_exam_validity' | translate}}:&nbsp;</strong>
-                {{ examInfo.examActiveStartDate | date:'dd.MM.yyyy' }} - {{examInfo.examActiveEndDate |
-                date:'dd.MM.yyyy' }}
-                <span ng-if="showReservationWindowInfo()" class="text-info"><i class="fa fa-info-circle"></i>
-                    <small> {{ getReservationWindowDescription() }}</small></span>
-            </div>
-        </div>
-        <div class="col-md-6" ng-if="examInfo.enrollInstruction">
-            <h4>{{ 'sitnet_instruction' | translate }}</h4>
-
-            <p mathjax ng-bind-html="examInfo.enrollInstruction"></p>
+    <!-- Calendar view for enrolment -->
+    <div class="top-row">
+        <div class="student-details-title-wrap">
+            <a href="/"><img class="arrow_icon" src="../../../assets/assets/images/icon_history.png"></a> <div class="student-exam-details-title">{{'sitnet_calendar' | translate}}</div>
         </div>
     </div>
 
-    <!-- FILTERS -->
-    <div class="main-row" ng-hide="selectedRoom()">
-        <div class="col-md-12">
-            <div class="alert alert-info info-box">
-                <span class="form-group">
-                    <i class="fa fa-lg fa-info-circle"></i>
-                    &nbsp;{{'sitnet_calendar_pick_room' | translate }}
-                </span>
+    <!-- Calendar phase 1 -->
+    <div class="student-enrolment-wrapper details-view">
+        <div class="student-exam-header-row">
+            <span class="calendar-phase-title">{{ 'sitnet_calendar_phase_1' | translate }}</span>
+            <div class="calendar-phase-icon"><img class="arrow_icon" src="../../../assets/assets/images/icon-phase.png"></div>
+        </div>
+        <div class="student-exam-header-row">
+            <div class="calendar-titles">
+                <span class="calendar-course-title">{{ examInfo.name }}</span>&nbsp;&nbsp;&nbsp;
+                <span class="calendar-course-code">{{ examInfo.course.code }}</span>
             </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-12">
+
+
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                        {{ 'sitnet_course_name' | translate }}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                        {{ examInfo.course.name }}
+                    </div>
+                    <div class="clearfix visible-xs"></div>
+                    <div class="clearfix visible-sm"></div>
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                        {{'sitnet_exam_validity' | translate}}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                        {{ examInfo.examActiveStartDate | date:'dd.MM.yyyy' }} - {{examInfo.examActiveEndDate |
+                        date:'dd.MM.yyyy' }}
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                        {{'sitnet_exam_duration' | translate}}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                        {{ printExamDuration(examInfo) }}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="student-exam-row">
+            <div class="student-exam-row-infolink infotitle-calendar" ng-show="exam.executionType.type !== 'MATURITY'">
+                {{ 'sitnet_calendar_instructions' | translate}}:
+            </div>
+            <div class="student-exam-row-infobox">{{examInfo.enrollInstruction}}</div>
+        </div>
+        <div class="student-exam-row">
+            <span ng-if="showReservationWindowInfo()" class="text-info">
+                <img class="arrow_icon" src="../../../assets/assets/images/icon_info.png">
+                {{ getReservationWindowDescription() }}</span>
         </div>
     </div>
 
-    <div class="detail-row">
-        <div class="col-md-12">
-            <label for="filters">{{'sitnet_search' | translate}}</label>
-            <div id="filters" class="form-group">
-                <span class="dropdown" uib-dropdown>
-                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+    <!-- Calendar phase 2 -->
+    <div class="student-enrolment-wrapper details-view" ng-class="changeBorder">
+        <div class="student-exam-header-row">
+            <span class="calendar-phase-title">{{ 'sitnet_calendar_phase_2' | translate }}</span>
+            <div class="calendar-phase-icon" ng-show="validSelections"><img class="arrow_icon" src="../../../assets/assets/images/icon-phase.png"></div>
+        </div>
+        <div class="student-exam-header-row">
+            <div class="calendar-accessibility-link"><a ng-click="showAccessibility()">
+                {{'sitnet_calendar_room_accessibility_info' | translate}}</a>
+                <img class="arrow_icon" ng-show="!showAccs" src="../../../assets/assets/images/arrow_right.png">
+                <img class="arrow_icon" ng-show="showAccs" src="../../../assets/assets/images/arrow_down.png">
+            </div>
+            <div class="student-exam-row-infobox" ng-show="showAccs">
+                <div class="calendar-accs-title">Tenttitilan esteettömyysvaatimukset</div>
+                <div class="calendar-accs-checkboxes" style="display:inline-block; padding-right:10px;" ng-repeat="accessibility in accessibilities | filter:limitations.accessibilities">
+                    <input type="checkbox" role="presentation"
+                        ng-click="selectAccessibility(accessibility)" value="{{accessibility.name | truncate:30}}"> {{accessibility.name | truncate:30}}
+                </div>
+                <div class="calendar-accs-title subi">Tenttikoneen esteettömyysvaatimukset</div>
+                <div class="calendar-accs-checkboxes">....</div>
+            </div>
+        </div>
+
+        <div class="student-exam-row">
+            <div class="col-1 student-exam-row-title">
+                                <span class="dropdown" uib-dropdown>
+                    <button style="width:13em;" uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
                             data-toggle="dropdown" aria-expanded="true">
                         {{'sitnet_room' | translate}}&nbsp;<span class="caret"></span>
                     </button>
@@ -71,96 +115,170 @@
                                 <i class="fa fa-search fa-fw"></i>
                             </div>
                         </li>
+
+                        <!-- Fullcalendar cannot render content if it's placed to hidden div, because it does not know the
+                             size of the div. So, as soon as user selects room, make that div visible so that Fullcalendar can render
+                             the associated content and display it to user. Thus the onclick function in A tag.
+                             Little bit hackish workaround, I know.. -JSa //-->
                         <li ng-repeat="room in rooms | filter:limitations.rooms" ng-hide="room.filtered"
                             role="presentation" ng-class="room.outOfService ? 'disabled' : ''"
                             ng-click="selectRoom(room)">
-                            <a role="menuitem" popover-trigger="mouseenter" uib-popover="{{getDescription(room)}}">{{room.name
+                            <a role="menuitem" popover-trigger="mouseenter" uib-popover="{{getDescription(room)}}" onclick="document.getElementById('calendarBlock').style.display = 'block'; $('#calendar').css({ position: 'relative', visibility: 'visible', display: 'block' }).fullCalendar('render');">{{room.name
                                 | truncate:30}}</a>
                         </li>
                     </ul>
                 </span>
-                <span class="dropdown" uib-dropdown>
-                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
-                            data-toggle="dropdown" aria-expanded="true">
-                        {{'sitnet_room_accessibility_info' | translate}}&nbsp;<span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu pull-left" style="padding-left: 0; min-width: 17em" role="menu"
-                        aria-labelledby="dropDownMenu2">
-                        <li role="presentation" class="input-group">
-                            <input ng-model="limitations.accessibilities" type="text" class="form-control"
-                                   placeholder="{{'sitnet_search' | translate }}">
+            </div>
 
-                            <div class="input-group-addon">
-                                <i class="fa fa-search fa-fw"></i>
-                            </div>
-                        </li>
-                        <li ng-repeat="accessibility in accessibilities | filter:limitations.accessibilities"
-                            ng-hide="accessibility.filtered"
-                            role="presentation"
-                            ng-click="selectAccessibility(accessibility)">
-                            <a role="menuitem">{{accessibility.name | truncate:30}}</a>
-                        </li>
-                    </ul>
-                </span>
-                <span>
-                    <button class="btn btn-success btn-link" ng-click="makeExternalReservation()" ng-if="isInteroperable">
-                        {{'sitnet_external_reservation' | translate }}&nbsp;<i class="fa fa-angle-double-right" />
+        </div>
+
+        <div class="student-exam-row">
+
+            <!-- SELECTED ROOM  -->
+            <div class="calendar-room-title" ng-show="selectedRoom()">
+                <span>{{ selectedRoom().name }}</span>
+            </div>
+
+            <div class="calendar-room-info" ng-show="selectedRoom()">
+               <div class="calendar-room-info-title">{{'sitnet_room_default_working_hours' | translate }}:</div><div class="calendar-room-info-content"><span ng-repeat="oh in openingHours">
+                    {{oh.name}}: {{oh.periods}} {{ $last ? '' : '| ';}}
+                </span><span>({{ selectedRoom().localTimezone }})</span></div>
+
+            </div>
+
+            <div class="calendar-room-info" ng-show="exceptionHours.length > 0">
+               <div class="calendar-room-info-title">{{'sitnet_exception_datetimes' | translate }}:</div><div class="calendar-room-info-content"><span ng-repeat="eh in exceptionHours" ng-class="eh.outOfService ? 'text-danger' : 'text-success'"
+                                                                   popover-trigger="mouseenter" uib-popover="{{eh.description | translate}}">
+                    {{eh.start}} - {{eh.end}} {{ $last ? '' : '| ';}}
+                    </span></div>
+            </div>
+
+            <div class="calendar-room-info" ng-show="getRoomInstructions()">
+               <div class="calendar-room-info-title">{{'sitnet_instructions' | translate }}:</div>
+               <div class="calendar-room-info-content">{{getRoomInstructions()}}</div>
+            </div>
+
+            <div class="calendar-room-info" ng-show="getRoomAccessibility()">
+               <div class="calendar-room-info-title">{{'sitnet_room_accessibility' | translate}}:</div>
+               <div class="calendar-room-info-content">{{getRoomAccessibility()}}</div>
+            </div>
+
+            <hr ng-show="selectedRoom()">
+
+        </div>
+
+        <div class="student-exam-row">
+
+            <div class="main-row" ng-show="loader.loading">
+                <div class="col-md-12">
+                    <button class="btn btn-success">{{'sitnet_searching' | translate }}...
+                        <i class="fa fa-spinner fa-spin"></i>
                     </button>
-                </span>
+                </div>
+            </div>
+
+            <!-- CALENDAR onclick="alert($('#calendar').fullCalendar('getView').start);" -->
+            <div id="calendarBlock" style="display:none">
+                <div class="col-md-12 calendar-no-paddings" id="calendar" config="calendarConfig" ng-model="eventSources"
+                     ui-calendar="calendarConfig" calendar="myCalendar"></div>
             </div>
         </div>
+
     </div>
 
-    <!-- ACCESSIBILITY LIMITATIONS SELECTED -->
-    <div class="detail-row" ng-show="selectedAccessibilities().length > 0">
-        <ul class="inline-list">
-            <li>
-                <button ng-repeat='accessibility in selectedAccessibilities()' type='button'
-                        ng-click="selectAccessibility(accessibility)"
-                        class="btn btn-primary btn-xs" style="margin: 0.2em">
-                    {{accessibility.name}}
-                </button>
-            </li>
-        </ul>
-    </div>
+    <!-- Calendar phase 3 -->
 
-    <!-- SELECTED ROOM  -->
-    <div class="bottom-row" ng-show="selectedRoom()">
-        <h4 class="col-md-12">{{ selectedRoom().name }}</h4>
-        <span class="col-md-12" ng-show="getRoomAccessibility()">
-            <strong>{{'sitnet_room_accessibility' | translate}}:</strong>&nbsp;
-            {{getRoomAccessibility()}}
-        </span>
-        <span class="col-md-12" ng-show="getRoomInstructions()">
-            <strong>{{'sitnet_instructions' | translate }}:</strong>&nbsp;
-            {{getRoomInstructions()}}
-        </span>
-        <span class="col-md-12">
-            <strong>{{'sitnet_room_default_working_hours' | translate }}:</strong>&nbsp;
-            <small><span ng-repeat="oh in openingHours">
-                {{oh.name}}: {{oh.periods}} {{ $last ? '' : '| ';}}
-            </span><span>({{ selectedRoom().localTimezone }})</span></small>
-        </span>
-        <span class="col-md-12" ng-show="exceptionHours.length > 0">
-            <strong>{{'sitnet_exception_datetimes' | translate }}:</strong>&nbsp;
-            <small><span ng-repeat="eh in exceptionHours" ng-class="eh.outOfService ? 'text-danger' : 'text-success'"
-                         popover-trigger="mouseenter" uib-popover="{{eh.description | translate}}">
-                {{eh.start}} - {{eh.end}} {{ $last ? '' : '| ';}}
-            </span></small>
-        </span>
-    </div>
-    <div class="main-row" ng-show="loader.loading">
-        <div class="col-md-12">
-            <button class="btn btn-success">{{'sitnet_searching' | translate }}...
-                <i class="fa fa-spinner fa-spin"></i>
-            </button>
+    <div>
+        <div class="student-enrolment-wrapper details-view phase-three" ng-class="changeBorder">
+            <div class="student-exam-header-row">
+                <span class="calendar-phase-title">{{ 'sitnet_calendar_phase_3' | translate }}</span>
+                <div class="calendar-phase-icon" ng-show="validSelections"><img class="arrow_icon" src="../../../assets/assets/images/icon-phase.png"></div>
+            </div>
+            <div class="student-exam-header-row">
+                <div class="calendar-titles">
+                    <span class="calendar-course-title">{{ examInfo.name }}</span>&nbsp;&nbsp;&nbsp;
+                    <span class="calendar-course-code">{{ examInfo.course.code }}</span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ 'sitnet_course_name' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ examInfo.course.id }}
+                        </div>
+                        <div class="clearfix visible-xs"></div>
+                        <div class="clearfix visible-sm"></div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{'sitnet_exam_validity' | translate}}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                            {{ examInfo.examActiveStartDate | date:'dd.MM.yyyy' }} - {{examInfo.examActiveEndDate |
+                            date:'dd.MM.yyyy' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{'sitnet_examination_location' | translate}}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{selectedSpace}}
+                        </div>
+                        <div class="clearfix visible-xs"></div>
+                        <div class="clearfix visible-sm"></div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{'sitnet_reservation' | translate}}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                            {{selectedTime}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{'sitnet_exam_duration' | translate}}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ printExamDuration(examInfo) }}
+                        </div>
+                        <div class="clearfix visible-xs"></div>
+                        <div class="clearfix visible-sm"></div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            &nbsp;
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
-    </div>
 
-    <!-- CALENDAR -->
-    <div class="bottom-row">
-        <div class="col-md-12" id="calendar" config="calendarConfig" ng-model="eventSources"
-             ui-calendar="calendarConfig" calendar="myCalendar"></div>
+        <div class="calendar-button-save">
+
+            <div ng-class="saveActivated">
+            <a class="link-button" ng-click="confirmReservation()">{{'sitnet_student_confirm_reservation'
+                | translate}}</a>
+            </div>
+            <div>
+            <br/>
+            <a ng-if="!enrolment.reservation" class="link-button"
+               href="/">{{'sitnet_button_cancel' | translate}}</a>
+            </div>
+        </div>
     </div>
 
 </div>

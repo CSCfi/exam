@@ -29,31 +29,29 @@
             <span ng-show="sectionQuestion.essayAnswer.attachment.fileName">
                 <a class="pointer"
                    ng-click="downloadQuestionAnswerAttachment(sectionQuestion, hash)">
-                    <strong>{{sectionQuestion.essayAnswer.attachment.fileName}}</strong>
+                    {{sectionQuestion.essayAnswer.attachment.fileName}}
                 </a>
             </span>
-            <strong class="text-danger" ng-show="!sectionQuestion.essayAnswer.attachment.fileName">
-                {{'sitnet_no_attachment' | translate | uppercase }}
-            </strong>
+            <span class="" ng-show="!sectionQuestion.essayAnswer.attachment.fileName">
+                <img src="../../../assets/assets/images/icon_info.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'" />
+                {{'sitnet_no_attachment' | translate }}
+            </span>
         </div>
     </div>
     <div class="row top-margin-1">
         <div class="col-md-6">
-            <button class="btn btn-danger btn-xs" ng-show="sectionQuestion.essayAnswer.attachment.fileName"
+            <button class="green_button attachment" ng-show="sectionQuestion.essayAnswer.attachment.fileName"
                     ng-click="removeQuestionAnswerAttachment(sectionQuestion, hash)">
-                {{'sitnet_remove_answer_attachment' | translate }}
-                <i class="fa fa-trash"></i>
+                    {{'sitnet_remove_answer_attachment' | translate }}
             </button>
-            <button class="btn btn-primary btn-xs" ng-show="sectionQuestion.essayAnswer && !sectionQuestion.essayAnswer.attachment"
+            <button class="green_button attachment" ng-show="sectionQuestion.essayAnswer && !sectionQuestion.essayAnswer.attachment"
                     ng-click="selectFile(sectionQuestion)"> {{'sitnet_add_answer_attachment' | translate}}
-                <i class="fa fa-upload"></i>
             </button>
         </div>
         <div class="col-md-6">
             <button ng-disabled="isPreview()"
                     ng-click="saveEssay(sectionQuestion)"
-                    class="btn btn-xs btn-primary pull-right">{{'sitnet_save' | translate }}
-                <i class="fa fa-save"></i>
+                    class="green_button pull-right">{{'sitnet_save' | translate }}
             </button>
         </div>
 

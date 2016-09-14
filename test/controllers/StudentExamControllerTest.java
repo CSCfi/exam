@@ -25,7 +25,6 @@ import play.test.Helpers;
 import javax.mail.internet.MimeMessage;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.TreeSet;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -47,8 +46,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     public void setUp() throws Exception {
         super.setUp();
         Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
-        exam = Ebean.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findUnique();
-        exam.setExamSections(new TreeSet<>(exam.getExamSections()));
+        exam = Ebean.find(Exam.class, 1);
         exam.getExamInspections().stream().map(ExamInspection::getUser).forEach(u -> {
             u.setLanguage(Ebean.find(Language.class, "en"));
             u.update();
@@ -110,11 +108,8 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         assertThat(studentExam.getCourse().getId()).isEqualTo(exam.getCourse().getId());
         assertThat(studentExam.getInstruction()).isEqualTo(exam.getInstruction());
         assertThat(studentExam.getExamSections()).hasSize(exam.getExamSections().size());
-        assertThat(studentExam.getExamSections().iterator().next().getSectionQuestions()).hasSize(
-                exam.getExamSections().iterator().next().getSectionQuestions().size());
         assertThat(studentExam.getHash()).isNotEqualTo(exam.getHash());
         assertThat(studentExam.getExamLanguages()).hasSize(exam.getExamLanguages().size());
-
         assertThat(studentExam.getDuration()).isEqualTo(exam.getDuration());
 
         assertThat(Ebean.find(Exam.class).where().eq("hash", studentExam.getHash()).findUnique()).isNotNull();

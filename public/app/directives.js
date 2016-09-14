@@ -325,16 +325,18 @@
         .directive('teacherList', [function () {
             return {
                 restrict: 'E',
-                replace: true,
-                template: '<div><strong>' +
+                replace: false,
+                transclude: false,
+                template: '<div>' +
                 '<span ng-repeat="owner in exam.examOwners">' +
                 '{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}' +
-                '</span><br /></strong>' +
-                '<span ng-repeat="inspection in exam.examInspections">' +
+                '</span>' +
+                '<span ng-repeat="inspection in exam.examInspections">{{$first ? ", " : "";}}' +
                 '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +
                 '</span></div>',
                 scope: {
-                    exam: '=exam'
+                    exam: '=exam',
+                    addEnrolmentInformation: '&'
                 }
             };
         }])
@@ -342,10 +344,10 @@
             return {
                 restrict: 'E',
                 replace: true,
-                template: '<div><strong>' +
+                template: '<div>' +
                 '<span ng-repeat="owner in exam.parent.examOwners">' +
                 '{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}' +
-                '</span><br /></strong>' +
+                '</span><br />' +
                 '<span ng-repeat="inspection in exam.examInspections">' +
                 '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +
                 '</span></div>',
@@ -359,9 +361,9 @@
                 restrict: 'E',
                 replace: true,
                 template: '<ul class="pagination pagination-sm">' +
-                '<li ng-class="previousPageDisabled()"><a href="" ng-click="previousPage()">&larr;</a></li>' +
+                '<li ng-class="previousPageDisabled()"><a href="" ng-click="previousPage()">&#60;</a></li>' +
                 '<li ng-repeat="n in range()" ng-class="{active: isCurrent(n)}" ng-click="setPage(n)"><a href="">{{ printRange(n) }}</a></li>' +
-                '<li ng-class="nextPageDisabled()"><a target="_blank" ng-click="nextPage()">&rarr;</a></li>' +
+                '<li ng-class="nextPageDisabled()"><a target="_blank" ng-click="nextPage()">&#62;</a></li>' +
                 '</ul>',
                 scope: {
                     items: '=items',
@@ -383,7 +385,8 @@
                         if (scope.items) {
                             var begin = n * scope.pageSize + 1;
                             var end = Math.min(scope.items.length, (n + 1) * scope.pageSize);
-                            return begin + " - " + end;
+                            //return begin + " - " + end;
+                            return n+1;
                         }
                     };
 

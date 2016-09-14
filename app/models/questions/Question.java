@@ -7,12 +7,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import models.Attachment;
 import models.ExamSectionQuestion;
+import models.ExamSectionQuestionOption;
 import models.Tag;
 import models.User;
 import models.api.AttachmentContainer;
 import models.base.OwnedModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -312,11 +312,6 @@ public class Question extends OwnedModel implements AttachmentContainer {
         }
         Question other = (Question) object;
         return new EqualsBuilder().append(id, other.getId()).build();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(id).build();
     }
 
     public Question copy() {

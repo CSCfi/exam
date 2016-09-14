@@ -18,24 +18,28 @@
 @import "partial/mainview";
 
 html {
-  font-family: $sitnet-family-opensans;
+  font-family: $sitnet-family-helvetica;
 }
 
 body {
   background-color: $sitnet-background;
-  font-family: $sitnet-family-opensans;
+  font-family: $sitnet-family-helvetica;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: $sitnet-family-opensans;
+  font-family: $sitnet-family-helvetica;
 }
 p {
-  font-family: $sitnet-family-opensans;
+  font-family: $sitnet-family-helvetica;
 }
 
 .vmenu-on {
   width: auto;
   margin-left: 230px;
+
+  @media (max-width: $sitnet-mobile) {
+    margin-left: 0px;
+  }
 }
 
 .vmenu-off {
@@ -48,30 +52,10 @@ p {
   border-bottom: solid 1px $sitnet-common-light;
 }
 
-.locale-bar {
-  margin: 1em;
-}
-
-.locale-item {
-  padding-left: 1.2em;
-  padding-right: 1.2em;
-  cursor: pointer;
-  font-size: 1em;
-  font-family: $sitnet-family-opensans-light;
-  color: $sitnet-text;
-  font-weight: 300;
-  letter-spacing: 1px;
-}
-
-.locale-item:hover {
-  a {
-    color: $sitnet-blue-highlight;
-  }
-}
-
 label {
   .text-info {
     margin-left: 3em;
+
   }
 }
 
@@ -113,3 +97,542 @@ label {
   width: 80%;
 }
 
+.student-enroll-title {
+  font-family: $sitnet-family-helvetica;
+  font-size: 2em;
+  color: #2c2c2c;
+  border-bottom: 2px solid #3CA34F;
+  width: 100%;
+  padding-bottom: 7px;
+
+}
+.student-enroll-title-wrap {
+  margin-left: 1.4em;
+  display: inline-block;
+
+  &.waitingroom {
+    padding-top: 45px;
+    margin-left: 2.4em;
+  }
+
+  @media (max-width: $sitnet-mobile) {
+    margin-left: 0em;
+  }
+}
+.student-enroll-dialog-wrap {
+  display: inline-block;
+}
+
+.student-enroll-dialog-subtitle {
+  font-family: 'Helvetica Neue';
+  font-size: 14px;
+  padding-top: 30px;
+  padding-bottom: 20px;
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 0px;
+  font-weight: normal;
+}
+
+.student-message-dialog-footer {
+  padding-top:17px;
+  padding-bottom:45px;
+}
+
+.student-message-dialog-button-save {
+  float:right;
+
+  button {
+    font-size: 16px;
+    font-family: 'Helvetica Neue';
+    background-color: #3CA34F;
+    border: 1px solid #358F45;
+    width: 150px;
+    padding-top: 11px;
+    padding-bottom: 11px;
+    margin-left: 10px;
+  }
+
+  button:hover, button:active, button:focus, button:active:focus {
+    background-color: #358F45;
+    border: 1px solid #358F45;
+  }
+
+  a {
+    font-size: 16px;
+    font-family: 'Helvetica Neue';
+    background-color: #3CA34F;
+    border: 1px solid #358F45;
+    width: 150px;
+    margin-left: 10px;
+    line-height: 1.5;
+    border-radius: 3px;
+    padding: 14px;
+    padding-left: 20px;
+    padding-right: 20px;
+    color:white;
+  }
+
+  a:hover, button:active, button:focus, button:active:focus {
+    background-color: #358F45;
+    border: 1px solid #358F45;
+    text-decoration: none;
+  }
+
+}
+
+.student-message-dialog-button-cancel {
+  float:right;
+
+  button {
+    font-size: 16px;
+    font-family: 'Helvetica Neue';
+    background-color: #808080;
+    border: 1px solid #6B6B6B;
+    width: 150px;
+    padding-top: 11px;
+    padding-bottom: 11px;
+
+  }
+
+  button:hover, button:active, button:focus, button:active:focus {
+    background-color: #6B6B6B;
+    border: 1px solid #6B6B6B;
+  }
+
+
+}
+.student-message-dialog-textarea {
+  border-radius: 4px;
+  width: 100%;
+  resize: vertical;
+  padding-top: 10px;
+  padding-left: 15px;
+}
+
+.student-details-title-wrap {
+  margin-left: 2.5em;
+  display: inline-block;
+  margin-bottom: 30px;
+
+  img {
+    display: inline-block;
+    float: left;
+    padding-top: 10px;
+
+    &.nopad {
+      padding-top: 0px;
+    }
+  }
+
+  &.padtop {
+    padding-top: 45px;
+  }
+
+  &.noleft {
+    margin-left: 0px;
+  }
+
+  &.padleft {
+    margin-left: 3.7em;
+  }
+
+  &.subtitle { margin-bottom: 0px; }
+
+  @media (max-width: $sitnet-mobile) {
+    margin-left: 0em;
+  }
+
+}
+
+.student-exam-details-title {
+  font-family: "Helvetica Neue",Helvetica;
+  font-size: 2em;
+  color: #2c2c2c;
+  border-bottom: 2px solid #3CA34F;
+  padding-bottom: 7px;
+  margin-left: 50px;
+
+  &.subtitle { margin-left: 30px; margin-bottom: 20px; }
+  &.nopad { margin-left: 10px; }
+  &.nomar { margin-left: 0px; }
+
+}
+
+.student-exam-search-title {
+  font-family: "Helvetica Neue",Helvetica;
+  font-size: 2em;
+  color: #2c2c2c;
+  border-bottom: 2px solid #3CA34F;
+  padding-bottom: 7px;
+
+  &.subtitle { margin-left: 30px; margin-bottom: 20px; }
+
+}
+
+.calendar-phase-title {
+  font-family: 'Helvetica Neue';
+  font-size: 22px;
+  color: #2C2C2C;
+}
+
+.calendar-phase-icon {
+  display: inline-block;
+  float: right;
+}
+
+.calendar-titles {
+  padding-top: 10px;
+}
+
+.calendar-course-title {
+  color:#2C2C2C;
+  font-family: 'Helvetica Neue';
+  font-size:16px;
+  font-weight: bold;
+}
+
+.calendar-course-code {
+  color:#555555;
+  font-family: 'Helvetica Neue';
+  font-size:13px;
+}
+
+.calendar-accessibility-link {
+
+  a {
+    color: #266B99;
+    font-family: 'Helvetica Neue';
+    font-weight: bold;
+  }
+}
+
+.calendar-accs-title {
+  font-weight: 500;
+  font-family: 'Helvetica Neue';
+  padding-bottom: 10px;
+  color: #2C2C2C;
+
+  &.subi {
+    padding-top:10px;
+  }
+
+}
+
+.calendar-accs-checkboxes {
+  display: inline-block;
+  padding-right:10px;
+}
+
+.calendar-button-save {
+  display: inline-block;
+  vertical-align: top;
+  width: 22%;
+  float: right;
+  margin-right: 30px;
+
+  a {
+    font-size: 16px;
+    font-family: 'Helvetica Neue';
+    background-color: #D8D8D8;
+    border: 1px solid #979797;
+    width: 100%;
+    margin-left: 10px;
+    line-height: 1.5;
+    border-radius: 3px;
+    color: white;
+    text-align: center;
+    display: block;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  a:hover, button:active, button:focus, button:active:focus {
+    background-color: #979797;
+    border: 1px solid #979797;
+    text-decoration: none;
+  }
+}
+
+.calendar-button-save-activated {
+
+    a {
+      font-size: 16px;
+      font-family: 'Helvetica Neue';
+      background-color: #3CA34F;
+      border: 1px solid #358F45;
+      width: 100%;
+      margin-left: 10px;
+      line-height: 1.5;
+      border-radius: 3px;
+      color: white;
+      text-align: center;
+      display: block;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    a:hover, button:active, button:focus, button:active:focus {
+      background-color: #358F45;
+      border: 1px solid #358F45;
+      text-decoration: none;
+    }
+
+
+}
+
+.calendar-room-title {
+  color: #2C2C2C;
+  font-size: 16px;
+  font-family: 'Helvetica Neue';
+  font-weight: bold;
+  padding-top: 10px;
+}
+
+.calendar-room-info {
+  color: #555555;
+  font-weight: 400;
+  font-family: 'Helvetica Neue';
+  padding-top: 15px;
+  font-size: 14px;
+}
+
+.calendar-room-info-title {
+  width: 150px;
+  float: left;
+}
+.calendar-room-info-content {
+  margin-left:150px;
+}
+
+.calendar-no-paddings {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+/* Fullcalendar overrides */
+
+.fc-toolbar {
+  border-left: solid 1px #979797;
+  padding-bottom: 1em;
+  border-right: solid 1px #979797;
+  border-top: solid 1px #979797;
+  border-radius: 4px;
+  padding-top: 27px;
+  margin-bottom: 0px !important;
+}
+
+.fc-left {
+
+}
+
+.fc-right {
+  float: right !important;
+  width: 163px !important;
+
+  .fc-today-button {
+    float: right;
+    margin-right:10px;
+  }
+}
+
+.fc-center {
+
+  h2 {
+    color: #2C2C2C;
+    font-family: 'Helvetica Neue';
+    font-size: 22px;
+    margin-left: 1em !important;
+    margin-right: 1em;
+    padding-top: 3px;
+    margin-bottom: 0px !important;
+    font-weight: 300;
+  }
+}
+
+.fc-prev-button {
+  background: url("../../../assets/assets/images/calendar-left.png") no-repeat;
+  border: 0px;
+  width: 30px;
+  height: 30px !important;
+}
+
+.fc-next-button {
+  background: url("../../../assets/assets/images/calendar-right.png") no-repeat;
+  border: 0px;
+  width: 30px;
+  height: 30px !important;
+  margin-left: 0px !important;
+}
+
+.fc-toolbar button:focus {
+   outline: none !important;
+}
+
+.fc-icon-left-single-arrow {
+  display: none;
+}
+
+.fc-icon-right-single-arrow {
+  display: none;
+}
+
+.fc-myCustomButton-button {
+  color: #2C2C2C;
+  font-family: 'Helvetica Neue';
+  font-size: 22px !important;
+  margin-left: 1em !important;
+  padding-left: 0px !important;
+  margin-right: 1em;
+  border: none;
+  background-image: none;
+  background-color: #ffffff;
+  box-shadow: none;
+  padding-bottom: 20px !important;
+  font-weight: 300;
+}
+
+.fc-today-button {
+  border: 1px solid #979797;
+  background-image: none;
+  background-color: #ffffff;
+  box-shadow: none;
+  font-size: 13px;
+  color: #555555;
+}
+
+.fc-day-header {
+  border: 0px;
+  font-family: 'Helvetica Neue';
+  font-size: 14px;
+  color: #555555;
+  padding-bottom: 0px !important;
+  margin-bottom: 0px;
+  font-weight: normal;
+  vertical-align: middle !important;
+  height: 60px;
+  background-color: #FAFAFA;
+}
+
+.fc-widget-header {
+  background-color: #FAFAFA;
+}
+
+.fc-time-grid .fc-slats .fc-minor td {
+  border-top-style: none !important;
+}
+
+.fc-title {
+  font-family: 'Helvetica Neue';
+  color: #2C2C2C !important;
+  font-size: 13px !important;
+}
+
+.fc-time {
+  font-family: 'Helvetica Neue';
+  color: #2C2C2C !important;
+}
+
+
+/* exam_search */
+.input-group-addon {
+
+  &.search {
+    padding: 0px !important;
+    border: 0px !important;
+    border-radius: 0px !important;
+  }
+}
+
+.form-control {
+
+  &.search {
+    height:40px !important;
+    width:400px !important;
+  }
+
+  &.login {
+    width:22em !important;
+  }
+}
+
+.form-group {
+
+  &.search {
+    width: 400px;
+  }
+
+}
+
+.dropdown-menu {
+
+  &.settings {
+    left: -180% !important;
+  }
+}
+
+.text-info {
+  color:#2C2C2C;
+  font-size: 14px;
+  font-family: 'Helvetica Neue';
+}
+
+.waitingroom-info {
+  margin-left: 2.4em;
+  padding-top: 27px;
+  padding-bottom: 22px;
+}
+
+.pagination {
+  margin-left: 15px;
+
+  .disabled {
+    display:none;
+  }
+
+  li {
+
+    a, a:focus {
+      margin-left: 10px;
+      color: #555555;
+      background-color: #fff;
+      border: 0px;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+    a:hover {
+      color: #fff;
+      background: #3CA34F;
+      -moz-border-radius: 50%;
+      -webkit-border-radius: 50%;
+      border-radius: 50%;
+      border:0px;
+      width:30px;
+      height:30px;
+
+    }
+
+  }
+
+  .active {
+
+    a, a:focus {
+      color: #fff;
+      background: #3CA34F;
+      -moz-border-radius: 50%;
+      -webkit-border-radius: 50%;
+      border-radius: 50%;
+      border:0px;
+      width:30px;
+      height:30px;
+    }
+
+    a:hover {
+      color: #fff;
+      background: #3CA34F;
+    }
+
+
+  }
+
+}

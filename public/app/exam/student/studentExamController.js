@@ -19,6 +19,17 @@
                 $scope.pages = [];
                 $scope.previousButton = {};
                 $scope.nextButton = {};
+                $scope.showClock = true;
+
+
+                $scope.clockManagement = function() {
+                    if($scope.showClock) {
+                        $scope.showClock = false;
+                    }
+                    else {
+                        $scope.showClock = true;
+                    }
+                }
 
                 var isPreview = function () {
                     return $location.path().match(/preview/) && $routeParams.id;

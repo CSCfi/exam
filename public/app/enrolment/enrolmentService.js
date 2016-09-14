@@ -66,7 +66,10 @@
                 };
 
                 self.listEnrolments = function (scope, code, id) {
-                    if (id) {
+
+                    // JSa 29.8. Removed ..else -> need both exam and exams for the new view
+
+                   if (id) {
                         EnrollRes.enroll.get({code: code, id: id},
                             function (exam) {
                                 exam.languages = exam.examLanguages.map(function (lang) {
@@ -89,20 +92,21 @@
                             function (error) {
                                 toastr.error(error.data);
                             });
-                    } else {
-                        EnrollRes.list.get({code: code},
-                            function (exams) {
-                                scope.exams = exams.map(function (exam) {
-                                    exam.languages = exam.examLanguages.map(function (lang) {
-                                        return getLanguageNativeName(lang.code);
-                                    });
-                                    return exam;
-                                });
-                            },
-                            function (error) {
-                                toastr.error(error.data);
-                            });
                     }
+                    // else {
+                    EnrollRes.list.get({code: code},
+                        function (exams) {
+                            scope.exams = exams.map(function (exam) {
+                                exam.languages = exam.examLanguages.map(function (lang) {
+                                    return getLanguageNativeName(lang.code);
+                                });
+                                return exam;
+                            });
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        });
+                    //}
                 };
 
                 self.removeEnrolment = function(enrolment, enrolments) {
