@@ -222,10 +222,6 @@ public class ExamSectionController extends QuestionController {
         }
     }
 
-    private void updateOptions(ExamSectionQuestion sectionQuestion, ArrayNode options) {
-
-    }
-
     private void updateExamQuestion(ExamSectionQuestion sectionQuestion, Question question) {
         sectionQuestion.setQuestion(question);
         sectionQuestion.setMaxScore(question.getDefaultMaxScore());

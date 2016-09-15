@@ -272,10 +272,6 @@ GET           /app/languages                                             control
 
 ################# Tag interface ##################
 GET           /app/tags                                                  controllers.TagController.listTags(filter: java.util.Optional[String], examIds: java.util.Optional[LongList], courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList])
-POST          /app/tags                                                  controllers.TagController.createTag
-DELETE        /app/tags/:tid                                             controllers.TagController.deleteTag(tid: Long)
-PUT           /app/tags/:tid/:qid                                        controllers.TagController.tagQuestion(tid: Long, qid: Long)
-DELETE        /app/tags/:tid/:qid                                        controllers.TagController.untagQuestion(tid: Long, qid: Long)
 
 ################# General Settings interface ##################
 
