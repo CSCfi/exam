@@ -43,7 +43,7 @@
     <!-- total score: only show if not maturity and actual grade given -->
     <div class="row evaluation-padtop" ng-hide="reviewedExam.executionType.type === 'MATURITY' || reviewedExam.grade.name === 'NONE'">
         <div class="col-md-12">
-            <div class="row" ng-if="reviewedExam.maxScore != (reviewedExam.approvedAnswerCount + reviewedExam.rejectedAnswerCount)">
+            <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                     {{'sitnet_total_score' | translate}}:
                 </div>
@@ -67,8 +67,7 @@
         <div class="col-md-12">
 
             <!-- only show if approved or rejected answer count is given -->
-            <div class="row" ng-if="(reviewedExam.approvedAnswerCount && reviewedExam.approvedAnswerCount > 0) ||
-                          (reviewedExam.rejectedAnswerCount && reviewedExam.rejectedAnswerCount > 0)">
+            <div class="row" ng-if="scores.hasApprovedRejectedAnswers">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                     {{'sitnet_approved' | translate }}:
                 </div>

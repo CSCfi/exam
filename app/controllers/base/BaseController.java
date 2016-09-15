@@ -27,8 +27,10 @@ import java.util.concurrent.CompletionStage;
 public class BaseController extends Controller {
 
     public static final String SITNET_CACHE_KEY = "user.session.";
+
     protected static final int SITNET_TIMEOUT_MINUTES = 30;
     protected static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
+
     private static final int KB = 1024;
     private static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
 
@@ -75,7 +77,7 @@ public class BaseController extends Controller {
         return null;
     }
 
-    <T> T parse(String fieldName, JsonNode node, Class<T> type, T defaultValue) {
+    protected <T> T parse(String fieldName, JsonNode node, Class<T> type, T defaultValue) {
         T value = parse(fieldName, node, type);
         return value == null ? defaultValue : value;
     }

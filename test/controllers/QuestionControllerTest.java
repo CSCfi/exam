@@ -8,27 +8,29 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.ExamSection;
 import models.ExamSectionQuestion;
 import models.ExamSectionQuestionOption;
+import models.User;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
-import static org.fest.assertions.Assertions.assertThat;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import static play.test.Helpers.contentAsString;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+
 
 public class QuestionControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsTeacher
-    public void testAddDraftEssayQuestionToExam() throws Exception {
+    public void testAddEssayQuestionToExam() throws Exception {
 
         // Setup
         long examId = 1L;
@@ -38,19 +40,30 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assert section != null;
         int sectionQuestionCount = section.getSectionQuestions().size();
 
+        JsonNode draft = Json.newObject().put("type", "EssayQuestion")
+                .put("question", "What is love?")
+                .put("defaultMaxScore", 2)
+                .put("defaultEvaluationType", "Points")
+                .set("questionOwners", Json.newArray().add(
+                        Json.newObject().put("id", userId))
+                );
+
         // Create draft
-        Result result = request(Helpers.POST, "/app/questions", Json.newObject().put("type", "EssayQuestion"));
+        Result result = request(Helpers.POST, "/app/questions", draft);
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         Question question = deserialize(Question.class, node);
         assertThat(question.getType()).isEqualTo(Question.Type.EssayQuestion);
 
         // Update it
-        JsonNode questionUpdate = Json.newObject()
-                .put("type", "EssayQuestion")
-                .put("id", question.getId())
-                .put("question", "What is love?");
-        result = request(Helpers.PUT, "/app/questions/" + question.getId(), questionUpdate);
+        JsonNode update = Json.newObject().put("type", "EssayQuestion")
+                .put("question", "What is love now?")
+                .put("defaultMaxScore", 3)
+                .put("defaultEvaluationType", "Selection")
+                .set("questionOwners", Json.newArray().add(
+                        Json.newObject().put("id", userId))
+                );
+        result = request(Helpers.PUT, "/app/questions/" + question.getId(), update);
         assertThat(result.status()).isEqualTo(200);
         node = Json.parse(contentAsString(result));
         question = deserialize(Question.class, node);
@@ -116,8 +129,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
         question = addNewOption(question, 0.75, new Double[]{1d, 1d, -1d, 0.75d}, -1d);
         assertExamSectionQuestion(question, 4, 4d, new Double[]{1.46d, 1.46d, -2d, 1.08d}, -2d);
 
-        MultipleChoiceOption option = question.getOptions().get(3);
-        deleteOption(option.getId());
+        deleteAddedOption(question);
 
         question = Ebean.find(Question.class, question.getId());
         assert question != null;
@@ -134,8 +146,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
         question = addNewOption(question, -0.5, new Double[]{1d, 1d, -1d, -0.5d}, -1.5d);
         assertExamSectionQuestion(question, 4, 4d, new Double[]{2d, 2d, -1.33d, -0.67d}, -2d);
 
-        MultipleChoiceOption option = question.getOptions().get(3);
-        deleteOption(option.getId());
+        deleteAddedOption(question);
 
         question = Ebean.find(Question.class, question.getId());
         assert question != null;
@@ -143,30 +154,50 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assertExamSectionQuestion(question, 3, 4d, new Double[]{2d, 2d, -2d}, -2d);
     }
 
-    private void deleteOption(long optionId) {
-        Result result = request(Helpers.DELETE, "/app/questions/option/" + optionId, null);
+    private void deleteAddedOption(Question question) {
+        JsonNode json = Json.newObject()
+                .put("id", question.getId())
+                .put("type", "WeightedMultipleChoiceQuestion")
+                .put("question", question.getQuestion())
+                .set("options", Json.newArray().add(
+                        Json.newObject().put("id", 53).put("defaultScore", 1.0).put("option", "Kumpi")).add(
+                        Json.newObject().put("id", 54).put("defaultScore", 1.0).put("option", "Kampi")).add(
+                        Json.newObject().put("id", 55).put("defaultScore", -1.0).put("option", "Molemmat")));
+        ((ObjectNode)json).set("questionOwners", Json.newArray()
+                .add(Json.newObject().put("id", userId)));
+
+        Result result = request(Helpers.PUT, "/app/questions/" + question.getId(), json);
         assertThat(result.status()).isEqualTo(200);
     }
 
     @NotNull
     private Question addNewOption(Question question, Double defaultScore, Double[] expectedDefaultScores, double minDefaultScore) {
-        ObjectNode json = Json.newObject();
-        json.put("option", "new");
-        json.put("defaultScore", defaultScore);
-        Result result = request(Helpers.POST, "/app/questions/" + question.getId() + "/option", json);
+        JsonNode json = Json.newObject()
+                .put("id", question.getId())
+                .put("type", "WeightedMultipleChoiceQuestion")
+                .put("question", question.getQuestion())
+                .set("options", Json.newArray().add(
+                        Json.newObject().put("id", 53).put("defaultScore", 1.0).put("option", "Kumpi")).add(
+                        Json.newObject().put("id", 54).put("defaultScore", 1.0).put("option", "Kampi")).add(
+                        Json.newObject().put("id", 55).put("defaultScore", -1.0).put("option", "Molemmat")).add(
+                        Json.newObject().put("defaultScore", defaultScore).put("option", "Uusi"))
+                );
+        ((ObjectNode)json).set("questionOwners", Json.newArray()
+                        .add(Json.newObject().put("id", userId)));
+        Result result = request(Helpers.PUT, "/app/questions/" + question.getId(), json);
         assertThat(result.status()).isEqualTo(200);
 
-        question = Ebean.find(Question.class, question.getId());
-        assert question != null;
-        assertThat(question.getOptions().size()).isEqualTo(4);
-        assertThat(question.getMinDefaultScore()).isEqualTo(minDefaultScore);
+        Question saved = Ebean.find(Question.class, question.getId());
+        assertThat(saved).isNotNull();
+        assertThat(saved.getOptions().size()).isEqualTo(4);
+        assertThat(saved.getMinDefaultScore()).isEqualTo(minDefaultScore);
 
-        List<Double> defaultScores = question.getOptions().stream()
+        List<Double> defaultScores = saved.getOptions().stream()
                 .map(MultipleChoiceOption::getDefaultScore)
                 .collect(Collectors.toList());
         assertThat(defaultScores).isEqualTo(Arrays.asList(expectedDefaultScores));
 
-        return question;
+        return saved;
     }
 
     @NotNull
@@ -177,6 +208,8 @@ public class QuestionControllerTest extends IntegrationTestCase {
                 .findFirst()
                 .get();
         assertThat(question.getOptions().size()).isEqualTo(3);
+        question.getQuestionOwners().add(Ebean.find(User.class, userId));
+        question.update();
         return question;
     }
 

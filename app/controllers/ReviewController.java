@@ -156,7 +156,7 @@ public class ReviewController extends BaseController {
                 .fetch("exam", "id, name, state, gradedTime, customCredit, creditType, answerLanguage, trialCount")
                 .fetch("exam.grade", "id, name")
                 .fetch("exam.gradeScale")
-                .fetch("exam.gradeScale.grades")
+                .fetch("exam.gradeScale.grades", new FetchConfig().query())
                 .fetch("exam.creditType")
                 .fetch("exam.examType")
                 .fetch("exam.executionType")
@@ -234,7 +234,7 @@ public class ReviewController extends BaseController {
             } else {
                 return badRequest("Invalid grade for this grade scale");
             }
-        } else if (df.get("gradeless") != null) {
+        } else if (df.get("gradeless").equals("true")) {
             exam.setGrade(null);
             exam.setGradeless(true);
         } else {
@@ -541,7 +541,7 @@ public class ReviewController extends BaseController {
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"" + tarball.getName() + "\"");
         String body = Base64.getEncoder().encodeToString(setData(tarball).toByteArray());
-        return ok(body).as("application/gzip");
+        return ok(body);
     }
 
     private void notifyPartiesAboutPrivateExamRejection(Exam exam) {
@@ -566,7 +566,7 @@ public class ReviewController extends BaseController {
                 .fetch("examType")
                 .fetch("executionType")
                 .fetch("examSections")
-                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
+                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType", new FetchConfig().query())
                 .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.options")

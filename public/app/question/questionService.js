@@ -37,10 +37,10 @@
                         angular.forEach(section.sectionQuestions, function (sectionQuestion) {
                             var question = sectionQuestion.question;
                             if (question.type === "EssayQuestion") {
-                                if (sectionQuestion.evaluationType === "Selection") {
-                                    if (sectionQuestion.evaluatedScore == 1) {
+                                if (sectionQuestion.evaluationType === "Selection" && sectionQuestion.essayAnswer) {
+                                    if (sectionQuestion.essayAnswer.evaluatedScore == 1) {
                                         data.accepted++;
-                                    } else if (question.evaluatedScore === 0) {
+                                    } else if (sectionQuestion.essayAnswer.evaluatedScore == 0) {
                                         data.rejected++;
                                     }
                                 }

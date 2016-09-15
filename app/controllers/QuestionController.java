@@ -150,22 +150,26 @@ public class QuestionController extends BaseController {
         AppUtil.setModifier(question, user);
 
         question.getQuestionOwners().clear();
-        for (JsonNode ownerNode : node.get("questionOwners")) {
-            User owner = Ebean.find(User.class, ownerNode.get("id").asLong());
-            if (owner != null) {
-                question.getQuestionOwners().add(owner);
+        if (node.has("questionOwners")) {
+            for (JsonNode ownerNode : node.get("questionOwners")) {
+                User owner = Ebean.find(User.class, ownerNode.get("id").asLong());
+                if (owner != null) {
+                    question.getQuestionOwners().add(owner);
+                }
             }
         }
         question.getTags().clear();
-        for (JsonNode tagNode : node.get("tags")) {
-            Tag tag = Ebean.find(Tag.class, tagNode.get("id").asLong());
-            if (tag == null) {
-                tag = new Tag();
-                tag.setName(tagNode.get("name").asText());
-                AppUtil.setCreator(tag, user);
-                AppUtil.setModifier(tag, user);
+        if (node.has("tags")) {
+            for (JsonNode tagNode : node.get("tags")) {
+                Tag tag = Ebean.find(Tag.class, tagNode.get("id").asLong());
+                if (tag == null) {
+                    tag = new Tag();
+                    tag.setName(tagNode.get("name").asText());
+                    AppUtil.setCreator(tag, user);
+                    AppUtil.setModifier(tag, user);
+                }
+                question.getTags().add(tag);
             }
-            question.getTags().add(tag);
         }
         return question;
     }
@@ -325,7 +329,7 @@ public class QuestionController extends BaseController {
             if (!skipDefaults) {
                 option.setDefaultScore(parse("defaultScore", node, Double.class));
             }
-            option.setCorrectOption(parse("correctOption", node, Boolean.class));
+            option.setCorrectOption(parse("correctOption", node, Boolean.class, Boolean.FALSE));
             option.update();
         }
     }

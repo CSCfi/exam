@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.api.Sortable;
 import models.base.OwnedModel;
+import models.questions.Question;
 import org.springframework.beans.BeanUtils;
 
 import javax.annotation.Nonnull;
@@ -152,6 +153,12 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
                 .collect(Collectors.toList()).size();
     }
 
+    @Transient
+    public boolean hasQuestion(Question question) {
+        return sectionQuestions.stream().map(ExamSectionQuestion::getQuestion).anyMatch(q -> q.equals(question));
+    }
+
+
     @Override
     public int compareTo(@Nonnull ExamSection o) {
         return sequenceNumber - o.sequenceNumber;
@@ -166,4 +173,5 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     public void setOrdinal(Integer ordinal) {
         sequenceNumber = ordinal;
     }
+
 }

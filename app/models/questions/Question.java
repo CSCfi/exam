@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import models.Attachment;
 import models.ExamSectionQuestion;
-import models.ExamSectionQuestionOption;
 import models.Tag;
 import models.User;
 import models.api.AttachmentContainer;
@@ -260,6 +259,9 @@ public class Question extends OwnedModel implements AttachmentContainer {
             }
         } else {
             reason = "no question text defined";
+        }
+        if (!nodeExists(node, "questionOwners") || node.get("questionOwners").size() == 0) {
+            reason = "no owners defined";
         }
         if (reason != null) {
             return Optional.of(Results.badRequest(reason));
