@@ -124,7 +124,7 @@ label {
 }
 
 .student-enroll-dialog-subtitle {
-  font-family: 'Helvetica Neue';
+  font-family: $sitnet-family-helvetica;
   font-size: 14px;
   padding-top: 30px;
   padding-bottom: 20px;
@@ -144,7 +144,7 @@ label {
 
   button {
     font-size: 16px;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
     background-color: #3CA34F;
     border: 1px solid #358F45;
     width: 150px;
@@ -160,7 +160,7 @@ label {
 
   a {
     font-size: 16px;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
     background-color: #3CA34F;
     border: 1px solid #358F45;
     width: 150px;
@@ -186,7 +186,7 @@ label {
 
   button {
     font-size: 16px;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
     background-color: #808080;
     border: 1px solid #6B6B6B;
     width: 150px;
@@ -246,7 +246,7 @@ label {
 }
 
 .student-exam-details-title {
-  font-family: "Helvetica Neue",Helvetica;
+  font-family: $sitnet-family-helvetica;
   font-size: 2em;
   color: #2c2c2c;
   border-bottom: 2px solid #3CA34F;
@@ -260,7 +260,7 @@ label {
 }
 
 .student-exam-search-title {
-  font-family: "Helvetica Neue",Helvetica;
+  font-family: $sitnet-family-helvetica;
   font-size: 2em;
   color: #2c2c2c;
   border-bottom: 2px solid #3CA34F;
@@ -271,7 +271,7 @@ label {
 }
 
 .calendar-phase-title {
-  font-family: 'Helvetica Neue';
+  font-family: $sitnet-family-helvetica;
   font-size: 22px;
   color: #2C2C2C;
 }
@@ -287,14 +287,14 @@ label {
 
 .calendar-course-title {
   color:#2C2C2C;
-  font-family: 'Helvetica Neue';
+  font-family: $sitnet-family-helvetica;
   font-size:16px;
   font-weight: bold;
 }
 
 .calendar-course-code {
   color:#555555;
-  font-family: 'Helvetica Neue';
+  font-family: $sitnet-family-helvetica;
   font-size:13px;
 }
 
@@ -302,14 +302,14 @@ label {
 
   a {
     color: #266B99;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
     font-weight: bold;
   }
 }
 
 .calendar-accs-title {
   font-weight: 500;
-  font-family: 'Helvetica Neue';
+  font-family: $sitnet-family-helvetica;
   padding-bottom: 10px;
   color: #2C2C2C;
 
@@ -333,7 +333,7 @@ label {
 
   a {
     font-size: 16px;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
     background-color: #D8D8D8;
     border: 1px solid #979797;
     width: 100%;
@@ -358,7 +358,7 @@ label {
 
     a {
       font-size: 16px;
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
       background-color: #3CA34F;
       border: 1px solid #358F45;
       width: 100%;
@@ -384,7 +384,7 @@ label {
 .calendar-room-title {
   color: #2C2C2C;
   font-size: 16px;
-  font-family: 'Helvetica Neue';
+  font-family: $sitnet-family-helvetica;
   font-weight: bold;
   padding-top: 10px;
 }
@@ -392,7 +392,7 @@ label {
 .calendar-room-info {
   color: #555555;
   font-weight: 400;
-  font-family: 'Helvetica Neue';
+  font-family: $sitnet-family-helvetica;
   padding-top: 15px;
   font-size: 14px;
 }
@@ -440,7 +440,7 @@ label {
 
   h2 {
     color: #2C2C2C;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
     font-size: 22px;
     margin-left: 1em !important;
     margin-right: 1em;
@@ -479,7 +479,7 @@ label {
 
 .fc-myCustomButton-button {
   color: #2C2C2C;
-  font-family: 'Helvetica Neue';
+  font-family: $sitnet-family-helvetica;
   font-size: 22px !important;
   margin-left: 1em !important;
   padding-left: 0px !important;
@@ -503,7 +503,7 @@ label {
 
 .fc-day-header {
   border: 0px;
-  font-family: 'Helvetica Neue';
+  font-family: $sitnet-family-helvetica;
   font-size: 14px;
   color: #555555;
   padding-bottom: 0px !important;
@@ -523,13 +523,13 @@ label {
 }
 
 .fc-title {
-  font-family: 'Helvetica Neue';
+  font-family: $sitnet-family-helvetica;
   color: #2C2C2C !important;
   font-size: 13px !important;
 }
 
 .fc-time {
-  font-family: 'Helvetica Neue';
+  font-family: $sitnet-family-helvetica;
   color: #2C2C2C !important;
 }
 
@@ -574,7 +574,7 @@ label {
 .text-info {
   color:#2C2C2C;
   font-size: 14px;
-  font-family: 'Helvetica Neue';
+  font-family: $sitnet-family-helvetica;
 }
 
 .waitingroom-info {

@@ -63,7 +63,7 @@
     text-align: center;
     padding: 3px;
     font-weight: bold;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
     font-size: 20px;
     width:46px;
     line-height: 16px;
@@ -78,13 +78,13 @@
      display: inline-block;
 
      font-size: 16px;
-     font-family: 'Helvetica Neue';
+     font-family: $sitnet-family-helvetica;
      color: #266B99;
      font-weight: bold;
 
      a {
        font-size: 16px;
-       font-family: 'Helvetica Neue';
+       font-family: $sitnet-family-helvetica;
        color: #266B99;
        font-weight: bold;
        text-decoration: none;
@@ -118,7 +118,7 @@
     .student-details-title {
       font-size: 16px;
       font-weight: bold;
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
       color: #2C2C2C;
     }
 
@@ -126,14 +126,14 @@
       font-size: 13px;
       font-weight: bold;
       color: #555555;
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
     }
 
     .student-details-indicator {
       float: right;
       color: #3CA34F;
       font-size: 16px;
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
 
     }
 
@@ -141,7 +141,7 @@
   }
 
   .student-exam-row-title-blue {
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
     font-size: 16px;
     color: #266B99;
     font-weight: bold;
@@ -158,7 +158,7 @@
       padding-left: 0px;
 
       .student-exam-row-title-grey {
-        font-family: 'Helvetica Neue';
+        font-family: $sitnet-family-helvetica;
         font-size: 13px;
         color: #555555;
         font-weight: bold;
@@ -173,7 +173,7 @@
         float: right;
         color: #3CA34F;
         font-size: 16px;
-        font-family: 'Helvetica Neue';
+        font-family: $sitnet-family-helvetica;
       }
     }
   }
@@ -186,20 +186,20 @@
 
     &.infotitle {
       color: #2C2C2C;
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
       font-weight: bold;
     }
 
     &.infotitle-calendar {
       color: #2C2C2C;
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
       font-weight: normal;
       font-size: 14px;
     }
 
     .infolink {
       color:#266B99;
-      font-family:'Helvetica Neue';
+      font-family:$sitnet-family-helvetica;
       font-weight: bold;
       font-size: 14px;
       text-decoration: none;
@@ -223,7 +223,7 @@
     a {
       color: #2c2c2c;
       font-size: 12px;
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
       text-decoration: none;
     }
 

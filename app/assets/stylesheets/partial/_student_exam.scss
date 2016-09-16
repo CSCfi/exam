@@ -42,7 +42,7 @@
   .right-title {
     color: #2C2C2C;
     font-size: 20px;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
   }
 
   margin: 0 14px 0 16px;
@@ -133,7 +133,7 @@
     text-decoration: none;
     float: right;
     font-size: 16px;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
     background-color: #3CA34F;
     border: 1px solid #358F45;
     //width: 150px;
@@ -187,7 +187,7 @@
     text-decoration: none;
     float: right;
     font-size: 16px;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
     background-color: #fff;
     border: 1px solid #979797;
     width: 150px;
@@ -319,7 +319,7 @@
     }
 
     .exam-clock {
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
       font-size: 28px;
       letter-spacing: 1.5px;
       color: #fff;
@@ -327,7 +327,7 @@
       margin-left: 10px;
     }
     .exam-clock-text {
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
       font-size: 18px;
       font-weight: 100;
       letter-spacing: 1.5px;
@@ -337,7 +337,7 @@
 
     .clock-hide {
       font-size: 14px;
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
       font-weight: normal;
     }
 
@@ -348,7 +348,7 @@
   }
 
   .exam-title {
-    font-family: "Helvetica Neue",Helvetica;
+    font-family: $sitnet-family-helvetica;
     font-size: 2em;
     color: #2c2c2c;
     border-bottom: 2px solid #3CA34F;
@@ -367,7 +367,7 @@
     .guide-column {
       color: #555555;
       font-size: 16px;
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
 
       &.padtop {
         padding-top: 120px;
@@ -388,7 +388,7 @@
     padding-top:20px;
 
     .user-span {
-      font-family: 'Helvetica Neue';
+      font-family: $sitnet-family-helvetica;
       font-size: 18px;
       color: #2C2C2C;
       padding-left: 15px;
@@ -429,7 +429,7 @@
 
   .attachment-name {
     display: inline-block;
-    font-family:'Helvetica Neue';
+    font-family:$sitnet-family-helvetica;
     font-size:12px;
     color:#555555;
     float: right;
@@ -444,7 +444,7 @@
     margin-right: 1.9em;
     padding: 10px;
     margin-bottom: 10px;
-    font-family:'Helvetica Neue';
+    font-family:$sitnet-family-helvetica;
     font-size:16px;
     color:#555555;
     font-weight:500;
@@ -466,7 +466,7 @@
     margin-top: 10px;
     color: #2C2C2C;
     font-size: 20px;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
 
     &.arrow {
       margin-left: 0px;
@@ -484,7 +484,7 @@
 
   .question-type-text {
     color: #2C2C2C;
-    font-family: 'Helvetica Neue';
+    font-family: $sitnet-family-helvetica;
     font-size: 16px;
     font-weight: 400;
     margin-right:10px;
