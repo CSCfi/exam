@@ -241,9 +241,13 @@
                 }
 
                 function findRoom(id) {
-                    return $scope.examrooms.find(function (room) {
-                        return room.id === id;
-                    });
+                    var i = $scope.examrooms.map(function (er) {
+                        return er.id
+                    }).indexOf(id);
+                    if (i >= 0) {
+                        return $scope.examrooms[i];
+                    }
+                    return undefined;
                 }
 
                 function machinesForRoom(room, machines) {
