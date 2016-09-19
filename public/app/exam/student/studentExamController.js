@@ -22,8 +22,8 @@
                 $scope.showClock = true;
 
 
-                $scope.clockManagement = function() {
-                    if($scope.showClock) {
+                $scope.clockManagement = function () {
+                    if ($scope.showClock) {
                         $scope.showClock = false;
                     }
                     else {
@@ -241,9 +241,13 @@
                 };
 
                 function findSection(sectionId) {
-                    return $scope.exam.examSections.find(function (section) {
-                        return sectionId === section.id;
-                    });
+                    var i = $scope.exam.examSections.map(function (es) {
+                        return es.id
+                    }).indexOf(sectionId);
+                    if (i >= 0) {
+                        return $scope.exam.examSections[i];
+                    }
+                    return undefined;
                 }
 
                 function setNextButton(sectionId) {
