@@ -216,6 +216,7 @@ public class ReservationController extends BaseController {
                 .fetch("reservation.machine", "id, name, ipAddress, otherIdentifier")
                 .fetch("reservation.machine.room", "id, name, roomCode")
                 .where()
+                .isNotNull("reservation")
                 .ne("exam.state", Exam.State.DELETED);
 
         User user = getLoggedUser();

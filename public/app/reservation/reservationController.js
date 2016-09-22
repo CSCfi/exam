@@ -133,11 +133,6 @@
                 });
 
                 $scope.printExamState = function (enrolment) {
-                    if (!enrolment.reservation) {
-                        console.warn("enrolment without reservation listed, possibly obsolete data #enrolment id: " +
-                            enrolment.id);
-                        return;
-                    }
                     return enrolment.reservation.noShow ? 'NO_SHOW' : enrolment.exam.state;
                 };
 
