@@ -1022,6 +1022,11 @@
                             $modalInstance.dismiss("Cancelled");
                         };
 
+                        // Close modal if user clicked the back button
+                        $scope.$on('$routeChangeStart', function() {
+                            $modalInstance.dismiss();
+                        })
+
                     }];
 
                     var modalInstance = $modal.open({
@@ -1066,12 +1071,21 @@
                                     questionService.updateDistributedExamQuestion(baseQuestion, examQuestion).then(function (esq) {
                                         toastr.info($translate.instant("sitnet_question_saved"));
                                         $modalInstance.close(esq);
+                                        window.onbeforeunload = null;
                                     });
                                 };
 
                                 $scope.cancelEdit = function () {
                                     $modalInstance.dismiss();
+                                    window.onbeforeunload = null;
                                 };
+
+                                // Close modal if user clicked the back button and no changes made
+                                $scope.$on('$routeChangeStart', function() {
+                                    if (!window.onbeforeunload) {
+                                        $modalInstance.dismiss();
+                                    }
+                                });
 
                             }];
 
@@ -1159,6 +1173,14 @@
                             // Well this is nice now :)
                             $modalInstance.dismiss("Cancelled");
                         };
+
+                        // Close modal if user clicked the back button and no changes made
+                        $scope.$on('$routeChangeStart', function() {
+                            if (!window.onbeforeunload) {
+                                $modalInstance.dismiss();
+                            }
+                        });
+
                     }];
 
                     var modalInstance = $modal.open({

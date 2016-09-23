@@ -190,7 +190,6 @@
                     });
                     ck.on('change', updateModel);
                     ck.on('key', updateModel);
-                    ck.on('dataReady', updateModel);
 
                     ngModel.$render = function (value) {
                         tmp = ngModel.$modelValue;

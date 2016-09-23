@@ -712,5 +712,7 @@
   "sitnet_interoperable": "Yhteiskäytössä SV",
   "sitnet_external_reservation": "Tilavaraus ulkopuolisesta oppilaitoksesta SV",
   "sitnet_no_enrolments": "Sinulla ei ole ilmoittaumisia tentteihin. Etsi tenttejä tentit-osion kautta. SV",
-  "sitnet_shared_question_property_info": "De här ändringar uppdateras också i andra tentamina."
+  "sitnet_shared_question_property_info": "De här ändringar uppdateras också i andra tentamina.",
+  "sitnet_unsaved_question_data": "Tallentamaton kysymystieto häviää näkymästä poistuttaessa. SV",
+  "sitnet_confirm_exit": "Vahvista näkymästä poistuminen SV"
 }

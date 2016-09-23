@@ -256,12 +256,12 @@
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <button ng-disabled="!questionForm.$valid" ng-click="submit(question, sectionQuestion)"
+            <button ng-disabled="!questionForm.$valid" ng-click="clearListeners(); submit(question, sectionQuestion)"
                     type="submit" class="btn btn-sm btn-primary pull-left">{{'sitnet_save' | translate}}
             </button>
         </div>
         <div class="col-md-6">
-            <button class="btn btn-sm btn-danger pull-right" ng-click="cancelEdit()">
+            <button class="btn btn-sm btn-danger pull-right" ng-click="clearListeners(); cancelEdit()">
                 {{ 'sitnet_close' | translate }}
             </button>
         </div>

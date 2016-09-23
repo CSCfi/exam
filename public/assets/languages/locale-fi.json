@@ -712,5 +712,7 @@
   "sitnet_interoperable": "Yhteiskäytössä",
   "sitnet_external_reservation": "Tilavaraus ulkopuolisesta oppilaitoksesta",
   "sitnet_no_enrolments": "Sinulla ei ole ilmoittaumisia tentteihin. Etsi tenttejä tentit-osion kautta.",
-  "sitnet_shared_question_property_info": "Tämän tiedon muutos päivittyy myös muihin tentteihin."
+  "sitnet_shared_question_property_info": "Tämän tiedon muutos päivittyy myös muihin tentteihin.",
+  "sitnet_unsaved_question_data": "Tallentamaton kysymystieto häviää näkymästä poistuttaessa.",
+  "sitnet_confirm_exit": "Vahvista näkymästä poistuminen"
 }

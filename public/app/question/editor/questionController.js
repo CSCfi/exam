@@ -44,6 +44,37 @@
                     }
                 };
 
+                var routingWatcher = $scope.$on('$locationChangeStart', function (event, newUrl) {
+                    if (window.onbeforeunload) {
+                        event.preventDefault();
+                        // we got changes in the model, ask confirmation
+                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm_exit'),
+                            $translate.instant('sitnet_unsaved_question_data'));
+                        dialog.result.then(function (data) {
+                            if (data.toString() === 'yes') {
+                                // ok to reroute
+                                clearListeners();
+                                $location.path(newUrl.substring($location.absUrl().length - $location.url().length));
+                            }
+                        });
+                    } else {
+                        clearListeners();
+                    }
+                });
+
+                var watchForChanges = function() {
+                    $scope.$watch("newQuestion", function (newVal, oldVal) {
+                        if (angular.equals(newVal, oldVal)) {
+                            return;
+                        }
+                        if (!window.onbeforeunload) {
+                            window.onbeforeunload = function () {
+                                return $translate.instant('sitnet_unsaved_data_may_be_lost');
+                            };
+                        }
+                    }, true);
+                };
+
                 var initQuestion = function () {
                     setQuestionType();
                     if ($scope.newQuestion.type === 'WeightedMultipleChoiceQuestion' ||
@@ -66,6 +97,7 @@
                     $scope.sectionNames = sectionNames.filter(function (n, pos) {
                         return sectionNames.indexOf(n) == pos;
                     });
+                    watchForChanges();
                 };
 
                 $scope.showWarning = function () {
@@ -109,13 +141,22 @@
 
                 $scope.cancel = function () {
                     toastr.info($translate.instant('sitnet_canceled'));
+                    // Call off the event listener so it won't ask confirmation now that we are going away
+                    clearListeners();
                     $location.path('/questions');
+                };
+
+                var clearListeners = function () {
+                    window.onbeforeunload = null;
+                    // Call off the event listener so it won't ask confirmation now that we are going away
+                    routingWatcher();
                 };
 
                 $scope.saveQuestion = function () {
                     var successFn = function () {
-                        $location.path('/questions');
                         questionService.clearQuestions();
+                        clearListeners();
+                        $location.path('/questions');
                     };
                     var errFn = function (error) {
                         toastr.error(error.data);

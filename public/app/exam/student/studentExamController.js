@@ -23,13 +23,8 @@
 
 
                 $scope.clockManagement = function () {
-                    if ($scope.showClock) {
-                        $scope.showClock = false;
-                    }
-                    else {
-                        $scope.showClock = true;
-                    }
-                }
+                    $scope.showClock = !$scope.showClock;
+                };
 
                 var isPreview = function () {
                     return $location.path().match(/preview/) && $routeParams.id;

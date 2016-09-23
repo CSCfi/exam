@@ -1,10 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamSectionQuestionCtrl', ['$rootScope', '$scope', '$q', '$uibModal', '$translate', 'QuestionRes',
-            'ExamSectionQuestionRes', 'questionService', 'EXAM_CONF', '$sce', 'fileService',
-            function ($rootScope, $scope, $q, $modal, $translate, QuestionRes, ExamSectionQuestionRes, questionService, EXAM_CONF,
-                      $sce, fileService) {
+        .controller('ExamSectionQuestionCtrl', ['$rootScope', '$scope', '$q', '$uibModal', '$translate', '$location', 'QuestionRes',
+            'ExamSectionQuestionRes', 'questionService', 'EXAM_CONF', '$sce', 'fileService', 'dialogs',
+            function ($rootScope, $scope, $q, $modal, $translate, $location, QuestionRes, ExamSectionQuestionRes, questionService, EXAM_CONF,
+                      $sce, fileService, dialogs) {
 
                 $scope.getOptions = function () {
                     return $scope.sectionQuestion.options;
@@ -24,7 +24,7 @@
 
                 $scope.updateEvaluationType = function () {
                     if ($scope.sectionQuestion.evaluationType && $scope.sectionQuestion.evaluationType === 'Selection') {
-                        $scope.sectionQuestion.maxScore = undefined;
+                        delete $scope.sectionQuestion.maxScore;
                     }
                 };
 
@@ -101,6 +101,44 @@
                     });
                 };
 
+                var routingWatcher = $scope.$on('$locationChangeStart', function (event, newUrl) {
+                    if (window.onbeforeunload) {
+                        event.preventDefault();
+                        // we got changes in the model, ask confirmation
+                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm_exit'),
+                            $translate.instant('sitnet_unsaved_question_data'));
+                        dialog.result.then(function (data) {
+                            if (data.toString() === 'yes') {
+                                // ok to reroute
+                                $scope.clearListeners();
+                                $location.path(newUrl.substring($location.absUrl().length - $location.url().length));
+                            }
+                        });
+                    } else {
+                        $scope.clearListeners();
+                    }
+                });
+
+                $scope.clearListeners = function () {
+                    window.onbeforeunload = null;
+                    // Call off the event listener so it won't ask confirmation now that we are going away
+                    routingWatcher();
+                };
+
+
+                var watchForChanges = function() {
+                    $scope.$watch("[question,sectionQuestion]", function (newVal, oldVal) {
+                        if (angular.equals(newVal, oldVal)) {
+                            return;
+                        }
+                        if (!window.onbeforeunload) {
+                            window.onbeforeunload = function () {
+                                return $translate.instant('sitnet_unsaved_data_may_be_lost');
+                            };
+                        }
+                    }, true);
+                };
+
 
                 var initForm = function () {
                     QuestionRes.questions.get({id: $scope.sectionQuestion.question.id}, function (data) {
@@ -112,6 +150,7 @@
                         $scope.examNames = examNames.filter(function (n, pos) {
                             return examNames.indexOf(n) == pos;
                         });
+                        watchForChanges();
                     });
                 };
 
