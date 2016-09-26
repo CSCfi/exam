@@ -233,7 +233,7 @@
                 };
 
                 $scope.isUserAllowedToModifyOwners = function (question) {
-                    return question && ($scope.user.isAdmin ||
+                    return question && question.questionOwners && ($scope.user.isAdmin ||
                             question.questionOwners.map(function (o) {
                                 return o.id;
                             }).indexOf($scope.user.id) > -1

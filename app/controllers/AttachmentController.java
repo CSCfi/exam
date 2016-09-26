@@ -37,15 +37,21 @@ public class AttachmentController extends BaseController {
     @Inject
     Environment environment;
 
-    private static void removePrevious(AttachmentContainer container, boolean removeFromDisk) {
+    private static void removePrevious(AttachmentContainer container) {
         if (container.getAttachment() != null) {
             Attachment a = container.getAttachment();
+            String filePath = a.getFilePath();
             container.setAttachment(null);
             container.save();
+            a.delete();
+            // Remove the file from disk if no references to it are found
+            boolean removeFromDisk = Ebean.find(Attachment.class).where()
+                    .eq("filePath", filePath)
+                    .findList()
+                    .isEmpty();
             if (removeFromDisk) {
                 AppUtil.removeAttachmentFile(a.getFilePath());
             }
-            a.delete();
         }
     }
 
@@ -96,16 +102,12 @@ public class AttachmentController extends BaseController {
         }
         // Remove existing one if found
         EssayAnswer answer = question.getEssayAnswer();
-        removePrevious(question.getEssayAnswer(), true);
+        removePrevious(question.getEssayAnswer());
 
         Attachment attachment = createNew(filePart, newFilePath);
         answer.setAttachment(attachment);
         answer.save();
         return ok(answer);
-    }
-
-    private boolean isAttachmentUsedInStudentExams(Question question) {
-        return !question.getChildren().isEmpty();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -137,7 +139,7 @@ public class AttachmentController extends BaseController {
             return internalServerError("sitnet_error_creating_attachment");
         }
         // Remove existing one if found
-        removePrevious(question, !isAttachmentUsedInStudentExams(question));
+        removePrevious(question);
 
         Attachment attachment = createNew(filePart, newFilePath);
 
@@ -151,7 +153,7 @@ public class AttachmentController extends BaseController {
     public Result deleteQuestionAttachment(Long id) {
 
         Question question = Ebean.find(Question.class, id);
-        removePrevious(question, false);
+        removePrevious(question);
         return redirect("/#/questions/" + String.valueOf(id));
     }
 
@@ -182,7 +184,7 @@ public class AttachmentController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteExamAttachment(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
-        removePrevious(exam, false);
+        removePrevious(exam);
         return redirect("/#/exams/" + String.valueOf(id));
     }
 
@@ -193,7 +195,7 @@ public class AttachmentController extends BaseController {
             return notFound("sitnet_exam_not_found");
         }
         Comment comment = exam.getExamFeedback();
-        removePrevious(comment, true);
+        removePrevious(comment);
         return ok();
     }
 
@@ -204,7 +206,7 @@ public class AttachmentController extends BaseController {
             return notFound("sitnet_exam_not_found");
         }
         Comment comment = inspection.getStatement();
-        removePrevious(comment, true);
+        removePrevious(comment);
         return ok();
     }
 
@@ -232,7 +234,7 @@ public class AttachmentController extends BaseController {
             return internalServerError("sitnet_error_creating_attachment");
         }
         // Delete existing if exists
-        removePrevious(exam, false);
+        removePrevious(exam);
 
         Attachment attachment = createNew(filePart, newFilePath);
         exam.setAttachment(attachment);
@@ -269,7 +271,7 @@ public class AttachmentController extends BaseController {
             return internalServerError("sitnet_error_creating_attachment");
         }
         Comment comment = exam.getExamFeedback();
-        removePrevious(comment, true);
+        removePrevious(comment);
 
         Attachment attachment = createNew(filePart, newFilePath);
         comment.setAttachment(attachment);
@@ -306,7 +308,7 @@ public class AttachmentController extends BaseController {
             return internalServerError("sitnet_error_creating_attachment");
         }
         Comment comment = inspection.getStatement();
-        removePrevious(comment, true);
+        removePrevious(comment);
 
         Attachment attachment = createNew(filePart, newFilePath);
         comment.setAttachment(attachment);
@@ -316,6 +318,9 @@ public class AttachmentController extends BaseController {
 
     private Result serveAttachment(Attachment attachment) {
         File file = new File(attachment.getFilePath());
+        if (!file.exists()) {
+            return internalServerError("Requested file does not exist on disk even though referenced from database!");
+        }
         response().setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFileName() + "\"");
         String body = Base64.getEncoder().encodeToString(setData(file).toByteArray());
         return ok(body).as(attachment.getMimeType());
