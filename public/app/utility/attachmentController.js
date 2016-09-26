@@ -5,11 +5,7 @@
             function (dialogs, $scope, $translate, fileService, AttachmentRes) {
 
                 $scope.removeQuestionAttachment = function (question) {
-
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant("sitnet_are_you_sure"));
-                    dialog.result.then(function (btn) {
-                        question.attachment.removed = true;
-                    });
+                    question.attachment.removed = true;
                 };
 
                 $scope.removeQuestionAnswerAttachment = function (question, hash) {

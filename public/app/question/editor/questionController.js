@@ -63,7 +63,7 @@
                 });
 
                 var watchForChanges = function() {
-                    $scope.$watch("newQuestion", function (newVal, oldVal) {
+                    $scope.$watchCollection("newQuestion", function (newVal, oldVal) {
                         if (angular.equals(newVal, oldVal)) {
                             return;
                         }
@@ -72,7 +72,7 @@
                                 return $translate.instant('sitnet_unsaved_data_may_be_lost');
                             };
                         }
-                    }, true);
+                    });
                 };
 
                 var initQuestion = function () {
@@ -270,7 +270,7 @@
                         };
 
                         $scope.cancel = function () {
-                            $modalInstance.dismiss('Canceled');
+                            $modalInstance.dismiss();
                         };
 
                     }];

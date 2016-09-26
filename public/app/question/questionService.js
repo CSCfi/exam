@@ -209,9 +209,12 @@
                             toastr.info($translate.instant('sitnet_question_added'));
                             if (question.attachment && question.attachment.modified) {
                                 fileService.upload("/app/attachment/question", question.attachment,
-                                    {questionId: response.id}, question);
+                                    {questionId: response.id}, question, null, function () {
+                                        deferred.resolve();
+                                    });
+                            } else {
+                                deferred.resolve(response);
                             }
-                            deferred.resolve(response);
                         }, function (error) {
                             deferred.reject(error);
                         }
@@ -227,12 +230,17 @@
                             toastr.info($translate.instant("sitnet_question_saved"));
                             if (question.attachment && question.attachment.modified) {
                                 fileService.upload("/app/attachment/question", question.attachment,
-                                    {questionId: question.id}, question);
+                                    {questionId: question.id}, question, null, function () {
+                                        deferred.resolve();
+                                    });
                             }
-                            if (question.attachment && question.attachment.removed) {
-                                AttachmentRes.questionAttachment.remove({id: question.id});
+                            else if (question.attachment && question.attachment.removed) {
+                                AttachmentRes.questionAttachment.remove({id: question.id}, function () {
+                                    deferred.resolve(response);
+                                });
+                            } else {
+                                deferred.resolve(response);
                             }
-                            deferred.resolve(response);
                         }, function (error) {
                             if (displayErrors) {
                                 toastr.error(error.data);

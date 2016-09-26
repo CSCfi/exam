@@ -122,21 +122,27 @@
                 $scope.clearListeners = function () {
                     window.onbeforeunload = null;
                     // Call off the event listener so it won't ask confirmation now that we are going away
+                    watches.forEach(function (w) {
+                        w();
+                    });
                     routingWatcher();
                 };
 
+                var onChange = function (newVal, oldVal) {
+                    if (angular.equals(newVal, oldVal)) {
+                        return;
+                    }
+                    if (!window.onbeforeunload) {
+                        window.onbeforeunload = function () {
+                            return $translate.instant('sitnet_unsaved_data_may_be_lost');
+                        };
+                    }
+                };
 
-                var watchForChanges = function() {
-                    $scope.$watch("[question,sectionQuestion]", function (newVal, oldVal) {
-                        if (angular.equals(newVal, oldVal)) {
-                            return;
-                        }
-                        if (!window.onbeforeunload) {
-                            window.onbeforeunload = function () {
-                                return $translate.instant('sitnet_unsaved_data_may_be_lost');
-                            };
-                        }
-                    }, true);
+                var watches = [];
+                var watchForChanges = function () {
+                    watches.push($scope.$watchCollection("question", onChange));
+                    watches.push($scope.$watch("sectionQuestion", onChange));
                 };
 
 
