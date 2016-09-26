@@ -164,8 +164,6 @@
             return {
                 require: '?ngModel',
                 link: function (scope, elm, attr, ngModel) {
-                    var tmp;
-
                     var ck = CKEDITOR.replace(elm[0]);
 
                     if (!ngModel) {
@@ -173,7 +171,7 @@
                     }
 
                     ck.on('instanceReady', function () {
-                        ck.setData(tmp);
+                        ck.setData(ngModel.$viewValue);
                     });
 
                     function updateModel() {
@@ -184,15 +182,15 @@
 
                     // use "$scope.updateProperties" in controllers if needed to save the editor after losing focus a.k.a "onblur"
                     ck.on('blur', function () {
-                        if (scope.updateProperties !== undefined) {
+                        if (scope.updateProperties) {
                             scope.updateProperties();
                         }
                     });
                     ck.on('change', updateModel);
                     ck.on('key', updateModel);
+                    ck.on('dataReady', updateModel);
 
                     ngModel.$render = function (value) {
-                        tmp = ngModel.$modelValue;
                         ck.setData(ngModel.$viewValue);
                     };
                 }

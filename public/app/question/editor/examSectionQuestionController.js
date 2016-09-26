@@ -142,7 +142,7 @@
                 var watches = [];
                 var watchForChanges = function () {
                     watches.push($scope.$watchCollection("question", onChange));
-                    watches.push($scope.$watch("sectionQuestion", onChange));
+                    watches.push($scope.$watch("sectionQuestion", onChange, true));
                 };
 
 
