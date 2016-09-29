@@ -86,7 +86,7 @@
                 <div ng-show="exam.executionType.type !== 'MATURITY'">
                     <div class="top-row-narrow">
                         <strong ng-show="sectionQuestion.evaluationType === 'Points'">{{
-                            'sitnet_word_points' | translate}}:
+                            'sitnet_word_points' | translate}}&nbsp;<small>[0 &hellip; {{sectionQuestion.maxScore.toFixed(2)}}]</small>
                         </strong>
                         <strong ng-hide="sectionQuestion.evaluationType === 'Points'">{{
                             'sitnet_comments' | translate}}:
@@ -94,12 +94,12 @@
                     </div>
                     <div class="bottom-row-narrow">
                         <span ng-show="sectionQuestion.evaluationType === 'Points'">
-                            <select class="form-control" style="width: 25%" ng-model="sectionQuestion.essayAnswer.evaluatedScore"
-                                    ng-change="insertEssayScore(sectionQuestion)"
-                                    ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
-                                    ng-options="x for x in range(0, sectionQuestion.maxScore, 1)">
-                                {{ x }} / {{sectionQuestion.maxScore}}
-                            </select>
+                            <input id="score" name="score" type="number" class="form-control" style="width: 25%"
+                                   ng-model="sectionQuestion.essayAnswer.evaluatedScore" step="0.01"
+                                   ui-blur="insertEssayScore(sectionQuestion)"
+                                   ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/"
+                                   ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
+                                   min="0" max="{{sectionQuestion.maxScore}}" />
                         </span>
                         <span ng-show="sectionQuestion.evaluationType === 'Selection'">
                             <select class="form-control" style="width: 25%" ng-model="sectionQuestion.essayAnswer.evaluatedScore"

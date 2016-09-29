@@ -299,6 +299,11 @@
                     var id = $scope.baseQuestionId || $routeParams.id;
                     QuestionRes.questions.get({id: id},
                         function (question) {
+                            // kind of a hack to have the editor displayed
+                            // can't be rendered if content == null
+                            if (question.question == null) {
+                                question.question = '';
+                            }
                             $scope.newQuestion = question;
                             initQuestion();
                         },

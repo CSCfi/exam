@@ -4,7 +4,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Model;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
@@ -124,9 +123,9 @@ public class QuestionController extends BaseController {
         return ok(Json.toJson(copy));
     }
 
-    Question parseFromBody(JsonNode node, User user, Question existing) {
+    private Question parseFromBody(JsonNode node, User user, Question existing) {
         String questionText = parse("question", node, String.class);
-        Integer defaultMaxScore = parse("defaultMaxScore", node, Integer.class);
+        Double defaultMaxScore = round(parse("defaultMaxScore", node, Double.class));
         Integer defaultWordCount = parse("defaultExpectedWordCount", node, Integer.class);
         Question.EvaluationType defaultEvaluationType = parseEnum("defaultEvaluationType", node, Question.EvaluationType.class);
         String defaultInstructions = parse("defaultAnswerInstructions", node, String.class);
@@ -274,11 +273,11 @@ public class QuestionController extends BaseController {
                 .forEach(o -> createOption(question, o));
     }
 
-    void createOption(Question question, JsonNode node) {
+    private void createOption(Question question, JsonNode node) {
         MultipleChoiceOption option = new MultipleChoiceOption();
         option.setOption(parse("option", node, String.class));
         String scoreFieldName = node.has("defaultScore") ? "defaultScore" : "score";
-        option.setDefaultScore(parse(scoreFieldName, node, Double.class));
+        option.setDefaultScore(round(parse(scoreFieldName, node, Double.class)));
         Boolean correctOption = parse("correctOption", node, Boolean.class);
         option.setCorrectOption(correctOption == null ? false : correctOption);
         question.getOptions().add(option);
@@ -292,7 +291,7 @@ public class QuestionController extends BaseController {
         MultipleChoiceOption option = new MultipleChoiceOption();
         JsonNode baseOptionNode = node.get("option");
         option.setOption(parse("option", baseOptionNode, String.class));
-        option.setDefaultScore(parse("score", node, Double.class));
+        option.setDefaultScore(round(parse("score", node, Double.class)));
         Boolean correctOption = parse("correctOption", baseOptionNode, Boolean.class);
         option.setCorrectOption(correctOption == null ? false : correctOption);
         question.getOptions().add(option);
@@ -311,8 +310,8 @@ public class QuestionController extends BaseController {
                 ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
                 // Preserve scores for the exam question that is under modification right now
                 boolean preserveScore = modifiedExamQuestion != null && modifiedExamQuestion.equals(examQuestion);
-                Double score = preserveScore ? option.getDefaultScore() :
-                        calculateOptionScore(question, option, examQuestion);
+                Double score = round(preserveScore ? option.getDefaultScore() :
+                        calculateOptionScore(question, option, examQuestion));
                 esqo.setScore(score);
                 esqo.setOption(option);
                 examQuestion.addOption(esqo, preserveScore);
@@ -327,7 +326,7 @@ public class QuestionController extends BaseController {
         if (option != null) {
             option.setOption(parse("option", node, String.class));
             if (!skipDefaults) {
-                option.setDefaultScore(parse("defaultScore", node, Double.class));
+                option.setDefaultScore(round(parse("defaultScore", node, Double.class)));
             }
             option.setCorrectOption(parse("correctOption", node, Boolean.class, Boolean.FALSE));
             option.update();
@@ -365,15 +364,7 @@ public class QuestionController extends BaseController {
         } else if (defaultScore < 0) {
             result = (esq.getMinScore() / 100) * ((defaultScore / question.getMinDefaultScore()) * 100);
         }
-        return Math.round(result * 100) / 100d;
-    }
-
-    private static Query<Question> createQuery() {
-        return Ebean.find(Question.class)
-                .fetch("questionOwners", "firstName, lastName, userIdentifier")
-                .fetch("attachment")
-                .fetch("options", "defaultScore", new FetchConfig().query())
-                .fetch("examSectionQuestions.examSection.exam.course", "code", new FetchConfig().query());
+        return result;
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

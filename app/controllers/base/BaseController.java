@@ -265,4 +265,10 @@ public class BaseController extends Controller {
     protected CompletionStage<Result> wrapAsPromise(final Result result) {
         return CompletableFuture.supplyAsync(() -> result);
     }
+
+    protected Double round(Double src) {
+        final Double C = 100d;
+        return src == null ? null : Math.round(src * C) / C;
+    }
+
 }

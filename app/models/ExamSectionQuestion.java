@@ -43,7 +43,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     private String answerInstructions;
 
     @Column
-    private Integer maxScore;
+    private Double maxScore;
 
     @Transient
     private Double derivedMaxScore;
@@ -100,11 +100,11 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         this.sequenceNumber = sequenceNumber;
     }
 
-    public Integer getMaxScore() {
+    public Double getMaxScore() {
         return maxScore;
     }
 
-    public void setMaxScore(Integer maxScore) {
+    public void setMaxScore(Double maxScore) {
         this.maxScore = maxScore;
     }
 
@@ -247,11 +247,11 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         switch (question.getType()) {
             case EssayQuestion:
                 if (evaluationType == Question.EvaluationType.Points) {
-                    return maxScore == null ? 0 : maxScore.doubleValue();
+                    return maxScore == null ? 0 : maxScore;
                 }
                 break;
             case MultipleChoiceQuestion:
-                return maxScore == null ? 0 : maxScore.doubleValue();
+                return maxScore == null ? 0 : maxScore;
             case WeightedMultipleChoiceQuestion:
                 return options.stream()
                         .map(ExamSectionQuestionOption::getScore)

@@ -204,7 +204,7 @@ public class ReviewController extends BaseController {
             essayQuestion.setEssayAnswer(answer);
             essayQuestion.update();
         }
-        answer.setEvaluatedScore(Integer.parseInt(df.get("evaluatedScore")));
+        answer.setEvaluatedScore(round(Double.parseDouble(df.get("evaluatedScore"))));
         answer.update();
         return ok(Json.toJson(essayQuestion));
     }

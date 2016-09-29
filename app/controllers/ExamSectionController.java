@@ -157,16 +157,6 @@ public class ExamSectionController extends QuestionController {
         });
     }
 
-    private Question clone(Question blueprint) {
-        User user = getLoggedUser();
-        Question question = blueprint.copy();
-        AppUtil.setCreator(question, user);
-        AppUtil.setModifier(question, user);
-        question.save();
-        Ebean.saveAll(question.getOptions());
-        return question;
-    }
-
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result reorderSectionQuestions(Long eid, Long sid) {
         DynamicForm df = formFactory.form().bindFromRequest();
@@ -233,7 +223,7 @@ public class ExamSectionController extends QuestionController {
     }
 
     private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body) {
-        sectionQuestion.setMaxScore(parse("maxScore", body, Integer.class));
+        sectionQuestion.setMaxScore(round(parse("maxScore", body, Double.class)));
         sectionQuestion.setAnswerInstructions(parse("answerInstructions", body, String.class));
         sectionQuestion.setEvaluationCriteria(parse("evaluationCriteria", body, String.class));
         sectionQuestion.setEvaluationType(parseEnum("evaluationType", body, Question.EvaluationType.class));
@@ -434,7 +424,7 @@ public class ExamSectionController extends QuestionController {
             if (id != null) {
                 ExamSectionQuestionOption esqo = Ebean.find(ExamSectionQuestionOption.class, id);
                 if (esqo != null) {
-                    esqo.setScore(parse("score", option, Double.class));
+                    esqo.setScore(round(parse("score", option, Double.class)));
                     esqo.update();
                 }
             }

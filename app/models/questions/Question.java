@@ -57,7 +57,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
     private String defaultAnswerInstructions;
 
     @Column
-    private Integer defaultMaxScore;
+    private Double defaultMaxScore;
 
     @Column
     private Integer defaultExpectedWordCount;
@@ -143,11 +143,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
         this.defaultAnswerInstructions = defaultAnswerInstructions;
     }
 
-    public Integer getDefaultMaxScore() {
+    public Double getDefaultMaxScore() {
         return defaultMaxScore;
     }
 
-    public void setDefaultMaxScore(Integer defaultMaxScore) {
+    public void setDefaultMaxScore(Double defaultMaxScore) {
         this.defaultMaxScore = defaultMaxScore;
     }
 
@@ -274,11 +274,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
         switch (getType()) {
             case EssayQuestion:
                 if (defaultEvaluationType == EvaluationType.Points) {
-                    return defaultMaxScore == null ? 0 : defaultMaxScore.doubleValue();
+                    return defaultMaxScore == null ? 0 : defaultMaxScore;
                 }
                 break;
             case MultipleChoiceQuestion:
-                return defaultMaxScore == null ? 0 : defaultMaxScore.doubleValue();
+                return defaultMaxScore == null ? 0 : defaultMaxScore;
             case WeightedMultipleChoiceQuestion:
                 return options.stream()
                         .map(MultipleChoiceOption::getDefaultScore)

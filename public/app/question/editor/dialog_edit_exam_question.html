@@ -118,9 +118,8 @@
 
                                         <div class="col-md-2">
                                             <input id="optionScore" class="form-control" name="maxScore"
-                                                   type="number"
+                                                   type="number" step="0.01" ng-pattern="/^-?[0-9]+(\.[0-9]{1,2})?$/"
                                                    class="form-control"
-                                                   ng-model-options="{ updateOn: 'blur' }"
                                                    ng-model="option.score"
                                                    required ng-disabled="lotteryOn">
                                         </div>
@@ -193,10 +192,8 @@
                     <div class="form-group col-md-3"
                          ng-if="question.type == 'MultipleChoiceQuestion' || sectionQuestion.evaluationType == 'Points'">
                         <label for="maxScore">{{'sitnet_max_score' | translate}}</label>
-                        <label ng-hide="questionForm.maxScore.$valid" class="text-danger">
-                            {{ 'sitnet_positive_integer_required' | translate }}
-                        </label>
                         <input id="maxScore" name="maxScore" type="number" class="col-md-2 form-control"
+                               step="0.01" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/"
                                ng-model="sectionQuestion.maxScore"
                                min="1" max="1000000"
                                required

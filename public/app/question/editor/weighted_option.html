@@ -2,9 +2,9 @@
     <div class="form-group">
         <label for="optionScore" class="col-md-1 control-label">{{'sitnet_word_points' | translate}}:</label>
         <div class="col-md-2">
-            <input id="optionScore" class="form-control" name="maxScore" type="number"
+            <input id="optionScore" class="form-control" name="maxScore"
+                   type="number" step="0.01" ng-pattern="/^-?[0-9]+(\.[0-9]{1,2})?$/"
                    class="form-control"
-                   ui-change="option.id ? updateOption(option) : saveOption(option)"
                    ng-model="option.defaultScore"
                    required="true"
                    ng-disabled="lotteryOn"/>
@@ -19,7 +19,7 @@
         <label for="optionText" class="col-md-1 control-label"></label>
         <div class="col-md-11">
             <input id="optionText" type="text" focus-on="opt{{option.id}}" class="form-control"
-               ng-model="option.option" ui-blur="option.id ? updateOption(option) : saveOption(option)"
+               ng-model="option.option"
                ng-click="selectIfDefault(option.option, $event)"
                required="true"/>
         </div>

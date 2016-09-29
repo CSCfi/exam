@@ -19,7 +19,7 @@ public class EssayAnswer extends OwnedModel implements AttachmentContainer {
     protected Attachment attachment;
 
     @Column
-    private Integer evaluatedScore;
+    private Double evaluatedScore;
 
     public String getAnswer() {
         return answer;
@@ -39,11 +39,11 @@ public class EssayAnswer extends OwnedModel implements AttachmentContainer {
         this.attachment = attachment;
     }
 
-    public Integer getEvaluatedScore() {
+    public Double getEvaluatedScore() {
         return evaluatedScore;
     }
 
-    public void setEvaluatedScore(Integer evaluatedScore) {
+    public void setEvaluatedScore(Double evaluatedScore) {
         this.evaluatedScore = evaluatedScore;
     }
 }
