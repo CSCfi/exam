@@ -164,6 +164,8 @@
             return {
                 require: '?ngModel',
                 link: function (scope, elm, attr, ngModel) {
+                    var tmp;
+
                     var ck = CKEDITOR.replace(elm[0]);
 
                     if (!ngModel) {
@@ -171,7 +173,7 @@
                     }
 
                     ck.on('instanceReady', function () {
-                        ck.setData(ngModel.$viewValue);
+                        ck.setData(tmp);
                     });
 
                     function updateModel() {
@@ -191,6 +193,7 @@
                     ck.on('dataReady', updateModel);
 
                     ngModel.$render = function (value) {
+                        tmp = ngModel.$modelValue;
                         ck.setData(ngModel.$viewValue);
                     };
                 }
@@ -343,7 +346,7 @@
                 replace: true,
                 template: '<div>' +
                 '<span ng-repeat="owner in exam.parent.examOwners">' +
-                '{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}' +
+                '<strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>' +
                 '</span><br />' +
                 '<span ng-repeat="inspection in exam.examInspections">' +
                 '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +

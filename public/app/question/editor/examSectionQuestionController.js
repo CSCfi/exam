@@ -1,10 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamSectionQuestionCtrl', ['$rootScope', '$scope', '$q', '$uibModal', '$translate', '$location', 'QuestionRes',
-            'ExamSectionQuestionRes', 'questionService', 'EXAM_CONF', '$sce', 'fileService', 'dialogs',
-            function ($rootScope, $scope, $q, $modal, $translate, $location, QuestionRes, ExamSectionQuestionRes, questionService, EXAM_CONF,
-                      $sce, fileService, dialogs) {
+        .controller('ExamSectionQuestionCtrl', ['$rootScope', '$scope', '$q', '$uibModal', '$translate', '$location',
+            '$timeout', 'QuestionRes', 'ExamSectionQuestionRes', 'questionService', 'EXAM_CONF', '$sce', 'fileService', 'dialogs',
+            function ($rootScope, $scope, $q, $modal, $translate, $location, $timeout, QuestionRes, ExamSectionQuestionRes,
+                      questionService, EXAM_CONF, $sce, fileService, dialogs) {
 
                 $scope.getOptions = function () {
                     return $scope.sectionQuestion.options;
@@ -141,10 +141,11 @@
 
                 var watches = [];
                 var watchForChanges = function () {
-                    watches.push($scope.$watchCollection("question", onChange));
-                    watches.push($scope.$watch("sectionQuestion", onChange, true));
+                    $timeout(function () {
+                        watches.push($scope.$watchCollection("question", onChange));
+                        watches.push($scope.$watch("sectionQuestion", onChange, true));
+                    }, 2000);
                 };
-
 
                 var initForm = function () {
                     QuestionRes.questions.get({id: $scope.sectionQuestion.question.id}, function (data) {

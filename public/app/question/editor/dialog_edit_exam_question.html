@@ -62,7 +62,7 @@
                             <small>{{'sitnet_shared_question_property_info' | translate}}</small>
                         </span>
                     </label>
-                    <textarea ng-if="question.question" id="editor" name="editor" ck-editor rows="10" cols="80"
+                    <textarea ng-if="question.question || question.question === ''" id="editor" name="editor" ck-editor rows="10" cols="80"
                               ng-model="question.question" required>
                     </textarea>
                 </div>

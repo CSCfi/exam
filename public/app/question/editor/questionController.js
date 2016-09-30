@@ -9,10 +9,10 @@
             };
         })
 
-        .controller('QuestionCtrl', ['dialogs', '$rootScope', '$scope', '$q', '$http', '$uibModal', '$routeParams',
+        .controller('QuestionCtrl', ['dialogs', '$rootScope', '$timeout', '$scope', '$q', '$http', '$uibModal', '$routeParams',
             '$location', '$translate', 'focus', 'QuestionRes', 'questionService', 'ExamRes', 'TagRes', 'EXAM_CONF',
             'fileService', 'sessionService',
-            function (dialogs, $rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus,
+            function (dialogs, $rootScope, $timeout, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus,
                       QuestionRes, questionService, ExamRes, TagRes, EXAM_CONF, fileService, sessionService) {
 
                 var essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/essay_question.html";
@@ -63,16 +63,18 @@
                 });
 
                 var watchForChanges = function() {
-                    $scope.$watchCollection("newQuestion", function (newVal, oldVal) {
-                        if (angular.equals(newVal, oldVal)) {
-                            return;
-                        }
-                        if (!window.onbeforeunload) {
-                            window.onbeforeunload = function () {
-                                return $translate.instant('sitnet_unsaved_data_may_be_lost');
-                            };
-                        }
-                    });
+                    $timeout(
+                        function() {
+                            $scope.$watchCollection("newQuestion", function (newVal, oldVal) {
+                                if (angular.equals(newVal, oldVal)) {
+                                    return;
+                                }
+                                if (!window.onbeforeunload) {
+                                    window.onbeforeunload = function () {
+                                        return $translate.instant('sitnet_unsaved_data_may_be_lost');
+                                    };
+                                }
+                            })}, 2000);
                 };
 
                 var initQuestion = function () {
