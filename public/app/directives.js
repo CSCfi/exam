@@ -182,15 +182,29 @@
                         });
                     }
 
+                    function onChange() {
+                        updateModel();
+                    }
+                    function onKey() {
+                        updateModel();
+                    }
+                    function onDataReady() {
+                        updateModel();
+                    }
+                    function onMode() {
+                        updateModel();
+                    }
+
                     // use "$scope.updateProperties" in controllers if needed to save the editor after losing focus a.k.a "onblur"
                     ck.on('blur', function () {
                         if (scope.updateProperties !== undefined) {
                             scope.updateProperties();
                         }
                     });
-                    ck.on('change', updateModel);
-                    ck.on('key', updateModel);
-                    ck.on('dataReady', updateModel);
+                    ck.on('change', onChange);
+                    ck.on('key', onKey);
+                    ck.on('dataReady', onDataReady);
+                    ck.on('mode', onMode); // Editing mode change
 
                     ngModel.$render = function (value) {
                         tmp = ngModel.$modelValue;
