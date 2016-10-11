@@ -52,21 +52,6 @@
                         });
 
                     };
-/*
-                StudentExamRes.scores.get({eid: $routeParams.id},
-                    function (exam) {
-                        $scope.scores = {
-                            maxScore: exam.maxScore,
-                            totalScore: exam.totalScore,
-                            approvedAnswerCount: exam.approvedAnswerCount,
-                            rejectedAnswerCount: exam.rejectedAnswerCount
-                        };
-                    });
-*/
-                //Go to feedback template to show teacher's comments
-                $scope.exitFeedback = function () {
-                    $location.path("/");
-                };
 
                 $scope.$on('$localeChangeSuccess', function () {
                     $scope.reviewedExam.grade.displayName =

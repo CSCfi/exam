@@ -69,13 +69,13 @@
 
                     // JSa 29.8. Removed ..else -> need both exam and exams for the new view
 
-                   if (id) {
+                    if (id) {
                         EnrollRes.enroll.get({code: code, id: id},
                             function (exam) {
                                 exam.languages = exam.examLanguages.map(function (lang) {
                                     return getLanguageNativeName(lang.code);
                                 });
-                                setMaturityInstructions(exam).then(function(data) {
+                                setMaturityInstructions(exam).then(function (data) {
                                     exam = data;
                                     EnrollRes.check.get({id: exam.id}, function () {
                                         exam.alreadyEnrolled = true;
@@ -109,7 +109,7 @@
                     //}
                 };
 
-                self.removeEnrolment = function(enrolment, enrolments) {
+                self.removeEnrolment = function (enrolment, enrolments) {
                     if (enrolment.reservation) {
                         toastr.error($translate.instant('sitnet_cancel_reservation_first'));
                     } else {
@@ -194,7 +194,8 @@
                         if (enrolment.exam.examLanguages.length !== 1) {
                             console.warn("Exam has no exam languages or it has several!");
                         }
-                        var lang = enrolment.exam.examLanguages.length > 0 ? enrolment.exam.examLanguages[0].code : 'fi';
+                        var lang = enrolment.exam.examLanguages && enrolment.exam.examLanguages.length > 0
+                            ? enrolment.exam.examLanguages[0].code : 'fi';
                         $scope.title = 'sitnet_maturity_instructions';
                         SettingsResource.maturityInstructions.get({lang: lang}, function (data) {
                             $scope.instructions = data.value;

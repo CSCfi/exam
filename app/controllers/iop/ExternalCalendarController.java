@@ -97,6 +97,8 @@ public class ExternalCalendarController extends CalendarController implements Ex
         return Collections.emptySet();
     }
 
+    // Actions invoked by central IOP server
+
     @ActionMethod
     public Result provideReservation() {
         // Parse request body
@@ -150,78 +152,44 @@ public class ExternalCalendarController extends CalendarController implements Ex
         return ok();
     }
 
-    private void handleExternalReservation(ExamEnrolment enrolment, JsonNode node, DateTime start, DateTime end,
-                                           User user, String orgRef, String roomRef) {
-        Reservation oldReservation = enrolment.getReservation();
-        final Reservation reservation = new Reservation();
-        reservation.setEndAt(end.toDate());
-        reservation.setStartAt(start.toDate());
-        reservation.setUser(user);
-        reservation.setExternalRef(node.get("id").asText());
-
-        ExternalReservation external = new ExternalReservation();
-        external.setOrgRef(orgRef);
-        external.setRoomRef(roomRef);
-        JsonNode machineNode = node.get("machine");
-        JsonNode roomNode = machineNode.get("room");
-        external.setMachineName(machineNode.get("name").asText());
-        external.setRoomName(roomNode.get("name").asText());
-        external.setRoomCode(roomNode.get("roomCode").asText());
-        external.setRoomTz(roomNode.get("localTimezone").asText());
-        external.save();
-        reservation.setExternalReservation(external);
-        Ebean.save(reservation);
-        enrolment.setReservation(reservation);
-        enrolment.setReservationCanceled(false);
-        Ebean.save(enrolment);
-
-        // Finally nuke the old reservation if any
-        if (oldReservation != null) {
-            Ebean.delete(oldReservation);
+    @ActionMethod
+    public Result provideSlots(Optional<String> roomId, Optional<String> date, Optional<String> start, Optional<String> end,
+                               Optional<Integer> duration) {
+        if (roomId.isPresent() && date.isPresent() && start.isPresent() && end.isPresent() && duration.isPresent()) {
+            ExamRoom room = Ebean.find(ExamRoom.class).where().eq("externalRef", roomId.get()).findUnique();
+            if (room == null) {
+                return forbidden(String.format("No room with ref: (%s)", roomId.get()));
+            }
+            Collection<TimeSlot> slots = new ArrayList<>();
+            if (!room.getOutOfService() && !room.getState().equals(ExamRoom.State.INACTIVE.toString())) {
+                LocalDate searchDate;
+                try {
+                    searchDate = parseSearchDate(date.get(), start.get(), end.get(), room);
+                } catch (NotFoundException e) {
+                    return notFound();
+                }
+                List<ExamMachine> machines = Ebean.find(ExamMachine.class)
+                        .where()
+                        .eq("room.id", room.getId())
+                        .ne("outOfService", true)
+                        .ne("archived", true)
+                        .findList();
+                LocalDate endOfSearch = getEndSearchDate(end.get(), searchDate);
+                while (!searchDate.isAfter(endOfSearch)) {
+                    Set<TimeSlot> timeSlots = getExamSlots(room, duration.get(), searchDate, machines);
+                    if (!timeSlots.isEmpty()) {
+                        slots.addAll(timeSlots);
+                    }
+                    searchDate = searchDate.plusDays(1);
+                }
+            }
+            return ok(Json.toJson(slots));
+        } else {
+            return badRequest();
         }
-        Exam exam = enrolment.getExam();
-        // Attach the external machine data just so that email can be generated
-        reservation.setMachine(parseExternalMachineData(machineNode));
-        // Send some emails asynchronously
-        system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeReservationNotification(user, reservation, exam);
-            Logger.info("Reservation confirmation email sent to {}", user.getEmail());
-        }, system.dispatcher());
     }
 
-
-
-    private ExamMachine parseExternalMachineData(JsonNode machineNode) {
-        ExamMachine machine = new ExamMachine();
-        machine.setName(machineNode.get("name").asText());
-        JsonNode roomNode = machineNode.get("room");
-        ExamRoom room = new ExamRoom();
-        room.setName(roomNode.get("name").asText());
-        room.setLocalTimezone(roomNode.get("localTimezone").asText());
-        if (roomNode.has("roomCode")) {
-            room.setRoomCode(roomNode.get("roomCode").asText());
-        }
-        if (roomNode.has("buildingName")) {
-            room.setBuildingName(roomNode.get("buildingName").asText());
-        }
-        if (roomNode.has("roomInstruction")) {
-            room.setRoomInstruction(roomNode.get("roomInstruction").asText());
-        }
-        if (roomNode.has("roomInstructionEN")) {
-            room.setRoomInstruction(roomNode.get("roomInstructionEN").asText());
-        }
-        if (roomNode.has("roomInstructionSV")) {
-            room.setRoomInstruction(roomNode.get("roomInstructionSV").asText());
-        }
-        JsonNode addressNode = roomNode.get("mailAddress");
-        MailAddress address = new MailAddress();
-        address.setStreet(addressNode.get("street").asText());
-        address.setCity(addressNode.get("city").asText());
-        address.setZip(addressNode.get("zip").asText());
-        room.setMailAddress(address);
-        machine.setRoom(room);
-        return machine;
-    }
+    // Actions invoked directly by logged in users
 
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservation() throws MalformedURLException {
@@ -352,45 +320,81 @@ public class ExternalCalendarController extends CalendarController implements Ex
         } else {
             return wrapAsPromise(badRequest());
         }
-
     }
 
-    @ActionMethod
-    public Result provideSlots(Optional<String> roomId, Optional<String> date, Optional<String> start, Optional<String> end,
-                               Optional<Integer> duration) {
-        if (roomId.isPresent() && date.isPresent() && start.isPresent() && end.isPresent() && duration.isPresent()) {
-            ExamRoom room = Ebean.find(ExamRoom.class).where().eq("externalRef", roomId.get()).findUnique();
-            if (room == null) {
-                return forbidden(String.format("No room with ref: (%s)", roomId.get()));
-            }
-            Collection<TimeSlot> slots = new ArrayList<>();
-            if (!room.getOutOfService() && !room.getState().equals(ExamRoom.State.INACTIVE.toString())) {
-                LocalDate searchDate;
-                try {
-                    searchDate = parseSearchDate(date.get(), start.get(), end.get(), room);
-                } catch (NotFoundException e) {
-                    return notFound();
-                }
-                List<ExamMachine> machines = Ebean.find(ExamMachine.class)
-                        .where()
-                        .eq("room.id", room.getId())
-                        .ne("outOfService", true)
-                        .ne("archived", true)
-                        .findList();
-                LocalDate endOfSearch = getEndSearchDate(end.get(), searchDate);
-                while (!searchDate.isAfter(endOfSearch)) {
-                    Set<TimeSlot> timeSlots = getExamSlots(room, duration.get(), searchDate, machines);
-                    if (!timeSlots.isEmpty()) {
-                        slots.addAll(timeSlots);
-                    }
-                    searchDate = searchDate.plusDays(1);
-                }
-            }
-            return ok(Json.toJson(slots));
-        } else {
-            return badRequest();
+    // helpers ->
+
+    private void handleExternalReservation(ExamEnrolment enrolment, JsonNode node, DateTime start, DateTime end,
+                                           User user, String orgRef, String roomRef) {
+        Reservation oldReservation = enrolment.getReservation();
+        final Reservation reservation = new Reservation();
+        reservation.setEndAt(end.toDate());
+        reservation.setStartAt(start.toDate());
+        reservation.setUser(user);
+        reservation.setExternalRef(node.get("id").asText());
+
+        ExternalReservation external = new ExternalReservation();
+        external.setOrgRef(orgRef);
+        external.setRoomRef(roomRef);
+        JsonNode machineNode = node.get("machine");
+        JsonNode roomNode = machineNode.get("room");
+        external.setMachineName(machineNode.get("name").asText());
+        external.setRoomName(roomNode.get("name").asText());
+        external.setRoomCode(roomNode.get("roomCode").asText());
+        external.setRoomTz(roomNode.get("localTimezone").asText());
+        external.save();
+        reservation.setExternalReservation(external);
+        Ebean.save(reservation);
+        enrolment.setReservation(reservation);
+        enrolment.setReservationCanceled(false);
+        Ebean.save(enrolment);
+
+        // Finally nuke the old reservation if any
+        if (oldReservation != null) {
+            Ebean.delete(oldReservation);
         }
+        Exam exam = enrolment.getExam();
+        // Attach the external machine data just so that email can be generated
+        reservation.setMachine(parseExternalMachineData(machineNode));
+        // Send some emails asynchronously
+        system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            emailComposer.composeReservationNotification(user, reservation, exam);
+            Logger.info("Reservation confirmation email sent to {}", user.getEmail());
+        }, system.dispatcher());
     }
+
+    private ExamMachine parseExternalMachineData(JsonNode machineNode) {
+        ExamMachine machine = new ExamMachine();
+        machine.setName(machineNode.get("name").asText());
+        JsonNode roomNode = machineNode.get("room");
+        ExamRoom room = new ExamRoom();
+        room.setName(roomNode.get("name").asText());
+        room.setLocalTimezone(roomNode.get("localTimezone").asText());
+        if (roomNode.has("roomCode")) {
+            room.setRoomCode(roomNode.get("roomCode").asText());
+        }
+        if (roomNode.has("buildingName")) {
+            room.setBuildingName(roomNode.get("buildingName").asText());
+        }
+        if (roomNode.has("roomInstruction")) {
+            room.setRoomInstruction(roomNode.get("roomInstruction").asText());
+        }
+        if (roomNode.has("roomInstructionEN")) {
+            room.setRoomInstruction(roomNode.get("roomInstructionEN").asText());
+        }
+        if (roomNode.has("roomInstructionSV")) {
+            room.setRoomInstruction(roomNode.get("roomInstructionSV").asText());
+        }
+        JsonNode addressNode = roomNode.get("mailAddress");
+        MailAddress address = new MailAddress();
+        address.setStreet(addressNode.get("street").asText());
+        address.setCity(addressNode.get("city").asText());
+        address.setZip(addressNode.get("zip").asText());
+        room.setMailAddress(address);
+        machine.setRoom(room);
+        return machine;
+    }
+
 
     private Set<TimeSlot> getExamSlots(ExamRoom room, Integer examDuration, LocalDate date, Collection<ExamMachine> machines) {
         Set<TimeSlot> slots = new LinkedHashSet<>();
@@ -406,9 +410,6 @@ public class ExternalCalendarController extends CalendarController implements Ex
         }
         return slots;
     }
-
-
-    // HELPERS -->
 
     /**
      * Search date is the current date if searching for current week or earlier,

@@ -70,22 +70,24 @@ GET           /app/exam/record/export/:id                                control
 GET           /app/exam/record/export/report/:id                         controllers.ExamRecordController.exportSelectedExamRecordsAsExcel(id: Long)
 
 
-############### Student interface ###############
-GET           /app/student/exam/:eid                                     controllers.StudentExamController.getExam(eid: Long)
-GET           /app/student/exams                                         controllers.StudentExamController.listAvailableExams(filter: java.util.Optional[String])
-GET           /app/student/inspectors/exam/:id                           controllers.StudentExamController.getExamInspectors(id: Long)
-GET           /app/student/finishedexams                                 controllers.StudentExamController.getFinishedExams
-GET           /app/feedback/exams/:eid                                   controllers.StudentExamController.getExamFeedback(eid: Long)
-GET           /app/feedback/exams/:eid/score                             controllers.StudentExamController.getExamScore(eid: Long)
+############### Student exam execution interface ###############
 PUT           /app/student/exams/:hash                                   controllers.StudentExamController.turnExam(hash: String)
 PUT           /app/student/exam/abort/:hash                              controllers.StudentExamController.abortExam(hash: String)
 POST          /app/student/exam/:hash                                    controllers.StudentExamController.startExam(hash: String)
-GET           /app/enrolments                                            controllers.StudentExamController.getEnrolmentsForUser
-GET           /app/enrolments/:eid                                       controllers.StudentExamController.getEnrolment(eid: Long)
-PUT           /app/enrolments/:eid                                       controllers.EnrolmentController.updateEnrolment(eid: Long)
 
 POST          /app/student/exams/:hash/question/:qid/option              controllers.StudentExamController.answerMultiChoice(hash: String, qid: Long)
 POST          /app/student/exams/:hash/question/:questionId              controllers.StudentExamController.answerEssay(hash: String, questionId: Long)
+
+############### Student acions interface #########
+GET           /app/feedback/exams/:eid                                   controllers.StudentActionsController.getExamFeedback(eid: Long)
+GET           /app/feedback/exams/:eid/score                             controllers.StudentActionsController.getExamScore(eid: Long)
+GET           /app/student/inspectors/exam/:id                           controllers.StudentActionsController.getExamInspectors(id: Long)
+GET           /app/student/finishedexams                                 controllers.StudentActionsController.getFinishedExams
+GET           /app/enrolments                                            controllers.StudentActionsController.getEnrolmentsForUser
+GET           /app/student/exam/:eid                                     controllers.StudentActionsController.getExamInfo(eid: Long)
+GET           /app/student/exams                                         controllers.StudentActionsController.listAvailableExams(filter: java.util.Optional[String])
+GET           /app/enrolments/:eid                                       controllers.StudentActionsController.getEnrolment(eid: Long)
+
 
 ############### Section interface ###############
 
@@ -135,6 +137,7 @@ GET           /app/enroll/exam/:id                                       control
 POST          /app/enroll/student/:eid/:uid                              controllers.EnrolmentController.createStudentEnrolment(eid: Long, uid: Long)
 DELETE        /app/enroll/:id                                            controllers.EnrolmentController.removeEnrolment(id: Long)
 DELETE        /app/enroll/student/:id                                    controllers.EnrolmentController.removeStudentEnrolment(id: Long)
+PUT           /app/enrolments/:eid                                       controllers.EnrolmentController.updateEnrolment(eid: Long)
 
 GET           /app/enroll/room/:eid                                      controllers.EnrolmentController.getRoomInfoFromEnrolment(eid: Long)
 
