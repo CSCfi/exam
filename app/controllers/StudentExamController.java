@@ -120,7 +120,8 @@ public class StudentExamController extends BaseController {
         exam.setApprovedAnswerCount();
         exam.setRejectedAnswerCount();
         exam.setTotalScore();
-        return ok(exam);
+        PathProperties pp = PathProperties.parse("(*)");
+        return ok(exam, pp);
     }
 
     @Restrict({@Group("STUDENT")})
@@ -510,7 +511,8 @@ public class StudentExamController extends BaseController {
                 o.setAnswered(optionIds.contains(o.getId()));
                 o.update();
             });
-            return ok(Json.toJson(question.getOptions()));
+            PathProperties pp = PathProperties.parse("(id, answered, option(id, option))");
+            return ok(question.getOptions(), pp);
         });
     }
 
