@@ -5,7 +5,7 @@
         <span ng-if="newExam.executionType.type==='MATURITY'" class="header-text">{{'sitnet_maturity' | translate}}</span>
     </div>
     <div class="col-md-6 header-wrapper" ng-show="newExam.state === 'DRAFT'">
-        <a ng-click="cancelNewExam(newExam)" class="pull-right btn btn-primary btn-lg active header-button">
+        <a ng-click="removeExam(true)" class="pull-right btn btn-primary btn-lg active header-button">
             {{'sitnet_button_cancel' | translate}} </a>
     </div>
 </div>

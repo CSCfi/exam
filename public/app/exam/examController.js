@@ -649,17 +649,24 @@
                     }
                 };
 
-                $scope.removeExam = function () {
+                $scope.removeExam = function (canRemoveWithoutConfirmation) {
                     if (isAllowedToUnpublishOrRemove($scope.newExam)) {
-                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
-                        dialog.result.then(function () {
+                        var fn = function () {
                             ExamRes.exams.remove({id: $scope.newExam.id}, function (ex) {
                                 toastr.success($translate.instant('sitnet_exam_removed'));
                                 $location.path('/exams');
                             }, function (error) {
                                 toastr.error(error.data);
                             });
-                        });
+                        };
+                        if (canRemoveWithoutConfirmation) {
+                            fn();
+                        } else {
+                            var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
+                            dialog.result.then(function () {
+                                fn();
+                            });
+                        }
                     } else {
                         toastr.warning($translate.instant('sitnet_exam_removal_not_possible'));
                     }
