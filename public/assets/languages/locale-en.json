@@ -15,9 +15,9 @@
   "sitnet_button_ok": "OK",
   "sitnet_button_save": "Save",
   "sitnet_calendar": "Booking calendar",
-  "sitnet_calendar_phase_1": "1. Exam",
-  "sitnet_calendar_phase_2": "2. Choose room",
-  "sitnet_calendar_phase_3": "3. Reservation",
+  "sitnet_calendar_phase_1": "Exam",
+  "sitnet_calendar_phase_2": "Choose room",
+  "sitnet_calendar_phase_3": "Reservation",
   "sitnet_change_reservation": "Change reservation.",
   "sitnet_student_change_reservation": "Edit reservation",
   "sitnet_choose": "Choose",
@@ -714,5 +714,6 @@
   "sitnet_no_enrolments": "Sinulla ei ole ilmoittaumisia tentteihin. Etsi tenttejä tentit-osion kautta. EN",
   "sitnet_shared_question_property_info": "If you make modifications to this information, it will have an effect to other exams.",
   "sitnet_unsaved_question_data": "Tallentamaton kysymystieto häviää näkymästä poistuttaessa. EN",
-  "sitnet_confirm_exit": "Vahvista näkymästä poistuminen EN"
+  "sitnet_confirm_exit": "Vahvista näkymästä poistuminen EN",
+  "sitnet_internal_reservation": "Tilavarus omasta oppilaitoksesta EN"
 }

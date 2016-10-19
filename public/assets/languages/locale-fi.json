@@ -15,9 +15,9 @@
   "sitnet_button_ok": "OK",
   "sitnet_button_save": "Tallenna",
   "sitnet_calendar": "Varauskalenteri",
-  "sitnet_calendar_phase_1": "1. Tentti",
-  "sitnet_calendar_phase_2": "2. Valitse tenttitila",
-  "sitnet_calendar_phase_3": "3. Varauksen tiedot",
+  "sitnet_calendar_phase_1": "Tentti",
+  "sitnet_calendar_phase_2": "Valitse tenttitila",
+  "sitnet_calendar_phase_3": "Varauksen tiedot",
   "sitnet_change_reservation": "Muuta varausta",
   "sitnet_student_change_reservation": "Muokkaa tilavarausta",
   "sitnet_choose": "Valitse",
@@ -714,5 +714,6 @@
   "sitnet_no_enrolments": "Sinulla ei ole ilmoittaumisia tentteihin. Etsi tenttejä tentit-osion kautta.",
   "sitnet_shared_question_property_info": "Tämän tiedon muutos päivittyy myös muihin tentteihin.",
   "sitnet_unsaved_question_data": "Tallentamaton kysymystieto häviää näkymästä poistuttaessa.",
-  "sitnet_confirm_exit": "Vahvista näkymästä poistuminen"
+  "sitnet_confirm_exit": "Vahvista näkymästä poistuminen",
+  "sitnet_internal_reservation": "Tilavarus omasta oppilaitoksesta"
 }

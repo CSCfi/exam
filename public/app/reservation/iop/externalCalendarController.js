@@ -15,6 +15,13 @@
                     loading: false
                 };
                 $scope.eventSources = [];
+                $scope.selectedSpace = "ei valittu";
+                $scope.selectedTime = "ei valittu";
+                $scope.validSelections=false;
+                $scope.changeBorder="notactive";
+                $scope.saveActivated="link-button";
+                $scope.start = null;
+                $scope.end = null;
 
                 StudentExamRes.examInfo.get({eid: $routeParams.id}, function (info) {
                     $scope.examInfo = info;
@@ -78,12 +85,12 @@
 
                 var getColor = function (slot) {
                     if (slot.availableMachines < 0) {
-                        return 'orangeRed';
+                        return '#266B99';
                     }
                     if (slot.availableMachines > 0) {
-                        return '#193F19';
+                        return '#A6E9B2';
                     }
-                    return 'grey';
+                    return '#D8D8D8';
                 };
 
                 var refresh = function (start, callback) {
@@ -144,7 +151,7 @@
                     $scope.rooms.forEach(function (r) {
                         delete r.filtered;
                     });
-                    uiCalendarConfig.calendars.externalCalendar.fullCalendar('refetchEvents');
+                    //uiCalendarConfig.calendars.externalCalendar.fullCalendar('refetchEvents');
                     listExternalRooms();
                 };
 
@@ -169,16 +176,22 @@
                 };
 
                 $scope.createReservation = function (start, end) {
-                    var text = $translate.instant('sitnet_about_to_reserve') + "<br/>" +
-                        start.format("DD.MM.YYYY HH:mm") + " - " + end.format("HH:mm") + " " +
-                        "(" + $scope.selectedRoom().localTimezone + ") " +
-                        $translate.instant('sitnet_at_room') + " " +
-                        $scope.selectedRoom().name + ".<br/>" +
-                        $translate.instant('sitnet_confirm_reservation');
-                    dialogs.confirm($translate.instant('sitnet_confirm'), text).result
-                        .then(function () {
-                            reserve(start, end);
-                        });
+
+                    $scope.selectedSpace = $scope.selectedRoom().name;
+                    $scope.selectedTime = start.format("DD.MM.YYYY HH:mm") + " - " + end.format("HH:mm");
+                    $scope.validSelections=true;
+                    $scope.changeBorder = "";
+                    $scope.saveActivated="calendar-button-save-activated";
+                    $scope.start = start;
+                    $scope.end = end;
+                };
+
+                $scope.confirmReservation = function () {
+
+                    if($scope.start && $scope.end) {
+                        //console.log('confirming reservation to: ' + $scope.start + ', ' +$scope.end);
+                        reserve($scope.start, $scope.end);
+                    }
                 };
 
                 $scope.getDescription = function (room) {
@@ -254,7 +267,7 @@
                     weekNumbers: false,
                     firstDay: 1,
                     timeFormat: 'H:mm',
-                    columnFormat: 'ddd D.M',
+                    columnFormat: 'dddd D.M',
                     titleFormat: 'D.M.YYYY',
                     slotLabelFormat: 'H:mm',
                     slotEventOverlap: false,
@@ -262,32 +275,41 @@
                         today: $translate.instant('sitnet_today')
                     },
                     header: {
-                        left: '',
-                        center: 'title',
-                        right: 'prev, next today'
+                        left: 'myCustomButton',
+                        center: 'prev title next',
+                        right: 'today'
+                    },
+                    customButtons: {
+                            myCustomButton: {
+                                text: moment().format('MMMM YYYY'),
+                                click: function() {
+
+                                }
+                            }
                     },
                     events: function (start, end, timezone, callback) {
                         reservationService.renderCalendarTitle();
                         refresh(start, callback);
                     },
                     eventClick: function (event) {
+                        $scope.validSelections=false;
                         if (event.availableMachines > 0) {
                             $scope.createReservation(event.start, event.end);
                         }
                     },
                     eventMouseover: function (event, jsEvent, view) {
                         if (event.availableMachines > 0) {
-                            $(this).css('background-color', 'paleGreen');
-                            $(this).css('border-color', 'paleGreen');
-                            $(this).css('color', '#193F19');
+                            $(this).css('background-color', '#3CA34F');
+                            $(this).css('border-color', '#358F45');
+                            $(this).css('color', '#2c2c2c');
                             $(this).css('cursor', 'pointer');
                         }
                     },
                     eventMouseout: function (event, jsEvent, view) {
                         if (event.availableMachines > 0) {
                             $(this).css('color', 'white');
-                            $(this).css('border-color', '#193F19');
-                            $(this).css('background-color', '#193F19');
+                            $(this).css('border-color', '#979797');
+                            $(this).css('background-color', '#A6E9B2');
                         }
                     },
                     eventRender: function (event, element, view) {

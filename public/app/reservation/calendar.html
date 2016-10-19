@@ -20,7 +20,7 @@
     <!-- Calendar phase 1 -->
     <div class="student-enrolment-wrapper details-view">
         <div class="student-exam-header-row">
-            <span class="calendar-phase-title">{{ 'sitnet_calendar_phase_1' | translate }}</span>
+            <span class="calendar-phase-title">1. {{ 'sitnet_calendar_phase_1' | translate }}</span>
             <div class="calendar-phase-icon"><img class="arrow_icon" src="../../../assets/assets/images/icon-phase.png"></div>
         </div>
         <div class="student-exam-header-row">
@@ -78,7 +78,13 @@
     <!-- Calendar phase 2 -->
     <div class="student-enrolment-wrapper details-view" ng-class="changeBorder">
         <div class="student-exam-header-row">
-            <span class="calendar-phase-title">{{ 'sitnet_calendar_phase_2' | translate }}</span>
+            <span class="calendar-phase-title">2. {{ 'sitnet_calendar_phase_2' | translate }}
+                <small>
+                    <button class="btn btn-sm btn-success btn-link" ng-click="makeExternalReservation()" ng-if="isInteroperable">
+                        {{'sitnet_external_reservation' | translate }}&nbsp;<i class="fa fa-angle-double-right" />
+                    </button>
+                </small>
+            </span>
             <div class="calendar-phase-icon" ng-show="validSelections"><img class="arrow_icon" src="../../../assets/assets/images/icon-phase.png"></div>
         </div>
         <div class="student-exam-header-row">
@@ -93,8 +99,8 @@
                     <input type="checkbox" role="presentation"
                         ng-click="selectAccessibility(accessibility)" value="{{accessibility.name | truncate:30}}"> {{accessibility.name | truncate:30}}
                 </div>
-                <div class="calendar-accs-title subi">Tenttikoneen esteettömyysvaatimukset</div>
-                <div class="calendar-accs-checkboxes">....</div>
+                <!-- TBD div class="calendar-accs-title subi">Tenttikoneen esteettömyysvaatimukset</div>
+                <div class="calendar-accs-checkboxes">....</div-->
             </div>
         </div>
 
@@ -123,8 +129,11 @@
                         <li ng-repeat="room in rooms | filter:limitations.rooms" ng-hide="room.filtered"
                             role="presentation" ng-class="room.outOfService ? 'disabled' : ''"
                             ng-click="selectRoom(room)">
-                            <a role="menuitem" popover-trigger="mouseenter" uib-popover="{{getDescription(room)}}" onclick="document.getElementById('calendarBlock').style.display = 'block'; $('#calendar').css({ position: 'relative', visibility: 'visible', display: 'block' }).fullCalendar('render');">{{room.name
-                                | truncate:30}}</a>
+                            <a role="menuitem" popover-trigger="mouseenter" uib-popover="{{getDescription(room)}}"
+                               onclick="document.getElementById('calendarBlock').style.display = 'block';
+                                        $('#calendar').css({ position: 'relative', visibility: 'visible', display: 'block' })
+                                        .fullCalendar('render');">
+                                {{room.name | truncate:30}}</a>
                         </li>
                     </ul>
                 </span>
@@ -191,7 +200,7 @@
     <div>
         <div class="student-enrolment-wrapper details-view phase-three" ng-class="changeBorder">
             <div class="student-exam-header-row">
-                <span class="calendar-phase-title">{{ 'sitnet_calendar_phase_3' | translate }}</span>
+                <span class="calendar-phase-title">3. {{ 'sitnet_calendar_phase_3' | translate }}</span>
                 <div class="calendar-phase-icon" ng-show="validSelections"><img class="arrow_icon" src="../../../assets/assets/images/icon-phase.png"></div>
             </div>
             <div class="student-exam-header-row">
