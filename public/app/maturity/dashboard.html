@@ -13,12 +13,15 @@
         <div class="detail-row">
             <div class="col-md-12">
                 <table class="table table-striped">
-                    <thead>
+                    <thead ng-init="inspectionPredicate='arrived'; reverse=true">
                     <tr>
-                        <th>{{ 'sitnet_course_code' | translate }}</th>
+                        <th sort by="exam.course.code" text="sitnet_course_code" predicate="inspectionPredicate"
+                            reverse="reverse">{{ 'sitnet_course_code' | translate }}</th>
                         <th>{{ 'sitnet_exam_name' | translate }}</th>
                         <th>{{ 'sitnet_teachers' | translate }}</th>
-                        <th>{{ 'sitnet_arrived' | translate }}</th>
+                        <th sort by="arrived" text="sitnet_arrived" predicate="inspectionPredicate"
+                            reverse="reverse"></th>
+
                         <th>{{ 'sitnet_student' | translate }}</th>
                         <th>{{ 'sitnet_finished' | translate }}</th>
                         <th>{{ 'sitnet_language_inspector' | translate }}</th>
@@ -27,7 +30,7 @@
                     </thead>
 
                     <tbody>
-                    <tr ng-repeat="inspection in ongoingInspections">
+                    <tr ng-repeat="inspection in ongoingInspections | orderBy:inspectionPredicate:reverse">
                         <td>{{ inspection.exam.course.code }}</td>
                         <td>{{ inspection.exam.name }}</td>
                         <td>
@@ -71,14 +74,16 @@
         <div class="bottom-row">
             <div class="col-md-12">
                 <table class="table table-striped">
-                    <thead>
+                    <thead ng-init="inspectionReadyPredicate='finishedAt'; reverse2=true">
                     <tr>
-                        <th>{{ 'sitnet_course_code' | translate }}</th>
+                        <th sort by="exam.course.code" text="sitnet_course_code" predicate="inspectionReadyPredicate"
+                            reverse="reverse2"></th>
                         <th>{{ 'sitnet_exam_name' | translate }}</th>
                         <th>{{ 'sitnet_teachers' | translate }}</th>
                         <th>{{ 'sitnet_arrived' | translate }}</th>
                         <th>{{ 'sitnet_student' | translate }}</th>
-                        <th>{{ 'sitnet_finished' | translate }}</th>
+                        <th sort by="finishedAt" text="sitnet_finished" predicate="inspectionReadyPredicate"
+                            reverse="reverse2"></th>
                         <th>{{ 'sitnet_language_inspector' | translate }}</th>
                         <th>{{ 'sitnet_inspection_finished' | translate }}</th>
                         <th>{{ 'sitnet_language_inspections' | translate }}</th>
@@ -87,7 +92,7 @@
                     </thead>
 
                     <tbody>
-                    <tr ng-repeat="inspection in processedInspections | limitTo: 20">
+                    <tr ng-repeat="inspection in processedInspections | limitTo: 20 | orderBy:inspectionReadyPredicate:reverse2">
                         <td>{{ inspection.exam.course.code }}</td>
                         <td>{{ inspection.exam.name }}</td>
                         <td>
