@@ -97,7 +97,9 @@
                             reverse="reverse"></th>
                         <th sort by="ownerAggregate" text="sitnet_teachers" predicate="examsPredicate"
                             reverse="reverse"></th>
-                        <th sort by="examActiveEndDate" text="sitnet_exam_validity" predicate="examsPredicate"
+                        <th sort by="examActiveStartDate" text="sitnet_start_time" predicate="examsPredicate"
+                            reverse="reverse"></th>
+                        <th sort by="examActiveEndDate" text="sitnet_end_time" predicate="examsPredicate"
                             reverse="reverse"></th>
                         <th>{{ 'sitnet_copy' | translate }}</th>
                         <th>{{ 'sitnet_exam_remove' | translate }}</th>
@@ -120,8 +122,13 @@
                             <teacher-list exam="exam"/>
                         </td>
                         <td>
-                            <span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">
-                                {{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+                            <span ng-if="exam.examActiveStartDate">
+                                {{exam.examActiveStartDate | date:'dd.MM.yyyy'}}
+                            </span>
+                        </td>
+                        <td>
+                            <span ng-if="exam.examActiveEndDate">
+                                {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
                             </span>
                         </td>
                         <td class="text-center">

@@ -16,7 +16,8 @@ import play.mvc.Result;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 
-class StudentExamAction extends Action<SensitiveDataPolicy> {
+// Action composition to ensure that no data classed as sensitive shall be sent to client.
+class  SensitiveDataAction extends Action<SensitiveDataPolicy> {
 
     private static final Long TIMEOUT = 1000L;
 
