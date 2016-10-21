@@ -2,6 +2,8 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import be.objectify.deadbolt.java.actions.SubjectNotPresent;
+import be.objectify.deadbolt.java.actions.SubjectPresent;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
@@ -30,6 +32,7 @@ public class SessionController extends BaseController {
     @Inject
     Environment environment;
 
+    @SubjectNotPresent
     public Result login() {
         Result result;
         switch (LOGIN_TYPE) {
@@ -242,7 +245,7 @@ public class SessionController extends BaseController {
         return result;
     }
 
-    @ActionMethod
+    @SubjectPresent
     public Result setLoginRole(Long uid, String roleName) {
         Session session = getSession();
         if (session == null) {

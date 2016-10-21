@@ -1,6 +1,7 @@
 package controllers;
 
 import akka.actor.ActorSystem;
+import be.objectify.deadbolt.java.actions.Dynamic;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -35,7 +36,7 @@ public class LanguageInspectionController extends BaseController {
     @Inject
     protected ActorSystem actor;
 
-    @Pattern(value = "CAN_INSPECT_LANGUAGE")
+    @Dynamic(value="inspector or admin", meta="pattern=CAN_INSPECT_LANGUAGE,role=ADMIN,anyMatch=true")
     public Result listInspections(Optional<String> month) {
         ExpressionList<LanguageInspection> query = Ebean.find(LanguageInspection.class)
                 .fetch("exam")

@@ -55,8 +55,11 @@
                         <td ng-if="inspection.assignee">
                             <a class="pointer" href="/exams/review/{{inspection.exam.id}}">{{ 'sitnet_view' | translate }}</a>
                         </td>
-                        <td ng-if="!inspection.assignee">
+                        <td ng-if="!inspection.assignee && !user.isAdmin">
                             <a class="pointer" ng-click="assignInspection(inspection)">{{ 'sitnet_assign_to_me' | translate }}</a>
+                        </td>
+                        <td ng-if="!inspection.assignee && user.isAdmin">
+                            <span class="text-muted">{{ 'sitnet_assign_to_me' | translate }}</span>
                         </td>
                     </tr>
                     </tbody>

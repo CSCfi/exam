@@ -2,6 +2,7 @@ package controllers.iop;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,7 +11,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.CalendarController;
 import controllers.SettingsController;
-import controllers.base.ActionMethod;
 import controllers.iop.api.ExternalCalendarAPI;
 import exceptions.NotFoundException;
 import models.Exam;
@@ -99,7 +99,7 @@ public class ExternalCalendarController extends CalendarController implements Ex
 
     // Actions invoked by central IOP server
 
-    @ActionMethod
+    @SubjectNotPresent
     public Result provideReservation() {
         // Parse request body
         JsonNode node = request().body().asJson();
@@ -132,7 +132,7 @@ public class ExternalCalendarController extends CalendarController implements Ex
         return created(reservation, pp);
     }
 
-    @ActionMethod
+    @SubjectNotPresent
     public Result removeProvidedReservation(String ref) {
         Reservation reservation = Ebean.find(Reservation.class)
                 .fetch("machine")
@@ -152,7 +152,7 @@ public class ExternalCalendarController extends CalendarController implements Ex
         return ok();
     }
 
-    @ActionMethod
+    @SubjectNotPresent
     public Result provideSlots(Optional<String> roomId, Optional<String> date, Optional<String> start, Optional<String> end,
                                Optional<Integer> duration) {
         if (roomId.isPresent() && date.isPresent() && start.isPresent() && end.isPresent() && duration.isPresent()) {

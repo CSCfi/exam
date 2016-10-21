@@ -8,7 +8,7 @@
                     return link.href === $location.path();
                 };
 
-                $scope.canDisplayFullNavbar = function() {
+                $scope.canDisplayFullNavbar = function () {
                     return window.matchMedia("(min-width: 600px)").matches;
                 };
 
@@ -17,12 +17,7 @@
                 $scope.mobileMenuOpen = false;
 
                 $scope.openMenu = function () {
-                   if($scope.mobileMenuOpen) {
-                      $scope.mobileMenuOpen = false;
-                   }
-                   else {
-                      $scope.mobileMenuOpen = true;
-                   }
+                    $scope.mobileMenuOpen = !$scope.mobileMenuOpen;
                 };
 
                 var links = function () {
@@ -41,7 +36,7 @@
                     var languageInspector = user.isTeacher && user.isLanguageInspector;
 
                     if (admin) {
-                        SettingsResource.appVersion.get(function(data) {
+                        SettingsResource.appVersion.get(function (data) {
                             $scope.appVersion = data.appVersion;
                         });
                     }
@@ -51,7 +46,7 @@
 
                     // Change the menu item title if student
                     var nameForDashboard = "sitnet_dashboard";
-                    if(student) {
+                    if (student) {
                         nameForDashboard = "sitnet_user_enrolled_exams_title";
                     }
 
@@ -66,7 +61,7 @@
                         },
                         {
                             href: "/inspections",
-                            visible: (languageInspector),
+                            visible: (languageInspector || admin),
                             class: 'fa-language',
                             name: "sitnet_language_inspections",
                             icon_svg: "icon_enrols.svg",

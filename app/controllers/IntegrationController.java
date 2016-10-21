@@ -3,6 +3,7 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
@@ -15,7 +16,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import controllers.api.ExternalAPI;
-import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import models.*;
 import models.dto.ExamScore;
@@ -236,13 +236,13 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return scales;
     }
 
-    @ActionMethod
+    @SubjectNotPresent
     public Result getNewRecords(String startDate) {
         return ok(Json.toJson(getScores(startDate)));
     }
 
     // for testing purposes
-    @ActionMethod
+    @SubjectNotPresent
     public Result getNewRecordsAlphabeticKeyOrder(String startDate) {
         try {
             return ok(convertNode(Json.toJson(getScores(startDate))));
@@ -363,7 +363,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
         }
     }
 
-    @ActionMethod
+    @SubjectNotPresent
     public Result getReservations(Optional<String> start, Optional<String> end, Optional<Long> roomId) {
         PathProperties pp = PathProperties.parse("(startAt, endAt, noShow, " +
                 "user(firstName, lastName, email, userIdentifier), " +
@@ -390,7 +390,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return ok(reservations, pp);
     }
 
-    @ActionMethod
+    @SubjectNotPresent
     public Result getRooms() {
         PathProperties pp = PathProperties.parse("(*, defaultWorkingHours(*), " +
                 "organization(*), mailAddress(*), examMachines(*))");
@@ -400,7 +400,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return ok(rooms, pp);
     }
 
-    @ActionMethod
+    @SubjectNotPresent
     public Result getRoomOpeningHours(Long roomId, Optional<String> date) {
         if (!date.isPresent()) {
             return badRequest("no search date given");

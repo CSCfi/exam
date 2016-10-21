@@ -57,7 +57,7 @@ class AuthorizationHandler implements DeadboltHandler {
 
     @Override
     public CompletionStage<Optional<DynamicResourceHandler>> getDynamicResourceHandler(Http.Context context) {
-        return CompletableFuture.supplyAsync(Optional::empty);
+        return CompletableFuture.completedFuture(Optional.of(new CombinedRoleAndPermissionHandler()));
     }
 
     @Override
