@@ -45,20 +45,20 @@
                             <span><br /><a href="mailto:{{ inspection.exam.creator.email }}">{{ inspection.exam.creator.email }}</a></span>
                         </td>
                         <td>{{ inspection.exam.created | date:'dd.MM.yyyy' }}</td>
-                        <td ng-if="inspection.assignee">
-                            <span>{{ inspection.assignee.firstName }} {{ inspection.assignee.lastName }} </span>
-                            <span><br /><a href="mailto:{{ inspection.assignee.email }}">{{ inspection.assignee.email }}</a></span>
+                        <td ng-if="inspection.modifier">
+                            <span>{{ inspection.modifier.firstName }} {{ inspection.modifier.lastName }} </span>
+                            <span><br /><a href="mailto:{{ inspection.modifier.email }}">{{ inspection.modifier.email }}</a></span>
                         </td>
-                        <td ng-if="!inspection.assignee">
+                        <td ng-if="!inspection.modifier">
                             <span class="text-danger">{{'sitnet_undefined' | translate }}</span>
                         </td>
-                        <td ng-if="inspection.assignee">
+                        <td ng-if="inspection.modifier">
                             <a class="pointer" href="/exams/review/{{inspection.exam.id}}">{{ 'sitnet_view' | translate }}</a>
                         </td>
-                        <td ng-if="!inspection.assignee && !user.isAdmin">
+                        <td ng-if="!inspection.modifier && !user.isAdmin">
                             <a class="pointer" ng-click="assignInspection(inspection)">{{ 'sitnet_assign_to_me' | translate }}</a>
                         </td>
-                        <td ng-if="!inspection.assignee && user.isAdmin">
+                        <td ng-if="!inspection.modifier && user.isAdmin">
                             <span class="text-muted">{{ 'sitnet_assign_to_me' | translate }}</span>
                         </td>
                     </tr>
@@ -110,9 +110,9 @@
                             <span><br /><a href="mailto:{{ inspection.exam.creator.email }}">{{ inspection.exam.creator.email }}</a></span>
                         </td>
                         <td>{{ inspection.exam.created | date:'dd.MM.yyyy' }}</td>
-                        <td ng-if="inspection.assignee">
-                            <span>{{ inspection.assignee.firstName }} {{ inspection.assignee.lastName }} </span>
-                            <span><br /><a href="mailto:{{ inspection.assignee.email }}">{{ inspection.assignee.email }}</a></span>
+                        <td ng-if="inspection.modifier">
+                            <span>{{ inspection.modifier.firstName }} {{ inspection.modifier.lastName }} </span>
+                            <span><br /><a href="mailto:{{ inspection.modifier.email }}">{{ inspection.modifier.email }}</a></span>
                         </td>
                         <td>{{ inspection.finishedAt | date:'dd.MM.yyyy' }}</td>
                         <td>

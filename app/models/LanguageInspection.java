@@ -1,13 +1,17 @@
 package models;
 
 
-import models.base.GeneratedIdentityModel;
+import models.base.OwnedModel;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Date;
 
 @Entity
-public class LanguageInspection extends GeneratedIdentityModel {
+public class LanguageInspection extends OwnedModel {
 
     @OneToOne
     private Exam exam;
@@ -15,14 +19,8 @@ public class LanguageInspection extends GeneratedIdentityModel {
     @ManyToOne
     private User assignee;
 
-    @ManyToOne
-    private User creator;
-
     @OneToOne
     private Comment statement;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date created;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date startedAt;
@@ -64,28 +62,12 @@ public class LanguageInspection extends GeneratedIdentityModel {
         this.startedAt = startedAt;
     }
 
-    public Date getCreated() {
-        return created;
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
     public Comment getStatement() {
         return statement;
     }
 
     public void setStatement(Comment statement) {
         this.statement = statement;
-    }
-
-    public User getCreator() {
-        return creator;
-    }
-
-    public void setCreator(User creator) {
-        this.creator = creator;
     }
 
     public User getAssignee() {

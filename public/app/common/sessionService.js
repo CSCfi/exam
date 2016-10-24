@@ -214,7 +214,7 @@
                     if ($location.path() === '/' && _user.isLanguageInspector) {
                         $location.path("/inspections");
                     } else if (_env && !_env.isProd) {
-                        $location.path("/");
+                        $location.path(_user.isLanguageInspector ? "/inspections" : "/");
                     }
                 };
 

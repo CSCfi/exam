@@ -75,8 +75,8 @@ public class LanguageInspectionController extends BaseController {
             return forbidden("already sent for inspection");
         }
         LanguageInspection inspection = new LanguageInspection();
-        inspection.setCreator(getLoggedUser());
-        inspection.setCreated(new Date());
+        User user = getLoggedUser();
+        AppUtil.setCreator(inspection, user);
         inspection.setExam(exam);
         inspection.save();
         return ok();
@@ -91,7 +91,9 @@ public class LanguageInspectionController extends BaseController {
         if (inspection.getAssignee() != null) {
             return forbidden("Inspection already taken");
         }
-        inspection.setAssignee(getLoggedUser());
+        User user = getLoggedUser();
+        AppUtil.setModifier(inspection, user);
+        inspection.setAssignee(user);
         inspection.setStartedAt(new Date());
         inspection.update();
         return ok();
@@ -116,13 +118,15 @@ public class LanguageInspectionController extends BaseController {
         }
         inspection.setFinishedAt(new Date());
         inspection.setApproved(isApproved);
+
+        User user = getLoggedUser();
+        AppUtil.setModifier(inspection, user);
         inspection.update();
 
         Set<User> recipients = inspection.getExam().getParent().getExamOwners();
-        User sender = getLoggedUser();
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User recipient : recipients) {
-                emailComposer.composeLanguageInspectionFinishedMessage(recipient, sender, inspection);
+                emailComposer.composeLanguageInspectionFinishedMessage(recipient, user, inspection);
                 Logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
             }
         }, actor.dispatcher());
@@ -148,16 +152,20 @@ public class LanguageInspectionController extends BaseController {
         if (inspection.getFinishedAt() != null) {
             return forbidden("Inspection already finalized");
         }
+        User user = getLoggedUser();
         Comment statement = inspection.getStatement();
         if (statement == null) {
             statement = new Comment();
-            AppUtil.setCreator(statement, getLoggedUser());
+            AppUtil.setCreator(statement, user);
             statement.save();
             inspection.setStatement(statement);
             inspection.update();
         }
         statement.setComment(text);
+        AppUtil.setModifier(statement, user);
         statement.update();
+        AppUtil.setModifier(inspection, user);
+        inspection.update();
         return ok();
     }
 
