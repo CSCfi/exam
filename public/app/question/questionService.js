@@ -22,6 +22,7 @@
                             break;
                     }
                     return {
+                        question: '',
                         examSectionQuestions: [],
                         options: [],
                         questionOwners: [sessionService.getUser()],
