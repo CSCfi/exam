@@ -151,6 +151,7 @@
                     if ($scope.exam.executionType.type === 'MATURITY') {
                         $scope.toolbarPath = EXAM_CONF.TEMPLATES_PATH + "review/maturity_toolbar.html";
                         $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/maturity_grading.html";
+                        $scope.inspectionCommentsPath = EXAM_CONF.TEMPLATES_PATH + "review/inspection_comments.html";
                     } else {
                         $scope.toolbarPath = EXAM_CONF.TEMPLATES_PATH + "review/toolbar.html";
                         $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/grading.html";
@@ -552,6 +553,33 @@
                                 }
                             });
                         });
+                    });
+                };
+
+                $scope.addInspectionComment = function (exam) {
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        $scope.data = {id: exam.id, comment: null};
+                        $scope.submit = function () {
+                            ExamRes.inspectionComment.create($scope.data, function (comment) {
+                                $modalInstance.close(comment);
+                            });
+                        };
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss('Canceled');
+                        };
+                    }];
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'review/dialogs/new_inspection_comment.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: ctrl
+                    });
+
+                    modalInstance.result.then(function (comment) {
+                        // OK button
+                        $scope.exam.inspectionComments.unshift(comment);
+                        console.log("closed");
                     });
                 };
 

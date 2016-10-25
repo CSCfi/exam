@@ -1,0 +1,20 @@
+<div class="main-row">
+    <span class="col-md-12">
+        <strong>
+            {{'sitnet_inspector_comments' | translate }}:
+        </strong>
+        <button class="btn btn-link" ng-click="addInspectionComment(exam)">
+            <i class="fa fa-plus sitnet-dark-blue" title="{{'sitnet_add' | translate}}"></i>
+        </button>
+    </span>
+</div>
+
+<div ng-repeat="comment in exam.inspectionComments" class="bottom-row">
+    <div class="col-md-3">
+            {{comment.creator.firstName}} {{comment.creator.lastName}} <small>({{comment.creator.email}})</small><br/>
+            {{ comment.created | date:'dd.MM.yyyy HH:mm' }}
+    </div>
+    <div class="col-md-9">
+        {{ comment.comment }}
+    </div>
+</div>

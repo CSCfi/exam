@@ -64,6 +64,8 @@
     <!-- Sections -->
     <div ng-include="reviewSectionPath" ng-repeat="section in exam.examSections | orderBy: 'sequenceNumber'"></div>
 
+    <div ng-if="exam.executionType.type === 'MATURITY'" ng-include="inspectionCommentsPath"></div>
+
     <!-- Grading -->
     <div ng-include="gradingPath"></div>
 

@@ -715,5 +715,8 @@
   "sitnet_shared_question_property_info": "Tämän tiedon muutos päivittyy myös muihin tentteihin.",
   "sitnet_unsaved_question_data": "Tallentamaton kysymystieto häviää näkymästä poistuttaessa.",
   "sitnet_confirm_exit": "Vahvista näkymästä poistuminen",
-  "sitnet_internal_reservation": "Tilavarus omasta oppilaitoksesta"
+  "sitnet_internal_reservation": "Tilavarus omasta oppilaitoksesta",
+  "sitnet_inspection_comment_title": "Lisää kommentti tarkastukseen liittyen",
+  "sitnet_inspection_comment_description": "Kommenttisi näkyy kaikille tämän suorituksen tentaattoreille ja tarkastajille.",
+  "sitnet_inspector_comments": "Tarkastajien kommentit"
 }

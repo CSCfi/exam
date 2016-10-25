@@ -6,6 +6,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
+import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
 import models.*;
@@ -384,6 +385,24 @@ public class ReviewController extends BaseController {
         return ok(comment);
     }
 
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public Result addInspectionComment(Long id) {
+        Exam exam = Ebean.find(Exam.class, id);
+        if (exam == null) {
+            return notFound("Inspection not found");
+        }
+        DynamicForm df = formFactory.form().bindFromRequest();
+        InspectionComment ic = new InspectionComment();
+        User user = getLoggedUser();
+        AppUtil.setCreator(ic, user);
+        AppUtil.setModifier(ic, user);
+        ic.setComment(df.get("comment"));
+        ic.setExam(exam);
+        ic.save();
+        return ok(ic, PathProperties.parse("(creator(firstName, lastName, email), created, comment)"));
+    }
+
+
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result archiveExams() {
@@ -576,6 +595,8 @@ public class ReviewController extends BaseController {
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")
+                .fetch("inspectionComments")
+                .fetch("inspectionComments.creator", "firstName, lastName, email")
                 .fetch("languageInspection")
                 .fetch("languageInspection.assignee", "firstName, lastName, email")
                 .fetch("languageInspection.statement")

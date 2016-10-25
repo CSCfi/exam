@@ -160,6 +160,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @ManyToOne
     private ExamExecutionType executionType;
 
+    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL)
+    private Set<InspectionComment> inspectionComments;
+
     // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
     private boolean expanded;
@@ -581,6 +584,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.autoEvaluationConfig = autoEvaluationConfig;
     }
 
+    public Set<InspectionComment> getInspectionComments() {
+        return inspectionComments;
+    }
+
+    public void setInspectionComments(Set<InspectionComment> inspectionComments) {
+        this.inspectionComments = inspectionComments;
+    }
+
     public Date getAutoEvaluationNotified() {
         return autoEvaluationNotified;
     }
@@ -652,8 +663,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .forEach(esq -> {
                     esq.setDerivedMaxScore();
-                    esq.getOptions().stream()
-                            .forEach(o -> o.setScore(null));
+                    esq.getOptions().forEach(o -> o.setScore(null));
                 });
     }
 

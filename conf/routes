@@ -116,6 +116,7 @@ GET           /app/reviewerexams/:eid                                    control
 GET           /app/examenrolments/:eid                                   controllers.ReviewController.getEnrolmentsForExam(eid: Long)
 GET           /app/examparticipations/:eid/:uid                          controllers.ReviewController.getParticipationsForExamAndUser(eid: Long, uid: Long)
 POST          /app/email/inspection/:eid                                 controllers.ReviewController.sendInspectionMessage(eid: Long)
+POST          /app/review/:id/inspection                                 controllers.ReviewController.addInspectionComment(id: Long)
 POST          /app/gradeimport                                           controllers.ReviewController.importGrades
 GET           /app/exam/:eid/attachments                                 controllers.ReviewController.getArchivedAttachments(eid: Long, start: java.util.Optional[String], end: java.util.Optional[String])
 

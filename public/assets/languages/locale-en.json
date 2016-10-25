@@ -715,5 +715,8 @@
   "sitnet_shared_question_property_info": "If you make modifications to this information, it will have an effect to other exams.",
   "sitnet_unsaved_question_data": "Tallentamaton kysymystieto häviää näkymästä poistuttaessa. EN",
   "sitnet_confirm_exit": "Vahvista näkymästä poistuminen EN",
-  "sitnet_internal_reservation": "Tilavarus omasta oppilaitoksesta EN"
+  "sitnet_internal_reservation": "Tilavarus omasta oppilaitoksesta EN",
+  "sitnet_inspection_comment_title": "Lisää kommentti tarkastukseen liittyen EN",
+  "sitnet_inspection_comment_description": "Kommenttisi näkyy kaikille tämän suorituksen tentaattoreille ja tarkastajille EN",
+  "sitnet_inspector_comments": "Tarkastajien kommentit EN"
 }
