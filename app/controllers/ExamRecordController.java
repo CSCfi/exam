@@ -9,6 +9,8 @@ import models.Exam;
 import models.ExamParticipation;
 import models.ExamRecord;
 import models.GradeScale;
+import models.LanguageInspection;
+import models.Permission;
 import models.User;
 import models.dto.ExamScore;
 import play.Logger;
@@ -82,6 +84,7 @@ public class ExamRecordController extends BaseController {
     public Result registerExamWithoutRecord() throws IOException {
         DynamicForm df = formFactory.form().bindFromRequest();
         final Exam exam = Ebean.find(Exam.class)
+                .fetch("languageInspection")
                 .fetch("parent")
                 .fetch("parent.creator")
                 .where()
@@ -150,10 +153,21 @@ public class ExamRecordController extends BaseController {
         try {
             bos = ExcelBuilder.build(examId, childIds);
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_csv_file" );
+            return internalServerError("sitnet_error_creating_csv_file");
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"");
         return ok(Base64.getEncoder().encodeToString(bos.toByteArray()));
+    }
+
+    private boolean isApprovedInLanguageInspection(Exam exam, User user) {
+        LanguageInspection li = exam.getLanguageInspection();
+        return li != null && li.getApproved() && li.getFinishedAt() != null &&
+                user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE);
+    }
+
+    private boolean isAllowedToRegister(Exam exam, User user) {
+        return exam.getParent().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession()) ||
+                isApprovedInLanguageInspection(exam, user);
     }
 
     private Optional<Result> validateExamState(Exam exam, boolean gradeRequired) {
@@ -161,7 +175,7 @@ public class ExamRecordController extends BaseController {
             return Optional.of(notFound());
         }
         User user = getLoggedUser();
-        if (!exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
+        if (!isAllowedToRegister(exam, user)) {
             return Optional.of(forbidden("You are not allowed to modify this object"));
         }
         if (exam.getGradedByUser() == null && exam.getAutoEvaluationConfig() != null) {

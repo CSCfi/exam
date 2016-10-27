@@ -353,6 +353,8 @@ public class ExamController extends BaseController {
         String enrollInstruction = node.has("enrollInstruction") ? node.get("enrollInstruction").asText() : null;
         Integer trialCount = node.has("trialCount") ? node.get("trialCount").asInt() : null;
         Boolean expanded = node.has("expanded") && node.get("expanded").asBoolean(false);
+        Boolean requiresLanguageInspection = node.has("subjectToLanguageInspection") &&
+                node.get("subjectToLanguageInspection").asBoolean(false);
         if (examName != null) {
             exam.setName(examName);
         }
@@ -395,6 +397,7 @@ public class ExamController extends BaseController {
         exam.setTrialCount(trialCount);
         exam.generateHash();
         exam.setExpanded(expanded);
+        exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.save();
         return ok(exam);
     }

@@ -165,6 +165,18 @@
         </div>
     </div>
 
+    <!-- Subject to language inspection-->
+    <div ng-show="newExam.executionType.type==='MATURITY'">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="checkbox-inline sitnet-info-text">
+                    <input type="checkbox" ng-model="newExam.subjectToLanguageInspection" ng-value="true"
+                           ng-change="updateExam()">
+                        {{'sitnet_subject_to_language_inspection' | translate}}
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Exam length -->
     <div class="row">

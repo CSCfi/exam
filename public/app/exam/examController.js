@@ -530,6 +530,7 @@
                             gradeEvaluations: $scope.newExam.autoEvaluationConfig.gradeEvaluations
                         } : null,
                         "trialCount": $scope.newExam.trialCount || undefined,
+                        "subjectToLanguageInspection": $scope.newExam.subjectToLanguageInspection,
                         "objectVersion": $scope.newExam.objectVersion
                     };
                     for (var k in overrides) {

@@ -74,6 +74,9 @@ public class LanguageInspectionController extends BaseController {
         if (exam.getLanguageInspection() != null) {
             return forbidden("already sent for inspection");
         }
+        if (!exam.isSubjectToLanguageInspection()) {
+            return forbidden("not allowed to send for inspection");
+        }
         LanguageInspection inspection = new LanguageInspection();
         User user = getLoggedUser();
         AppUtil.setCreator(inspection, user);

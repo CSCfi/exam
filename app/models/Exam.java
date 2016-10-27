@@ -175,6 +175,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private boolean gradeless;
 
+    private boolean subjectToLanguageInspection;
+
     public User getGradedByUser() {
         return gradedByUser;
     }
@@ -606,6 +608,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setGradeless(boolean gradeless) {
         this.gradeless = gradeless;
+    }
+
+    public boolean isSubjectToLanguageInspection() {
+        return subjectToLanguageInspection;
+    }
+
+    public void setSubjectToLanguageInspection(boolean subjectToLanguageInspection) {
+        this.subjectToLanguageInspection = subjectToLanguageInspection;
     }
 
     @Transient

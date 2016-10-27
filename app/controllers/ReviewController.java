@@ -218,13 +218,18 @@ public class ReviewController extends BaseController {
             return notFound("sitnet_exam_not_found");
         }
         User user = getLoggedUser();
-        if (!exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
+        Exam.State newState = Exam.State.valueOf(df.get("state"));
+        if (!isAllowedToModify(exam, user, newState)) {
             return forbidden("You are not allowed to modify this object");
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden("Not allowed to update grading of this exam");
         }
 
+        if (isRejectedInLanguageInspection(exam, user, newState)) {
+            // Just update state, do not allow other modifications here
+            return updateReviewState(exam, newState, true);
+        }
         Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
         String additionalInfo = df.get("additionalInfo") == null ? null : df.get("additionalInfo");
         if (grade != null) {
@@ -232,6 +237,7 @@ public class ReviewController extends BaseController {
             GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
             if (scale.getGrades().contains(examGrade)) {
                 exam.setGrade(examGrade);
+                exam.setGradeless(false);
             } else {
                 return badRequest("Invalid grade for this grade scale");
             }
@@ -258,26 +264,13 @@ public class ReviewController extends BaseController {
         }
         exam.setAdditionalInfo(additionalInfo);
         exam.setAnswerLanguage(df.get("answerLanguage"));
-        exam.setState(Exam.State.valueOf(df.get("state")));
 
         if (df.get("customCredit") != null) {
             exam.setCustomCredit(Double.parseDouble(df.get("customCredit")));
         } else {
             exam.setCustomCredit(null);
         }
-        // set user only if exam is really graded, not just modified
-        if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)) {
-            exam.setGradedTime(new Date());
-            exam.setGradedByUser(getLoggedUser());
-            if (exam.hasState(Exam.State.REJECTED)) {
-                // inform student
-                notifyPartiesAboutPrivateExamRejection(exam);
-            }
-        }
-        exam.generateHash();
-        exam.update();
-
-        return ok();
+        return updateReviewState(exam, newState, false);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -561,6 +554,36 @@ public class ReviewController extends BaseController {
         response().setHeader("Content-Disposition", "attachment; filename=\"" + tarball.getName() + "\"");
         String body = Base64.getEncoder().encodeToString(setData(tarball).toByteArray());
         return ok(body);
+    }
+
+
+    private boolean isRejectedInLanguageInspection(Exam exam, User user, Exam.State newState) {
+        LanguageInspection li = exam.getLanguageInspection();
+        return newState == Exam.State.REJECTED && li != null && !li.getApproved() &&
+                li.getFinishedAt() != null && user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE);
+    }
+
+    private boolean isAllowedToModify(Exam exam, User user, Exam.State newState) {
+        return exam.getParent().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession()) ||
+                isRejectedInLanguageInspection(exam, user, newState);
+    }
+
+    private Result updateReviewState(Exam exam, Exam.State newState, boolean stateOnly) {
+        exam.setState(newState);
+        // set grading info only if exam is really graded, not just modified
+        if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)) {
+            if (!stateOnly) {
+                exam.setGradedTime(new Date());
+                exam.setGradedByUser(getLoggedUser());
+            }
+            if (exam.hasState(Exam.State.REJECTED)) {
+                // inform student
+                notifyPartiesAboutPrivateExamRejection(exam);
+            }
+        }
+        exam.generateHash();
+        exam.update();
+        return ok();
     }
 
     private void notifyPartiesAboutPrivateExamRejection(Exam exam) {

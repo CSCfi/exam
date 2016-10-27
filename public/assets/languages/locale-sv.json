@@ -718,5 +718,6 @@
   "sitnet_internal_reservation": "Tilavarus omasta oppilaitoksesta SV",
   "sitnet_inspection_comment_title": "Lisää kommentti tarkastukseen liittyen SV",
   "sitnet_inspection_comment_description": "Kommenttisi näkyy kaikille tämän suorituksen tentaattoreille ja tarkastajille SV",
-  "sitnet_inspector_comments": "Tarkastajien kommentit SV"
+  "sitnet_inspector_comments": "Tarkastajien kommentit SV",
+  "sitnet_subject_to_language_inspection": "Vaatii kielentarkastuksen SV"
 }

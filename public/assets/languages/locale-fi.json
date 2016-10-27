@@ -620,7 +620,7 @@
   "sitnet_reject_maturity": "Hylkää suoritus",
   "sitnet_send_for_language_inspection": "Lähetä kielentarkastukseen",
   "sitnet_confirm_maturity_disapproval": "Hylkää suoritus? Toimintoa ei voi perua.",
-  "sitnet_confirm_maturity_approval": "Lähetä suoritus kielentarkastajalle arvioitavaksi? Tämän jälkeen et voi enää hylätä suoritusta. Toimintoa ei voi perua.",
+  "sitnet_confirm_maturity_approval": "Lähetä suoritus kielentarkastajalle arvioitavaksi? Tämän jälkeen et voi enää tehdä muutoksia suorituksen arviointiin. Toimintoa ei voi perua.",
   "sitnet_confirm_assign_inspection": "Ota suoritus arvioitavaksesi? Toimenpide ei estä muita tarkastajia arvioimasta suoritusta.",
   "sitnet_undefined": "Ei määritelty",
   "sitnet_await_inspection": "Odottaa kielentarkastusta",
@@ -718,5 +718,6 @@
   "sitnet_internal_reservation": "Tilavarus omasta oppilaitoksesta",
   "sitnet_inspection_comment_title": "Lisää kommentti tarkastukseen liittyen",
   "sitnet_inspection_comment_description": "Kommenttisi näkyy kaikille tämän suorituksen tentaattoreille ja tarkastajille.",
-  "sitnet_inspector_comments": "Tarkastajien kommentit"
+  "sitnet_inspector_comments": "Tarkastajien kommentit",
+  "sitnet_subject_to_language_inspection": "Vaatii kielentarkastuksen"
 }
