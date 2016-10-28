@@ -98,12 +98,26 @@ public class ReservationController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result permitRetrial(Long id) {
-        Reservation reservation = Ebean.find(Reservation.class, id);
+        Reservation reservation = Ebean.find(Reservation.class)
+                .fetch("enrolment.exam.executionType")
+                .where()
+                .idEq(id)
+                .findUnique();
         if (reservation == null) {
             return notFound("sitnet_not_found");
         }
-        reservation.setRetrialPermitted(true);
-        reservation.update();
+        ExamEnrolment enrolment = reservation.getEnrolment();
+        if (reservation.isNoShow() && enrolment.getExam().isPrivate()) {
+            // For no-shows with private examinations we remove the reservation so student can re-reserve.
+            // This is needed because student is not able to re-enroll by himself and th.
+            enrolment.setReservation(null);
+            enrolment.update();
+            reservation.delete();
+        } else {
+            // For public exams this is not necessary as student can re-enroll and make a new reservation in the process.
+            reservation.setRetrialPermitted(true);
+            reservation.update();
+        }
         return ok();
     }
 

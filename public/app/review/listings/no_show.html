@@ -36,7 +36,7 @@
             <td class="table-column-15" class="sitnet-text-aborted">
                 {{'sitnet_exam_status_no_show' | translate}}
             </td>
-            <td class="table-column-10" ng-if="review.exam.executionType.type === 'PUBLIC'">
+            <td class="table-column-10">
                 <div ng-show="review.exam.trialCount && review.reservation">
                     <button ng-disabled="review.reservation.retrialPermitted"
                             ng-click="permitRetrial(review.reservation)" class="btn btn-sm btn-primary">
@@ -46,9 +46,6 @@
                 <div ng-show="!review.exam.trialCount" class="text-muted">
                     {{'sitnet_unrestricted' | translate }}
                 </div>
-            </td>
-            <td class="table-column-10" ng-if="review.exam.executionType.type !== 'PUBLIC'">
-                &ndash;
             </td>
         </tr>
         </tbody>
