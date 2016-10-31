@@ -15,11 +15,19 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import play.Logger;
 import play.mvc.Result;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 
 public class StatisticsController extends BaseController {
@@ -172,10 +180,10 @@ public class StatisticsController extends BaseController {
             data[9] = Integer.toString(logged);
             Row dataRow = sheet.createRow(exams.indexOf(parent) + 1);
             for (int i = 0; i < data.length; ++i) {
-                sheet.autoSizeColumn(i, true);
                 dataRow.createCell(i).setCellValue(data[i]);
             }
         }
+        IntStream.range(0, 10).forEach(i -> sheet.autoSizeColumn(i, true));
         response().setHeader("Content-Disposition", "attachment; filename=\"teachers_exams.xlsx\"");
         return ok(encode(wb));
     }
@@ -202,12 +210,22 @@ public class StatisticsController extends BaseController {
             data[4] = ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getEnrolledOn()));
             Row dataRow = sheet.createRow(proto.getExamEnrolments().indexOf(e) + 1);
             for (int i = 0; i < data.length; ++i) {
-                sheet.autoSizeColumn(i, true);
                 dataRow.createCell(i).setCellValue(data[i]);
             }
         }
+        IntStream.range(0, 5).forEach(i -> sheet.autoSizeColumn(i, true));
+
         response().setHeader("Content-Disposition", "attachment; filename=\"enrolments.xlsx\"");
         return ok(encode(wb));
+    }
+
+    private String parse(Supplier<String> supplier) {
+        try {
+            return supplier.get();
+        } catch (RuntimeException e) {
+            Logger.warn("Invalid review data. Not able to provide it for report");
+            return "N/A";
+        }
     }
 
     @Restrict({@Group("ADMIN")})
@@ -238,19 +256,22 @@ public class StatisticsController extends BaseController {
             data[2] = e.getCourse().getCode();
             data[3] = ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getCreated()));
             data[4] = ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getGradedTime()));
-            data[5] = String.format("%s %s", e.getGradedByUser().getFirstName(),
-                    e.getGradedByUser().getLastName());
+
+            data[5] = parse(() -> String.format("%s %s", e.getGradedByUser().getFirstName(),
+                    e.getGradedByUser().getLastName()));
+
             data[6] = e.getCourse().getCredits() == null ? "" :
                     Double.toString(e.getCourse().getCredits()); // custom credits?
-            data[7] = e.getGrade().getName();
-            data[8] = e.getCreditType().getType();
+            data[7] = parse(() -> e.getGrade().getName());
+            data[8] = parse(() -> e.getCreditType().getType());
+
             data[9] = e.getAnswerLanguage();
             Row dataRow = sheet.createRow(exams.indexOf(e) + 1);
             for (int i = 0; i < data.length; ++i) {
-                sheet.autoSizeColumn(i, true);
                 dataRow.createCell(i).setCellValue(data[i]);
             }
         }
+        IntStream.range(0, 10).forEach(i -> sheet.autoSizeColumn(i, true));
         response().setHeader("Content-Disposition", "attachment; filename=\"reviews.xlsx\"");
         return ok(encode(wb));
     }
@@ -299,10 +320,10 @@ public class StatisticsController extends BaseController {
             );
             Row dataRow = sheet.createRow(enrolments.indexOf(e) + 1);
             for (int i = 0; i < data.size(); ++i) {
-                sheet.autoSizeColumn(i, true);
                 dataRow.createCell(i).setCellValue(data.get(i));
             }
         }
+        IntStream.range(0, 17).forEach(i -> sheet.autoSizeColumn(i, true));
         response().setHeader("Content-Disposition", "attachment; filename=\"reservations.xlsx\"");
         return ok(encode(wb));
     }
@@ -429,10 +450,10 @@ public class StatisticsController extends BaseController {
             data.add(p.getExam().getCreditType() == null ? "" : p.getExam().getCreditType().getType());
             Row dataRow = sheet.createRow(participations.indexOf(p) + 1);
             for (int i = 0; i < data.size(); ++i) {
-                sheet.autoSizeColumn(i, true);
                 dataRow.createCell(i).setCellValue(data.get(i));
             }
         }
+        IntStream.range(0, headers.size()).forEach(i -> sheet.autoSizeColumn(i, true));
     }
 
     private static String forceNotNull(String src) {
