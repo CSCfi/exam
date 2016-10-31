@@ -12,6 +12,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class ExcelBuilder {
 
@@ -34,10 +35,10 @@ public class ExcelBuilder {
             String[] data = record.getExamScore().asArray(record.getStudent(), record.getTeacher(), record.getExam());
             Row dataRow = sheet.createRow(examRecords.indexOf(record) + 1);
             for (int i = 0; i < data.length; ++i) {
-                sheet.autoSizeColumn(i, true);
                 dataRow.createCell(i).setCellValue(data[i]);
             }
         }
+        IntStream.range(0, headers.length).forEach(i -> sheet.autoSizeColumn(i, true));
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         wb.write(bos);
         bos.close();
