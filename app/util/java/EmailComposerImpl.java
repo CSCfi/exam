@@ -69,7 +69,7 @@ class EmailComposerImpl implements EmailComposer {
         Lang lang = getLang(student);
         String subject = messaging.get(lang, "email.inspection.ready.subject");
         String examInfo = String.format("%s, %s", exam.getName(), exam.getCourse().getCode());
-        String reviewLink = String.format("%s/feedback/exams/%s", HOSTNAME, exam.getId());
+        String reviewLink = String.format("%s/student/finishedexams?id=%d", HOSTNAME, exam.getId());
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("review_done", messaging.get(lang, "email.template.review.ready", examInfo));

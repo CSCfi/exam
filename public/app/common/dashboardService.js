@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('dashboardService', ['$q', 'sessionService', 'examService', 'reservationService', 'StudentExamRes',
+        .service('dashboardService', ['$q', '$routeParams', 'sessionService', 'examService', 'reservationService', 'StudentExamRes',
             'ExamRes', 'EXAM_CONF',
-            function ($q, sessionService, examService, reservationService, StudentExamRes, ExamRes, EXAM_CONF) {
+            function ($q, $routeParams, sessionService, examService, reservationService, StudentExamRes, ExamRes, EXAM_CONF) {
 
                 var self = this;
 
@@ -63,6 +63,12 @@
                             scope.userEnrolments = enrolments;
                             StudentExamRes.finishedExams.query(
                                 function (participations) {
+                                    if ($routeParams.id) {
+                                        participations = participations.filter(function(p) {
+                                            return p.exam.id == $routeParams.id;
+                                        });
+                                        scope.filtered = true;
+                                    }
                                     scope.participations = participations;
                                     deferred.resolve(scope);
                                 },

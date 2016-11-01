@@ -719,5 +719,6 @@
   "sitnet_inspection_comment_title": "Lisää kommentti tarkastukseen liittyen EN",
   "sitnet_inspection_comment_description": "Kommenttisi näkyy kaikille tämän suorituksen tentaattoreille ja tarkastajille EN",
   "sitnet_inspector_comments": "Tarkastajien kommentit EN",
-  "sitnet_subject_to_language_inspection": "Vaatii kielentarkastuksen EN"
+  "sitnet_subject_to_language_inspection": "Vaatii kielentarkastuksen EN",
+  "sitnet_show_all_participations": "Näytä kaikki suoritukset EN"
 }
