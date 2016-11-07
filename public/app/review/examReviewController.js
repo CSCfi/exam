@@ -379,7 +379,7 @@
 
                 $scope.insertEssayScore = function (sectionQuestion) {
                     var answer = sectionQuestion.essayAnswer;
-                    if (!answer || !answer.evaluatedScore) {
+                    if (!answer || isNaN(answer.evaluatedScore)) {
                         return;
                     }
 
