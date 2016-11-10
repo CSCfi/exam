@@ -20,9 +20,11 @@
                         case 'weighted':
                             questionType = 'WeightedMultipleChoiceQuestion';
                             break;
+                        case 'cloze':
+                            questionType = 'ClozeTestQuestion';
+                            break;
                     }
                     return {
-                        question: '',
                         examSectionQuestions: [],
                         options: [],
                         questionOwners: [sessionService.getUser()],

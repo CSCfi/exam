@@ -160,9 +160,9 @@
             }])
 
 
-        .directive('ckEditor', function () {
+        .directive('ckEditor', ['$rootScope', function ($rootScope) {
             return {
-                require: '?ngModel',
+                require: 'ngModel',
                 link: function (scope, elm, attr, ngModel) {
                     var tmp;
 
@@ -177,32 +177,26 @@
                     });
 
                     function updateModel() {
-                        scope.$apply(function () {
-                            ngModel.$setViewValue(ck.getData());
+                        _.defer(function () {
+                            scope.$apply(function () {
+                                ngModel.$setViewValue(ck.getData());
+                            });
                         });
                     }
 
                     function onChange() {
                         updateModel();
                     }
-                    function onKey() {
-                        updateModel();
-                    }
+
                     function onDataReady() {
                         updateModel();
                     }
+
                     function onMode() {
                         updateModel();
                     }
 
-                    // use "$scope.updateProperties" in controllers if needed to save the editor after losing focus a.k.a "onblur"
-                    ck.on('blur', function () {
-                        if (scope.updateProperties) {
-                            scope.updateProperties();
-                        }
-                    });
                     ck.on('change', onChange);
-                    ck.on('key', onKey);
                     ck.on('dataReady', onDataReady);
                     ck.on('mode', onMode); // Editing mode change
 
@@ -212,8 +206,28 @@
                     };
                 }
             };
-        })
+        }])
 
+        .directive('clozeTest', function($compile) {
+            return {
+                restrict: "E",
+                scope: {
+                    results: '=',
+                    content: '='
+                },
+                link: function(scope, element, attrs){
+                    var replacement = angular.element(scope.content);
+                    var inputs = replacement.find("input");
+                    for (var i = 0; i < inputs.length; ++i) {
+                        var input = inputs[i];
+                        var id = input.attributes.id.value;
+                        input.setAttribute('ng-model', 'results.' + id);
+                    }
+                    element.replaceWith(replacement);
+                    $compile(replacement)(scope);
+                }
+            };
+        })
         .directive('uiBlur', function () {
             return function (scope, elem, attrs) {
 
@@ -400,7 +414,7 @@
                             var begin = n * scope.pageSize + 1;
                             var end = Math.min(scope.items.length, (n + 1) * scope.pageSize);
                             //return begin + " - " + end;
-                            return n+1;
+                            return n + 1;
                         }
                     };
 

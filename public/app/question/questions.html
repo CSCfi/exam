@@ -34,6 +34,8 @@
                             | translate}}</a>
                         <a role="menuitem" ng-click="createQuestion('weighted')" class="pointer">{{'sitnet_toolbar_weighted_multiplechoice_question'
                             | translate}}</a>
+                        <a role="menuitem" ng-click="createQuestion('cloze')" class="pointer">{{'sitnet_toolbar_cloze_test_question'
+                            | translate}}</a>
                     </li>
                 </ul>
             </div>
@@ -182,7 +184,7 @@
                         <a href="/questions/{{question.id}}">{{question.id}}</a>
                     </td>
                     <td>
-                        <span ng-if="question.question" mathjax ng-bind-html="question.question | truncate: 360"></span>
+                        <span ng-if="question.question" mathjax ng-bind-html="trustAsHtml(truncate(question.question, 360))"></span>
                         <span ng-if="!question.question" class="text-danger">
                             {{'sitnet_no_name' | translate}}
                         </span>
@@ -195,6 +197,7 @@
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
                         <span ng-if="question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc' | translate}}</span>
                         <span ng-if="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
+                        <span ng-if="question.type === 'ClozeTestQuestion'">{{ 'sitnet_toolbar_cloze_test_question' | translate }}</span>
                     </td>
                     <td ng-controller="AttachmentController">
                         <a ng-if="question.attachment" class="pointer" ng-click="downloadQuestionAttachment(question)">{{

@@ -11,6 +11,7 @@ import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
 import models.*;
+import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
@@ -56,6 +57,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         exam.getExamSections().stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
+                .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
                 .forEach(esq -> {
                     for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
                         ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
@@ -201,7 +203,19 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                             body.put("objectVersion", answer.getObjectVersion());
                         }
                         result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d",
-                                studentExam.getHash(), question.getId()), body);
+                                studentExam.getHash(), esq.getId()), body);
+                        assertThat(result.status()).isEqualTo(200);
+                        break;
+                    case ClozeTestQuestion:
+                        ObjectNode content = (ObjectNode)Json.newObject().set("answer",
+                                Json.newObject().put("1", "this is my answer for cloze 1")
+                                        .put("2", "this is my answer for cloze 2"));
+                        ClozeTestAnswer clozeAnswer = esq.getClozeTestAnswer();
+                        if (clozeAnswer != null && clozeAnswer.getObjectVersion() > 0) {
+                            content.put("objectVersion", clozeAnswer.getObjectVersion());
+                        }
+                        result = request(Helpers.POST, String.format("/app/student/exams/%s/clozetest/%d",
+                                studentExam.getHash(), esq.getId()), content);
                         assertThat(result.status()).isEqualTo(200);
                         break;
                     default:
@@ -213,7 +227,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                         Iterator<ExamSectionQuestionOption> it = sectionQuestion.getOptions().iterator();
                         ExamSectionQuestionOption option = it.next();
                         result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
-                                question.getId()), createMultipleChoiceAnswerData(option));
+                                esq.getId()), createMultipleChoiceAnswerData(option));
                         assertThat(result.status()).isEqualTo(200);
                         break;
                 }

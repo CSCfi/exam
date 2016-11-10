@@ -190,7 +190,8 @@
                 <!-- Max score -->
                 <div class="row">
                     <div class="form-group col-md-3"
-                         ng-if="question.type == 'MultipleChoiceQuestion' || sectionQuestion.evaluationType == 'Points'">
+                         ng-if="question.type == 'MultipleChoiceQuestion' || question.type == 'ClozeTestQuestion' ||
+                                sectionQuestion.evaluationType == 'Points'">
                         <label for="maxScore">{{'sitnet_max_score' | translate}}</label>
                         <input id="maxScore" name="maxScore" type="number" class="col-md-2 form-control"
                                step="0.01" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/"

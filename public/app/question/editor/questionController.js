@@ -33,6 +33,9 @@
                             $scope.questionTemplate = essayQuestionTemplate;
                             $scope.newQuestion.defaultEvaluationType = $scope.newQuestion.defaultEvaluationType || "Points";
                             break;
+                        case 'ClozeTestQuestion':
+                            // No template needed
+                            break;
                         case 'MultipleChoiceQuestion':
                             $scope.questionTemplate = multiChoiceQuestionTemplate;
                             $scope.newOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/option.html";
@@ -300,13 +303,7 @@
                     // Edit saved question
                     var id = $scope.baseQuestionId || $routeParams.id;
                     QuestionRes.questions.get({id: id},
-                        function (question) {
-                            // kind of a hack to have the editor displayed
-                            // can't be rendered if content == null
-                            if (question.question == null) {
-                                question.question = '';
-                            }
-                            $scope.newQuestion = question;
+                        function (question) {$scope.newQuestion = question;
                             initQuestion();
                         },
                         function (error) {

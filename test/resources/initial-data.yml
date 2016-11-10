@@ -181,8 +181,44 @@ question-essay:
     created: 2014-02-01 12:30:05.123
     question: Kuvaile ahneen algoritmin toimintaperiaate.
 
+######################################################################
+
+question-clozetest:
+
+# Cloze test questions
+
+  - &cloze1 !!models.questions.Question
+    type: ClozeTestQuestion
+    creator: *olli
+    created: 2014-04-01 12:30:05.123
+    question: <p><span cloze="true" id="1">Pariisi</span>on Ranskan pääkaupunki. <span cloze="true" id="2">Berliini</span>on Saksan pääkaupunki.</p>
+    defaultMaxScore: 4
+
+  - &cloze2 !!models.questions.Question
+    type: ClozeTestQuestion
+    creator: *olli
+    created: 2014-04-01 12:30:05.123
+    question: <p><span cloze="true" id="1">Budapest</span>on Unkarin pääkaupunki. <span cloze="true" id="2">Tukholma</span>on Ruotsin pääkaupunki.</p>
+    defaultMaxScore: 4
+
+  - &cloze3 !!models.questions.Question
+    type: ClozeTestQuestion
+    creator: *olli
+    created: 2014-04-01 12:30:05.123
+    question: <p><span cloze="true" id="1">Istanbul</span>on Turkin pääkaupunki. <span cloze="true" id="2">Ateena</span>on Kreikan pääkaupunki.</p>
+    defaultMaxScore: 4
+
+  - &cloze4 !!models.questions.Question
+    type: ClozeTestQuestion
+    creator: *olli
+    created: 2014-04-01 12:30:05.123
+    question: <p><span cloze="true" id="1">Rooma</span>on Italian pääkaupunki. <span cloze="true" id="2">Madrid</span>on Espanjan pääkaupunki.</p>
+    defaultMaxScore: 4
+
 
 ######################################################################
+
+
 
 question-multiple-choice:
 
@@ -743,6 +779,12 @@ section-questions:
     maxScore: 7
 
   - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio1
+    question: *cloze1
+    sequenceNumber: 2
+    maxScore: 7
+
+  - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio2
     question: *avaruus4
     sequenceNumber: 0
@@ -759,6 +801,12 @@ section-questions:
     question: *avaruus5
     sequenceNumber: 2
     maxScore: 7
+
+  - !!models.ExamSectionQuestion
+      examSection: *alkeet_mv_osio2
+      question: *cloze2
+      sequenceNumber: 3
+      maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_essay
@@ -780,6 +828,12 @@ section-questions:
     sequenceNumber: 2
     maxScore: 7
     evaluationType: Points
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essay
+    question: *cloze3
+    sequenceNumber: 3
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio1b
@@ -794,6 +848,12 @@ section-questions:
     maxScore: 7
 
   - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio1b
+    question: *cloze4
+    sequenceNumber: 2
+    maxScore: 7
+
+  - !!models.ExamSectionQuestion
     examSection: *alkeet_mv_osio2b
     question: *avaruus4
     sequenceNumber: 0
@@ -809,6 +869,12 @@ section-questions:
     examSection: *alkeet_mv_osio2b
     question: *avaruus5
     sequenceNumber: 2
+    maxScore: 7
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2b
+    question: *cloze1
+    sequenceNumber: 3
     maxScore: 7
 
   - !!models.ExamSectionQuestion
@@ -831,6 +897,12 @@ section-questions:
     sequenceNumber: 2
     maxScore: 7
     evaluationType: Points
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essayb
+    question: *cloze2
+    sequenceNumber: 3
+    maxScore: 7
 
   - !!models.ExamSectionQuestion
     examSection: *osio2
@@ -848,6 +920,12 @@ section-questions:
     examSection: *osio2
     question: *multi5
     sequenceNumber: 2
+    maxScore: 7
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2
+    question: *cloze3
+    sequenceNumber: 3
     maxScore: 7
 
   - !!models.ExamSectionQuestion

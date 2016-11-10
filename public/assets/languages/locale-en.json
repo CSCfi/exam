@@ -720,5 +720,7 @@
   "sitnet_inspection_comment_description": "Kommenttisi näkyy kaikille tämän suorituksen tentaattoreille ja tarkastajille EN",
   "sitnet_inspector_comments": "Tarkastajien kommentit EN",
   "sitnet_subject_to_language_inspection": "Vaatii kielentarkastuksen EN",
-  "sitnet_show_all_participations": "Näytä kaikki suoritukset EN"
+  "sitnet_show_all_participations": "Näytä kaikki suoritukset EN",
+  "sitnet_toolbar_cloze_test_question": "Aukkotehtävä EN",
+  "sitnet_questions_new_cloze_test": "Uusi Aukkotehtävä EN"
 }

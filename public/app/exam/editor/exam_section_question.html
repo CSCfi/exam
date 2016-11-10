@@ -15,10 +15,13 @@
             <i ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'" class="single-question-icon fa fa-1x fa-balance-scale"></i>
             <!-- Essay question icon -->
             <i ng-if="sectionQuestion.question.type === 'EssayQuestion'" class="single-question-icon fa fa-1x fa-edit"></i>
+            <!-- Cloze test question icon -->
+            <i ng-if="sectionQuestion.question.type === 'ClozeTestQuestion'" class="single-question-icon fa fa-1x fa-sticky-note-o"></i>
         </span>
         <!-- Question points -->
         <div align="right" class="col-md-9 single-question-icon">
             <span ng-if="sectionQuestion.evaluationType === 'Points'
+             || sectionQuestion.question.type === 'ClozeTestQuestion'
              || sectionQuestion.question.type === 'MultipleChoiceQuestion'">({{ sectionQuestion.maxScore }} {{ 'sitnet_unit_points' | translate }})</span>
             <span ng-if="sectionQuestion.evaluationType === 'Selection'">({{ 'sitnet_evaluation_select' | translate }})</span>
             <span ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
@@ -53,7 +56,9 @@
         </div>
     </div>
     <div class="detail-row"
-         ng-show="sectionQuestion.question.type !== 'EssayQuestion' && sectionQuestion.expanded">
+         ng-show="sectionQuestion.question.type !== 'EssayQuestion' &&
+                  sectionQuestion.question.type !== 'ClozeTestQuestion' &&
+                  sectionQuestion.expanded">
         <ol class="col-md-12">
             <li ng-show="sectionQuestion.question.type === 'MultipleChoiceQuestion'" class="exam-question-option"
                 ng-repeat="option in sectionQuestion.options">

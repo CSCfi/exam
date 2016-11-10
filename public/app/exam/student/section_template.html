@@ -17,9 +17,17 @@
                     <!-- question text -->
                     <div class="row">
                         <div class="col-md-12 question-text">
-                            <div class="section-box-title" ng-if="sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></div>
-                            <div class="section-box-title" ng-if="!sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(truncate(sectionQuestion.question.question, 240))"></div>
-                            <!-- chevron -->
+                            <div ng-if="sectionQuestion.question.type !== 'ClozeTestQuestion'">
+                                <div class="section-box-title" ng-if="sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></div>
+                                <div class="section-box-title" ng-if="!sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(truncate(sectionQuestion.question.question, 240))"></div>
+                            </div>
+                            <div ng-if="sectionQuestion.question.type === 'ClozeTestQuestion'">
+                                <div class="section-box-title" mathjax>
+                                    <cloze-test content="sectionQuestion.clozeTestAnswer.question" results="sectionQuestion.clozeTestAnswer.answer" />
+                                    <!-- TODO: chevron click. Truncate is bit tricky here. Maybe add a separate header for chevron click? -->
+                                </div>
+                            </div>
+                                <!-- chevron -->
                             <div class="col-md-1 fa-stack fa-lg pointer section-box-title arrow" ng-click="chevronClicked(sectionQuestion)">
                                 <i ng-class="sectionQuestion.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
                                    class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
@@ -27,7 +35,8 @@
                             </div>
                             <div class="question-type">
                                <div class="col-md-7 question-type-text" ng-if="sectionQuestion.question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</div>
-                               <div class="col-md-7 question-type-text multiple-choice" ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</div>
+                                <div class="col-md-7 question-type-text" ng-if="sectionQuestion.question.type === 'ClozeTestQuestion'">{{ 'sitnet_toolbar_cloze_test_question' | translate }}</div>
+                                <div class="col-md-7 question-type-text multiple-choice" ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</div>
                                <div class="col-md-7 question-type-text multiple-choice" ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc' | translate }}</div>
                                <div class="question-type-img-wrap" ng-if="sectionQuestion.answered"><img src="../../../assets/assets/images/icon_question_type_ready.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_ready.png'" /></div>
                                <div class="question-type-img-wrap" ng-if="!sectionQuestion.answered"><img src="../../../assets/assets/images/icon_question_type_waiting.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_waiting.png'" /></div>
@@ -76,7 +85,7 @@
                                  {{'sitnet_evaluation_select' | translate}}
                             </span>
                             <span ng-if="sectionQuestion.evaluationType !== 'Selection'">
-                                0 / {{sectionQuestion.derivedMaxScore}} {{'sitnet_unit_points' | translate}}
+                                {{sectionQuestion.derivedMaxScore}} {{'sitnet_unit_points' | translate}}
                             </span>
                     </div>
 

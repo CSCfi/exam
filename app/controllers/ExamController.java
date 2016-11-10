@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import models.*;
+import models.questions.ClozeTestAnswer;
+import models.questions.Question;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.Json;
@@ -213,6 +215,7 @@ public class ExamController extends BaseController {
                 .fetch("examSections.sectionQuestions.question.attachment")
                 .fetch("examSections.sectionQuestions.options")
                 .fetch("examSections.sectionQuestions.options.option")
+                .fetch("examSections.sectionQuestions.clozeTestAnswer")
                 .fetch("attachment")
                 .fetch("creator")
                 .fetch("examOwners")
@@ -222,6 +225,18 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
+        Set<Question> questionsToHide = new HashSet<>();
+        exam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
+                .forEach( esq -> {
+                    ClozeTestAnswer answer = new ClozeTestAnswer();
+                    answer.setQuestion(esq);
+                    esq.setClozeTestAnswer(answer);
+                    questionsToHide.add(esq.getQuestion());
+                });
+        questionsToHide.forEach(q -> q.setQuestion(null));
+
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) ||
                 getLoggedUser().hasRole("ADMIN", getSession())) {
             exam.getExamSections().stream().filter(ExamSection::getLotteryOn).forEach(ExamSection::shuffleQuestions);

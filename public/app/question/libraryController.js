@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('LibraryCtrl', ['dialogs', '$q', '$scope', '$rootScope', '$location', '$translate', 'sessionService', 'QuestionRes',
+        .controller('LibraryCtrl', ['dialogs', '$q', '$filter', '$sce', '$scope', '$rootScope', '$location', '$translate', 'sessionService', 'QuestionRes',
             'questionService', 'ExamRes', 'CourseRes', 'TagRes', 'UserRes',
-            function (dialogs, $q, $scope, $rootScope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
+            function (dialogs, $q, $filter, $sce, $scope, $rootScope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
 
                 var step = 100;
 
@@ -199,7 +199,7 @@
                         $scope.questions = $scope.filteredQuestions = questionService.applyFilter(data);
 
                         $scope.questions.forEach(function (q) {
-                            if (q.defaultEvaluationType === "Points" || q.type === 'MultipleChoiceQuestion') {
+                            if (q.defaultEvaluationType === "Points" || q.type === 'ClozeTestQuestion' || q.type === 'MultipleChoiceQuestion') {
                                 q.displayedMaxScore = q.defaultMaxScore;
                             } else if (q.defaultEvaluationType === "Selection") {
                                 q.displayedMaxScore = 'sitnet_evaluation_select';
@@ -207,6 +207,7 @@
                                 q.displayedMaxScore = $scope.calculateMaxPoints(q);
                             }
                             q.typeOrd = ['EssayQuestion',
+                                'ClozeTestQuestion',
                                 'MultipleChoiceQuestion',
                                 'WeightedMultipleChoiceQuestion'].indexOf(q.type);
                             q.ownerAggregate = q.creator.lastName + q.creator.firstName;
@@ -394,6 +395,16 @@
                         }
                     );
 
+                };
+
+                $scope.truncate = function (content, offset) {
+                    if (content) {
+                        return $filter('truncate')(content, offset);
+                    }
+                };
+
+                $scope.trustAsHtml = function (content) {
+                    return $sce.trustAsHtml(content);
                 };
 
                 var refresh = function () {
