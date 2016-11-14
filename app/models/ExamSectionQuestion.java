@@ -17,6 +17,7 @@ import play.mvc.Result;
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -250,8 +251,17 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 // ATM minimum score is zero
                 return Math.max(0.0, evaluation);
             case ClozeTestQuestion:
-                // TODO
-                break;
+                if (clozeTestAnswer == null) {
+                    return 0.0;
+                }
+                ClozeTestAnswer.Score score = clozeTestAnswer.getScore(this);
+                int correct = score.getCorrectAnswers();
+                int incorrect = score.getIncorrectAnswers();
+                if (correct + incorrect == 0) {
+                    return 0.0;
+                }
+                DecimalFormat df = new DecimalFormat("#.##");
+                return Double.valueOf(df.format(correct * maxScore / (correct + incorrect)));
         }
         return 0.0;
     }

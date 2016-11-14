@@ -146,6 +146,11 @@ public class ReviewController extends BaseController {
                 !exam.isViewableForLanguageInspector(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
+        exam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion
+                        && esq.getClozeTestAnswer() != null)
+                .forEach( esq -> esq.getClozeTestAnswer().setQuestionWithResults(esq));
         return ok(exam);
     }
 
@@ -205,7 +210,9 @@ public class ReviewController extends BaseController {
             essayQuestion.setEssayAnswer(answer);
             essayQuestion.update();
         }
-        answer.setEvaluatedScore(round(Double.parseDouble(df.get("evaluatedScore"))));
+        String essayScore = df.get("evaluatedScore");
+        Double score = essayScore == null ? null : Double.parseDouble(essayScore);
+        answer.setEvaluatedScore(round(score));
         answer.update();
         return ok(Json.toJson(essayQuestion));
     }
@@ -615,6 +622,7 @@ public class ReviewController extends BaseController {
                 .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
                 .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore")
                 .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
+                .fetch("examSections.sectionQuestions.clozeTestAnswer", "id, question, answer, score")
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")

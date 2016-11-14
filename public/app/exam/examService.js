@@ -229,7 +229,7 @@
                                 score += questionService.scoreWeightedMultipleChoiceAnswer(sq);
                                 break;
                             case "ClozeTestQuestion":
-                                // TODO
+                                score += questionService.scoreClozeTestAnswer(sq);
                                 break;
                             case "EssayQuestion":
                                 if (sq.essayAnswer && sq.essayAnswer.evaluatedScore && sq.evaluationType === 'Points') {
@@ -254,6 +254,7 @@
                         }
                         switch (sq.question.type) {
                             case "MultipleChoiceQuestion":
+                            case "ClozeTestQuestion":
                                 score += sq.maxScore;
                                 break;
                             case "WeightedMultipleChoiceQuestion":
@@ -263,9 +264,6 @@
                                 if (sq.evaluationType == 'Points') {
                                     score += sq.maxScore;
                                 }
-                                break;
-                            case "ClozeTestQuestion":
-                                // TODO
                                 break;
                             default:
                                 break;
@@ -327,7 +325,8 @@
                 };
 
                 self.isOwnerOrAdmin = function (exam) {
-                    return exam && (sessionService.getUser().isAdmin || self.isOwner(exam));
+                    var user = sessionService.getUser();
+                    return exam && user && (user.isAdmin || self.isOwner(exam));
                 };
 
             }]);

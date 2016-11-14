@@ -13,6 +13,7 @@
                 $scope.reviewSectionPath = EXAM_CONF.TEMPLATES_PATH + "review/exam_section.html";
                 $scope.multiplechoiceQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/multiple_choice_question.html";
                 $scope.essayQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/essay_question.html";
+                $scope.clozeTestPath = EXAM_CONF.TEMPLATES_PATH + "review/cloze_test.html";
                 $scope.previousParticipationPath = EXAM_CONF.TEMPLATES_PATH + "review/previous_participation.html";
                 $scope.multiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/multiple_choice_answer.html";
                 $scope.weightedMultiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/weighted_multiple_choice_answer.html";
@@ -271,6 +272,13 @@
                 // Get the exam that was specified in the URL
                 ExamRes.reviewerExam.get({eid: $routeParams.id},
                     function (exam) {
+                        exam.examSections.forEach(function (es) {
+                            es.sectionQuestions.filter(function (esq) {
+                                return esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer.answer;
+                            }).forEach(function (esq) {
+                                esq.clozeTestAnswer.answer = JSON.parse(esq.clozeTestAnswer.answer);
+                            });
+                        });
                         $scope.exam = exam;
 
                         setQuestionAmounts();
@@ -309,6 +317,12 @@
                         return 0;
                     }
                     return questionService.scoreMultipleChoiceAnswer(sectionQuestion);
+                };
+
+                $scope.displayClozeTestScore = function (sectionQuestion) {
+                    var score = sectionQuestion.clozeTestAnswer.score;
+                    return score.correctAnswers * sectionQuestion.maxScore /
+                        (score.correctAnswers + score.incorrectAnswers).toFixed(2);
                 };
 
                 $scope.range = function (min, max, step) {
@@ -592,7 +606,7 @@
                         } else if ($scope.user.isAdmin) {
                             $location.path("/");
                         } else {
-                            $location.path("exams/reviews/" + exam.parent.id);
+                            $location.path("exams/reviews/" + $scope.exam.parent.id);
                         }
                     }, function (error) {
                         toastr.error(error.data);

@@ -163,6 +163,9 @@
         .directive('ckEditor', ['$rootScope', function ($rootScope) {
             return {
                 require: 'ngModel',
+                scope: {
+                    enableClozeTest: '=?'
+                },
                 link: function (scope, elm, attr, ngModel) {
                     var tmp;
 
@@ -174,6 +177,9 @@
 
                     ck.on('instanceReady', function () {
                         ck.setData(tmp);
+                        if (!scope.enableClozeTest) {
+                            ck.getCommand('insertCloze').disable();
+                        }
                     });
 
                     function updateModel() {
@@ -213,15 +219,20 @@
                 restrict: "E",
                 scope: {
                     results: '=',
-                    content: '='
+                    content: '=',
+                    editable: '=?'
                 },
                 link: function(scope, element, attrs){
+                    var editable = angular.isUndefined(scope.editable) || scope.editable; // defaults to true
                     var replacement = angular.element(scope.content);
                     var inputs = replacement.find("input");
                     for (var i = 0; i < inputs.length; ++i) {
                         var input = inputs[i];
                         var id = input.attributes.id.value;
                         input.setAttribute('ng-model', 'results.' + id);
+                        if (!editable) {
+                            input.setAttribute('ng-disabled', 'true');
+                        }
                     }
                     element.replaceWith(replacement);
                     $compile(replacement)(scope);

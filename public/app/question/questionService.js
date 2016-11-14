@@ -72,6 +72,12 @@
                     }, 0));
                 };
 
+                self.scoreClozeTestAnswer = function (sectionQuestion) {
+                    var score = sectionQuestion.clozeTestAnswer.score;
+                    return parseFloat(score.correctAnswers * sectionQuestion.maxScore /
+                        (score.correctAnswers + score.incorrectAnswers).toFixed(2));
+                };
+
                 self.scoreWeightedMultipleChoiceAnswer = function (sectionQuestion) {
                     var score = sectionQuestion.options.filter(function (o) {
                         return o.answered;

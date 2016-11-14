@@ -52,8 +52,7 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                     },
                     {
                         type: 'html',
-                        html: '<h4 style="margin-top: 0">Usage</h4>Use only with Cloze Test type of questions, otherwise ' +
-                        'these elements have no effect and only cause confusion. Use vertical bar ( | ) to separate ' +
+                        html: '<h4 style="margin-top: 0">Usage</h4>Use vertical bar ( | ) to separate ' +
                         'correct answer options from each other. ' +
                         'Use asterisk ( * ) as a wildcard to match any series of characters. ' +
                         'For example <pre>*ship|boat|ferry</pre>' +

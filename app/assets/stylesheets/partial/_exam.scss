@@ -269,6 +269,14 @@
     list-style: none;
   }
 
+  .cloze-correct {
+    background: #ccffcc;
+  }
+
+  .cloze-incorrect {
+    background: #feeeef;
+  }
+
   .lottery-item-count {
     margin-top: 0 !important;
     margin-right: 1em;

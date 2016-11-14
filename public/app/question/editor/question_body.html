@@ -77,7 +77,7 @@
                 <small ng-if="showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
             </span>
         </label>
-        <textarea id="editor" name="editor" ck-editor rows="10" cols="80"
+        <textarea id="editor" name="editor" ck-editor enable-cloze-test="newQuestion.type === 'ClozeTestQuestion'" rows="10" cols="80"
                   ng-model="newQuestion.question" required>
         </textarea>
     </div>
