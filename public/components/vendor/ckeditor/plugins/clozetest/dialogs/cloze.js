@@ -48,7 +48,7 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                             element.setAttribute('case-sensitive', this.getValue());
                         },
                         label: 'Case sensitive',
-                        'default': 'false'
+                        'default': 'true'
                     },
                     {
                         type: 'html',
