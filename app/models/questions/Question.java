@@ -12,8 +12,10 @@ import models.User;
 import models.api.AttachmentContainer;
 import models.base.OwnedModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
 import play.mvc.Result;
@@ -238,6 +240,16 @@ public class Question extends OwnedModel implements AttachmentContainer {
             Set<String> distinctIds = answers.stream().map(a -> a.attr("id")).collect(Collectors.toSet());
             if (answers.size() != distinctIds.size()) {
                 reason = "duplicate ids found";
+            }
+            else if (answers.stream()
+                        .map(a -> a.attr("precision"))
+                        .anyMatch(p -> !p.isEmpty() && !NumberUtils.isParsable(p))) {
+                reason = "invalid precision found";
+            } else if (answers.stream()
+                    .filter(a -> a.attr("numeric").equals("true"))
+                    .map(Element::text)
+                    .anyMatch(t -> !NumberUtils.isParsable(t))) {
+                reason = "non-numeric correct answer for numeric question";
             }
         }
         return reason;

@@ -88,6 +88,7 @@ public class StudentExamController extends BaseController {
     @Transactional
     public Result turnExam(String hash) {
         User user = getLoggedUser();
+
         Exam exam = Ebean.find(Exam.class)
                 .fetch("examSections.sectionQuestions.question")
                 .where()
@@ -232,7 +233,7 @@ public class StudentExamController extends BaseController {
             }
             answer.setAnswer(node.get("answer").toString());
             answer.save();
-            return ok();
+            return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
         });
     }
 

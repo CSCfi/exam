@@ -1150,7 +1150,6 @@
                         var saveQuestion = function (baseQuestion) {
                             var errFn = function (error) {
                                 toastr.error(error.data);
-                                $modalInstance.dismiss("Cancelled");
                             };
                             if (!question) {
                                 // Create new base question

@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import models.ExamSectionQuestion;
 import models.base.GeneratedIdentityModel;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -48,12 +49,16 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
         blanks.forEach(b -> {
+            boolean isNumeric = isNumeric(b);
             StreamSupport.stream(b.attributes().spliterator(), false)
                     .filter(attr -> !attr.getKey().equals("id"))
                     .forEach(attr -> b.removeAttr(attr.getKey()));
             b.tagName("input");
             b.text("");
-            b.attr("type", "text");
+            b.attr("type", isNumeric ? "number" : "text");
+            if (isNumeric) {
+                b.attr("step", "any");
+            }
         });
         this.question = doc.body().children().toString();
     }
@@ -65,6 +70,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         Elements blanks = doc.select(CLOZE_SELECTOR);
         score = new Score();
         blanks.forEach(b -> {
+            boolean isNumeric = isNumeric(b);
             boolean isCorrectAnswer = isCorrectAnswer(b, answers);
             if (isCorrectAnswer) {
                 score.correctAnswers++;
@@ -75,9 +81,9 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
                     .filter(attr -> !attr.getKey().equals("id"))
                     .forEach(attr -> b.removeAttr(attr.getKey()));
             b.tagName("input");
-            b.attr("type", "text");
             b.text("");
             b.attr("class", isCorrectAnswer ? "cloze-correct" : "cloze-incorrect");
+            b.attr("type", isNumeric ? "number" : "text");
         });
         this.question = doc.body().children().toString();
     }
@@ -103,9 +109,31 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         return gson.fromJson(answer, mapType);
     }
 
+    private boolean isNumeric(Element blank) {
+        return Boolean.parseBoolean(blank.attr("numeric"));
+    }
+
+    private boolean isCorrectNumericAnswer(Element blank, Map<String, String> answers) {
+        String answerText = answers.get(blank.attr("id"));
+        if (answerText == null || !NumberUtils.isParsable(answerText)) {
+            return false;
+        }
+        String precisionAttr = blank.attr("precision");
+        Double answer = Double.parseDouble(answerText);
+        Double correctAnswer = Double.parseDouble(blank.text());
+        Double precision = precisionAttr == null ? 0.0 : Double.parseDouble(precisionAttr);
+        return correctAnswer - precision <= answer && answer <= correctAnswer + precision;
+    }
+
     private boolean isCorrectAnswer(Element blank, Map<String, String> answers) {
-        String correctAnswer = blank.text();
+        if (isNumeric(blank)) {
+            return isCorrectNumericAnswer(blank, answers);
+        }
         String answer = answers.get(blank.attr("id"));
+        if (answer == null) {
+            return false;
+        }
+        String correctAnswer = blank.text();
         // Generate the regex pattern. Replace '*' with '.*' and put the whole
         // thing in braces if there's a '|'.
         // For escaped '\*' and '\|' we have to first replace occurrences with special

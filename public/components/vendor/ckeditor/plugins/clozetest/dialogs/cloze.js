@@ -4,6 +4,8 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
         onLoad: function () {
             // Get rid of this style reset. I don't know what this is for anyway but it makes e.g. <pre> look like ordinary text
             this.getElement().removeClass('cke_reset_all');
+            // reapply on the tab handles, they look messy otherwise
+            //$('.cke_dialog_tab').addClass('cke_reset_all');
         },
 
         // Basic properties of the dialog window: title, minimum size.
@@ -16,7 +18,7 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
             {
                 // Definition of the Basic Settings dialog tab (page).
                 id: 'tab-basic',
-                label: 'Settings',
+                label: 'Textual',
 
                 // The tab content.
                 elements: [
@@ -47,11 +49,48 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                         commit: function (element) {
                             element.setAttribute('case-sensitive', this.getValue());
                         },
-                        label: 'Case sensitive',
+                        label: 'Case sensitive (textual answer only)',
                         'default': 'true'
                     },
                     {
+                        type: 'radio',
+                        id: 'numeric',
+                        items: [['Yes', 'true'], ['No', 'false']],
+                        setup: function (element) {
+                            this.setValue(element.getAttribute('numeric'))
+                        },
+                        commit: function (element) {
+                            element.setAttribute('numeric', this.getValue());
+                        },
+                        label: 'Numeric Answer',
+                        'default': 'false',
+                        validate: CKEDITOR.dialog.validate.functions(function(val) {
+                           if (val === 'true') {
+                               var answer = CKEDITOR.dialog.getCurrent().getContentElement('tab-basic','answer').getValue();
+                               return !isNaN(answer)
+                           }
+                           return true;
+                        }, "Answer must be a numeric value!")
+                    },
+                    {
+                        // Number input field for answer accuracy value
+                        type: 'number',
+                        id: 'precision',
+                        min: 0,
+                        label: 'Required answer precision (&plusmn; of correct numeric answer value)',
+                        setup: function (element) {
+                            this.setValue(element.getAttribute('precision') || 0);
+                        },
+                        commit: function (element) {
+                            element.setAttribute('precision', this.getValue());
+                        },
+                        validate: CKEDITOR.dialog.validate.functions(function(val) {
+                            return !val || parseFloat(val) >= 0;
+                        }, "Value must be a non negative number.")
+                    },
+                    {
                         type: 'html',
+                        id: 'usage',
                         html: '<h4 style="margin-top: 0">Usage</h4>Use vertical bar ( | ) to separate ' +
                         'correct answer options from each other. ' +
                         'Use asterisk ( * ) as a wildcard to match any series of characters. ' +
@@ -70,11 +109,12 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                 element = element.getAscendant('span', true);
             }
             var createUid = function () {
-                return ("0000" + (Math.random() * Math.pow(36, 4) << 0).toString(36)).slice(-4)
+                return "$" + ("0000" + (Math.random() * Math.pow(36, 4) << 0).toString(36)).slice(-4)
             };
             if (!element || element.getName() != 'span') {
                 element = editor.document.createElement('span');
                 element.setAttribute('id', createUid());
+                element.setAttribute('numeric', 'false');
                 this.insertMode = true;
             }
             else {

@@ -1,14 +1,11 @@
 CKEDITOR.plugins.add( 'clozetest', {
-
-    // Register the icons. They must match command names.
+    requires: 'dialog,numericinput',
     icons: 'cloze',
 
     // The plugin initialization logic goes inside this method.
     init: function( editor ) {
 
-        // Define the editor command that inserts a timestamp.
-        editor.addCommand( 'insertCloze',
-            new CKEDITOR.dialogCommand( 'clozeDialog' ));
+        editor.addCommand( 'insertCloze', new CKEDITOR.dialogCommand( 'clozeDialog' ));
 
         // Create the toolbar button that executes the above command.
         editor.ui.addButton( 'Cloze', {
