@@ -298,6 +298,9 @@ public class ExamSectionController extends BaseController {
             if (question == null) {
                 continue;
             }
+            if (exam.getAutoEvaluationConfig() != null && question.getType() == Question.Type.EssayQuestion) {
+                return forbidden("not possible to insert essay questions when autoevaluation is turned on");
+            }
             Optional<Result> result = insertQuestion(exam, section, question, user, sequence);
             if (result.isPresent()) {
                 return result.get();
