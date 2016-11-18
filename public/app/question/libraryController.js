@@ -185,15 +185,20 @@
                         section: getSectionIds()
                     }, function (data) {
                         data.map(function (item) {
-                            var icon;
-                            if (item.type === "MultipleChoiceQuestion") {
-                                icon = "fa-list-ul";
-                            } else if (item.type === "WeightedMultipleChoiceQuestion") {
-                                icon = "fa-balance-scale";
-                            } else {
-                                icon = "fa-edit";
+                            switch (item.type) {
+                                case "MultipleChoiceQuestion":
+                                    item.icon = "fa-list-ul";
+                                    break;
+                                case "WeightedMultipleChoiceQuestion":
+                                    item.icon = "fa-balance-scale";
+                                    break;
+                                case "EssayQuestion":
+                                    item.icon = "fa-edit";
+                                    break;
+                                case "ClozeTestQuestion":
+                                    item.icon = "fa-commenting-o";
+                                    break;
                             }
-                            item.icon = icon;
                             return item;
                         });
                         $scope.questions = $scope.filteredQuestions = questionService.applyFilter(data);
