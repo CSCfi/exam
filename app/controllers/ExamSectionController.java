@@ -273,6 +273,9 @@ public class ExamSectionController extends QuestionController {
         if (exam == null || section == null || question == null) {
             return notFound();
         }
+        if (exam.getAutoEvaluationConfig() != null && question.getType() == Question.Type.EssayQuestion) {
+            return forbidden("not possible to insert essay questions when autoevaluation is turned on");
+        }
         User user = getLoggedUser();
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("sitnet_error_access_forbidden");
@@ -300,6 +303,9 @@ public class ExamSectionController extends QuestionController {
             Question question = Ebean.find(Question.class, Long.parseLong(s));
             if (question == null) {
                 continue;
+            }
+            if (exam.getAutoEvaluationConfig() != null && question.getType() == Question.Type.EssayQuestion) {
+                return forbidden("not possible to insert essay questions when autoevaluation is turned on");
             }
             Optional<Result> result = insertQuestion(exam, section, question, user, sequence);
             if (result.isPresent()) {

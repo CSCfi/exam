@@ -115,12 +115,16 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
 
     private boolean isCorrectNumericAnswer(Element blank, Map<String, String> answers) {
         String answerText = answers.get(blank.attr("id"));
-        if (answerText == null || !NumberUtils.isParsable(answerText)) {
+        if (answerText == null) {
+            return false;
+        }
+        answerText = answerText.trim();
+        if (!NumberUtils.isParsable(answerText)) {
             return false;
         }
         String precisionAttr = blank.attr("precision");
         Double answer = Double.parseDouble(answerText);
-        Double correctAnswer = Double.parseDouble(blank.text());
+        Double correctAnswer = Double.parseDouble(blank.text().trim());
         Double precision = precisionAttr == null ? 0.0 : Double.parseDouble(precisionAttr);
         return correctAnswer - precision <= answer && answer <= correctAnswer + precision;
     }
@@ -133,7 +137,9 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         if (answer == null) {
             return false;
         }
-        String correctAnswer = blank.text();
+        // Get rid of excess whitespace
+        answer = answer.trim().replaceAll(" +", " ");
+        String correctAnswer = blank.text().trim().replaceAll(" +", " ");
         // Generate the regex pattern. Replace '*' with '.*' and put the whole
         // thing in braces if there's a '|'.
         // For escaped '\*' and '\|' we have to first replace occurrences with special
