@@ -261,11 +261,12 @@ public class Question extends OwnedModel implements AttachmentContainer {
         if (nodeExists(node, "question")) {
             switch (type) {
                 case EssayQuestion:
-                    if (!nodeExists(node, "defaultMaxScore")) {
-                        reason = "no max score defined";
-                    }
-                    else if (!nodeExists(node, "defaultEvaluationType")) {
+                    if (!nodeExists(node, "defaultEvaluationType")) {
                         reason = "no evaluation type defined";
+                    }
+                    EvaluationType type = EvaluationType.valueOf(node.get("defaultEvaluationType").asText());
+                    if (type == EvaluationType.Points && !nodeExists(node, "defaultMaxScore")) {
+                        reason = "no max score defined";
                     }
                     break;
                 case MultipleChoiceQuestion:

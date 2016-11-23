@@ -178,6 +178,7 @@
                 };
 
                 var query = function () {
+                    var deferred = $q.defer();
                     QuestionRes.questionlist.query({
                         exam: getExamIds(),
                         course: getCourseIds(),
@@ -224,13 +225,14 @@
                         var filters = {
                             exams: $scope.exams,
                             courses: $scope.courses,
-                            tags: $scope.tags,
-                            text: $scope.filter.text
+                            tags: $scope.tags
                         };
-                        questionService.storeQuestions($scope.questions, filters);
+                        questionService.storeFilters(filters);
                         $scope.currentPage = 0;
                         limitQuestions();
+                        deferred.resolve();
                     });
+                    return deferred.promise;
                 };
 
                 var union = function (filtered, tags) {
@@ -371,9 +373,8 @@
                     dialog.result.then(function (btn) {
                         QuestionRes.questions.delete({id: question.id}, function () {
                             $scope.questions.splice($scope.questions.indexOf(question), 1);
+                            $scope.applyFreeSearchFilter();
                             toastr.info($translate.instant('sitnet_question_removed'));
-                            // Clear cache to trigger a refresh now that there is a new entry
-                            questionService.clearQuestions();
                         });
                     });
                 };
@@ -396,7 +397,8 @@
                             return text;
                         },
                         function (data) {
-                            document.getElementsByClassName(textClass)[0].innerHTML = '<span>' + text.split('').join('</span><span>') + '</span>';
+                            document.getElementsByClassName(textClass)[0].innerHTML =
+                                '<span>' + text.split('').join('</span><span>') + '</span>';
                         }
                     );
 
@@ -412,24 +414,19 @@
                     return $sce.trustAsHtml(content);
                 };
 
-                var refresh = function () {
-                    questionService.clearQuestions();
-                    query();
-                };
+                $rootScope.$on('questionAdded', query);
+                $rootScope.$on('questionUpdated', query);
 
-                $rootScope.$on('questionAdded', refresh);
-                $rootScope.$on('questionUpdated', refresh);
-
-                var storedData = questionService.loadQuestions();
-                if (storedData.questions) {
-                    $scope.questions = $scope.filteredQuestions = storedData.questions;
-                    $scope.exams = storedData.filters.exams;
-                    $scope.courses = storedData.filters.courses;
-                    $scope.tags = storedData.filters.tags;
-                    $scope.filter.text = storedData.filters.text;
+                var storedData = questionService.loadFilters();
+                if (storedData.filters) {
+                    //$scope.questions = $scope.filteredQuestions = storedData.questions;
+                    $scope.exams = storedData.filters.exams || [];
+                    $scope.courses = storedData.filters.courses || [];
+                    $scope.tags = storedData.filters.tags || [];
                     $scope.currentPage = 0;
-                    limitQuestions();
-                    $scope.applyFreeSearchFilter();
+                    query().then(function () {
+                        limitQuestions();
+                    });
                 } else {
                     query();
                 }

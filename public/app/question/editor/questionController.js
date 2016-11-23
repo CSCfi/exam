@@ -127,8 +127,6 @@
                             toastr.info($translate.instant('sitnet_question_removed'));
                             if ($routeParams.examId === undefined) {
                                 $location.path("/questions/");
-                                // Clear cache to trigger a refresh now that there is a new entry
-                                questionService.clearQuestions();
                             } else {
                                 $location.path("/exams/" + $routeParams.examId);
                             }
@@ -159,7 +157,6 @@
 
                 $scope.saveQuestion = function () {
                     var successFn = function () {
-                        questionService.clearQuestions();
                         clearListeners();
                         $location.path('/questions');
                     };

@@ -314,11 +314,12 @@
                     http().get('/app/checkSession').success(function (data) {
                         if (data === "alarm") {
                             toastr.options = {
-                                timeOut: "0",
+                                timeOut: 0,
                                 preventDuplicates: true,
                                 onclick: function () {
                                     http().put('/app/extendSession', {}).success(function () {
                                         toastr.info($translate.instant("sitnet_session_extended"));
+                                        toastr.options.timeout = 1000;
                                     });
                                 }
                             };
