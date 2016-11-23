@@ -14,11 +14,13 @@ import models.ExamSectionQuestionOption;
 import models.User;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
+import play.Logger;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
 
+import javax.persistence.PersistenceException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -225,6 +227,7 @@ public class QuestionController extends BaseController {
         if (question == null) {
             return notFound();
         }
+
         // Not allowed to remove if used in active exams
         if (!question.getExamSectionQuestions().stream()
                 .filter(esq -> {
@@ -240,7 +243,13 @@ public class QuestionController extends BaseController {
             c.update();
         });
         question.getExamSectionQuestions().forEach((Model::delete));
-        question.delete();
+        try {
+            question.delete();
+        } catch (PersistenceException e) {
+            Logger.info("Shared question attachment reference found, can not delete the reference yet");
+            question.setAttachment(null);
+            question.delete();
+        }
         return ok();
     }
 
