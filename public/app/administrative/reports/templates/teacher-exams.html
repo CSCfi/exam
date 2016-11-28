@@ -1,20 +1,19 @@
 <div class="top-row">
     <h4 class="col-md-12">
-        {{'sitnet_get_all_student_activities' | translate}}
+        {{'sitnet_get_all_teacher_exams' | translate}}
     </h4>
 </div>
-
 <div class="bottom-row">
-    <div class="col-md-2">
 
-        <label for="student">{{'sitnet_student' | translate}}</label>
-        <div class="form-group" id="student">
-            <ui-select ng-model="ctrl.selectedFields.student">
-                <ui-select-match allow-clear="true" placeholder="{{'sitnet_student' | translate}}">
+    <div class="col-md-2">
+        <label for="teacher">{{'sitnet_teacher' | translate}}</label>
+        <div id="teacher" class="form-group">
+            <ui-select ng-model="$ctrl.selectedFields.teacher">
+                <ui-select-match allow-clear="true" placeholder="{{'sitnet_teacher' | translate}}">
                     {{$select.selected.name}}
                 </ui-select-match>
-                <ui-select-choices repeat="student in (ctrl.students | filter: $select.search | limitTo: 50) track by student.id">
-                    <div ng-bind="student.name"></div>
+                <ui-select-choices repeat="teacher in ($ctrl.teachers | filter: $select.search | limitTo: 50) track by teacher.id">
+                    <div>{{teacher.name}}</div>
                 </ui-select-choices>
             </ui-select>
         </div>
@@ -23,7 +22,7 @@
     <!-- Start & End time datepickers -->
     <div ng-controller="DatepickerCtrl">
         <div class="col-md-4">
-            <label for="startAt">{{'sitnet_from' | translate}}</label>
+            <label for="startAt">{{'sitnet_start_time' | translate}}</label>
 
             <div id="startAt" class="input-group">
                 <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dateService.startDate"
@@ -40,7 +39,7 @@
         </div>
 
         <div class="col-md-4">
-            <label for="endAt">{{'sitnet_to' | translate}}</label>
+            <label for="endAt">{{'sitnet_end_time' | translate}}</label>
 
             <div id="endAt" class="input-group">
                 <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dateService.endDate"
@@ -59,9 +58,10 @@
     </div>
 
     <div class="col-md-2">
-        <label for="link"></label>
+        <label for="link">&nbsp;</label>
+
         <div id="link">
-            <a ng-click="ctrl.getStudentReport(ctrl.selectedFields.student, ctrl.dateService.startDate, ctrl.dateService.endDate)"
+            <a ng-click="$ctrl.getTeacherExamsByDate($ctrl.selectedFields.teacher, $ctrl.dateService.startDate, $ctrl.dateService.endDate)"
                class="fa-stack fa-lg pointer pull-right" download popover-trigger="mouseenter"
                uib-popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>

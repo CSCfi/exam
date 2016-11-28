@@ -1,23 +1,25 @@
-(function () {
-    'use strict';
-    angular.module("exam.controllers")
-        .controller('ReportController', ['$translate', 'EXAM_CONF', 'ReportResource', 'RoomResource', 'dateService', '$filter', 'UserRes', 'fileService',
-            function ($translate, EXAM_CONF, ReportResource, RoomResource, dateService, $filter, UserRes, fileService) {
+'use strict';
+
+angular.module("administrative.reports")
+    .component('reports', {
+        templateUrl: '/assets/app/administrative/reports/reports.template.html',
+        controller: ['$translate', 'EXAM_CONF', 'Reports', 'RoomResource', 'dateService', '$filter', 'UserRes', 'fileService',
+            function Reports($translate, EXAM_CONF, Reports, RoomResource, dateService, $filter, UserRes, fileService) {
 
                 var ctrl = this;
 
                 ctrl.dateService = dateService;
                 ctrl.csvExport = {};
                 ctrl.templates = {
-                    examRoomReservations: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/exam-room-reservations.html",
-                    teacherExamsReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/teacher-exams.html",
-                    reviewedExams: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/reviewed-exams.html",
-                    examReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/exam-report.html",
-                    examReportJson: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/exam-report-json.html",
-                    examAnswers: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/exam-answers.html",
-                    examEnrollmentsReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/exam-enrollments.html",
-                    studentReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/student.html",
-                    examRecordsCsv: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/exam-records-csv.html"
+                    examRoomReservations: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-room-reservations.html",
+                    teacherExamsReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/teacher-exams.html",
+                    reviewedExams: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/reviewed-exams.html",
+                    examReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-report.html",
+                    examReportJson: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-report-json.html",
+                    examAnswers: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-answers.html",
+                    examEnrollmentsReport: EXAM_CONF.TEMPLATES_PATH + "administrative/templates/reports/exam-enrollments.html",
+                    studentReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/student.html",
+                    examRecordsCsv: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-records-csv.html"
                 };
 
                 ctrl.selectedFields = {
@@ -29,7 +31,7 @@
                 };
 
                 ctrl.rooms = RoomResource.rooms.query();
-                ctrl.examnames = ReportResource.examnames.query();
+                ctrl.examnames = Reports.examnames.query();
 
                 ctrl.teachers = UserRes.usersByRole.query({role: "TEACHER"});
                 ctrl.students = UserRes.usersByRole.query({role: "STUDENT"});
@@ -44,7 +46,7 @@
 
                 ctrl.getStudentReport = function (student, from, to) {
                     if (student) {
-                        var f = $filter("date")(from, "dd.MM.yyyy") ;
+                        var f = $filter("date")(from, "dd.MM.yyyy");
                         var t = $filter("date")(to, "dd.MM.yyyy");
                         fileService.download('/app/statistics/student/' + student.id + '/' + f + '/' + t, 'student_activity.xlsx');
                     } else {
@@ -113,5 +115,7 @@
                     fileService.download('/app/exam/record', 'examrecords.csv', {'startDate': start, 'endDate': end});
                 };
 
-            }]);
-}());
+            }
+        ]
+    });
+

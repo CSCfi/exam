@@ -10,11 +10,11 @@
             <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button"
                     id="dropDownMenu1"
                     data-toggle="dropdown" aria-expanded="true">
-                {{ ctrl.selectedFields.room.name | truncate: 100 }}&nbsp;<span class="caret"></span>
+                {{ $ctrl.selectedFields.room.name | truncate: 100 }}&nbsp;<span class="caret"></span>
             </button>
             <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
                 aria-labelledby="dropDownMenu1">
-                <li ng-repeat="room in ctrl.rooms" role="presentation" ng-click="ctrl.setRoom(room)">
+                <li ng-repeat="room in $ctrl.rooms" role="presentation" ng-click="$ctrl.setRoom(room)">
                     <a role="menuitem">{{ room.name }}</a>
                 </li>
             </ul>
@@ -59,7 +59,7 @@
     <div class="col-md-2">
         <label for="link">&nbsp;</label>
         <div id="link">
-            <a ng-click="ctrl.getRoomReservationsByDate(ctrl.selectedFields.room.id, ctrl.dateService.startDate, ctrl.dateService.endDate)"
+            <a ng-click="$ctrl.getRoomReservationsByDate($ctrl.selectedFields.room.id, $ctrl.dateService.startDate, $ctrl.dateService.endDate)"
                class="fa-stack fa-lg pull-right" download popover-trigger="mouseenter"
                uib-popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>

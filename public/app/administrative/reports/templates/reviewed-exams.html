@@ -1,6 +1,6 @@
 <div class="top-row">
     <h4 class="col-md-12">
-        {{'sitnet_get_all_exam_answers' | translate}}
+        {{'sitnet_get_graded_exams' | translate}}
     </h4>
 </div>
 <div class="bottom-row">
@@ -29,8 +29,7 @@
 
             <div id="endAt" class="input-group">
                 <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dateService.endDate"
-                       is-open="endDateOpened" min="dateService.startDate" datepicker-options="dateOptions"
-                       date-disabled="disabled(date, mode)"
+                       is-open="endDateOpened" min="dateService.startDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
                        ng-required="true" close-text="{{'sitnet_close' | translate}}"
                        current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
                        clear-text="{{'sitnet_clear' | translate}}">
@@ -47,8 +46,8 @@
         <label for="link">&nbsp;</label>
 
         <div id="link">
-            <a ng-click="ctrl.getExamAnswerReport(ctrl.dateService.startTimestamp, ctrl.dateService.endTimestamp)"
-               class="fa-stack fa-lg pull-right" download popover-trigger="mouseenter"
+            <a ng-click="$ctrl.getReviewsByDate($ctrl.dateService.startDate, $ctrl.dateService.endDate)"
+               class="fa-stack fa-lg pointer pull-right" download popover-trigger="mouseenter"
                uib-popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                 <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>

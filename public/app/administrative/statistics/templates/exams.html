@@ -1,6 +1,6 @@
 <div class="detail-row">
     <div class="col-md-12">
-        <button class="btn btn-primary" ng-click="listExams()">{{'sitnet_search' | translate}}</button>
+        <button class="btn btn-primary" ng-click="$ctrl.listExams()">{{'sitnet_search' | translate}}</button>
     </div>
 </div>
 
@@ -10,7 +10,7 @@
     </div>
 </div>
 <div class="detail-row">
-    <div class="col-md-12" ng-show="exams.length > 0">
+    <div class="col-md-12" ng-show="$ctrl.exams.length > 0">
         <table class="table table-striped table-condensed">
             <thead>
             <tr>
@@ -20,8 +20,8 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="exam in exams | orderBy:['-participations', 'name'] as sorted">
-                <td>{{getRank($index, sorted)}}.</td>
+            <tr ng-repeat="exam in $ctrl.exams | orderBy:['-participations', 'name'] as sorted">
+                <td>{{$ctrl.getRank($index, sorted)}}.</td>
                 <td>{{exam.name}}</td>
                 <td>{{exam.participations}}</td>
             </tr>
@@ -29,7 +29,7 @@
             <tfoot>
             <tr>
                 <td colspan="2"><b>{{ 'sitnet_total' | translate }}</b></td>
-                <td><b>{{ totalExams() }}</b></td>
+                <td><b>{{ $ctrl.totalExams() }}</b></td>
             </tr>
             </tfoot>
         </table>

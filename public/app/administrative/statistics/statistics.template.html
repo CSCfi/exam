@@ -1,8 +1,6 @@
 <script>
     $(document).ready(function () {
-        console.log('ready');
         $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function (e) {
-            console.log('darn');
             e.stopPropagation();
         });
 
@@ -15,21 +13,21 @@
     </div>
 </div>
 
-<div id="dashboard" ng-init="view = 'ROOMS'">
+<div id="dashboard" ng-init="$ctrl.view = 'ROOMS'">
     <!-- TAB NAVIGATION -->
     <div class="main-row">
         <ul class="nav nav-tabs">
-            <li role="presentation" ng-class="{'active' : view === 'ROOMS'}">
-                <a class="pointer" target="_self" ng-click="view='ROOMS'">{{'sitnet_exam_rooms' | translate}}</a>
+            <li role="presentation" ng-class="{'active' : $ctrl.view === 'ROOMS'}">
+                <a class="pointer" target="_self" ng-click="$ctrl.view='ROOMS'">{{'sitnet_exam_rooms' | translate}}</a>
             </li>
-            <li role="presentation" ng-class="{'active' : view === 'EXAMS'}">
-                <a class="pointer" target="_self" ng-click="view='EXAMS'">{{'sitnet_exams' | translate}}</a>
+            <li role="presentation" ng-class="{'active' : $ctrl.view === 'EXAMS'}">
+                <a class="pointer" target="_self" ng-click="$ctrl.view='EXAMS'">{{'sitnet_exams' | translate}}</a>
             </li>
-            <li role="presentation" ng-class="{'active' : view === 'RESERVATIONS'}">
-                <a class="pointer" target="_self" ng-click="view='RESERVATIONS'">{{'sitnet_reservations' | translate}}</a>
+            <li role="presentation" ng-class="{'active' : $ctrl.view === 'RESERVATIONS'}">
+                <a class="pointer" target="_self" ng-click="$ctrl.view='RESERVATIONS'">{{'sitnet_reservations' | translate}}</a>
             </li>
-            <li role="presentation" ng-class="{'active' : view === 'RESPONSES'}">
-                <a class="pointer" target="_self" ng-click="view='RESPONSES'">{{'sitnet_exam_responses' | translate}}</a>
+            <li role="presentation" ng-class="{'active' : $ctrl.view === 'RESPONSES'}">
+                <a class="pointer" target="_self" ng-click="$ctrl.view='RESPONSES'">{{'sitnet_exam_responses' | translate}}</a>
             </li>
         </ul>
     </div>
@@ -46,8 +44,7 @@
                            is-open="startDateOpened" datepicker-options="dateOptions"
                            ng-model-options="{timezone: '+0000'}"
                            close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}"
-                           toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}"
-                           ui-change="updateExam()">
+                           toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}">
 
                     <span class="input-group-btn">
                         <button class="btn btn-default" ng-click="openStartDate($event)">
@@ -87,14 +84,14 @@
             <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
                 aria-labelledby="dropDownMenu1">
                 <li role="presentation" class="input-group">
-                    <input ng-model="limitations.department" type="text" class="form-control"
+                    <input ng-model="$ctrl.limitations.department" type="text" class="form-control"
                            placeholder="{{'sitnet_search' | translate }}">
 
                     <div class="input-group-addon">
                         <i class="fa fa-search fa-fw"></i>
                     </div>
                 </li>
-                <li ng-repeat="department in departments | filter:limitations.department" role="presentation"
+                <li ng-repeat="department in $ctrl.departments | filter:$ctrl.limitations.department" role="presentation"
                     ng-class="department.filtered ? 'active': ''"
                     ng-click="department.filtered = !department.filtered">
                     <a role="menuitem" title="{{department.name}}">{{department.name}}</a>
@@ -105,7 +102,7 @@
         <div class="col-md-5">
             <ul class="inline-list">
                 <li>
-                    <button ng-repeat="department in departments" ng-if="department.filtered" type='button'
+                    <button ng-repeat="department in $ctrl.departments" ng-if="department.filtered" type='button'
                             ng-click="department.filtered = false" class="btn btn-primary btn-xs" style="margin: 0.2em">
                         {{department.name}}
                     </button>
@@ -115,9 +112,9 @@
     </div>
 
     <!-- TAB CONTENT -->
-    <div ng-if="view === 'ROOMS'" ng-include="templates.rooms" ng-init="listParticipations()"/>
-    <div ng-if="view === 'EXAMS'" ng-include="templates.exams" ng-init="listExams()"/>
-    <div ng-if="view === 'RESERVATIONS'" ng-include="templates.reservations" ng-init="listReservations()"/>
-    <div ng-if="view === 'RESPONSES'" ng-include="templates.responses" ng-init="listResponses()"/>
+    <div ng-if="$ctrl.view === 'ROOMS'" ng-include="$ctrl.templates.rooms" ng-init="$ctrl.listParticipations()"/>
+    <div ng-if="$ctrl.view === 'EXAMS'" ng-include="$ctrl.templates.exams" ng-init="$ctrl.listExams()"/>
+    <div ng-if="$ctrl.view === 'RESERVATIONS'" ng-include="$ctrl.templates.reservations" ng-init="$ctrl.listReservations()"/>
+    <div ng-if="$ctrl.view === 'RESPONSES'" ng-include="$ctrl.templates.responses" ng-init="$ctrl.listResponses()"/>
 
 </div>

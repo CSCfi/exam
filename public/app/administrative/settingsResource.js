@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.resources")
+    angular.module("administrative")
         .factory("SettingsResource", ['$resource', function ($resource) {
             return {
                 agreement: $resource("/app/settings/agreement", {}, {'update': {method: 'PUT'}}),

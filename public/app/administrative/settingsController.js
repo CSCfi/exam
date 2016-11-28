@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module("administrative")
         .controller('SettingsController', ['$scope', '$translate', '$location', '$http', 'SettingsResource', 'sessionService',
             function ($scope, $translate, $location, $http, SettingsResource, sessionService) {
 

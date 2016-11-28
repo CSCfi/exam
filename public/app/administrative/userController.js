@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module("administrative")
         .controller('UserCtrl', ['$scope', '$timeout', '$translate', 'UserRes', 'EXAM_CONF', 'sessionService',
             function ($scope, $timeout, $translate, UserRes, EXAM_CONF, sessionService) {
 
