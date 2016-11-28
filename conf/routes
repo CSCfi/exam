@@ -83,7 +83,7 @@ POST          /app/student/exams/:hash/clozetest/:questionId             control
 GET           /app/feedback/exams/:eid                                   controllers.StudentActionsController.getExamFeedback(eid: Long)
 GET           /app/feedback/exams/:eid/score                             controllers.StudentActionsController.getExamScore(eid: Long)
 GET           /app/student/inspectors/exam/:id                           controllers.StudentActionsController.getExamInspectors(id: Long)
-GET           /app/student/finishedexams                                 controllers.StudentActionsController.getFinishedExams
+GET           /app/student/finishedexams                                 controllers.StudentActionsController.getFinishedExams(filter: java.util.Optional[String])
 GET           /app/enrolments                                            controllers.StudentActionsController.getEnrolmentsForUser
 GET           /app/student/exam/:eid                                     controllers.StudentActionsController.getExamInfo(eid: Long)
 GET           /app/student/exams                                         controllers.StudentActionsController.listAvailableExams(filter: java.util.Optional[String])

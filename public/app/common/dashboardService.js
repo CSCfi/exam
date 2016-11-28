@@ -50,6 +50,18 @@
                     };
                 };
 
+                self.searchParticipations = function(filter) {
+                    var deferred = $q.defer();
+                    StudentExamRes.finishedExams.query({filter: filter},
+                        function (participations) {
+                            deferred.resolve({participations: participations});
+                        },
+                        function (error) {
+                            deferred.reject(error);
+                        });
+                    return deferred.promise;
+                };
+
                 var showStudentDashboard = function () {
                     var scope = {};
                     var deferred = $q.defer();

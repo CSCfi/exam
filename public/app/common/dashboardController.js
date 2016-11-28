@@ -8,6 +8,7 @@
 
                 $scope.evaluationPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/exam_feedback.html";
 
+                $scope.filter = {ordering: '-ended'};
                 $scope.templates = dashboardService.getTemplates();
                 // Pagesize for showing finished exams
                 $scope.pageSize = 10;
@@ -54,6 +55,14 @@
                 //Go to feedback template to show teacher's comments
                 $scope.showFeedback = function (id) {
                     examService.showFeedback(id);
+                };
+
+                $scope.searchParticipations = function () {
+                    return dashboardService.searchParticipations($scope.filter.text).then(function (data) {
+                        $scope.participations = data.participations;
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
                 };
 
                 $scope.getUsername = function () {
