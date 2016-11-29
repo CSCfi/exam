@@ -243,7 +243,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
             }
             else if (answers.stream()
                         .map(a -> a.attr("precision"))
-                        .anyMatch(p -> !p.isEmpty() && !NumberUtils.isParsable(p))) {
+                        .anyMatch(p -> p.isEmpty() || !NumberUtils.isParsable(p))) {
                 reason = "invalid precision found";
             } else if (answers.stream()
                     .filter(a -> a.attr("numeric").equals("true"))
