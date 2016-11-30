@@ -724,7 +724,7 @@
                 };
 
                 $scope.isAwaitingInspection = function () {
-                    return !$scope.user.isLanguageInspector && $scope.exam && $scope.exam.languageInspection && !$scope.exam.languageInspection.finishedAt;
+                    return $scope.exam && $scope.exam.languageInspection && !$scope.exam.languageInspection.finishedAt;
                 };
 
                 $scope.canFinalizeInspection = function () {
@@ -754,6 +754,13 @@
 
                 var isMissingFeedback = function () {
                     return !$scope.exam.examFeedback || !$scope.exam.examFeedback.comment;
+                };
+
+                var isMissingStatement = function () {
+                    if (!$scope.isUnderLanguageInspection()) {
+                        return false;
+                    }
+                    return !$scope.exam.languageInspection.statement || !$scope.exam.languageInspection.statement.comment;
                 };
 
                 $scope.proceedWithMaturity = function (alternate) {
@@ -796,14 +803,16 @@
                     if (isMissingFeedback()) {
                         return MATURITY_STATES.MISSING_STATEMENT;
                     }
-                    if ($scope.isAwaitingInspection()) {
-                        return MATURITY_STATES.AWAIT_INSPECTION;
+                    if (isMissingStatement()) {
+                        return MATURITY_STATES.MISSING_STATEMENT;
                     }
                     if ($scope.isUnderLanguageInspection()) {
                         return $scope.exam.languageInspection.approved ? MATURITY_STATES.APPROVE_LANGUAGE :
                             MATURITY_STATES.REJECT_LANGUAGE;
                     }
-
+                    if ($scope.isAwaitingInspection()) {
+                        return MATURITY_STATES.AWAIT_INSPECTION;
+                    }
                     var disapproved = !$scope.exam.grade || !$scope.exam.grade.type ||
                         ['REJECTED', 'I', '0', 'NONE'].indexOf($scope.exam.grade.type) > -1;
 

@@ -328,7 +328,7 @@ public class StudentExamController extends BaseController {
                         "examInspections(user(firstName, lastName))" +
                         "examSections(id, name, sequenceNumber, description, " + // ((
                         "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
-                        "question(id, type, question, attachment(fileName))" +
+                        "question(id, type, question, attachment(id, fileName))" +
                         "options(id, answered, option(id, option))" +
                         "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
                         "clozeTestAnswer(id, question, answer, objectVersion)" +

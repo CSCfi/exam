@@ -169,10 +169,16 @@
     <div ng-show="newExam.executionType.type==='MATURITY'">
         <div class="row">
             <div class="col-md-12">
-                <div class="checkbox-inline sitnet-info-text">
-                    <input type="checkbox" ng-model="newExam.subjectToLanguageInspection" ng-value="true"
-                           ng-change="updateExam()">
-                        {{'sitnet_subject_to_language_inspection' | translate}}
+                <div class="sitnet-info-text">{{'sitnet_subject_to_language_inspection' | translate}}</div>
+                <div class="input-group">
+                    <button class="btn btn-default" ng-class="newExam.subjectToLanguageInspection ? 'btn-primary' : ''"
+                            ng-disabled="newExam.state === 'PUBLISHED'"
+                            ng-click="newExam.subjectToLanguageInspection = true; updateExam()">{{'DIALOGS_YES' | translate }}
+                    </button>&nbsp;
+                    <button class="btn btn-default" ng-class="newExam.subjectToLanguageInspection ? '' : 'btn-primary'"
+                            ng-disabled="newExam.state === 'PUBLISHED'"
+                            ng-click="newExam.subjectToLanguageInspection = false; updateExam()">{{'DIALOGS_NO' | translate }}
+                    </button>
                 </div>
             </div>
         </div>
