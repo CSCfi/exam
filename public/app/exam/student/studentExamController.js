@@ -23,8 +23,6 @@
                 $scope.nextButton = {};
                 $scope.showClock = true;
 
-                $scope.clozeAnswers = {};
-
                 $scope.clockManagement = function () {
                     $scope.showClock = !$scope.showClock;
                 };

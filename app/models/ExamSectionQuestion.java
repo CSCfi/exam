@@ -251,6 +251,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 // ATM minimum score is zero
                 return Math.max(0.0, evaluation);
             case ClozeTestQuestion:
+                // sanity check
                 if (clozeTestAnswer == null) {
                     return 0.0;
                 }

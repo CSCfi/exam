@@ -14,6 +14,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
@@ -72,6 +73,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         blanks.forEach(b -> {
             boolean isNumeric = isNumeric(b);
             boolean isCorrectAnswer = isCorrectAnswer(b, answers);
+            String precision = b.attr("precision");
             if (isCorrectAnswer) {
                 score.correctAnswers++;
             } else {
@@ -84,6 +86,9 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             b.text("");
             b.attr("class", isCorrectAnswer ? "cloze-correct" : "cloze-incorrect");
             b.attr("type", isNumeric ? "number" : "text");
+            if (isNumeric) {
+                b.append("<span class=\"cloze-precision\">[&plusmn;" + precision + "]</span>");
+            }
         });
         this.question = doc.body().children().toString();
     }
@@ -106,7 +111,8 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
 
     private Map<String, String> asMap(Gson gson) {
         Type mapType = new TypeToken<Map<String, String>>(){}.getType();
-        return gson.fromJson(answer, mapType);
+        Map<String, String> map = gson.fromJson(answer, mapType);
+        return map == null ? Collections.emptyMap() : map;
     }
 
     private boolean isNumeric(Element blank) {
@@ -114,10 +120,11 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
     }
 
     private boolean isCorrectNumericAnswer(Element blank, Map<String, String> answers) {
-        String answerText = answers.get(blank.attr("id"));
-        if (answerText == null) {
+        String key = blank.attr("id");
+        if (!answers.containsKey(key)) {
             return false;
         }
+        String answerText = answers.get(blank.attr("id"));
         answerText = answerText.trim();
         if (!NumberUtils.isParsable(answerText)) {
             return false;
@@ -133,9 +140,12 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         if (isNumeric(blank)) {
             return isCorrectNumericAnswer(blank, answers);
         }
-        String answer = answers.get(blank.attr("id"));
-        if (answer == null) {
-            return false;
+        String answer;
+        String attr = blank.attr("id");
+        if (answers.containsKey(attr)) {
+            answer = answers.get(blank.attr("id"));
+        } else {
+            answer = "";
         }
         // Get rid of excess whitespace
         answer = answer.trim().replaceAll(" +", " ");

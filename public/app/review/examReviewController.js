@@ -322,7 +322,7 @@
                 $scope.displayClozeTestScore = function (sectionQuestion) {
                     var score = sectionQuestion.clozeTestAnswer.score;
                     return score.correctAnswers * sectionQuestion.maxScore /
-                        (score.correctAnswers + score.incorrectAnswers).toFixed(2);
+                        (score.correctAnswers + score.incorrectAnswers).toFixed(2) + ' / ' + sectionQuestion.maxScore;
                 };
 
                 $scope.range = function (min, max, step) {
