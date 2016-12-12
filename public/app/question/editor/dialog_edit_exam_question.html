@@ -63,7 +63,7 @@
                         </span>
                     </label>
                     <textarea ng-if="question.question || question.question === ''" id="editor" name="editor"
-                              ck-editor enable-cloze-test="newQuestion.type === 'ClozeTestQuestion'" rows="10" cols="80"
+                              ck-editor enable-cloze-test="question.type === 'ClozeTestQuestion'" rows="10" cols="80"
                               ng-model="question.question" required>
                     </textarea>
                 </div>

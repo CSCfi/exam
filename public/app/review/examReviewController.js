@@ -735,18 +735,22 @@
                     NOT_REVIEWED: {id: 1, text: 'sitnet_not_reviewed'},
                     REJECT_STRAIGHTAWAY: {id: 2, text: 'sitnet_reject_maturity', canProceed: true, warn: true},
                     LANGUAGE_INSPECT: {id: 3, text: 'sitnet_send_for_language_inspection', canProceed: true},
-                    AWAIT_INSPECTION: {id: 4, text: 'sitnet_await_inspection'}, //odottaa kielentarkastusta
+                    AWAIT_INSPECTION: {id: 4, text: 'sitnet_await_inspection'},
                     REJECT_LANGUAGE: {
                         id: 5, text: 'sitnet_reject_maturity', canProceed: true, warn: true,
-                        validate: $scope.canFinalizeInspection
+                        validate: $scope.canFinalizeInspection,
+                        showHint: $scope.isMissingStatement,
+                        hint: 'sitnet_missing_statement'
                     },
                     APPROVE_LANGUAGE: {
                         id: 6, text: 'sitnet_send_result_to_registry', canProceed: true,
-                        validate: $scope.canFinalizeInspection
+                        validate: $scope.canFinalizeInspection,
+                        showHint: $scope.isMissingStatement,
+                        hint: 'sitnet_missing_statement'
                     },
                     MISSING_STATEMENT: {id: 9, text: 'sitnet_missing_statement'}
                 };
-                MATURITY_STATES.LANGUAGE_INSPECT.alternateState = MATURITY_STATES.SEND_TO_REGISTRY;
+                MATURITY_STATES.APPROVE_LANGUAGE.alternateState = MATURITY_STATES.REJECT_LANGUAGE;
 
                 var isGraded = function () {
                     return $scope.exam.grade;
@@ -756,7 +760,7 @@
                     return !$scope.exam.examFeedback || !$scope.exam.examFeedback.comment;
                 };
 
-                var isMissingStatement = function () {
+                $scope.isMissingStatement = function () {
                     if (!$scope.isUnderLanguageInspection()) {
                         return false;
                     }
@@ -803,12 +807,8 @@
                     if (isMissingFeedback()) {
                         return MATURITY_STATES.MISSING_STATEMENT;
                     }
-                    if (isMissingStatement()) {
-                        return MATURITY_STATES.MISSING_STATEMENT;
-                    }
                     if ($scope.isUnderLanguageInspection()) {
-                        return $scope.exam.languageInspection.approved ? MATURITY_STATES.APPROVE_LANGUAGE :
-                            MATURITY_STATES.REJECT_LANGUAGE;
+                        return MATURITY_STATES.APPROVE_LANGUAGE;
                     }
                     if ($scope.isAwaitingInspection()) {
                         return MATURITY_STATES.AWAIT_INSPECTION;

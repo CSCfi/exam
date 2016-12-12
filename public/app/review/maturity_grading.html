@@ -1,15 +1,7 @@
-<div class="top-row" ng-show="isUnderLanguageInspection() || hasGoneThroughLanguageInspection()">
+<div class="top-row" ng-show="hasGoneThroughLanguageInspection()">
     <strong class="col-md-12">{{'sitnet_language_inspections' | translate}}:</strong>
 </div>
-<div class="detail-row" ng-show="isUnderLanguageInspection()">
-    <div class="col-md-12">
-        <div class="checkbox">
-            <input type="checkbox" ng-disabled="hasGoneThroughLanguageInspection()"
-                   ng-model="exam.languageInspection.approved">
-            {{'sitnet_approved' | translate}}
-        </div>
-    </div>
-</div>
+
 <div class="detail-row" ng-show="hasGoneThroughLanguageInspection()">
     <div class="col-md-12" ng-class="exam.languageInspection.approved ? 'text-success' : 'text-danger'">
         <strong>
