@@ -525,17 +525,17 @@
                             $scope.ok = function () {
                                 var start, end;
                                 if ($scope.params.startDate) {
-                                    start = moment($scope.params.startDate).format('DD.MM.YYYY');
+                                    start = moment($scope.params.startDate);
                                 }
                                 if ($scope.params.endDate) {
-                                    end = moment($scope.params.endDate).format('DD.MM.YYYY');
+                                    end = moment($scope.params.endDate);
                                 }
                                 if (start && end && end < start) {
                                     toastr.error($translate.instant('sitnet_endtime_before_starttime'));
                                 } else {
                                     $modalInstance.close({
-                                        "start": start,
-                                        "end": end
+                                        "start": start.format('DD.MM.YYYY'),
+                                        "end": end.format('DD.MM.YYYY')
                                     });
                                 }
                             };
