@@ -197,7 +197,7 @@
 
                     // use "$scope.updateProperties" in controllers if needed to save the editor after losing focus a.k.a "onblur"
                     ck.on('blur', function () {
-                        if (scope.updateProperties) {
+                        if (scope.updateProperties !== undefined) {
                             scope.updateProperties();
                         }
                     });
@@ -332,6 +332,26 @@
                     scope.getSortClass = function () {
                         return scope.predicate === scope.by ?
                             (scope.reverse ? 'fa-sort-down' : 'fa-sort-up') : 'fa-sort';
+                    };
+                }
+            };
+        }])
+        .directive('sortExam', [function () {
+            return {
+                restrict: 'A',
+                template: '<span ng-class="predicate === by ? \'sorted-column\' : \'\'" class="pointer"' +
+                'ng-click="predicate = by; reverse = !reverse">{{ text | translate }}&nbsp;' +
+                '<div ng-class="getSortClass()"></div>' +
+                '</span>',
+                scope: {
+                    predicate: '=',
+                    by: '@by',
+                    text: '@text',
+                    reverse: '='
+                }, link: function (scope, element, attrs) {
+                    scope.getSortClass = function () {
+                        return scope.predicate === scope.by ?
+                            (scope.reverse ? 'sort-img-down' : 'sort-img-up') : 'sort-img-down';
                     };
                 }
             };

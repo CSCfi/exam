@@ -1,9 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('LibraryCtrl', ['dialogs', '$q', '$scope', '$rootScope', '$location', '$translate', 'sessionService', 'QuestionRes',
-            'questionService', 'ExamRes', 'CourseRes', 'TagRes', 'UserRes',
-            function (dialogs, $q, $scope, $rootScope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
+        .controller('LibraryCtrl', ['dialogs', '$q', '$scope', '$rootScope', '$location', '$translate', 'sessionService',
+            'QuestionRes', 'questionService', 'ExamRes', 'CourseRes', 'TagRes', 'UserRes', 'EXAM_CONF',
+            function (dialogs, $q, $scope, $rootScope, $location, $translate, sessionService, QuestionRes,
+                        questionService, ExamRes, CourseRes, TagRes, UserRes, EXAM_CONF) {
 
                 var step = 100;
 
@@ -17,6 +18,14 @@
                 $scope.limitations = {};
                 $scope.filter = {};
                 $scope.moreQuestions = false;
+                $scope.addEditQuestion = {};
+                $scope.addEditQuestion.showForm = false;
+
+                $scope.templates = {
+                    newQuestion: EXAM_CONF.TEMPLATES_PATH + "question/editor/question.html",
+                    librarySearch: EXAM_CONF.TEMPLATES_PATH + "question/library_search.html",
+                    libraryResults: EXAM_CONF.TEMPLATES_PATH + "question/library_results.html"
+                };
 
                 $scope.session = sessionService;
 
@@ -25,6 +34,22 @@
                 var htmlDecode = function (text) {
                     return $('<div/>').html(text).text();
                 };
+
+                $scope.addEditQuestion = function() {
+                    if(!$scope.addEditQuestion.showForm) {
+                        $scope.addEditQuestion.showForm=true
+                    }
+                    else {
+                        $scope.addEditQuestion.showForm=false
+                    };
+                }
+
+                $scope.setBaseQuestionId = function(questionId) {
+                    console.log('setting baseQuestionId to ' + questionId);
+                    $scope.addEditQuestion.id = questionId;
+                    $scope.addEditQuestion.showForm=true
+                }
+
 
                 $scope.applyFreeSearchFilter = function () {
                     if ($scope.filter.text) {
@@ -81,6 +106,16 @@
                     var isSelected = angular.element("." + selectAllCssClass).prop("checked");
                     angular.forEach(angular.element("." + checkboxesCssClass), function (input) {
                         angular.element(input).prop("checked", isSelected);
+                    });
+                };
+
+                $scope.countSelections = function () {
+                    $scope.total = 0;
+                    angular.forEach(angular.element(".questionToUpdate"), function (input) {
+                        if(angular.element(input).prop("checked")) {
+                            $scope.total+=1;
+                        }
+
                     });
                 };
 

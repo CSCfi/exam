@@ -32,6 +32,7 @@
                     ExamRes.draft.create({executionType: executionType},
                         function (response) {
                             toastr.info($translate.instant("sitnet_exam_added"));
+                            //return response.id;
                             $location.path("/exams/course/" + response.id);
                         }, function (error) {
                             toastr.error(error.data);

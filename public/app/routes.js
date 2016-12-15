@@ -18,10 +18,14 @@
             $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question/editor/question.html'});
             // new question
             $routeProvider.when('/questions/new/:type', { templateUrl: tmpl + 'question/editor/question.html'});
+            // new question, no type from here anymore
+            $routeProvider.when('/questions/newQuestion/:create', { templateUrl: tmpl + 'question/editor/question.html'});
+            $routeProvider.when('/questions/library', { templateUrl: tmpl + 'question/library.html'});
 
             /* exams */
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
             $routeProvider.when('/exams/course/:id', { templateUrl: tmpl + 'exam/editor/exam_new.html', controller: 'ExamController'});
+            $routeProvider.when('/exams/course/newExam/:create', { templateUrl: tmpl + 'exam/editor/exam_new.html', controller: 'ExamController'});
             $routeProvider.when('/exampreview/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
 
             /* booking */
@@ -53,8 +57,11 @@
             /* Teacher */
             $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'review/review.html', controller: 'ExamReviewController'});
             $routeProvider.when('/exams/reviews/:id', { templateUrl: tmpl + 'review/review_list.html', controller: 'ReviewListingController'});
+            $routeProvider.when('/exams/reviews/:id/speedreview', { templateUrl: tmpl + 'review/listings/speed_review.html', controller: 'ReviewListingController'});
             $routeProvider.when('/exams/preview/:id', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController' });
             $routeProvider.when('/reservations', { templateUrl: tmpl + 'reservation/teacher_reservations.html', controller: 'ReservationCtrl'});
+            $routeProvider.when('/reservations/:eid', { templateUrl: tmpl + 'reservation/teacher_reservations.html', controller: 'ReservationCtrl'});
+            $routeProvider.when('/exams/examTabs/:id/:tab', { templateUrl: tmpl + 'exam/examTabs.html', controller: 'ExamTabsController' });
 
             /* Admin */
             $routeProvider.when('/rooms', { templateUrl: tmpl + 'facility/rooms.html', controller: 'RoomCtrl'});

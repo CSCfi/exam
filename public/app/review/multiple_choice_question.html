@@ -1,40 +1,43 @@
 <div id="exam" ng-init="sectionQuestion.reviewExpanded = true">
-    <div class="review-question-border">
-        <div class="detail-row">
-            <span class="col-md-1">
-                <a ng-click="toggleQuestionExpansion(sectionQuestion)" class="fa-stack fa-lg pointer-hand">
-                    <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-                    <i ng-hide="sectionQuestion.reviewExpanded" class="fa fa-chevron-right fa-stack-1x"></i>
-                    <i ng-show="sectionQuestion.reviewExpanded" class="fa fa-chevron-down fa-stack-1x"></i>
-                </a>
-            </span>
+    <div class="student-enrolment-wrapper review-view">
+        <div class="col-md-12">
 
-            <div class="col-md-11">
-                <!-- question text -->
-                <div class="row">
-                    <h4>{{ 'sitnet_question' | translate }}:</h4>
+            <!-- question text -->
+            <div>
+                <!-- This looks good as long as there's no huge html in the question text-->
+                <span class="review-question-title" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></span>
+                <a ng-click="toggleQuestionExpansion(sectionQuestion)">
+                    <img ng-show="!sectionQuestion.reviewExpanded" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
+                    <img ng-show="sectionQuestion.reviewExpanded" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+                </a>
+                <!-- grade -->
+                <div class="review-points" ng-if="sectionQuestion.question.type==='MultipleChoiceQuestion'">
+                    {{ 'sitnet_word_points' | translate }}:
+                    {{scoreMultipleChoiceAnswer(sectionQuestion)}} / {{sectionQuestion.maxScore}}
                 </div>
-                <div class="row review-html-container">
-                    <span mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></span>
+                <div class="review-points" ng-if="sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'">
+                    {{ 'sitnet_word_points' | translate }}:
+                    {{scoreWeightedMultipleChoiceAnswer(sectionQuestion)}} / {{calculateMaxPoints(sectionQuestion)}}
                 </div>
-                <!-- question attachment -->
-                <div ng-show="sectionQuestion.reviewExpanded && sectionQuestion.question.attachment"
-                     ng-controller="AttachmentController">
-                    <div class="top-row-narrow">
-                        <strong>{{ 'sitnet_question_attachment' | translate}}:</strong>
-                        <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)">
-                            {{sectionQuestion.question.attachment.fileName}}</a>
-                    </div>
-                </div>
-                <!-- answer -->
-                <div class="row">
-                    <h4>{{ 'sitnet_exam_answer' | translate}}:</h4>
-                </div>
-                <div ng-if="sectionQuestion.question.type==='MultipleChoiceQuestion'"
-                     ng-include="multiChoiceAnswerTemplate"/>
-                <div ng-if="sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'"
-                     ng-include="weightedMultiChoiceAnswerTemplate"/>
             </div>
+
+            <!-- question attachment -->
+            <div ng-controller="AttachmentController" class="padl0 mart20 marb20 notice-text"
+                 ng-show="sectionQuestion.reviewExpanded && sectionQuestion.question.attachment">
+                {{ 'sitnet_question_attachment' | translate}}:
+                <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)">
+                    {{sectionQuestion.question.attachment.fileName}}</a>
+            </div>
+            <!-- answer -->
+            <div class="mart20">
+                <hr>
+            </div>
+            <div ng-if="sectionQuestion.question.type==='MultipleChoiceQuestion'"
+                 ng-include="multiChoiceAnswerTemplate"/>
+            <div ng-if="sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'"
+                 ng-include="weightedMultiChoiceAnswerTemplate"/>
         </div>
     </div>
 </div>

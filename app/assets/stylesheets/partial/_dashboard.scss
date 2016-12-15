@@ -35,6 +35,13 @@
       }
     }
 
+    &.review-view {
+      margin-left: 2em;
+      margin-top: 30px;
+      margin-right: 2em;
+      padding: 20px;
+    }
+
     &.notactive {
       border-left: #B1B1B1 4px solid;
     }
@@ -47,6 +54,19 @@
 
     &.waitingroom {
       margin-left:2.4em
+    }
+
+    &.exam-view-warning {
+      border-left: #ED4459 4px solid;
+      margin-left: 0px;
+      margin-right: 0px;
+    }
+
+    &.exam-questions-warning {
+      border-left: #ED4459 4px solid;
+      margin-left: 0px;
+      margin-right: 40px;
+
     }
 
     @media (max-width: $sitnet-mobile) {
@@ -273,6 +293,10 @@
     margin: 0 -15px 0 -15px;
   }
 
+  .middle-row {
+    padding-top:25px;
+  }
+
   .main-row {
     @extend .detail-row;
     padding-top: 1em;
@@ -312,24 +336,117 @@
   }
 
   .exams-table {
-    border-left: $sitnet-common-light solid 0.15em;
-    border-top: $sitnet-common-light solid 0.15em;
-    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
 
-    font-family: $sitnet-family-opensans;
+    font-family: $sitnet-family-helvetica;
     font-weight: normal;
     font-size: 0.9em;
 
     th {
-      background-color: $sitnet-common-light;
-      color: $sitnet-common-medium;
-      font-weight: bold;
+      background-color: white;
       border: 0;
+      font-family: $sitnet-family-helvetica;
+      font-size: 12px;
+      color: #777777;
+      text-transform: uppercase;
+      font-weight: normal;
+      white-space: nowrap;
+
+      &.with-space {
+        white-space: normal;
+      }
+
+      &.with-top {
+        vertical-align: top;
+
+      }
+
+      &.reservation-search {
+        padding-bottom: 25px;
+      }
+
+      .sort-img-down {
+        background: url("../../../assets/assets/images/arrow_down_grey.png") no-repeat;
+        height: 9px;
+        display: inline-block;
+        width: 11px;
+      }
+
+      .sort-img-up {
+        background: url("../../../assets/assets/images/arrow_up_grey.png") no-repeat;
+        height: 9px;
+        display: inline-block;
+        width: 11px;
+      }
+
+
+    }
+
+    td {
+
+      font-family: $sitnet-family-helvetica;
+      color: #2C2C2C;
+      font-weight: normal;
+      font-size: 14px;
+
+      a {
+        font-weight: bold;
+        font-size: 16px;
+        font-family: $sitnet-family-helvetica;
+        color: #267B99;
+
+        &.smaller {
+          font-size: 14px;
+        }
+      }
+
+
+      &.reservation-search {
+        a {
+          font-size: 14px !important;
+        }
+        a.reservation {
+          font-weight: normal !important;
+        }
+
+        &.no_show {
+          color:#ED4459 !important;
+        }
+
+        &.review {
+          color:#3CA34F !important;
+        }
+
+      }
+
+      .exam-code {
+        color: #2C2C2C;
+        font-weight: bold;
+        font-size: 13px;
+        font-family: $sitnet-family-helvetica;
+
+      }
+
+      .exam-type {
+        text-transform: capitalize;
+      }
+
+      .exam-count {
+        color: #266B99;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+    }
+
+    th:first-child {
+      padding-left: 30px;
     }
 
     td:first-child {
       border-left: 0;
+      padding-left: 30px;
     }
+
     td:last-child {
       border-right: 0;
     }
@@ -458,10 +575,6 @@
     font-style: italic;
   }
 
-  .review-html-container {
-    padding-left: 1em;
-  }
-
   // fade in/out animations for list items
 
   .list-item.ng-enter,
@@ -548,6 +661,10 @@
     margin-top:20px;
   }
 
+  .pad-right-15 {
+    padding-right: 15px;
+  }
+
   .pad-15 {
     padding-left: 15px;
     @media (max-width: $sitnet-mobile) {
@@ -570,5 +687,741 @@
       margin-top: 10px;
 
     }
+  }
+
+  .tab-wrapper {
+    margin-top: 40px;
+    margin-left: 3.4em;
+    margin-right: 3.4em;
+
+    .tab-content {
+      border-left: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+
+    }
+
+  }
+
+  .tab-wrapper-exams {
+    margin-top: 40px;
+    margin-left: 3.4em;
+    margin-right: 3.4em;
+
+    &.review {
+      margin-top:0px;
+    }
+
+    .review-border-titles {
+      border-left: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+      padding-bottom: 30px;
+    }
+
+    .review-border {
+      border: 1px solid #ddd;
+      padding-bottom: 30px;
+      margin-top:25px;
+      border-radius: 4px;
+    }
+
+  }
+
+
+  .nav-tabs {
+
+    font-family: $sitnet-family-helvetica;
+    font-size: 16px;
+
+    li {
+      width:15em;
+      text-align: center;
+    }
+
+    li.active { font-weight: bold; }
+
+    a { color: #555555; }
+  }
+
+  .tab-search {
+
+    padding-top: 30px;
+    padding-bottom: 20px;
+    padding-left: 30px;
+
+  }
+
+  .review-list-title {
+    font-family: $sitnet-family-helvetica;
+    font-size: 22px;
+    font-weight: normal;
+    color: #2C2C2C;
+    padding-bottom:5px;
+    border-bottom:1px solid #B1B1B1;
+  }
+
+  .review-list-subtitle {
+    font-family: $sitnet-family-helvetica;
+    font-size: 16px;
+    color: #2C2C2C;
+  }
+
+  .review-list-content {
+    font-family: $sitnet-family-helvetica;
+    font-size: 14px;
+    color: #555555;
+
+  }
+
+  .review-list-title-row {
+    padding-top: 30px;
+    padding-left: 30px;
+  }
+
+  .review-list-bluetitle {
+
+    a {
+      font-family: $sitnet-family-helvetica;
+      font-weight: bold;
+      color: #266B99;
+      font-size: 16px;
+
+    }
+  }
+
+  .review-attachment {
+    display: inline-block; float:right; margin-right:30px;
+  }
+
+  .review-attachment-button {
+    a {
+      font-size: 16px;
+      font-family: $sitnet-family-helvetica;
+      background-color: #3CA34F;
+      border: 1px solid #358F45;
+      width: 100%;
+      padding-left: 20px;
+      padding-right: 20px;
+      line-height: 1.5;
+      border-radius: 3px;
+      color: white;
+      text-align: center;
+      display: block;
+      padding-top: 10px;
+      padding-bottom: 10px;
+
+      &.notinuse {
+        background-color: #7F7F7F;
+        color:#ffffff;
+        border:1px solid black;
+      }
+
+      &.preview {
+        background-color: white;
+        border: 1px #979797 solid;
+        color: #555555;
+      }
+
+      &.warning {
+        background-color: white;
+        border: #ED4459 1px solid;;
+        color: #ED4459;
+      }
+
+      &.cancel {
+        color: #fff;
+        background-color: #7F7F7F;
+        border-color: #6B6B6B;
+
+      }
+
+    }
+
+
+    a:hover, button:active, button:focus, button:active:focus {
+      background-color: #358F45;
+      border: 1px solid #358F45;
+      text-decoration: none;
+
+      &.notinuse {
+        background-color: #7F7F7F;
+        color:#ffffff;
+        border:1px solid black;
+      }
+
+      &.preview {
+        background-color: #7F7F7F;
+        border: 1px #979797 solid;
+        color: #ffffff;
+      }
+
+      &.warning {
+        background-color: #ED4459;
+        border: #ED4459 1px solid;;
+        color: #ffffff;
+      }
+
+      &.cancel {
+        color: #fff !important;;
+        background-color: #6B6B6B !important;;
+        border-color: #6B6B6B !important;;
+      }
+
+
+    }
+
+    &.print-button {
+      display: inline-block;
+      margin-left: 30px;
+    }
+
+    &.autoeval-button {
+      width: 170px;
+      margin-top: 25px;
+      margin-bottom:30px;
+    }
+  }
+
+  .review-list-search {
+    display: inline-table;
+  }
+
+  .review-no-show {
+    margin-right: 0px;
+    margin-left: 0;
+    margin-top: 40px;
+  }
+
+  .review-list-speed-button {
+    float: right;
+    display: inline-block;
+    padding-top: 30px;
+  }
+
+  .review-no-results {
+    padding-left: 10px;
+    color: #555555;
+    font-size: 18px;
+    margin-right: 10px;
+    letter-spacing: 0.84px;
+    margin-top: 10px;
+  }
+
+  .review-toolbar-wrapper {
+    border-top: solid #B1B1B1 1px;
+    margin-top: 20px;
+    padding-top: 20px;
+    margin-right: 30px;
+    margin-left: 30px;
+    padding-right: 15px;
+  }
+
+  .review-feedbacks {
+    vertical-align: bottom;
+    margin-left: 20px;
+  }
+
+  .review-trashcan {
+    font-size: 18px;
+    color: #979797;
+    margin-left: 10px;
+  }
+
+  .reviewer-remove {
+    border: 0px;
+    background-color: white;
+  }
+
+  .exam-border {
+    border-left: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    padding-bottom: 50px;
+    padding-left: 60px;
+    margin-bottom:30px;
+
+    &.fixedheight{
+      height: 1300px;
+    }
+  }
+
+  .exam-basic-title {
+    font-family: $sitnet-family-helvetica;
+    font-size: 16px;
+    color: #2C2C2C;
+  }
+
+  .exam-basic-selecttitle {
+    color: #777777;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-family: 'Helvetica Neue';
+  }
+
+  .exam-button {
+    color: white;
+    background-color: #3CA34F;
+    border: 1px solid #358F45;
+    height: 45px;
+    padding-left: 30px;
+    padding-right: 30px;
+    margin-bottom: 5px;
+    margin-left: 20px;
+  }
+
+  .exam-button:hover {
+    color: white;
+    background-color: #358F45;
+    border: 1px solid #358F45;
+    height: 45px;
+    padding-left: 30px;
+    padding-right: 30px;
+    margin-bottom: 5px;
+    margin-left: 20px;
+  }
+
+
+  .btn-review {
+    color: #2C2C2C;
+    background-color: white;
+    border-color: #00A34B;
+    height: 40px;
+    padding-left: 30px;
+    padding-right: 30px;
+
+    &.btn-primary {
+      color: #2C2C2C;
+      background-color: #7FD28E;
+      border-color: #358F45;
+      height: 40px;
+      padding-left: 30px;
+      padding-right: 30px;
+    }
+  }
+
+  .reservation-border {
+    border: 1px solid #ddd;
+    padding-bottom: 50px;
+    margin-left: 50px;
+    margin-right: 30px;
+    margin-top: 45px;
+  }
+
+  .reservation-search-titles {
+    font-family: $sitnet-family-helvetica;
+    font-weight: normal;
+    font-size: 12px;
+    background-color: white;
+    border: 0;
+    color: #777777;
+    text-transform: uppercase;
+    font-weight: normal;
+    //white-space: nowrap;
+
+    .sort-img-down {
+      background: url("../../../assets/assets/images/arrow_down_grey.png") no-repeat;
+      height: 9px;
+      display: inline-block;
+      width: 11px;
+    }
+
+    .sort-img-up {
+      background: url("../../../assets/assets/images/arrow_up_grey.png") no-repeat;
+      height: 9px;
+      display: inline-block;
+      width: 11px;
+    }
+  }
+
+  .btn {
+    &.green {
+      background-color: #3CA34F;
+    }
+    &.border-green {
+      border: #358F45;
+    }
+  }
+
+  .fat-select {
+    a {
+      height: 34px !important;
+    }
+    span {
+      line-height: 34px !important;
+    }
+  }
+
+  .status-floater {
+
+    float:right;
+    margin-top: 10px;
+    margin-right: 20px;
+
+    span.inspection-title {
+      font-family: 'Helvetica Neue';
+      font-size: 22px;
+      color: #2C2C2C;
+      font-weight: normal;
+    }
+    span.status {
+      font-family: $sitnet-family-helvetica;
+      font-size: 22px;
+      color: #F35D6C;
+      font-weight: normal;
+    }
+
+  }
+
+  .general-info-title {
+    color:#555555;
+  }
+  .general-info-content {
+    color:#2C2C2C;
+  }
+  .general-info-link {
+    color:#266B99;
+  }
+  .general-info-link-bold {
+    color:#266B99;
+    font-weight: bold;
+  }
+
+  .review-points {
+    display: inline-block;
+    float: right;
+    margin-right: 0px;
+    padding-top: 10px;
+    font-family: $sitnet-family-helvetica;
+    font-size: 16px;
+    color: #555555;
+    font-weight: 400;
+  }
+
+  .review-question-title {
+    font-family: $sitnet-family-helvetica;
+    font-size: 20px;
+    color: #2C2C2C;
+    padding-right:15px;
+
+    p {
+      display: inline-block;
+    }
+  }
+
+  .teacher-toolbar {
+    display: inline-block; float:right; margin-right: 30px;
+  }
+
+  .toolbar-menu {
+    font-weight: bold !important;
+    font-size: 16px !important;
+    font-family: $sitnet-family-helvetica;
+    color: #267B99 !important;
+    background: none !important;
+    border: none !important;
+  }
+
+  .btn-publish {
+    color: #2C2C2C;
+    background-color: white;
+    border-color: #00A34B;
+    height: 40px;
+    padding-left: 15px;
+    padding-right: 15px;
+
+    &.btn-primary {
+      color: #2C2C2C;
+      background-color: #7FD28E;
+      border-color: #358F45;
+      height: 40px;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+  }
+
+  .autoevaluation-info {
+    color: #555555;
+    font-size: 18px;
+    font-family: 'Helvetica Neue';
+    line-height: 26px;
+  }
+
+  .autoevaluation-titles {
+    background-color: white;
+    border: 0;
+    font-family: $sitnet-family-helvetica;
+    font-size: 12px;
+    color: #777777;
+    text-transform: uppercase;
+    font-weight: normal;
+    padding-bottom: 25px;
+  }
+
+  .autoevaluation-inputs {
+    width: 113px;
+    height: 40px;
+    border: 1px solid #EDEDED;
+    display: inline-block;
+  }
+
+  .autoevaluation-numbers {
+    height: 40px;
+    padding-top: 10px;
+  }
+
+  .questions-selections-box {
+    color: #555555;
+  }
+
+  .question-add-owners {
+    margin-left: 10px;
+    margin-top: 10px;
+    width: 210px;
+    margin-bottom: 10px;
+  }
+
+  .question-add-owners-box {
+    margin-left: 144px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+
+
+  .question-search {
+    padding-top: 30px;
+    padding-left: 30px;
+  }
+
+  .question-table-name {
+    p {
+      margin:0px;
+    }
+    a {
+      font-size: 14px !important;
+    }
+  }
+
+  .question-table-checkbox {
+    font-size: 20px;
+    padding-top: 15px;
+  }
+
+  .questions-table {
+      th { padding-left:10px !important;}
+      td { padding-left:10px !important;}
+      border-left: 0px;
+      border-top: 0px;
+  }
+
+  .warning-text {
+    font-size: 18px;
+    color: #555555;
+  }
+
+  .warning-text-small {
+    color: #2C2C2C;
+    font-size: 12px;
+  }
+
+  .exists-text {
+    font-family: $sitnet-family-helvetica;
+    font-weight: bold;
+    color: #266B99;
+    font-size: 16px;
+  }
+
+  .reddish {
+    color:#ED4459;
+  }
+
+  .grayish {
+    color: #979797;
+    font-size: 20px;
+    margin-right: 10px;
+  }
+
+  .question-border {
+    border: 1px solid #ddd;
+    padding-bottom: 30px;
+    margin-top:25px;
+    border-radius: 4px;
+  }
+
+  .wdt100 {
+    width:100px;
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+
+  }
+
+  .wdt120 {
+    width:120px;
+  }
+  .wdt240 {
+    width:240px;
+  }
+
+  .attachment-link {
+    color: #266B99;
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  .remove-attachment {
+    margin-bottom: 3px;
+    margin-left: 5px;
+  }
+
+  .bigbutton {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 60px;
+    padding-right: 60px;
+  }
+
+  .question-cancel {
+    float: right;
+    margin-top: 40px;
+  }
+
+  .question-option-radio {
+    font-size: 20px;
+    margin-right: 30px;
+  }
+
+  .question-option-input {
+    width: 30em;
+    height: 40px;
+    border-radius: 4px;
+    border: 1px solid #E0E0DF;
+    padding-left: 10px;
+    margin-right: 30px;
+
+    &.points {
+      width: 5em;
+
+    }
+  }
+  .question-option-trash {
+    font-size: 20px;
+    color: #979797;
+  }
+
+  .question-editor-option {
+    margin:0px;
+    padding:0px;
+    padding-bottom: 0.5em;
+    margin-bottom: 1em;
+  }
+
+  .question-option-title {
+    color: #777777;
+    font-size:12px;
+  }
+
+  .exam-section-settings {
+    display: inline-block;
+    float: right;
+    font-size: 14px;
+  }
+
+  .exam-section-question-settings {
+    color:#2C2C2C;
+    font-size: 12px;
+    padding-right: 10px;
+  }
+
+  .exam-section-question-options {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+
+    li {
+      background-color: #fff;
+      padding-top: 0.5em;
+    }
+  }
+
+  .exam-questions-buttons {
+    display: inline-block;
+  }
+
+  .exam-new-border {
+    border: 1px solid #ddd;
+    padding-bottom: 30px;
+    margin-top:25px;
+    border-radius: 4px;
+
+  }
+
+  .middle-column {
+    width:70%;
+    margin-left:20px;
+  }
+
+  .notice-text {
+    line-height: 24px;
+    vertical-align: bottom;
+    color: #555555;
+    letter-spacing: 0.65px;
+  }
+
+  .points-title {
+    color:#777777;
+  }
+
+  .grading-title {
+    color: #555555;
+    font-size: 12px;
+  }
+
+  .feedback-wrapper {
+    margin-top: 40px;
+    margin-left: 15px;
+  }
+
+  .greenish {
+    color: $sitnet-green-new;
+  }
+
+  .library-add {
+    vertical-align: super;
+    padding-left: 15px;
+    font-size: 16px;
+    color: #555555;
+    letter-spacing: 0.3px;
+  }
+
+  .speed-review-border {
+    margin-left: 60px;
+    margin-right: 60px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 30px;
+  }
+
+  .speed-review-title {
+    font-family: $sitnet-family-helvetica;
+    font-size: 22px;
+    font-weight: normal;
+    color: #2C2C2C;
+    padding-bottom:5px;
+    padding-right:10px;
+  }
+
+  .speed-review-subtitle {
+    font-family: $sitnet-family-helvetica;
+    font-size: 14px;
+    color: #2C2C2C;
+  }
+
+  .speed-review-csv {
+    display: inline-block;
+    margin-top: 42px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-left: 30px;
+    color:#266B99;
   }
 }

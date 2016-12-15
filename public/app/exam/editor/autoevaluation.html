@@ -1,59 +1,62 @@
-<div class="row exam-general-information-header">
-    <div class="col-md-1">
-        <a class="pointer pull-left fa-stack fa-lg" popover-placement="left" popover-popup-delay="1000"
+<div class="col-md-12 padl0 margin-20">
+    <div class="review-list-title">{{ 'sitnet_exam_autoevaluation' | translate }}
+        <span ng-if="autoevaluation.enabled">({{'sitnet_in_use' | translate}})</span>
+        <span ng-if="!autoevaluation.enabled">({{'sitnet_not_in_use' | translate}})</span>
+        <a popover-placement="left" popover-popup-delay="1000"
            popover-trigger="mouseenter" uib-popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
            ng-click="autoevaluationDisplay.visible = !autoevaluationDisplay.visible">
-            <i ng-class="autoevaluationDisplay.visible ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-right fa-stack-1x'"></i>
+            <img ng-show="!autoevaluationDisplay.visible" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
+                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
+            <img ng-show="autoevaluationDisplay.visible" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
+                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
         </a>
-    </div>
-    <div class="col-md-11 exams-generic-info-title" ng-class="autoevaluation.enabled ? 'text' : 'text-muted'">
-        {{'sitnet_exam_autoevaluation' | translate}}
-        <small ng-if="autoevaluation.enabled">({{'sitnet_in_use' | translate}})</small>
-        <small ng-if="!autoevaluation.enabled">({{'sitnet_not_in_use' | translate}})</small>
     </div>
 </div>
 
+<div class="col-md-12 padl0 margin-20" ng-show="autoevaluationDisplay.visible">
+    <span class="autoevaluation-info">
+        {{'sitnet_autoevaluation_instructions' | translate}}
+    </span>
+    <div class="review-attachment-button autoeval-button">
+
+        <a ng-if="!autoevaluation.enabled" ng-model="autoevaluation.enabled" ng-click="autoevaluation.enabled=true">
+            {{'sitnet_use_autoevaluation' | translate}}</a>
+        <a ng-if="autoevaluation.enabled" class="notinuse" ng-model="autoevaluation.enabled" ng-click="autoevaluation.enabled=false">
+            {{'sitnet_do_not_use_autoevaluation' | translate}}</a>
+
+    </div>
+</div>
+
+
+
 <div ng-show="autoevaluationDisplay.visible">
     <div class="top-row">
-        <div class="col-md-12">
-            <div class="checkbox-inline">
-                <input type="checkbox" ng-model="autoevaluation.enabled" ng-value="true">{{'sitnet_use_autoevaluation' |
-                translate}}
-            </div>
-        </div>
-    </div>
-    <div class="main-row">
-        <div class="col-md-12 alert alert-info">
-            <i class="fa fa-lg fa-info-circle text-info"></i>&nbsp;
-            {{'sitnet_autoevaluation_instructions' | translate}}
-        </div>
-    </div>
-    <div class="top-row">
-        <div class="col-md-2"><strong>{{'sitnet_exam_grade' | translate}}</strong></div>
-        <div class="col-md-4"><strong>{{'sitnet_percentage' | translate}}</strong></div>
-        <div class="col-md-6"><strong>{{'sitnet_point_limit' | translate}}</strong></div>
+        <div class="col-md-1 autoevaluation-titles"><strong>{{'sitnet_exam_grade' | translate}}</strong></div>
+        <div class="col-md-2 autoevaluation-titles"><strong>{{'sitnet_percentage' | translate}}</strong></div>
+        <div class="col-md-2 autoevaluation-titles"><strong>{{'sitnet_point_limit' | translate}}</strong></div>
     </div>
     <form role="form">
         <div ng-repeat="ge in newExam.autoEvaluationConfig.gradeEvaluations | orderBy: ge.grade.id">
-            <div class="top-row">
-                <div class="col-md-2">
+            <div class="row margin-20 padl30">
+                <div class="col-md-1 autoevaluation-numbers">
                     {{ getGradeDisplayName(ge.grade) }}
                 </div>
                 <div class="col-md-2">
-                    <input ng-disabled="!autoevaluation.enabled" type="number" class="form-control pull-right"
+                    <input ng-disabled="!autoevaluation.enabled" type="number" class="form-control autoevaluation-inputs"
                            ng-model="ge.percentage"
                            min="0" max="100"
                            required unique-value items="newExam.autoEvaluationConfig.gradeEvaluations" property="percentage">
+                    <span>&percnt;</span>
                 </div>
-                <div class="col-md-2">
-                    &percnt;
-                </div>
-                <div class="col-md-6 pull-right">
+                <div class="col-md-2 autoevaluation-numbers">
                     {{ calculatePointLimit(ge) }}
                 </div>
             </div>
         </div>
     </form>
+
+
+
     <div class="top-row">
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_autoevaluation_release_type' | translate}}:</div>

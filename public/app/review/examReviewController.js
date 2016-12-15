@@ -452,7 +452,7 @@
                                 if ($scope.user.isAdmin) {
                                     $location.path("/");
                                 } else {
-                                    $location.path("exams/reviews/" + exam.parent.id);
+                                    $location.path("exams/examTabs/"+exam.parent.id+"/3");
                                 }
                             }
                         });
@@ -490,7 +490,7 @@
                             // Just save feedback and leave
                             $scope.saveFeedback(true).then(function () {
                                 toastr.info($translate.instant('sitnet_saved'));
-                                $location.path("exams/reviews/" + exam.parent.id);
+                                $location.path("exams/examTabs/"+exam.parent.id+"/3");
                             });
                         }
                     } else if ($scope.isUnderLanguageInspection()) {
@@ -549,7 +549,7 @@
                                 if ($scope.user.isAdmin) {
                                     $location.path("/");
                                 } else {
-                                    $location.path("exams/reviews/" + exam.parent.id);
+                                    $location.path("exams/examTabs/"+exam.parent.id+"/3");
                                 }
                             });
                         });
@@ -592,7 +592,7 @@
                         } else if ($scope.user.isAdmin) {
                             $location.path("/");
                         } else {
-                            $location.path("exams/reviews/" + exam.parent.id);
+                            $location.path("exams/examTabs/"+exam.parent.id+"/3");
                         }
                     }, function (error) {
                         toastr.error(error.data);
@@ -808,7 +808,7 @@
                             else if ($scope.user.isAdmin) {
                                 $location.path("/");
                             } else {
-                                $location.path("exams/reviews/" + $scope.exam.parent.id);
+                                $location.path("exams/examTabs/"+$scope.exam.parent.id+"/3");
                             }
                         }, function (error) {
                             toastr.error(error.data);
@@ -840,7 +840,7 @@
                                     if ($scope.user.isAdmin) {
                                         $location.path("/");
                                     } else {
-                                        $location.path("exams/reviews/" + $scope.exam.parent.id);
+                                        $location.path("exams/examTabs/"+ $scope.exam.parent.idd+"/3");
                                     }
                                 });
                             }, function (error) {

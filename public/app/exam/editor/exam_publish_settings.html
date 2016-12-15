@@ -1,0 +1,173 @@
+<!-- General info section container -->
+<div ng-controller="ExamController" class="exam-border">
+    <div class="middle-row">
+        <div class="col-md-12 padl0">
+            <div class="review-list-title">{{ 'sitnet_publish_timetable' | translate }}
+            </div>
+        </div>
+
+        <form role="form" ng-controller="DatepickerCtrl" class="mar60">
+            <!-- Start & End time datepickers -->
+
+            <div class="row margin-20">
+                <div class="col-md-3">
+                </div>
+                <div class="col-md-3">
+                    <div class="exam-basic-selecttitle">{{'sitnet_begin' | translate | uppercase}}</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="exam-basic-selecttitle">{{'sitnet_end' | translate | uppercase}}</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="exam-basic-title">{{'sitnet_exam_validity' | translate}}</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
+                               ng-model="newExam.examActiveStartDate"
+                               is-open="startDateOpened" min="minDate"
+                               datepicker-options="dateOptions"
+                               close-text="{{'sitnet_close' | translate}}"
+                               current-text="{{'sitnet_today' | translate}}"
+                               toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                               clear-text="{{'sitnet_clear' | translate}}" date-validator
+                               required ui-change="updateExam()">
+
+                        <span class="input-group-btn">
+                            <button class="btn btn-default green" ng-click="openStartDate($event)">
+                                <img src="../../../assets/assets/images/reservation_calendar.svg" alt="exam"
+                                     onerror="this.onerror=null;this.src='../../../assets/assets/images/reservation_calendar.png'" />
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
+                               ng-model="newExam.examActiveEndDate"
+                               is-open="endDateOpened" min="newExam.examActiveStartDate"
+                               datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}"
+                               current-text="{{'sitnet_today' | translate}}"
+                               toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                               clear-text="{{'sitnet_clear' | translate}}" required date-validator
+                               ui-change="updateExam()">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default green" ng-click="openEndDate($event)">
+                                <img src="../../../assets/assets/images/reservation_calendar.svg" alt="exam"
+                                     onerror="this.onerror=null;this.src='../../../assets/assets/images/reservation_calendar.png'" />
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div ng-show="newExam.hasEnrolmentsInEffect" class="row">
+                <div class="col-md-12">
+                    <div class="mart10">
+                         <span class="text-info">
+                            <img class="arrow_icon" src="../../../assets/assets/images/icon_info.png">
+                            {{ 'sitnet_restricting_validity_change_disallowed' | translate }}
+                         </span>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Exam length -->
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title padl0">{{'sitnet_exam_duration' | translate}} ({{'sitnet_minutes' | translate}}):
+            </div>
+            <div class="col-md-9">
+                    <span  ng-repeat="duration in examDurations">
+                        <button class="btn btn-publish"
+                                ng-class="checkDuration(duration)" ng-click="setExamDuration(duration)"
+                                ng-disabled="!user.isAdmin && newExam.hasEnrolmentsInEffect">{{duration}}
+                        </button>
+                    </span>
+            </div>
+        </div>
+
+        <!-- Exam type and trial count input elements -->
+        <div class="col-md-12 padl0 margin-20">
+            <div class="review-list-title">{{ 'sitnet_publish_settings' | translate }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 padl0 margin-20" ng-hide="newExam.executionType.type==='MATURITY'">
+
+                <div class="col-md-3 exam-basic-title">{{'sitnet_publish_max_count' | translate}}
+                    <sup><img popover-placement="right" popover-trigger="mouseenter"
+                              uib-popover="{{'sitnet_exam_trial_count_description' | translate}}" src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                              onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
+                </div>
+                <div class="col-md-9">
+                    <span ng-show="newExam.executionType.type==='PUBLIC'" ng-repeat="x in range(1, 5)">
+                        <button class="btn btn-publish" ng-class="checkTrialCount(x)" ng-click="setTrialCount(x)">{{x}}
+                        </button>&nbsp;
+                    </span>
+                    <button ng-if="newExam.executionType.type==='PUBLIC'" class="btn btn-publish" ng-class="checkTrialCount()"
+                            ng-click="setTrialCount()">&infin;
+                    </button>
+                    <button ng-if="newExam.executionType.type==='PRIVATE'" class="btn btn-publish" ng-class="checkTrialCount()"
+                            ng-disabled="true">1
+                    </button>
+                    <span ng-if="newExam.executionType.type==='PRIVATE'" class="text-muted">({{'sitnet_private_exam_trial_count_description' | translate}})</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exam participants -->
+        <div class="row col-md-12 padl0 margin-20" ng-hide="newExam.executionType.type!=='PUBLIC'">
+
+            <div class="col-md-3 exam-basic-title">{{'sitnet_exam_participants' | translate}}
+            </div>
+            <div class="col-md-9">
+                <input type="text" class="form-control wdth-30 make-inline"
+                       ng-model="newEnrolment.user.name"
+                       uib-typeahead="t.name for t in students('name', $viewValue)"
+                       typeahead-editable="false"
+                       typeahead-min-length="2"
+                       typeahead-on-select="setNewEnrolment($item, $model, $label)">
+                       <button ng-disabled="!newEnrolment.user.id" ng-click="addEnrolment()"
+                        class="btn btn-primary green border-green">{{'sitnet_add' | translate}}</button>
+            </div>
+            <div class="row col-md-12">
+                <div class="col-md-3 exam-basic-title"></div>
+                <div class="col-md-9">
+                    <ul class="list-inline mart10">
+                        <!-- Students not having finished the exam -->
+                        <li ng-repeat="enrolment in newExam.examEnrolments">
+                            {{enrolment.user.firstName }} {{ enrolment.user.lastName }}
+                            <button class="reviewer-remove"
+                                    ng-disabled="newExam.state === 'PUBLISHED'"
+                                    ng-click="removeParticipant(enrolment.id)"
+                                    title="{{'sitnet_remove' | translate}}">
+                                <img src="../../../assets/assets/images/icon_remove.svg" alt="exam"
+                                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_remove.png'" />
+                            </button>
+                        </li>
+                        <!-- Students that have finished the exam -->
+                        <li ng-repeat="participant in newExam.participants">
+                            {{ participant.user.firstName }} {{ participant.user.lastName }}
+                            <button class="reviewer-remove"
+                                    ng-disabled="newExam.state === 'PUBLISHED'">
+                                <img src="../../../assets/assets/images/icon_remove.svg" alt="exam"
+                                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_remove.png'" />
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Autoevaluation -->
+        <div class="bottom-padding-2" ng-show="!canBeAutoEvaluated()"
+             ng-include="templates.autoEvaluation"></div>
+    </div>
+</div>

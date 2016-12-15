@@ -11,9 +11,9 @@
 
         .controller('QuestionCtrl', ['dialogs', '$rootScope', '$timeout', '$scope', '$q', '$http', '$uibModal', '$routeParams',
             '$location', '$translate', 'focus', 'QuestionRes', 'questionService', 'ExamRes', 'TagRes', 'EXAM_CONF',
-            'fileService', 'sessionService',
+            'fileService', 'sessionService', 'UserRes', 'limitToFilter',
             function (dialogs, $rootScope, $timeout, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus,
-                      QuestionRes, questionService, ExamRes, TagRes, EXAM_CONF, fileService, sessionService) {
+                      QuestionRes, questionService, ExamRes, TagRes, EXAM_CONF, fileService, sessionService, UserRes, limitToFilter) {
 
                 var essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/essay_question.html";
                 var multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_question.html";
@@ -26,6 +26,14 @@
                 $scope.sectionNames = [];
 
                 $scope.user = sessionService.getUser();
+
+                $scope.newQuestionText={};
+                $scope.newQuestion = {};
+                $scope.createQuestionModel = {};
+                $scope.questionTypes = [
+                {"type":"essay","name":"sitnet_toolbar_essay_question"},
+                {"type":"multichoice","name":"sitnet_toolbar_multiplechoice_question"},
+                {"type":"weighted","name":"sitnet_toolbar_weighted_multiplechoice_question"}];
 
                 var setQuestionType = function () {
                     switch ($scope.newQuestion.type) {
@@ -145,7 +153,13 @@
                     toastr.info($translate.instant('sitnet_canceled'));
                     // Call off the event listener so it won't ask confirmation now that we are going away
                     clearListeners();
-                    $location.path('/questions');
+                    if($scope.addEditQuestion.showForm) {
+                        $scope.addEditQuestion.showForm = false;
+                    }
+                    else {
+                        $location.path('/questions');
+                    }
+
                 };
 
                 var clearListeners = function () {
@@ -158,7 +172,14 @@
                     var successFn = function () {
                         questionService.clearQuestions();
                         clearListeners();
-                        $location.path('/questions');
+
+                        if($scope.addEditQuestion.showForm) {
+                            $scope.addEditQuestion.showForm = false;
+                            $rootScope.$emit('questionAdded');
+                        }
+                        else {
+                            $location.path('/questions');
+                        }
                     };
                     var errFn = function (error) {
                         toastr.error(error.data);
@@ -212,26 +233,6 @@
 
                 $scope.optionDisabled = function (option) {
                     return option.correctOption == true;
-                };
-
-                $scope.openQuestionOwnerModal = function () {
-                    var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'question/editor/question_owner.html',
-                        backdrop: 'static',
-                        keyboard: true,
-                        controller: "QuestionOwnerController",
-                        resolve: {
-                            question: function () {
-                                return $scope.newQuestion;
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function (result) {
-                        $scope.newQuestion.questionOwners.push(result);
-                    }, function () {
-                        // Cancel button clicked
-                    });
                 };
 
                 $scope.isUserAllowedToModifyOwners = function (question) {
@@ -290,15 +291,99 @@
                     });
                 };
 
+
+                $scope.newOwner = {id: null, name: null};
+
+                $scope.questionOwners = function (filter, criteria) {
+                    var data = {
+                        role: 'TEACHER',
+                        q: criteria
+                    };
+                    //if ($scope.question.id) {
+                    //    data.qid = $scope.question.id;
+                    //}
+                    return UserRes.filterOwnersByQuestion.query(data).$promise.then(
+                        function (names) {
+                            return limitToFilter(
+                                names.filter(function (n) {
+                                    return $scope.newQuestion.questionOwners.map(function (qo) {
+                                            return qo.id;
+                                        }).indexOf(n.id) == -1;
+                                }), 15);
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
+                $scope.setQuestionOwner = function ($item, $model, $label) {
+                    $scope.newOwner.id = $item.id;
+                    $scope.newOwner.firstName = $item.firstName;
+                    $scope.newOwner.lastName = $item.lastName;
+                };
+
+                $scope.addQuestionOwner = function () {
+                    if ($scope.newOwner.id) {
+                        $scope.newQuestion.questionOwners.push($scope.newOwner);
+                    }
+                };
+
+                $scope.createQuestion = function () {
+                    if($scope.createQuestionModel.QuestionToBe.type != "") {
+                        $scope.typeSelected=true;
+                        $scope.newQuestion = questionService.getQuestionDraft($scope.createQuestionModel.QuestionToBe.type);
+                        initQuestion();
+
+                        // jos käyttäjä on laittanut kysymystekstiin jotain ennen tyypin valintaa, kopioidaan tuo
+                        // teksti dummy-textareasta varsinaiseen newQuestion.question objektiin.
+                        if($scope.newQuestionText.text) {
+                            $scope.newQuestion.question = $scope.newQuestionText.text;
+                        }
+                    }
+                }
+
                 // Action
-                var type = $routeParams.type || $scope.questionType;
-                if (type) {
-                    // Create new question
-                    $scope.newQuestion = questionService.getQuestionDraft(type);
-                    initQuestion();
+                // remove this
+                //var type = $routeParams.type || $scope.questionType;
+
+                if($routeParams.create == 1 || ($scope.addEditQuestion.showForm && !$scope.addEditQuestion.id) ) {
+
+                    // tullaan uusi kysymys painikkeen kautta.
+                    // create = työpöytä tai kysymyskirjasto
+                    // addQuestion.show = kysymyksen lisäys tenttiin osio
+                    $scope.typeSelected=false;
+
+                }
+                else if($scope.addEditQuestion.id) {
+                    console.log('lets load with ' + $scope.addEditQuestion.id);
+
+                    QuestionRes.questions.get({id: $scope.addEditQuestion.id},
+                        function (question) {
+                            // kind of a hack to have the editor displayed
+                            // can't be rendered if content == null
+                            if (question.question == null) {
+                                question.question = '';
+                            }
+                            $scope.newQuestion = question;
+                            initQuestion();
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+
+                }
+                else if (type) {
+                    // Create new question, legacy, not in use anymore, remove after tests
+                    //
+                    // $scope.newQuestion = questionService.getQuestionDraft(type);
+                    // initQuestion();
                 } else {
                     // Edit saved question
                     var id = $scope.baseQuestionId || $routeParams.id;
+                    console.log('lets load with ' + id);
+
                     QuestionRes.questions.get({id: id},
                         function (question) {
                             // kind of a hack to have the editor displayed

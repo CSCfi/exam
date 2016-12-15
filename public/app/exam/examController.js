@@ -3,12 +3,15 @@
     angular.module("exam.controllers")
         .controller('ExamController', ['dialogs', '$scope', '$timeout', '$filter', '$rootScope', '$q', '$sce', '$uibModal', 'sessionService', 'examService',
             '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
-            'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes', 'ExamSectionQuestionRes',
+            'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes', 'ExamSectionQuestionRes', 'limitToFilter',
+            'enrolmentService',
             function (dialogs, $scope, $timeout, $filter, $rootScope, $q, $sce, $modal, sessionService, examService,
                       $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource,
-                      SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes, ExamSectionQuestionRes) {
+                      SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes, ExamSectionQuestionRes,
+                      limitToFilter, enrolmentService) {
 
                 $scope.newExam = {};
+                $scope.createExamModel = {};
                 $scope.sectionDisplay = {visible: true};
                 $scope.autoevaluationDisplay = {visible: true};
                 $scope.templates = {
@@ -47,6 +50,8 @@
                 $scope.user = sessionService.getUser();
 
                 $scope.session = sessionService;
+
+
 
                 // Clear the question type filter when moving away
                 $scope.$on('$locationChangeStart', function (event) {
@@ -131,47 +136,66 @@
                     return x;
                 };
 
-                var initializeExam = function () {
-                    ExamRes.exams.get({id: $routeParams.id},
-                        function (exam) {
-                            $scope.newExam = exam;
-                            $scope.newExam.examLanguages.forEach(function (language) {
-                                // Use front-end language names always to allow for i18n etc
-                                language.name = getLanguageNativeName(language.code);
-                            });
-                            $scope.newExam.examSections.sort(function (a, b) {
-                                return a.sequenceNumber - b.sequenceNumber;
-                            });
-                            recreateSectionIndices();
-                            initialLanguages = exam.examLanguages.length;
-                            initialSoftware = exam.softwares.length;
-                            resetGradeScale(exam);
-                            resetAutoEvaluationConfig();
-                            getInspectors();
-                            getExamOwners();
-                            if (exam.examEnrolments.filter(function (ee) {
-                                    return ee.reservation && ee.reservation.endAt > new Date().getTime();
-                                }).length > 0) {
-                                // Enrolments/reservations in effect
-                                $scope.newExam.hasEnrolmentsInEffect = true;
-                            }
-                            if ($scope.newExam.executionType.type !== 'PUBLIC') {
-                                // Students that have taken this exam
-                                $scope.newExam.participants = getParticipations();
-                            }
-                            if ($scope.newExam.executionType.type === 'MATURITY') {
-                                // Show only essay questions in the question library
-                                questionService.setFilter('EssayQuestion');
+                $scope.createExam = function () {
+                    if($scope.createExamModel.type.type != "") {
+                        $scope.typeSelected=true;
+                        examService.createExam($scope.createExamModel.type.type);
+                    }
+                }
 
-                                $scope.examTypes = $scope.examTypes.filter(function (t) {
-                                    return t.type === 'FINAL';
+                var initializeExam = function () {
+
+                    if($routeParams.create == 1) {
+                        // tullaan uusi tentti painikkeen kautta.
+                        // kysellään tiedot ennen tentin luontia.
+                        $scope.typeSelected=false;
+                    }
+                    else {
+                        $scope.typeSelected=true;
+                        ExamRes.exams.get({id: $routeParams.id},
+                            function (exam) {
+                                $scope.newExam = exam;
+                                $scope.newExam.examLanguages.forEach(function (language) {
+                                    // Use front-end language names always to allow for i18n etc
+                                    language.name = getLanguageNativeName(language.code);
                                 });
+                                $scope.newExam.examSections.sort(function (a, b) {
+                                    return a.sequenceNumber - b.sequenceNumber;
+                                });
+                                recreateSectionIndices();
+                                initialLanguages = exam.examLanguages.length;
+                                initialSoftware = exam.softwares.length;
+                                resetGradeScale(exam);
+                                resetAutoEvaluationConfig();
+                                getInspectors();
+                                getExamOwners();
+                                if (exam.examEnrolments.filter(function (ee) {
+                                        return ee.reservation && ee.reservation.endAt > new Date().getTime();
+                                    }).length > 0) {
+                                    // Enrolments/reservations in effect
+                                    $scope.newExam.hasEnrolmentsInEffect = true;
+                                }
+                                if ($scope.newExam.executionType.type !== 'PUBLIC') {
+                                    // Students that have taken this exam
+                                    $scope.newExam.participants = getParticipations();
+                                }
+                                if ($scope.newExam.executionType.type === 'MATURITY') {
+                                    // Show only essay questions in the question library
+                                    questionService.setFilter('EssayQuestion');
+
+                                    $scope.examTypes = $scope.examTypes.filter(function (t) {
+                                        return t.type === 'FINAL';
+                                    });
+                                }
+                                $scope.createExamModel.type = $scope.newExam.executionType;
+
+                            },
+                            function (error) {
+                                toastr.error(error.data);
                             }
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
+                        );
+
+                    }
                 };
 
                 // Here's the party
@@ -290,6 +314,54 @@
                     });
                 };
 
+
+                $scope.newOwner = {
+                    "user": {
+                        "id": null,
+                        "name": null
+                    },
+                    "exam": {
+                        "id": $routeParams.id
+                    }
+                };
+
+                $scope.setExamOwner = function ($item, $model, $label) {
+                    $scope.newOwner.user.id = $item.id;
+                };
+
+
+                $scope.allExamOwners = function (filter, criteria) {
+
+                    return UserRes.filterOwnersByExam.query({role: 'TEACHER', eid: $routeParams.id, q: criteria}).$promise.then(
+                        function (names) {
+                            return limitToFilter(names, 15);
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
+                $scope.addExamOwner = function () {
+                    if($scope.newOwner.user.id && $scope.newOwner.user.id > 0 && $scope.newOwner.exam.id && $scope.newOwner.exam.id > 0) {
+                        ExamRes.examowner.insert({eid: $scope.newOwner.exam.id, uid: $scope.newOwner.user.id}, $scope.newOwner, function (owner) {
+
+                            // reload the list
+                            getExamOwners();
+
+                            // nullify input field
+                            $scope.newOwner.user.name = null;
+                            $scope.newOwner.user.id = null;
+
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                    } else {
+                        toastr.error($translate.instant('sitnet_teacher_not_found'));
+                    }
+                };
+
+
                 $scope.removeOwner = function (id) {
                     ExamRes.examowner.remove({eid: $scope.newExam.id, uid: id},
                         function (result) {
@@ -338,6 +410,54 @@
                         });
                 };
 
+                $scope.newInspection = {
+                    "user": {
+                        "id": null,
+                        "name": null
+                    },
+                    "exam": {
+                        "id":  $routeParams.id
+                    },
+                    "comment": {
+                        "comment": ""
+                    }
+                };
+
+                $scope.examInspectors = function (filter, criteria) {
+                    return UserRes.filterUsersByExam.query({role: 'TEACHER', eid:  $routeParams.id, q: criteria}).$promise.then(
+                        function (names) {
+                            return limitToFilter(names, 15);
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
+                $scope.setExamInspector = function ($item, $model, $label) {
+                    $scope.newInspection.user.id = $item.id;
+                    $scope.newInspection.user.name = $item.name;
+                };
+
+                $scope.saveInspector = function () {
+                    if($scope.newInspection.user.id && $scope.newInspection.user.id > 0 && $scope.newInspection.exam.id && $scope.newInspection.exam.id > 0) {
+                        ExamRes.inspection.insert({eid: $scope.newInspection.exam.id, uid: $scope.newInspection.user.id}, $scope.newInspection, function (inspection) {
+
+                            // reload the list
+                            getInspectors();
+
+                            // nullify input field
+                            $scope.newInspection.user.name = null;
+                            $scope.newInspection.user.id = null;
+
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                    } else {
+                        toastr.error($translate.instant('sitnet_teacher_not_found'));
+                    }
+                };
+
                 $scope.removeParticipant = function (id) {
                     EnrollRes.unenrollStudent.remove({id: id}, function () {
                         $scope.newExam.examEnrolments = $scope.newExam.examEnrolments.filter(function (ee) {
@@ -348,6 +468,50 @@
                         toastr.error(error.data);
                     });
 
+                };
+
+                $scope.newEnrolment = {
+                    "user": {
+                        "id": null,
+                        "name": null
+                    },
+                    "exam": {
+                        "id": $routeParams.id
+                    }
+                };
+
+                $scope.students = function (filter, criteria) {
+                    return UserRes.unenrolledStudents.query({eid: $routeParams.id, q: criteria}).$promise.then(
+                        function (names) {
+                            return limitToFilter(names, 15);
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
+                $scope.setNewEnrolment = function (item) {
+                    $scope.newEnrolment.user.id = item.id;
+                };
+
+                $scope.addEnrolment = function () {
+                    if ($scope.newEnrolment.user.id) {
+                        enrolmentService.enrollStudent($scope.newExam, $scope.newEnrolment.user).then(
+                            function (enrolment) {
+
+                                // push to the list
+                                $scope.newExam.examEnrolments.push(enrolment);
+
+                                // nullify input field
+                                $scope.newEnrolment.user.name = null;
+                                $scope.newEnrolment.user.id = null;
+
+                            }, function (error) {
+                                toastr.error(error.data);
+
+                            });
+                    }
                 };
 
 
@@ -378,7 +542,7 @@
                 };
 
                 $scope.continueToExam = function () {
-                    $location.path("/exams/" + $routeParams.id);
+                    $location.path("/exams/examTabs/" + $routeParams.id + "/1");
                 };
 
                 $scope.setExamDuration = function (duration) {
@@ -800,14 +964,12 @@
                 };
 
                 $scope.moveSection = function (section, from, to) {
-                    console.log("moving section at index " + from + " to index " + to);
                     if (from >= 0 && to >= 0 && from != to) {
                         ExamRes.sectionOrder.update({
                             eid: $scope.newExam.id,
                             from: from,
                             to: to
                         }, function () {
-                            console.log("moved");
                             recreateSectionIndices();
                             toastr.info($translate.instant("sitnet_sections_reordered"));
                         });
@@ -815,7 +977,6 @@
                 };
 
                 $scope.moveQuestion = function (section, from, to) {
-                    console.log("moving question at index " + from + " to index " + to);
                     if (from >= 0 && to >= 0 && from != to) {
                         ExamRes.questionOrder.update({
                             eid: $scope.newExam.id,
@@ -823,7 +984,6 @@
                             from: from,
                             to: to
                         }, function () {
-                            console.log("moved");
                             toastr.info($translate.instant("sitnet_questions_reordered"));
                         });
                     }
@@ -1205,6 +1365,105 @@
                     });
                 };
 
+
+                $scope.openLibrary = function (section) {
+
+                    if (section.lotteryOn) {
+                        toastr.error($translate.instant("sitnet_error_drop_disabled_lottery_on"));
+                        return;
+                    }
+                    var examId = $scope.newExam.id;
+                    var sectionId = section.id;
+
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+
+                        $scope.addQuestions = function() {
+
+                            // check that atleast one has been selected
+                            var isEmpty = true,
+                                boxes = angular.element(".questionToUpdate"),
+                                ids = [];
+
+                            var insertQuestion = function (sectionId, questionIds, to, examId) {
+
+                                var sectionQuestions = questionIds.map(function (question) {
+                                                           return question;
+                                                       }).join(",");
+
+                                ExamRes.sectionquestionsmultiple.insert({
+                                        eid: examId,
+                                        sid: sectionId,
+                                        seq: to,
+                                        questions: sectionQuestions
+                                    }, function (sec) {
+
+                                        toastr.info($translate.instant("sitnet_question_added"));
+                                        var promises = [];
+                                        promises.push(DragDropHandler.addObject(sectionQuestions, section.sectionQuestions, to));
+                                        $q.all(promises).then(function () {
+                                            $modalInstance.close();
+                                        });
+                                    }, function (error) {
+                                        toastr.error(error.data);
+                                        // remove broken objects
+                                        section.sectionQuestions = section.sectionQuestions.filter(function (sq) {
+                                            return sq;
+                                        });
+                                    }
+                                );
+
+                            }
+
+                            // calculate the new order number for question sequence
+                            // always add question to last spot, because dragndrop
+                            // is not in use here
+                            var to = (parseInt(section.sectionQuestions.length)+1);
+
+                            angular.forEach(boxes, function (input) {
+                                if (angular.element(input).prop("checked")) {
+                                    isEmpty = false;
+                                    ids.push(angular.element(input).val());
+
+                                }
+                            });
+
+                            if (isEmpty) {
+                                toastr.warning($translate.instant('sitnet_choose_atleast_one'));
+                                return;
+                            }
+                            else {
+                                insertQuestion(sectionId, ids, to, examId);
+                              //  $modalInstance.dismiss("Saved");
+                            }
+
+                        }
+
+                        $scope.cancelEdit = function () {
+                            // Well this is nice now :)
+                            $modalInstance.dismiss("Cancelled");
+                        };
+
+                        // Close modal if user clicked the back button and no changes made
+                        $scope.$on('$routeChangeStart', function() {
+                            if (!window.onbeforeunload) {
+                                $modalInstance.dismiss();
+                            }
+                        });
+                    }];
+
+                    var modalInstance = $modal.open({
+                                       templateUrl: EXAM_CONF.TEMPLATES_PATH + 'question/library.html',
+                                       backdrop: 'static',
+                                       keyboard: true,
+                                       controller: ctrl,
+                                       windowClass: 'question-editor-modal'
+                                   });
+
+                                    modalInstance.result.then(function () {
+                                        initializeExam();
+                                    });
+
+                };
 
                 $scope.addNewQuestion = function (section, type) {
                     if (section.lotteryOn) {

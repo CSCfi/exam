@@ -12,8 +12,11 @@
                 $scope.toggleLoggedReviews = false;
                 $scope.toggleReviews = false;
                 $scope.toggleGradedReviews = false;
+                $scope.toggleArchivedReviews = false;
                 $scope.view = {filter: 'IN_PROGRESS'};
                 $scope.examInfo = {};
+                $scope.examFull = {};
+                $scope.eid = $routeParams.id;
 
                 $scope.templates = {
                     noShowPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/no_show.html",
@@ -24,7 +27,12 @@
                     gradedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/graded.html",
                     gradedLoggedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/graded_logged.html",
                     rejectedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/rejected.html",
-                    archivedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/archived.html"
+                    archivedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/archived.html",
+                    reviewListPath: EXAM_CONF.TEMPLATES_PATH + "review/review_list.html",
+                    examBasicPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_basic_info.html",
+                    examQuestionsPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_questions.html",
+                    examMaterialsPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_materials.html",
+                    examPublishSettingsPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_publish_settings.html"
                 };
 
                 $scope.selections = {graded: {all: false, page: false}, gradedLogged: {all: false, page: false}};
@@ -135,11 +143,14 @@
                 };
 
                 $scope.hasModifications = function () {
+                    if($scope.examReviews) {
                     return $scope.examReviews.filter(function (r) {
                             return r.exam.selectedGrade &&
                                 (r.exam.selectedGrade.id || r.exam.selectedGrade.type === 'NONE') &&
                                 $scope.isGradeable(r.exam);
                         }).length > 0;
+
+                    }
                 };
 
                 $scope.gradeExams = function () {
@@ -165,6 +176,7 @@
                         $scope.examInfo.title = exam.name;
                     }
                     $scope.examInfo.examOwners = exam.examOwners;
+                    $scope.examFull = exam;
                 });
 
                 var resetSelections = function (name, view) {
@@ -299,6 +311,7 @@
                         return;
                     }
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_record_review'));
+
                     dialog.result.then(function (btn) {
                         var promises = [];
                         selection.forEach(function (r) {
@@ -375,6 +388,7 @@
                         $scope.archivedReviews = reviews.filter(function (r) {
                             return r.exam.state === 'ARCHIVED';
                         });
+                        $scope.toggleArchivedReviews = $scope.archivedReviews.length > 0;
                         $scope.archivedReviews.forEach(function (r) {
                             r.displayedGrade = $scope.translateGrade(r.exam);
                             r.displayedCredit = $scope.printExamCredit(r.exam.course.credits, r.exam.customCredit);
@@ -449,6 +463,12 @@
                 $scope.toggleLogged = function () {
                     if ($scope.gradedLoggedReviews && $scope.gradedLoggedReviews.length > 0) {
                         $scope.toggleLoggedReviews = !$scope.toggleLoggedReviews;
+                    }
+                };
+
+                $scope.toggleArchived = function () {
+                    if ($scope.archivedReviews && $scope.archivedReviews.length > 0) {
+                        $scope.toggleArchivedReviews = !$scope.toggleArchivedReviews;
                     }
                 };
 
@@ -546,6 +566,63 @@
                         fileService.download(
                             '/app/exam/' + $routeParams.id + '/attachments', $routeParams.id + '.tar.gz', params);
                     });
+                };
+
+
+                $scope.openNoShow = function () {
+
+                    //var examId = $scope.newExam.id;
+
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        $scope.cancel = function () {
+                            // Well this is nice now :)
+                            $modalInstance.dismiss("Cancelled");
+                        };
+
+                        // Close modal if user clicked the back button and no changes made
+                        $scope.$on('$routeChangeStart', function() {
+                            if (!window.onbeforeunload) {
+                                $modalInstance.dismiss();
+                            }
+                        });
+                    }];
+
+                    var modalInstance = $modal.open({
+                       templateUrl: EXAM_CONF.TEMPLATES_PATH + 'review/listings/no_show.html',
+                       backdrop: 'static',
+                       keyboard: true,
+                       controller: ctrl,
+                       windowClass: 'question-editor-modal'
+                    });
+
+                };
+
+                $scope.openAborted = function () {
+
+                    //var examId = $scope.newExam.id;
+
+                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        $scope.cancel = function () {
+                            // Well this is nice now :)
+                            $modalInstance.dismiss("Cancelled");
+                        };
+
+                        // Close modal if user clicked the back button and no changes made
+                        $scope.$on('$routeChangeStart', function() {
+                            if (!window.onbeforeunload) {
+                                $modalInstance.dismiss();
+                            }
+                        });
+                    }];
+
+                    var modalInstance = $modal.open({
+                       templateUrl: EXAM_CONF.TEMPLATES_PATH + 'review/listings/aborted.html',
+                       backdrop: 'static',
+                       keyboard: true,
+                       controller: ctrl,
+                       windowClass: 'question-editor-modal'
+                    });
+
                 };
 
 

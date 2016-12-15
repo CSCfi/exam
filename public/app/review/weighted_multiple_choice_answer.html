@@ -1,26 +1,19 @@
-<!-- compact -->
-<div class="row" ng-hide="sectionQuestion.reviewExpanded"
+<div class="padl15 marb10" ng-show="sectionQuestion.reviewExpanded"
      ng-repeat="option in sectionQuestion.options">
-    <span mathjax ng-bind-html="option.option.option" />
-    <span class="vcenter pull-right" ng-class="option.score > 0 ? 'text-success' : 'text-danger'">&nbsp;&nbsp;{{option.score}}
-        {{'sitnet_unit_points' | translate }}
-    </span>
-</div>
-<!-- full -->
-<div class="row" ng-show="sectionQuestion.reviewExpanded"
-     ng-repeat="option in sectionQuestion.options">
-    <span class="fa-stack">
-        <i class="fa fa-stop-o fa-stack-2x"></i>
-        <i class="fa fa-stack-1x"
-           ng-class="option.answered ? 'fa-check-square-o' : 'fa-square-o'"></i>
-    </span>
-    <span class="vcenter pull-right" ng-class="option.score > 0 ? 'text-success' : 'text-danger'">
-        {{option.score}} {{'sitnet_unit_points' | translate }}</span>
-    <span class="text" mathjax ng-bind-html="option.option.option"></span>
-</div>
 
-<!-- grade -->
-<div class="top-row-narrow">
-    <strong>{{ 'sitnet_word_points' | translate }}:</strong>
-    {{scoreWeightedMultipleChoiceAnswer(sectionQuestion)}} / {{calculateMaxPoints(sectionQuestion)}}
+    <div class="make-inline pull-left">
+        <img ng-show="option.answered" src="../../../assets/assets/images/icon_correct_answer_checkbox_green.png" alt="exam"
+             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_correct_answer_checkbox_green.png'" />
+        <img ng-show="!option.answered" src="../../../assets/assets/images/icon_wrong_answer_checkbox.png" alt="exam"
+             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_wrong_answer_checkbox.png'" />
+    </div>
+
+    <div class="make-inline middle-column">
+        <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
+    </div>
+
+    <div class="make-inline pull-right">
+        <span ng-class="option.score > 0 ? 'text-success' : 'text-danger'">
+            {{option.score}} {{'sitnet_unit_points' | translate }}</span>
+    </div>
 </div>

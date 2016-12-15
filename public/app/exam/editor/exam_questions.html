@@ -1,0 +1,50 @@
+<!-- General info section container -->
+<div class="col-md-12 exam-border" ng-controller="ExamController">
+
+    <div class="student-enrolment-wrapper review-view exam-questions-warning mart40" ng-if="newExam.hasEnrolmentsInEffect">
+        <div class="col-md-12">
+            <div class="col-md-1"><img src="../../../assets/assets/images/icon_warning.png" alt="exam"
+                                       onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_warning.svg'" />
+            </div>
+            <div class="col-md-11 warning-text">
+                {{'sitnet_upcoming_reservations_exist' | translate}}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sections & Questions -->
+    <div id="exam">
+        <div ng-include="templates.sections"></div>
+    </div>
+
+</div>
+
+    <!-- Buttons -->
+    <div class="col-md-12 padl0 padr0 marb20" ng-controller="ExamController">
+
+        <div class="review-attachment-button exam-questions-buttons"><a target="_self" class="pointer" ng-click="addNewSection()">
+            <i class="fa sitnet-white fa-plus"></i>&nbsp;{{'sitnet_section_add' | translate}}
+        </a></div>
+        <span class="pull-right">
+            <div class="review-attachment-button exam-questions-buttons"><a target="_self" class="pointer preview" ng-click="previewExam()">
+                {{'sitnet_preview' | translate}}
+            </a></div>
+            <div class="review-attachment-button exam-questions-buttons marl10"><a target="_self" class="pointer" ng-click="saveExam()">
+                {{'sitnet_save' | translate}}
+            </a></div>
+            <div ng-hide="newExam.state === 'PUBLISHED'" class="review-attachment-button exam-questions-buttons marl10">
+                <a target="_self" class="pointer" ng-click="saveAndPublishExam()">
+                {{'sitnet_save_and_publish' | translate}}
+            </a></div>
+           <div ng-hide="newExam.state === 'PUBLISHED' && newExam.executionType.type==='PUBLIC'"
+                class="review-attachment-button exam-questions-buttons marl10">
+               <a target="_self" class="pointer warning" ng-click="unpublishExam()">
+               {{'sitnet_unpublish_exam' | translate}}
+           </a></div>
+          <div ng-show="newExam.executionType.type==='PUBLIC'" class="review-attachment-button exam-questions-buttons marl10">
+              <a target="_self" class="pointer warning" ng-click="removeExam()">
+                  {{'sitnet_exam_remove' | translate}}
+              </a></div>
+
+        </span>
+    </div>

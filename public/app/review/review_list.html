@@ -1,107 +1,77 @@
-<div id="sitnet-header" class="header">
-    <div class="col-md-12 header-wrapper">
-        <span class="header-text">{{'sitnet_exams_to_be_reviewed' | translate}}</span>
-    </div>
-</div>
-
-<div id="dashboard">
+<div class="review-border-titles marb20" ng-controller="ReviewListingController">
     <div class="top-row">
         <div class="col-md-12">
-            <h4>{{ examInfo.title }}
-                <small>
-                    ({{'sitnet_teachers' | translate }}:
-                    <span ng-repeat="owner in examInfo.examOwners">
-                        {{owner.firstName}} {{owner.lastName}}{{$last ? '' : ', ';}}
-                    </span>)
-                </small>
-            </h4>
-        </div>
-    </div>
-    <div class="detail-row" ng-if="view.filter === 'IN_PROGRESS'">
-        <div class="col-md-12">
-            <i class="fa fa-ban text-danger"></i>
-            <a target="_self" class="pointer" ng-click="view.filter = 'ABORTED'">
-                {{'sitnet_aborted_exams' | translate}} ({{abortedExams.length}})
-            </a>
-        </div>
-    </div>
-    <div class="detail-row" ng-if="view.filter === 'IN_PROGRESS'">
-        <div class="col-md-12">
-            <i class="fa fa-frown-o text-warning"></i>
-            <a target="_self" class="pointer" ng-click="view.filter = 'NO_SHOW'">
-                {{'sitnet_no_shows' | translate}} ({{noShows.length}})
-            </a>
-        </div>
-    </div>
-    <div class="detail-row" ng-if="view.filter === 'IN_PROGRESS'">
-        <div class="col-md-12">
-            <i class="fa fa-fast-forward text-info"></i>
-            <a target="_self" class="pointer" ng-click="view.filter = 'SPEED_REVIEW'">
-                {{'sitnet_speed_review' | translate}} ({{examReviews.length}})
-            </a>
-        </div>
-    </div>
-    <div class="detail-row" ng-if="view.filter === 'IN_PROGRESS'">
-        <div class="col-md-12">
-            <i class="fa fa-download text-success"></i>
-            <a target="_self" class="pointer" ng-click="getAnswerAttachments()">
-                {{'sitnet_get_answer_attachments' | translate }}
-            </a>
-        </div>
-    </div>
-    <div class="detail-row" ng-if="view.filter === 'ABORTED' || view.filter === 'ARCHIVED' || view.filter === 'NO_SHOW'
-        || view.filter === 'SPEED_REVIEW'">
-        <div class="col-md-12">
-            <i class="fa fa-close text-info"></i>
-            <a target="_self" class="pointer" ng-click="view.filter = 'IN_PROGRESS'">
-                {{'sitnet_close' | translate}}
-            </a>
+            <div class="review-list-title">{{ examInfo.title }}</div>
         </div>
     </div>
 
-
-    <!-- Aborted-->
-    <div class="detail-row" ng-if="view.filter === 'ABORTED'">
-        <div ng-include="templates.abortedPath" />
-    </div>
-
-    <!-- No-show -->
-    <div class="detail-row" ng-if="view.filter === 'NO_SHOW'">
-        <div ng-include="templates.noShowPath" />
-    </div>
-
-    <!-- Speed review -->
-    <div class="detail-row" ng-if="view.filter === 'SPEED_REVIEW'">
-        <div ng-include="templates.speedReviewPath" />
-    </div>
-
-    <!-- Visible by default -->
-    <div ng-if="view.filter === 'IN_PROGRESS'">
-        <!-- Ready for review-->
-        <div ng-include="templates.reviewStartedPath" />
-        <!-- Under language inspection -->
-        <div ng-include="templates.languageInspectionPath" />
-        <!-- Graded -->
-        <div ng-include="templates.gradedPath" />
-        <!-- Graded and Logged -->
-        <div ng-include="templates.gradedLoggedPath" />
-        <!-- Rejected -->
-        <div ng-include="templates.rejectedPath" />
-
-        <!-- Link to archived -->
-        <div class="main-row" ng-if="archivedReviews.length > 0">
-            <div class="col-md-12">
-                <a class="exams-list-title-text bottom-padding-2 pointer" ng-click="view.filter = 'ARCHIVED'">
-                    {{'sitnet_archived_exams' | translate}} ({{archivedReviews.length}})
+    <div class="review-list-title-row" >
+        <span class="review-list-subtitle">{{'sitnet_teachers' | translate }}:</span>
+        <span class="review-list-subtitle" ng-repeat="owner in examInfo.examOwners">
+            {{owner.firstName}} {{owner.lastName}}{{$last ? '' : ', ';}}
+        </span>
+        <div class="review-attachment">
+            <div class="review-attachment-button">
+                <a class="pointer" target="_self" ng-click="getAnswerAttachments()">
+                    {{'sitnet_load_answer_attachments' | translate }}
+                    <img src="../../../assets/assets/images/icon_attachment.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_attachment.png'" />
                 </a>
             </div>
         </div>
-
     </div>
 
-    <!-- Archived-->
-    <div class="detail-row" ng-if="view.filter === 'ARCHIVED'">
-       <div ng-include="templates.archivedPath" />
+    <div class="review-list-title-row" >
+        <span class="review-list-subtitle">{{'sitnet_exam_validity' | translate}}:</span>
+        <span class="review-list-subtitle" >
+            {{examFull.examActiveStartDate | date:'dd.MM.yyyy'}} -
+            {{examFull.examActiveEndDate | date:'dd.MM.yyyy'}}
+        </span>
+    </div>
+
+    <div class="review-list-title-row">
+        <span class="review-list-bluetitle">
+            <!-- keskeytetyt-->
+            <a target="_self" class="pointer" ng-click="openAborted()">
+                {{'sitnet_aborted_exams' | translate}} ({{abortedExams.length}})</a>
+            <!-- tenttiin saapumattomat -->
+            <a style="margin-left:100px;" target="_self" class="pointer" ng-click="openNoShow()">
+            {{'sitnet_no_shows' | translate}} ({{noShows.length}})</a>
+        </span>
+    </div>
+
+</div>
+
+<div ng-controller="ReviewListingController">
+
+    <div class="review-border">
+        <!-- Ready for review-->
+        <div ng-include="templates.reviewStartedPath" />
+    </div>
+
+    <div class="review-border" ng-if="reviewsInLanguageInspection.length > 0">
+        <!-- Under language inspection -->
+        <div ng-include="templates.languageInspectionPath" />
+    </div>
+
+    <div class="review-border">
+        <!-- Graded -->
+        <div ng-include="templates.gradedPath" />
+    </div>
+
+    <div class="review-border">
+        <!-- Graded and Logged -->
+        <div ng-include="templates.gradedLoggedPath" />
+    </div>
+
+    <div class="review-border" ng-if="rejectedReviews.length > 0">
+        <!-- Rejected -->
+        <div ng-include="templates.rejectedPath" />
+    </div>
+
+    <div class="review-border" ng-if="archivedReviews.length > 0">
+        <!-- Archived -->
+        <div ng-include="templates.archivedPath" />
     </div>
 
 </div>

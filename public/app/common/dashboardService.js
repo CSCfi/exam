@@ -17,7 +17,8 @@
                         dashboardToolbarPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html",
                         dashboardActiveExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/active_exams.html",
                         dashboardFinishedExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/finished_exams.html",
-                        dashboardArchivedExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/archived_exams.html"
+                        dashboardArchivedExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/archived_exams.html",
+                        dashboardExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/draft_exams.html"
                     };
                     var contentTemplatePath;
                     if (user.isStudent) {
@@ -89,6 +90,7 @@
                     examService.listExecutionTypes().then(function (types) {
                         scope.executionTypes = types;
                         ExamRes.reviewerExams.query(function (reviewerExams) {
+
                             scope.activeExams = reviewerExams.filter(function (review) {
                                 return Date.now() <= new Date(review.examActiveEndDate) &&
                                     participationsInFuture(review);

@@ -1,49 +1,69 @@
-<div ng-init="toggleActiveExams = 'true'">
-    <div class="main-row">
-        <span class="col-md-12">
-            <a ng-click="toggleActiveExams = !toggleActiveExams" class="header-icon fa-stack fa-lg">
-                <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-                <i ng-show="!toggleActiveExams" class="fa fa-chevron-right fa-stack-1x"></i>
-                <i ng-show="toggleActiveExams" class="fa fa-chevron-down fa-stack-1x"></i>
-            </a>
-            <span ng-click="toggleActiveExams = !toggleActiveExams" class="exams-list-title-text pointer">{{ 'sitnet_active_exams' | translate }}</span>
-        </span>
+<div>
+    <div class="form-group input-group search tab-search">
+        <input ng-model="filtertext"
+               type="text"
+               class="form-control search" placeholder="{{'sitnet_exam_search_description' | translate }}">
+        <div class="input-group-addon search">
+            <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+        </div>
     </div>
-
-    <div class="detail-row" ng-show="toggleActiveExams">
-        <div class="col-md-12">
-            <table class="table table-bordered table-striped exams-table">
+    <div>
+        <div>
+            <table class="table table-striped exams-table">
                 <thead ng-init="activePredicate = 'examActiveEndDate'">
                 <tr>
-                    <th sort by="course.code" text="sitnet_examcode" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort by="name" text="sitnet_exam_name" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort by="executionType.id" text="sitnet_exam_credit_type" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort by="examActiveEndDate" text="sitnet_exam_validity" predicate="activePredicate" reverse="reverse" ></th>
-                    <th sort by="unassessedCount" text="sitnet_participation_unreviewed" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort by="unfinishedCount" text="sitnet_participation_unfinished" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort by="reservationCount" text="sitnet_participation_enrolled" predicate="activePredicate" reverse="reverse" ></th>
-                    <th sort by="ownerAggregate" text="sitnet_teachers" predicate="activePredicate" reverse="reverse" ></th>
+                    <th sort-exam by="name" text="sitnet_exam_name" predicate="activePredicate" reverse="reverse"></th>
+                    <th sort-exam by="executionType.id" text="sitnet_exam_type" predicate="activePredicate" reverse="reverse"></th>
+                    <th sort-exam by="examActiveEndDate" text="sitnet_exam_validity" predicate="activePredicate" reverse="reverse" ></th>
+                    <th sort-exam by="unassessedCount" text="sitnet_participation_unreviewed" predicate="activePredicate" reverse="reverse"></th>
+                    <th sort-exam by="unfinishedCount" text="sitnet_participation_unfinished" predicate="activePredicate" reverse="reverse"></th>
+                    <th sort-exam by="reservationCount" text="sitnet_dashboard_title_waiting_reservation" predicate="activePredicate" reverse="reverse" ></th>
+                    <th sort-exam by="ownerAggregate" text="sitnet_teachers" predicate="activePredicate" reverse="reverse" ></th>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
                 </tr>
                 </thead>
+
                 <tbody>
-                <tr ng-repeat="exam in activeExams | orderBy:activePredicate:reverse">
-                    <td class="table-column-examcode">{{ exam.course.code }}</td>
-                    <td ng-if="exam.name" class="table-column-examname"><a href="/exams/reviews/{{exam.id}}">{{
-                        exam.name }}</a></td>
+                <tr ng-repeat="exam in activeExams | orderBy:activePredicate:reverse | filter:filtertext">
+                    <td ng-if="exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
+                        {{ exam.name }}</a><br/><span class="exam-code">{{ exam.course.code }}</span></td>
                     <td ng-if="!exam.name" class="table-column-examname">
                         <span class="text-danger">{{'sitnet_no_name' | translate}}</span>
                     </td>
-                    <td>{{ getExecutionTypeTranslation(exam) | translate | uppercase }}</td>
+                    <td><span class="exam-type">{{ getExecutionTypeTranslation(exam) | translate }}</span></td>
                     <td class="table-column-open-until">{{ exam.examActiveStartDate | date:'dd.MM.yyyy' }} -
                         {{ exam.examActiveEndDate | date:'dd.MM.yyyy' }}
                     </td>
-                    <td class="table-column-enroll-participation">{{exam.unassessedCount}}</td>
-                    <td class="table-column-enroll-participation">{{exam.unfinishedCount}}</td>
-                    <td class="table-column-enroll-participation">
-                        <a href="" ng-click="showReservations(exam.id)">{{ exam.reservationCount }}</a>
+                    <td class="table-column-enroll-participation"><a href="/exams/examTabs/{{exam.id}}/3">
+                        {{exam.unassessedCount}}</a></td>
+                    <td class="table-column-enroll-participation"><a href="/exams/examTabs/{{exam.id}}/3">
+                        {{exam.unfinishedCount}}</a></td>
+                    <td class="table-column-enroll-participation"><a href="/reservations/{{exam.id}}">
+                        {{ exam.reservationCount }}</a>
                     </td>
                     <td class="table-column-teachers">
                         <teacher-list exam="exam" />
+                    </td>
+                    <td class="text-center">
+                        <a ng-click="deleteExam(exam)" class="pointer">
+                            <img src="../../../assets/assets/images/icon_trashcan.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_trashcan.png'" />
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <span class="dropdown pointer" uib-dropdown>
+                            <a href class="dropdown-toggle" uib-dropdown-toggle>
+                                <img src="../../../assets/assets/images/icon_copy.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_copy.png'" />
+                            </a>
+                            <ul class="dropdown-menu pull-right" style="min-width: 17em">
+                                <li class="dropdown-header">{{'sitnet_choose_execution_type' | translate}}</li>
+                                <li ng-repeat="type in executionTypes">
+                                    <a role="menuitem" ng-click="copyExam(exam, type.type)">
+                                        {{type.name | translate}}
+                                    </a>
+                                </li>
+                            </ul>
+                        </span>
                     </td>
                 </tr>
                 </tbody>

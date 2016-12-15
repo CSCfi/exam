@@ -1,10 +1,11 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('DashboardCtrl', ['$scope', '$location', 'dashboardService', 'examService', 'questionService',
-            'reservationService', 'dateService', 'enrolmentService', 'sessionService','EXAM_CONF',
-            function ($scope, $location, dashboardService, examService, questionService, reservationService, dateService,
-                      enrolmentService, sessionService, EXAM_CONF) {
+        .controller('DashboardCtrl', ['$scope', 'dashboardService', 'examService', 'questionService',
+            'reservationService', 'dateService', 'enrolmentService', 'sessionService','EXAM_CONF', 'ExamRes',
+            'dialogs','$translate',
+            function ($scope, dashboardService, examService, questionService, reservationService, dateService,
+                      enrolmentService, sessionService, EXAM_CONF, ExamRes, dialogs, $translate) {
 
                 $scope.evaluationPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/exam_feedback.html";
 
@@ -13,6 +14,7 @@
                 $scope.pageSize = 10;
                 $scope.showInst = 0;
                 $scope.showEval = 0;
+                $scope.filtertext = '';
 
                 $scope.printExamDuration = function (exam) {
                     return dateService.printExamDuration(exam);
@@ -60,12 +62,12 @@
                     return sessionService.getUserName();
                 };
 
-                $scope.createExam = function (executionType) {
-                    examService.createExam(executionType);
+                $scope.createExam = function () {
+                    //examService.createExam(executionType);
                 };
 
                 $scope.createQuestion = function (type) {
-                    $location.path("/questions/new/" + type);
+                    questionService.createQuestion(type);
                 };
 
                 $scope.removeEnrolment = function (enrolment, enrolments) {
@@ -81,6 +83,25 @@
                 };
 
 
+                $scope.search = function () {
+                    ExamRes.reviewerExams.query({filter: $scope.filtertext}, function (exams) {
+                        exams.forEach(function (exam) {
+                            if (!exam.examLanguages) {
+                                console.warn("No languages for exam #" + exam.id);
+                                exam.examLanguages = [];
+                            }
+                            exam.languages = exam.examLanguages.map(function (lang) {
+                                return getLanguageNativeName(lang.code);
+                            });
+                        });
+                        $scope.finishedExams = exams;
+                        //$scope.loader.loading = false;
+                    }, function (err) {
+                        //$scope.loader.loading = false;
+                        toastr.error($translate.instant(err.data));
+                    });
+                };
+
                 dashboardService.showDashboard().then(function (data) {
                     for (var k in data) {
                         if (data.hasOwnProperty(k)) {
@@ -90,6 +111,31 @@
                 }, function (error) {
                     toastr.error(error.data);
                 });
+
+                $scope.copyExam = function (exam, type) {
+                    ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
+                        toastr.success($translate.instant('sitnet_exam_copied'));
+                        $location.path("/exams/" + copy.id);
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+                };
+
+                $scope.deleteExam = function (exam) {
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
+                    dialog.result.then(function (btn) {
+                        ExamRes.exams.remove({id: exam.id}, function (ex) {
+                            toastr.success($translate.instant('sitnet_exam_removed'));
+                            $scope.exams.splice($scope.exams.indexOf(exam), 1);
+
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                    }, function (btn) {
+
+                    });
+                };
+
 
             }]);
 }());

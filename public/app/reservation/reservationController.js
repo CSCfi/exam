@@ -132,8 +132,15 @@
                     });
                 });
 
+                $scope.stateclass = "";
                 $scope.printExamState = function (enrolment) {
                     return enrolment.reservation.noShow ? 'NO_SHOW' : enrolment.exam.state;
+                };
+
+
+                $scope.getStateclass = function (enrolment) {
+                    return enrolment.reservation.noShow ? 'no_show' : enrolment.exam.state.toLowerCase();
+
                 };
 
 

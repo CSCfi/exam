@@ -1,16 +1,21 @@
-    <label for="question-editor">
-        <span>
-            {{'sitnet_question_options' | translate}}
-            <i ng-if="showWarning()" class="fa fa-lg fa-exclamation-circle text-info"></i>
-            <small ng-if="showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
-        </span>
-    </label>
+    <div class="col-md-12 mart20 marb10" ng-show="newQuestion.type == 'WeightedMultipleChoiceQuestion'">
+        <div class="col-md-1"></div>
+        <div class="col-md-6 padl0">
+            <span class="question-option-title">{{'sitnet_option' | translate}}</span>
+            <span>
+            <i ng-if="!showWarning()" class="fa fa-exclamation-circle reddish"></i>
+            <small ng-if="!showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
+            </span>
+        </div>
+        <div class="col-md-5">
+            {{'sitnet_word_points' | translate}}
+        </div>
+    </div>
+
     <div id="question-editor">
         <div ng-repeat="option in newQuestion.options" ng-include="newOptionTemplate" />
-        <div class="row">
-            <div class="col-md-11 col-md-offset-1 new-option" ng-click="addNewOption(newQuestion)">
-                <i class="fa fa-plus-circle"></i>
-                {{'sitnet_question_add_new_option'|translate}}
-            </div>
+        <div ng-click="addNewOption(newQuestion)" class="attachment-link pointer">
+            <i class="fa fa-plus"></i>
+            {{'sitnet_question_add_new_option'|translate}}
         </div>
     </div>

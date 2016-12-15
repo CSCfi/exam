@@ -20,6 +20,8 @@ import play.data.DynamicForm;
 import play.db.ebean.Transactional;
 import play.libs.Json;
 import play.mvc.Result;
+import play.Logger;
+
 import util.AppUtil;
 
 import java.util.*;
@@ -267,6 +269,7 @@ public class ExamSectionController extends QuestionController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertQuestion(Long eid, Long sid, Integer seq, Long qid) {
+
         Exam exam = Ebean.find(Exam.class, eid);
         ExamSection section = Ebean.find(ExamSection.class, sid);
         Question question = Ebean.find(Question.class, qid);
