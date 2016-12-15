@@ -230,6 +230,7 @@ public class ReviewController extends BaseController {
             GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
             if (scale.getGrades().contains(examGrade)) {
                 exam.setGrade(examGrade);
+                exam.setGradeless(false);
             } else {
                 return badRequest("Invalid grade for this grade scale");
             }
