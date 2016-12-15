@@ -367,6 +367,10 @@
                         $scope.gradedLoggedReviews = reviews.filter(function (r) {
                             return r.exam.state === 'GRADED_LOGGED';
                         });
+                        $scope.gradedLoggedReviews.forEach(function(r) {
+                            r.displayedGrade = $scope.translateGrade(r.exam);
+                        });
+
                         $scope.toggleLoggedReviews = $scope.gradedLoggedReviews.length > 0;
                         $scope.rejectedReviews = reviews.filter(function (r) {
                             return r.exam.state === 'REJECTED';
