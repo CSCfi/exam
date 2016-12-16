@@ -111,28 +111,18 @@
                 <div class="col-md-9">
                     <input type="checkbox" ng-model="newExam.subjectToLanguageInspection" ng-value="true"
                            ng-change="updateExam()">
-                </div>
-            </div>
 
-            <!-- TODO: CHECK THIS Subject to language inspection-->
-            <div ng-show="newExam.executionType.type==='MATURITY'">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="sitnet-info-text">{{'sitnet_subject_to_language_inspection' | translate}}</div>
-                        <div class="input-group">
-                            <button class="btn btn-default" ng-class="newExam.subjectToLanguageInspection ? 'btn-primary' : ''"
-                                    ng-disabled="newExam.state === 'PUBLISHED'"
-                                    ng-click="newExam.subjectToLanguageInspection = true; updateExam()">{{'DIALOGS_YES' | translate }}
-                            </button>&nbsp;
-                            <button class="btn btn-default" ng-class="newExam.subjectToLanguageInspection ? '' : 'btn-primary'"
-                                    ng-disabled="newExam.state === 'PUBLISHED'"
-                                    ng-click="newExam.subjectToLanguageInspection = false; updateExam()">{{'DIALOGS_NO' | translate }}
-                            </button>
-                        </div>
-                    </div>
+                    <button class="btn btn-default" ng-class="newExam.subjectToLanguageInspection ? 'btn-primary' : ''"
+                            ng-disabled="newExam.state === 'PUBLISHED'"
+                            ng-click="newExam.subjectToLanguageInspection = true; updateExam()">{{'DIALOGS_YES' | translate }}
+                    </button>&nbsp;
+                    <button class="btn btn-default" ng-class="newExam.subjectToLanguageInspection ? '' : 'btn-primary'"
+                            ng-disabled="newExam.state === 'PUBLISHED'"
+                            ng-click="newExam.subjectToLanguageInspection = false; updateExam()">{{'DIALOGS_NO' | translate }}
+                    </button>
+
                 </div>
             </div>
-            
 
             <!-- Exam inspectors -->
             <div ng-hide="newExam.executionType.type==='MATURITY'" class="row col-md-12 margin-20">

@@ -748,8 +748,7 @@
   "sitnet_exam_name_ascending": "Nimen mukaan A > Z",
   "sitnet_exam_name_descending": "Nimen mukaan Z > A",
   "sitnet_exam_participation_ascending": "Uusin suoritus ensin",
-  "sitnet_exam_participation_descending": "Vanhin suoritus ensin"
-  "sitnet_subject_to_language_inspection": "Vaatii kielentarkastuksen",
+  "sitnet_exam_participation_descending": "Vanhin suoritus ensin",
   "sitnet_dashboard_title_waiting_reservation": "Odottaa varauksia",
   "sitnet_publish_timetable":"Aikataulut",
   "sitnet_publish_settings":"Julkaisuasetukset",
