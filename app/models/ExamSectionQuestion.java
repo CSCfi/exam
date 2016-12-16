@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import models.api.Scorable;
 import models.api.Sortable;
 import models.base.OwnedModel;
+import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
@@ -16,6 +17,7 @@ import play.mvc.Result;
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -53,6 +55,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @OneToOne(cascade = CascadeType.ALL)
     private EssayAnswer essayAnswer;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private ClozeTestAnswer clozeTestAnswer;
 
     @Column
     private String evaluationCriteria;
@@ -140,6 +145,14 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         this.essayAnswer = essayAnswer;
     }
 
+    public ClozeTestAnswer getClozeTestAnswer() {
+        return clozeTestAnswer;
+    }
+
+    public void setClozeTestAnswer(ClozeTestAnswer clozeTestAnswer) {
+        this.clozeTestAnswer = clozeTestAnswer;
+    }
+
     public String getEvaluationCriteria() {
         return evaluationCriteria;
     }
@@ -220,7 +233,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             case EssayQuestion:
                 if (evaluationType == Question.EvaluationType.Points) {
                     return essayAnswer == null || essayAnswer.getEvaluatedScore() == null ? 0 :
-                            essayAnswer.getEvaluatedScore().doubleValue();
+                            essayAnswer.getEvaluatedScore();
                 }
                 break;
             case MultipleChoiceQuestion:
@@ -237,6 +250,19 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                         .reduce(0.0, (sum, x) -> sum += x);
                 // ATM minimum score is zero
                 return Math.max(0.0, evaluation);
+            case ClozeTestQuestion:
+                // sanity check
+                if (clozeTestAnswer == null) {
+                    return 0.0;
+                }
+                ClozeTestAnswer.Score score = clozeTestAnswer.getScore(this);
+                int correct = score.getCorrectAnswers();
+                int incorrect = score.getIncorrectAnswers();
+                if (correct + incorrect == 0) {
+                    return 0.0;
+                }
+                DecimalFormat df = new DecimalFormat("#.##");
+                return Double.valueOf(df.format(correct * maxScore / (correct + incorrect)));
         }
         return 0.0;
     }
@@ -251,6 +277,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 }
                 break;
             case MultipleChoiceQuestion:
+            case ClozeTestQuestion:
                 return maxScore == null ? 0 : maxScore;
             case WeightedMultipleChoiceQuestion:
                 return options.stream()

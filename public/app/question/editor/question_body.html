@@ -68,12 +68,12 @@
             {{'sitnet_question_text' | translate}}
         </div>
         <div class="col-md-9 padr0" ng-show="newQuestion.type">
-            <textarea id="editor" name="editor" ck-editor rows="10" cols="60"
+            <textarea id="editor" name="editor" ck-editor enable-cloze-test="newQuestion.type === 'ClozeTestQuestion'" rows="10" cols="60"
                       ng-model="newQuestion.question" required>
             </textarea>
         </div>
         <div class="col-md-9 padr0" ng-show="!newQuestion.type" >
-            <textarea id="editor2" name="editor2" ck-editor rows="10" cols="60"
+            <textarea id="editor2" name="editor2" ck-editor enable-cloze-test="newQuestion.type === 'ClozeTestQuestion'" rows="10" cols="60"
                       ng-model="newQuestionText.text">
             </textarea>
         </div>
@@ -138,6 +138,7 @@
 
         <!-- Max score -->
         <div class="col-md-12 margin-20 padl0 padr0" ng-if="newQuestion.type == 'MultipleChoiceQuestion' ||
+                                              newQuestion.type == 'ClozeTestQuestion' ||
                                               newQuestion.defaultEvaluationType == 'Points'">
             <div class="col-md-3 exam-basic-title padl0">
                 {{'sitnet_max_score' | translate}}

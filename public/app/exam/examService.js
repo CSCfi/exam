@@ -138,14 +138,6 @@
                     return deferred.promise;
                 };
 
-                var unique = function (array, key) {
-                    var seen = {};
-                    return array.filter(function (item) {
-                        var k = key(item);
-                        return seen.hasOwnProperty(k) ? false : (seen[k] = true);
-                    });
-                };
-
                 self.setCredit = function (exam) {
                     if (exam.customCredit !== undefined && exam.customCredit) {
                         exam.credit = exam.customCredit;
@@ -159,16 +151,18 @@
                     switch (sectionQuestion.question.type) {
                         case 'EssayQuestion':
                             var essayAnswer = sectionQuestion.essayAnswer;
-                            if (essayAnswer && essayAnswer.answer &&
-                                self.stripHtml(essayAnswer.answer).length > 0) {
-                                isAnswered = true;
-                            }
+                            isAnswered = essayAnswer && essayAnswer.answer &&
+                                self.stripHtml(essayAnswer.answer).length > 0;
                             break;
                         case 'MultipleChoiceQuestion':
                         case 'WeightedMultipleChoiceQuestion':
                             isAnswered = sectionQuestion.options.filter(function (o) {
                                     return o.answered;
                                 }).length > 0;
+                            break;
+                        case 'ClozeTestQuestion':
+                            var clozeTestAnswer = sectionQuestion.clozeTestAnswer;
+                            isAnswered = clozeTestAnswer && !_.isEmpty(clozeTestAnswer.answer);
                             break;
                         default:
                             break;
@@ -235,6 +229,9 @@
                             case "WeightedMultipleChoiceQuestion":
                                 score += questionService.scoreWeightedMultipleChoiceAnswer(sq);
                                 break;
+                            case "ClozeTestQuestion":
+                                score += questionService.scoreClozeTestAnswer(sq);
+                                break;
                             case "EssayQuestion":
                                 if (sq.essayAnswer && sq.essayAnswer.evaluatedScore && sq.evaluationType === 'Points') {
                                     var number = parseFloat(sq.essayAnswer.evaluatedScore);
@@ -258,6 +255,7 @@
                         }
                         switch (sq.question.type) {
                             case "MultipleChoiceQuestion":
+                            case "ClozeTestQuestion":
                                 score += sq.maxScore;
                                 break;
                             case "WeightedMultipleChoiceQuestion":
@@ -328,7 +326,8 @@
                 };
 
                 self.isOwnerOrAdmin = function (exam) {
-                    return exam && (sessionService.getUser().isAdmin || self.isOwner(exam));
+                    var user = sessionService.getUser();
+                    return exam && user && (user.isAdmin || self.isOwner(exam));
                 };
 
             }]);

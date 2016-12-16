@@ -160,9 +160,12 @@
             }])
 
 
-        .directive('ckEditor', function () {
+        .directive('ckEditor', ['$rootScope', function ($rootScope) {
             return {
-                require: '?ngModel',
+                require: 'ngModel',
+                scope: {
+                    enableClozeTest: '=?'
+                },
                 link: function (scope, elm, attr, ngModel) {
                     var tmp;
 
@@ -174,35 +177,32 @@
 
                     ck.on('instanceReady', function () {
                         ck.setData(tmp);
+                        if (!scope.enableClozeTest) {
+                            ck.getCommand('insertCloze').disable();
+                        }
                     });
 
                     function updateModel() {
-                        scope.$apply(function () {
-                            ngModel.$setViewValue(ck.getData());
+                        _.defer(function () {
+                            scope.$apply(function () {
+                                ngModel.$setViewValue(ck.getData());
+                            });
                         });
                     }
 
                     function onChange() {
                         updateModel();
                     }
-                    function onKey() {
-                        updateModel();
-                    }
+
                     function onDataReady() {
                         updateModel();
                     }
+
                     function onMode() {
                         updateModel();
                     }
 
-                    // use "$scope.updateProperties" in controllers if needed to save the editor after losing focus a.k.a "onblur"
-                    ck.on('blur', function () {
-                        if (scope.updateProperties !== undefined) {
-                            scope.updateProperties();
-                        }
-                    });
                     ck.on('change', onChange);
-                    ck.on('key', onKey);
                     ck.on('dataReady', onDataReady);
                     ck.on('mode', onMode); // Editing mode change
 
@@ -212,8 +212,33 @@
                     };
                 }
             };
-        })
+        }])
 
+        .directive('clozeTest', function($compile) {
+            return {
+                restrict: "E",
+                scope: {
+                    results: '=',
+                    content: '=',
+                    editable: '=?'
+                },
+                link: function(scope, element, attrs){
+                    var editable = angular.isUndefined(scope.editable) || scope.editable; // defaults to true
+                    var replacement = angular.element(scope.content);
+                    var inputs = replacement.find("input");
+                    for (var i = 0; i < inputs.length; ++i) {
+                        var input = inputs[i];
+                        var id = input.attributes.id.value;
+                        input.setAttribute('ng-model', 'results.' + id);
+                        if (!editable) {
+                            input.setAttribute('ng-disabled', 'true');
+                        }
+                    }
+                    element.replaceWith(replacement);
+                    $compile(replacement)(scope);
+                }
+            };
+        })
         .directive('uiBlur', function () {
             return function (scope, elem, attrs) {
 
@@ -420,7 +445,7 @@
                             var begin = n * scope.pageSize + 1;
                             var end = Math.min(scope.items.length, (n + 1) * scope.pageSize);
                             //return begin + " - " + end;
-                            return n+1;
+                            return n + 1;
                         }
                     };
 

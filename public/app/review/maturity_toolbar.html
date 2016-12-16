@@ -28,6 +28,8 @@
                         (getNextMaturityState().alternateState.validate && !getNextMaturityState().alternateState.validate())"
                     ng-click="proceedWithMaturity(true)">{{ getNextMaturityState().alternateState.text | translate}}
             </button>
+            <span ng-show="isMissingStatement()" class="text-danger">&nbsp;
+                <i class="fa fa-exclamation-circle"></i>&nbsp;{{ getNextMaturityState().hint | translate }}</span>
         </span>
     </span>
 </div>

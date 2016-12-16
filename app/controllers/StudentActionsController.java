@@ -105,9 +105,9 @@ public class StudentActionsController extends BaseController {
     }
 
     @ActionMethod
-    public Result getFinishedExams() {
+    public Result getFinishedExams(Optional<String> filter) {
         User user = getLoggedUser();
-        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
+        ExpressionList<ExamParticipation> query = Ebean.find(ExamParticipation.class)
                 .select("ended")
                 .fetch("exam", "id, state, name")
                 .fetch("exam.creator", "id")
@@ -119,9 +119,19 @@ public class StudentActionsController extends BaseController {
                 .ne("exam.state", Exam.State.STUDENT_STARTED)
                 .ne("exam.state", Exam.State.ABORTED)
                 .ne("exam.state", Exam.State.DELETED)
-                .eq("exam.creator", user)
-                .findList();
-        return ok(participations);
+                .eq("exam.creator", user);
+        if (filter.isPresent()) {
+            String condition = String.format("%%%s%%", filter.get());
+            query = query.disjunction()
+                    .ilike("exam.name", condition)
+                    .ilike("exam.course.code", condition)
+                    .ilike("exam.parent.examOwners.firstName", condition)
+                    .ilike("exam.parent.examOwners.lastName", condition)
+                    .ilike("exam.examInspections.user.firstName", condition)
+                    .ilike("exam.examInspections.user.lastName", condition)
+                    .endJunction();
+        }
+        return ok(query.findList());
     }
 
     @ActionMethod
@@ -258,6 +268,8 @@ public class StudentActionsController extends BaseController {
                     .ilike("course.code", condition)
                     .ilike("examOwners.firstName", condition)
                     .ilike("examOwners.lastName", condition)
+                    .ilike("examInspections.user.firstName", condition)
+                    .ilike("examInspections.user.lastName", condition)
                     .endJunction();
         }
         List<Exam> exams = query.orderBy("course.code").findList();

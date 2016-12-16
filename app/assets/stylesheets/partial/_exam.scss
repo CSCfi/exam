@@ -259,6 +259,18 @@
     list-style: none;
   }
 
+  .cloze-correct {
+    margin: 0.5em 0 0.5em 0;
+    border-radius: 4px;
+    background: #ccffcc;
+  }
+
+  .cloze-incorrect {
+    margin: 0.5em 0 0.5em 0;
+    border-radius: 4px;
+    background: #feeeef;
+  }
+
   .lottery-item-count {
     margin-top: 0 !important;
     margin-right: 1em;

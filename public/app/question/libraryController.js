@@ -1,11 +1,13 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('LibraryCtrl', ['dialogs', '$q', '$scope', '$rootScope', '$location', '$translate', 'sessionService',
-            'QuestionRes', 'questionService', 'ExamRes', 'CourseRes', 'TagRes', 'UserRes', 'EXAM_CONF',
-            function (dialogs, $q, $scope, $rootScope, $location, $translate, sessionService, QuestionRes,
-                        questionService, ExamRes, CourseRes, TagRes, UserRes, EXAM_CONF) {
-
+        .controller('LibraryCtrl', ['dialogs', '$q', '$filter', '$sce', '$scope', '$rootScope', '$location',
+                    '$translate', 'sessionService', 'QuestionRes', 'questionService', 'ExamRes', 'CourseRes',
+                    'TagRes', 'UserRes', 'EXAM_CONF',
+            function (dialogs, $q, $filter, $sce, $scope, $rootScope, $location, 
+                        $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes,
+                        TagRes, UserRes, EXAM_CONF) {
+        
                 var step = 100;
 
                 $scope.pageSize = 25;
@@ -213,6 +215,7 @@
                 };
 
                 var query = function () {
+                    var deferred = $q.defer();
                     QuestionRes.questionlist.query({
                         exam: getExamIds(),
                         course: getCourseIds(),
@@ -220,21 +223,26 @@
                         section: getSectionIds()
                     }, function (data) {
                         data.map(function (item) {
-                            var icon;
-                            if (item.type === "MultipleChoiceQuestion") {
-                                icon = "fa-list-ul";
-                            } else if (item.type === "WeightedMultipleChoiceQuestion") {
-                                icon = "fa-balance-scale";
-                            } else {
-                                icon = "fa-edit";
+                            switch (item.type) {
+                                case "MultipleChoiceQuestion":
+                                    item.icon = "fa-list-ul";
+                                    break;
+                                case "WeightedMultipleChoiceQuestion":
+                                    item.icon = "fa-balance-scale";
+                                    break;
+                                case "EssayQuestion":
+                                    item.icon = "fa-edit";
+                                    break;
+                                case "ClozeTestQuestion":
+                                    item.icon = "fa-commenting-o";
+                                    break;
                             }
-                            item.icon = icon;
                             return item;
                         });
                         $scope.questions = $scope.filteredQuestions = questionService.applyFilter(data);
 
                         $scope.questions.forEach(function (q) {
-                            if (q.defaultEvaluationType === "Points" || q.type === 'MultipleChoiceQuestion') {
+                            if (q.defaultEvaluationType === "Points" || q.type === 'ClozeTestQuestion' || q.type === 'MultipleChoiceQuestion') {
                                 q.displayedMaxScore = q.defaultMaxScore;
                             } else if (q.defaultEvaluationType === "Selection") {
                                 q.displayedMaxScore = 'sitnet_evaluation_select';
@@ -242,6 +250,7 @@
                                 q.displayedMaxScore = $scope.calculateMaxPoints(q);
                             }
                             q.typeOrd = ['EssayQuestion',
+                                'ClozeTestQuestion',
                                 'MultipleChoiceQuestion',
                                 'WeightedMultipleChoiceQuestion'].indexOf(q.type);
                             q.ownerAggregate = q.creator.lastName + q.creator.firstName;
@@ -253,13 +262,14 @@
                         var filters = {
                             exams: $scope.exams,
                             courses: $scope.courses,
-                            tags: $scope.tags,
-                            text: $scope.filter.text
+                            tags: $scope.tags
                         };
-                        questionService.storeQuestions($scope.questions, filters);
+                        questionService.storeFilters(filters);
                         $scope.currentPage = 0;
                         limitQuestions();
+                        deferred.resolve();
                     });
+                    return deferred.promise;
                 };
 
                 var union = function (filtered, tags) {
@@ -400,9 +410,8 @@
                     dialog.result.then(function (btn) {
                         QuestionRes.questions.delete({id: question.id}, function () {
                             $scope.questions.splice($scope.questions.indexOf(question), 1);
+                            $scope.applyFreeSearchFilter();
                             toastr.info($translate.instant('sitnet_question_removed'));
-                            // Clear cache to trigger a refresh now that there is a new entry
-                            questionService.clearQuestions();
                         });
                     });
                 };
@@ -425,30 +434,36 @@
                             return text;
                         },
                         function (data) {
-                            document.getElementsByClassName(textClass)[0].innerHTML = '<span>' + text.split('').join('</span><span>') + '</span>';
+                            document.getElementsByClassName(textClass)[0].innerHTML =
+                                '<span>' + text.split('').join('</span><span>') + '</span>';
                         }
                     );
 
                 };
 
-                var refresh = function () {
-                    questionService.clearQuestions();
-                    query();
+                $scope.truncate = function (content, offset) {
+                    if (content) {
+                        return $filter('truncate')(content, offset);
+                    }
                 };
 
-                $rootScope.$on('questionAdded', refresh);
-                $rootScope.$on('questionUpdated', refresh);
+                $scope.trustAsHtml = function (content) {
+                    return $sce.trustAsHtml(content);
+                };
 
-                var storedData = questionService.loadQuestions();
-                if (storedData.questions) {
-                    $scope.questions = $scope.filteredQuestions = storedData.questions;
-                    $scope.exams = storedData.filters.exams;
-                    $scope.courses = storedData.filters.courses;
-                    $scope.tags = storedData.filters.tags;
-                    $scope.filter.text = storedData.filters.text;
+                $rootScope.$on('questionAdded', query);
+                $rootScope.$on('questionUpdated', query);
+
+                var storedData = questionService.loadFilters();
+                if (storedData.filters) {
+                    //$scope.questions = $scope.filteredQuestions = storedData.questions;
+                    $scope.exams = storedData.filters.exams || [];
+                    $scope.courses = storedData.filters.courses || [];
+                    $scope.tags = storedData.filters.tags || [];
                     $scope.currentPage = 0;
-                    limitQuestions();
-                    $scope.applyFreeSearchFilter();
+                    query().then(function () {
+                        limitQuestions();
+                    });
                 } else {
                     query();
                 }

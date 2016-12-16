@@ -948,7 +948,7 @@
                     if (!allSectionsNamed) {
                         errors.sectionNames = $translate.instant('sitnet_exam_contains_unnamed_sections');
                     }
-                    if (exam.executionType.type === 'PRIVATE' && exam.examEnrolments.length < 1) {
+                    if (['PRIVATE', 'MATURITY'].indexOf(exam.executionType.type) > -1 && exam.examEnrolments.length < 1) {
                         errors.participants = $translate.instant('sitnet_no_participants');
                     }
 
@@ -1310,7 +1310,6 @@
                         var saveQuestion = function (baseQuestion) {
                             var errFn = function (error) {
                                 toastr.error(error.data);
-                                $modalInstance.dismiss("Cancelled");
                             };
                             if (!question) {
                                 // Create new base question

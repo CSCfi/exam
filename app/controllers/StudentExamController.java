@@ -6,12 +6,15 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import controllers.api.ExternalAPI;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import models.*;
+import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
+import models.questions.Question;
 import org.joda.time.DateTime;
 import play.Environment;
 import play.Logger;
@@ -47,6 +50,7 @@ public class StudentExamController extends BaseController {
     @Inject
     protected Environment environment;
 
+
     @ActionMethod
     @Transactional
     public Result startExam(String hash) {
@@ -64,6 +68,7 @@ public class StudentExamController extends BaseController {
                 Exam newExam = createNewExam(prototype, user, enrolment);
                 newExam.setCloned(true);
                 newExam.setDerivedMaxScores();
+                processClozeTestQuestions(newExam);
                 return ok(newExam, getPath());
             });
         } else {
@@ -74,6 +79,7 @@ public class StudentExamController extends BaseController {
             }
             possibleClone.setCloned(false);
             possibleClone.setDerivedMaxScores();
+            processClozeTestQuestions(possibleClone);
             return ok(possibleClone, getPath());
         }
     }
@@ -82,6 +88,7 @@ public class StudentExamController extends BaseController {
     @Transactional
     public Result turnExam(String hash) {
         User user = getLoggedUser();
+
         Exam exam = Ebean.find(Exam.class)
                 .fetch("examSections.sectionQuestions.question")
                 .where()
@@ -209,6 +216,27 @@ public class StudentExamController extends BaseController {
         });
     }
 
+    @ActionMethod
+    public Result answerClozeTest(String hash, Long questionId) {
+        return getEnrolmentError(hash).orElseGet(() -> {
+            ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
+            if (esq == null) {
+                return forbidden();
+            }
+            JsonNode node = request().body().asJson();
+            ClozeTestAnswer answer = esq.getClozeTestAnswer();
+            if (answer == null) {
+                answer = new ClozeTestAnswer();
+            } else {
+                long objectVersion = node.get("objectVersion").asLong();
+                answer.setObjectVersion(objectVersion);
+            }
+            answer.setAnswer(node.get("answer").toString());
+            answer.save();
+            return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
+        });
+    }
+
     private static Exam getPrototype(String hash) {
         return createQuery()
                 .where()
@@ -300,9 +328,10 @@ public class StudentExamController extends BaseController {
                         "examInspections(user(firstName, lastName))" +
                         "examSections(id, name, sequenceNumber, description, " + // ((
                         "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
-                        "question(id, type, question, attachment(fileName))" +
+                        "question(id, type, question, attachment(id, fileName))" +
                         "options(id, answered, option(id, option))" +
                         "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
+                        "clozeTestAnswer(id, question, answer, objectVersion)" +
                         ")))");
     }
 
@@ -312,6 +341,25 @@ public class StudentExamController extends BaseController {
         props.apply(query);
         return query;
     }
+
+    private void processClozeTestQuestions(Exam exam) {
+        Set<Question> questionsToHide = new HashSet<>();
+        exam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
+                .forEach( esq -> {
+                    ClozeTestAnswer answer = esq.getClozeTestAnswer();
+                    if (answer == null) {
+                        answer = new ClozeTestAnswer();
+                    }
+                    answer.setQuestion(esq);
+                    esq.setClozeTestAnswer(answer);
+                    esq.update();
+                    questionsToHide.add(esq.getQuestion());
+                });
+        questionsToHide.forEach(q -> q.setQuestion(null));
+    }
+
 
     private Optional<Result> getEnrolmentError(String hash) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()

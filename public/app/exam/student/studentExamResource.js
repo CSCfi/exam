@@ -54,12 +54,18 @@
                 }),
 
                 essayAnswer: $resource("/app/student/exams/:hash/question/:qid", {
-                    hash: "@hash", qid: "@qid", oid: "@oid"
+                    hash: "@hash", qid: "@qid"
                 },
                 {
                     "saveEssay": {
                         method: "POST", params: { hash: "@hash", qid: "@qid" }
                     }
+                }),
+                clozeTestAnswer: $resource("/app/student/exams/:hash/clozetest/:qid", {
+                        hash: "@hash", qid: "@qid"
+                },
+                {
+                    "save": {method: "POST", params: { hash: "@hash", qid: "@qid" }}
                 }),
                 teachers: $resource("/app/student/inspectors/exam/:id",
                 {

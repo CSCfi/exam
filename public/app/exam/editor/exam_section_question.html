@@ -50,6 +50,7 @@
             </ul>
             <!-- question points -->
             <div class="review-points pull-left" ng-if="sectionQuestion.evaluationType === 'Points'
+                 || sectionQuestion.question.type === 'ClozeTestQuestion'
                  || sectionQuestion.question.type === 'MultipleChoiceQuestion'">
                 0 / {{ sectionQuestion.maxScore }} {{ 'sitnet_unit_points' | translate }}
             </div>
@@ -61,5 +62,28 @@
             </div>
 
         </div>
+    </div>
+    <div class="detail-row"
+         ng-show="sectionQuestion.question.type !== 'EssayQuestion' && sectionQuestion.expanded">
+        <ol class="col-md-12">
+            <li ng-show="sectionQuestion.question.type === 'MultipleChoiceQuestion'" class="exam-question-option"
+                ng-repeat="option in sectionQuestion.options">
+                <input type="radio" ng-value="true" class="list-group-item-text"
+                       ng-model="option.option.correctOption" ng-disabled="true"/>
+                <span class="exam-question-option-text">{{option.option.option}}</span>
+                <span class="badge pull-right" ng-show="option.option.correctOption">
+                    {{ 'sitnet_multiplechoice_question_correct' | translate }}
+                </span>
+            </li>
+            <li ng-show="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
+                class="exam-question-option" ng-repeat="option in sectionQuestion.options">
+                <input type="checkbox" name="option.id" ng-value="option" class="list-group-item-text"
+                       ng-checked="option.score > 0" ng-disabled="true"/>
+                <span class="exam-question-option-text">{{option.option.option}}</span>
+                <span class="exam-question-option-text pull-right">{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
+            </li>
+        </ol>
+    </div>
+</div>
 
     </div>

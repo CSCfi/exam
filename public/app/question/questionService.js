@@ -20,9 +20,11 @@
                         case 'weighted':
                             questionType = 'WeightedMultipleChoiceQuestion';
                             break;
+                        case 'cloze':
+                            questionType = 'ClozeTestQuestion';
+                            break;
                     }
                     return {
-                        question: '',
                         examSectionQuestions: [],
                         options: [],
                         questionOwners: [sessionService.getUser()],
@@ -68,6 +70,12 @@
                     }).reduce(function (a, b) {
                         return a + b.score;
                     }, 0));
+                };
+
+                self.scoreClozeTestAnswer = function (sectionQuestion) {
+                    var score = sectionQuestion.clozeTestAnswer.score;
+                    return parseFloat(score.correctAnswers * sectionQuestion.maxScore /
+                        (score.correctAnswers + score.incorrectAnswers).toFixed(2));
                 };
 
                 self.scoreWeightedMultipleChoiceAnswer = function (sectionQuestion) {
@@ -131,6 +139,7 @@
                         case "MultipleChoiceQuestion":
                         case "WeightedMultipleChoiceQuestion":
                         case "EssayQuestion":
+                        case "ClozeTestQuestion":
                             _filter = filter;
                             break;
                         default:
@@ -147,20 +156,16 @@
                     });
                 };
 
-                self.loadQuestions = function () {
-                    if ($sessionStorage.libraryQuestions) {
-                        return JSON.parse($sessionStorage.libraryQuestions);
+                self.loadFilters = function () {
+                    if ($sessionStorage.questionFilters) {
+                        return JSON.parse($sessionStorage.questionFilters);
                     }
                     return {};
                 };
 
-                self.storeQuestions = function (questions, filters) {
-                    var data = {questions: questions, filters: filters};
-                    $sessionStorage.libraryQuestions = JSON.stringify(data);
-                };
-
-                self.clearQuestions = function () {
-                    delete $sessionStorage.libraryQuestions;
+                self.storeFilters = function (filters) {
+                    var data = {filters: filters};
+                    $sessionStorage.questionFilters = JSON.stringify(data);
                 };
 
                 self.range = function (min, max, step) {

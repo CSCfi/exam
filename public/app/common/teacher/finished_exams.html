@@ -14,7 +14,7 @@
                 <thead ng-init="finishedPredicate='unassessedCount'; reverse=true;">
                 <tr>
                     <th sort-exam by="name" text="sitnet_exam_name" predicate="finishedPredicate" reverse="reverse"></th>
-                    <th sort-exam by="executionType.id" text="sitnet_exam_type" predicate="finishedPredicate" reverse="reverse"></th>
+                    <th sort-exam by="executionType.type" text="sitnet_exam_type" predicate="finishedPredicate" reverse="reverse"></th>
                     <th sort-exam by="examActiveEndDate" text="sitnet_exam_validity" predicate="finishedPredicate" reverse="reverse"></th>
                     <th sort-exam by="unassessedCount" text="sitnet_participation_unreviewed" predicate="finishedPredicate" reverse="reverse"></th>
                     <th sort-exam by="unfinishedCount" text="sitnet_participation_unfinished" predicate="finishedPredicate" reverse="reverse"></th>

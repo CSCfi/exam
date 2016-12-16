@@ -13,6 +13,7 @@
                 $scope.reviewSectionPath = EXAM_CONF.TEMPLATES_PATH + "review/exam_section.html";
                 $scope.multiplechoiceQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/multiple_choice_question.html";
                 $scope.essayQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/essay_question.html";
+                $scope.clozeTestPath = EXAM_CONF.TEMPLATES_PATH + "review/cloze_test.html";
                 $scope.previousParticipationPath = EXAM_CONF.TEMPLATES_PATH + "review/previous_participation.html";
                 $scope.multiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/multiple_choice_answer.html";
                 $scope.weightedMultiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/weighted_multiple_choice_answer.html";
@@ -271,6 +272,13 @@
                 // Get the exam that was specified in the URL
                 ExamRes.reviewerExam.get({eid: $routeParams.id},
                     function (exam) {
+                        exam.examSections.forEach(function (es) {
+                            es.sectionQuestions.filter(function (esq) {
+                                return esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer.answer;
+                            }).forEach(function (esq) {
+                                esq.clozeTestAnswer.answer = JSON.parse(esq.clozeTestAnswer.answer);
+                            });
+                        });
                         $scope.exam = exam;
 
                         setQuestionAmounts();
@@ -309,6 +317,12 @@
                         return 0;
                     }
                     return questionService.scoreMultipleChoiceAnswer(sectionQuestion);
+                };
+
+                $scope.displayClozeTestScore = function (sectionQuestion) {
+                    var score = sectionQuestion.clozeTestAnswer.score;
+                    return score.correctAnswers * sectionQuestion.maxScore /
+                        (score.correctAnswers + score.incorrectAnswers).toFixed(2) + ' / ' + sectionQuestion.maxScore;
                 };
 
                 $scope.range = function (min, max, step) {
@@ -380,7 +394,7 @@
 
                 $scope.insertEssayScore = function (sectionQuestion) {
                     var answer = sectionQuestion.essayAnswer;
-                    if (!answer || !answer.evaluatedScore) {
+                    if (!answer || isNaN(answer.evaluatedScore)) {
                         return;
                     }
 
@@ -592,7 +606,7 @@
                         } else if ($scope.user.isAdmin) {
                             $location.path("/");
                         } else {
-                            $location.path("exams/examTabs/"+exam.parent.id+"/3");
+                            $location.path("exams/examTabs/"+$scope.exam.parent.id+"/3");
                         }
                     }, function (error) {
                         toastr.error(error.data);
@@ -710,7 +724,7 @@
                 };
 
                 $scope.isAwaitingInspection = function () {
-                    return !$scope.user.isLanguageInspector && $scope.exam && $scope.exam.languageInspection && !$scope.exam.languageInspection.finishedAt;
+                    return $scope.exam && $scope.exam.languageInspection && !$scope.exam.languageInspection.finishedAt;
                 };
 
                 $scope.canFinalizeInspection = function () {
@@ -721,18 +735,22 @@
                     NOT_REVIEWED: {id: 1, text: 'sitnet_not_reviewed'},
                     REJECT_STRAIGHTAWAY: {id: 2, text: 'sitnet_reject_maturity', canProceed: true, warn: true},
                     LANGUAGE_INSPECT: {id: 3, text: 'sitnet_send_for_language_inspection', canProceed: true},
-                    AWAIT_INSPECTION: {id: 4, text: 'sitnet_await_inspection'}, //odottaa kielentarkastusta
+                    AWAIT_INSPECTION: {id: 4, text: 'sitnet_await_inspection'},
                     REJECT_LANGUAGE: {
                         id: 5, text: 'sitnet_reject_maturity', canProceed: true, warn: true,
-                        validate: $scope.canFinalizeInspection
+                        validate: $scope.canFinalizeInspection,
+                        showHint: $scope.isMissingStatement,
+                        hint: 'sitnet_missing_statement'
                     },
                     APPROVE_LANGUAGE: {
                         id: 6, text: 'sitnet_send_result_to_registry', canProceed: true,
-                        validate: $scope.canFinalizeInspection
+                        validate: $scope.canFinalizeInspection,
+                        showHint: $scope.isMissingStatement,
+                        hint: 'sitnet_missing_statement'
                     },
                     MISSING_STATEMENT: {id: 9, text: 'sitnet_missing_statement'}
                 };
-                MATURITY_STATES.LANGUAGE_INSPECT.alternateState = MATURITY_STATES.SEND_TO_REGISTRY;
+                MATURITY_STATES.APPROVE_LANGUAGE.alternateState = MATURITY_STATES.REJECT_LANGUAGE;
 
                 var isGraded = function () {
                     return $scope.exam.grade;
@@ -740,6 +758,13 @@
 
                 var isMissingFeedback = function () {
                     return !$scope.exam.examFeedback || !$scope.exam.examFeedback.comment;
+                };
+
+                $scope.isMissingStatement = function () {
+                    if (!$scope.isUnderLanguageInspection()) {
+                        return false;
+                    }
+                    return !$scope.exam.languageInspection.statement || !$scope.exam.languageInspection.statement.comment;
                 };
 
                 $scope.proceedWithMaturity = function (alternate) {
@@ -782,14 +807,12 @@
                     if (isMissingFeedback()) {
                         return MATURITY_STATES.MISSING_STATEMENT;
                     }
+                    if ($scope.isUnderLanguageInspection()) {
+                        return MATURITY_STATES.APPROVE_LANGUAGE;
+                    }
                     if ($scope.isAwaitingInspection()) {
                         return MATURITY_STATES.AWAIT_INSPECTION;
                     }
-                    if ($scope.isUnderLanguageInspection()) {
-                        return $scope.exam.languageInspection.approved ? MATURITY_STATES.APPROVE_LANGUAGE :
-                            MATURITY_STATES.REJECT_LANGUAGE;
-                    }
-
                     var disapproved = !$scope.exam.grade || !$scope.exam.grade.type ||
                         ['REJECTED', 'I', '0', 'NONE'].indexOf($scope.exam.grade.type) > -1;
 

@@ -41,6 +41,9 @@
                             $scope.questionTemplate = essayQuestionTemplate;
                             $scope.newQuestion.defaultEvaluationType = $scope.newQuestion.defaultEvaluationType || "Points";
                             break;
+                        case 'ClozeTestQuestion':
+                            // No template needed
+                            break;
                         case 'MultipleChoiceQuestion':
                             $scope.questionTemplate = multiChoiceQuestionTemplate;
                             $scope.newOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/option.html";
@@ -132,8 +135,6 @@
                             toastr.info($translate.instant('sitnet_question_removed'));
                             if ($routeParams.examId === undefined) {
                                 $location.path("/questions/");
-                                // Clear cache to trigger a refresh now that there is a new entry
-                                questionService.clearQuestions();
                             } else {
                                 $location.path("/exams/" + $routeParams.examId);
                             }
@@ -170,7 +171,6 @@
 
                 $scope.saveQuestion = function () {
                     var successFn = function () {
-                        questionService.clearQuestions();
                         clearListeners();
 
                         if($scope.addEditQuestion.showForm) {
@@ -385,13 +385,7 @@
                     console.log('lets load with ' + id);
 
                     QuestionRes.questions.get({id: id},
-                        function (question) {
-                            // kind of a hack to have the editor displayed
-                            // can't be rendered if content == null
-                            if (question.question == null) {
-                                question.question = '';
-                            }
-                            $scope.newQuestion = question;
+                        function (question) {$scope.newQuestion = question;
                             initQuestion();
                         },
                         function (error) {

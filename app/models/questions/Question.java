@@ -12,6 +12,11 @@ import models.User;
 import models.api.AttachmentContainer;
 import models.base.OwnedModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -20,14 +25,15 @@ import javax.persistence.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {
 
-    @EnumMapping(integerType = true, nameValuePairs = "MultipleChoiceQuestion=1, EssayQuestion=2, WeightedMultipleChoiceQuestion=3")
+    @EnumMapping(integerType = true, nameValuePairs = "MultipleChoiceQuestion=1, EssayQuestion=2, WeightedMultipleChoiceQuestion=3, ClozeTestQuestion=4")
     public enum Type {
-        MultipleChoiceQuestion, EssayQuestion, WeightedMultipleChoiceQuestion
+        MultipleChoiceQuestion, EssayQuestion, WeightedMultipleChoiceQuestion, ClozeTestQuestion
     }
 
     @EnumMapping(integerType = true, nameValuePairs = "Points=1, Selection=2")
@@ -223,16 +229,44 @@ public class Question extends OwnedModel implements AttachmentContainer {
     }
 
     @Transient
+    private String getClozeTestQuestionContentValidationResult(JsonNode node) {
+        String reason = null;
+        String questionText = node.get("question").asText();
+        if (!questionText.contains("cloze=\"true\"")) {
+            reason = "no embedded answers";
+        } else {
+            Document doc = Jsoup.parse(questionText);
+            Elements answers = doc.select("span[cloze=true]");
+            Set<String> distinctIds = answers.stream().map(a -> a.attr("id")).collect(Collectors.toSet());
+            if (answers.size() != distinctIds.size()) {
+                reason = "duplicate ids found";
+            }
+            else if (answers.stream()
+                        .map(a -> a.attr("precision"))
+                        .anyMatch(p -> p.isEmpty() || !NumberUtils.isParsable(p))) {
+                reason = "invalid precision found";
+            } else if (answers.stream()
+                    .filter(a -> a.attr("numeric").equals("true"))
+                    .map(Element::text)
+                    .anyMatch(t -> !NumberUtils.isParsable(t))) {
+                reason = "non-numeric correct answer for numeric question";
+            }
+        }
+        return reason;
+    }
+
+    @Transient
     public Optional<Result> getValidationResult(JsonNode node) {
         String reason = null;
         if (nodeExists(node, "question")) {
             switch (type) {
                 case EssayQuestion:
-                    if (!nodeExists(node, "defaultMaxScore")) {
-                        reason = "no max score defined";
-                    }
-                    else if (!nodeExists(node, "defaultEvaluationType")) {
+                    if (!nodeExists(node, "defaultEvaluationType")) {
                         reason = "no evaluation type defined";
+                    }
+                    EvaluationType type = EvaluationType.valueOf(node.get("defaultEvaluationType").asText());
+                    if (type == EvaluationType.Points && !nodeExists(node, "defaultMaxScore")) {
+                        reason = "no max score defined";
                     }
                     break;
                 case MultipleChoiceQuestion:
@@ -251,6 +285,13 @@ public class Question extends OwnedModel implements AttachmentContainer {
                 case WeightedMultipleChoiceQuestion:
                     if (!nodeExists(node, "options") || node.get("options").size() < 2) {
                         reason = "sitnet_minimum_of_two_options_required";
+                    }
+                    break;
+                case ClozeTestQuestion:
+                    if (!nodeExists(node, "defaultMaxScore")) {
+                        reason = "no max score defined";
+                    } else {
+                        reason = getClozeTestQuestionContentValidationResult(node);
                     }
                     break;
                 default:
