@@ -32,6 +32,7 @@
                 $scope.createQuestionModel = {};
                 $scope.questionTypes = [
                 {"type":"essay","name":"sitnet_toolbar_essay_question"},
+                {"type":"cloze","name":"sitnet_toolbar_cloze_test_question"},
                 {"type":"multichoice","name":"sitnet_toolbar_multiplechoice_question"},
                 {"type":"weighted","name":"sitnet_toolbar_weighted_multiplechoice_question"}];
 
@@ -154,7 +155,7 @@
                     toastr.info($translate.instant('sitnet_canceled'));
                     // Call off the event listener so it won't ask confirmation now that we are going away
                     clearListeners();
-                    if($scope.addEditQuestion.showForm) {
+                    if(angular.isDefined($scope.libCtrl)) {
                         $scope.addEditQuestion.showForm = false;
                     }
                     else {
@@ -173,7 +174,7 @@
                     var successFn = function () {
                         clearListeners();
 
-                        if($scope.addEditQuestion.showForm) {
+                        if(angular.isDefined($scope.libCtrl)) {
                             $scope.addEditQuestion.showForm = false;
                             $rootScope.$emit('questionAdded');
                         }
@@ -344,19 +345,31 @@
                 }
 
                 // Action
-                // remove this
-                //var type = $routeParams.type || $scope.questionType;
 
-                if($routeParams.create == 1 || ($scope.addEditQuestion.showForm && !$scope.addEditQuestion.id) ) {
-
-                    // tullaan uusi kysymys painikkeen kautta.
-                    // create = työpöytä tai kysymyskirjasto
-                    // addQuestion.show = kysymyksen lisäys tenttiin osio
+                if($routeParams.create == 1) {
+                    // create new question from library list or dashboard
+                    $scope.typeSelected=false;
+                }
+                else if(($scope.baseQuestionId || $routeParams.id) && $routeParams.tab != 1 ) {
+                    // Edit saved question from library list or dashboard
+                    var id = $scope.baseQuestionId || $routeParams.id;
+                    QuestionRes.questions.get({id: id},
+                        function (question) {$scope.newQuestion = question;
+                            initQuestion();
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                }
+                else if(!$scope.addEditQuestion.id) {
+                    // create new question from library modal
                     $scope.typeSelected=false;
 
                 }
                 else if($scope.addEditQuestion.id) {
-                    console.log('lets load with ' + $scope.addEditQuestion.id);
+                   // Edit saved question from library modal
+                    $scope.addEditQuestion.showForm=true;
 
                     QuestionRes.questions.get({id: $scope.addEditQuestion.id},
                         function (question) {
@@ -373,25 +386,6 @@
                         }
                     );
 
-                }
-                else if (type) {
-                    // Create new question, legacy, not in use anymore, remove after tests
-                    //
-                    // $scope.newQuestion = questionService.getQuestionDraft(type);
-                    // initQuestion();
-                } else {
-                    // Edit saved question
-                    var id = $scope.baseQuestionId || $routeParams.id;
-                    console.log('lets load with ' + id);
-
-                    QuestionRes.questions.get({id: id},
-                        function (question) {$scope.newQuestion = question;
-                            initQuestion();
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
                 }
 
             }]);

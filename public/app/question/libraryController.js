@@ -22,6 +22,8 @@
                 $scope.moreQuestions = false;
                 $scope.addEditQuestion = {};
                 $scope.addEditQuestion.showForm = false;
+                $scope.libCtrl = {};
+                $scope.libCtrl.from = true;
 
                 $scope.templates = {
                     newQuestion: EXAM_CONF.TEMPLATES_PATH + "question/editor/question.html",
@@ -37,18 +39,21 @@
                     return $('<div/>').html(text).text();
                 };
 
-                $scope.addEditQuestion = function() {
+                $scope.constructQuestion = function() {
                     if(!$scope.addEditQuestion.showForm) {
-                        $scope.addEditQuestion.showForm=true
+                        $scope.addEditQuestion.showForm=true;
+                        $scope.baseQuestionId = null;
                     }
                     else {
-                        $scope.addEditQuestion.showForm=false
+                        $scope.addEditQuestion.showForm=false;
+                        $scope.baseQuestionId = null;
                     };
                 }
 
                 $scope.setBaseQuestionId = function(questionId) {
-                    console.log('setting baseQuestionId to ' + questionId);
+
                     $scope.addEditQuestion.id = questionId;
+                    $scope.baseQuestionId = questionId;
                     $scope.addEditQuestion.showForm=true
                 }
 

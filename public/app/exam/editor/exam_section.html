@@ -87,26 +87,8 @@
                 ng-repeat="sectionQuestion in section.sectionQuestions | orderBy:sequenceNumber">
             </li>
         </ul>
-        <div class="create-new dropdown" uib-dropdown>
-            <div class="row dropdown-toggle pointer" data-toggle="dropdown" uib-dropdown-toggle>
-                <div class="col-md-1">
-                    <i class="fa fa-2x fa-plus-circle"></i>
-                </div>
-                <div class="col-md-11">
-                    <span>{{'sitnet_add_content'|translate}}</span>
-                </div>
-            </div>
-            <ul class="dropdown-menu pointer" role="menu">
-                <li role="presentation">
-                    <a role="menuitem" ng-click="addNewQuestion(section, 'essay')">{{ 'sitnet_essay' | translate }}</a>
-                </li>
-                <li role="presentation">
-                    <a role="menuitem" ng-click="addNewQuestion(section, 'multichoice' )">{{ 'sitnet_toolbar_multiplechoice_question' | translate }}</a>
-                </li>
-                <li role="presentation">
-                    <a role="menuitem" ng-click="addNewQuestion(section, 'weighted')">{{ 'sitnet_toolbar_weighted_multiplechoice_question' | translate }}</a>
-                </li>
-            </ul>
+        <div class="create-new pointer mart30" ng-click="openLibrary(section)">
+            <i class="fa fa-2x fa-plus-circle padl10 greenish"></i> <span class="library-add">{{'sitnet_add_from_library'|translate}}</span>
         </div>
     </div>
 </div>
