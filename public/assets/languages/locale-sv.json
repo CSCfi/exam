@@ -767,5 +767,7 @@
   "sitnet_exam_no_inspection": "Ei kielentarkistusta odottavia tenttisuorituksia SV",
   "sitnet_exam_no_aborted": "Ei keskeytettyjä tenttisuorituksia SV",
   "sitnet_exam_no_shows": "Ei tenttiin saapumattomia SV",
-  "sitnet_library_choose": "Valitse tenttikysymykset SV"
+  "sitnet_library_choose": "Valitse tenttikysymykset SV",
+  "sitnet_exam_no_result":"Haku ei palauttanut tenttejä SV"
+
 }

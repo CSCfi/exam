@@ -35,7 +35,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="exam in exams | orderBy:activePredicate:reverse | filter:filtertext">
+                    <tr ng-repeat="exam in exams | orderBy:activePredicate:reverse | filter:filtertext as resDra">
                         <td ng-if="exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
                             {{ exam.name }}</a><br/><span class="exam-code">{{ exam.course.code }}</span></td>
                         <td ng-if="!exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
@@ -71,17 +71,19 @@
                         </span>
                         </td>
                     </tr>
+                    <tr ng-if="resDra.length == 0"><td colspan="8">{{'sitnet_exam_no_result' | translate}}</td></tr>
+
                     </tbody>
                 </table>
             </div>
-        <div class="detail-row" ng-show="view === 'PUBLISHED' && !showExpired">
+        <div class="detail-row marb20" ng-show="view === 'PUBLISHED' && !showExpired">
             <div class="col-md-12">
                 <strong>{{ 'sitnet_published_exams' | translate }}: </strong>
                 <em class="sitnet-text-medium">{{ 'sitnet_published_exams_info_main' | translate }} {{
                     'sitnet_published_exams_info_other' | translate }}</em>
             </div>
         </div>
-        <div class="bottom-row" ng-show="view === 'SAVED'">
+        <div class="bottom-row marb20" ng-show="view === 'SAVED'">
             <div class="col-md-12">
                 <strong>{{ 'sitnet_saved_exams' | translate }}: </strong>
                 <em class="sitnet-text-medium">{{ 'sitnet_saved_exams_info_main' | translate }} {{

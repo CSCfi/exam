@@ -23,7 +23,7 @@
                 </thead>
 
                 <tbody>
-                <tr ng-repeat="exam in archivedExams | orderBy:archivedPredicate:reverse | filter:filtertext">
+                <tr ng-repeat="exam in archivedExams | orderBy:archivedPredicate:reverse | filter:filtertext as resArc">
                     <td ng-if="exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
                         {{ exam.name }}</a><br/><span class="exam-code">{{ exam.course.code }}</span></td>
                     <td ng-if="!exam.name" class="table-column-examname">
@@ -37,7 +37,7 @@
                         <a href="/exams/examTabs/{{exam.id}}/3">{{exam.assessedCount}}</a></span></td>
                     <td class="table-column-teachers"><teacher-list exam="exam" /></td>
                     <td class="text-center">
-                        <a ng-click="deleteExam(exam)" class="pointer">
+                        <a ng-click="deleteExam(exam, 'archived')" class="pointer">
                             <img src="../../../assets/assets/images/icon_trashcan.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_trashcan.png'" />
                         </a>
                     </td>
@@ -57,6 +57,8 @@
                         </span>
                     </td>
                 </tr>
+                <tr ng-if="resArc.length == 0"><td colspan="8">{{'sitnet_exam_no_result' | translate}}</td></tr>
+
                 </tbody>
             </table>
         </div>

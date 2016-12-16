@@ -778,6 +778,8 @@
   "sitnet_save_changes": "Tallenna muutokset",
   "sitnet_exam_type": "Tentin tyyppi",
   "sitnet_question_type": "Kysymyksen tyyppi",
-  "sitnet_library_choose": "Valitse tenttikysymykset"
+  "sitnet_library_choose": "Valitse tenttikysymykset",
+  "sitnet_exam_no_result":"Haku ei palauttanut tenttejä"
+
 
 }

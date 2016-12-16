@@ -768,5 +768,7 @@
   "sitnet_exam_no_aborted": "Ei keskeytettyjä tenttisuorituksia EN",
   "sitnet_exam_no_shows": "Ei tenttiin saapumattomia EN",
   "sitnet_exam_type": "Tentin tyyppi EN",
-  "sitnet_library_choose": "Valitse tenttikysymykset EN"
+  "sitnet_library_choose": "Valitse tenttikysymykset EN",
+  "sitnet_exam_no_result":"Haku ei palauttanut tenttejä EN"
+
 }

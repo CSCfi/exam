@@ -3,9 +3,9 @@
     angular.module("exam.controllers")
         .controller('DashboardCtrl', ['$scope', 'dashboardService', 'examService', 'questionService',
             'reservationService', 'dateService', 'enrolmentService', 'sessionService','EXAM_CONF', 'ExamRes',
-            'dialogs','$translate',
+            'dialogs','$translate', '$location',
             function ($scope, dashboardService, examService, questionService, reservationService, dateService,
-                      enrolmentService, sessionService, EXAM_CONF, ExamRes, dialogs, $translate) {
+                      enrolmentService, sessionService, EXAM_CONF, ExamRes, dialogs, $translate, $location) {
 
                 $scope.evaluationPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/exam_feedback.html";
 
@@ -124,18 +124,25 @@
                 $scope.copyExam = function (exam, type) {
                     ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
                         toastr.success($translate.instant('sitnet_exam_copied'));
-                        $location.path("/exams/" + copy.id);
+                        console.log('id: ' + copy.id);
+                        $location.path("/exams/examTabs/"+copy.id+"/1/");
                     }, function (error) {
                         toastr.error(error.data);
                     });
                 };
 
-                $scope.deleteExam = function (exam) {
+                $scope.deleteExam = function (exam, listing) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                     dialog.result.then(function (btn) {
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
                             toastr.success($translate.instant('sitnet_exam_removed'));
-                            $scope.exams.splice($scope.exams.indexOf(exam), 1);
+                            if(listing == 'archived') {
+                                $scope.archivedExams.splice($scope.archivedExams.indexOf(exam), 1);
+                            }
+                            if(listing == 'finished') {
+                                $scope.finishedExams.splice($scope.finishedExams.indexOf(exam), 1);
+                            }
+
 
                         }, function (error) {
                             toastr.error(error.data);

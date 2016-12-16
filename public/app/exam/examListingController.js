@@ -50,7 +50,7 @@
                 $scope.copyExam = function (exam, type) {
                     ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
                         toastr.success($translate.instant('sitnet_exam_copied'));
-                        $location.path("/exams/" + copy.id);
+                        $location.path("/exams/examTabs/"+copy.id+"/1/");
                     }, function (error) {
                         toastr.error(error.data);
                     });
