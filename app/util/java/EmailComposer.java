@@ -1,7 +1,13 @@
 package util.java;
 
 import com.google.inject.ImplementedBy;
-import models.*;
+import models.Exam;
+import models.ExamEnrolment;
+import models.LanguageInspection;
+import models.Reservation;
+import models.User;
+
+import java.util.Set;
 
 @ImplementedBy(value = EmailComposerImpl.class)
 public interface EmailComposer {
@@ -9,7 +15,7 @@ public interface EmailComposer {
     /**
      * Message sent to student when review is ready.
      */
-    void composeInspectionReady(User student, User reviewer, Exam exam);
+    void composeInspectionReady(User student, User reviewer, Exam exam, Set<User> cc);
 
     /**
      * Message sent to student when review is ready.

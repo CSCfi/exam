@@ -63,7 +63,7 @@ class EmailComposerImpl implements EmailComposer {
      * This notification is sent to student, when teacher has reviewed the exam
      */
     @Override
-    public void composeInspectionReady(User student, User reviewer, Exam exam) {
+    public void composeInspectionReady(User student, User reviewer, Exam exam, Set<User> cc) {
         String templatePath = getTemplatesRoot() + "reviewReady.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(student);
@@ -90,7 +90,8 @@ class EmailComposerImpl implements EmailComposer {
 
         //Send notification
         String senderEmail = reviewer != null ? reviewer.getEmail() : SYSTEM_ACCOUNT;
-        emailSender.send(student.getEmail(), senderEmail, subject, template);
+        Set<String> ccEmails = cc.stream().map(User::getEmail).collect(Collectors.toSet());
+        emailSender.send(student.getEmail(), senderEmail, ccEmails, subject, template);
     }
 
     /**

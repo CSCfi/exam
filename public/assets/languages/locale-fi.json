@@ -781,7 +781,6 @@
   "sitnet_exam_type": "Tentin tyyppi",
   "sitnet_question_type": "Kysymyksen tyyppi",
   "sitnet_library_choose": "Valitse tenttikysymykset",
-  "sitnet_exam_no_result":"Haku ei palauttanut tenttejä"
-
-
+  "sitnet_exam_no_result":"Haku ei palauttanut tenttejä",
+  "sitnet_approve_maturity": "Hyväksy suoritus"
 }

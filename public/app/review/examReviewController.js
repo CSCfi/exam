@@ -743,7 +743,7 @@
                         hint: 'sitnet_missing_statement'
                     },
                     APPROVE_LANGUAGE: {
-                        id: 6, text: 'sitnet_send_result_to_registry', canProceed: true,
+                        id: 6, text: 'sitnet_approve_maturity', canProceed: true,
                         validate: $scope.canFinalizeInspection,
                         showHint: $scope.isMissingStatement,
                         hint: 'sitnet_missing_statement'
