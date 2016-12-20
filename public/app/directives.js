@@ -182,6 +182,17 @@
                         }
                     });
 
+                    scope.$watch('enableClozeTest', function (value) {
+                        var cmd = ck.getCommand('insertCloze');
+                        if (cmd) {
+                            if (!value) {
+                                cmd.disable();
+                            } else {
+                                cmd.enable();
+                            }
+                        }
+                    });
+
                     function updateModel() {
                         _.defer(function () {
                             scope.$apply(function () {

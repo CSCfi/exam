@@ -21,25 +21,25 @@
     <div ng-hide="!exams || loader.loading">
             <div>
                 <table class="table table-striped table-condensed exams-table">
-                    <thead ng-init="examsPredicate='examActiveEndDate'; reverse=true">
+                    <thead ng-init="draftsPredicate='examActiveEndDate'; reverse=true">
                     <tr>
-                        <th sort-exam by="name" text="sitnet_exam_name" predicate="examsPredicate" reverse="reverse"></th>
-                        <th sort-exam by="executionType.id" text="sitnet_exam_credit_type" predicate="examsPredicate"
+                        <th sort-exam by="name" text="sitnet_exam_name" predicate="draftsPredicate" reverse="reverse"></th>
+                        <th sort-exam by="executionType.type" text="sitnet_exam_credit_type" predicate="draftsPredicate"
                             reverse="reverse"></th>
-                        <th sort-exam by="ownerAggregate" text="sitnet_teachers" predicate="examsPredicate"
+                        <th sort-exam by="ownerAggregate" text="sitnet_teachers" predicate="draftsPredicate"
                             reverse="reverse"></th>
-                        <th sort-exam by="examActiveEndDate" text="sitnet_exam_validity" predicate="examsPredicate"
+                        <th sort-exam by="examActiveEndDate" text="sitnet_exam_validity" predicate="draftsPredicate"
                             reverse="reverse"></th>
                         <th>&nbsp;</th>
                         <th>&nbsp;</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="exam in exams | orderBy:activePredicate:reverse | filter:filtertext as resDra">
+                    <tr ng-repeat="exam in exams | orderBy:draftsPredicate:reverse | filter:filtertext as resDra">
                         <td ng-if="exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
                             {{ exam.name }}</a><br/><span class="exam-code">{{ exam.course.code }}</span></td>
                         <td ng-if="!exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
-                            {{'sitnet_no_name' | translate}}}</a><br/><span class="exam-code">{{exam.course.code }}}</span></td>
+                            {{'sitnet_no_name' | translate}}</a><br/><span class="exam-code">{{exam.course.code }}</span></td>
                         <td><span class="exam-type">{{ getExecutionTypeTranslation(exam) | translate }}</span>
                         </td>
                         <td>
