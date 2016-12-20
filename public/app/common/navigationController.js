@@ -64,8 +64,8 @@
                             visible: (languageInspector || admin),
                             class: 'fa-language',
                             name: "sitnet_language_inspections",
-                            icon_svg: "icon_enrols.svg",
-                            icon_png: "icon_enrols.png"
+                            icon_svg: "icon_language_inspection.svg",
+                            icon_png: "icon_language_inspection.png"
                         },
                         {
                             href: "/exams",

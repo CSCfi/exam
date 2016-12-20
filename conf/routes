@@ -123,7 +123,7 @@ GET           /app/exam/:eid/attachments                                 control
 
 
 ############### Language inspection interface ###############
-GET           /app/inspections                                           controllers.LanguageInspectionController.listInspections(month: java.util.Optional[String])
+GET           /app/inspections                                           controllers.LanguageInspectionController.listInspections(month: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
 POST          /app/inspection                                            controllers.LanguageInspectionController.createInspection
 PUT           /app/inspection/:id                                        controllers.LanguageInspectionController.assignInspection(id: Long)
 PUT           /app/inspection/:id/approval                               controllers.LanguageInspectionController.setApproval(id: Long)

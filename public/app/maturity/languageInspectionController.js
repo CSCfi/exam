@@ -2,13 +2,20 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('LanguageInspectionCtrl', ['$scope', '$translate', '$uibModal', '$location', 'dialogs',
-            'EXAM_CONF', 'LanguageInspectionRes', 'sessionService',
-            function ($scope, $translate, $modal, $location, dialogs, EXAM_CONF, LanguageInspectionRes, sessionService) {
+            'EXAM_CONF', 'LanguageInspectionRes', 'sessionService', 'dateService',
+            function ($scope, $translate, $modal, $location, dialogs, EXAM_CONF, LanguageInspectionRes, sessionService,
+                        dateService) {
 
                 $scope.user = sessionService.getUser();
                 $scope.ongoingInspections = [];
                 $scope.processedInspections = [];
                 $scope.selection = { opened: false, month: new Date()};
+                $scope.templates = {
+                    languageInspectionUnderReviewPath: EXAM_CONF.TEMPLATES_PATH + "maturity/inspection_under_review.html",
+                    languageInspectionReviewedPath: EXAM_CONF.TEMPLATES_PATH + "maturity/inspection_reviewed.html"
+                };
+
+                $scope.dateService = dateService;
 
                 $scope.open = function($event) {
                     $event.preventDefault();
@@ -22,8 +29,28 @@
                     }, 500);
                 };
 
-                $scope.query = function(byMonth) {
-                    var params = byMonth ? {month: $scope.selection.month} : undefined;
+                $scope.query = function(hasParameters) {
+
+                    var params = {};
+
+                    if(hasParameters) {
+
+                        var tzOffset = new Date().getTimezoneOffset() * 60000;
+
+                        if ($scope.selection.month) {
+                            params.month = $scope.selection.month;
+                        }
+                        if ($scope.dateService.startDate) {
+                            params.start = Date.parse($scope.dateService.startDate) + tzOffset;
+                        }
+                        if ($scope.dateService.endDate) {
+                            params.end = Date.parse($scope.dateService.endDate);
+                        }
+                    }
+                    else {
+                        params = undefined;
+                    }
+
                     LanguageInspectionRes.inspections.query(params, function (inspections) {
                         $scope.ongoingInspections = inspections.filter(function (i) {
                             return !i.finishedAt;
@@ -89,6 +116,20 @@
                         .replace('{1}', year);
                 };
 
+                $scope.toggleUnreviewed = function () {
+                    if ($scope.ongoingInspections && $scope.ongoingInspections.length > 0) {
+                        $scope.toggleUnderReviews = !$scope.toggleUnderReviews;
+                    }
+                };
+
+                $scope.toggleReviewed = function () {
+                    if ($scope.processedInspections && $scope.processedInspections.length > 0) {
+                        $scope.toggleReviewedVisibility = !$scope.toggleReviewedVisibility;
+                    }
+                };
+
+                //toggleReviewed():
+                //toggleUnreviewed();
 
             }]);
 }());

@@ -37,7 +37,7 @@ public class LanguageInspectionController extends BaseController {
     protected ActorSystem actor;
 
     @Dynamic(value="inspector or admin", meta="pattern=CAN_INSPECT_LANGUAGE,role=ADMIN,anyMatch=true")
-    public Result listInspections(Optional<String> month) {
+    public Result listInspections(Optional<String> month, Optional<Long> start, Optional<Long> end) {
         ExpressionList<LanguageInspection> query = Ebean.find(LanguageInspection.class)
                 .fetch("exam")
                 .fetch("exam.course")
@@ -47,11 +47,24 @@ public class LanguageInspectionController extends BaseController {
                 .fetch("creator", "firstName, lastName, email, userIdentifier")
                 .fetch("assignee", "firstName, lastName, email, userIdentifier")
                 .where();
-        if (month.isPresent()) {
-            DateTime start = DateTime.parse(month.get()).withDayOfMonth(1).withMillisOfDay(0);
-            DateTime end = start.plusMonths(1);
-            query = query.between("finishedAt", start.toDate(), end.toDate());
-        } else {
+
+        if(start.isPresent() || end.isPresent()) {
+            if (start.isPresent()) {
+                DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
+                query = query.ge("finishedAt", startDate.toDate());
+            }
+
+            if (end.isPresent()) {
+                DateTime endDate = new DateTime(end.get()).plusDays(1).withTimeAtStartOfDay();
+                query = query.lt("finishedAt", endDate.toDate());
+            }
+        }
+        else if (month.isPresent()) {
+            DateTime startWithMonth = DateTime.parse(month.get()).withDayOfMonth(1).withMillisOfDay(0);
+            DateTime endWithMonth = startWithMonth.plusMonths(1);
+            query = query.between("finishedAt", startWithMonth.toDate(), endWithMonth.toDate());
+        }
+        else {
             DateTime beginningOfYear = DateTime.now().withDayOfYear(1);
             query = query
                     .disjunction()
@@ -59,6 +72,7 @@ public class LanguageInspectionController extends BaseController {
                     .gt("finishedAt", beginningOfYear.toDate())
                     .endJunction();
         }
+
         List<LanguageInspection> inspections = query.findList();
         return ok(inspections);
     }
