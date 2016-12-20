@@ -27,13 +27,7 @@ import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -130,7 +124,7 @@ public class StudentExamController extends BaseController {
                     exam.update();
                     User student = exam.getCreator();
                     actor.scheduler().scheduleOnce(Duration.create(5, TimeUnit.SECONDS),
-                            () -> emailComposer.composeInspectionReady(student, null, exam),
+                            () -> emailComposer.composeInspectionReady(student, null, exam, Collections.emptySet()),
                             actor.dispatcher());
                     Logger.debug("Mail sent about automatic evaluation to {}", student.getEmail());
                 }
@@ -375,7 +369,7 @@ public class StudentExamController extends BaseController {
         Double maxScore = exam.getMaxScore();
         Double percentage = maxScore == 0 ? 0 : totalScore * 100 / maxScore;
         List<GradeEvaluation> gradeEvaluations = new ArrayList<>(exam.getAutoEvaluationConfig().getGradeEvaluations());
-        gradeEvaluations.sort((o1, o2) -> o1.getPercentage() - o2.getPercentage());
+        gradeEvaluations.sort(Comparator.comparingInt(GradeEvaluation::getPercentage));
         Grade grade = null;
         Iterator<GradeEvaluation> it = gradeEvaluations.iterator();
         GradeEvaluation prev = null;
@@ -386,7 +380,7 @@ public class StudentExamController extends BaseController {
                 grade = prev == null ? ge.getGrade() : prev.getGrade();
                 threshold = prev == null ? ge.getPercentage() : prev.getPercentage();
             }
-            if (!it.hasNext()) {
+            else if (!it.hasNext()) {
                 // Highest possible grade
                 grade = ge.getGrade();
                 threshold = ge.getPercentage();

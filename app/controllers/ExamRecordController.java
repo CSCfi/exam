@@ -5,13 +5,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import controllers.base.BaseController;
-import models.Exam;
-import models.ExamParticipation;
-import models.ExamRecord;
-import models.GradeScale;
-import models.LanguageInspection;
-import models.Permission;
-import models.User;
+import models.*;
 import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
@@ -28,9 +22,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
@@ -72,8 +68,11 @@ public class ExamRecordController extends BaseController {
             record.setExamScore(score);
             record.save();
             final User user = getLoggedUser();
+            final Set<User> examinators = exam.getExecutionType().getType().equals(
+                    ExamExecutionType.Type.MATURITY.toString())
+                    ? exam.getParent().getExamOwners() : Collections.emptySet();
             actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+                emailComposer.composeInspectionReady(exam.getCreator(), user, exam, examinators);
                 Logger.info("Inspection ready notification email sent");
             }, actor.dispatcher());
             return ok();

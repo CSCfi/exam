@@ -39,13 +39,7 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
@@ -596,8 +590,11 @@ public class ReviewController extends BaseController {
 
     private void notifyPartiesAboutPrivateExamRejection(Exam exam) {
         User user = getLoggedUser();
+        final Set<User> examinators = exam.getExecutionType().getType().equals(
+                ExamExecutionType.Type.MATURITY.toString())
+                ? exam.getParent().getExamOwners() : Collections.emptySet();
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+            emailComposer.composeInspectionReady(exam.getCreator(), user, exam, examinators);
             Logger.info("Inspection rejection notification email sent");
         }, actor.dispatcher());
     }

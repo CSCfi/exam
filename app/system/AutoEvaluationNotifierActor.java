@@ -11,6 +11,7 @@ import play.Logger;
 import util.AppUtil;
 import util.java.EmailComposer;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +73,7 @@ class AutoEvaluationNotifierActor extends UntypedActor {
     private void notifyStudent(Exam exam, EmailComposer composer) {
         User student = exam.getCreator();
         try {
-            composer.composeInspectionReady(student, null, exam);
+            composer.composeInspectionReady(student, null, exam, Collections.emptySet());
             Logger.debug("{}: ... Mail sent to {}", getClass().getCanonicalName(), student.getEmail());
             exam.setAutoEvaluationNotified(new Date());
             exam.update();
