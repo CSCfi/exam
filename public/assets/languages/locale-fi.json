@@ -778,8 +778,8 @@
   "sitnet_exam_reservation": "Tentin varaus",
   "sitnet_exam_no_previous_participations": "Ei aikaisempia tenttikertoja",
   "sitnet_save_changes": "Tallenna muutokset",
-  "sitnet_exam_type": "Tentin tyyppi",
-  "sitnet_question_type": "Kysymyksen tyyppi",
+  "sitnet_new_exam_type": "Tentin tyyppi",
+  "sitnet_new_question_type": "Kysymyksen tyyppi",
   "sitnet_library_choose": "Valitse tenttikysymykset",
   "sitnet_exam_no_result":"Haku ei palauttanut tenttejä",
   "sitnet_approve_maturity": "Hyväksy suoritus"

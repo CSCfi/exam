@@ -206,7 +206,7 @@
 
     <body ng-controller="SessionCtrl">
         <div ng-controller="NavigationCtrl">
-            <div ng-if="user.isTeacher" ng-hide="examStarted" id="vmenu">
+            <div ng-if="user.isTeacher || user.isStudent" ng-hide="examStarted" id="vmenu">
                 <div class="nav-container">
                     <div class="nav-header">
                         @*Logo*@
