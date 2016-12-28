@@ -40,6 +40,7 @@ describe('ExamController', function () {
             dialogs: {},
             sessionService: mockSessionService(),
             examService: mockExamService(),
+            enrolmentService: mockEnrolmentService(),
             ExamRes: ExamRes,
             QuestionRes: {},
             UserRes: {},
@@ -116,6 +117,14 @@ describe('ExamController', function () {
             return createPromise({});
         });
         return examService;
+    }
+
+    function mockEnrolmentService() {
+        var enrolmentService = jasmine.createSpyObj('enrolmentService', ['enrollStudent']);
+        enrolmentService.enrollStudent.and.callFake(function () {
+            return createPromise({});
+        });
+        return enrolmentService;
     }
 
     function mockQuestionService() {
