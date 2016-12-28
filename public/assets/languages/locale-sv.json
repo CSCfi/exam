@@ -546,9 +546,7 @@
   "sitnet_no_attachments_to_archive": "Inga bilagor hittades.",
   "sitnet_no_name": "UTAN NAMN",
   "sitnet_public_exam": "Tentamen",
-  "PUBLIC": "Tentamen",
   "sitnet_private_exam": "Personlig tentamen",
-  "PRIVATE": "Personlig tentamen",
   "sitnet_exam_participants": "Deltagare",
   "sitnet_add_exam_participant": "Lägg till deltagare",
   "sitnet_student_enrolled_to_exam": "Deltagaren är nu lagt till",
@@ -619,7 +617,6 @@
   "sitnet_filter_by_permission": "Filtrera enligt rättigheter",
   "sitnet_can_inspect_language": "Kan språkgranska",
   "sitnet_maturity": "Mognadsprov",
-  "MATURITY": "Mognadsprov",
   "sitnet_maturity_instructions": "Instruktioner för mognadsprov",
   "sitnet_language_inspections": "Språkgranskning",
   "sitnet_ongoing_language_inspections": "Mognadsprov som bör språkgranskas",
@@ -782,5 +779,6 @@
   "sitnet_new_question_type": "Kysymyksen tyyppi SV",
   "sitnet_library_choose": "Valitse tenttikysymykset SV",
   "sitnet_exam_no_result":"Haku ei palauttanut tenttejä SV",
-  "sitnet_approve_maturity": "Hyväksy suoritus SV"
+  "sitnet_approve_maturity": "Hyväksy suoritus SV",
+  "sitnet_printout_exam": "Paperitentti SV"
 }

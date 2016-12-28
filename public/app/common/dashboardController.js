@@ -71,14 +71,6 @@
                     return sessionService.getUserName();
                 };
 
-                $scope.createExam = function () {
-                    //examService.createExam(executionType);
-                };
-
-                $scope.createQuestion = function (type) {
-                    questionService.createQuestion(type);
-                };
-
                 $scope.removeEnrolment = function (enrolment, enrolments) {
                     enrolmentService.removeEnrolment(enrolment, enrolments);
                 };

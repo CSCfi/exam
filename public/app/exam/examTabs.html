@@ -1,6 +1,6 @@
-<div id="dashboard">
+<div id="dashboard" ng-controller="ExamTabsController">
     <div class="top-row">
-        <div class="col-md-12" ng-controller="ExamTabsController">
+        <div class="col-md-12">
             <div class="student-details-title-wrap">
                 <a href="/"><img class="arrow_icon" src="../../../assets/assets/images/icon_history.png"></a>
                 <div class="student-exam-details-title">{{examInfo.title}}</div>
@@ -16,7 +16,7 @@
             </span>
         </div>
     </div>
-    <div class="tab-wrapper-exams" ng-controller="ExamTabsController">
+    <div class="tab-wrapper-exams">
         <uib-tabset>
             <uib-tab index="0" active="tab0" heading="{{ 'sitnet_exam_basic_information_tab' | translate }}">
                 <div ng-include="templates.examBasicPath"></div>

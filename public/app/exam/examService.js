@@ -198,6 +198,10 @@
                             if (t.type === 'MATURITY') {
                                 t.name = 'sitnet_maturity';
                             }
+                            if (t.type === 'PRINTOUT') {
+                                t.name = 'sitnet_printout_exam';
+                            }
+
                         });
                         return deferred.resolve(types);
                     });
@@ -214,6 +218,9 @@
                     }
                     if (type === 'MATURITY') {
                         translation = 'sitnet_maturity';
+                    }
+                    if (type === 'PRINTOUT') {
+                        translation = 'sitnet_printout_exam';
                     }
                     return translation;
                 };

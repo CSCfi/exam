@@ -10,7 +10,6 @@
                       SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes, ExamSectionQuestionRes,
                       limitToFilter, enrolmentService) {
 
-                $scope.newExam = {};
                 $scope.createExamModel = {};
                 $scope.sectionDisplay = {visible: true};
                 $scope.autoevaluationDisplay = {visible: true};
@@ -146,8 +145,8 @@
                 var initializeExam = function () {
 
                     if($routeParams.create == 1) {
-                        // tullaan uusi tentti painikkeen kautta.
-                        // kysellään tiedot ennen tentin luontia.
+                        // new exam about to be created
+                        // need some user data before actually creating it
                         $scope.typeSelected=false;
                     }
                     else {
@@ -519,6 +518,10 @@
                     return examService.getExamGradeDisplayName(grade.name);
                 };
 
+                $scope.getExecutionTypeTranslation = function () {
+                    return examService.getExecutionTypeTranslation($scope.newExam.executionType.type);
+                };
+
                 var recreateSectionIndices = function () {
                     // set sections and question numbering
                     angular.forEach($scope.newExam.examSections, function (section, index) {
@@ -719,6 +722,7 @@
                     resetGradeScale(exam);
                     resetAutoEvaluationConfig(overrideEvaluations);
                     recreateSectionIndices();
+                    $scope.updateTitle($scope.newExam);
                     $scope.newExam.examLanguages.forEach(function (language) {
                         // Use front-end language names always to allow for i18n etc
                         language.name = getLanguageNativeName(language.code);
@@ -1156,7 +1160,7 @@
                 };
 
                 $scope.checkTrialCount = function (x) {
-                    return $scope.newExam.trialCount == x ? "btn-primary" : "";
+                    return $scope.newExam && $scope.newExam.trialCount == x ? "btn-primary" : "";
                 };
 
                 $scope.truncate = function (content, offset) {

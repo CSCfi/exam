@@ -61,7 +61,6 @@
   "sitnet_evaluation_type": "Arviointiasteikko",
   "sitnet_exam": "Tentti",
   "sitnet_exam_title": "Tentin tiedot",
-  "sitnet_exam_type": "Suoritus",
   "sitnet_exam_answer": "Vastaus",
   "sitnet_exam_attachment": "Lataa tentin liite",
   "sitnet_exam_basic_information": "Tentin perustiedot",
@@ -162,7 +161,6 @@
   "sitnet_question_attachment": "Kysymyksen liitetiedosto",
   "sitnet_question_instruction": "Kysymykseen liittyvä ohjeistus",
   "sitnet_question_mc": "Monivalinta (yksi oikein)",
-  "sitnet_question_type": "Vastaustyyppi",
   "sitnet_question_unanswered": "Vastaamatta",
   "sitnet_questions": "Kysymykset",
   "sitnet_questions_all": "Kaikki kysymykset",
@@ -546,9 +544,7 @@
   "sitnet_no_attachments_to_archive": "Palautetuista, ei arvioiduista vastauksista ei löytynyt liitetiedostoja halutulla aikavälillä.",
   "sitnet_no_name": "EI NIMEÄ",
   "sitnet_public_exam": "Yleinen tentti",
-  "PUBLIC": "Yleinen tentti",
   "sitnet_private_exam": "Henkilökohtainen tentti",
-  "PRIVATE": "Henkilökohtainen tentti",
   "sitnet_exam_participants": "Osallistujat",
   "sitnet_add_exam_participant": "Lisää osallistuja",
   "sitnet_student_enrolled_to_exam": "Osallistuja lisätty tenttiin",
@@ -619,7 +615,6 @@
   "sitnet_filter_by_permission": "Suodata käyttäjäoikeuden perusteella",
   "sitnet_can_inspect_language": "Voi tehdä kielentarkastuksen",
   "sitnet_maturity": "Kypsyysnäyte",
-  "MATURITY": "Kypsyysnäyte",
   "sitnet_maturity_instructions": "Kypsyysnäyteohjeet",
   "sitnet_language_inspections": "Kielentarkastus",
   "sitnet_ongoing_language_inspections": "Tarkastettavat kypsyysnäytteet",
@@ -782,5 +777,6 @@
   "sitnet_new_question_type": "Kysymyksen tyyppi",
   "sitnet_library_choose": "Valitse tenttikysymykset",
   "sitnet_exam_no_result":"Haku ei palauttanut tenttejä",
-  "sitnet_approve_maturity": "Hyväksy suoritus"
+  "sitnet_approve_maturity": "Hyväksy suoritus",
+  "sitnet_printout_exam": "Paperitentti"
 }
