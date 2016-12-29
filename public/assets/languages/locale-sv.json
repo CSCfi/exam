@@ -780,5 +780,8 @@
   "sitnet_library_choose": "Valitse tenttikysymykset SV",
   "sitnet_exam_no_result":"Haku ei palauttanut tenttejä SV",
   "sitnet_approve_maturity": "Hyväksy suoritus SV",
-  "sitnet_printout_exam": "Paperitentti SV"
+  "sitnet_printout_exam": "Paperitentti SV",
+  "sitnet_allowed_tools": "Sallitut apuvälineet SV",
+  "sitnet_return_question_sheet": "Kysymyspaperi on palautettava SV",
+  "sitnet_examination_dates": "Tenttimispäivät SV"
 }

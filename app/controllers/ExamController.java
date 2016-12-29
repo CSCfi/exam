@@ -370,6 +370,8 @@ public class ExamController extends BaseController {
         Boolean expanded = node.has("expanded") && node.get("expanded").asBoolean(false);
         Boolean requiresLanguageInspection = node.has("subjectToLanguageInspection") &&
                 node.get("subjectToLanguageInspection").asBoolean(false);
+        Boolean questionSheetReturnPolicy = node.has("questionSheetReturnPolicy") &&
+                node.get("questionSheetReturnPolicy").asBoolean(false);
         if (examName != null) {
             exam.setName(examName);
         }
@@ -413,6 +415,7 @@ public class ExamController extends BaseController {
         exam.generateHash();
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
+        exam.setQuestionSheetReturnPolicy(questionSheetReturnPolicy);
         exam.save();
         return ok(exam);
     }
@@ -755,6 +758,7 @@ public class ExamController extends BaseController {
                 .fetch("autoEvaluationConfig")
                 .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
                 .fetch("executionType")
+                .fetch("examinationDates")
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
                 .fetch("examSections.sectionQuestions.question", "id, type, question, shared")

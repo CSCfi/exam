@@ -14,7 +14,7 @@
 
                 $scope.tab3 = $routeParams.tab == 3;
 
-                $scope.templates = {
+                $scope.tabtemplates = {
                     reviewListPath: EXAM_CONF.TEMPLATES_PATH + "review/review_list.html",
                     examBasicPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_basic_info.html",
                     examQuestionsPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_questions.html",

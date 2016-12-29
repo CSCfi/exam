@@ -778,5 +778,8 @@
   "sitnet_library_choose": "Valitse tenttikysymykset",
   "sitnet_exam_no_result":"Haku ei palauttanut tenttejä",
   "sitnet_approve_maturity": "Hyväksy suoritus",
-  "sitnet_printout_exam": "Paperitentti"
+  "sitnet_printout_exam": "Paperitentti",
+  "sitnet_allowed_tools": "Sallitut apuvälineet",
+  "sitnet_return_question_sheet": "Kysymyspaperi on palautettava",
+  "sitnet_examination_dates": "Tenttimispäivät"
 }

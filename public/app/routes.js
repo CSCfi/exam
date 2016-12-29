@@ -61,7 +61,7 @@
             $routeProvider.when('/exams/preview/:id', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController' });
             $routeProvider.when('/reservations', { templateUrl: tmpl + 'reservation/teacher_reservations.html', controller: 'ReservationCtrl'});
             $routeProvider.when('/reservations/:eid', { templateUrl: tmpl + 'reservation/teacher_reservations.html', controller: 'ReservationCtrl'});
-            $routeProvider.when('/exams/examTabs/:id/:tab', { templateUrl: tmpl + 'exam/examTabs.html', controller: 'ExamTabsController' });
+            $routeProvider.when('/exams/examTabs/:id/:tab', { templateUrl: tmpl + 'exam/examTabs.html' });
 
             /* Admin */
             $routeProvider.when('/rooms', { templateUrl: tmpl + 'facility/rooms.html', controller: 'RoomCtrl'});

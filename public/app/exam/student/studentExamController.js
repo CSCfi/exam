@@ -333,7 +333,7 @@
 
                 // Called when the exit button is clicked
                 $scope.exitPreview = function () {
-                    $location.path("/exams/" + $routeParams.id);
+                    $location.path("/exams/examTabs/" + $routeParams.id + "/1");
                 };
 
                 $scope.showMaturityInstructions = function (exam) {

@@ -323,6 +323,29 @@
                         "id": $routeParams.id
                     }
                 };
+                $scope.newExaminationDate = {
+                    "date": new Date()
+                };
+
+                $scope.addExaminationDate = function(data) {
+                    var alreadyExists = $scope.newExam.examinationDates.map(function(ed) {
+                        return moment(ed.date).format("L")
+                    }).some(function (ed) {
+                        return ed == moment(data.date).format("L")
+                    });
+                    if (!alreadyExists) {
+                        ExamRes.examinationDate.create({eid: $scope.newExam.id, date: data.date}, function (data) {
+                            $scope.newExam.examinationDates.push(data);
+                        });
+                    }
+                };
+
+                $scope.removeExaminationDate = function (date) {
+                    ExamRes.examinationDate.delete({eid: $scope.newExam.id, edid: date.id}, function () {
+                        var i = $scope.newExam.examinationDates.indexOf(date);
+                        $scope.newExam.examinationDates.splice(i, 1);
+                    });
+                };
 
                 $scope.setExamOwner = function ($item, $model, $label) {
                     $scope.newOwner.user.id = $item.id;
@@ -554,8 +577,7 @@
                 };
 
                 $scope.checkDuration = function (duration) {
-                    if (!$scope.newExam.duration) return "";
-                    return $scope.newExam.duration === duration ? "btn-primary" : "";
+                    return $scope.newExam && $scope.newExam.duration === duration ? "btn-primary" : "";
                 };
 
                 $scope.checkGradeScale = function (scale) {
@@ -566,7 +588,7 @@
                 };
 
                 $scope.getSelectableScales = function () {
-                    if (!$scope.examGradings || !$scope.newExam.course) {
+                    if (!$scope.examGradings || !$scope.newExam || !$scope.newExam.course) {
                         return [];
                     }
                     return $scope.examGradings.filter(function (scale) {
@@ -583,8 +605,11 @@
                 };
 
                 $scope.checkType = function (type) {
-                    if (!$scope.newExam.examType) return "";
-                    return $scope.newExam.examType.type === type ? "btn-primary" : "";
+                    return $scope.newExam && $scope.newExam.examType.type === type ? "btn-primary" : "";
+                };
+
+                $scope.checkQuestionSheetReturnPolicy = function (policy) {
+                    return $scope.newExam && $scope.newExam.questionSheetReturnPolicy === policy ? "btn-primary" : "";
                 };
 
                 $scope.setExamGradeScale = function (grading) {
@@ -594,6 +619,11 @@
 
                 $scope.setExamType = function (type) {
                     $scope.newExam.examType.type = type;
+                    $scope.updateExam();
+                };
+
+                $scope.setQuestionSheetReturnPolicy = function (policy) {
+                    $scope.newExam.questionSheetReturnPolicy = policy;
                     $scope.updateExam();
                 };
 
@@ -698,6 +728,7 @@
                         } : null,
                         "trialCount": $scope.newExam.trialCount || undefined,
                         "subjectToLanguageInspection": $scope.newExam.subjectToLanguageInspection,
+                        "questionSheetReturnPolicy": $scope.newExam.questionSheetReturnPolicy,
                         "objectVersion": $scope.newExam.objectVersion
                     };
                     for (var k in overrides) {
