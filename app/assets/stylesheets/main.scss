@@ -332,6 +332,7 @@ label {
   width: 22%;
   float: right;
   margin-right: 30px;
+  cursor: not-allowed;
 
   a {
     font-size: 16px;
@@ -347,16 +348,30 @@ label {
     display: block;
     padding-top: 10px;
     padding-bottom: 10px;
+
+    &.cancel {
+      cursor: pointer;
+      background-color: #7F7F7F;
+      border: 1px solid #6B6B6B;
+
+    }
   }
 
   a:hover, button:active, button:focus, button:active:focus {
-    background-color: #979797;
+    background-color: #D8D8D8;
     border: 1px solid #979797;
+    &.cancel {
+      cursor: pointer;
+      background-color: #6B6B6B;
+      border: 1px solid #6B6B6B;
+    }
     text-decoration: none;
   }
 }
 
 .calendar-button-save-activated {
+
+    cursor: pointer;
 
     a {
       font-size: 16px;
