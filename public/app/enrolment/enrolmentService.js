@@ -102,6 +102,16 @@
                                 });
                                 return exam;
                             });
+
+                            // remove duplicate exam, which is already shown at the detailed info section.
+                            if(id) {
+                                angular.forEach(scope.exams, function(value, key) {
+                                  if(value.id == id) {
+                                    scope.exams.splice(scope.exams.indexOf(value),1);
+                                  }
+                                });
+                            }
+
                         },
                         function (error) {
                             toastr.error(error.data);
