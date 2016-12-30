@@ -143,7 +143,7 @@
   "sitnet_multiplechoice_question_incorrect": "Väärin",
   "sitnet_name": "Nimi",
   "sitnet_new_reservation": "Varaa tenttiaika",
-  "sitnet_student_new_reservation": "Tee tilavaraus",
+  "sitnet_student_new_reservation": "Varaa tila",
   "sitnet_student_confirm_reservation": "Vahvista tilavaraus",
   "sitnet_no_comments": "Arviointi ei saatavilla",
   "sitnet_out_of_service": "Poissa käytöstä",
@@ -782,5 +782,7 @@
   "sitnet_new_question_type": "Kysymyksen tyyppi",
   "sitnet_library_choose": "Valitse tenttikysymykset",
   "sitnet_exam_no_result":"Haku ei palauttanut tenttejä",
-  "sitnet_approve_maturity": "Hyväksy suoritus"
+  "sitnet_approve_maturity": "Hyväksy suoritus",
+  "sitnet_student_exam_search_result":"Tulokset",
+  "sitnet_student_exam_search_result_continues":"kpl haulle"
 }

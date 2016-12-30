@@ -132,6 +132,11 @@
      }
   }
 
+  .student-exam-needs-reservation {
+    color: #ED4459;
+    font-size:13px;
+  }
+
   .student-exam-header-row {
     margin-bottom: 10px;
 
@@ -234,6 +239,23 @@
 
   .student-exam-row-infobox {
     padding-top:1em;
+  }
+
+  .student-exam-all-required {
+    color: #3CA34F;
+    font-size: 16px;
+    font-family: $sitnet-family-helvetica;
+    padding-right: 3px;
+  }
+
+  .student-exam-search-results {
+    display: inline-block;
+    margin-left: 20px;
+    vertical-align: top;
+    color:#555555;
+    font-size: 14px;
+    padding-top: 12px;
+
   }
 
   .student-exam-settings {

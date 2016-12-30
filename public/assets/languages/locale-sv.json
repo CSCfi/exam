@@ -782,5 +782,7 @@
   "sitnet_new_question_type": "Kysymyksen tyyppi SV",
   "sitnet_library_choose": "Valitse tenttikysymykset SV",
   "sitnet_exam_no_result":"Haku ei palauttanut tenttejä SV",
-  "sitnet_approve_maturity": "Hyväksy suoritus SV"
+  "sitnet_approve_maturity": "Hyväksy suoritus SV",
+  "sitnet_student_exam_search_result":"Tulokset SV",
+  "sitnet_student_exam_search_result_continues":"kpl haulle SV"
 }

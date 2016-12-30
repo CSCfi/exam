@@ -1,7 +1,13 @@
-<div class="student-enrolment-wrapper details-view">
+<div class="student-enrolment-wrapper details-view" ng-class="(exam.enrolled && exam.reservationMade) ? '' : 'notactive'">
+
     <div class="row">
         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-            <span class="student-exam-row-title-blue"><a href="/enroll/{{exam.course.code}}/exam/{{exam.id}}">{{exam.name}}<a/></span><br/><span class="student-exam-row-title-grey">{{exam.course.code}}</span>
+            <span class="student-exam-row-title-blue">
+                <a href="/enroll/{{exam.course.code}}/exam/{{exam.id}}">{{exam.name}}<a/></span><br/>
+            <span class="student-exam-row-title-grey">{{exam.course.code}}</span><br/>
+            <span ng-if="exam.enrolled && !exam.reservationMade"
+                  class="student-exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
+
         </div>
         <div class="clearfix visible-xs"></div>
         <div class="clearfix visible-sm"></div>
@@ -52,11 +58,14 @@
         <div class="clearfix visible-sm"></div>
 
         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 mobile-pads">
-            <div class="student-message-dialog-button-save" ng-if="!exam.alreadyEnrolled && !exam.noTrialsLeft">
+            <div class="student-message-dialog-button-save" ng-if="!exam.enrolled">
                 <button class="btn btn-success" ng-click="enrollExam(exam)">{{'sitnet_enroll_to_exam' | translate}}</button>
             </div>
-            <div class="col-1 enroll-button" ng-if="exam.alreadyEnrolled">
-                {{'sitnet_enrolled_to_exam' | translate}}
+            <div class="student-message-dialog-button-save" ng-if="exam.enrolled && !exam.reservationMade">
+                <button class="btn btn-success" ng-click="makeReservation(exam)">{{'sitnet_student_new_reservation' | translate}}</button>
+            </div>
+            <div class="student-message-dialog-button-save" ng-if="exam.enrolled && exam.reservationMade">
+                <span class="student-exam-all-required">{{'sitnet_enrolled_to_exam' | translate}}</span>
             </div>
         </div>
 

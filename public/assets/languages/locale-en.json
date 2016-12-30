@@ -782,5 +782,7 @@
   "sitnet_new_question_type": "Kysymyksen tyyppi EN",
   "sitnet_library_choose": "Valitse tenttikysymykset EN",
   "sitnet_exam_no_result":"Haku ei palauttanut tenttejä EN",
-  "sitnet_approve_maturity": "Hyväksy suoritus EN"
+  "sitnet_approve_maturity": "Hyväksy suoritus EN",
+  "sitnet_student_exam_search_result":"Tulokset EN",
+  "sitnet_student_exam_search_result_continues":"kpl haulle EN"
 }

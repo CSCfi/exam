@@ -133,9 +133,9 @@ public class EnrolmentController extends BaseController {
                     .endJunction()
                     .findList();
             if (enrolments.isEmpty()) {
-                return notFound();
+                return notFound("error not found");
             }
-            return ok();
+            return ok(enrolments);
         }
         return forbidden("sitnet_no_trials_left");
     }
