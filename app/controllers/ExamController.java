@@ -209,6 +209,8 @@ public class ExamController extends BaseController {
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("executionType")
+                .fetch("examinationDates")
+                .fetch("examLanguages")
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions", new FetchConfig().query())
                 .fetch("examSections.sectionQuestions.question")

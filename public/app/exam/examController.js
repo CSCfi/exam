@@ -780,17 +780,16 @@
                 $scope.previewExam = function () {
                     //First save the exam, so that
                     //we have something to preview
-                    var examId = $routeParams.id;
+                    // TODO: Is this really necessary anymore?
                     var examToSave = getUpdate();
 
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
-                        function (exam) {
-                            toastr.info($translate.instant("sitnet_exam_saved"));
+                        function () {
+                            var resource = $scope.newExam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
+                            $location.path("/exams/" + resource + "/" + $routeParams.id);
                         }, function (error) {
                             toastr.error(error.data);
                         });
-                    $location.url($location.path());
-                    $location.path("/exams/preview/" + examId);
                 };
 
                 // Called when Save button is clicked

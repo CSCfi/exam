@@ -76,6 +76,9 @@
             /* Print */
             $routeProvider.when('/print/exam/:id', { templateUrl: tmpl + 'review/print/fullReview.html', controller: 'ExamReviewController'});
 
+            /* Printout exam */
+            $routeProvider.when('/exams/printout/:id', { templateUrl: tmpl + 'exam/printout/printout.html', controller: 'PrintoutController', controllerAs: 'ctrl'});
+
             /* Language inspectors */
             $routeProvider.when('/inspections', { templateUrl: tmpl + 'maturity/dashboard.html', controller: 'LanguageInspectionCtrl'});
             $routeProvider.when('/inspections/reports', { templateUrl: tmpl + 'maturity/monthly_report.html', controller: 'LanguageInspectionCtrl'});

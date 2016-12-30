@@ -1,0 +1,144 @@
+<div id="printout">
+    <span class="toolbar">
+        <button class="btn btn-cancel" ng-click="ctrl.exitPreview()">{{'sitnet_exit_preview' | translate}}</button>&nbsp;
+        <button class="btn btn-primary" ng-click="ctrl.print()">{{'sitnet_print' | translate}}</button>
+    </span>
+    <div class="prow">
+        <div class="col-md-12 center instruction">
+            <h3>TENTTI &dash; TENTAMEN &dash; EXAM</h3>
+        </div>
+    </div>
+    <div class="prow">
+        <div class="col-md-12 instruction">
+            Opettaja t&auml;ytt&auml;&auml; / Tentator fyller i / Lecturer fills in
+        </div>
+    </div>
+    <div class="prow pbreak">
+        <div class="col-md-12">
+            <table class="infotable">
+                <tr>
+                    <td colspan="2">
+                        <strong>Opintojakson koodi ja nimi / Studieperiodens kod och namn / The code and the name of the course:</strong><br />
+                        <h4>{{ctrl.exam.course.code}}</h4>
+                        <h4>{{ctrl.exam.course.name}}</h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <strong>Tentin nimi / Tentamens namn / Exam name:</strong><br />
+                        <h4>{{ctrl.exam.name}}</h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <strong>Tiedekunta / Fakultet / Faculty:</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Tentin p&auml;iv&auml;m&auml;&auml;r&auml;t / Tentamensdatum / Examination dates:</strong>
+                        &nbsp;
+                        <span ng-repeat="ed in ctrl.exam.examinationDates | orderBy: 'date'">
+                            {{ed.date |date:'dd.MM.yyyy'}}&nbsp;
+                        </span>
+                    </td>
+                    <td>
+                        <strong>Tentin kesto / Tentamens längd / Exam duration:</strong>&nbsp;{{ctrl.exam.duration}}&nbsp;min.
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="2" class="multirow">
+                        <strong>Tentaattorit / Tentatoren / Examiners:</strong><br />
+                        <teacher-list exam="ctrl.exam" />
+                    </td>
+                    <td>
+                        <strong>Opintopistem&auml;&auml;r&auml; / Studiepo&auml;ng / Credit units:</strong>
+                        &nbsp;{{ ctrl.exam.course.credits }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Sis&auml;inen postiosoite / Intern postaddress / Internal address:</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <strong>Sallitut apuv&auml;ineet / Tillåtna verktyg / Tools allowed:</strong><br />
+                        {{ ctrl.exam.instruction }}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <strong>Tenttiin vastaaminen / Svara på tentamen / Answer exam questions:</strong><br />
+                        <label ng-repeat="l in ctrl.exam.examLanguages | orderBy:'ord'" class="checkbox-inline">
+                            <input type="checkbox" onclick="return false;" ng-checked="true">{{ ctrl.getLanguageName(l) }}
+                        </label>
+                        <div>
+                            <p>
+                                Suomenkielisessä tutkinto-ohjelmassa olevalla opiskelijalla on oikeus käyttää arvioitavassa
+                                opintosuorituksessa suomen kieltä, vaikka opintojakson opetuskieli olisi englanti. Tämä ei
+                                koske vieraan kielen opintoja. (Kts. Koulutuksen johtosääntö 18 §)
+                            </p>
+                            <p>
+                                Samma på svenska.
+                            </p>
+                            <p>
+                                In a Finnish degree programme a student has a right to use Finnish language for their study
+                                attainment, even though the language of instruction is English, (excluding language studies)
+                                even when the language of instruction is other than Finnish. (See the Education Regulations
+                                18 §)
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <strong>Kysymyspaperi on palautettava / Papper som innehåller frågor måste återvändas / Paper with exam questions must be returned:</strong><br />
+                        <label class="checkbox-inline">
+                            <input type="checkbox" onclick="return false;" ng-checked="exam.questionSheetReturnPolicy">Kyllä / Ja / Yes
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" onclick="return false;" ng-checked="!exam.questionSheetReturnPolicy">Ei / Nej / No
+                        </label>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+    </div>
+    <hr class="hidden-print" />
+    <div class="prow">
+        <div class="col-md-12 instruction center">
+            <h3>KYSYMYKSET &ndash; FRÅGOR &ndash; QUESTIONS</h3>
+        </div>
+    </div>
+    <div ng-repeat="es in ctrl.exam.examSections | orderBy:'index'">
+        <div class="prow">
+            <div class="col-md-12">
+                <h4>{{es.name}}</h4>
+            </div>
+        </div>
+        <div ng-if="es.description" class="prow">
+            <div class="col-md-12">
+                {{es.description}}
+            </div>
+        </div>
+        <div ng-repeat="esq in es.sectionQuestions | orderBy:'sequenceNumber'" class="prow question">
+            <span class="col-md-8"><strong>{{ esq.sequenceNumber  + 1}}.&nbsp;{{ ctrl.getQuestionTypeName(esq) }}</strong></span>
+            <span class="col-md-4"><strong class="pull-right">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span>
+            <span class="col-md-12 question" mathjax ng-bind-html="esq.question.question"></span>
+            <span ng-if="esq.question.type === 'MultipleChoiceQuestion' || esq.question.type === 'WeightedMultipleChoiceQuestion'"
+                  class="col-md-12">
+                <div ng-repeat="o in esq.options">
+                    <div ng-if="esq.question.type === 'WeightedMultipleChoiceQuestion'" class="checkbox">
+                        <label><input type="checkbox" onclick="return false;" value="">{{o.option.option}}</label>
+                    </div>
+                    <div ng-if="esq.question.type === 'MultipleChoiceQuestion'" class="radio">
+                        <label><input type="radio" onclick="return false;" name="">{{o.option.option}}</label>
+                    </div>
+                </div>
+            </span>
+        </div>
+    </div>
+
+</div>

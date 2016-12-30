@@ -1,0 +1,58 @@
+@import "lib/bootstrap-sass/assets/stylesheets/bootstrap";
+
+.toolbar {
+  position: relative;
+  top: 15px;
+  padding-left: 29px;
+  @media print {
+    visibility: hidden;
+  }
+}
+.prow {
+  @extend .row;
+  margin: 0;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+.pbreak {
+  page-break-after: always;
+}
+.center {
+  text-align: center;
+}
+.lpad3 {
+  padding-left: 3em;
+}
+.lpad4 {
+  padding-left: 4em;
+}
+.instruction {
+  color: darkgray;
+  padding-left: 29px;
+}
+.infotable {
+  border: 1px solid black;
+  width: 100%;
+
+  > tbody > tr > td {
+    padding: 1em;
+    border: 1px solid black;
+
+    > div > p:first-child {
+      padding-top:15px;
+    }
+  }
+}
+.multirow {
+  padding-top: 0 !important;
+}
+.tabletitle {
+  font-weight: bold;
+}
+.question-indice {
+  float: left;
+  margin: 10px;
+}
+.question {
+  margin-top: 30px;
+}
