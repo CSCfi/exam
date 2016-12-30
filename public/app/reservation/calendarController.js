@@ -279,6 +279,7 @@
                     }
                 };
 
+                var tempVar="";
                 $scope.calendarConfig = {
                     editable: false,
                     selectable: false,
@@ -318,20 +319,32 @@
                             $scope.createReservation(event.start, event.end);
                         }
 
+                        // tarkistetaan mikä aika on varattu ja muutetaan tyylit sen mukaan
+                        if (tempVar == "")
+                        {
+                            $(this).css('cursor', 'pointer');
+                            $(this).css('background-color', '#266B99');
+                            $(tempVar).css('background-color', '#A6E9B2');
+                            tempVar = this;
+                        }
+
                     },
                     eventMouseover: function (event, jsEvent, view) {
+                        $(this).css('cursor', 'pointer');
                         if (event.availableMachines > 0) {
-                            $(this).css('background-color', '#3CA34F');
-                            $(this).css('border-color', '#358F45');
-                            $(this).css('color', '#2c2c2c');
-                            $(this).css('cursor', 'pointer');
+                            if(tempVar != this) {
+                                $(this).css('background-color', '#3CA34F');
+                                $(this).css('color', '#2c2c2c');
+                            }
                         }
                     },
                     eventMouseout: function (event, jsEvent, view) {
+                        $(this).css('cursor', 'pointer');
                         if (event.availableMachines > 0) {
-                            $(this).css('color', 'white');
-                            $(this).css('border-color', '#979797');
-                            $(this).css('background-color', '#A6E9B2');
+                            if(tempVar != this) {
+                                $(this).css('color', 'white');
+                                $(this).css('background-color', '#A6E9B2');
+                            }
                         }
                     },
                     eventRender: function (event, element, view) {
