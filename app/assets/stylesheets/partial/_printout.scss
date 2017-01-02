@@ -42,17 +42,15 @@
       padding-top:15px;
     }
   }
+
 }
 .multirow {
   padding-top: 0 !important;
 }
-.tabletitle {
-  font-weight: bold;
-}
-.question-indice {
-  float: left;
-  margin: 10px;
+.answer-instructions {
+  margin-bottom: 10px;
 }
 .question {
   margin-top: 30px;
+  page-break-inside: avoid;
 }

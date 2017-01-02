@@ -10,7 +10,7 @@ ALTER TABLE examination_date ADD CONSTRAINT FK_EXAMINATION_DATE_EXAM FOREIGN KEY
 CREATE SEQUENCE examination_date_seq;
 CREATE INDEX IX_EXAMINATION_DATE_EXAM ON examination_date (exam_id);
 
-ALTER TABLE exam ADD question_sheet_return_policy BOOLEAN DEFAULT FALSE;
+ALTER TABLE exam ADD question_sheet_return_policy BOOLEAN;
 
 # --- !Downs
 ALTER TABLE exam DROP question_sheet_return_policy;

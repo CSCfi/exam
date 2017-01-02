@@ -101,6 +101,12 @@
                     return exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0;
                 };
 
+                var hasUpcomingExaminationDates = function (exam) {
+                    return exam.examinationDates.some(function (ed) {
+                        return Date.now() <= new Date(ed.date).setHours(23, 59, 59, 999);
+                    });
+                };
+
                 var showTeacherDashboard = function () {
                     var scope = {};
                     var deferred = $q.defer();
@@ -110,8 +116,12 @@
                         ExamRes.reviewerExams.query(function (reviewerExams) {
 
                             scope.activeExams = reviewerExams.filter(function (review) {
-                                return Date.now() <= new Date(review.examActiveEndDate) &&
+                                var periodOk = review.executionType.type !== 'PRINTOUT' &&
+                                    Date.now() <= new Date(review.examActiveEndDate) &&
                                     participationsInFuture(review);
+                                var examinationDatesOk = review.executionType.type === 'PRINTOUT' &&
+                                        hasUpcomingExaminationDates(review);
+                                return periodOk || examinationDatesOk;
                             });
                             scope.activeExams.forEach(function (ae) {
                                 ae.unassessedCount = examService.getReviewablesCount(ae);
@@ -125,7 +135,12 @@
                             scope.finishedExams = [];
                             scope.archivedExams = [];
                             var endedExams = reviewerExams.filter(function (review) {
-                                return Date.now() > new Date(review.examActiveEndDate) || !participationsInFuture(review);
+                                var periodOk = review.executionType.type !== 'PRINTOUT' &&
+                                    (Date.now() > new Date(review.examActiveEndDate) ||
+                                    !participationsInFuture(review));
+                                var examinationDatesOk = review.executionType.type === 'PRINTOUT' &&
+                                        !hasUpcomingExaminationDates(review)
+                                return periodOk || examinationDatesOk;
                             });
                             endedExams.forEach(function (ee) {
                                 ee.ownerAggregate = ee.examOwners.map(function (o) {
@@ -133,7 +148,7 @@
                                 }).join();
                                 var unassessedCount = examService.getReviewablesCount(ee);
                                 var unfinishedCount = examService.getGradedCount(ee);
-                                if (unassessedCount + unfinishedCount > 0) {
+                                if (unassessedCount + unfinishedCount > 0 && ee.executionType.type !== 'PRINTOUT') {
                                     ee.unassessedCount = unassessedCount;
                                     ee.unfinishedCount = unfinishedCount;
                                     scope.finishedExams.push(ee);

@@ -10,6 +10,7 @@
                       SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes, ExamSectionQuestionRes,
                       limitToFilter, enrolmentService) {
 
+                $scope.loader = {loading: true};
                 $scope.createExamModel = {};
                 $scope.sectionDisplay = {visible: true};
                 $scope.autoevaluationDisplay = {visible: true};
@@ -140,7 +141,7 @@
                         $scope.typeSelected=true;
                         examService.createExam($scope.createExamModel.type.type);
                     }
-                }
+                };
 
                 var initializeExam = function () {
 
@@ -148,6 +149,7 @@
                         // new exam about to be created
                         // need some user data before actually creating it
                         $scope.typeSelected=false;
+                        $scope.loader.loading = false;
                     }
                     else {
                         $scope.typeSelected=true;
@@ -187,7 +189,7 @@
                                     });
                                 }
                                 $scope.createExamModel.type = $scope.newExam.executionType;
-
+                                $scope.loader.loading = false;
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -715,8 +717,10 @@
                         "enrollInstruction": $scope.newExam.enrollInstruction || "",
                         "state": $scope.newExam.state,
                         "shared": $scope.newExam.shared,
-                        "examActiveStartDate": new Date($scope.newExam.examActiveStartDate).getTime(),
-                        "examActiveEndDate": new Date($scope.newExam.examActiveEndDate).setHours(23, 59, 59, 999),
+                        "examActiveStartDate": $scope.newExam.examActiveStartDate ?
+                            new Date($scope.newExam.examActiveStartDate).getTime() : undefined,
+                        "examActiveEndDate": $scope.newExam.examActiveEndDate ?
+                            new Date($scope.newExam.examActiveEndDate).setHours(23, 59, 59, 999) : undefined,
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.gradeScale ? $scope.newExam.gradeScale.id : undefined,
                         "expanded": $scope.newExam.expanded,
@@ -875,7 +879,7 @@
                 // Called when Save and Publish button is clicked
                 $scope.saveAndPublishExam = function () {
 
-                    var err = $scope.publishSanityCheck($scope.newExam);
+                    var err = readyForPublishing($scope.newExam);
                     $scope.errors = err;
                     if (Object.getOwnPropertyNames(err) && Object.getOwnPropertyNames(err).length !== 0) {
 
@@ -936,7 +940,7 @@
                     return count;
                 };
 
-                $scope.publishSanityCheck = function (exam) {
+                var readyForPublishing = function (exam) {
 
                     var errors = {};
 
@@ -952,12 +956,16 @@
                         errors.name = $translate.instant('sitnet_error_exam_empty_exam_language');
                     }
 
-                    if (!$scope.newExam.examActiveStartDate) {
+                    var isPrintout = $scope.newExam.executionType.type === 'PRINTOUT';
+                    if (!isPrintout && !$scope.newExam.examActiveStartDate) {
                         errors.examActiveStartDate = $translate.instant('sitnet_exam_start_date_missing');
                     }
 
-                    if (!$scope.newExam.examActiveEndDate) {
+                    if (!isPrintout && !$scope.newExam.examActiveEndDate) {
                         errors.examActiveEndDate = $translate.instant('sitnet_exam_end_date_missing');
+                    }
+                    if (isPrintout && $scope.newExam.examinationDates.length == 0) {
+                        errors.examinationDates = $translate.instant('sitnet_examination_date_missing');
                     }
 
                     if (countQuestions() === 0) {

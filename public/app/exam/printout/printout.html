@@ -1,8 +1,14 @@
 <div id="printout">
+    <div ng-if="ctrl.exam.attachment" class="toolbar text text-danger">
+        <i class="fa fa-exclamation-circle"></i>&nbsp;{{ 'sitnet_print_attachment_reminder' | translate }}
+    </div>
+
     <span class="toolbar">
         <button class="btn btn-cancel" ng-click="ctrl.exitPreview()">{{'sitnet_exit_preview' | translate}}</button>&nbsp;
-        <button class="btn btn-primary" ng-click="ctrl.print()">{{'sitnet_print' | translate}}</button>
+        <button class="btn btn-primary" ng-click="ctrl.print()">{{'sitnet_print' | translate}}</button>&nbsp;
+        <button class="btn btn-primary" ng-if="ctrl.exam.attachment" ng-click="ctrl.printAttachment()">{{'sitnet_print_attachment' | translate}}</button>
     </span>
+
     <div class="prow">
         <div class="col-md-12 center instruction">
             <h3>TENTTI &dash; TENTAMEN &dash; EXAM</h3>
@@ -64,7 +70,7 @@
                 <tr>
                     <td colspan="2">
                         <strong>Sallitut apuv&auml;ineet / Tillåtna verktyg / Tools allowed:</strong><br />
-                        {{ ctrl.exam.instruction }}
+                        {{ ctrl.exam.enrollInstruction }}
                     </td>
                 </tr>
                 <tr>
@@ -95,10 +101,10 @@
                     <td colspan="2">
                         <strong>Kysymyspaperi on palautettava / Papper som innehåller frågor måste återvändas / Paper with exam questions must be returned:</strong><br />
                         <label class="checkbox-inline">
-                            <input type="checkbox" onclick="return false;" ng-checked="exam.questionSheetReturnPolicy">Kyllä / Ja / Yes
+                            <input type="checkbox" onclick="return false;" ng-checked="ctrl.exam.questionSheetReturnPolicy">Kyllä / Ja / Yes
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" onclick="return false;" ng-checked="!exam.questionSheetReturnPolicy">Ei / Nej / No
+                            <input type="checkbox" onclick="return false;" ng-checked="!ctrl.exam.questionSheetReturnPolicy">Ei / Nej / No
                         </label>
                     </td>
                 </tr>
@@ -110,6 +116,12 @@
     <div class="prow">
         <div class="col-md-12 instruction center">
             <h3>KYSYMYKSET &ndash; FRÅGOR &ndash; QUESTIONS</h3>
+        </div>
+    </div>
+    <div class="prow answer-instructions" ng-if="ctrl.exam.instruction">
+        <div class="col-md-12">
+            <strong>Ohjeet / Anvisning / Instructions:</strong><br />
+            {{ctrl.exam.instruction}}
         </div>
     </div>
     <div ng-repeat="es in ctrl.exam.examSections | orderBy:'index'">
@@ -126,7 +138,10 @@
         <div ng-repeat="esq in es.sectionQuestions | orderBy:'sequenceNumber'" class="prow question">
             <span class="col-md-8"><strong>{{ esq.sequenceNumber  + 1}}.&nbsp;{{ ctrl.getQuestionTypeName(esq) }}</strong></span>
             <span class="col-md-4"><strong class="pull-right">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span>
-            <span class="col-md-12 question" mathjax ng-bind-html="esq.question.question"></span>
+            <span class="col-md-12 question" ng-if="esq.question.type !== 'ClozeTestQuestion'"
+                  mathjax ng-bind-html="ctrl.trustAsHtml(esq.question.question)"></span>
+            <span class="col-md-12 question" ng-if="esq.question.type === 'ClozeTestQuestion'"
+                  mathjax ng-bind-html="ctrl.trustAsHtml(esq.clozeTestAnswer.question)"></span>
             <span ng-if="esq.question.type === 'MultipleChoiceQuestion' || esq.question.type === 'WeightedMultipleChoiceQuestion'"
                   class="col-md-12">
                 <div ng-repeat="o in esq.options">

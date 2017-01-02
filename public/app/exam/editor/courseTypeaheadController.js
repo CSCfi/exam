@@ -89,7 +89,9 @@
                 $scope.newExam.course = $item;
                 $scope.courseCodeSearch = $item;
                 $scope.courseNameSearch = $item;
-                $scope.updateTitle($scope.newExam);
+                if ($scope.updateTitle) {
+                    $scope.updateTitle($scope.newExam);
+                }
             };
         }]);
 }());

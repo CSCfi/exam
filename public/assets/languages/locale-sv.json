@@ -783,5 +783,8 @@
   "sitnet_printout_exam": "Paperitentti SV",
   "sitnet_allowed_tools": "Sallitut apuvälineet SV",
   "sitnet_return_question_sheet": "Kysymyspaperi on palautettava SV",
-  "sitnet_examination_dates": "Tenttimispäivät SV"
+  "sitnet_examination_dates": "Tenttimispäivät SV",
+  "sitnet_print_attachment": "Lataa tentin liitetiedosto tulostusta varten SV",
+  "sitnet_print_attachment_reminder": "Tentillä on liitetiedosto, muistathan tulostaa sen erikseen. SV",
+  "sitnet_examination_date_missing": "Tenttimispäiviä ei määritelty SV"
 }

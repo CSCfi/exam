@@ -117,6 +117,7 @@ public class ExamController extends BaseController {
         // Get list of exams that user is assigned to inspect or is creator of
         PathProperties props = PathProperties.parse("(*, course(id, code), " +
                 "children(id, state, examInspections(user(id, firstName, lastName))), " +
+                "examinationDates(*), " +
                 "examOwners(id, firstName, lastName), executionType(type), " +
                 "examInspections(id, user(id, firstName, lastName)), " +
                 "examEnrolments(id, user(id), reservation(id, endAt)))");
@@ -265,30 +266,32 @@ public class ExamController extends BaseController {
         }, actor.dispatcher());
     }
 
-    private Optional<Result> getFormValidationError(JsonNode node) {
+    private Optional<Result> getFormValidationError(JsonNode node, boolean checkPeriod) {
         String examName = node.has("name") ? node.get("name").asText() : null;
         String reason = null;
         if (examName == null || examName.isEmpty()) {
             reason = "sitnet_error_exam_empty_name";
         }
         Long start = null, end = null;
-        JsonNode startNode = node.get("examActiveStartDate");
-        JsonNode endNode = node.get("examActiveEndDate");
-        if (startNode != null && startNode.isLong()) {
-            start = startNode.asLong();
-        } else {
-            reason = "sitnet_error_start_date";
-        }
-        if (endNode != null && endNode.isLong()) {
-            end = endNode.asLong();
-        } else {
-            reason = "sitnet_error_end_date";
-        }
-        if (start != null && end != null) {
-            if (start >= end) {
-                reason = "sitnet_error_end_sooner_than_start";
-            } else if (end <= DateTime.now().getMillis()) {
-                reason = "sitnet_error_end_sooner_than_now";
+        if (checkPeriod) {
+            JsonNode startNode = node.get("examActiveStartDate");
+            JsonNode endNode = node.get("examActiveEndDate");
+            if (startNode != null && startNode.isLong()) {
+                start = startNode.asLong();
+            } else {
+                reason = "sitnet_error_start_date";
+            }
+            if (endNode != null && endNode.isLong()) {
+                end = endNode.asLong();
+            } else {
+                reason = "sitnet_error_end_date";
+            }
+            if (start != null && end != null) {
+                if (start >= end) {
+                    reason = "sitnet_error_end_sooner_than_start";
+                } else if (end <= DateTime.now().getMillis()) {
+                    reason = "sitnet_error_end_sooner_than_now";
+                }
             }
         }
         return reason == null ? Optional.empty() : Optional.of(badRequest(reason));
@@ -299,7 +302,7 @@ public class ExamController extends BaseController {
         if (state != null) {
             if (state == Exam.State.PUBLISHED) {
                 // Exam is published or about to be published
-                Optional<Result> err = getFormValidationError(node);
+                Optional<Result> err = getFormValidationError(node, !exam.isPrintout());
                 // invalid data
                 if (err.isPresent()) {
                     return err;
@@ -318,6 +321,9 @@ public class ExamController extends BaseController {
                     }
                     notifyPartiesAboutPrivateExamPublication(exam);
                 }
+                if (exam.isPrintout() && exam.getExaminationDates().isEmpty()) {
+                    return Optional.of(badRequest("no examination dates specified"));
+                }
             }
             exam.setState(state);
         }
@@ -330,12 +336,16 @@ public class ExamController extends BaseController {
     }
 
     private Optional<Result> updateTemporalFieldsAndValidate(Exam exam, JsonNode node, User user) {
-        Long start = node.get("examActiveStartDate").asLong();
-        Long end = node.get("examActiveEndDate").asLong();
-        Integer newDuration = node.get("duration").asInt();
+        // For printout exams everything is allowed
+        if (exam.isPrintout()) {
+            return Optional.empty();
+        }
         boolean hasFutureReservations = hasFutureReservations(exam);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
-        if (start != 0) {
+        Long start = parse("examActiveStartDate", node, Long.class);
+        Long end = parse("examActiveEndDate", node, Long.class);
+        Integer newDuration = node.get("duration").asInt();
+        if (start != null && start != 0) {
             Date newStart = new Date(start);
             if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newStart, exam, true)) {
                 exam.setExamActiveStartDate(new Date(start));
@@ -343,7 +353,7 @@ public class ExamController extends BaseController {
                 return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
             }
         }
-        if (end != 0) {
+        if (end != null && end != 0) {
             Date newEnd = new Date(end);
             if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newEnd, exam, false)) {
                 exam.setExamActiveEndDate(new Date(end));
@@ -362,18 +372,18 @@ public class ExamController extends BaseController {
     }
 
     private Result handleExamUpdate(Exam exam, JsonNode node) {
-        String examName = node.get("name").asText();
-        Boolean shared = node.has("shared") && node.get("shared").asBoolean(false);
-        Integer grading = node.has("grading") ? node.get("grading").asInt() : null;
-        String answerLanguage = node.has("answerLanguage") ? node.get("answerLanguage").asText() : null;
-        String instruction = node.has("instruction") ? node.get("instruction").asText() : null;
-        String enrollInstruction = node.has("enrollInstruction") ? node.get("enrollInstruction").asText() : null;
-        Integer trialCount = node.has("trialCount") ? node.get("trialCount").asInt() : null;
-        Boolean expanded = node.has("expanded") && node.get("expanded").asBoolean(false);
-        Boolean requiresLanguageInspection = node.has("subjectToLanguageInspection") &&
-                node.get("subjectToLanguageInspection").asBoolean(false);
-        Boolean questionSheetReturnPolicy = node.has("questionSheetReturnPolicy") &&
-                node.get("questionSheetReturnPolicy").asBoolean(false);
+        String examName = parse("name", node, String.class);
+        Boolean shared = parse("shared", node, Boolean.class);
+        Integer grading = parse("grading", node, Integer.class);
+        String answerLanguage = parse("answerLanguage", node, String.class);
+        String instruction = parse("instruction", node, String.class);
+        String enrollInstruction = parse("enrollInstruction", node, String.class);
+        Integer trialCount = parse("trialCount", node, Integer.class);
+        Boolean expanded = parse("expanded", node, Boolean.class, false);
+        Boolean requiresLanguageInspection = parse("subjectToLanguageInspection",
+                node, Boolean.class, false);
+        Boolean questionSheetReturnPolicy = parse("questionSheetReturnPolicy",
+                node, Boolean.class, false);
         if (examName != null) {
             exam.setName(examName);
         }
@@ -402,7 +412,7 @@ public class ExamController extends BaseController {
             exam.setEnrollInstruction(enrollInstruction);
         }
         if (node.has("examType")) {
-            String examType = node.get("examType").get("type").asText();
+            String examType = parse("examType", node, String.class);
             ExamType eType = Ebean.find(ExamType.class)
                     .where()
                     .eq("type", examType)
@@ -667,8 +677,10 @@ public class ExamController extends BaseController {
         exam.setExamType(Ebean.find(ExamType.class, 2)); // Final
 
         DateTime start = DateTime.now().withTimeAtStartOfDay();
-        exam.setExamActiveStartDate(start.toDate());
-        exam.setExamActiveEndDate(start.plusDays(1).toDate());
+        if (!exam.isPrintout()) {
+            exam.setExamActiveStartDate(start.toDate());
+            exam.setExamActiveEndDate(start.plusDays(1).toDate());
+        }
         exam.setDuration(AppUtil.getExamDurations().get(0));
         if (AppUtil.isCourseGradeScaleOverridable()) {
             exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0));
@@ -680,10 +692,12 @@ public class ExamController extends BaseController {
         exam.setTrialCount(1);
 
         exam.setExpanded(true);
+        exam.setQuestionSheetReturnPolicy(false);
         exam.save();
 
         ObjectNode part = Json.newObject();
         part.put("id", exam.getId());
+
         ObjectNode typeNode = Json.newObject();
         typeNode.put("type", examExecutionType.getType());
         part.set("executionType", typeNode);

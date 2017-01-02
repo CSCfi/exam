@@ -28,7 +28,7 @@
                     {{'sitnet_new_exam_type' | translate}}
                 </div>
                 <div class="col-md-9">
-                    <select ng-if="newExam && !newExam.id"
+                    <select ng-if="!loader.loading && !newExam.id"
                             id="createExam"
                             name="createExam"
                             class="form-control"

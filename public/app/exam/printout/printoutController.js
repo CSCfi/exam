@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('PrintoutController', ['$http', '$routeParams', '$location',
-            function ($http, $routeParams, $location) {
+        .controller('PrintoutController', ['$http', '$routeParams', '$location', '$sce', 'fileService',
+            function ($http, $routeParams, $location, $sce, fileService) {
 
                 var ctrl = this;
 
@@ -73,8 +73,15 @@
 
                 ctrl.print = function () {
                     window.print();
-                }
+                };
 
+                ctrl.printAttachment = function () {
+                    fileService.download('/app/attachment/exam/' + $routeParams.id, ctrl.exam.attachment.fileName);
+                };
+
+                ctrl.trustAsHtml = function (content) {
+                    return $sce.trustAsHtml(content);
+                };
 
             }]);
 }());

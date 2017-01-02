@@ -38,6 +38,7 @@
                     <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
                     <span ng-if="question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc' | translate}}</span>
                     <span ng-if="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
+                    <span ng-if="question.type === 'ClozeTestQuestion'">{{ 'sitnet_toolbar_cloze_test_question' | translate }}</span>
                 </td>
                 <td class="question-table-name" ng-controller="AttachmentController">
                     <a ng-if="question.attachment" class="pointer" ng-click="downloadQuestionAttachment(question)"><i class="fa fa-paperclip fa-fw"></i>

@@ -205,13 +205,9 @@
                 <div class="review-list-title">{{ 'sitnet_instruction' | translate }}
                 </div>
             </div>
+
             <div ng-hide="newExam.executionType.type==='MATURITY'" class="row col-md-12 margin-20">
-                <div ng-if="newExam.executionType.type !== 'PRINTOUT'"
-                     class="col-md-3 exam-basic-title">{{'sitnet_exam_instruction' | translate}}
-                </div>
-                <div ng-if="newExam.executionType.type === 'PRINTOUT'"
-                     class="col-md-3 exam-basic-title">{{'sitnet_allowed_tools' | translate}}
-                </div>
+                <div class="col-md-3 exam-basic-title">{{'sitnet_exam_instruction' | translate}}</div>
                 <div class="col-md-9">
                     <textarea class="form-control" rows="4" cols="150" ng-model="newExam.instruction"
                               ui-change="updateExam()"
@@ -219,9 +215,13 @@
                     </textarea>
                 </div>
             </div>
-            <div ng-hide="newExam.executionType.type==='MATURITY' ||
-                newExam.executionType.type==='PRINTOUT'" class="row col-md-12 margin-20">
-                <div class="col-md-3 exam-basic-title">{{'sitnet_enroll_instruction' | translate}}
+            <div ng-hide="newExam.executionType.type==='MATURITY'" class="row col-md-12 margin-20">
+                <div ng-if="newExam.executionType.type!=='PRINTOUT'" class="col-md-3 exam-basic-title">
+                    {{'sitnet_enroll_instruction' | translate}}
+                </div>
+                <!-- Map these instructions to allowed tools in case of printout -->
+                <div ng-if="newExam.executionType.type==='PRINTOUT'" class="col-md-3 exam-basic-title">
+                    {{'sitnet_allowed_tools' | translate}}
                 </div>
                 <div class="col-md-9">
                     <textarea class="form-control" rows="4" cols="150" ng-model="newExam.enrollInstruction"
