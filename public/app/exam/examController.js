@@ -819,7 +819,7 @@
                         var fn = function () {
                             ExamRes.exams.remove({id: $scope.newExam.id}, function (ex) {
                                 toastr.success($translate.instant('sitnet_exam_removed'));
-                                $location.path('/exams');
+                                $location.path('/');
                             }, function (error) {
                                 toastr.error(error.data);
                             });
@@ -882,7 +882,7 @@
                             function (exam) {
                                 toastr.success($translate.instant("sitnet_exam_saved_and_published"));
                                 $location.url($location.path());
-                                $location.path("/exams");
+                                $location.path("/");
                             }, function (error) {
                                 toastr.error(error.data);
                             });

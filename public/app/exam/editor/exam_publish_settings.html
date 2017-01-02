@@ -33,8 +33,7 @@
                                close-text="{{'sitnet_close' | translate}}"
                                current-text="{{'sitnet_today' | translate}}"
                                toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                               clear-text="{{'sitnet_clear' | translate}}" date-validator
-                               required ui-change="updateExam()">
+                               clear-text="{{'sitnet_clear' | translate}}" required date-validator>
 
                         <span class="input-group-btn">
                             <button class="btn btn-default green" ng-click="openStartDate($event)">
@@ -52,8 +51,7 @@
                                datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}"
                                current-text="{{'sitnet_today' | translate}}"
                                toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                               clear-text="{{'sitnet_clear' | translate}}" required date-validator
-                               ui-change="updateExam()">
+                               clear-text="{{'sitnet_clear' | translate}}" required date-validator>
                         <span class="input-group-btn">
                             <button class="btn btn-default green" ng-click="openEndDate($event)">
                                 <img src="../../../assets/assets/images/reservation_calendar.svg" alt="exam"
@@ -169,5 +167,16 @@
         <!-- Autoevaluation -->
         <div class="bottom-padding-2" ng-show="!canBeAutoEvaluated()"
              ng-include="templates.autoEvaluation"></div>
+
     </div>
+
+</div>
+
+<!-- Buttons -->
+<div class="col-md-12 padl0 padr0 marb20" ng-controller="ExamController">
+    <span class="pull-right">
+        <div class="review-attachment-button exam-questions-buttons marl10"><a target="_self" class="pointer" ng-click="updateExam()">
+            {{'sitnet_save' | translate}}
+        </a></div>
+    </span>
 </div>

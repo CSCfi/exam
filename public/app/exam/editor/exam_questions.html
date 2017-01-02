@@ -36,7 +36,7 @@
                 <a target="_self" class="pointer" ng-click="saveAndPublishExam()">
                 {{'sitnet_save_and_publish' | translate}}
             </a></div>
-           <div ng-hide="newExam.state === 'PUBLISHED' && newExam.executionType.type==='PUBLIC'"
+           <div ng-show="newExam.state === 'PUBLISHED' && newExam.executionType.type==='PUBLIC'"
                 class="review-attachment-button exam-questions-buttons marl10">
                <a target="_self" class="pointer warning" ng-click="unpublishExam()">
                {{'sitnet_unpublish_exam' | translate}}
