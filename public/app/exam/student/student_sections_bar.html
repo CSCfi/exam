@@ -21,7 +21,7 @@
              ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-text-dark'">
             {{section.index}}. {{section.name}}
         </div>
-        <div class="col-md-3 pull-right vcenter">
+        <div class="col-md-3 pull-right vcenter section-answered">
             <span class="pull-left">{{ getQuestionAmount(section,'answered') }}</span>
             <span class="pull-left horizontal-padding-05"> / </span>
             <span class="pull-left">{{ getQuestionAmount(section,'total') }}</span>
@@ -33,11 +33,10 @@
 <div class="col-md-12" ng-hide="exam.executionType.type==='MATURITY'">
     <div class="row pointer" popover-placement="left" popover-trigger="click" popover-append-to-body="true"
          uib-popover="{{ currentLanguageText }}">
-        <a class="col-md-1 fa-stack">
-            <i class="fa fa-stop fa-stack-2x"></i>
-            <i class="fa fa-info-circle sitnet-white fa-stack-1x"/>
+        <a class="col-md-1" style="margin-top: 7px;">
+            <img src="../../../assets/assets/images/icon_info.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'" />
         </a>
-        <div class="col-md-10 vcenter">
+        <div class="col-md-10 question-text question-type-text info">
             {{'sitnet_room_guidance' | translate}}
         </div>
     </div>
@@ -47,11 +46,10 @@
 <div class="col-md-12" ng-click="showMaturityInstructions(exam)"
      ng-show="exam.executionType.type==='MATURITY'">
     <div class="row pointer">
-        <a class="col-md-1 fa-stack">
-            <i class="fa fa-stop fa-stack-2x"></i>
-            <i class="fa fa-info-circle sitnet-white fa-stack-1x"/>
+        <a class="col-md-1" style="margin-top: 7px;">
+            <img src="../../../assets/assets/images/icon_info.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'" />
         </a>
-        <div class="col-md-10 vcenter">
+        <div class="col-md-10 question-text question-type-text info">
             {{'sitnet_maturity_instructions' | translate}}
         </div>
     </div>

@@ -35,7 +35,6 @@
     border-bottom: 1px solid #B1B1B1;
     margin-bottom: 20px;
     margin-top: 20px;
-    margin-right: 45px;
     margin-left: 15px;
   }
 
@@ -43,6 +42,7 @@
     color: #2C2C2C;
     font-size: 20px;
     font-family: $sitnet-family-helvetica;
+    padding-left: 15px;
   }
 
   margin: 0 14px 0 16px;
@@ -381,7 +381,7 @@
   }
 
   .right-column-box {
-    width: 332px;
+//    width: 332px;
     border: 2px solid #EDEDED;
     border-radius: 4px;
     margin-left: 15px;
@@ -396,7 +396,7 @@
     }
 
     a.save-and-exit {
-      width: 300px;
+      width: 100%;
       text-align: center;
     }
 
@@ -406,8 +406,9 @@
     }
 
     a.abort-and-exit {
-      width: 300px;
+      width: 100%;
       text-align: center;
+      margin-top: 20px;
     }
 
     .bot-border {
@@ -432,9 +433,18 @@
     font-family:$sitnet-family-helvetica;
     font-size:12px;
     color:#555555;
-    float: right;
-    margin-top: 30px;
-    margin-right: 30px;
+    @media (max-width: 1050px) {
+      margin-top: 3px;
+    }
+
+  }
+
+  .section-answered {
+    @media (max-width: 1120px) {
+      padding-left: 0px !important;
+      padding-right: 0px !important;
+    }
+
   }
 
   .phase-box {

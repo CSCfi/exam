@@ -28,15 +28,14 @@
     </div>
 
 
-    <div class="row">
+    <div class="md-col-12">
 
         <!-- LEFT COLUMN -->
-        <div class="col-md-9">
+        <div class="col-md-8 col-xs-8">
 
                 <!-- EXAM AREA -->
-                <div class="row">
-                    <div class="col-md-12 bottom-padding-2">
-                        <div class="row" ng-show="!guide">
+                    <div class="bottom-padding-2">
+                        <div class="row marr10" ng-show="!guide">
                             <div class="col-md-12 studentexam-header">
                                 <span class="exam-title">{{activeSection.index}}. {{activeSection.name}}</span>
                                     <span ng-show="isPreview() && activeSection.lotteryOn" class="sitnet-text-medium">
@@ -48,27 +47,27 @@
                             </div>
                         </div>
 
-                        <div class="row" ng-show="guide">
-                            <div class="col-md-12 studentexam-header">
+                        <div ng-show="guide">
+                            <div class="studentexam-header">
                                 <span class="exam-title">{{'sitnet_exam_guide' | translate}}</span>
                             </div>
 
-                            <div class="col-md-12 guide-wrapper pad-15">
+                            <div class="guide-wrapper marr0 pad-15">
                                 <div class="guide-column">
-                                    <span class="header col-md-2"><span>{{ 'sitnet_course_name' | translate }}:</span></span>
-                                    <span class="text col-md-10">{{ exam.course.name }}&nbsp;</span>
+                                    <span class="header col-md-4"><span>{{ 'sitnet_course_name' | translate }}:</span></span>
+                                    <span class="text col-md-8">{{ exam.course.name }}&nbsp;</span>
                                 </div>
                                 <div class="guide-column">
-                                    <span class="header col-md-2"><span>{{ 'sitnet_course_code' | translate }}:</span></span>
-                                    <span class="text col-md-10">{{ exam.course.code }}&nbsp;</span>
+                                    <span class="header col-md-4"><span>{{ 'sitnet_course_code' | translate }}:</span></span>
+                                    <span class="text col-md-8">{{ exam.course.code }}&nbsp;</span>
                                 </div>
                                 <div class="guide-column">
-                                    <span class="header col-md-2"><span>{{ 'sitnet_exam_name' | translate }}:</span></span>
-                                    <span class="text col-md-10">{{ exam.name }}&nbsp;</span>
+                                    <span class="header col-md-4"><span>{{ 'sitnet_exam_name' | translate }}:</span></span>
+                                    <span class="text col-md-8">{{ exam.name }}&nbsp;</span>
                                 </div>
                                 <div class="guide-column">
-                                    <span class="header col-md-2"><span>{{ 'sitnet_exam_duration' | translate }}:</span></span>
-                                    <span class="text col-md-10">{{ printExamDuration(exam) }}&nbsp;</span>
+                                    <span class="header col-md-4"><span>{{ 'sitnet_exam_duration' | translate }}:</span></span>
+                                    <span class="text col-md-8">{{ printExamDuration(exam) }}&nbsp;</span>
                                 </div>
 
                                 <div class="guide-column padtop">
@@ -97,17 +96,17 @@
                             </span>
                         </div>
                     </div>
-                </div>
+
 
         </div>
 
         <!-- RIGHT COLUMN -->
-        <div class="col-md-3">
+        <div class="col-md-4 col-xs-4 padl0 marb20" style="padding-top:19px;">
 
 
             <!-- SECTIONS AREA -->
             <div class="top-padding-6">
-                <div class="col-md-12 bottom-padding-2 right-column-box">
+                <div class="row bottom-padding-2 right-column-box padr15 padl15">
 
                     <!-- USERNAME -->
                     <div class="info-column bot-border">
@@ -115,15 +114,15 @@
                     </div>
 
                     <!-- SAVE -->
-                    <div class="col-md-12 " ng-hide="isPreview()">
-                        <div class="row pointer" ng-click="saveExam(exam)">
+                    <div class="" ng-hide="isPreview()">
+                        <div class="pointer" ng-click="saveExam(exam)">
                             <a class="green_button save-and-exit">{{'sitnet_save_and_return_exam' | translate}}</a>
                         </div>
                     </div>
 
                     <!-- ABORT -->
-                    <div class="col-md-12 button-separator" ng-hide="isPreview()">
-                        <div class="row pointer" ng-click="abortExam(exam)">
+                    <div class="button-separator" ng-hide="isPreview()">
+                        <div class="pointer" ng-click="abortExam(exam)">
                             <a class="grey-button abort-and-exit">
                                 <img src="../../../assets/assets/images/icon_exit.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_exit.png'" /><span class="abort-and-exit">{{'sitnet_abort_exam' | translate}}</span>
                             </a>
@@ -132,11 +131,11 @@
                 </div>
 
                 <!-- COURSE NAME -->
-                <div class="col-md-12"><div class="more-separators"></div></div>
-                <div class="col-md-12 right-title">{{ exam.course.name }}</div>
+                <div class="padl15"><div class="more-separators"></div></div>
+                <div class="right-title">{{ exam.course.name }}</div>
 
                 <!-- ATTACHMENT -->
-                <div class="col-md-12" ng-show="exam.attachment" ng-controller="AttachmentController">
+                <div class="padl20" ng-show="exam.attachment" ng-controller="AttachmentController">
                     <div class="row pointer attachment-button" ng-click="downloadExamAttachment(exam)">
                         <a class="green_button left-floater">
                             {{'sitnet_exam_attachment' | translate}} <img src="../../../assets/assets/images/icon_attachment.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_attachment.png'" />
@@ -147,10 +146,10 @@
                 </div>
 
 
-                <div class="col-md-12 top-padding-2 bottom-padding-2" ng-include="sectionsBar"></div>
+                <div class="top-padding-2 bottom-padding-2 padl15" ng-include="sectionsBar"></div>
 
 
-                <div class="col-md-12 top-padding-2" ng-show="isPreview()">
+                <div class="top-padding-2" ng-show="isPreview()">
                     <div class="row pointer" ng-click="exitPreview(exam)">
                         <a class="col-md-1 fa-stack">
                             <i class="fa fa-stop-o fa-stack-2x"></i>
