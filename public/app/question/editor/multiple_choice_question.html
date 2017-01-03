@@ -3,12 +3,12 @@
         <div class="col-md-6 padl0">
             <span class="question-option-title">{{'sitnet_option' | translate}}</span>
             <span>
-            <i ng-if="!showWarning()" class="fa fa-exclamation-circle reddish"></i>
-            <small ng-if="!showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
+            <i ng-if="showWarning()" class="fa fa-exclamation-circle reddish"></i>
+            <small ng-if="showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
             </span>
         </div>
-        <div class="col-md-5">
-            {{'sitnet_word_points' | translate}}
+        <div class="col-md-5 question-option-title">
+            {{'sitnet_word_points' | translate | uppercase}}
         </div>
     </div>
 
