@@ -26,6 +26,14 @@
             <!-- search bar and search parameters -->
             <div ng-if="!addEditQuestion.showForm" ng-include="templates.librarySearch"></div>
 
+            <div ng-if="!addEditQuestion.showForm" class="col-md-12 padl0 padr0 marb20" ng-controller="ExamController">
+                <span class="pull-left marl20">
+                    <div class="library-button make-inline mart20 marr30 marl10"><a target="_self" class="pointer" ng-click="addQuestions()">
+                        {{'sitnet_add_chosen' | translate}}
+                    </a></div>
+                </span>
+            </div>
+
             <!-- resulting table with questions -->
             <div ng-if="!addEditQuestion.showForm" ng-include="templates.libraryResults"></div>
 
