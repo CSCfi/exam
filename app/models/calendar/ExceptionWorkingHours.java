@@ -2,17 +2,18 @@ package models.calendar;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import models.Exam;
 import models.ExamRoom;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Date;
 
 @Entity
-@DiscriminatorValue("ExceptionWorkingHours")
 public class ExceptionWorkingHours extends GeneratedIdentityModel {
 
     @Temporal(TemporalType.TIMESTAMP)

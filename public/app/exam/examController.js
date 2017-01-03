@@ -10,7 +10,7 @@
                       SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes, ExamSectionQuestionRes,
                       limitToFilter, enrolmentService) {
 
-                $scope.newExam = {};
+                $scope.loader = {loading: true};
                 $scope.createExamModel = {};
                 $scope.sectionDisplay = {visible: true};
                 $scope.autoevaluationDisplay = {visible: true};
@@ -157,14 +157,15 @@
                         $scope.typeSelected=true;
                         examService.createExam($scope.createExamModel.type.type);
                     }
-                }
+                };
 
                 var initializeExam = function () {
 
                     if($routeParams.create == 1) {
-                        // tullaan uusi tentti painikkeen kautta.
-                        // kysellään tiedot ennen tentin luontia.
+                        // new exam about to be created
+                        // need some user data before actually creating it
                         $scope.typeSelected=false;
+                        $scope.loader.loading = false;
                     }
                     else {
                         $scope.typeSelected=true;
@@ -218,6 +219,7 @@
                                 $scope.examFull = exam;
 
 
+                                $scope.loader.loading = false;
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -352,6 +354,29 @@
                     "exam": {
                         "id": $routeParams.id
                     }
+                };
+                $scope.newExaminationDate = {
+                    "date": new Date()
+                };
+
+                $scope.addExaminationDate = function(data) {
+                    var alreadyExists = $scope.newExam.examinationDates.map(function(ed) {
+                        return moment(ed.date).format("L")
+                    }).some(function (ed) {
+                        return ed == moment(data.date).format("L")
+                    });
+                    if (!alreadyExists) {
+                        ExamRes.examinationDate.create({eid: $scope.newExam.id, date: data.date}, function (data) {
+                            $scope.newExam.examinationDates.push(data);
+                        });
+                    }
+                };
+
+                $scope.removeExaminationDate = function (date) {
+                    ExamRes.examinationDate.delete({eid: $scope.newExam.id, edid: date.id}, function () {
+                        var i = $scope.newExam.examinationDates.indexOf(date);
+                        $scope.newExam.examinationDates.splice(i, 1);
+                    });
                 };
 
                 $scope.setExamOwner = function ($item, $model, $label) {
@@ -548,6 +573,10 @@
                     return examService.getExamGradeDisplayName(grade.name);
                 };
 
+                $scope.getExecutionTypeTranslation = function () {
+                    return examService.getExecutionTypeTranslation($scope.newExam.executionType.type);
+                };
+
                 var recreateSectionIndices = function () {
                     // set sections and question numbering
                     angular.forEach($scope.newExam.examSections, function (section, index) {
@@ -580,8 +609,7 @@
                 };
 
                 $scope.checkDuration = function (duration) {
-                    if (!$scope.newExam.duration) return "";
-                    return $scope.newExam.duration === duration ? "btn-primary" : "";
+                    return $scope.newExam && $scope.newExam.duration === duration ? "btn-primary" : "";
                 };
 
                 $scope.checkGradeScale = function (scale) {
@@ -592,7 +620,7 @@
                 };
 
                 $scope.getSelectableScales = function () {
-                    if (!$scope.examGradings || !$scope.newExam.course) {
+                    if (!$scope.examGradings || !$scope.newExam || !$scope.newExam.course) {
                         return [];
                     }
                     return $scope.examGradings.filter(function (scale) {
@@ -609,8 +637,11 @@
                 };
 
                 $scope.checkType = function (type) {
-                    if (!$scope.newExam.examType) return "";
-                    return $scope.newExam.examType.type === type ? "btn-primary" : "";
+                    return $scope.newExam && $scope.newExam.examType.type === type ? "btn-primary" : "";
+                };
+
+                $scope.checkQuestionSheetReturnPolicy = function (policy) {
+                    return $scope.newExam && $scope.newExam.questionSheetReturnPolicy === policy ? "btn-primary" : "";
                 };
 
                 $scope.setExamGradeScale = function (grading) {
@@ -620,6 +651,11 @@
 
                 $scope.setExamType = function (type) {
                     $scope.newExam.examType.type = type;
+                    $scope.updateExam();
+                };
+
+                $scope.setQuestionSheetReturnPolicy = function (policy) {
+                    $scope.newExam.questionSheetReturnPolicy = policy;
                     $scope.updateExam();
                 };
 
@@ -711,8 +747,10 @@
                         "enrollInstruction": $scope.newExam.enrollInstruction || "",
                         "state": $scope.newExam.state,
                         "shared": $scope.newExam.shared,
-                        "examActiveStartDate": new Date($scope.newExam.examActiveStartDate).getTime(),
-                        "examActiveEndDate": new Date($scope.newExam.examActiveEndDate).setHours(23, 59, 59, 999),
+                        "examActiveStartDate": $scope.newExam.examActiveStartDate ?
+                            new Date($scope.newExam.examActiveStartDate).getTime() : undefined,
+                        "examActiveEndDate": $scope.newExam.examActiveEndDate ?
+                            new Date($scope.newExam.examActiveEndDate).setHours(23, 59, 59, 999) : undefined,
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.gradeScale ? $scope.newExam.gradeScale.id : undefined,
                         "expanded": $scope.newExam.expanded,
@@ -724,6 +762,7 @@
                         } : null,
                         "trialCount": $scope.newExam.trialCount || undefined,
                         "subjectToLanguageInspection": $scope.newExam.subjectToLanguageInspection,
+                        "questionSheetReturnPolicy": $scope.newExam.questionSheetReturnPolicy,
                         "objectVersion": $scope.newExam.objectVersion
                     };
                     for (var k in overrides) {
@@ -748,6 +787,7 @@
                     resetGradeScale(exam);
                     resetAutoEvaluationConfig(overrideEvaluations);
                     recreateSectionIndices();
+                    $scope.updateTitle($scope.newExam);
                     $scope.newExam.examLanguages.forEach(function (language) {
                         // Use front-end language names always to allow for i18n etc
                         language.name = getLanguageNativeName(language.code);
@@ -776,17 +816,16 @@
                 $scope.previewExam = function () {
                     //First save the exam, so that
                     //we have something to preview
-                    var examId = $routeParams.id;
+                    // TODO: Is this really necessary anymore?
                     var examToSave = getUpdate();
 
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
-                        function (exam) {
-                            toastr.info($translate.instant("sitnet_exam_saved"));
+                        function () {
+                            var resource = $scope.newExam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
+                            $location.path("/exams/" + resource + "/" + $routeParams.id);
                         }, function (error) {
                             toastr.error(error.data);
                         });
-                    $location.url($location.path());
-                    $location.path("/exams/preview/" + examId);
                 };
 
                 // Called when Save button is clicked
@@ -874,8 +913,7 @@
 
                     // update the exam for possible changes before saving
                     $scope.updateExam(false,true);
-
-                    var err = $scope.publishSanityCheck($scope.newExam);
+                    var err = readyForPublishing($scope.newExam);
                     $scope.errors = err;
                     if (Object.getOwnPropertyNames(err) && Object.getOwnPropertyNames(err).length !== 0) {
 
@@ -936,7 +974,7 @@
                     return count;
                 };
 
-                $scope.publishSanityCheck = function (exam) {
+                var readyForPublishing = function (exam) {
 
                     var errors = {};
 
@@ -952,12 +990,16 @@
                         errors.name = $translate.instant('sitnet_error_exam_empty_exam_language');
                     }
 
-                    if (!$scope.newExam.examActiveStartDate) {
+                    var isPrintout = $scope.newExam.executionType.type === 'PRINTOUT';
+                    if (!isPrintout && !$scope.newExam.examActiveStartDate) {
                         errors.examActiveStartDate = $translate.instant('sitnet_exam_start_date_missing');
                     }
 
-                    if (!$scope.newExam.examActiveEndDate) {
+                    if (!isPrintout && !$scope.newExam.examActiveEndDate) {
                         errors.examActiveEndDate = $translate.instant('sitnet_exam_end_date_missing');
+                    }
+                    if (isPrintout && $scope.newExam.examinationDates.length == 0) {
+                        errors.examinationDates = $translate.instant('sitnet_examination_date_missing');
                     }
 
                     if (countQuestions() === 0) {
@@ -1190,7 +1232,7 @@
                 };
 
                 $scope.checkTrialCount = function (x) {
-                    return $scope.newExam.trialCount == x ? "btn-primary" : "";
+                    return $scope.newExam && $scope.newExam.trialCount == x ? "btn-primary" : "";
                 };
 
                 $scope.truncate = function (content, offset) {

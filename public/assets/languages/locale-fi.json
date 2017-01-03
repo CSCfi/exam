@@ -546,9 +546,7 @@
   "sitnet_no_attachments_to_archive": "Palautetuista, ei arvioiduista vastauksista ei löytynyt liitetiedostoja halutulla aikavälillä.",
   "sitnet_no_name": "EI NIMEÄ",
   "sitnet_public_exam": "Yleinen tentti",
-  "PUBLIC": "Yleinen tentti",
   "sitnet_private_exam": "Henkilökohtainen tentti",
-  "PRIVATE": "Henkilökohtainen tentti",
   "sitnet_exam_participants": "Osallistujat",
   "sitnet_add_exam_participant": "Lisää osallistuja",
   "sitnet_student_enrolled_to_exam": "Osallistuja lisätty tenttiin",
@@ -619,7 +617,6 @@
   "sitnet_filter_by_permission": "Suodata käyttäjäoikeuden perusteella",
   "sitnet_can_inspect_language": "Voi tehdä kielentarkastuksen",
   "sitnet_maturity": "Kypsyysnäyte",
-  "MATURITY": "Kypsyysnäyte",
   "sitnet_maturity_instructions": "Kypsyysnäyteohjeet",
   "sitnet_language_inspections": "Kielentarkastus",
   "sitnet_ongoing_language_inspections": "Tarkastettavat kypsyysnäytteet",
@@ -783,6 +780,13 @@
   "sitnet_library_choose": "Valitse tenttikysymykset",
   "sitnet_exam_no_result":"Haku ei palauttanut tenttejä",
   "sitnet_approve_maturity": "Hyväksy suoritus",
+  "sitnet_printout_exam": "Paperitentti",
+  "sitnet_allowed_tools": "Sallitut apuvälineet",
+  "sitnet_return_question_sheet": "Kysymyspaperi on palautettava",
+  "sitnet_examination_dates": "Tenttimispäivät",
+  "sitnet_print_attachment": "Lataa tentin liitetiedosto tulostusta varten",
+  "sitnet_print_attachment_reminder": "Tentillä on liitetiedosto, muistathan tulostaa sen erikseen.",
+  "sitnet_examination_date_missing": "Tenttimispäiviä ei määritelty"
   "sitnet_student_exam_search_result":"Tulokset",
   "sitnet_student_exam_search_result_continues":"kpl haulle"
 }

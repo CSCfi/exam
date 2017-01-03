@@ -43,6 +43,18 @@
                     });
                 };
 
+                var downloadUrl = function (url, filename, params) {
+                    var deferred = $q.defer();
+                    $http.get(url, {params: params}).success(function (data, status, headers) {
+                        var contentType = headers()['content-type'].split(';')[0];
+                        return deferred.resolve({url: 'data:' + contentType + ';base64, ' + data});
+                    }).error(function (error) {
+                        toastr.error(error.data || error);
+                        return deferred.reject();
+                    });
+                    return deferred.promise;
+                };
+
                 var open = function (file, filename) {
                     var reader = new FileReader();
                     reader.onload = function (e) {
@@ -124,6 +136,7 @@
 
                 return {
                     download: download,
+                    downloadUrl: downloadUrl,
                     upload: upload,
                     uploadAnswerAttachment: uploadAnswerAttachment,
                     getMaxFilesize: getMaxFilesize,

@@ -1,7 +1,7 @@
 <div>
     <div class="exam-border fixedheight">
 
-        <div class="middle-row">
+        < class="middle-row">
             <div class="col-md-12">
                 <div class="review-list-title">{{ 'sitnet_course_info' | translate }}
                 </div>
@@ -217,7 +217,12 @@
                     </div>
                 </div>
                 <div ng-hide="newExam.executionType.type==='MATURITY'" class="row col-md-12 margin-20">
-                    <div class="col-md-3 exam-basic-title">{{'sitnet_enroll_instruction' | translate}}
+                    <div ng-if="newExam.executionType.type!=='PRINTOUT'" class="col-md-3 exam-basic-title">
+                        {{'sitnet_enroll_instruction' | translate}}
+                    </div>
+                    <!-- Map these instructions to allowed tools in case of printout -->
+                    <div ng-if="newExam.executionType.type==='PRINTOUT'" class="col-md-3 exam-basic-title">
+                        {{'sitnet_allowed_tools' | translate}}
                     </div>
                     <div class="col-md-9">
                         <textarea class="form-control" rows="4" cols="150" ng-model="newExam.enrollInstruction"
@@ -226,8 +231,20 @@
                         </textarea>
                     </div>
                 </div>
-
             </div>
+            <div ng-show="newExam.executionType.type==='PRINTOUT'" class="row col-md-12 margin-20">
+                <div class="col-md-3 exam-basic-title">{{'sitnet_return_question_sheet' | translate}}
+                </div>
+                <div class="col-md-9">
+                    <button class="btn btn-review" ng-class="checkQuestionSheetReturnPolicy(true)"
+                            ng-click="setQuestionSheetReturnPolicy(true)">{{'DIALOGS_YES' | translate }}
+                    </button>&nbsp;
+                    <button class="btn btn-review" ng-class="checkQuestionSheetReturnPolicy(false)"
+                            ng-click="setQuestionSheetReturnPolicy(false)">{{'DIALOGS_NO' | translate }}
+                    </button>
+                </div>
+            </div>
+            
         </div>
     </div>
     <!-- Buttons -->

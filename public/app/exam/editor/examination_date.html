@@ -1,0 +1,39 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4><i class="sitnet-white">{{'sitnet_add_examination_date' | translate}}</i></h4>
+    </div>
+    <div class="modal-body" ng-controller="DatepickerCtrl">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="input-group">
+                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
+                           ng-model="data.examinationDate"
+                           is-open="startDateOpened" min="minDate"
+                           datepicker-options="dateOptions"
+                           close-text="{{'sitnet_close' | translate}}"
+                           current-text="{{'sitnet_today' | translate}}"
+                           toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                           clear-text="{{'sitnet_clear' | translate}}"
+                           date-validator
+                           required>
+
+                    <span class="input-group-btn">
+                        <button class="btn btn-default green" ng-click="openStartDate($event)">
+                            <img src="../../../assets/assets/images/reservation_calendar.svg" alt="exam"
+                                 onerror="this.onerror=null;this.src='../../../assets/assets/images/reservation_calendar.png'" />
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-3">
+            <button ng-click="cancel()" class="btn btn-danger">{{'sitnet_button_cancel' | translate}}</button>
+        </div>
+        <div class="col-md-3 col-md-offset-5">
+            <!--{{'sitnet_create_new' | translate}}-->
+            <button ng-click="ok()" class="btn btn-primary">{{'sitnet_button_save' | translate}}</button>
+        </div>
+    </div>
+</div>

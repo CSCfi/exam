@@ -14,12 +14,6 @@ import play.mvc.Result;
 
 public class ExamOwnerController extends BaseController {
 
-    /**
-     * returns exam owners. if exam is a child, return parent exam owners
-     *
-     * @param id parent exam id
-     * @return list of users
-     */
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamOwners(Long id) {
         Exam exam = Ebean.find(Exam.class).fetch("examOwners").where().idEq(id).findUnique();

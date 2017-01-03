@@ -11,13 +11,10 @@
                 $scope.tab0 = true;
                 $scope.tab1 = false;
                 $scope.tab2 = false;
-                $scope.tab3 = false;
 
-                if($routeParams.tab == 3) {
-                    $scope.tab3 = true;
-                }
+                $scope.tab3 = $routeParams.tab == 3;
 
-                $scope.templates = {
+                $scope.tabtemplates = {
                     reviewListPath: EXAM_CONF.TEMPLATES_PATH + "review/review_list.html",
                     examBasicPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_basic_info.html",
                     examQuestionsPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_questions.html",
@@ -25,7 +22,7 @@
                     examPublishSettingsPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_publish_settings.html"
                 };
 
-                ExamRes.exams.get({id: $routeParams.id}, function (exam) {
+                $scope.updateTitle = function(exam) {
                     if (exam.course && exam.course.code && exam.name) {
                         $scope.examInfo.title = exam.course.code + " " + exam.name;
                     }
@@ -35,6 +32,10 @@
                     else {
                         $scope.examInfo.title = exam.name;
                     }
+                };
+
+                ExamRes.exams.get({id: $routeParams.id}, function (exam) {
+                    $scope.updateTitle(exam);
                     $scope.examInfo.examOwners = exam.examOwners;
                     $scope.examFull = exam;
                 });

@@ -28,7 +28,7 @@
                     {{'sitnet_new_exam_type' | translate}}
                 </div>
                 <div class="col-md-9">
-                    <select ng-if="!newExam.id"
+                    <select ng-if="!loader.loading && !newExam.id"
                             id="createExam"
                             name="createExam"
                             class="form-control"
@@ -40,7 +40,7 @@
                         <option value="">{{'sitnet_choose' | translate}}
                         </option>
                     </select>
-                    <span ng-if="newExam.id">{{newExam.executionType.type | translate}}</span>
+                    <span ng-if="newExam.id">{{ getExecutionTypeTranslation() | translate}}</span>
                 </div>
             </div>
 
