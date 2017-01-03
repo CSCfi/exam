@@ -2,7 +2,7 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title">{{'sitnet_dashboard' | translate}}</div>
+                <div class="student-enroll-title marl20">{{'sitnet_dashboard' | translate}}</div>
             </div>
             <div class="teacher-toolbar" ng-include="templates.dashboardToolbarPath"></div>
 
@@ -11,10 +11,14 @@
 
     <div class="tab-wrapper">
         <uib-tabset active="active">
-            <uib-tab index="1" heading="{{ 'sitnet_active_exams_title' | translate }}">
+            <uib-tab index="1">
+                <uib-tab-heading><div class="make-inline">{{ 'sitnet_active_exams_title' | translate }}</div>
+                    <div class="make-inline tab-number">{{ activeExams.length }}</div></uib-tab-heading>
                 <div ng-include="templates.dashboardActiveExamsPath"></div>
             </uib-tab>
-            <uib-tab index="2" heading="{{ 'sitnet_finished_exams_title' | translate }}">
+            <uib-tab index="2">
+                <uib-tab-heading><div class="make-inline">{{ 'sitnet_finished_exams_title' | translate }}</div>
+                    <div class="make-inline tab-number">{{ finishedExams.length }}</div></uib-tab-heading>
                 <div ng-include="templates.dashboardFinishedExamsPath"></div>
             </uib-tab>
             <uib-tab index="3" heading="{{ 'sitnet_archived_teacher_exams_title' | translate }}">
