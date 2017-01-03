@@ -13,7 +13,7 @@
                 $scope.loader = {loading: true};
                 $scope.createExamModel = {};
                 $scope.sectionDisplay = {visible: true};
-                $scope.autoevaluationDisplay = {visible: true};
+                $scope.autoevaluationDisplay = {visible: false};
                 $scope.templates = {
                     basicInfo: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_basic_info.html",
                     section: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section.html",
