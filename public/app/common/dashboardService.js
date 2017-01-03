@@ -107,6 +107,16 @@
                     });
                 };
 
+                // Printout exams do not have an activity period but have examination dates.
+                // Produce a fake period for information purposes by selecting first and last examination dates.
+                var createFakeActivityPeriod = function (exam) {
+                    var dates = exam.examinationDates.map(function (es) {
+                        return es.date;
+                    });
+                    exam.examActiveStartDate = Math.min.apply(Math, dates);
+                    exam.examActiveEndDate = Math.max.apply(Math, dates);
+                };
+
                 var showTeacherDashboard = function () {
                     var scope = {};
                     var deferred = $q.defer();
@@ -124,6 +134,9 @@
                                 return periodOk || examinationDatesOk;
                             });
                             scope.activeExams.forEach(function (ae) {
+                                if (ae.executionType.type === 'PRINTOUT') {
+                                    createFakeActivityPeriod(ae);
+                                }
                                 ae.unassessedCount = examService.getReviewablesCount(ae);
                                 ae.unfinishedCount = examService.getGradedCount(ae);
                                 ae.reservationCount = reservationService.getReservationCount(ae);
@@ -153,6 +166,9 @@
                                     ee.unfinishedCount = unfinishedCount;
                                     scope.finishedExams.push(ee);
                                 } else {
+                                    if (ee.executionType.type === 'PRINTOUT') {
+                                        createFakeActivityPeriod(ee);
+                                    }
                                     ee.assessedCount = examService.getProcessedCount(ee);
                                     scope.archivedExams.push(ee);
                                 }

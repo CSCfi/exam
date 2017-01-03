@@ -35,12 +35,17 @@
                     <td class="table-column-open-until">{{ exam.examActiveStartDate | date:'dd.MM.yyyy' }} -
                         {{ exam.examActiveEndDate | date:'dd.MM.yyyy' }}
                     </td>
-                    <td class="table-column-enroll-participation"><a href="/exams/examTabs/{{exam.id}}/3">
-                        {{exam.unassessedCount}}</a></td>
-                    <td class="table-column-enroll-participation"><a href="/exams/examTabs/{{exam.id}}/3">
-                        {{exam.unfinishedCount}}</a></td>
-                    <td class="table-column-enroll-participation"><a href="/reservations/{{exam.id}}">
-                        {{ exam.reservationCount }}</a>
+                    <td class="table-column-enroll-participation">
+                        <a ng-if="exam.executionType.type !== 'PRINTOUT'" href="/exams/examTabs/{{exam.id}}/3">{{exam.unassessedCount}}</a>
+                        <div ng-if="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
+                    </td>
+                    <td class="table-column-enroll-participation">
+                        <a ng-if="exam.executionType.type !== 'PRINTOUT'" href="/exams/examTabs/{{exam.id}}/3">{{exam.unfinishedCount}}</a>
+                        <div ng-if="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
+                    </td>
+                    <td class="table-column-enroll-participation">
+                        <a ng-if="exam.executionType.type !== 'PRINTOUT'" href="/reservations/{{exam.id}}">{{ exam.reservationCount }}</a>
+                        <div ng-if="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
                     </td>
                     <td class="table-column-teachers">
                         <teacher-list exam="exam" />
