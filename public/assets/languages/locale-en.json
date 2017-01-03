@@ -786,7 +786,7 @@
   "sitnet_examination_dates": "Tenttimispäivät EN",
   "sitnet_print_attachment": "Lataa tentin liitetiedosto tulostusta varten EN",
   "sitnet_print_attachment_reminder": "Tentillä on liitetiedosto, muistathan tulostaa sen erikseen. EN",
-  "sitnet_examination_date_missing": "Tenttimispäiviä ei määritelty EN"
+  "sitnet_examination_date_missing": "Tenttimispäiviä ei määritelty EN",
   "sitnet_student_exam_search_result":"Tulokset EN",
   "sitnet_student_exam_search_result_continues":"kpl haulle EN"
 }

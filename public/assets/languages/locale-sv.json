@@ -786,7 +786,7 @@
   "sitnet_examination_dates": "Tenttimispäivät SV",
   "sitnet_print_attachment": "Lataa tentin liitetiedosto tulostusta varten SV",
   "sitnet_print_attachment_reminder": "Tentillä on liitetiedosto, muistathan tulostaa sen erikseen. SV",
-  "sitnet_examination_date_missing": "Tenttimispäiviä ei määritelty SV"
+  "sitnet_examination_date_missing": "Tenttimispäiviä ei määritelty SV",
   "sitnet_student_exam_search_result":"Tulokset SV",
   "sitnet_student_exam_search_result_continues":"kpl haulle SV"
 }
