@@ -1,15 +1,18 @@
 <div id="sitnet-dialog">
-    <div class="terms-dialog-header">
-        <h4><i class="sitnet-white">{{'sitnet_please_check_following_infos' | translate}}:</i></h4>
-    </div>
-    <div class="modal-body">
-        <p ng-repeat="error in errors">{{error}}</p>
-    </div>
-    <div class="modal-footer">
-        <div class="col-md-12 text-center">
-            <span ng-click="ok()" class="sitnet_red pointer">
-                <span><b>OK</b></span>
-            </span>
+    <div class="student-message-dialog-wrapper-padding">
+        <div class="student-enroll-dialog-wrap">
+            <div class="student-enroll-title">{{'sitnet_please_check_following_infos' |
+                translate}}</div>
+        </div>
+        <div class="modal-body">
+            <p ng-repeat="error in errors">{{error}}</p>
+        </div>
+        <div class="student-message-dialog-footer">
+            <div class="student-message-dialog-button-save">
+                <button class="btn btn-sm btn-primary" ng-click="ok()">
+                    {{'sitnet_button_ok' | translate}}
+                </button>
+            </div>
         </div>
     </div>
 </div>

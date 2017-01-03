@@ -1,5 +1,5 @@
-<!-- General info section container -->
-<div ng-controller="ExamController">
+<!-- Questions container -->
+<div>
 
     <div class="col-md-12 exam-border">
 
@@ -23,7 +23,6 @@
 
     <!-- Buttons -->
     <div class="col-md-12 padl0 padr0 marb20">
-
         <div class="review-attachment-button exam-questions-buttons"><a target="_self" class="pointer" ng-click="addNewSection()">
             <i class="fa sitnet-white fa-plus"></i>&nbsp;{{'sitnet_section_add' | translate}}
         </a></div>
@@ -34,20 +33,11 @@
             <div class="review-attachment-button exam-questions-buttons marl10"><a target="_self" class="pointer" ng-click="saveExam()">
                 {{'sitnet_save' | translate}}
             </a></div>
-            <div ng-hide="newExam.state === 'PUBLISHED'" class="review-attachment-button exam-questions-buttons marl10">
-                <a target="_self" class="pointer" ng-click="saveAndPublishExam()">
-                {{'sitnet_save_and_publish' | translate}}
-            </a></div>
-           <div ng-show="newExam.state === 'PUBLISHED' && newExam.executionType.type==='PUBLIC'"
-                class="review-attachment-button exam-questions-buttons marl10">
-               <a target="_self" class="pointer warning" ng-click="unpublishExam()">
-               {{'sitnet_unpublish_exam' | translate}}
-           </a></div>
-          <div ng-show="newExam.executionType.type==='PUBLIC'" class="review-attachment-button exam-questions-buttons marl10">
+            <div ng-show="newExam.executionType.type==='PUBLIC'" class="review-attachment-button exam-questions-buttons marl10">
               <a target="_self" class="pointer warning" ng-click="removeExam()">
                   {{'sitnet_exam_remove' | translate}}
-              </a></div>
-
+              </a>
+            </div>
         </span>
     </div>
 </div>

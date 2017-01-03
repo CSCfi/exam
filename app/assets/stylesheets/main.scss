@@ -153,6 +153,11 @@ label {
     padding-top: 11px;
     padding-bottom: 11px;
     margin-left: 10px;
+
+    &.nowdt {
+      width: inherit;
+    }
+
   }
 
   button:hover, button:active, button:focus, button:active:focus {
@@ -173,6 +178,11 @@ label {
     padding-left: 20px;
     padding-right: 20px;
     color:white;
+
+    &.nowdt {
+      width: inherit;
+    }
+
   }
 
   a:hover, button:active, button:focus, button:active:focus {

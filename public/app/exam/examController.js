@@ -21,7 +21,12 @@
                     library: EXAM_CONF.TEMPLATES_PATH + "question/library.html",
                     course: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_course.html",
                     sections: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_sections.html",
-                    autoEvaluation: EXAM_CONF.TEMPLATES_PATH + "exam/editor/autoevaluation.html"
+                    autoEvaluation: EXAM_CONF.TEMPLATES_PATH + "exam/editor/autoevaluation.html",
+                    reviewListPath: EXAM_CONF.TEMPLATES_PATH + "review/review_list.html",
+                    examBasicPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_basic_info.html",
+                    examQuestionsPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_questions.html",
+                    examMaterialsPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_materials.html",
+                    examPublishSettingsPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_publish_settings.html"
                 };
 
                 $scope.examTypes = [];
@@ -39,6 +44,17 @@
                         {name: 'NEVER', translation: 'sitnet_autoevaluation_release_type_never'}
                     ]
                 };
+
+                $scope.examInfo = {};
+                $scope.examFull = {};
+                $scope.tab0 = true;
+                $scope.tab1 = false;
+                $scope.tab2 = false;
+                $scope.tab3 = false;
+
+                if($routeParams.tab == 3) {
+                    $scope.tab3 = true;
+                }
 
                 var getReleaseTypeByName = function (name) {
                     var matches = $scope.autoevaluation.releaseTypes.filter(function (rt) {
@@ -188,6 +204,19 @@
                                     });
                                 }
                                 $scope.createExamModel.type = $scope.newExam.executionType;
+
+                                if (exam.course && exam.course.code && exam.name) {
+                                    $scope.examInfo.title = exam.course.code + " " + exam.name;
+                                }
+                                else if (exam.course && exam.course.code) {
+                                    $scope.examInfo.title = exam.course.code + " " + $translate.instant("sitnet_no_name");
+                                }
+                                else {
+                                    $scope.examInfo.title = exam.name;
+                                }
+                                $scope.examInfo.examOwners = exam.examOwners;
+                                $scope.examFull = exam;
+
 
                             },
                             function (error) {
@@ -725,13 +754,15 @@
                     });
                 };
 
-                $scope.updateExam = function (overrideEvaluations) {
+                $scope.updateExam = function (overrideEvaluations, dontShowDialog) {
 
                     var examToSave = getUpdate();
 
                     ExamRes.exams.update({id: $scope.newExam.id}, examToSave,
                         function (exam) {
-                            toastr.info($translate.instant("sitnet_exam_saved"));
+                            if(!dontShowDialog) {
+                                toastr.info($translate.instant("sitnet_exam_saved"));
+                            }
                             onUpdate(exam, overrideEvaluations);
                         }, function (error) {
                             if (error.data) {
@@ -840,6 +871,9 @@
 
                 // Called when Save and Publish button is clicked
                 $scope.saveAndPublishExam = function () {
+
+                    // update the exam for possible changes before saving
+                    $scope.updateExam(false,true);
 
                     var err = $scope.publishSanityCheck($scope.newExam);
                     $scope.errors = err;
