@@ -78,6 +78,8 @@
 
             /* Printout exam */
             $routeProvider.when('/exams/printout/:id', { templateUrl: tmpl + 'exam/printout/printout.html', controller: 'PrintoutController', controllerAs: 'ctrl'});
+            $routeProvider.when('/printouts', { templateUrl: tmpl + 'exam/printout/printouts.html', controller: 'PrintoutController', controllerAs: 'ctrl'});
+
 
             /* Language inspectors */
             $routeProvider.when('/inspections', { templateUrl: tmpl + 'maturity/dashboard.html', controller: 'LanguageInspectionCtrl'});

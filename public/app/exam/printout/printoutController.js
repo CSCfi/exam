@@ -6,28 +6,30 @@
 
                 var ctrl = this;
 
-                $http.get('/app/exampreview/' + $routeParams.id).success(function (data) {
-                    data.examSections.sort(function (a, b) {
-                        return a.sequenceNumber - b.sequenceNumber;
-                    });
-                    data.examSections.forEach(function (es) {
-                        es.sectionQuestions.filter(function (esq) {
-                            return esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer.answer;
-                        }).forEach(function (esq) {
-                            esq.clozeTestAnswer.answer = JSON.parse(esq.clozeTestAnswer.answer);
+                ctrl.viewPrintout = function () {
+                    $http.get('/app/exampreview/' + $routeParams.id).success(function (data) {
+                        data.examSections.sort(function (a, b) {
+                            return a.sequenceNumber - b.sequenceNumber;
                         });
-                    });
-                    data.examLanguages.forEach(function (l) {
-                        l.ord = ['fi', 'sv', 'en', 'de'].indexOf(l.code);
-                    });
-                    // set sections and question numbering
-                    angular.forEach(data.examSections, function (section, index) {
-                        section.index = index + 1;
-                    });
+                        data.examSections.forEach(function (es) {
+                            es.sectionQuestions.filter(function (esq) {
+                                return esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer.answer;
+                            }).forEach(function (esq) {
+                                esq.clozeTestAnswer.answer = JSON.parse(esq.clozeTestAnswer.answer);
+                            });
+                        });
+                        data.examLanguages.forEach(function (l) {
+                            l.ord = ['fi', 'sv', 'en', 'de'].indexOf(l.code);
+                        });
+                        // set sections and question numbering
+                        angular.forEach(data.examSections, function (section, index) {
+                            section.index = index + 1;
+                        });
 
-                    ctrl.exam = data;
+                        ctrl.exam = data;
 
-                });
+                    });
+                };
 
                 ctrl.getLanguageName = function (lang) {
                     var name;
@@ -82,6 +84,21 @@
                 ctrl.trustAsHtml = function (content) {
                     return $sce.trustAsHtml(content);
                 };
+
+                ctrl.listPrintouts = function () {
+                    $http.get('/app/exam/printouts').success(function (printouts) {
+                        printouts.forEach(function (printout) {
+                            var dates = printout.examinationDates.map(function (ed) {
+                                return ed.date;
+                            });
+                            dates.sort(function (a, b) {return a - b;});
+                            printout.examinationDatesAggregate = dates.map(function (d) {
+                                return moment(d).format("DD.MM.YYYY");
+                            }).join(", ");
+                        });
+                        ctrl.printouts = printouts;
+                    });
+                }
 
             }]);
 }());

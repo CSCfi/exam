@@ -61,10 +61,10 @@ POST          /app/exams/:eid/inspector/:uid                             control
 DELETE        /app/exams/inspector/:id                                   controllers.ExamInspectionController.deleteInspection(id: Long)
 PUT           /app/exams/inspection/:id                                  controllers.ExamInspectionController.updateInspection(id: Long)
 
-############### Examination date interface ###############
+############### Printout exam interface ###############
 POST          /app/exam/:id/examinationdate                              controllers.ExaminationDateController.insertExaminationDate(id: Long)
 DELETE        /app/exam/:id/examinationdate/:edid                        controllers.ExaminationDateController.removeExaminationDate(id: Long, edid: Long)
-
+GET           /app/exam/printouts                                        controllers.ExamController.listPrintouts
 
 
 ############### Exam record interface ###############

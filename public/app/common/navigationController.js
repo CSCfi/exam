@@ -76,6 +76,14 @@
                             icon_png: "icon_enrols.png"
                         },
                         {
+                            href: "/printouts",
+                            visible: (admin),
+                            class: "fa-print",
+                            name: "sitnet_printout_exams"
+                            //icon_svg: "icon_enrols.svg",
+                            //icon_png: "icon_enrols.png"
+                        },
+                        {
                             href: "/rooms",
                             visible: (admin),
                             class: "fa-building-o",

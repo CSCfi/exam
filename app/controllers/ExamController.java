@@ -87,6 +87,17 @@ public class ExamController extends BaseController {
         return ok(exams);
     }
 
+    @Restrict({@Group("ADMIN")})
+    public Result listPrintouts() {
+        List<Exam> printouts = Ebean.find(Exam.class).where()
+                .eq("executionType.type", ExamExecutionType.Type.PRINTOUT.toString())
+                .eq("state", Exam.State.PUBLISHED)
+                .gt("examinationDates.date", new Date())
+                .findList();
+        PathProperties pp = PathProperties.parse("(id, name, course(code), examinationDates(date), examOwners(firstName, lastName))");
+        return ok(printouts, pp);
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result listExams(Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds, Optional<List<Long>> tagIds) {
         User user = getLoggedUser();
