@@ -21,11 +21,17 @@
                     <div class="make-inline tab-number">{{ finishedExams.length }}</div></uib-tab-heading>
                 <div ng-include="templates.dashboardFinishedExamsPath"></div>
             </uib-tab>
-            <uib-tab index="3" heading="{{ 'sitnet_archived_teacher_exams_title' | translate }}">
+            <uib-tab index="3">
+                <uib-tab-heading><div class="make-inline">{{ 'sitnet_archived_teacher_exams_title' | translate }}</div>
+                    <div class="make-inline tab-number">{{ archivedExams.length }}</div>
+                </uib-tab-heading>
                 <div ng-include="templates.dashboardArchivedExamsPath"></div>
             </uib-tab>
-            <uib-tab index="4" heading="{{ 'sitnet_draft_exams' | translate }}">
-                <div ng-include="templates.dashboardExamsPath"></div>
+            <uib-tab index="4">
+                <uib-tab-heading><div class="make-inline">{{ 'sitnet_draft_exams' | translate }}</div>
+                    <div class="make-inline tab-number">{{ draftExams.length }}</div>
+                </uib-tab-heading>
+                <div ng-include="templates.dashboardDraftExamsPath"></div>
             </uib-tab>
         </uib-tabset>
     </div>

@@ -137,7 +137,7 @@ public class ExamController extends BaseController {
         User user = getLoggedUser();
         List<Exam> exams = query
                 .where()
-                .eq("state", Exam.State.PUBLISHED)
+                .in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT)
                 .disjunction()
                 .eq("examInspections.user", user)
                 .eq("examOwners", user)
@@ -347,15 +347,16 @@ public class ExamController extends BaseController {
     }
 
     private Optional<Result> updateTemporalFieldsAndValidate(Exam exam, JsonNode node, User user) {
+        Integer newDuration = node.get("duration").asInt();
         // For printout exams everything is allowed
         if (exam.isPrintout()) {
+            exam.setDuration(newDuration);
             return Optional.empty();
         }
         boolean hasFutureReservations = hasFutureReservations(exam);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
         Long start = parse("examActiveStartDate", node, Long.class);
         Long end = parse("examActiveEndDate", node, Long.class);
-        Integer newDuration = node.get("duration").asInt();
         if (start != null && start != 0) {
             Date newStart = new Date(start);
             if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newStart, exam, true)) {

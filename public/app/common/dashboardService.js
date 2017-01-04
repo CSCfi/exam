@@ -18,7 +18,7 @@
                         dashboardActiveExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/active_exams.html",
                         dashboardFinishedExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/finished_exams.html",
                         dashboardArchivedExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/archived_exams.html",
-                        dashboardExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/draft_exams.html"
+                        dashboardDraftExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/draft_exams.html"
                     };
                     var contentTemplatePath;
                     if (user.isStudent) {
@@ -124,6 +124,14 @@
                     examService.listExecutionTypes().then(function (types) {
                         scope.executionTypes = types;
                         ExamRes.reviewerExams.query(function (reviewerExams) {
+                            scope.draftExams = reviewerExams.filter(function (review) {
+                               return review.state === 'DRAFT' || review.state === 'SAVED';
+                            });
+                            scope.draftExams.forEach(function(de) {
+                                de.ownerAggregate = de.examOwners.map(function (o) {
+                                    return o.firstName + " " + o.lastName;
+                                }).join();
+                            });
 
                             scope.activeExams = reviewerExams.filter(function (review) {
                                 var periodOk = review.executionType.type !== 'PRINTOUT' &&
@@ -152,7 +160,7 @@
                                     (Date.now() > new Date(review.examActiveEndDate) ||
                                     !participationsInFuture(review));
                                 var examinationDatesOk = review.executionType.type === 'PRINTOUT' &&
-                                        !hasUpcomingExaminationDates(review)
+                                        !hasUpcomingExaminationDates(review);
                                 return periodOk || examinationDatesOk;
                             });
                             endedExams.forEach(function (ee) {

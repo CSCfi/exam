@@ -50,11 +50,9 @@
                 $scope.tab0 = true;
                 $scope.tab1 = false;
                 $scope.tab2 = false;
-                $scope.tab3 = false;
 
-                if($routeParams.tab == 3) {
-                    $scope.tab3 = true;
-                }
+
+                $scope.tab3 = $routeParams.tab == 3;
 
                 var getReleaseTypeByName = function (name) {
                     var matches = $scope.autoevaluation.releaseTypes.filter(function (rt) {
@@ -1158,7 +1156,7 @@
                 function getQuestionScore(question) {
                     var evaluationType = question.evaluationType;
                     var type = question.question.type;
-                    if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion') {
+                    if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion' || type === 'ClozeTestQuestion') {
                         return question.maxScore;
                     }
                     if (type === 'WeightedMultipleChoiceQuestion') {
