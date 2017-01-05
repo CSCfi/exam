@@ -424,7 +424,7 @@ public class ExamController extends BaseController {
             exam.setEnrollInstruction(enrollInstruction);
         }
         if (node.has("examType")) {
-            String examType = parse("examType", node, String.class);
+            String examType = parse("type", node.get("examType"), String.class);
             ExamType eType = Ebean.find(ExamType.class)
                     .where()
                     .eq("type", examType)
