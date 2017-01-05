@@ -732,16 +732,8 @@
   }
 
   .tab-number {
-
-    color: #fff;
-    background: #ED4459;
-    -moz-border-radius: 50%;
-    -webkit-border-radius: 50%;
-    border-radius: 50%;
-    border:0px;
-    margin-left: 10px;
-    width: 25px;
-    height: 25px;
+    @extend .badge;
+    background-color: #ED4459 !important;
   }
 
   .tab-wrapper-exams {
