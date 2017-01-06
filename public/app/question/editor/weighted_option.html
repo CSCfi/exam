@@ -1,10 +1,6 @@
 <div class="col-md-12 form-horizontal question-editor-option">
 
-    <div class="col-md-1">
-        <input name="correctOption" type="checkbox" class="question-option-radio">
-    </div>
-
-    <div class="col-md-6">
+    <div class="col-md-7">
         <input id="optionText" type="text" focus-on="opt{{option.id}}" class="question-option-input"
            ng-model="option.option"
            ng-click="selectIfDefault(option.option, $event)"
