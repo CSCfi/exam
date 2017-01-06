@@ -1,4 +1,18 @@
 <div class="student-enrolment-wrapper review-view">
+
+    <!-- question points -->
+    <div class="review-points-exam" ng-if="sectionQuestion.evaluationType === 'Points'
+                 || sectionQuestion.question.type === 'ClozeTestQuestion'
+                 || sectionQuestion.question.type === 'MultipleChoiceQuestion'">
+        0 / {{ sectionQuestion.maxScore }} {{ 'sitnet_unit_points' | translate }}
+    </div>
+    <div class="review-points-exam" ng-if="sectionQuestion.evaluationType === 'Selection'">
+        {{ 'sitnet_evaluation_select' | translate }}
+    </div>
+    <div class="review-points-exam" ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
+        0 / {{ calculateMaxPoints(sectionQuestion) }} {{ 'sitnet_unit_points' | translate }}
+    </div>
+
     <!-- Question -->
     <div class="marl10 make-inline">
         <div class="review-question-title make-inline" ng-bind-html="trustAsHtml(sectionQuestion.question.question)"
@@ -29,6 +43,7 @@
 
     </div>
 
+
     <div class="col-md-12" ng-show="sectionQuestion.expanded">
         <img ng-if="sectionQuestion.answerInstructions.length > 0" src="../../../assets/assets/images/icon_info.png"
              alt="exam"
@@ -57,17 +72,5 @@
                 <span class="exam-question-option-text pull-right">{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
             </li>
         </ul>
-        <!-- question points -->
-        <div class="review-points pull-left" ng-if="sectionQuestion.evaluationType === 'Points'
-                 || sectionQuestion.question.type === 'ClozeTestQuestion'
-                 || sectionQuestion.question.type === 'MultipleChoiceQuestion'">
-            0 / {{ sectionQuestion.maxScore }} {{ 'sitnet_unit_points' | translate }}
-        </div>
-        <div class="review-points pull-left" ng-if="sectionQuestion.evaluationType === 'Selection'">
-            {{ 'sitnet_evaluation_select' | translate }}
-        </div>
-        <div class="review-points pull-left" ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
-            0 / {{ calculateMaxPoints(sectionQuestion) }} {{ 'sitnet_unit_points' | translate }}
-        </div>
     </div>
 </div>
