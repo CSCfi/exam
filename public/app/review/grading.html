@@ -1,4 +1,4 @@
-<div class="detail-row marb20">
+<div class="detail-row">
     <div class="col-md-2 general-info-title">{{'sitnet_total_score' | translate}}:</div>
     <div class="col-md-4 general-info-content">{{getExamTotalScore(exam)}} / {{
         getExamMaxPossibleScore(exam) }}
@@ -19,6 +19,15 @@
         </span>
     </div>
 </div>
+<div ng-if="acceptedEssays > 0 || rejectedEssays > 0" class="detail-row marb20">
+    <div class="col-md-2 general-info-title">{{ 'sitnet_approved' | translate }} / {{ 'sitnet_rejected' | translate }}:</div>
+    <div class="col-md-4 general-info-content">{{ acceptedEssays }} / {{ rejectedEssays }}
+    </div>
+    <div class="col-md-2 general-info-title">&nbsp;</div>
+    <div class="col-md-4 general-info-content">&nbsp;</div>
+</div>
+<div ng-if="acceptedEssays == 0 || rejectedEssays == 0">&nbsp;</div>
+
 <div class="detail-row marb20">
     <div class="col-md-2 general-info-title">{{'sitnet_exam_owners' | translate}}:</div>
     <div class="col-md-4 general-info-content"><span ng-if="exam.parent.examOwners.length > 0" class="pull-left col-md-12 row"
@@ -31,14 +40,6 @@
         <span ng-repeat="inspection in inspections">
                 {{ inspection.user.firstName }} {{ inspection.user.lastName }}
         </span>
-    </div>
-</div>
-<div class="detail-row marb20">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_approved' | translate }}:</div>
-    <div class="col-md-4 general-info-content">{{ acceptedEssays }}
-    </div>
-    <div class="col-md-2 general-info-title">{{ 'sitnet_rejected' | translate }}:</div>
-    <div class="col-md-4 general-info-content">{{ rejectedEssays }}
     </div>
 </div>
 <div class="detail-row marb20" ng-if="hasEssayQuestions">
