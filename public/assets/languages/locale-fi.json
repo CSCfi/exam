@@ -300,7 +300,7 @@
   "sitnet_unknown_question_type": "Tuntematon kysymystyyppi",
   "sitnet_comment_updated": "Kommentti päivitetty",
   "sitnet_comment_added": "Kommentti lisätty",
-  "sitnet_review_recorded": "Suoritus kirjattu",
+  "sitnet_review_recorded": "Suoritus lukittu",
   "sitnet_remove_machine": "Poistetaanko tenttikone?",
   "sitnet_machine_removed": "Tenttikone poistettu",
   "sitnet_machine_updated": "Tenttikoneen tiedot päivitetty",
