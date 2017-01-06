@@ -13,8 +13,14 @@
 
     <div id="question-editor">
         <div ng-repeat="option in newQuestion.options" ng-include="newOptionTemplate" />
-        <div ng-click="addNewOption(newQuestion)" class="attachment-link pointer">
+
+        <div class="col-md-12 form-horizontal question-editor-option">
+            <div class="col-md-7">&nbsp;</div>
+            <div class="col-md-5 question-option-title">{{'sitnet_max_score' | translate | uppercase}}: {{calculateDefaultMaxPoints(newQuestion)}}</div>
+        </div>
+
+        <a ng-click="addNewOption(newQuestion)" class="attachment-link pointer">
             <i class="fa fa-plus"></i>
             {{'sitnet_question_add_new_option'|translate}}
-        </div>
+        </a>
     </div>

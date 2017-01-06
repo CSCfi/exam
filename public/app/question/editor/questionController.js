@@ -126,6 +126,10 @@
                     return questionService.calculateMaxPoints(question);
                 };
 
+                $scope.calculateDefaultMaxPoints = function (question) {
+                    return questionService.calculateDefaultMaxPoints(question);
+                };
+
                 $scope.deleteQuestion = function () {
                     var confirmation = $scope.newQuestion.state === 'NEW' ?
                         'sitnet_confirm_question_removal' :
