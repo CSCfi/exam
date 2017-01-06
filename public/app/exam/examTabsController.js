@@ -2,9 +2,12 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('ExamTabsController', ['$filter', 'dialogs', '$scope', '$q', '$route', '$routeParams',
-            '$location', '$translate', 'ExamRes', 'dateService', 'examService', 'examReviewService', 'fileService', '$uibModal', 'EXAM_CONF',
+            '$location', '$translate', 'ExamRes', 'dateService', 'examService', 'examReviewService', 'fileService',
+             '$uibModal', 'EXAM_CONF', 'sessionService',
             function ($filter, dialogs, $scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService,
-                      examService, examReviewService, fileService, $modal, EXAM_CONF) {
+                      examService, examReviewService, fileService, $modal, EXAM_CONF, sessionService) {
+
+                $scope.user = sessionService.getUser();
 
                 $scope.examInfo = {};
                 $scope.examFull = {};
@@ -38,8 +41,17 @@
                     $scope.updateTitle(exam);
                     $scope.examInfo.examOwners = exam.examOwners;
                     $scope.examFull = exam;
+                    $scope.isOwner = filterOwners($scope.user.id, $scope.examInfo)
                 });
 
+                var filterOwners = function (userId, exam) {
+
+                    var owner = exam.examOwners.filter(function (own) {
+                        return (own.id === userId);
+                    });
+                    if(owner.length > 0) { return true; }
+                    return false;
+                };
 
             }
         ]);

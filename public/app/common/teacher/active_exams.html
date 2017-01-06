@@ -12,22 +12,34 @@
             <table class="table table-striped exams-table">
                 <thead ng-init="activePredicate = 'examActiveEndDate'">
                 <tr>
-                    <th sort-exam by="name" text="sitnet_exam_name" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort-exam by="executionType.type" text="sitnet_exam_type" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort-exam by="examActiveEndDate" text="sitnet_exam_validity" predicate="activePredicate" reverse="reverse" ></th>
-                    <th sort-exam by="unassessedCount" text="sitnet_participation_unreviewed" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort-exam by="unfinishedCount" text="sitnet_participation_unfinished" predicate="activePredicate" reverse="reverse"></th>
-                    <th sort-exam by="reservationCount" text="sitnet_dashboard_title_waiting_reservation" predicate="activePredicate" reverse="reverse" ></th>
-                    <th sort-exam by="ownerAggregate" text="sitnet_teachers" predicate="activePredicate" reverse="reverse" ></th>
+                    <th class="with-top" sort-exam by="name" text="sitnet_exam_name" predicate="activePredicate" reverse="reverse"></th>
+                    <th class="with-top" sort-exam by="executionType.type" text="sitnet_exam_type" predicate="activePredicate" reverse="reverse"></th>
+                    <th class="with-top" sort-exam by="examActiveEndDate" text="sitnet_exam_validity" predicate="activePredicate" reverse="reverse" ></th>
+                    <th class="with-top" sort-exam by="unassessedCount" text="sitnet_participation_unreviewed" predicate="activePredicate" reverse="reverse"></th>
+                    <th class="with-top with-space" sort-exam by="unfinishedCount" text="sitnet_participation_unfinished" predicate="activePredicate" reverse="reverse"></th>
+                    <th class="with-top with-space" sort-exam by="reservationCount" text="sitnet_dashboard_title_waiting_reservation" predicate="activePredicate" reverse="reverse" ></th>
+                    <th class="with-top" sort-exam by="ownerAggregate" text="sitnet_teachers" predicate="activePredicate" reverse="reverse" ></th>
                     <th>&nbsp;</th>
                     <th>&nbsp;</th>
                 </tr>
                 </thead>
 
                 <tbody>
-                <tr ng-repeat="exam in activeExams | orderBy:activePredicate:reverse | filter:filtertext as resAct">
-                    <td ng-if="exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
-                        {{ exam.name }}</a><br/><span class="exam-code">{{ exam.course.code }}</span></td>
+                <tr ng-repeat="exam in activeExams | orderBy:activePredicate:reverse | filter:filtertext as resAct"
+                    ng-init="isOwner=filterOwners(user.id, exam)"
+                    ng-show="isOwner || (!isOwner && exam.unassessedCount > 0)">
+
+                    <td ng-if="exam.name" class="table-column-examname">
+
+                        <a ng-if="isOwner" href="/exams/examTabs/{{exam.id}}/1">
+                            {{ exam.name }}</a>
+                        <span ng-if="!isOwner">
+                            {{ exam.name }}</span>
+
+                        <br/><span class="exam-code">{{ exam.course.code }}</span>
+
+                    </td>
+
                     <td ng-if="!exam.name" class="table-column-examname">
                         <span class="text-danger">{{'sitnet_no_name' | translate}}</span>
                     </td>
@@ -40,7 +52,10 @@
                         <div ng-if="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
                     </td>
                     <td class="table-column-enroll-participation">
-                        <a ng-if="exam.executionType.type !== 'PRINTOUT'" href="/exams/examTabs/{{exam.id}}/3">{{exam.unfinishedCount}}</a>
+                        <span class="exam-count">
+                            <a ng-if="isOwner && exam.executionType.type !== 'PRINTOUT'" href="/exams/examTabs/{{exam.id}}/3">{{exam.unfinishedCount}}</a>
+                            <span ng-if="!isOwner && exam.executionType.type !== 'PRINTOUT'" class="exam-count-not-active">{{exam.unfinishedCount}}</span>
+                        </span>
                         <div ng-if="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
                     </td>
                     <td class="table-column-enroll-participation">
@@ -51,12 +66,12 @@
                         <teacher-list exam="exam" />
                     </td>
                     <td class="text-center">
-                        <a ng-click="deleteExam(exam)" class="pointer">
+                        <a ng-if="isOwner" ng-click="deleteExam(exam)" class="pointer">
                             <img src="../../../assets/assets/images/icon_trashcan.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_trashcan.png'" />
                         </a>
                     </td>
                     <td class="text-center">
-                        <span class="dropdown pointer" uib-dropdown>
+                        <span ng-if="isOwner" class="dropdown pointer" uib-dropdown>
                             <a href class="dropdown-toggle" uib-dropdown-toggle>
                                 <img src="../../../assets/assets/images/icon_copy.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_copy.png'" />
                             </a>

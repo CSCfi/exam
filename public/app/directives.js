@@ -399,7 +399,7 @@
                 transclude: false,
                 template: '<div>' +
                 '<span ng-repeat="owner in exam.examOwners">' +
-                '{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}' +
+                '<strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>' +
                 '</span>' +
                 '<span ng-repeat="inspection in exam.examInspections">{{$first ? ", " : "";}}' +
                 '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +

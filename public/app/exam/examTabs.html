@@ -16,9 +16,10 @@
             </span>
         </div>
     </div>
+
     <div class="tab-wrapper-exams" ng-controller="ExamController">
         <uib-tabset>
-            <uib-tab index="0" active="tab0" heading="{{ 'sitnet_exam_basic_information_tab' | translate }}">
+            <uib-tab ng-show="isOwner" index="0" active="tab0" heading="{{ 'sitnet_exam_basic_information_tab' | translate }}">
                 <div ng-include="tabtemplates.examBasicPath"></div>
             </uib-tab>
             <!--
@@ -26,10 +27,10 @@
                 <div ng-include="templates.examMaterialsPath"></div>
             </uib-tab>
             -->
-            <uib-tab index="1" active="tab1" heading="{{ 'sitnet_exam_question_tab' | translate }}">
+            <uib-tab ng-show="isOwner" index="1" active="tab1" heading="{{ 'sitnet_exam_question_tab' | translate }}">
                 <div ng-include="tabtemplates.examQuestionsPath"></div>
             </uib-tab>
-            <uib-tab index="2" active="tab2" heading="{{ 'sitnet_exam_publish_tab' | translate }}">
+            <uib-tab ng-show="isOwner" index="2" active="tab2" heading="{{ 'sitnet_exam_publish_tab' | translate }}">
                 <div ng-include="tabtemplates.examPublishSettingsPath"></div>
             </uib-tab>
             <uib-tab ng-if="newExam.executionType.type !== 'PRINTOUT'" index="3" active="tab3" heading="{{ 'sitnet_exam_responses' | translate }}">

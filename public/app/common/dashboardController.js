@@ -17,6 +17,7 @@
                 $scope.showEval = 0;
                 $scope.filtertext = '';
 
+
                 $scope.printExamDuration = function (exam) {
                     return dateService.printExamDuration(exam);
                 };
@@ -50,7 +51,6 @@
                 };
 
                 $scope.addEnrolmentInformation = function (enrolment) {
-                    console.log('clicked');
                     enrolmentService.addEnrolmentInformation(enrolment);
                 };
 
@@ -116,7 +116,6 @@
                 $scope.copyExam = function (exam, type) {
                     ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
                         toastr.success($translate.instant('sitnet_exam_copied'));
-                        console.log('id: ' + copy.id);
                         $location.path("/exams/examTabs/"+copy.id+"/1/");
                     }, function (error) {
                         toastr.error(error.data);
@@ -144,6 +143,13 @@
                     });
                 };
 
+                $scope.filterOwners = function (userId, exam) {
+                    var owner = exam.examOwners.filter(function (own) {
+                        return (own.id === userId);
+                    });
+                    if(owner.length > 0) { return true; }
+                    return false;
+                };
 
             }]);
 }());
