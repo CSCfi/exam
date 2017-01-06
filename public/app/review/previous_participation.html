@@ -1,3 +1,4 @@
+<div ng-hide="participation.id == userInfo.id">
     <div class="col-md-2 general-info-title ">{{participation.started |
         date:'dd.MM.yyyy' }}</div>
     <div class="col-md-2">
@@ -13,3 +14,9 @@
     <div class="col-md-4 sitnet-info-text-compact" ng-show="participation.exam.state === 'ABORTED'">
         &nbsp;
     </div>
+</div>
+<span ng-show="previousParticipations.length === 1 && participation.id == userInfo.id" class="padl15 sitnet-info-text-compact">
+    <img src="../../../assets/assets/images/icon_info.svg" alt="exam"
+         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'" />
+    <span class="padl10 notice-text">{{'sitnet_exam_no_previous_participations' | translate}}</span>
+</span>
