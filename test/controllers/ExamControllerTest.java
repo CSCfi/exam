@@ -37,8 +37,8 @@ public class ExamControllerTest extends IntegrationTestCase {
     public void testGetActiveExams() {
         // Setup
         List<Exam> activeExams = Ebean.find(Exam.class).where()
-                .eq("creator.id", userId).eq("state", Exam.State.PUBLISHED).findList();
-        activeExams.stream().forEach(e -> {
+                .eq("creator.id", userId).in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT).findList();
+        activeExams.forEach(e -> {
             e.getExamOwners().add(e.getCreator());
             e.update();
         });
