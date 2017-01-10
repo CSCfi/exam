@@ -25,8 +25,9 @@
             <form role="form" class="form-horizontal" name="questionForm" novalidate>
                 <div ng-include="bodyTemplate"></div>
             </form>
+
             <!-- buttons -->
-            <div class="mart20">
+            <div ng-if="!fromDialog" class="mart20">
                 <div class="question-cancel">
                     <button ng-disabled="!questionForm.$valid" ng-click="saveQuestion()"
                             type="submit" class="btn btn-success bigbutton">{{'sitnet_save' | translate}}
@@ -37,12 +38,23 @@
                         {{'sitnet_button_cancel' | translate}}
                     </button>
                 </div>
-
-
             </div>
+
+            <div ng-if="fromDialog" class="mart20">
+                <div class="question-cancel">
+                    <button ng-disabled="!questionForm.$valid" ng-click="clearListeners(); submit(newQuestion, sectionQuestion)"
+                            type="submit" class="btn btn-success bigbutton">{{'sitnet_save' | translate}}
+                    </button>
+                </div>
+                <div class="question-cancel marr20">
+                    <button ng-click="clearListeners(); cancelEdit();" type="submit" class="btn btn-cancel pull-right bigbutton">
+                        {{'sitnet_button_cancel' | translate}}
+                    </button>
+                </div>
+            </div>
+
+
         </div>
-
     </div>
-
 
 </div>

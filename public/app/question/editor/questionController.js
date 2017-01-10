@@ -161,6 +161,7 @@
                     clearListeners();
                     if(angular.isDefined($scope.libCtrl)) {
                         $scope.addEditQuestion.showForm = false;
+                        $scope.addEditQuestion.id = null;
                     }
                     else {
                         $location.path('/questions');
@@ -174,13 +175,16 @@
                     routingWatcher();
                 };
 
-                $scope.saveQuestion = function () {
+                $scope.saveQuestion = function (isDialog) {
+
                     var successFn = function () {
                         clearListeners();
 
                         if(angular.isDefined($scope.libCtrl)) {
                             $scope.addEditQuestion.showForm = false;
+                            $scope.addEditQuestion.id = null;
                             $rootScope.$emit('questionAdded');
+                            $modalInstance.dismiss("done");
                         }
                         else {
                             $location.path('/questions');
@@ -193,6 +197,7 @@
                         update(true).then(successFn, errFn);
                     } else {
                         create().then(successFn, errFn);
+
                     }
                 };
 
@@ -349,10 +354,22 @@
                 }
 
                 // Action
-
                 if($routeParams.create == 1) {
                     // create new question from library list or dashboard
                     $scope.typeSelected=false;
+                }
+                else if($scope.baseQuestionId && $scope.fromDialog) {
+
+                    // Another one, when coming straight from questions tab in exam
+                    var id = $scope.baseQuestionId || $routeParams.id;
+                    QuestionRes.questions.get({id: id},
+                        function (question) {$scope.newQuestion = question;
+                            initQuestion();
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
                 }
                 else if(($scope.baseQuestionId || $routeParams.id) && $routeParams.tab != 1 ) {
                     // Edit saved question from library list or dashboard

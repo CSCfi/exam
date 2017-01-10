@@ -14,7 +14,7 @@
     <div id="question-editor">
         <div ng-repeat="option in newQuestion.options" ng-include="newOptionTemplate" />
 
-        <div class="col-md-12 form-horizontal question-editor-option">
+        <div ng-show="newQuestion.type == 'WeightedMultipleChoiceQuestion'" class="col-md-12 form-horizontal question-editor-option">
             <div class="col-md-7">&nbsp;</div>
             <div class="col-md-5 question-option-title">{{'sitnet_max_score' | translate | uppercase}}: {{calculateDefaultMaxPoints(newQuestion)}}</div>
         </div>

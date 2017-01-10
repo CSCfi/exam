@@ -50,9 +50,9 @@
                 $scope.tab0 = true;
                 $scope.tab1 = false;
                 $scope.tab2 = false;
-
-
                 $scope.tab3 = $routeParams.tab == 3;
+                $scope.fromDialog = false;
+
 
                 var getReleaseTypeByName = function (name) {
                     var matches = $scope.autoevaluation.releaseTypes.filter(function (rt) {
@@ -1305,20 +1305,31 @@
                         } else {
                             // Edit distributed question
                             var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+
+                                $scope.lotteryOn = section.lotteryOn;
+                                $scope.fromDialog = true;
+                                $scope.addEditQuestion = {};
+                                $scope.addEditQuestion.id = 0;
+                                $scope.addEditQuestion.showForm=true;
+
                                 // Copy so we won't mess up the scope in case user cancels out in the middle of editing
                                 $scope.sectionQuestion = angular.copy(sectionQuestion);
-                                $scope.lotteryOn = section.lotteryOn;
+                                $scope.addEditQuestion.id = $scope.sectionQuestion.question.id;
+                                $scope.baseQuestionId = $scope.sectionQuestion.question.id;
 
                                 $scope.submit = function (baseQuestion, examQuestion) {
-                                    questionService.updateDistributedExamQuestion(baseQuestion, examQuestion).then(function (esq) {
+
+                                   questionService.updateDistributedExamQuestion(baseQuestion, examQuestion).then(function (esq) {
                                         toastr.info($translate.instant("sitnet_question_saved"));
                                         $modalInstance.close(esq);
                                         window.onbeforeunload = null;
+                                        $scope.addEditQuestion.id = null;
                                     });
                                 };
 
                                 $scope.cancelEdit = function () {
                                     $modalInstance.dismiss();
+                                    $scope.addEditQuestion.id = null;
                                     window.onbeforeunload = null;
                                 };
 
@@ -1381,10 +1392,16 @@
                             $scope.baseQuestionId = question.id;
                         }
 
+                        $scope.fromDialog = true;
+                        $scope.addEditQuestion = {};
+                        $scope.addEditQuestion.id = 0;
+                        $scope.addEditQuestion.showForm=true;
+
                         var saveQuestion = function (baseQuestion) {
                             var errFn = function (error) {
                                 toastr.error(error.data);
                             };
+
                             if (!question) {
                                 // Create new base question
                                 questionService.createQuestion(baseQuestion).then(function (newQuestion) {
@@ -1408,10 +1425,12 @@
 
                         $scope.submit = function (baseQuestion) {
                             saveQuestion(baseQuestion);
+                            $scope.addEditQuestion.id = null;
                         };
 
                         $scope.cancelEdit = function () {
                             // Well this is nice now :)
+                            $scope.addEditQuestion.id = null;
                             $modalInstance.dismiss("Cancelled");
                         };
 

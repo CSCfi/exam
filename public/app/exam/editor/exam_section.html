@@ -87,8 +87,13 @@
                 ng-repeat="sectionQuestion in section.sectionQuestions | orderBy:sequenceNumber">
             </li>
         </ul>
-        <div class="create-new pointer mart30" ng-click="openLibrary(section)">
-            <i class="fa fa-2x fa-plus-circle padl10 greenish"></i> <span class="library-add">{{'sitnet_add_from_library'|translate}}</span>
-        </div>
+        <div class="review-attachment-button exam-questions-buttons marl30 mart20"><a target="_self" class="pointer" ng-click="openLibrary(section)">
+            <i class="fa sitnet-white fa-plus"></i>&nbsp;{{'sitnet_add_from_library' | translate}}
+        </a></div>
+
+        <div class="review-attachment-button exam-questions-buttons marl30 mart20"><a target="_self" class="pointer" ng-click="addNewQuestion(section, null)">
+            <i class="fa sitnet-white fa-plus"></i>&nbsp;{{'sitnet_exam_new_question' | translate}}
+        </a></div>
+
     </div>
 </div>

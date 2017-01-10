@@ -789,5 +789,6 @@
   "sitnet_examination_date_missing": "Tenttimispäiviä ei määritelty SV",
   "sitnet_student_exam_search_result":"Tulokset SV",
   "sitnet_student_exam_search_result_continues":"kpl haulle SV",
-  "sitnet_printout_exams": "Paperitentit SV"
+  "sitnet_printout_exams": "Paperitentit SV",
+  "sitnet_exam_new_question": "Lisää uusi kysymys SV"
 }
