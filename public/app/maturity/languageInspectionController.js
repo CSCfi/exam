@@ -123,9 +123,9 @@
                 };
 
                 $scope.toggleReviewed = function () {
-                    if ($scope.processedInspections && $scope.processedInspections.length > 0) {
+                    //if ($scope.processedInspections && $scope.processedInspections.length > 0) {
                         $scope.toggleReviewedVisibility = !$scope.toggleReviewedVisibility;
-                    }
+                    //}
                 };
 
                 //toggleReviewed():
