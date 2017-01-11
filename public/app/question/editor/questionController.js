@@ -184,7 +184,6 @@
                             $scope.addEditQuestion.showForm = false;
                             $scope.addEditQuestion.id = null;
                             $rootScope.$emit('questionAdded');
-                            $modalInstance.dismiss("done");
                         }
                         else {
                             $location.path('/questions');

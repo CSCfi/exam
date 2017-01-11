@@ -42,12 +42,12 @@
 
             <div ng-if="fromDialog" class="mart20">
                 <div class="question-cancel">
-                    <button ng-disabled="!questionForm.$valid" ng-click="clearListeners(); submit(newQuestion, sectionQuestion)"
+                    <button ng-disabled="!questionForm.$valid" ng-click="submit(newQuestion)"
                             type="submit" class="btn btn-success bigbutton">{{'sitnet_save' | translate}}
                     </button>
                 </div>
                 <div class="question-cancel marr20">
-                    <button ng-click="clearListeners(); cancelEdit();" type="submit" class="btn btn-cancel pull-right bigbutton">
+                    <button ng-click="cancelEdit();" type="submit" class="btn btn-cancel pull-right bigbutton">
                         {{'sitnet_button_cancel' | translate}}
                     </button>
                 </div>

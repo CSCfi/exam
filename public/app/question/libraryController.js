@@ -27,6 +27,7 @@
 
                 $scope.templates = {
                     newQuestion: EXAM_CONF.TEMPLATES_PATH + "question/editor/question.html",
+                    dialogQuestion: EXAM_CONF.TEMPLATES_PATH + "question/editor/dialog_question.html",
                     librarySearch: EXAM_CONF.TEMPLATES_PATH + "question/library_search.html",
                     libraryResults: EXAM_CONF.TEMPLATES_PATH + "question/library_results.html"
                 };
