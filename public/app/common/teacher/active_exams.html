@@ -1,6 +1,6 @@
 <div>
     <div class="form-group input-group search tab-search">
-        <input ng-model="filtertext"
+        <input ng-model="filter.text"
                type="text"
                class="form-control search" placeholder="{{'sitnet_exam_search_description' | translate }}">
         <div class="input-group-addon search">
@@ -25,7 +25,7 @@
                 </thead>
 
                 <tbody>
-                <tr ng-repeat="exam in activeExams | orderBy:activePredicate:reverse | filter:filtertext as resAct"
+                <tr ng-repeat="exam in activeExams | orderBy:activePredicate:reverse | filter:filter.text as resAct"
                     ng-init="isOwner=filterOwners(user.id, exam)"
                     ng-show="isOwner || (!isOwner && exam.unassessedCount > 0)">
 

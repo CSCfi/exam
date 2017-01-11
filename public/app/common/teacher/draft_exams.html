@@ -1,7 +1,7 @@
 <div id="dashboard" ng-init="view = 'DRAFT'; showExpired = false">
 
     <div class="form-group input-group search tab-search">
-        <input ng-model="filtertext"
+        <input ng-model="filter.text"
                type="text"
                class="form-control search" placeholder="{{'sitnet_exam_search_description' | translate }}">
         <div class="input-group-addon search">
@@ -34,7 +34,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="exam in draftExams | orderBy:draftsPredicate:reverse | filter:filtertext as resDra">
+                    <tr ng-repeat="exam in draftExams | orderBy:draftsPredicate:reverse | filter:filter.text as resDra">
                         <td ng-if="exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
                             {{ exam.name }}</a><br/><span class="exam-code">{{ exam.course.code }}</span></td>
                         <td ng-if="!exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
