@@ -1,4 +1,4 @@
-<div class="detail-row">
+<div class="review-grade-row">
     <div class="col-md-2 general-info-title">{{'sitnet_total_score' | translate}}:</div>
     <div class="col-md-4 general-info-content">{{getExamTotalScore(exam)}} / {{
         getExamMaxPossibleScore(exam) }}
@@ -19,7 +19,7 @@
         </span>
     </div>
 </div>
-<div ng-if="acceptedEssays > 0 || rejectedEssays > 0" class="detail-row marb20">
+<div ng-if="acceptedEssays > 0 || rejectedEssays > 0" class="review-grade-row marb20">
     <div class="col-md-2 general-info-title">{{ 'sitnet_approved' | translate }} / {{ 'sitnet_rejected' | translate }}:</div>
     <div class="col-md-4 general-info-content">{{ acceptedEssays }} / {{ rejectedEssays }}
     </div>
@@ -28,12 +28,12 @@
 </div>
 <div ng-if="acceptedEssays == 0 || rejectedEssays == 0">&nbsp;</div>
 
-<div class="detail-row marb20">
+<div class="review-grade-section">
     <div class="col-md-2 general-info-title">{{'sitnet_exam_owners' | translate}}:</div>
-    <div class="col-md-4 general-info-content"><span ng-if="exam.parent.examOwners.length > 0" class="pull-left col-md-12 row"
-                                                    ng-repeat="teacher in exam.parent.examOwners">
-        {{teacher.firstName}} {{teacher.lastName}}
-    </span>
+    <div class="col-md-4 general-info-content">
+        <span ng-if="exam.parent.examOwners.length > 0" ng-repeat="teacher in exam.parent.examOwners">
+            {{teacher.firstName}} {{teacher.lastName}}
+        </span>
     </div>
     <div class="col-md-2 general-info-title">{{'sitnet_exam_instructor' | translate}}:</div>
     <div class="col-md-4 general-info-content">
@@ -42,7 +42,7 @@
         </span>
     </div>
 </div>
-<div class="detail-row marb20" ng-if="hasEssayQuestions">
+<div class="review-grade-row marb20" ng-if="hasEssayQuestions">
     <div class="col-md-2 general-info-title">{{ 'sitnet_additional_info_for_registry' | translate }}:</div>
     <div class="col-md-10 general-info-content">
         <textarea id="infoForRegistry"
@@ -54,7 +54,7 @@
     </div>
 </div>
 
-<div class="detail-row marb20" ng-show="getTeacherCount() > 1">
+<div class="review-grade-row marb20" ng-show="getTeacherCount() > 1">
     <div ng-hide="isReadOnly()">
         <div class="col-md-2 general-info-title">{{ 'sitnet_send_to_other_reviewers' | translate }}:</div>
         <div class="col-md-10 general-info-content">
@@ -69,7 +69,17 @@
     </div>
 </div>
 
-<div class="detail-row mart10">
+<div class="review-grade-section" ng-show="isReadOnly()">
+    <div class="col-md-2 general-info-title">{{'sitnet_teachers_comment' | translate}}:</div>
+    <div class="col-md-8 general-info-content" mathjax ng-bind-html="exam.examFeedback.comment"></div>
+    <div ng-if="exam.examFeedback.attachment" class="col-md-2 general-info-content" ng-controller="AttachmentController">
+        <a class="pointer" ng-click="downloadFeedbackAttachment(exam)">
+            {{exam.examFeedback.attachment.fileName}}
+        </a>
+    </div>
+</div>
+
+<div class="review-grade-row">
     <form name="examForm" role="form" novalidate>
 
         <div class="col-md-3 grading-title">{{ 'sitnet_exam_grade' | translate | uppercase }}</div>
@@ -78,7 +88,7 @@
         <div class="col-md-3 grading-title">{{ 'sitnet_exam_credit' | translate | uppercase }} (op):</div>
     </form>
 </div>
-<div class="detail-row marb20">
+<div class="review-grade-row marb20">
     <form name="examForm" role="form" novalidate>
         <div class="col-md-3 general-info-content"><select id="examGrade"
                                                            name="examGrade"
