@@ -34,7 +34,9 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="exam in draftExams | orderBy:draftsPredicate:reverse | filter:filter.text as resDra">
+                    <tr ng-repeat="exam in draftExams | orderBy:draftsPredicate:reverse | filter:filter.text as resDra"
+                        ng-init="isOwner=filterOwners(user.id, exam)"
+                        ng-show="isOwner">
                         <td ng-if="exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
                             {{ exam.name }}</a><br/><span class="exam-code">{{ exam.course.code }}</span></td>
                         <td ng-if="!exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
