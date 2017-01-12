@@ -34,10 +34,6 @@
                                 </i>
                             </div>
                             <div class="question-type">
-                               <div class="col-md-7 question-type-text" ng-if="sectionQuestion.question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</div>
-                                <div class="col-md-7 question-type-text" ng-if="sectionQuestion.question.type === 'ClozeTestQuestion'">{{ 'sitnet_toolbar_cloze_test_question' | translate }}</div>
-                                <div class="col-md-7 question-type-text multiple-choice" ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</div>
-                               <div class="col-md-7 question-type-text multiple-choice" ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc' | translate }}</div>
                                <div class="question-type-img-wrap" ng-if="sectionQuestion.answered"><img src="../../../assets/assets/images/icon_question_type_ready.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_ready.png'" /></div>
                                <div class="question-type-img-wrap" ng-if="!sectionQuestion.answered"><img src="../../../assets/assets/images/icon_question_type_waiting.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_waiting.png'" /></div>
                             </div>
