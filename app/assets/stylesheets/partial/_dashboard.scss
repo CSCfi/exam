@@ -1156,6 +1156,15 @@
     padding-left: 10px;
   }
 
+  .review-grade-section {
+    @extend .row;
+    margin: 10px 15px 10px 15px !important;
+  }
+
+  .review-grade-row {
+    @extend .row;
+    margin: 0 15px 0 15px !important;
+  }
 
   .review-question-title {
     font-family: $sitnet-family-helvetica;

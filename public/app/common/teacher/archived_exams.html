@@ -33,9 +33,12 @@
                     <td class="table-column-open-until">{{ exam.examActiveStartDate | date:'dd.MM.yyyy' }} -
                         {{ exam.examActiveEndDate | date:'dd.MM.yyyy' }}
                     </td>
-                    <td class="table-column-enroll-participation"><span class="exam-count">
-                        <a ng-if="exam.executionType.type !== 'PRINTOUT'" href="/exams/examTabs/{{exam.id}}/3">{{exam.assessedCount}}</a></span></td>
-                        <div ng-if="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
+                    <td class="table-column-enroll-participation">
+                        <span class="exam-count">
+                            <a ng-if="exam.executionType.type !== 'PRINTOUT'" href="/exams/examTabs/{{exam.id}}/3">{{exam.assessedCount}}</a>
+                            <div ng-if="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
+                        </span>
+                    </td>
                     <td class="table-column-teachers"><teacher-list exam="exam" /></td>
                     <td class="text-center">
                         <a ng-click="deleteExam(exam, 'archived')" class="pointer">

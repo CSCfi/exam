@@ -134,6 +134,7 @@
                             });
 
                             scope.activeExams = reviewerExams.filter(function (review) {
+                                if (review.state !== 'PUBLISHED') return false;
                                 var periodOk = review.executionType.type !== 'PRINTOUT' &&
                                     Date.now() <= new Date(review.examActiveEndDate) &&
                                     participationsInFuture(review);
@@ -156,6 +157,7 @@
                             scope.finishedExams = [];
                             scope.archivedExams = [];
                             var endedExams = reviewerExams.filter(function (review) {
+                                if (review.state !== 'PUBLISHED') return false;
                                 var periodOk = review.executionType.type !== 'PRINTOUT' &&
                                     (Date.now() > new Date(review.examActiveEndDate) ||
                                     !participationsInFuture(review));
