@@ -164,6 +164,7 @@
                         // need some user data before actually creating it
                         $scope.typeSelected=false;
                         $scope.loader.loading = false;
+                        $scope.createNewExam = true;
                     }
                     else {
                         $scope.typeSelected=true;
@@ -203,6 +204,7 @@
                                     });
                                 }
                                 $scope.createExamModel.type = $scope.newExam.executionType;
+                                $scope.subjectToLanguageInspection=$scope.newExam.subjectToLanguageInspection;
 
                                 if (exam.course && exam.course.code && exam.name) {
                                     $scope.examInfo.title = exam.course.code + " " + exam.name;

@@ -697,6 +697,9 @@ public class ExamController extends BaseController {
         if (AppUtil.isCourseGradeScaleOverridable()) {
             exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0));
         }
+        if(executionType.equals("MATURITY")) {
+            exam.setSubjectToLanguageInspection(true);
+        }
 
         exam.save();
 

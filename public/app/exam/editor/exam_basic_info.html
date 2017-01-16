@@ -107,14 +107,11 @@
                 <div ng-show="newExam.executionType.type==='MATURITY'">
                     <div class="col-md-3 exam-basic-title">{{'sitnet_subject_to_language_inspection' | translate}}</div>
                     <div class="col-md-9">
-                        <input type="checkbox" ng-model="newExam.subjectToLanguageInspection" ng-value="true"
-                               ng-change="updateExam()">
-
-                        <button class="btn btn-default" ng-class="newExam.subjectToLanguageInspection ? 'btn-primary' : ''"
+                        <button class="btn btn-review" ng-class="newExam.subjectToLanguageInspection ? 'btn-primary' : ''"
                                 ng-disabled="newExam.state === 'PUBLISHED'"
                                 ng-click="newExam.subjectToLanguageInspection = true; updateExam()">{{'DIALOGS_YES' | translate }}
                         </button>&nbsp;
-                        <button class="btn btn-default" ng-class="newExam.subjectToLanguageInspection ? '' : 'btn-primary'"
+                        <button class="btn btn-review" ng-class="newExam.subjectToLanguageInspection ? '' : 'btn-primary'"
                                 ng-disabled="newExam.state === 'PUBLISHED'"
                                 ng-click="newExam.subjectToLanguageInspection = false; updateExam()">{{'DIALOGS_NO' | translate }}
                         </button>
