@@ -1,3 +1,12 @@
+<script>
+    $(document).ready(function () {
+
+        $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function (e) {
+            e.stopPropagation();
+        });
+
+    });
+</script>
 <div class="row col-md-12">
     <div class="col-md-6">
         <div class="form-group input-group search question-search padl20">
@@ -23,75 +32,74 @@
     </div>
     <div class="col-md-6">
         <div id="filters" class="form-group question-search">
-                        <span class="dropdown" uib-dropdown>
-                            <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
-                                    data-toggle="dropdown" aria-expanded="true" ng-click="listCourses()">
-                                {{'sitnet_course' | translate}}&nbsp;<span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
-                                aria-labelledby="dropDownMenu1">
-                                <li role="presentation" class="input-group">
-                                    <input ng-model="limitations.courses" type="text" class="form-control"
-                                           placeholder="{{'sitnet_search' | translate }}">
+            <span class="dropdown" uib-dropdown>
+                <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                        data-toggle="dropdown" aria-expanded="true" ng-click="listCourses()">
+                    {{'sitnet_course' | translate}}&nbsp;<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                    aria-labelledby="dropDownMenu1">
+                    <li role="presentation" class="input-group">
+                        <input ng-model="limitations.courses" type="text" class="form-control"
+                               placeholder="{{'sitnet_search' | translate }}">
+                        <div class="input-group-addon">
+                            <i class="fa fa-search fa-fw"></i>
+                        </div>
+                    </li>
+                    <li ng-repeat="course in courses | filter:limitations.courses" ng-hide='course.filtered'
+                        role="presentation"
+                        ng-click="applyFilter(course)">
+                        <a role="menuitem">{{course.name | truncate:30}}</a>
+                    </li>
+                </ul>
+            </span>
+            <span class="dropdown" uib-dropdown>
+                <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
+                        data-toggle="dropdown" aria-expanded="true" ng-click="listExams()">
+                    {{'sitnet_exam' | translate}}&nbsp;<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu pull-left" style="padding-left: 0; min-width: 17em" role="menu"
+                    aria-labelledby="dropDownMenu2">
+                    <li role="presentation" class="input-group">
+                        <input ng-model="limitations.exams" type="text" class="form-control"
+                               placeholder="{{'sitnet_search' | translate }}">
 
-                                    <div class="input-group-addon">
-                                        <i class="fa fa-search fa-fw"></i>
-                                    </div>
-                                </li>
-                                <li ng-repeat="course in courses | filter:limitations.courses" ng-hide='course.filtered'
-                                    role="presentation"
-                                    ng-click="applyFilter(course)">
-                                    <a role="menuitem">{{course.name | truncate:30}}</a>
-                                </li>
-                            </ul>
-                        </span>
-                        <span class="dropdown" uib-dropdown>
-                            <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
-                                    data-toggle="dropdown" aria-expanded="true" ng-click="listExams()">
-                                {{'sitnet_exam' | translate}}&nbsp;<span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu pull-left" style="padding-left: 0; min-width: 17em" role="menu"
-                                aria-labelledby="dropDownMenu2">
-                                <li role="presentation" class="input-group">
-                                    <input ng-model="limitations.exams" type="text" class="form-control"
-                                           placeholder="{{'sitnet_search' | translate }}">
+                        <div class="input-group-addon">
+                            <i class="fa fa-search fa-fw"></i>
+                        </div>
+                    </li>
+                    <li ng-repeat="exam in exams | filter:limitations.exams" ng-hide='exam.filtered'
+                        role="presentation"
+                        ng-click="applyFilter(exam)">
+                        <a role="menuitem">{{exam.name | truncate:30}}</a>
+                    </li>
+                </ul>
+            </span>
 
-                                    <div class="input-group-addon">
-                                        <i class="fa fa-search fa-fw"></i>
-                                    </div>
-                                </li>
-                                <li ng-repeat="exam in exams | filter:limitations.exams" ng-hide='exam.filtered'
-                                    role="presentation"
-                                    ng-click="applyFilter(exam)">
-                                    <a role="menuitem">{{exam.name | truncate:30}}</a>
-                                </li>
-                            </ul>
-                        </span>
+            <span class="dropdown" uib-dropdown>
+                <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu3"
+                        data-toggle="dropdown" aria-expanded="true" ng-click="listTags()">
+                    {{'sitnet_category' | translate}}&nbsp;<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                    aria-labelledby="dropDownMenu3">
+                    <li role="presentation" class="input-group">
+                        <input ng-model="limitations.tags" type="text" class="form-control"
+                               placeholder="{{'sitnet_search' | translate }}">
 
-                        <span class="dropdown" uib-dropdown>
-                            <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu3"
-                                    data-toggle="dropdown" aria-expanded="true" ng-click="listTags()">
-                                {{'sitnet_category' | translate}}&nbsp;<span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
-                                aria-labelledby="dropDownMenu3">
-                                <li role="presentation" class="input-group">
-                                    <input ng-model="limitations.tags" type="text" class="form-control"
-                                           placeholder="{{'sitnet_search' | translate }}">
-
-                                    <div class="input-group-addon">
-                                        <i class="fa fa-search fa-fw"></i>
-                                    </div>
-                                </li>
-                                <li ng-repeat="tag in tags | filter:limitations.tags" ng-hide='tag.filtered' role="presentation"
-                                    ng-click="applyFilter(tag)">
-                                    <a role="menuitem" ng-class="tag.isSectionTag ? 'text-dim' : 'text'"
-                                       title="{{tag.isSectionTag ? 'sitnet_exam_section' : 'sitnet_category' | translate; }}">
-                                        {{tag.name | truncate:30}}
-                                    </a>
-                                </li>
-                            </ul>
-                        </span>
+                        <div class="input-group-addon">
+                            <i class="fa fa-search fa-fw"></i>
+                        </div>
+                    </li>
+                    <li ng-repeat="tag in tags | filter:limitations.tags" ng-hide='tag.filtered' role="presentation"
+                        ng-click="applyFilter(tag)">
+                        <a role="menuitem" ng-class="tag.isSectionTag ? 'text-dim' : 'text'"
+                           title="{{tag.isSectionTag ? 'sitnet_exam_section' : 'sitnet_category' | translate; }}">
+                            {{tag.name | truncate:30}}
+                        </a>
+                    </li>
+                </ul>
+            </span>
         </div>
     </div>
 </div>

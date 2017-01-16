@@ -790,5 +790,7 @@
   "sitnet_student_exam_search_result":"Tulokset EN",
   "sitnet_student_exam_search_result_continues":"kpl haulle EN",
   "sitnet_printout_exams": "Paperitentit EN",
-  "sitnet_exam_new_question": "Lisää uusi kysymys EN"
+  "sitnet_exam_new_question": "Lisää uusi kysymys EN",
+  "sitnet_exam_library_new_question": "Lisää uusi kysymys kysymyskirjastoon EN",
+  "sitnet_exam_libraty_no_results":"Haku ei palauttanut kysymyksiä EN"
 }
