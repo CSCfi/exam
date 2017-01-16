@@ -5,18 +5,23 @@
     </div>
     <div class="col-md-2 general-info-title">{{'sitnet_inspection_status' | translate}}:</div>
     <div class="col-md-4 general-info-content">
-        <span ng-show="inspection.user.id !== user.id">
-            <span class="sitnet-text-ready" ng-show="inspection.ready">{{'sitnet_ready' | translate}}</span>
-            <span class="sitnet-text-alarm"
-                  ng-hide="inspection.ready">{{'sitnet_in_progress' | translate}}</span>
-        </span>
-        <span class="input-group-sm" ng-hide="inspection.user.id !== user.id">
-            <select ng-model="inspection.ready" class="form-control"
-                    ng-disabled="isGraded() || isReadOnly()"
-                    ng-options="s.key as s.value for s in reviewStatus"
-                    ng-change="toggleReady()" ng-show="inspection.user.id === user.id">
-            </select>
-        </span>
+        <div ng-repeat="inspection in inspections">
+            <span ng-show="inspection.user.id !== user.id">
+
+                <span class="sitnet-text-ready" ng-show="inspection.ready">
+                    {{ inspection.user.firstName }} {{ inspection.user.lastName }} {{'sitnet_ready' | translate}}</span>
+                <span class="sitnet-text-alarm"
+                      ng-hide="inspection.ready">
+                    {{ inspection.user.firstName }} {{ inspection.user.lastName }} {{'sitnet_in_progress' | translate}}</span>
+            </span>
+            <span class="input-group-sm" ng-hide="inspection.user.id !== user.id">
+                <select ng-model="inspection.ready" class="form-control"
+                        ng-disabled="isGraded() || isReadOnly()"
+                        ng-options="s.key as s.value for s in reviewStatus"
+                        ng-change="toggleReady()" ng-show="inspection.user.id === user.id">
+                </select>
+            </span>
+        </div>
     </div>
 </div>
 <div ng-if="acceptedEssays > 0 || rejectedEssays > 0" class="review-grade-row marb20">
@@ -42,7 +47,7 @@
         </span>
     </div>
 </div>
-<div class="review-grade-row marb20" ng-if="hasEssayQuestions">
+<div class="review-grade-row" ng-if="hasEssayQuestions">
     <div class="col-md-2 general-info-title">{{ 'sitnet_additional_info_for_registry' | translate }}:</div>
     <div class="col-md-10 general-info-content">
         <textarea id="infoForRegistry"
@@ -53,6 +58,7 @@
         </textarea>
     </div>
 </div>
+<div class="marb10" ng-if="hasEssayQuestions">&nbsp;</div>
 
 <div class="review-grade-row marb20" ng-show="getTeacherCount() > 1">
     <div ng-hide="isReadOnly()">
