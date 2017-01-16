@@ -362,7 +362,8 @@
                     // Another one, when coming straight from questions tab in exam
                     var id = $scope.baseQuestionId || $routeParams.id;
                     QuestionRes.questions.get({id: id},
-                        function (question) {$scope.newQuestion = question;
+                        function (question) {
+                            $scope.newQuestion = question;
                             initQuestion();
                         },
                         function (error) {
@@ -374,7 +375,8 @@
                     // Edit saved question from library list or dashboard
                     var id = $scope.baseQuestionId || $routeParams.id;
                     QuestionRes.questions.get({id: id},
-                        function (question) {$scope.newQuestion = question;
+                        function (question) {
+                            $scope.newQuestion = question;
                             initQuestion();
                         },
                         function (error) {

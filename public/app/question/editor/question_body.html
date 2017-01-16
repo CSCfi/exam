@@ -122,7 +122,8 @@
         <!-- Type specific content -->
         <div ng-include="questionTemplate"></div>
 
-        <!-- Evaluation type -->
+        <!-- Evaluation type - not allowed if question is in use in other exam. Does not check if that other
+                               exam is published though -->
         <div class="col-md-12 margin-20 padl0 padr0" ng-show="newQuestion.type == 'EssayQuestion'">
             <div class="col-md-3 exam-basic-title padl0">
                 {{'sitnet_evaluation_type' | translate}}
@@ -130,7 +131,8 @@
             <div class="col-md-9">
                 <select id="evaluationType" class="form-control wdt240" ng-model="newQuestion.defaultEvaluationType"
                         ng-change="updateEvaluationType()"
-                        ng-required="newQuestion.type == 'EssayQuestion'">
+                        ng-required="newQuestion.type == 'EssayQuestion'"
+                        ng-disabled="showWarning()">
                     <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
                     <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
                 </select>
