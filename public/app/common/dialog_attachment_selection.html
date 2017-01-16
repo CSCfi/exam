@@ -39,18 +39,18 @@
                 <p>{{'sitnet_check_file_accessible' | translate}}</p>
             </div>
             <div class="col-md-12">
-                <p>{{'sitnet_max_file_size' | translate }} {{maxFileSize / 1000}} kB.</p>
+                <p>{{'sitnet_max_file_size' | translate }} {{maxFileSize / 1000000}} MB.</p>
             </div>
         </div>
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <button class="btn btn btn-success pull-left" ng-click="ok(); submit()">
-                {{'sitnet_button_save' | translate}}
+            <button class="btn btn-primary pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
             </button>
         </div>
         <div class="col-md-6">
-            <button class="btn btn-primary pull-right" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+            <button class="btn btn btn-success pull-right" ng-click="ok(); submit()">
+                {{'sitnet_button_save' | translate}}
             </button>
         </div>
 
