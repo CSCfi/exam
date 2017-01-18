@@ -50,10 +50,10 @@
         <tbody>
         <tr ng-repeat="inspection in ongoingInspections | orderBy:inspectionPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize | filter:filtertext as res">
             <td class="table-column-15 table-column-bold">
-                <a class="pointer" ng-click="go(review.exam)">
-                    {{ inspection.exam.name }}
+                <span class="exam-basic-title">
+                    {{ inspection.exam.name }}</span>
                     <span ng-if="review.user.userIdentifier"><br/>({{ inspection.exam.course.code }})</span>
-                </a>
+                
             </td>
             <td class="table-column-20">{{ inspection.created | date:'dd.MM.yyyy' }}
             </td>
