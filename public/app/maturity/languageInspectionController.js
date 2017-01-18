@@ -9,6 +9,7 @@
                 $scope.user = sessionService.getUser();
                 $scope.ongoingInspections = [];
                 $scope.processedInspections = [];
+                $scope.toggleUnderReviews = true;
                 $scope.selection = { opened: false, month: new Date()};
                 $scope.templates = {
                     languageInspectionUnderReviewPath: EXAM_CONF.TEMPLATES_PATH + "maturity/inspection_under_review.html",

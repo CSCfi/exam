@@ -48,18 +48,16 @@
 
     <div class="tab-wrapper-exams review">
         <div class="review-border">
-            <div class="top-row">
-                <div class="col-md-12">
-                    <div class="review-list-title">{{exam.course.code}} - {{exam.name}}, {{exam.course.credits}} op
+            <div class="padt50 padl30 padr30">
+                <div class="review-list-title">{{exam.course.code}} - {{exam.name}}, {{exam.course.credits}} op
 
-                        <span class="review-question-title">{{ 'sitnet_question' | translate }}:</span>
-                        <a class="pointer" ng-click="hideGeneralInfo = !hideGeneralInfo">
-                            <img ng-show="hideGeneralInfo" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
-                                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
-                            <img ng-show="!hideGeneralInfo" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
-                                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
-                        </a>
-                    </div>
+                    <span class="review-question-title">{{ 'sitnet_question' | translate }}:</span>
+                    <a class="pointer" ng-click="hideGeneralInfo = !hideGeneralInfo">
+                        <img ng-show="hideGeneralInfo" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
+                        <img ng-show="!hideGeneralInfo" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+                    </a>
                 </div>
             </div>
             <!-- General Information -->
@@ -72,13 +70,11 @@
     <!-- Sections -->
     <div ng-include="reviewSectionPath" ng-repeat="section in exam.examSections | orderBy: 'sequenceNumber'"></div>
 
-    <div ng-if="exam.executionType.type === 'MATURITY'" ng-include="inspectionCommentsPath"></div>
-
     <div class="tab-wrapper-exams review">
         <div class="review-border">
 
-            <div class="top-row col-md-12 marl10 marr10">
-                <div class="review-list-title marb20 marr30">
+            <div class="padt50 padl30 padr30">
+                <div class="review-list-title">
 
                     <span class="review-question-title">{{ 'sitnet_grading_info' | translate }}</span>
                     <a ng-click="hideGradeInfo = !hideGradeInfo">
@@ -91,12 +87,14 @@
             </div>
 
             <div ng-show="!hideGradeInfo" class="padl15 padr15">
+
+                <div ng-if="exam.executionType.type === 'MATURITY'" ng-include="inspectionCommentsPath"></div>
                 <!-- Grading -->
-                <div class="row" ng-include="gradingPath"></div>
+                <div ng-include="gradingPath"></div>
                 <!-- Floating feedback window -->
-                <div class="row" ng-include="feedbackWindowPath"></div>
+                <div ng-include="feedbackWindowPath"></div>
                 <!-- Bottom toolbar -->
-                <div class="row" ng-include="toolbarPath"></div>
+                <div ng-if="exam.executionType.type != 'MATURITY'" ng-include="toolbarPath"></div>
 
             </div>
 

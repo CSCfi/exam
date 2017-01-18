@@ -863,7 +863,7 @@
                                     if ($scope.user.isAdmin) {
                                         $location.path("/");
                                     } else {
-                                        $location.path("exams/examTabs/"+ $scope.exam.parent.idd+"/3");
+                                        $location.path("exams/examTabs/"+ $scope.exam.parent.id+"/3");
                                     }
                                 });
                             }, function (error) {

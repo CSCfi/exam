@@ -1,4 +1,4 @@
-<div ng-hide="hideGeneralInfo" class="pad30">
+<div ng-hide="hideGeneralInfo" class="pad30 marl20">
     <div class="detail-row marb20">
         <div class="col-md-2 general-info-title">{{'sitnet_name' | translate}}:</div>
         <div class="col-md-4 general-info-content">{{userInfo.user.firstName}} {{userInfo.user.lastName}}
@@ -26,9 +26,10 @@
         <div class="col-md-4 general-info-content" ng-if="reservation && reservation.room">
             {{reservation.room.name}} ({{reservation.room.roomCode}})
         </div>
-        <div class="col-md-4 general-info-title" ng-if="!reservation || !reservation.room">N/A</div>
-        <div class="col-md-2 general-info-content">{{'sitnet_exam_machine' | translate}}:</div>
-        <div class="col-md-4 general-info-title" ng-if="reservation">{{reservation.name}}</div>
+        <div class="col-md-4 general-info-content" ng-if="!reservation || !reservation.room">N/A</div>
+
+        <div class="col-md-2 general-info-title">{{'sitnet_exam_machine' | translate}}:</div>
+        <div class="col-md-4 general-info-content" ng-if="reservation">{{reservation.name}}</div>
         <div class="col-md-4 general-info-content" ng-if="!reservation">N/A</div>
     </div>
 

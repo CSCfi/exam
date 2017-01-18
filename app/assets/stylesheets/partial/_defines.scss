@@ -128,7 +128,7 @@ $sitnet-background: #ffffff;
 .sitnet-teacher-blue-light {color: $sitnet-teacher-blue-light;}
 .sitnet-teacher-green-dark {color: $sitnet-teacher-green-dark;}
 .sitnet-teacher-green-light {color: $sitnet-teacher-green-light;}
-
+.text-danger { color: #F35D6D !important;}
 // #### muuta defined ##############################################
 .greenHover:hover {
   color: $sitnet-ready;
@@ -608,14 +608,14 @@ $sitnet-icon-size: 32px;
 
 .btn-cancel {
   color: #fff !important;
-  background-color: #7F7F7F !important;;
-  border-color: #6B6B6B !important;;
+  background-color: #7F7F7F !important;
+  border-color: #6B6B6B !important;
 }
 
 .btn-cancel:hover {
-  color: #fff !important;;
-  background-color: #6B6B6B !important;;
-  border-color: #6B6B6B !important;;
+  color: #fff !important;
+  background-color: #6B6B6B !important;
+  border-color: #6B6B6B !important;
 }
 
 .font20 {
