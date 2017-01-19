@@ -11,7 +11,7 @@
 
     <div class="top-row">
         <div class="col-md-12 list-item" ng-repeat="enrolment in userEnrolments | orderBy: 'reservation.startAt'">
-            <div class="student-enrolment-wrapper">
+            <div class="student-enrolment-wrapper marl20 marr20">
                 <div class="col-md-12">
 
                     <div class="student-exam-header-row">
@@ -117,7 +117,7 @@
 
                             </div>
                         </div>
-                        <div class="col-md-12" ng-if="enrolment.reservation" style="padding-top:10px;">
+                        <div class="col-md-12 padt10" ng-if="enrolment.reservation">
                             <div class="row">
                                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                                     {{ 'sitnet_exam_room' | translate }}:

@@ -96,7 +96,6 @@
                     $location.path("/calendar/" + exam.id);
                 };
 
-
             }
         ]);
 })();

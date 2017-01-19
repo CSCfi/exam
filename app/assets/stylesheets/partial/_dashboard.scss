@@ -111,16 +111,6 @@
        text-decoration: none;
      }
 
-     .exam-ready {
-       color:#3CA34F;
-       font-size:13px;
-     }
-
-     .exam-needs-reservation {
-       color: #ED4459;
-       font-size:13px;
-     }
-
     .exam-in-progress {
       color: black;
       font-size:13px;
@@ -131,6 +121,16 @@
        font-size: 13px;
        padding-left: 19px;
      }
+  }
+
+  .exam-ready {
+    color:#3CA34F;
+    font-size:13px;
+  }
+
+  .exam-needs-reservation {
+    color: #ED4459;
+    font-size:13px;
   }
 
   .student-exam-needs-reservation {
