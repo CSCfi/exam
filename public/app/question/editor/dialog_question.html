@@ -73,7 +73,6 @@
 
                 </div>
 
-
                 <!-- Question editor -->
                 <div class="col-md-12 mart40 wide-column padl0">
                     <div class="review-list-title">{{ 'sitnet_exam_basic_information_tab' | translate }}
@@ -213,7 +212,7 @@
                     </div>
 
 
-                    <!-- Evaluation type -->
+                    <!-- Evaluation type - essay -->
                     <div class="col-md-12 margin-20 padl0 padr0" ng-show="question.type == 'EssayQuestion'">
                         <div class="col-md-3 exam-basic-title padl0">
                             {{'sitnet_evaluation_type' | translate}}
@@ -221,10 +220,15 @@
                         <div class="col-md-9">
                             <select id="evaluationType" class="form-control wdt240" ng-model="sectionQuestion.evaluationType"
                                     ng-change="updateEvaluationType()"
-                                    ng-required="question.type == 'EssayQuestion'">
-                                <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
+                                    ng-required="question.type == 'EssayQuestion'"
+                                    ng-disabled="showWarning()">
+                            <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
                                 <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
                             </select>
+                            <i ng-if="showWarning()" class="fa fa-exclamation-circle reddish mart10"></i>
+                            <small ng-if="showWarning()">{{'sitnet_exam_essay_change_not_allowed' | translate}}</small>
+                            </span>
+
                         </div>
                     </div>
                  </div>

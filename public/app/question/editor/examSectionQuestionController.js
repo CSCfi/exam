@@ -6,6 +6,12 @@
             function ($rootScope, $scope, $q, $modal, $translate, $location, $timeout, QuestionRes, ExamSectionQuestionRes,
                       questionService, EXAM_CONF, $sce, fileService, dialogs) {
 
+                $scope.examNames = [];
+
+                $scope.showWarning = function () {
+                    return $scope.examNames.length > 1;
+                };
+
                 $scope.getOptions = function () {
                     return $scope.sectionQuestion.options;
                 };

@@ -794,5 +794,6 @@
   "sitnet_exam_new_question": "Lisää uusi kysymys",
   "sitnet_exam_library_new_question": "Lisää uusi kysymys kysymyskirjastoon",
   "sitnet_exam_library_no_results":"Haku ei palauttanut kysymyksiä",
-  "sitnet_exam_review_maturity_evaluation":"Sisällön arviointi"
+  "sitnet_exam_review_maturity_evaluation":"Sisällön arviointi",
+  "sitnet_exam_essay_change_not_allowed":"Kysymys on käytössä useammassa tentissä, arviointiasteikon muuttaminen ei ole sallittu."
 }
