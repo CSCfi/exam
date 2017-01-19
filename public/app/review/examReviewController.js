@@ -780,6 +780,8 @@
                             sendForLanguageInspection();
                             break;
                         case MATURITY_STATES.REJECT_LANGUAGE.id:
+                            finalizeLanguageInspection(true);
+                            break;
                         case MATURITY_STATES.APPROVE_LANGUAGE.id:
                             finalizeLanguageInspection();
                             break;
@@ -873,11 +875,11 @@
                     });
                 };
 
-                var finalizeLanguageInspection = function () {
+                var finalizeLanguageInspection = function (reject) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                         $translate.instant('sitnet_confirm_language_inspection_approval'));
                     dialog.result.then(function () {
-                        var approved = $scope.exam.languageInspection.approved;
+                        var approved = !reject;
                         $scope.saveInspectionStatement().then(function () {
                             LanguageInspectionRes.approval.update(
                                 {
@@ -891,7 +893,6 @@
                                     } else {
                                         $scope.rejectMaturity(false, "inspections");
                                     }
-                                    //$location.path("inspections");
                                 });
                         });
                     });
