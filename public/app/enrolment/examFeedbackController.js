@@ -24,8 +24,6 @@
 
                 $scope.loadReview = function (id) {
 
-                console.log('loading ' + id);
-
                     StudentExamRes.feedback.get({eid: id},
                         function (exam) {
                             if (!exam.grade) {

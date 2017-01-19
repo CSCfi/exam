@@ -60,8 +60,10 @@
                 };
 
                 $scope.searchParticipations = function () {
+
                     return dashboardService.searchParticipations($scope.filter.text).then(function (data) {
                         $scope.participations = data.participations;
+                        removeDuplicates();
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -150,6 +152,24 @@
                     if(owner.length > 0) { return true; }
                     return false;
                 };
+
+                var removeDuplicates = function() {
+
+                      // remove duplicate exams. Too lazy to do this on the backend query, it's broken somehow.
+                    var arrResult = {};
+                    for (var i = 0, n = $scope.participations.length; i < n; i++) {
+                        var item = $scope.participations[i];
+                        arrResult[ $scope.participations[i].id ] = item;
+                    }
+                    var i = 0;
+                    var nonDuplicatedArray = [];
+                    for(var item in arrResult) {
+                        nonDuplicatedArray[i++] = arrResult[item];
+                    }
+
+                    $scope.participations = nonDuplicatedArray;
+
+                }
 
             }]);
 }());

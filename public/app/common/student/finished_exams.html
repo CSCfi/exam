@@ -3,7 +3,7 @@
     <!-- Finished exams list -->
     <div class="top-row">
         <div class="student-details-title-wrap">
-            <div class="student-exam-details-title nomar">{{'sitnet_exam_responses' | translate}}</div>
+            <div class="student-exam-details-title nomar marl15">{{'sitnet_exam_responses' | translate}}</div>
         </div>
     </div>
 
@@ -21,7 +21,7 @@
                 <div class="form-group input-group search">
                     <input ng-change="searchParticipations()" ng-model="filter.text"
                            ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
-                           class="form-control hgt40 wdt400" placeholder="{{'sitnet_search' | translate }}">
+                           class="form-control hgt40 wdt400 marl15" placeholder="{{'sitnet_search' | translate }}">
                     <div class="input-group-addon search">
                         <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
                     </div>
@@ -65,7 +65,7 @@
     <div class="pad-15">
         <div class="col-md-12 list-item"
              ng-repeat="participation in participations | orderBy: filter.ordering | offset: currentPage*pageSize | limitTo: pageSize">
-            <div class="student-enrolment-wrapper">
+            <div class="student-enrolment-wrapper marr20 marl20">
                 <div class="col-md-12">
 
                     <div class="student-exam-header-row">
