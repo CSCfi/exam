@@ -7,6 +7,10 @@
         {{ exam.languageInspection.approved ? 'sitnet_approved' : 'sitnet_rejected' | translate | uppercase }}</span>
     </div>
 </div>
+
+<!-- kielentarkastus - kommentit -->
+<div ng-include="inspectionCommentsPath"></div>
+
 <!-- kielentarkastus - lausunto -->
 <div class="detail-row mart20" ng-show="hasGoneThroughLanguageInspection()">
     <div class="col-md-2 general-info-title">{{'sitnet_inspector_statement' | translate }}:</div>
@@ -35,6 +39,29 @@
 
 <!-- grading stuff -->
 <form name="examForm" role="form" novalidate>
+
+    <div class="detail-row mart20">
+        <div class="col-md-2 general-info-title">{{'sitnet_inspection_status' | translate }}:</div>
+        <div class="col-md-10 general-info-content">
+
+            <span ng-if="exam.state === 'ABORTED'"
+                  class="grading-status">{{'sitnet_aborted_exam' | translate}}
+                </span>
+                <span ng-if="exam.state ==='REVIEW' || exam.state === 'REVIEW_STARTED'  || exam.state === 'STUDENT_STARTED'"
+                      class="grading-status">{{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+                </span>
+                <span ng-if="exam.state === 'GRADED'" class="grading-status">
+                    {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+                </span>
+                <span ng-if="exam.state === 'GRADED_LOGGED'" class="grading-status">
+                    {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+                </span>
+                <span ng-if="exam.state === 'REJECTED'" class="grading-status">
+                    {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+                </span>
+
+        </div>
+    </div>
 
     <!-- arvioinnin lisätiedot -->
     <div class="detail-row mart20">

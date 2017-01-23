@@ -61,7 +61,7 @@
                 <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                         ng-bind-html="review.deadline | diffInDaysToNow"></span>)
                 </td>
-                <td class="table-column-15">{{translateGrade(review.exam)}}</td>
+                <td class="table-column-15">{{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}</td>
                 <td class="table-column-10">
                     {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
                 </td>
