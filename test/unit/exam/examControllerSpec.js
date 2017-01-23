@@ -18,6 +18,11 @@ describe('ExamController', function () {
 
     beforeEach(inject(function ($controller, $rootScope, $injector, $q, $window) {
         scope = $rootScope.$new();
+        scope.initializeExam = function () {
+          var d = $q.defer();
+          d.reject();
+          return d.promise;
+        };
         window = $window;
         window['toastr'] = {error: jasmine.createSpy('error'), warning: jasmine.createSpy('warning')};
         $httpBackend = $injector.get('$httpBackend');
@@ -30,7 +35,6 @@ describe('ExamController', function () {
         $httpBackend.expectGET('/app/settings/durations').respond(200, {});
         $httpBackend.expectGET('/app/settings/gradescale').respond(200, {});
         $httpBackend.expectGET('/app/languages').respond(200, []);
-        $httpBackend.expectGET('/app/exams').respond(404, {});
         $httpBackend.expectGET('/app/settings/hostname').respond(200, {});
         $httpBackend.expectGET('/app/softwares').respond(200, []);
 
@@ -94,9 +98,7 @@ describe('ExamController', function () {
     });
 
     function createPromise(response) {
-        var deferred = q.defer();
-        deferred.resolve(response);
-        return deferred.promise;
+        return q.when(response);
     }
 
     function mockSessionService() {

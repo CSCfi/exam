@@ -169,7 +169,21 @@
                     });
                 };
 
-                ExamRes.exams.get({id: $routeParams.id}, function (exam) {
+                var initList = function () {
+                    $scope.initializeExam().then(function(exam) {
+                        if (exam.course && exam.course.code) {
+                            $scope.examInfo.title = exam.course.code + " " + exam.name;
+                        } else {
+                            $scope.examInfo.title = exam.name;
+                        }
+                        $scope.examInfo.examOwners = exam.examOwners;
+                        $scope.examFull = exam;
+                    })
+                };
+                initList();
+
+                /*ExamRes.exams.get({id: $routeParams.id}, function (exam) {
+                    console.log('got examres.exams.get from reviewlistingcontroller');
                     if (exam.course && exam.course.code) {
                         $scope.examInfo.title = exam.course.code + " " + exam.name;
                     } else {
@@ -177,7 +191,7 @@
                     }
                     $scope.examInfo.examOwners = exam.examOwners;
                     $scope.examFull = exam;
-                });
+                });*/
 
                 var resetSelections = function (name, view) {
                     var scope = $scope.selections[name];

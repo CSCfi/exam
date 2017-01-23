@@ -1,11 +1,8 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamTabsController', ['$filter', 'dialogs', '$scope', '$q', '$route', '$routeParams',
-            '$location', '$translate', 'ExamRes', 'dateService', 'examService', 'examReviewService', 'fileService',
-             '$uibModal', 'EXAM_CONF', 'sessionService',
-            function ($filter, dialogs, $scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService,
-                      examService, examReviewService, fileService, $modal, EXAM_CONF, sessionService) {
+        .controller('ExamTabsController', ['$scope', '$q', '$routeParams', '$translate', 'ExamRes', 'EXAM_CONF', 'sessionService',
+            function ($scope, $q, $routeParams, $translate, ExamRes, EXAM_CONF, sessionService) {
 
                 $scope.user = sessionService.getUser();
 
@@ -37,20 +34,31 @@
                     }
                 };
 
-                ExamRes.exams.get({id: $routeParams.id}, function (exam) {
-                    $scope.updateTitle(exam);
-                    $scope.examInfo.examOwners = exam.examOwners;
-                    $scope.examFull = exam;
-                    $scope.isOwner = filterOwners($scope.user.id, $scope.examInfo)
-                });
+                $scope.initializeExam = function (refresh) {
+                    var deferred = $q.defer();
+                    if ($scope.newExam && !refresh) {
+                        deferred.resolve($scope.newExam);
+                        return deferred.promise;
+                    } else {
+                        ExamRes.exams.get({id: $routeParams.id}, function (exam) {
+                            $scope.newExam = exam;
+                            $scope.updateTitle(exam);
+                            $scope.examInfo.examOwners = exam.examOwners;
+                            $scope.examFull = exam;
+                            $scope.isOwner = filterOwners($scope.user.id, $scope.examInfo);
+                            deferred.resolve($scope.newExam);
+                        });
+                        return deferred.promise;
+                    }
+
+                };
 
                 var filterOwners = function (userId, exam) {
 
                     var owner = exam.examOwners.filter(function (own) {
                         return (own.id === userId);
                     });
-                    if(owner.length > 0) { return true; }
-                    return false;
+                    return owner.length > 0;
                 };
 
             }
