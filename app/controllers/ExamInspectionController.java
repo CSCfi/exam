@@ -9,6 +9,7 @@ import controllers.base.BaseController;
 import models.Comment;
 import models.Exam;
 import models.ExamInspection;
+import models.Role;
 import models.User;
 import play.libs.Json;
 import play.mvc.Result;
@@ -35,7 +36,11 @@ public class ExamInspectionController extends BaseController {
         User recipient = Ebean.find(User.class, uid);
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound();
+        }
+        User user = getLoggedUser();
+        if (!user.hasRole(Role.Name.ADMIN.toString(), getSession()) && !exam.isOwnedOrCreatedBy(user)) {
+            return forbidden("sitnet_error_access_forbidden");
         }
         if (isInspectorOf(recipient, exam)) {
             return forbidden("already an inspector");
@@ -48,13 +53,13 @@ public class ExamInspectionController extends BaseController {
         }
         inspection.setExam(exam);
         inspection.setUser(recipient);
-        inspection.setAssignedBy(getLoggedUser());
+        inspection.setAssignedBy(user);
         if (!msg.isEmpty()) {
-            AppUtil.setCreator(comment, getLoggedUser());
+            AppUtil.setCreator(comment, user);
             inspection.setComment(comment);
             comment.save();
             actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
-                    () -> emailComposer.composeExamReviewRequest(recipient, getLoggedUser(), exam, msg),
+                    () -> emailComposer.composeExamReviewRequest(recipient, user, exam, msg),
                     actor.dispatcher());
         }
         inspection.save();
@@ -66,7 +71,7 @@ public class ExamInspectionController extends BaseController {
                     ExamInspection i = new ExamInspection();
                     i.setExam(c);
                     i.setUser(recipient);
-                    i.setAssignedBy(getLoggedUser());
+                    i.setAssignedBy(user);
                     i.save();
                 });
 

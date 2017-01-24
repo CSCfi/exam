@@ -45,8 +45,6 @@
                     ]
                 };
 
-                $scope.examInfo = {};
-                $scope.examFull = {};
                 $scope.tab0 = true;
                 $scope.tab1 = false;
                 $scope.tab2 = false;
@@ -283,6 +281,8 @@
                                 $scope.selectedLanguages($scope.newExam);
                                 initialLanguages = $scope.newExam.examLanguages.length;
                             });
+                        }, function (error) {
+                            toastr.error(error.data);
                         });
                     }
                 };

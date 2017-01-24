@@ -557,6 +557,10 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
+        User user = getLoggedUser();
+        if (!isPermittedToUpdate(exam, user)) {
+            return forbidden("sitnet_error_access_forbidden");
+        }
 
         exam.getSoftwareInfo().clear();
         exam.update();
@@ -570,6 +574,11 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
+        User user = getLoggedUser();
+        if (!isPermittedToUpdate(exam, user)) {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+
         exam.getExamLanguages().clear();
         exam.update();
 
@@ -583,6 +592,11 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
+        User user = getLoggedUser();
+        if (!isPermittedToUpdate(exam, user)) {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+
         exam.getSoftwareInfo().clear();
         List<Software> software;
         if (!softwareIds.isEmpty()) {
@@ -611,6 +625,11 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
+        User user = getLoggedUser();
+        if (!isPermittedToUpdate(exam, user)) {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+
         Language language = Ebean.find(Language.class, code);
         exam.getExamLanguages().add(language);
         exam.update();
@@ -724,6 +743,10 @@ public class ExamController extends BaseController {
         return exam.getExamEnrolments().stream()
                 .map(ExamEnrolment::getReservation)
                 .anyMatch(r -> r != null && r.getEndAt().after(now));
+    }
+
+    private boolean isPermittedToUpdate(Exam exam, User user) {
+        return user.hasRole(Role.Name.ADMIN.toString(), getSession()) || exam.isOwnedOrCreatedBy(user);
     }
 
     private boolean isAllowedToUpdate(Exam exam, User user) {
