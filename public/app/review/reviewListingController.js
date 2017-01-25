@@ -14,8 +14,6 @@
                 $scope.toggleGradedReviews = false;
                 $scope.toggleArchivedReviews = false;
                 $scope.view = {filter: 'IN_PROGRESS'};
-                $scope.examInfo = {};
-                $scope.examFull = {};
                 $scope.eid = $routeParams.id;
 
                 $scope.templates = {
@@ -169,15 +167,10 @@
                     });
                 };
 
-                ExamRes.exams.get({id: $routeParams.id}, function (exam) {
-                    if (exam.course && exam.course.code) {
-                        $scope.examInfo.title = exam.course.code + " " + exam.name;
-                    } else {
-                        $scope.examInfo.title = exam.name;
-                    }
-                    $scope.examInfo.examOwners = exam.examOwners;
-                    $scope.examFull = exam;
-                });
+                var initList = function () {
+                    $scope.initializeExam();
+                };
+                initList();
 
                 var resetSelections = function (name, view) {
                     var scope = $scope.selections[name];
@@ -482,13 +475,6 @@
                     }
                 };
 
-                $scope.permitRetrial = function (reservation) {
-                    ExamRes.reservation.update({id: reservation.id}, function () {
-                        reservation.retrialPermitted = true;
-                        toastr.info($translate.instant('sitnet_retrial_permitted'));
-                    });
-                };
-
                 $scope.importGrades = function () {
                     var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
                         fileService.getMaxFilesize().then(function (data) {
@@ -575,11 +561,18 @@
 
                 $scope.openNoShow = function () {
 
-                    //var examId = $scope.newExam.id;
+                    var ctrl = ["$scope", "$uibModalInstance", "ExamRes", "noShows", function ($scope, $modalInstance, ExamRes, noShows) {
+                        $scope.noShows = noShows;
 
-                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        $scope.permitRetrial = function (reservation) {
+                            ExamRes.reservation.update({id: reservation.id}, function () {
+                                reservation.retrialPermitted = true;
+                                toastr.info($translate.instant('sitnet_retrial_permitted'));
+                            });
+                        };
+
+
                         $scope.cancel = function () {
-                            // Well this is nice now :)
                             $modalInstance.dismiss("Cancelled");
                         };
 
@@ -591,23 +584,34 @@
                         });
                     }];
 
-                    var modalInstance = $modal.open({
+                    $modal.open({
                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'review/listings/no_show.html',
                        backdrop: 'static',
                        keyboard: true,
                        controller: ctrl,
-                       windowClass: 'question-editor-modal'
+                       windowClass: 'question-editor-modal',
+                       resolve: {
+                           noShows: function () {
+                               return $scope.noShows;
+                           }
+                       }
                     });
 
                 };
 
                 $scope.openAborted = function () {
 
-                    //var examId = $scope.newExam.id;
+                    var ctrl = ["$scope", "$uibModalInstance", "ExamRes", "aborted", function ($scope, $modalInstance, ExamRes, aborted) {
+                        $scope.abortedExams = aborted;
 
-                    var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                        $scope.permitRetrial = function (reservation) {
+                            ExamRes.reservation.update({id: reservation.id}, function () {
+                                reservation.retrialPermitted = true;
+                                toastr.info($translate.instant('sitnet_retrial_permitted'));
+                            });
+                        };
+
                         $scope.cancel = function () {
-                            // Well this is nice now :)
                             $modalInstance.dismiss("Cancelled");
                         };
 
@@ -619,12 +623,17 @@
                         });
                     }];
 
-                    var modalInstance = $modal.open({
+                    $modal.open({
                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'review/listings/aborted.html',
                        backdrop: 'static',
                        keyboard: true,
                        controller: ctrl,
-                       windowClass: 'question-editor-modal'
+                       windowClass: 'question-editor-modal',
+                        resolve: {
+                            aborted: function () {
+                                return $scope.abortedExams;
+                            }
+                        }
                     });
 
                 };

@@ -26,7 +26,6 @@
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
             $routeProvider.when('/exams/course/:id', { templateUrl: tmpl + 'exam/editor/exam_new.html', controller: 'ExamController'});
             $routeProvider.when('/exams/course/newExam/:create', { templateUrl: tmpl + 'exam/editor/exam_new.html', controller: 'ExamController'});
-            $routeProvider.when('/exampreview/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
 
             /* booking */
             $routeProvider.when('/calendar/:id', { templateUrl: tmpl + 'reservation/calendar.html'});
