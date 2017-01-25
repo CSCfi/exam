@@ -53,6 +53,35 @@
                     return false;
                 };
 
+                $scope.checkArchived = function(examFull) {
+
+                    if(Date.now() > new Date(examFull.examActiveEndDate)) {
+
+                        var unassessedCount = $scope.examReviews.length;
+                        var unfinishedCount = $scope.gradedReviews.length;
+                        if (unassessedCount + unfinishedCount < 1) {
+                            return true;
+                        }
+
+                    }
+                    return false;
+
+                }
+
+                // fetch unassessed and unfinished reviews
+                ExamRes.examReviews.query({eid: $routeParams.id}, function (reviews) {
+                    reviews.forEach(function (r) {
+                        $scope.examReviews = reviews.filter(function (r) {
+                            return r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED';
+                        });
+                        $scope.gradedReviews = reviews.filter(function (r) {
+                            return r.exam.state === 'GRADED';
+                        });
+
+                    });
+                });
+
+
             }
         ]);
 }());
