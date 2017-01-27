@@ -187,6 +187,7 @@
                                     return ee.reservation && ee.reservation.endAt > new Date().getTime();
                                 }).length > 0) {
                                 // Enrolments/reservations in effect
+                                // TODO: this needs to check the enrolment also, not only reservations SIT-1714
                                 $scope.newExam.hasEnrolmentsInEffect = true;
                             }
                             if ($scope.newExam.executionType.type !== 'PUBLIC') {

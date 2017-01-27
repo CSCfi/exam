@@ -19,9 +19,9 @@
     </span>
     <div class="review-attachment-button autoeval-button">
 
-        <a ng-if="!autoevaluation.enabled" ng-model="autoevaluation.enabled" ng-click="autoevaluation.enabled=true">
+        <a class="pointer" ng-if="!autoevaluation.enabled" ng-model="autoevaluation.enabled" ng-click="autoevaluation.enabled=true">
             {{'sitnet_use_autoevaluation' | translate}}</a>
-        <a ng-if="autoevaluation.enabled" class="notinuse" ng-model="autoevaluation.enabled" ng-click="autoevaluation.enabled=false">
+        <a class="pointer" ng-if="autoevaluation.enabled" class="notinuse" ng-model="autoevaluation.enabled" ng-click="autoevaluation.enabled=false">
             {{'sitnet_do_not_use_autoevaluation' | translate}}</a>
 
     </div>
