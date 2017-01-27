@@ -7,8 +7,7 @@
            ng-model="option.option"
            ng-click="selectIfDefault(option.option, $event)"
            required="true"/>
-
-    <div ng-click="removeOption(option)" class="make-inline question-option-trash">
+    <div ng-if="!isInPublishedExam" ng-click="removeOption(option)" class="make-inline question-option-trash">
         <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
     </div>
 

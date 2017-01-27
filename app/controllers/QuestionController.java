@@ -79,7 +79,7 @@ public class QuestionController extends BaseController {
         Query<Question> query = Ebean.find(Question.class);
         PathProperties pp = PathProperties.parse("(*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
                 "attachment(id, fileName), options(id, correctOption, defaultScore, option), tags(id, name), " +
-                "examSectionQuestions(id, examSection(name, exam(name))))");
+                "examSectionQuestions(id, examSection(name, exam(name, state))))");
         pp.apply(query);
         ExpressionList<Question> expr = query.where().idEq(id);
         if (user.hasRole("TEACHER", getSession())) {

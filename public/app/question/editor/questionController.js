@@ -24,6 +24,7 @@
 
                 $scope.examNames = [];
                 $scope.sectionNames = [];
+                $scope.isInPublishedExam = false;
 
                 $scope.user = sessionService.getUser();
 
@@ -99,6 +100,9 @@
                         return esq.examSection;
                     });
                     var examNames = sections.map(function (s) {
+                        if(s.exam.state=='PUBLISHED') {
+                            $scope.isInPublishedExam = true;
+                        }
                         return s.exam.name;
                     });
                     var sectionNames = sections.map(function (s) {

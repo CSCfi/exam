@@ -6,10 +6,10 @@
                 <div class="student-exam-details-title">{{examInfo.title}}</div>
             </div>
 
-            <span class="exam-status" ng-if="examFull.state === 'DRAFT'">
-                {{'sitnet_' + examFull.state | lowercase | translate}}</span>
+            <span class="exam-status" ng-if="examFull.state === 'DRAFT' || examFull.state === 'SAVED'">
+                {{'sitnet_draft' | translate}}</span>
 
-            <span ng-if="examFull.state !== 'DRAFT'">
+            <span ng-if="examFull.state !== 'DRAFT' && examFull.state !== 'SAVED'">
                 <span class="exam-status" ng-if="checkArchived(examFull)">
                     {{'sitnet_exam_status_archived' | lowercase | translate}}</span>
                 <span class="exam-status" ng-if="!checkArchived(examFull)">

@@ -7,6 +7,7 @@
                       questionService, EXAM_CONF, $sce, fileService, dialogs) {
 
                 $scope.examNames = [];
+                $scope.isInPublishedExam = false;
 
                 $scope.showWarning = function () {
                     return $scope.examNames.length > 1;
@@ -157,6 +158,9 @@
                     QuestionRes.questions.get({id: $scope.sectionQuestion.question.id}, function (data) {
                         $scope.question = data;
                         var examNames = $scope.question.examSectionQuestions.map(function (esq) {
+                            if(esq.examSection.exam.state=='PUBLISHED') {
+                                $scope.isInPublishedExam = true;
+                            }
                             return esq.examSection.exam.name;
                         });
                         // remove duplicates
