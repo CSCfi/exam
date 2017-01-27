@@ -4,7 +4,7 @@ var LoginPage = function () {
         browser.get('/');
     };
 
-     this.login = function (username, password) {
+    this.login = function (username, password) {
         element(by.model('credentials.username')).sendKeys(username);
         element(by.model('credentials.password')).sendKeys(password);
         element(by.id('submit')).click();

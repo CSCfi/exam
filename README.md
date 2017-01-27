@@ -33,6 +33,19 @@ EXAM Quickstart for developers
 5.  Navigate to http://localhost:9000
     Accept the database migrations in case you see a prompt.
 
+## Running Protractor tests with SBT
 
+You can run protractor tests with sbt build using following command:
 
+    $sbt run -Dconfig.resource=protractor.conf
+
+### Passing parameters to protractor
+
+You can pass parameters to protactor using _protractor.args_ property.
+
+For example running specific test spec only:
+
+    $sbt run -Dconfig.resource=protractor.conf -Dprotractor.args="--specs=protractor/e2e/teacher-exam-spec.js"
+
+## More information
 For more information see [official installation instructions](https://confluence.csc.fi/display/EXAM/Asennusohjeet) (in Finnish only)

@@ -98,7 +98,7 @@ val conf = Properties.propOrEmpty("config.resource")
 
 PlayKeys.playRunHooks += {
   if (conf.equals("protractor.conf") && webDriver.value == 0)
-    Protractor(baseDirectory.value)
+    Protractor(baseDirectory.value, Properties.propOrElse("protractor.args", " "))
   else
     Karma(baseDirectory.value)
 }

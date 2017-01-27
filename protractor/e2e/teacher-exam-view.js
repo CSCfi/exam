@@ -28,7 +28,7 @@ describe('Exam teacher', function () {
         teacherDashboard.checkNavbarLinks();
 
         teacherDashboard.selectLanguage(0); // fi
-        teacherDashboard.checkHeader('Työpöytä');
+        teacherDashboard.checkTitle('Työpöytä');
 
         expect(teacherDashboard.getActiveExams().count()).toBe(4);
     });
@@ -51,8 +51,8 @@ describe('Exam teacher', function () {
         examEditor.setSectionName(section, 'Section A');
         section.click(); // Blur from input
 
-        var question = examEditor.findQuestion(0);
-        examEditor.dragQuestionFromLibrary(section, question);
+        var question = examEditor.selectQuestionsFromLibrary(0);
+        examEditor.openQuestionLibraryForSection(section, question);
         examEditor.previewExam();
         previewExam.leaveInstructionsPage();
     });
