@@ -15,7 +15,7 @@
 
             <div class="student-details-title">{{exam.name}}</div>
             <div class="student-details-subtitle">{{exam.course.code}}<br/>
-                <span ng-if="!exam.reservationMade"
+                <span ng-if="!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft"
                       class="exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
                 <span ng-if="exam.reservationMade"
                       class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
@@ -119,7 +119,7 @@
                 <div ng-bind-html="exam.maturityInstructions"></div>
             </div>
 
-            <div ng-if="!exam.reservationMade" class="student-message-dialog-button-save">
+            <div ng-if="!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft" class="student-message-dialog-button-save">
 
                 <a class="link-button"
                    href="/calendar/{{exam.id}}">{{'sitnet_student_new_reservation'
