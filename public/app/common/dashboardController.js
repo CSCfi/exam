@@ -135,6 +135,12 @@
                             if(listing == 'finished') {
                                 $scope.finishedExams.splice($scope.finishedExams.indexOf(exam), 1);
                             }
+                            if(listing == 'draft') {
+                                $scope.draftExams.splice($scope.draftExams.indexOf(exam), 1);
+                            }
+                            if(listing == 'active') {
+                                $scope.activeExams.splice($scope.activeExams.indexOf(exam), 1);
+                            }
 
 
                         }, function (error) {
