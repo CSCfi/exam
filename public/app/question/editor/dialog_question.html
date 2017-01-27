@@ -204,7 +204,6 @@
                                    ng-model="option.option.option"
                                    ng-click="selectIfDefault(option.option.option, $event)"
                                    required="true"/>
-
                             <div ng-click="removeOption(option)" class="make-inline question-option-trash">
                                 <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
                             </div>
@@ -226,12 +225,12 @@
                                 <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
                             </select>
                             <i ng-if="showWarning()" class="fa fa-exclamation-circle reddish mart10"></i>
-                            <small ng-if="showWarning()">{{'sitnet_exam_essay_change_not_allowed' | translate}}</small>
+                            <small ng-if="showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
                             </span>
 
                         </div>
                     </div>
-                 </div>
+                </div>
 
                 <!-- Max score -->
                 <div class="col-md-12 margin-20 padl0 padr0" ng-if="question.type == 'MultipleChoiceQuestion' ||

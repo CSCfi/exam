@@ -5,7 +5,6 @@
             function ($scope, $q, $routeParams, $translate, ExamRes, EXAM_CONF, sessionService) {
 
                 $scope.user = sessionService.getUser();
-
                 $scope.examInfo = {};
                 $scope.examFull = {};
                 $scope.tab0 = true;
@@ -78,6 +77,9 @@
 
                 // fetch unassessed and unfinished reviews
                 ExamRes.examReviews.query({eid: $routeParams.id}, function (reviews) {
+
+                    $scope.examReviews=[];
+                    $scope.gradedReviews=[];
                     reviews.forEach(function (r) {
                         $scope.examReviews = reviews.filter(function (r) {
                             return r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED';

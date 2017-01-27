@@ -1,0 +1,27 @@
+<div class="detail-row">
+    <div class="detail-row">
+        <div class="col-md-12">
+            <h4>
+                <span class="label label-info">{{$index + 1}}.</span>&nbsp; &nbsp;{{section.name}}
+            </h4>
+        </div>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-12">
+            <span>{{section.description}}</span>
+        </div>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-12" ng-repeat="sectionQuestion in section.sectionQuestions | orderBy: 'sequenceNumbe'">
+            <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
+                 ng-include="multiplechoiceQuestionAdminPath"></div>
+            <div ng-if="sectionQuestion.question.type === 'EssayQuestion'"
+                 ng-include="essayQuestionAdminPath"></div>
+            <div ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
+                 ng-include="multiplechoiceQuestionAdminPath"></div>
+            <div ng-if="sectionQuestion.question.type === 'ClozeTestQuestion'"
+                 ng-include="clozeTestPath"></div>
+        </div>
+    </div>
+</div>
+

@@ -24,6 +24,7 @@
 
             /* exams */
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
+            //$routeProvider.when('/exams/admin/:id', { templateUrl: tmpl + 'exam/admin/exam.html', controller: 'ExamController'});
             $routeProvider.when('/exams/course/:id', { templateUrl: tmpl + 'exam/editor/exam_new.html', controller: 'ExamController'});
             $routeProvider.when('/exams/course/newExam/:create', { templateUrl: tmpl + 'exam/editor/exam_new.html', controller: 'ExamController'});
 
@@ -55,6 +56,7 @@
 
             /* Teacher */
             $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'review/review.html', controller: 'ExamReviewController'});
+            //$routeProvider.when('/exams/adminreview/:id', { templateUrl: tmpl + 'review/admin/review_admin.html', controller: 'ExamReviewController'});
             $routeProvider.when('/exams/reviews/:id', { templateUrl: tmpl + 'review/review_list.html', controller: 'ReviewListingController'});
             $routeProvider.when('/exams/reviews/:id/speedreview', { templateUrl: tmpl + 'review/listings/speed_review.html', controller: 'ReviewListingController'});
             $routeProvider.when('/exams/preview/:id', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController' });

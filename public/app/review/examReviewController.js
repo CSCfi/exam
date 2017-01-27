@@ -18,6 +18,17 @@
                 $scope.multiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/multiple_choice_answer.html";
                 $scope.weightedMultiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/weighted_multiple_choice_answer.html";
 
+                // admin UI
+                $scope.generalInfoAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/admin/exam_general_info_admin.html";
+                $scope.reviewSectionAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/admin/exam_section_admin.html";
+                $scope.multiplechoiceQuestionAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/admin/multiple_choice_question_admin.html";
+                $scope.essayQuestionAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/admin/essay_question_admin.html";
+                $scope.clozeTestAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/cloze_test.html";
+                $scope.previousParticipationAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/admin/previous_participation_admin.html";
+                $scope.multiChoiceAnswerAdminTemplate = EXAM_CONF.TEMPLATES_PATH + "review/admin/multiple_choice_answer_admin.html";
+                $scope.weightedMultiChoiceAnswerAdminTemplate = EXAM_CONF.TEMPLATES_PATH + "review/admin/weighted_multiple_choice_answer_admin.html";
+
+                // paperitentti
                 $scope.printSectionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/exam_section.html";
                 $scope.printMultiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/multiple_choice_question.html";
                 $scope.printEssayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/essay_question.html";
@@ -151,16 +162,23 @@
                 var setTemplates = function () {
                     if ($scope.exam.subjectToLanguageInspection) {
                         $scope.toolbarPath = EXAM_CONF.TEMPLATES_PATH + "review/maturity_toolbar.html";
+                        $scope.toolbarAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/admin/maturity_toolbar_admin.html";
                         $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/maturity_grading.html";
+                        $scope.gradingAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/admin/maturity_grading_admin.html";
                         $scope.inspectionCommentsPath = EXAM_CONF.TEMPLATES_PATH + "review/inspection_comments.html";
+                        $scope.inspectionCommentsAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/admin/inspection_comments_admin.html";
                     } else {
                         $scope.toolbarPath = EXAM_CONF.TEMPLATES_PATH + "review/toolbar.html";
+                        $scope.toolbarAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/admin/toolbar_admin.html";
                         $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/grading.html";
+                        $scope.gradingAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/admin/grading_admin.html";
                     }
                     if ($scope.isUnderLanguageInspection()) {
                         $scope.feedbackWindowPath = EXAM_CONF.TEMPLATES_PATH + "review/language_feedback.html";
+                        $scope.feedbackWindowAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/admin/language_feedback_admin.html";
                     } else {
                         $scope.feedbackWindowPath = EXAM_CONF.TEMPLATES_PATH + "review/feedback.html";
+                        $scope.feedbackWindowAdminPath = EXAM_CONF.TEMPLATES_PATH + "review/admin/feedback_admin.html";
                     }
                 };
 

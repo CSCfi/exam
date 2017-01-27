@@ -45,6 +45,7 @@
                 $scope.dateService = dateService;
 
                 $scope.reservationDetails = EXAM_CONF.TEMPLATES_PATH + "reservation/reservation_details.html";
+                $scope.reservationDetailsAdmin = EXAM_CONF.TEMPLATES_PATH + "reservation/admin/reservation_details_admin.html";
 
 
                 $scope.isAdminView = function () {
