@@ -422,12 +422,17 @@
                     });
                 };
 
-                $scope.copyQuestion = function (question) {
+                $scope.copyQuestion = function (question, fromDialog) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_copy_question'));
                     dialog.result.then(function (btn) {
                         QuestionRes.question.copy({id: question.id}, function (copy) {
                             toastr.info($translate.instant('sitnet_question_copied'));
-                            $location.path("/questions/" + copy.id);
+                            if(fromDialog) {
+                                $scope.setBaseQuestionId(copy.id);
+                            }
+                            else  {
+                                $location.path("/questions/" + copy.id);
+                            }
                         });
                     });
                 };
