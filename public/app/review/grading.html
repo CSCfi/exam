@@ -14,13 +14,14 @@
                       ng-hide="inspection.ready">
                     {{ inspection.user.firstName }} {{ inspection.user.lastName }} {{'sitnet_in_progress' | translate}}</span>
             </span>
-            <span class="input-group-sm" ng-hide="inspection.user.id !== user.id">
-                <select ng-model="inspection.ready" class="form-control"
+            <div class="input-group-sm make-inline" ng-hide="inspection.user.id !== user.id">
+                <div class="make-inline">{{ inspection.user.firstName }} {{ inspection.user.lastName }}</div>
+                <div class="make-inline padl10"><select ng-model="inspection.ready" class="form-control"
                         ng-disabled="isGraded() || isReadOnly()"
                         ng-options="s.key as s.value for s in reviewStatus"
                         ng-change="toggleReady()" ng-show="inspection.user.id === user.id">
-                </select>
-            </span>
+                </select></div>
+            </div>
         </div>
     </div>
 </div>
