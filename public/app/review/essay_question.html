@@ -82,7 +82,7 @@
                 <div>
                     <span ng-show="sectionQuestion.evaluationType === 'Points'">
                         <input id="score" name="score" type="number" class="form-control"
-                               ng-model="sectionQuestion.essayAnswer.evaluatedScore" step="0.01"
+                               ng-model="sectionQuestion.essayAnswer.evaluatedScore" step="1"
                                ui-blur="insertEssayScore(sectionQuestion)"
                                ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/"
                                ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
