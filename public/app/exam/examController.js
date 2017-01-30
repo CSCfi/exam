@@ -166,6 +166,7 @@
                         $scope.newExam = ExamRes.exams.get({id: $routeParams.id});
                         $scope.typeSelected = true;
                     } else {
+
                         // Parent scope deals with the actual exam fetching
                         $scope.initializeExam(refresh).then(function (exam) {
                             $scope.typeSelected = true;
@@ -1502,11 +1503,10 @@
                                     }, function (sec) {
 
                                         toastr.info($translate.instant("sitnet_question_added"));
-                                        var promises = [];
-                                        promises.push(DragDropHandler.addObject(sectionQuestions, section.sectionQuestions, to));
-                                        $q.all(promises).then(function () {
-                                            $modalInstance.close();
-                                        });
+                                        section.sectionQuestions = sec.sectionQuestions;
+                                        updateSection(section, true);
+                                        $modalInstance.close();
+
                                     }, function (error) {
                                         toastr.error(error.data);
                                         // remove broken objects
@@ -1562,6 +1562,7 @@
                     });
 
                     modalInstance.result.then(function () {
+                        console.log('kutsutaanko?');
                         initializeExam(true);
                     });
 
