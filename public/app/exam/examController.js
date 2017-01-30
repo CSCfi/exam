@@ -169,6 +169,7 @@
                         // Parent scope deals with the actual exam fetching
                         $scope.initializeExam(refresh).then(function (exam) {
                             $scope.typeSelected = true;
+                            $scope.newExam = exam;
                             $scope.newExam.examLanguages.forEach(function (language) {
                                 // Use front-end language names always to allow for i18n etc
                                 language.name = getLanguageNativeName(language.code);
