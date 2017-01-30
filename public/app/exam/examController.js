@@ -1099,54 +1099,6 @@
                     recreateSectionIndices();
                 };
 
-                $scope.insertQuestion = function (section, object, to) {
-                    if (object instanceof Array) {
-                        var questions = angular.copy(object).reverse();
-
-                        var sectionQuestions = questions.map(function (question) {
-                            return question.id;
-                        }).join(",");
-
-                        ExamRes.sectionquestionsmultiple.insert({
-                                eid: $scope.newExam.id,
-                                sid: section.id,
-                                seq: to,
-                                questions: sectionQuestions
-                            }, function (sec) {
-                                toastr.info($translate.instant("sitnet_question_added"));
-                                var promises = [];
-                                promises.push(DragDropHandler.addObject(sectionQuestions, section.sectionQuestions, to));
-                                $q.all(promises).then(function () {
-                                    initializeExam(true);
-                                });
-
-                            }, function (error) {
-                                toastr.error(error.data);
-                            }
-                        );
-
-                    } else {
-                        var question = angular.copy(object);
-                        ExamRes.sectionquestions.insert({
-                                eid: $scope.newExam.id,
-                                sid: section.id,
-                                seq: to,
-                                qid: question.id
-                            }, function (sec) {
-                                toastr.info($translate.instant("sitnet_question_added"));
-                                section.sectionQuestions = sec.sectionQuestions;
-                                updateSection(section, true); // needs manual update as the scope is somehow not automatically refreshed
-                            }, function (error) {
-                                toastr.error(error.data);
-                                // remove broken objects
-                                section.sectionQuestions = section.sectionQuestions.filter(function (sq) {
-                                    return sq;
-                                });
-                            }
-                        );
-                    }
-                };
-
                 $scope.toggleDisabled = function (section) {
                     return !section.sectionQuestions || section.sectionQuestions.length < 2;
                 };
@@ -1500,13 +1452,8 @@
                                         seq: to,
                                         questions: sectionQuestions
                                     }, function (sec) {
-
                                         toastr.info($translate.instant("sitnet_question_added"));
-                                        var promises = [];
-                                        promises.push(DragDropHandler.addObject(sectionQuestions, section.sectionQuestions, to));
-                                        $q.all(promises).then(function () {
-                                            $modalInstance.close();
-                                        });
+                                        $modalInstance.close();
                                     }, function (error) {
                                         toastr.error(error.data);
                                         // remove broken objects
