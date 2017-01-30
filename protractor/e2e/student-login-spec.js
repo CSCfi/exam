@@ -1,42 +1,46 @@
 var LoginPage = require('../pages/LoginPage');
 var StudentDashboard = require('../pages/StudentDashboard');
-var Fixture = require('../fixtures/Fixture');
+var NavBar = require("../pages/NavBar");
+var Common = require('../pages/Common');
 
 describe('Exam student login', function () {
 
-    var loginPage = new LoginPage();
     var studentDashboard = new StudentDashboard();
-    var fixture = new Fixture();
+    var navBar = new NavBar();
+    var common = new Common();
+
+    beforeAll(function () {
+        common.beforeAll('saulistu', 'saulistu', 'student');
+    });
 
     beforeEach(function () {
-        fixture.loadFixture();
-        loginPage.load();
+        common.beforeEach();
     });
 
     afterEach(function () {
-        loginPage.logout();
+        common.afterEach();
+    });
+
+    afterAll(function () {
+        common.afterAll();
     });
 
     it('should open student dashboard', function () {
-        // LOGIN
-        loginPage.login('saulistu', 'saulistu');
-        // SELECT ROLE
-        loginPage.selectRole('student');
-
         // CHECK LANGUAGE SELECTION
-        studentDashboard.selectLanguage(0); // fi
-        studentDashboard.checkHeader('Tervetuloa, Sauli Student');
+        navBar.selectLanguage('fi');
+        studentDashboard.checkTitle('Ilmoittautumiset');
 
-        studentDashboard.selectLanguage(1); // sv
-        studentDashboard.checkHeader('Välkommen, Sauli Student');
+        navBar.selectLanguage('sv');
+        studentDashboard.checkTitle('Bokningar');
 
-        studentDashboard.selectLanguage(2); // en
-        studentDashboard.checkHeader('Welcome, Sauli Student');
+        navBar.selectLanguage('en');
+        studentDashboard.checkTitle('Locked exams');
 
         // CHECK NAVBAR USER NAME
-        studentDashboard.checkNavbarUserName('Sauli', 'Student');
+        navBar.checkNavbarUserName('Sauli', 'Student');
 
         // CHECK NAVBAR LINKS
-        studentDashboard.checkNavbarLinks();
+        navBar.checkNavbarLinks([true, false, false, false, false, false, false,
+            false, false, false, false, true, true, true, false]);
     });
 });

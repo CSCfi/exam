@@ -1,10 +1,25 @@
+var HtmlScreenshotReporter = require('protractor-jasmine2-screenshot-reporter');
+var Fixture = require('./fixtures/Fixture');
+
+// Take screenshot for every failed test case.
+var reporter = new HtmlScreenshotReporter({
+    dest: 'target/screenshots',
+    filename: 'protractor-report.html',
+    captureOnlyFailedSpecs: true
+});
+
 exports.config = {
-    baseUrl: "http://localhost:9000",
-    seleniumServerJar: "../node_modules/protractor/selenium/selenium-server-standalone-2.47.1.jar",
-    specs: ['e2e/teacher-share-question.js'],
+    baseUrl: 'http://localhost:9000',
+    seleniumServerJar: '../node_modules/protractor/node_modules/webdriver-manager/selenium/selenium-server-standalone-2.53.1.jar',
+    specs: ['e2e/**/*-spec.js'],
     framework: 'jasmine2',
+    beforeLaunch: function() {
+        return new Promise(function(resolve){
+            reporter.beforeLaunch(resolve);
+        });
+    },
     onPrepare: function () {
-        global.EC = protractor.ExpectedConditions;
+        global.EC = browser.ExpectedConditions;
         browser.driver.manage().window().setSize(1200, 1000);
 
         // Disable animations so e2e tests run more quickly
@@ -16,5 +31,14 @@ exports.config = {
         };
 
         browser.addMockModule('disableNgAnimate', disableNgAnimate);
+
+        // Add screenshot reporter for failure cases
+        jasmine.getEnv().addReporter(reporter);
+        new Fixture().loadFixture();
+    },
+    afterLaunch: function(exitCode) {
+        return new Promise(function(resolve){
+            reporter.afterLaunch(resolve.bind(this, exitCode));
+        });
     }
 };

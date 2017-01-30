@@ -35,7 +35,7 @@ describe('Exam teacher', function () {
         teacherDashboard.checkNavbarUserName('Liisa', 'Opettaja');
         teacherDashboard.checkNavbarLinks();
         teacherDashboard.selectLanguage(0); // fi
-        teacherDashboard.checkHeader('Työpöytä');
+        teacherDashboard.checkTitle('Työpöytä');
 
     });
 
