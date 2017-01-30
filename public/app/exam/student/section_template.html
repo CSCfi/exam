@@ -37,8 +37,14 @@
                                 </i>
                             </div>
                             <div class="question-type">
-                               <div class="question-type-img-wrap" ng-if="sectionQuestion.answered"><img src="../../../assets/assets/images/icon_question_type_ready.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_ready.png'" /></div>
-                               <div class="question-type-img-wrap" ng-if="!sectionQuestion.answered"><img src="../../../assets/assets/images/icon_question_type_waiting.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_waiting.png'" /></div>
+                               <div class="question-type-img-wrap" ng-if="sectionQuestion.answered">
+                                   <img src="../../../assets/assets/images/icon_question_type_ready_grey.png"
+                                        alt="exam"
+                                        onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_ready_grey.png'" /></div>
+                               <div class="question-type-img-wrap" ng-if="!sectionQuestion.answered">
+                                   <img src="../../../assets/assets/images/icon_question_type_waiting.svg"
+                                        alt="exam"
+                                        onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_waiting.png'" /></div>
                             </div>
                         </div>
                     </div>
