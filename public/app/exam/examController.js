@@ -119,7 +119,7 @@
 
                 };
 
-                var resetAutoEvaluationConfig = function (overwrite) {
+                var prepareAutoEvaluationConfig = function (overwrite) {
                     var exam = $scope.newExam;
                     $scope.autoevaluation.enabled = !!exam.autoEvaluationConfig;
                     if ((overwrite || !exam.autoEvaluationConfig) && $scope.newExam.gradeScale) {
@@ -181,7 +181,7 @@
                             initialLanguages = exam.examLanguages.length;
                             initialSoftware = exam.softwares.length;
                             resetGradeScale(exam);
-                            resetAutoEvaluationConfig();
+                            prepareAutoEvaluationConfig();
                             getInspectors();
                             getExamOwners();
                             if (exam.examEnrolments.filter(function (ee) {
@@ -765,7 +765,7 @@
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.gradeScale ? $scope.newExam.gradeScale.id : undefined,
                         "expanded": $scope.newExam.expanded,
-                        "evaluationConfig": $scope.autoevaluation.enabled ? {
+                        "evaluationConfig": $scope.autoevaluation.enabled && $scope.canBeAutoEvaluated() ? {
                                 releaseType: $scope.selectedReleaseType().name,
                                 releaseDate: new Date($scope.newExam.autoEvaluationConfig.releaseDate).getTime(),
                                 amountDays: $scope.newExam.autoEvaluationConfig.amountDays,
@@ -796,7 +796,7 @@
                     });
                     $scope.newExam = exam;
                     resetGradeScale(exam);
-                    resetAutoEvaluationConfig(overrideEvaluations);
+                    prepareAutoEvaluationConfig(overrideEvaluations);
                     recreateSectionIndices();
                     $scope.updateTitle($scope.newExam);
                     $scope.newExam.examLanguages.forEach(function (language) {
