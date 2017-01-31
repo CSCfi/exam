@@ -17,11 +17,13 @@ import util.AppUtil;
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentContainer {
@@ -545,7 +547,10 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                     questionCopy.save();
                 }
                 esq.save();
-                esq.getOptions().forEach(ExamSectionQuestionOption::save);
+                // Randomize order of options. Set won't cut it especially because the one we get from ebean is linked
+                List<ExamSectionQuestionOption> shuffled = esq.getOptions().stream().collect(Collectors.toList());
+                Collections.shuffle(shuffled);
+                shuffled.forEach(ExamSectionQuestionOption::save);
             }
             clone.getExamSections().add(esCopy);
         }
