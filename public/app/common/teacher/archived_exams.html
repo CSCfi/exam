@@ -2,7 +2,8 @@
     <div class="form-group input-group search tab-search">
         <input ng-model="filter.text"
                type="text"
-               class="form-control search" placeholder="{{'sitnet_exam_search_description' | translate }}">
+               class="form-control search" placeholder="{{'sitnet_exam_search_description' | translate }}"
+               ng-change="search()">
         <div class="input-group-addon search">
             <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
         </div>
@@ -23,7 +24,7 @@
                 </thead>
 
                 <tbody>
-                <tr ng-repeat="exam in archivedExams | orderBy:archivedPredicate:reverse | filter:filter.text as resArc">
+                <tr ng-repeat="exam in filteredArchived | orderBy:archivedPredicate:reverse">
                     <td ng-if="exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
                         {{ exam.name }}</a><br/><span class="exam-code">{{ exam.course.code }}</span></td>
                     <td ng-if="!exam.name" class="table-column-examname">
@@ -61,7 +62,7 @@
                         </span>
                     </td>
                 </tr>
-                <tr ng-if="resArc.length == 0"><td colspan="8">{{'sitnet_exam_no_result' | translate}}</td></tr>
+                <tr ng-if="filteredArchived.length == 0"><td colspan="8">{{'sitnet_exam_no_result' | translate}}</td></tr>
 
                 </tbody>
             </table>

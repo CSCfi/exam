@@ -3,7 +3,8 @@
     <div class="form-group input-group search tab-search">
         <input ng-model="filter.text"
                type="text"
-               class="form-control search" placeholder="{{'sitnet_exam_search_description' | translate }}">
+               class="form-control search" placeholder="{{'sitnet_exam_search_description' | translate }}"
+               ng-change="search()">
         <div class="input-group-addon search">
             <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
         </div>
@@ -34,9 +35,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="exam in draftExams | orderBy:draftsPredicate:reverse | filter:filter.text as resDra"
-                        ng-init="isOwner=filterOwners(user.id, exam)"
-                        ng-show="isOwner">
+                    <tr ng-repeat="exam in filteredDraft | orderBy:draftsPredicate:reverse">
                         <td ng-if="exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
                             {{ exam.name }}</a><br/><span class="exam-code">{{ exam.course.code }}</span></td>
                         <td ng-if="!exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
@@ -74,7 +73,7 @@
                         </span>
                         </td>
                     </tr>
-                    <tr ng-if="resDra.length == 0"><td colspan="8">{{'sitnet_exam_no_result' | translate}}</td></tr>
+                    <tr ng-if="filteredDraft.length == 0"><td colspan="8">{{'sitnet_exam_no_result' | translate}}</td></tr>
 
                     </tbody>
                 </table>

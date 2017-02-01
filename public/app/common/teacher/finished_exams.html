@@ -2,7 +2,8 @@
     <div class="form-group input-group search tab-search">
         <input ng-model="filter.text"
                type="text"
-               class="form-control search" placeholder="{{'sitnet_exam_search_description' | translate }}">
+               class="form-control search" placeholder="{{'sitnet_exam_search_description' | translate }}"
+               ng-change="search()">
         <div class="input-group-addon search">
             <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
         </div>
@@ -25,14 +26,13 @@
                 </thead>
 
                 <tbody>
-                <tr ng-repeat="exam in finishedExams | orderBy:finishedPredicate:reverse | filter: filter.text as resFin"
-                                ng-init="isOwner=filterOwners(user.id, exam)"
-                                ng-show="isOwner || (!isOwner && exam.unassessedCount > 0)">
+                <tr ng-repeat="exam in filteredFinished | orderBy:finishedPredicate:reverse"
+                    ng-init="isOwner=filterOwners(user.id, exam)">
 
                     <td ng-if="exam.name" class="table-column-examname">
 
                         <a ng-if="isOwner" href="/exams/examTabs/{{exam.id}}/1">
-                        {{ exam.name }}</a>
+                            {{ exam.name }}</a>
                         <span ng-if="!isOwner">
                             {{ exam.name }}</span>
 
@@ -75,7 +75,7 @@
                         </span>
                     </td>
                 </tr>
-                <tr ng-if="resFin.length == 0"><td colspan="8">{{'sitnet_exam_no_result' | translate}}</td></tr>
+                <tr ng-if="filteredFinished.length == 0"><td colspan="8">{{'sitnet_exam_no_result' | translate}}</td></tr>
 
                 </tbody>
             </table>

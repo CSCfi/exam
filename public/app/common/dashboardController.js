@@ -3,9 +3,9 @@
     angular.module("exam.controllers")
         .controller('DashboardCtrl', ['$scope', 'dashboardService', 'examService', 'questionService',
             'reservationService', 'dateService', 'enrolmentService', 'sessionService','EXAM_CONF', 'ExamRes',
-            'dialogs','$translate', '$location',
+            'dialogs','$translate', '$location','$filter',
             function ($scope, dashboardService, examService, questionService, reservationService, dateService,
-                      enrolmentService, sessionService, EXAM_CONF, ExamRes, dialogs, $translate, $location) {
+                      enrolmentService, sessionService, EXAM_CONF, ExamRes, dialogs, $translate, $location, $filter) {
 
                 $scope.evaluationPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/exam_feedback.html";
 
@@ -16,7 +16,10 @@
                 $scope.showInst = 0;
                 $scope.showEval = 0;
                 $scope.filtertext = '';
-
+                this.resAct = {};
+                this.resFin = {};
+                this.resArc = {};
+                $scope.reduceDraftCount = 0;
 
                 $scope.printExamDuration = function (exam) {
                     return dateService.printExamDuration(exam);
@@ -85,24 +88,56 @@
                     return examService.getExecutionTypeTranslation(exam.executionType.type);
                 };
 
+                $scope.checkOwner = function(isOwner) {
+
+                    if(isOwner) {
+                        $scope.reduceDraftCount += 1;
+                        return true;
+                    }
+
+                    return false;
+                }
 
                 $scope.search = function () {
-                    ExamRes.reviewerExams.query({filter: $scope.filtertext}, function (exams) {
-                        exams.forEach(function (exam) {
-                            if (!exam.examLanguages) {
-                                console.warn("No languages for exam #" + exam.id);
-                                exam.examLanguages = [];
-                            }
-                            exam.languages = exam.examLanguages.map(function (lang) {
-                                return getLanguageNativeName(lang.code);
-                            });
-                        });
-                        $scope.finishedExams = exams;
-                        //$scope.loader.loading = false;
-                    }, function (err) {
-                        //$scope.loader.loading = false;
-                        toastr.error($translate.instant(err.data));
+
+                    $scope.reduceDraftCount = 0;
+                    var userId = sessionService.getUser().id;
+
+                    // Use same search parameter for all the 4 result tables
+                    $scope.filteredFinished = $filter('filter')($scope.finishedExams, $scope.filter.text);
+                    $scope.filteredActive = $filter('filter')($scope.activeExams, $scope.filter.text);
+                    $scope.filteredArchived = $filter('filter')($scope.archivedExams, $scope.filter.text);
+                    $scope.filteredDraft = $filter('filter')($scope.draftExams, $scope.filter.text);
+
+                    // for drafts, display exams only for owners AM-1658
+                    $scope.filteredDraft = $scope.filteredDraft.filter(function (exam) {
+                        var owner = exam.examOwners.filter(function (own) {
+                                        return (own.id === userId);
+                                    });
+                        if(owner.length > 0) { return exam; }
+                        return false;
                     });
+
+                    // for finished, display exams only for owners OR if exam has unassessed reviews AM-1658
+                    $scope.filteredFinished = $scope.filteredFinished.filter(function (exam) {
+                        var owner = exam.examOwners.filter(function (own) {
+                                        return (own.id === userId);
+                                    });
+                        if(owner.length > 0 || (owner.length == 0 && exam.unassessedCount > 0)) { return exam; }
+                        return false;
+                    });
+
+                    // for active, display exams only for owners OR if exam has unassessed reviews AM-1658
+                    $scope.filteredActive = $scope.filteredActive.filter(function (exam) {
+                        var owner = exam.examOwners.filter(function (own) {
+                                        return (own.id === userId);
+                                    });
+                        if(owner.length > 0 || (owner.length == 0 && exam.unassessedCount > 0)) { return exam; }
+                        return false;
+                    });
+
+
+
                 };
 
                 dashboardService.showDashboard().then(function (data) {
@@ -111,6 +146,12 @@
                             $scope[k] = data[k];
                         }
                     }
+
+                    $scope.filteredFinished = $scope.finishedExams;
+                    $scope.filteredActive = $scope.activeExams;
+                    $scope.filteredArchived = $scope.archivedExams;
+                    $scope.filteredDraft = $scope.draftExams;
+
                 }, function (error) {
                     toastr.error(error.data);
                 });
