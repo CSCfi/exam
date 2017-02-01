@@ -639,7 +639,12 @@
                         } else {
                             ExamRes.review.update({id: examToRecord.id}, examToRecord, function () {
                                 if (exam.state !== 'GRADED') {
-                                    toastr.info($translate.instant("sitnet_maturity_review_graded"));
+                                    if(exam.executionType.type == 'MATURITY') {
+                                        toastr.info($translate.instant("sitnet_maturity_review_graded"));
+                                    }
+                                    else {
+                                        toastr.info($translate.instant("sitnet_review_graded"));
+                                    }
                                 }
                                 sendToRegistry(examToRecord, res, followUpUrl);
                             }, function (error) {
