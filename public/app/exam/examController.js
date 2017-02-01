@@ -2,12 +2,12 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('ExamController', ['dialogs', '$scope', '$timeout', '$filter', '$rootScope', '$q', '$sce', '$uibModal', 'sessionService', 'examService',
-            '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
-            'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes', 'ExamSectionQuestionRes', 'limitToFilter',
+            '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes',
+            'SoftwareResource', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes', 'ExamSectionQuestionRes', 'limitToFilter',
             'enrolmentService',
             function (dialogs, $scope, $timeout, $filter, $rootScope, $q, $sce, $modal, sessionService, examService,
-                      $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource,
-                      SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes, ExamSectionQuestionRes,
+                      $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes,
+                      SoftwareResource, SettingsResource, fileService, questionService, EnrollRes, ExamSectionQuestionRes,
                       limitToFilter, enrolmentService) {
 
                 $scope.loader = {loading: true};
@@ -50,6 +50,7 @@
                 $scope.tab2 = false;
                 $scope.tab3 = $routeParams.tab == 3;
                 $scope.fromDialog = false;
+                $scope.user = sessionService.getUser();
 
 
                 var getReleaseTypeByName = function (name) {
@@ -58,10 +59,6 @@
                     });
                     return matches.length > 0 ? matches[0] : null;
                 };
-
-                $scope.user = sessionService.getUser();
-
-                $scope.session = sessionService;
 
 
                 // Clear the question type filter when moving away
@@ -107,16 +104,16 @@
                 var initialLanguages;
                 var initialSoftware;
 
-                var resetGradeScale = function (exam) {
+                var prepareGradeScale = function (exam) {
                     // Set exam grade scale from course default if not specifically set for exam
-                    if (!exam.gradeScale && exam.course && exam.course.gradeScale) {
+                    if (exam.gradeScale) {
+                        $scope.newExam.gradeScale.name = examService.getScaleDisplayName(exam.gradeScale);
+                    }
+                    else if (exam.course && exam.course.gradeScale) {
                         $scope.newExam.gradeScale = exam.course.gradeScale;
                         $scope.newExam.gradeScale.name = examService.getScaleDisplayName(
                             $scope.newExam.course.gradeScale);
-                    } else if (exam.gradeScale) {
-                        $scope.newExam.gradeScale.name = examService.getScaleDisplayName(exam.gradeScale);
                     }
-
                 };
 
                 var prepareAutoEvaluationConfig = function (overwrite) {
@@ -180,7 +177,7 @@
                             recreateSectionIndices();
                             initialLanguages = exam.examLanguages.length;
                             initialSoftware = exam.softwares.length;
-                            resetGradeScale(exam);
+                            prepareGradeScale(exam);
                             prepareAutoEvaluationConfig();
                             getInspectors();
                             getExamOwners();
@@ -795,7 +792,7 @@
                         });
                     });
                     $scope.newExam = exam;
-                    resetGradeScale(exam);
+                    prepareGradeScale(exam);
                     prepareAutoEvaluationConfig(overrideEvaluations);
                     recreateSectionIndices();
                     $scope.updateTitle($scope.newExam);
