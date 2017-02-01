@@ -252,7 +252,7 @@
                 };
 
                 $scope.updateSoftwareInfo = function () {
-                    if ($scope.newExam.softwares.length !== initialSoftware) {
+                    if (initialSoftware && $scope.newExam.softwares.length !== initialSoftware) {
                         var softwareIds = $scope.newExam.softwares.map(function (s) {
                             return s.id;
                         }).join();
@@ -271,7 +271,7 @@
 
                 $scope.updateExamLanguages = function () {
 
-                    if ($scope.newExam.examLanguages.length !== initialLanguages) {
+                    if (initialLanguages && $scope.newExam.examLanguages.length !== initialLanguages) {
 
                         ExamRes.languages.reset({eid: $scope.newExam.id}, function () {
                             var promises = [];
