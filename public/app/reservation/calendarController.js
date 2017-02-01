@@ -272,7 +272,8 @@
                                 minTime: minTime,
                                 maxTime: maxTime,
                                 scrollTime: minTime,
-                                hiddenDays: hiddenDays
+                                hiddenDays: hiddenDays,
+                                height: 'auto'
                             })
                         );
 
