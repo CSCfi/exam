@@ -2,7 +2,6 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import be.objectify.deadbolt.java.actions.SubjectPresent;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -10,7 +9,11 @@ import com.typesafe.config.ConfigFactory;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import exceptions.NotFoundException;
-import models.*;
+import models.Language;
+import models.Organisation;
+import models.Role;
+import models.Session;
+import models.User;
 import models.dto.Credentials;
 import org.joda.time.DateTime;
 import play.Environment;
@@ -32,7 +35,7 @@ public class SessionController extends BaseController {
     @Inject
     Environment environment;
 
-    @SubjectNotPresent
+    @ActionMethod
     public Result login() {
         Result result;
         switch (LOGIN_TYPE) {
