@@ -359,7 +359,7 @@ class EmailComposerImpl implements EmailComposer {
 
         Map<String, String> stringValues = new HashMap<>();
         if (isStudentUser) {
-            String link = String.format("%s/enroll/%s", HOSTNAME, enrolment.getExam().getCourse().getCode());
+            String link = String.format("%s/calendar/%s", HOSTNAME, enrolment.getExam().getCourse().getCode());
             String time = String.format("%s - %s", DTF.print(adjustDST(reservation.getStartAt(), TZ)),
                     DTF.print(adjustDST(reservation.getEndAt(), TZ)));
             Exam source = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent() : enrolment.getExam();
@@ -388,7 +388,7 @@ class EmailComposerImpl implements EmailComposer {
         Set<User> teachers = new HashSet<>(exam.getExamOwners());
         teachers.addAll(exam.getExamInspections().stream().map(ExamInspection::getUser).collect(Collectors.toSet()));
         return teachers.stream()
-                .map((t) -> String.format("%s %s <%s>", t.getFirstName(), t.getLastName(), t.getEmail()))
+                .map(t -> String.format("%s %s <%s>", t.getFirstName(), t.getLastName(), t.getEmail()))
                 .collect(Collectors.joining(", "));
     }
 

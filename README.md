@@ -47,5 +47,11 @@ For example running specific test spec only:
 
     $sbt run -Dconfig.resource=protractor.conf -Dprotractor.args="--specs=protractor/e2e/teacher-exam-spec.js"
 
+## Running Protractor tests in CI
+
+Using CI specific protractor configuration.
+
+    $sbt run -Dconfig.resource=protractor.conf -Dprotractor.config="ciConf.js"
+
 ## More information
 For more information see [official installation instructions](https://confluence.csc.fi/display/EXAM/Asennusohjeet) (in Finnish only)
