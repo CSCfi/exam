@@ -50,10 +50,10 @@
                 $scope.user = sessionService.getUser();
 
                 $scope.tabs = [
-                    { title:'0', active: true },
-                    { title:'1', active: $routeParams.tab == 1 },
-                    { title:'2', active: $routeParams.tab == 2 },
-                    { title:'3', active: $routeParams.tab == 3 }
+                    { title:'perus', active: $routeParams.tab == 1 },
+                    { title:'kysymys', active: $routeParams.tab == 2 },
+                    { title:'julkaisu', active: $routeParams.tab == 3 },
+                    { title:'suoritukset', active: $routeParams.tab == 4 }
                   ];
 
                 var getReleaseTypeByName = function (name) {
@@ -168,6 +168,12 @@
                     } else {
                         // Parent scope deals with the actual exam fetching
                         $scope.initializeExam(refresh).then(function (exam) {
+
+                            // route evaluators to 4th tab, don't show exam info
+                            if(!filterOwners($scope.user.id, exam)) {
+                               $scope.tabs[3].active=true;
+                            }
+
                             $scope.typeSelected = true;
                             $scope.newExam = exam;
                             $scope.newExam.examLanguages.forEach(function (language) {
@@ -1574,6 +1580,15 @@
                     });
                     return type;
                 };
+
+                var filterOwners = function (userId, exam) {
+
+                    var owner = exam.examOwners.filter(function (own) {
+                        return (own.id === userId);
+                    });
+                    return owner.length > 0;
+                };
+
 
             }]);
 }());
