@@ -15,6 +15,7 @@ import models.*;
 import models.questions.ClozeTestAnswer;
 import models.questions.Question;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
@@ -92,7 +93,7 @@ public class ExamController extends BaseController {
         List<Exam> printouts = Ebean.find(Exam.class).where()
                 .eq("executionType.type", ExamExecutionType.Type.PRINTOUT.toString())
                 .eq("state", Exam.State.PUBLISHED)
-                .gt("examinationDates.date", new Date())
+                .ge("examinationDates.date", LocalDate.now())
                 .findList();
         PathProperties pp = PathProperties.parse("(id, name, course(code), examinationDates(date), examOwners(firstName, lastName))");
         return ok(printouts, pp);
