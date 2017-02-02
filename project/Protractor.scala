@@ -4,7 +4,7 @@ import play.sbt.{Play, PlayRunHook}
 import sbt._
 
 object Protractor {
-    def apply(base: File, args: String): PlayRunHook = {
+    def apply(base: File, conf: String, args: String): PlayRunHook = {
 
         object ProtractorProcess extends PlayRunHook {
 
@@ -12,7 +12,7 @@ object Protractor {
 
             override def afterStarted(address: InetSocketAddress): Unit = {
                 println("Starting protractor tests...")
-                val process = Seq("./node_modules/protractor/bin/protractor", "protractor/conf.js", args).mkString(" ")
+                val process = Seq("./node_modules/protractor/bin/protractor", "protractor/" + conf, args).mkString(" ")
                 println(process)
                 protractor = Some(Process(process, base).run())
                 if (protractor.get.exitValue() != 0) {

@@ -35,12 +35,11 @@ var ExamEditor = function () {
     };
 
     this.setInstructions = function (instruction) {
-        return element(by.model('newExam.instruction')).sendKeys(instruction);
+        element(by.model('newExam.instruction')).sendKeys(instruction);
     };
 
     this.setSectionName = function (section, name) {
-        return section.element(by.model('section.name'))
-            .sendKeys(name);
+        section.element(by.model('section.name')).sendKeys(name);
     };
 
     this.selectType = function (type) {

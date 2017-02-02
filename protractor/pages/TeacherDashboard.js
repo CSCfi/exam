@@ -6,11 +6,11 @@ var TeacherDashboard = function () {
     };
 
     this.getActiveExams = function () {
-        return element.all(by.repeater('exam in activeExams'));
+        return element.all(by.repeater('exam in filteredActive'));
     };
 
     this.getFinishedExams = function () {
-        return element.all(by.repeater('exam in finishedExams'));
+        return element.all(by.repeater('exam in filteredFinished'));
     };
 
     this.selectTab = function (index) {
