@@ -803,6 +803,11 @@
     color: #2C2C2C;
     padding-bottom:5px;
     border-bottom:1px solid #B1B1B1;
+
+    &.section-title {
+      font-size: 20px;
+      letter-spacing: 0.63px;
+    }
   }
 
   .review-list-subtitle {
@@ -1182,6 +1187,7 @@
     font-size: 20px;
     color: #2C2C2C;
     padding-right:15px;
+    letter-spacing: 0.3px;
 
     p {
       display: inline-block;

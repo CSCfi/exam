@@ -45,12 +45,13 @@
                     ]
                 };
 
-                $scope.tab0 = true;
-                $scope.tab1 = false;
-                $scope.tab2 = false;
-                $scope.tab3 = $routeParams.tab == 3;
-                $scope.fromDialog = false;
 
+                $scope.tabs = [
+                    { title:'0', active: true },
+                    { title:'1', active: $routeParams.tab == 1 },
+                    { title:'2', active: $routeParams.tab == 2 },
+                    { title:'3', active: $routeParams.tab == 3 }
+                  ];
 
                 var getReleaseTypeByName = function (name) {
                     var matches = $scope.autoevaluation.releaseTypes.filter(function (rt) {
@@ -824,7 +825,7 @@
                 };
 
                 //Called when Preview Button is clicked
-                $scope.previewExam = function () {
+                $scope.previewExam = function (fromTab) {
                     //First save the exam, so that
                     //we have something to preview
                     // TODO: Is this really necessary anymore?
@@ -833,7 +834,7 @@
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
                         function () {
                             var resource = $scope.newExam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
-                            $location.path("/exams/" + resource + "/" + $routeParams.id);
+                            $location.path("/exams/" + resource + "/" + $routeParams.id + "/" + fromTab);
                         }, function (error) {
                             toastr.error(error.data);
                         });

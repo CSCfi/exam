@@ -7,11 +7,6 @@
                 $scope.user = sessionService.getUser();
                 $scope.examInfo = {};
                 $scope.examFull = {};
-                $scope.tab0 = true;
-                $scope.tab1 = false;
-                $scope.tab2 = false;
-
-                $scope.tab3 = $routeParams.tab == 3;
 
                 $scope.tabtemplates = {
                     reviewListPath: EXAM_CONF.TEMPLATES_PATH + "review/review_list.html",

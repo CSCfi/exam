@@ -25,7 +25,7 @@
         <i class="fa sitnet-white fa-plus"></i>&nbsp;{{'sitnet_section_add' | translate}}
     </a></div>
     <span class="pull-right">
-        <div class="review-attachment-button exam-questions-buttons"><a target="_self" class="pointer preview" ng-click="previewExam()">
+        <div class="review-attachment-button exam-questions-buttons"><a target="_self" class="pointer preview" ng-click="previewExam(1)">
             {{'sitnet_preview' | translate}}
         </a></div>
         <div class="review-attachment-button exam-questions-buttons marl10"><a target="_self" class="pointer" ng-click="saveExam()">
@@ -37,4 +37,20 @@
           </a>
         </div>
     </span>
+</div>
+
+<div class="col-md-12 padl0 padr0 marb20 padt20 grey-top">
+    <span class="pull-right">
+        <div ng-show="newExam.executionType.type==='PUBLIC'" class="review-attachment-button exam-questions-buttons">
+            <a target="_self" class="pointer" ng-click="tabs[2].active = true">
+                {{'sitnet_exam_publish_tab' | translate}} &#187;</a>
+        </div>
+    </span>
+    <span class="pull-left">
+        <div ng-show="newExam.executionType.type==='PUBLIC'" class="review-attachment-button exam-questions-buttons">
+            <a target="_self" class="pointer" ng-click="tabs[0].active = true">
+                &#171; {{'sitnet_exam_basic_information_tab' | translate}}</a>
+        </div>
+    </span>
+
 </div>

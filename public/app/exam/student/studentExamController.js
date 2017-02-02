@@ -287,7 +287,7 @@
                     }
                     $scope.previousButton = {valid: true};
                     if (previousPage !== 'guide') {
-                        $scope.previousButton.text = findSection(previousPage).name;
+                        $scope.previousButton.text = findSection(sectionId).name;
                         return;
                     }
                     $scope.previousButton.isGuide = true;
@@ -333,7 +333,7 @@
 
                 // Called when the exit button is clicked
                 $scope.exitPreview = function () {
-                    $location.path("/exams/examTabs/"+$routeParams.id+"/1");
+                    $location.path("/exams/examTabs/"+$routeParams.id+"/"+$routeParams.tab);
                 };
 
                 $scope.showMaturityInstructions = function (exam) {

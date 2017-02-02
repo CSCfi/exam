@@ -60,6 +60,7 @@
             $routeProvider.when('/exams/reviews/:id', { templateUrl: tmpl + 'review/review_list.html', controller: 'ReviewListingController'});
             $routeProvider.when('/exams/reviews/:id/speedreview', { templateUrl: tmpl + 'review/listings/speed_review.html', controller: 'ReviewListingController'});
             $routeProvider.when('/exams/preview/:id', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController' });
+            $routeProvider.when('/exams/preview/:id/:tab', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController' });
             $routeProvider.when('/reservations', { templateUrl: tmpl + 'reservation/teacher_reservations.html', controller: 'ReservationCtrl'});
             $routeProvider.when('/reservations/:eid', { templateUrl: tmpl + 'reservation/teacher_reservations.html', controller: 'ReservationCtrl'});
             $routeProvider.when('/exams/examTabs/:id/:tab', { templateUrl: tmpl + 'exam/examTabs.html' });
@@ -79,6 +80,7 @@
 
             /* Printout exam */
             $routeProvider.when('/exams/printout/:id', { templateUrl: tmpl + 'exam/printout/printout.html', controller: 'PrintoutController', controllerAs: 'ctrl'});
+            $routeProvider.when('/exams/printout/:id/:tab', { templateUrl: tmpl + 'exam/printout/printout.html', controller: 'PrintoutController', controllerAs: 'ctrl'});
             $routeProvider.when('/printouts', { templateUrl: tmpl + 'exam/printout/printouts.html', controller: 'PrintoutController', controllerAs: 'ctrl'});
 
 
