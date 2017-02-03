@@ -12,7 +12,7 @@ object Protractor {
 
             override def afterStarted(address: InetSocketAddress): Unit = {
                 println("Starting protractor tests...")
-                val process = Seq("./node_modules/protractor/bin/protractor", "protractor/" + conf, args).mkString(" ")
+                val process = Seq("./node_modules/protractor/bin/protractor", "protractor/" + conf, args.replaceAll(",", " ")).mkString(" ")
                 println(process)
                 protractor = Some(Process(process, base).run())
                 if (protractor.get.exitValue() != 0) {

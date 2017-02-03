@@ -42,16 +42,19 @@ You can run protractor tests with sbt build using following command:
 ### Passing parameters to protractor
 
 You can pass parameters to protactor using _protractor.args_ property.
+Passing multiple protractor parameters use comma (,) to separate parameters.
+
+    -Dprotractor.args=--capabilities.browserName=firefox,--troubleshoot
 
 For example running specific test spec only:
 
-    $sbt run -Dconfig.resource=protractor.conf -Dprotractor.args="--specs=protractor/e2e/teacher-exam-spec.js"
+    $sbt run -Dconfig.resource=protractor.conf -Dprotractor.args=--specs=protractor/e2e/teacher-exam-spec.js
 
 ## Running Protractor tests in CI
 
 Using CI specific protractor configuration.
 
-    $sbt run -Dconfig.resource=protractor.conf -Dprotractor.config="ciConf.js"
+    $sbt run -Dconfig.resource=protractor.conf -Dprotractor.config=ciConf.js
 
 ## More information
 For more information see [official installation instructions](https://confluence.csc.fi/display/EXAM/Asennusohjeet) (in Finnish only)
