@@ -367,7 +367,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
     public Result getReservations(Optional<String> start, Optional<String> end, Optional<Long> roomId) {
         PathProperties pp = PathProperties.parse("(startAt, endAt, noShow, " +
                 "user(firstName, lastName, email, userIdentifier), " +
-                "enrolment(exam(name, examOwners(firstName, lastName, email))), " +
+                "enrolment(exam(name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)))), " +
                 "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))");
         Query<Reservation> query = Ebean.find(Reservation.class);
         pp.apply(query);
@@ -386,7 +386,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
         if (roomId.isPresent()) {
             el = el.eq("machine.room.id", roomId.get());
         }
-        List<Reservation> reservations = el.orderBy("startAt").findList();
+        Set<Reservation> reservations = el.orderBy("startAt").findSet();
         return ok(reservations, pp);
     }
 
