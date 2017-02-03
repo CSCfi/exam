@@ -55,9 +55,8 @@
 
             /* Teacher */
             $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'review/review.html', controller: 'ExamReviewController'});
-            //$routeProvider.when('/exams/adminreview/:id', { templateUrl: tmpl + 'review/admin/review_admin.html', controller: 'ExamReviewController'});
             $routeProvider.when('/exams/reviews/:id', { templateUrl: tmpl + 'review/review_list.html', controller: 'ReviewListingController'});
-            $routeProvider.when('/exams/reviews/:id/speedreview', { templateUrl: tmpl + 'review/listings/speed_review.html', controller: 'ReviewListingController'});
+            $routeProvider.when('/exams/reviews/:id/speedreview', { templateUrl: tmpl + 'review/listings/speed_review.html', controller: 'SpeedReviewController', controllerAs: 'ctrl'});
             $routeProvider.when('/exams/preview/:id', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController' });
             $routeProvider.when('/exams/preview/:id/:tab', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController' });
             $routeProvider.when('/reservations', { templateUrl: tmpl + 'reservation/teacher_reservations.html', controller: 'ReservationCtrl'});
