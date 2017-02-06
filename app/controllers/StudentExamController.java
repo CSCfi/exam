@@ -178,7 +178,7 @@ public class StudentExamController extends BaseController {
             EssayAnswer answer = question.getEssayAnswer();
             if (answer == null) {
                 answer = new EssayAnswer();
-            } else {
+            } else if (df.get("objectVersion") != null) {
                 long objectVersion = Long.parseLong(df.get("objectVersion"));
                 answer.setObjectVersion(objectVersion);
             }
