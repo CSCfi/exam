@@ -31,7 +31,7 @@
                     {{sectionQuestion.question.attachment.fileName}}</a>
             </div>
             <!-- answer -->
-            <div class="mart20">
+            <div class="mart20" ng-show="sectionQuestion.reviewExpanded">
                 <hr>
             </div>
             <div ng-if="sectionQuestion.question.type==='MultipleChoiceQuestion'"
