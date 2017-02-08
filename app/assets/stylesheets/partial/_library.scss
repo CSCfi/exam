@@ -309,4 +309,27 @@
     //padding:0 0.5em;
   }
 
+  .question-add-owners {
+    margin-left: 10px;
+    margin-top: 10px;
+    width: 210px;
+    margin-bottom: 10px;
+  }
+
+  .question-add-owners-box {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+
+  .btn {
+    &.green {
+      background-color: #3CA34F;
+    }
+    &.border-green {
+      border: #358F45;
+    }
+    &.whitetext {
+      color:#ffffff;
+    }
+  }
 }

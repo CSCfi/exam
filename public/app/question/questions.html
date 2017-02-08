@@ -133,35 +133,27 @@
                         <span class="padr10">{{total}} {{'sitnet_questions_selected' | translate}}</span> -
                     </div>
                     <div class="make-inline">
-                        <!-- removed this for now. needs more specs from customer
-                        <span class="padl10" ng-if="question.allowedToRemove"><i class="fa fa-trash-o fa-fw" style="color:#266B99;"></i>
-                        &nbsp;<a ng-click="deleteQuestion(question)" class="pointer">{{'sitnet_remove_selected' | translate}}</a></span>
-                        //-->
-
-                        <span class="padl10"><i class="fa fa-clone fa-fw" style="color:#266B99;"></i>
-                        &nbsp;<a class="bold-button" onclick="alert('todo')">{{'sitnet_copy_selected' | translate}}</a></span>
-                    </div>
-
-                    <div class="question-add-owners-box">
+                        <div class="question-add-owners-box">
                         <span class="padl10">
                         <i class="fa fa-user fa-fw" style="color:#266B99;"></i>
                             &nbsp;<a class="bold-button" ng-click="if(showAdder==true) ? showAdder = false : showAdder = true">{{'sitnet_add_question_owner' | translate}}</a></span>
 
-                        <div ng-show="showAdder">
-                            <div class="input-group">
-                                <input type="text" class="form-control ng-pristine ng-valid question-add-owners"
-                                       ng-model="newTeacher"
-                                       placeholder="{{'sitnet_add_question_owner' | translate}}"
-                                       uib-typeahead="t as t.name for t in teachers | filter:$viewValue | limitTo:8"
-                                       typeahead-on-select="onTeacherSelect($item, $model, $label, newExam)"
-                                       typeahead-wait-ms="100"
-                                       typeahead-focus-first="false"
-                                       typeahead-min-length="2"
-                                       typeahead-loading="teachersLoad">
-                            </div>
-                            <div class="col-md-2 bottom-padding-2 padl10">
-                                <input type="button" class="btn green border-green whitetext" ng-disabled="ownerProcess" ng-click="addOwnerForSelected()"
-                                       value="{{'sitnet_add' | translate}}"/>
+                            <div ng-show="showAdder">
+                                <div class="input-group">
+                                    <input type="text" class="form-control ng-pristine ng-valid question-add-owners"
+                                           ng-model="newTeacher"
+                                           placeholder="{{'sitnet_add_question_owner' | translate}}"
+                                           uib-typeahead="t as t.name for t in teachers | filter:$viewValue | limitTo:8"
+                                           typeahead-on-select="onTeacherSelect($item, $model, $label, newExam)"
+                                           typeahead-wait-ms="100"
+                                           typeahead-focus-first="false"
+                                           typeahead-min-length="2"
+                                           typeahead-loading="teachersLoad">
+                                </div>
+                                <div class="col-md-2 bottom-padding-2 padl10">
+                                    <input type="button" class="btn green border-green whitetext" ng-disabled="ownerProcess" ng-click="addOwnerForSelected()"
+                                           value="{{'sitnet_add' | translate}}"/>
+                                </div>
                             </div>
                         </div>
                     </div>
