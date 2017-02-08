@@ -51,34 +51,33 @@
 
                 </div>
 
+                <!-- instruction -->
+                <div class="row mart10" ng-show="sectionQuestion.answerInstructions">
+                    <div class="col-md-12">
+                        <p class="question-text question-type-text info">
+                            <img src="../../../assets/assets/images/icon_info.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'" />
+                            {{'sitnet_instructions' | translate }}:&nbsp;{{sectionQuestion.answerInstructions}}</p>
+                    </div>
+                </div>
 
                 <!-- attachment -->
-                <div class="row" ng-show="sectionQuestion.question.attachment">
+                <div class="row mart10" ng-show="sectionQuestion.question.attachment">
                     <div class="col-md-12" ng-controller="AttachmentController">
-                        <a class="pointer question-text question-type-text"
+                        <a class="pointer green_button left-floater-for-section"
                            ng-click="downloadQuestionAttachment(sectionQuestion.question)">
-                            <i class="text-success fa fa-download"></i>
-                            {{'sitnet_download_question_attachment' | translate }}
-                            <span class="text"><small>({{sectionQuestion.question.attachment.fileName}})</small>
-                            </span>
+                            {{'sitnet_download_section_question_attachment' | translate }}
+                            <img src="../../../assets/assets/images/icon_attachment.svg" alt="exam"
+                                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_attachment.png'" /></a>
+                            <div class="attachment-name">{{sectionQuestion.question.attachment.fileName | uppercase}}</div>
                         </a>
                     </div>
                 </div>
 
-
+                <hr class="info-question-separator">
 
                 <!-- answer -->
                 <div class="exam-question-container" ng-show="sectionQuestion.expanded">
 
-                    <!-- instruction -->
-                    <div class="row" ng-show="sectionQuestion.answerInstructions">
-                        <div class="col-md-12">
-                            <p class="question-text question-type-text info">
-                                <img src="../../../assets/assets/images/icon_info.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'" />
-                                {{'sitnet_instructions' | translate }}:&nbsp;{{sectionQuestion.answerInstructions}}</p>
-                        </div>
-                    </div>
-                    <hr class="info-question-separator">
                     <div class="question">
                         <!-- content-->
                         <div ng-include="sectionQuestion.question.template"></div>

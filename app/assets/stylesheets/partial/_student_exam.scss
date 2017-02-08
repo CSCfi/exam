@@ -101,7 +101,6 @@
 
   .exam-question-container {
     background-color: $sitnet-white;
-    padding-top: 0.4em;
     clear: both;
   }
 
@@ -148,8 +147,6 @@
 
     :hover, :active, :focus, :active:focus {
       background-color: #358F45;
-      border: 1px solid #358F45;
-      text-decoration: none;
     }
 
     &.left-floater {
@@ -160,9 +157,19 @@
       display: inline-block;
       margin-right: 15px;
       font-size: 14px;
-      a:hover {
-        font-size: 14px;
-      }
+      letter-spacing: 0.3px;
+    }
+
+    &.left-floater-for-section {
+      float:left;
+      padding: 5px;
+      padding-left: 20px;
+      display: inline-block;
+      margin-right: 15px;
+      margin-left: 0px;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+
     }
 
     &.previous {
@@ -434,6 +441,8 @@
     font-family:$sitnet-family-helvetica;
     font-size:12px;
     color:#555555;
+    margin-top: 10px;
+
     @media (max-width: 1050px) {
       margin-top: 3px;
     }

@@ -796,5 +796,6 @@
   "sitnet_exam_library_no_results":"Haku ei palauttanut kysymyksiä SV",
   "sitnet_exam_review_maturity_evaluation":"Sisällön arviointi SV",
   "sitnet_exam_essay_change_not_allowed":"Kysymys on käytössä toisessa tentissä, arviointiasteikon muuttaminen ei ole sallittu. SV",
-  "sitnet_exam_multiple_change_not_allowed":"Kysymys on käytössä julkaistussa tentissä, vastausvaihtoehtojen poistaminen ei ole sallittu. SV"
+  "sitnet_exam_multiple_change_not_allowed":"Kysymys on käytössä julkaistussa tentissä, vastausvaihtoehtojen poistaminen ei ole sallittu. SV",
+  "sitnet_download_section_question_attachment": "Lataa tehtävän liite SV"
 }
