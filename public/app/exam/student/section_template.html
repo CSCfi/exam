@@ -16,52 +16,52 @@
                  ng-repeat="sectionQuestion in activeSection.sectionQuestions | orderBy: 'sequenceNumber'"
                  ng-init="examService.setQuestionColors(sectionQuestion.question); sectionQuestion.expanded = true;">
 
-                <div class="row">
+                <div class="wrap-title">
+
                     <!-- question text -->
-                    <div class="row">
-                        <div class="col-md-12 question-text">
-                            <div ng-if="sectionQuestion.question.type !== 'ClozeTestQuestion'">
-                                <div class="section-box-title" ng-if="sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></div>
-                                <div class="section-box-title" ng-if="!sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(truncate(sectionQuestion.question.question, 240))"></div>
-                            </div>
-                            <div ng-if="sectionQuestion.question.type === 'ClozeTestQuestion'">
-                                <div class="section-box-title" mathjax>
-                                    <cloze-test content="sectionQuestion.clozeTestAnswer.question" results="sectionQuestion.clozeTestAnswer.answer" />
-                                    <!-- TODO: chevron click. Truncate is bit tricky here. Maybe add a separate header for chevron click? -->
-                                </div>
-                            </div>
-                                <!-- chevron -->
-                            <div class="col-md-1 fa-stack fa-lg pointer section-box-title arrow" ng-click="chevronClicked(sectionQuestion)">
-                                <i ng-class="sectionQuestion.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
-                                   class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
-                                </i>
-                            </div>
-                            <div class="question-type">
-                               <div class="question-type-img-wrap" ng-if="sectionQuestion.answered">
-                                   <img src="../../../assets/assets/images/icon_question_type_ready_grey.png"
-                                        alt="exam"
-                                        onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_ready_grey.png'" /></div>
-                               <div class="question-type-img-wrap" ng-if="!sectionQuestion.answered">
-                                   <img src="../../../assets/assets/images/icon_question_type_waiting.svg"
-                                        alt="exam"
-                                        onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_waiting.png'" /></div>
+                        <div class="section-header-left">
+                            <div ng-if="sectionQuestion.answered">
+                                <img class="mart05" src="../../../assets/assets/images/icon_question_type_ready_grey.png"
+                                     alt="exam"
+                                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_ready_grey.png'" /></div>
+                            <div ng-if="!sectionQuestion.answered">
+                                <img class="mart05" src="../../../assets/assets/images/icon_question_type_waiting.svg"
+                                     alt="exam"
+                                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_waiting.png'" /></div>
+                        </div>
+
+                        <!-- chevron -->
+                        <div class="section-header-right fa-stack fa-lg pointer section-box-title arrow" ng-click="chevronClicked(sectionQuestion)">
+                            <i ng-class="sectionQuestion.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
+                               class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
+                            </i>
+                        </div>
+
+                        <div class="section-header-middle" ng-if="sectionQuestion.question.type !== 'ClozeTestQuestion'">
+                            <div class="section-box-title" ng-if="sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></div>
+                            <div class="section-box-title" ng-if="!sectionQuestion.expanded" mathjax ng-bind-html="trustAsHtml(truncate(sectionQuestion.question.question, 240))"></div>
+                        </div>
+                        <div class="section-header-middle" ng-if="sectionQuestion.question.type === 'ClozeTestQuestion'">
+                            <div class="section-box-title" mathjax>
+                                <cloze-test content="sectionQuestion.clozeTestAnswer.question" results="sectionQuestion.clozeTestAnswer.answer" />
+                                <!-- TODO: chevron click. Truncate is bit tricky here. Maybe add a separate header for chevron click? -->
                             </div>
                         </div>
-                    </div>
 
                 </div>
 
                 <!-- instruction -->
-                <div class="row mart10" ng-show="sectionQuestion.answerInstructions">
+                <div class="row mart10" ng-show="sectionQuestion.answerInstructions && sectionQuestion.expanded">
                     <div class="col-md-12">
                         <p class="question-text question-type-text info">
-                            <img src="../../../assets/assets/images/icon_info.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'" />
+                            <img class="marr20" src="../../../assets/assets/images/icon_info.svg" alt="exam"
+                                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'" />
                             {{'sitnet_instructions' | translate }}:&nbsp;{{sectionQuestion.answerInstructions}}</p>
                     </div>
                 </div>
 
                 <!-- attachment -->
-                <div class="row mart10" ng-show="sectionQuestion.question.attachment">
+                <div class="row mart10" ng-show="sectionQuestion.question.attachment && sectionQuestion.expanded">
                     <div class="col-md-12" ng-controller="AttachmentController">
                         <a class="pointer green_button left-floater-for-section"
                            ng-click="downloadQuestionAttachment(sectionQuestion.question)">
@@ -73,7 +73,7 @@
                     </div>
                 </div>
 
-                <hr class="info-question-separator">
+                <hr class="info-question-separator" ng-show="sectionQuestion.expanded">
 
                 <!-- answer -->
                 <div class="exam-question-container" ng-show="sectionQuestion.expanded">
