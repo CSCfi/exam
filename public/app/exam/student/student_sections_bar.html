@@ -17,11 +17,22 @@
                  {{getQuestionAmount(section,'answered')}}, {{'sitnet_questions_total' | translate}}
                  {{ getQuestionAmount(section,'total') }}">
 
-        <div class="col-md-8 vcenter"
+        <div class="pull-left marr10">
+            <div class="question-type-img-wrap" ng-if="getQuestionAmount(section,'answered') == getQuestionAmount(section,'total')">
+                <img src="../../../assets/assets/images/icon_question_type_ready_grey.png"
+                     alt="exam"
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_ready_grey.png'" /></div>
+            <div class="question-type-img-wrap" ng-if="getQuestionAmount(section,'answered') != getQuestionAmount(section,'total')">
+                <img src="../../../assets/assets/images/icon_question_type_waiting.svg"
+                     alt="exam"
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_waiting.png'" /></div>
+        </div>
+
+        <div class="vcenter"
              ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-text-dark'">
             {{section.index}}. {{section.name}}
         </div>
-        <div class="col-md-3 pull-right vcenter section-answered">
+        <div class="pull-right vcenter section-answered">
             <span class="pull-left">{{ getQuestionAmount(section,'answered') }}</span>
             <span class="pull-left horizontal-padding-05"> / </span>
             <span class="pull-left">{{ getQuestionAmount(section,'total') }}</span>
