@@ -100,8 +100,15 @@
             </div>
 
             <div class="student-exam-row">
-                <div class="student-exam-row-infolink"><b>{{ 'sitnet_view_instructions' |
+                <div class="student-exam-row-infolink"><b>{{ 'sitnet_room_guidance' |
                         translate}}</b>
+                </div>
+                <div class="student-exam-row-infobox">{{ currentLanguageText }}</div>
+            </div>
+
+            <div class="student-exam-row">
+                <div class="student-exam-row-infolink"><b>{{ 'sitnet_view_instructions' |
+                    translate}}</b>
                 </div>
                 <div class="student-exam-row-infobox">{{enrolment.exam.enrollInstruction}}</div>
             </div>
