@@ -168,6 +168,15 @@
                         </div>
                     </div>
 
+                    <div class="student-exam-row" ng-if="enrolment.reservation">
+                        <div class="student-exam-row-infolink">
+                            <a class="infolink pointer" ng-click="showRoomGuide(enrolment.exam.id)">{{ 'sitnet_room_guidance' |
+                                translate}} <img class="arrow_icon" ng-show="showGuide!=enrolment.exam.id" src="assets/assets/images/arrow_right.png"><img class="arrow_icon" ng-show="showGuide==enrolment.exam.id" src="assets/assets/images/arrow_down.png"></a>
+
+                        </div>
+                        <div class="student-exam-row-infobox" ng-show="showGuide==enrolment.exam.id">{{currentLanguageText}}</div>
+                    </div>
+
                     <div class="student-exam-row">
                         <div class="student-exam-row-infolink">
                                 <a class="infolink pointer"  ng-show="enrolment.exam.enrollInstruction" ng-click="showInstructions(enrolment.exam.id)">{{ 'sitnet_view_instructions' |

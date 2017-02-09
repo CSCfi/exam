@@ -3,9 +3,10 @@
     angular.module("exam.controllers")
         .controller('DashboardCtrl', ['$scope', 'dashboardService', 'examService', 'questionService',
             'reservationService', 'dateService', 'enrolmentService', 'sessionService','EXAM_CONF', 'ExamRes',
-            'dialogs','$translate', '$location','$filter',
+            'dialogs','$translate', '$location','$filter','$http',
             function ($scope, dashboardService, examService, questionService, reservationService, dateService,
-                      enrolmentService, sessionService, EXAM_CONF, ExamRes, dialogs, $translate, $location, $filter) {
+                      enrolmentService, sessionService, EXAM_CONF, ExamRes, dialogs, $translate, $location, $filter,
+                      $http) {
 
                 $scope.evaluationPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/exam_feedback.html";
 
@@ -14,6 +15,7 @@
                 // Pagesize for showing finished exams
                 $scope.pageSize = 10;
                 $scope.showInst = 0;
+                $scope.showGuide = 0;
                 $scope.showEval = 0;
                 $scope.filtertext = '';
                 this.resAct = {};
@@ -36,6 +38,23 @@
                     }
                     else {
                         $scope.showInst = id;
+                    }
+                };
+
+                $scope.showRoomGuide = function (id) {
+
+                    // fetch room instructions
+                    $http.get('/app/enroll/room/' + id)
+                                                    .success(function (data) {
+                                                        $scope.info = data;
+                                                        $scope.currentLanguageText = currentLanguage();
+                                                    });
+
+                    if($scope.showGuide == id) {
+                        $scope.showGuide = 0;
+                    }
+                    else {
+                        $scope.showGuide = id;
                     }
                 };
 
@@ -216,6 +235,38 @@
 
                     $scope.participations = nonDuplicatedArray;
 
+                }
+
+
+                function currentLanguage() {
+                    var tmp = "";
+
+                    if ($scope.info &&
+                        $scope.info.reservation &&
+                        $scope.info.reservation.machine &&
+                        $scope.info.reservation.machine.room) {
+
+                        switch ($translate.use()) {
+                            case "fi":
+                                if ($scope.info.reservation.machine.room.roomInstruction) {
+                                    tmp = $scope.info.reservation.machine.room.roomInstruction;
+                                }
+                                break;
+                            case "sv":
+                                if ($scope.info.reservation.machine.room.roomInstructionSV) {
+                                    tmp = $scope.info.reservation.machine.room.roomInstructionSV;
+                                }
+                                break;
+                            case "en":
+                            /* falls through */
+                            default:
+                                if ($scope.info.reservation.machine.room.roomInstructionEN) {
+                                    tmp = $scope.info.reservation.machine.room.roomInstructionEN;
+                                }
+                                break;
+                        }
+                    }
+                    return tmp;
                 }
 
             }]);
