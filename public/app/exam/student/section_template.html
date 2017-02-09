@@ -82,16 +82,6 @@
                         <div ng-include="sectionQuestion.question.template"></div>
                     </div>
 
-
-                    <div class="col-md-3 question-type-text">
-                            <span ng-if="sectionQuestion.evaluationType == 'Selection'">
-                                 {{'sitnet_evaluation_select' | translate}}
-                            </span>
-                            <span ng-if="sectionQuestion.evaluationType !== 'Selection'">
-                                {{sectionQuestion.derivedMaxScore}} {{'sitnet_unit_points' | translate}}
-                            </span>
-                    </div>
-
                 </div>
 
             </div>

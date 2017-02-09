@@ -169,8 +169,17 @@
       margin-left: 0px;
       font-size: 14px;
       letter-spacing: 0.3px;
-
     }
+
+    &.right-for-section {
+      padding: 5px;
+      padding-left: 20px;
+      display: inline-block;
+      margin-left: 0px;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+    }
+
 
     &.previous {
       float:left;
@@ -371,6 +380,8 @@
     padding: 30px;
     margin-bottom: 10px;
     margin-top:30px;
+    padding-left:60px;
+    padding-right: 60px;
 
     .guide-column {
       color: #555555;
@@ -458,7 +469,7 @@
     border-radius: 4px;
     border: 2px solid #EDEDED;
     border-left: #5BC26E 4px solid;
-    margin-right: 1.9em;
+    margin-right: 0.1em;
     padding: 10px;
     margin-bottom: 10px;
     font-family:$sitnet-family-helvetica;
@@ -479,7 +490,7 @@
   .section-box-title {
     display: inline-block;
     float: left;
-    margin-left: 15px;
+    margin-left: 10px;
     margin-top: 10px;
     color: #2C2C2C;
     font-size: 16px;
@@ -543,8 +554,8 @@
   }
 
   .wrap-title {
-    margin-left: -10px;
-    margin-right: -15px;
+    margin-left: -50px;
+    margin-right: -50px;
     margin-bottom: 50px;
   }
 
@@ -563,6 +574,9 @@
     float:right; height: initial;
   }
 
-
+  .filename-text {
+    color:#555555;
+    font-size: 12px;
+  }
 
 }
