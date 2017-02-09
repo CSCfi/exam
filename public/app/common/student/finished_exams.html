@@ -73,7 +73,7 @@
                         <div>
                             <!-- exam title n stuff -->
                             <div class="student-enrolment-exam">
-                                {{ participation.exam.name }} <span class="exam-code">{{ participation.exam.course.code }}</span>
+                                {{ participation.exam.name }}
                             </div>
                         </div>
 
@@ -84,7 +84,7 @@
                                         {{ 'sitnet_course_name' | translate }}:
                                     </div>
                                     <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                                        {{ participation.exam.course.name }}
+                                        {{ participation.exam.course.code }} {{ participation.exam.course.name }}
                                     </div>
                                     <div class="clearfix visible-xs"></div>
                                     <div class="clearfix visible-sm"></div>

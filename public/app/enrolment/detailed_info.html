@@ -14,7 +14,7 @@
             <div class="student-details-indicator" ng-if="exam.alreadyEnrolled && exam.reservationMade">{{'sitnet_enrolled_to_exam' | translate}}</div>
 
             <div class="student-details-title">{{exam.name}}</div>
-            <div class="student-details-subtitle">{{exam.course.code}}<br/>
+            <div class="student-details-subtitle">
                 <span ng-if="!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft"
                       class="exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
                 <span ng-if="exam.reservationMade"
@@ -28,7 +28,7 @@
                         {{ 'sitnet_course_name' | translate }}:
                 </div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                    {{ exam.course.name }}
+                    {{exam.course.code}} {{ exam.course.name }}
                 </div>
                 <div class="clearfix visible-xs"></div>
                 <div class="clearfix visible-sm"></div>
@@ -104,14 +104,6 @@
                     {{translateExamType(exam.examType.type)}}
                 </div>
             </div>
-
-            <div class="row margin-10 pad-15">
-                <div class="student-exam-row-infolink infotitle" ng-show="exam.executionType.type !== 'MATURITY'">
-                    {{ 'sitnet_view_instructions' | translate}}
-                </div>
-                <div class="student-exam-row-infobox">{{exam.enrollInstruction}}</div>
-            </div>
-
 
             <div class="row margin-10 pad-15">
                 <div class="student-exam-row-infolink infotitle" ng-show="exam.executionType.type !== 'MATURITY'">

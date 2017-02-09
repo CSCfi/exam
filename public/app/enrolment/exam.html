@@ -2,8 +2,7 @@
     <div class="row">
         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
             <span class="student-exam-row-title-blue">
-                <a href="/enroll/{{exam.course.code}}/exam/{{exam.id}}">{{exam.name}}<a/></span><br/>
-            <span class="student-exam-row-title-grey">{{exam.course.code}}</span><br/>
+                <a href="/enroll/{{exam.course.code}}/exam/{{exam.id}}">{{exam.name}}</a></span><br/>
             <span ng-if="exam.enrolled && !exam.reservationMade"
                   class="student-exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
 
@@ -19,7 +18,7 @@
                             {{ 'sitnet_course_name' | translate }}:
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ exam.course.name }}
+                            {{exam.course.code}} {{ exam.course.name }}
                         </div>
                         <div class="clearfix visible-xs"></div>
                         <div class="clearfix visible-sm"></div>
