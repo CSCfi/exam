@@ -1153,7 +1153,7 @@
     display: inline-block;
     float: right;
     margin-right: 0px;
-    padding-top: 10px;
+    padding-right: 15px;
     font-family: $sitnet-family-helvetica;
     font-size: 16px;
     color: #555555;
@@ -1549,6 +1549,81 @@
     font-size: 22px;
     letter-spacing: 1.05px;
     margin-left: 20px;
+  }
+
+  .green_button {
+
+    cursor: pointer;
+    text-decoration: none;
+    float: right;
+    font-size: 16px;
+    font-family: $sitnet-family-helvetica;
+    background-color: #3CA34F;
+    border: 1px solid #358F45;
+    //width: 150px;
+    margin-left: 10px;
+    border-radius: 3px;
+    padding: 8px;
+    padding-left: 20px;
+    padding-right: 20px;
+    color:white;
+    font-weight:200;
+
+    :hover, :active, :focus, :active:focus {
+      background-color: #358F45;
+    }
+
+    &.left-floater {
+      float:left;
+      width: 167px;
+      padding: 5px;
+      padding-left: 20px;
+      display: inline-block;
+      margin-right: 15px;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+    }
+
+    &.left-floater-for-section {
+      float:left;
+      padding: 5px;
+      padding-left: 20px;
+      display: inline-block;
+      margin-right: 15px;
+      margin-left: 0px;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+
+    }
+
+    &.previous {
+      float:left;
+      padding-right: 40px;
+    }
+
+    &.attachment {
+      float:left;
+      margin-left:0px;
+    }
+  }
+
+  .green_button:hover, .green_button:active, .green_button:focus, .green_button:active:focus {
+    background-color: #358F45;
+    border: 1px solid #358F45;
+    text-decoration: none;
+  }
+
+  .attachment-name {
+    display: inline-block;
+    font-family:$sitnet-family-helvetica;
+    font-size:12px;
+    color:#555555;
+    margin-top: 10px;
+
+    @media (max-width: 1050px) {
+      margin-top: 3px;
+    }
+
   }
 }
 

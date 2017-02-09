@@ -4,23 +4,19 @@
 
             <!-- question text -->
             <div>
-                <!-- This looks good as long as there's no huge html in the question text-->
-                <span class="review-question-title" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></span>
-                <a ng-click="toggleQuestionExpansion(sectionQuestion)">
+
+                <!--chevron -->
+                <a class="pull-right" ng-click="toggleQuestionExpansion(sectionQuestion)">
                     <img ng-show="!sectionQuestion.reviewExpanded" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
                          onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
                     <img ng-show="sectionQuestion.reviewExpanded" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
                          onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
                 </a>
-                <!-- grade -->
-                <div class="review-points" ng-if="sectionQuestion.question.type==='MultipleChoiceQuestion'">
-                    {{ 'sitnet_word_points' | translate }}:
-                    {{scoreMultipleChoiceAnswer(sectionQuestion)}} / {{sectionQuestion.maxScore}}
-                </div>
-                <div class="review-points" ng-if="sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'">
-                    {{ 'sitnet_word_points' | translate }}:
-                    {{scoreWeightedMultipleChoiceAnswer(sectionQuestion)}} / {{calculateMaxPoints(sectionQuestion)}}
-                </div>
+                <!-- question title -->
+                {{sectionQuestion.question.question}}
+                <div class="review-question-title marr20" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></div>
+
+
             </div>
 
             <!-- question attachment -->
@@ -29,15 +25,6 @@
                     {{ 'sitnet_question_attachment' | translate}}:
                     <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)">
                         {{sectionQuestion.question.attachment.fileName}}</a>
-            </div>
-
-            <!-- question evaluation criteria -->
-            <div ng-show="sectionQuestion.reviewExpanded && sectionQuestion.evaluationCriteria"
-                 class="padl0 mart20 marb20 notice-text">
-                <img src="../../../assets/assets/images/icon_info.svg" alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'" />
-                <span class="padl10">{{ 'sitnet_exam_evaluation_criteria' | translate}}:</span>
-                <span ng-bind-html="sectionQuestion.evaluationCriteria"/>
             </div>
 
             <!-- question instructions -->
@@ -54,19 +41,35 @@
                 <hr>
             </div>
 
-            <div ng-show="sectionQuestion.reviewExpanded" class="padl15 marb10">
+            <div ng-show="sectionQuestion.reviewExpanded" class="marb10">
+                <div class="points-title">
+                    <span>{{'sitnet_exam_answer' | translate | uppercase }}</span>
+                </div>
                 <span mathjax ng-bind-html="sectionQuestion.essayAnswer.answer"></span>
+                lasjdklsajd kdlsjals lajdlkas lsalkdas ldjsakldj alsklkasj dlkasjdlk
             </div>
 
             <!-- answer attachment -->
             <div ng-show="sectionQuestion.reviewExpanded && sectionQuestion.essayAnswer.attachment"
                  class="padl0 mart20 marb20"
                  ng-controller="AttachmentController">
-                    {{ 'sitnet_answer_attachment' | translate}}:
-                    <a class="pointer"
-                       ng-click="downloadQuestionAnswerAttachment(sectionQuestion, exam.hash)">
-                        {{sectionQuestion.essayAnswer.attachment.fileName}}
-                    </a>
+                <a class="pointer green_button left-floater-for-section"
+                   ng-click="downloadQuestionAnswerAttachment(sectionQuestion, exam.hash)">
+                    {{ 'sitnet_download_answer_attachment' | translate}}
+                    <img src="../../../assets/assets/images/icon_attachment.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_attachment.png'" />
+                </a>
+                <div class="attachment-name">{{sectionQuestion.essayAnswer.attachment.fileName | uppercase}} filename</div>
+            </div>
+
+
+            <!-- question evaluation criteria -->
+            <div ng-show="sectionQuestion.reviewExpanded && sectionQuestion.evaluationCriteria"
+                 class="padl0 mart20">
+                <div class="points-title">
+                    <span>{{'sitnet_exam_evaluation_criteria' | translate | uppercase }}</span>
+                </div>
+                <span ng-bind-html="sectionQuestion.evaluationCriteria"/>
             </div>
 
             <!-- grade -->

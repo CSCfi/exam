@@ -797,5 +797,6 @@
   "sitnet_exam_review_maturity_evaluation":"Sisällön arviointi EN",
   "sitnet_exam_essay_change_not_allowed":"Kysymys on käytössä toisessa tentissä, arviointiasteikon muuttaminen ei ole sallittu. EN",
   "sitnet_exam_multiple_change_not_allowed":"Kysymys on käytössä julkaistussa tentissä, vastausvaihtoehtojen poistaminen ei ole sallittu. EN",
-  "sitnet_download_section_question_attachment": "Lataa tehtävän liite EN"
+  "sitnet_download_section_question_attachment": "Lataa tehtävän liite EN",
+  "sitnet_download_answer_attachment": "Lataa vastauksen liite EN"
 }
