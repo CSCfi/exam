@@ -13,9 +13,7 @@
                          onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
                 </a>
                 <!-- question title -->
-                {{sectionQuestion.question.question}}
                 <div class="review-question-title marr20" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></div>
-
 
             </div>
 
@@ -51,7 +49,7 @@
 
             <!-- answer attachment -->
             <div ng-show="sectionQuestion.reviewExpanded && sectionQuestion.essayAnswer.attachment"
-                 class="padl0 mart20 marb20"
+                 class="padl0 mart20 marb30"
                  ng-controller="AttachmentController">
                 <a class="pointer green_button left-floater-for-section"
                    ng-click="downloadQuestionAnswerAttachment(sectionQuestion, exam.hash)">
@@ -59,7 +57,7 @@
                     <img src="../../../assets/assets/images/icon_attachment.svg" alt="exam"
                          onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_attachment.png'" />
                 </a>
-                <div class="attachment-name">{{sectionQuestion.essayAnswer.attachment.fileName | uppercase}} filename</div>
+                <div class="attachment-name">{{sectionQuestion.essayAnswer.attachment.fileName | uppercase}}</div>
             </div>
 
 
