@@ -1,6 +1,7 @@
 package models;
 
 import com.avaje.ebean.annotation.EnumMapping;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -30,6 +31,7 @@ public class AutoEvaluationConfig extends GeneratedIdentityModel {
     private ReleaseType releaseType;
 
     @OneToOne
+    @JsonBackReference
     private Exam exam;
 
     @Temporal(TemporalType.TIMESTAMP)
