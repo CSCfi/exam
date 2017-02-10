@@ -701,7 +701,7 @@ public class ExamController extends BaseController {
             }
             exam.setCourse(course);
             exam.save();
-            return ok(Json.toJson(exam));
+            return ok(exam);
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }
@@ -720,7 +720,7 @@ public class ExamController extends BaseController {
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             exam.setCourse(null);
             exam.save();
-            return ok(Json.toJson(exam));
+            return ok(exam);
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }
