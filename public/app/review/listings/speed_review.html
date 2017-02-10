@@ -36,7 +36,7 @@
             <tbody>
             <tr ng-repeat="review in examReviews | orderBy:reviewPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize">
                 <td class="table-column-bold">
-                    <a class="pointer" ng-click="go(review.exam)">
+                    <a class="pointer" href="/exams/review/{{review.exam.id}}">
                         {{review.user.firstName}} {{review.user.lastName}}
                         <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
                     </a>

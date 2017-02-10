@@ -30,10 +30,6 @@
                 $scope.selections = {graded: {all: false, page: false}, gradedLogged: {all: false, page: false}};
                 $scope.pageSize = 10;
 
-                $scope.go = function (exam) {
-                    $location.path('/exams/review/' + exam.id);
-                };
-
                 $scope.translateGrade = function (exam) {
                     var grade = exam.grade ? exam.grade.name : 'NONE';
                     return examService.getExamGradeDisplayName(grade);

@@ -53,7 +53,7 @@
                     <input type="checkbox" ng-model="review.selected" class="gradedLoggedBox" value="{{review.exam.id}}"/>
                 </td>
                 <td class="table-column-13 table-column-bold">
-                    <a class="pointer" ng-click="go(review.exam)">
+                    <a class="pointer" href="/exams/review/{{review.exam.id}}">
                         {{review.user.firstName}} {{review.user.lastName}}
                         <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
                     </a>
