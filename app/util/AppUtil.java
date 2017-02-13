@@ -107,6 +107,11 @@ public class AppUtil {
         return result;
     }
 
+    public static DateTime withTimeAtStartOfDayConsideringTz(DateTime src) {
+        DateTimeZone dtz = getDefaultTimeZone();
+        return src.withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
+    }
+
     public static OwnedModel setCreator(OwnedModel object, User user) {
         object.setCreator(user);
         object.setCreated(DateTime.now().toDate());

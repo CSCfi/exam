@@ -201,7 +201,7 @@ GET           /app/reservations/students                                 control
 GET           /app/reservations/teachers                                 controllers.ReservationController.getTeachers
 GET           /app/reservations/examrooms                                controllers.ReservationController.getExamRooms
 GET           /app/reservations/exams                                    controllers.ReservationController.getExams
-GET           /app/reservations                                          controllers.ReservationController.getReservations(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], roomId: java.util.Optional[java.lang.Long], machineId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
+GET           /app/reservations                                          controllers.ReservationController.getReservations(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], roomId: java.util.Optional[java.lang.Long], machineId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[String], end: java.util.Optional[String])
 DELETE        /app/reservations/:id                                      controllers.ReservationController.removeReservation(id: Long)
 PUT           /app/reservations/:id                                      controllers.ReservationController.permitRetrial(id: Long)
 GET           /app/reservations/:id/machines                             controllers.ReservationController.findAvailableMachines(id: Long)

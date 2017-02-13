@@ -188,13 +188,11 @@
                             }
                         }
 
-                        var tzOffset = new Date().getTimezoneOffset() * 60000;
-
                         if ($scope.dateService.startDate) {
-                            params.start = Date.parse($scope.dateService.startDate) + tzOffset;
+                            params.start = $scope.dateService.startDate;
                         }
                         if ($scope.dateService.endDate) {
-                            params.end = Date.parse($scope.dateService.endDate);
+                            params.end = $scope.dateService.endDate;
                         }
 
                         ReservationResource.reservations.query(params,
