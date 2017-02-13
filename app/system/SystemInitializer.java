@@ -144,7 +144,7 @@ class SystemInitializer {
                     .where()
                     .eq("roles.name", "TEACHER")
                     .findList();
-            teachers.stream().forEach(t -> {
+            teachers.forEach(t -> {
                 try {
                     composer.composeWeeklySummary(t);
                 } catch (RuntimeException e) {

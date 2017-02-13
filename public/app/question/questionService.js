@@ -65,6 +65,9 @@
 
                 // For weighted mcq
                 self.calculateMaxPoints = function (sectionQuestion) {
+                    if (!sectionQuestion.options) {
+                        return 0;
+                    }
                     return (sectionQuestion.options.filter(function (option) {
                         return option.score > 0;
                     }).reduce(function (a, b) {

@@ -25,10 +25,8 @@
             <tbody>
             <tr ng-repeat="review in abortedExams | orderBy:abortedPredicate:reverse">
                 <td class="table-column-examname">
-                    <a class="pointer" href="/exams/review/{{review.exam.id}}">
-                        {{review.user.firstName}}&nbsp;{{review.user.lastName}}
-                        <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
-                    </a>
+                    {{review.user.firstName}}&nbsp;{{review.user.lastName}}
+                    <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
                 </td>
                 <td class="table-column-25"><a class="pointer" href="mailto:{{review.user.email}}">
                     {{review.user.email}}</a></td>

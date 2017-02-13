@@ -122,7 +122,6 @@ public class ReviewController extends BaseController {
                 .where()
                 .eq("id", eid)
                 .disjunction()
-                .eq("state", Exam.State.ABORTED)
                 .eq("state", Exam.State.REVIEW)
                 .eq("state", Exam.State.REVIEW_STARTED)
                 .eq("state", Exam.State.GRADED)
