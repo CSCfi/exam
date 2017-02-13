@@ -5,8 +5,7 @@
 
             var tmpl = EXAM_CONF.TEMPLATES_PATH;
 
-            /* Enrollment */
-            $routeProvider.when('/enroll/:code', { templateUrl: tmpl + 'enrolment/enroll.html', controller: 'EnrollController'});
+            /* Enrolment */
             $routeProvider.when('/enroll/:code/exam/:id', { templateUrl: tmpl + 'enrolment/enrollExam.html', controller: 'EnrollController'});
 
             /* main navigation */
