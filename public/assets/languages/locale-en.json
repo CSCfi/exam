@@ -799,6 +799,7 @@
   "sitnet_exam_multiple_change_not_allowed":"Kysymys on käytössä julkaistussa tentissä, vastausvaihtoehtojen poistaminen ei ole sallittu. EN",
   "sitnet_download_section_question_attachment": "Lataa tehtävän liite EN",
   "sitnet_download_answer_attachment": "Lataa vastauksen liite EN",
+  "sitnet_upload_answer_attachment": "Lisää oma liite EN",
   "sitnet_exam_participants_description":"Opiskelijat, joille tentti on kohdennettu. Opiskelijan tulee olla kirjautunut palveluun, ennenkuin hänet löytää haulla. Tentin julkaisun yhteydessä heille lähtee tieto sähköpostiin. EN",
   "sitnet_exam_validity_description":"Tenttiperiodi on ajanjakso jolloin opiskelijat voivat suorittaa tentin. Opiskelijat voivat varata suoritusajan tenttiin, jonka Tenttiperiodi on voimassa tai tulevaisuudessa. Tenttiperiodia voi jatkaa rajoituksetta. Tenttiperiodia ei voi lyhentää jos siihen on varauksia. EN",
   "sitnet_exam_duration_description":"Tentin kesto tarkoittaa aikaa joka opiskelijalla on käytettävissä suoritukseen. Tenttiaika alkaa varauksen alusta. Opiskelijan tullessa tenttiin myöhässä, käytettävissä olevaa aikaa on jo kulunut. EN",
@@ -829,5 +830,6 @@
   "sitnet_review_started_description":"Tenttisuoritukset, joille ei ole annettu arvosanaa. EN",
   "sitnet_graded_description":"Tenttisuoritukset, joille on annettu arvosana joko manuaalisesti tai automaattisesti. EN",
   "sitnet_graded_logged_description":"Tenttisuoritukset, jotka on lukittu ja valmiina rekisteröitäväksi opintohallinnon järjestelmään joko automaattisesti tai manuaalisesti. EN",
-  "sitnet_new_exam_type_description":"Valitse tentin tyyppi. Yleinen tentti on kaikkien varattavissa. Henkilökohtainen tentti kohdennetaan 1-n osallistujalle, joiden tulee olla kirjautuneet järjestelmään. EN"
+  "sitnet_new_exam_type_description":"Valitse tentin tyyppi. Yleinen tentti on kaikkien varattavissa. Henkilökohtainen tentti kohdennetaan 1-n osallistujalle, joiden tulee olla kirjautuneet järjestelmään. EN",
+  "sitnet_error_autoevaluation_essay_question": "Automaattisesti arvioitavaan tenttiin ei ole mahdollista lisätä esseekysymyksiä EN"
 }

@@ -1539,7 +1539,7 @@
 
                 $scope.canBeAutoEvaluated = function () {
                     return examService.hasQuestions($scope.newExam) && !examService.hasEssayQuestions($scope.newExam) &&
-                        $scope.newExam.gradeScale;
+                        $scope.newExam.gradeScale && $scope.newExam.executionType.type !== 'MATURITY';
                 };
 
                 $scope.calculatePointLimit = function (evaluation) {

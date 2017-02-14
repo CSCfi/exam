@@ -20,8 +20,6 @@ import play.data.DynamicForm;
 import play.db.ebean.Transactional;
 import play.libs.Json;
 import play.mvc.Result;
-import play.Logger;
-
 import util.AppUtil;
 
 import java.util.*;
@@ -277,7 +275,7 @@ public class ExamSectionController extends QuestionController {
             return notFound();
         }
         if (exam.getAutoEvaluationConfig() != null && question.getType() == Question.Type.EssayQuestion) {
-            return forbidden("not possible to insert essay questions when autoevaluation is turned on");
+            return forbidden("sitnet_error_autoevaluation_essay_question");
         }
         User user = getLoggedUser();
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
@@ -308,7 +306,7 @@ public class ExamSectionController extends QuestionController {
                 continue;
             }
             if (exam.getAutoEvaluationConfig() != null && question.getType() == Question.Type.EssayQuestion) {
-                return forbidden("not possible to insert essay questions when autoevaluation is turned on");
+                return forbidden("sitnet_error_autoevaluation_essay_question");
             }
             Optional<Result> result = insertQuestion(exam, section, question, user, sequence);
             if (result.isPresent()) {
