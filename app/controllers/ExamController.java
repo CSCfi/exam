@@ -505,6 +505,10 @@ public class ExamController extends BaseController {
                     exam.setAutoEvaluationConfig(null);
                 }
             } else {
+                if (exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString())) {
+                    Logger.warn("Attempting to set auto evaluation config for maturity type. Refusing to do so");
+                    return;
+                }
                 if (config == null) {
                     config = new AutoEvaluationConfig();
                     config.setGradeEvaluations(new HashSet<>());
