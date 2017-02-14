@@ -34,7 +34,7 @@
                 };
 
                 $scope.selections = {graded: {all: false, page: false}, gradedLogged: {all: false, page: false}};
-                $scope.pageSize = 10;
+                $scope.pageSize = 30;
 
                 $scope.translateGrade = function (exam) {
                     var grade = exam.grade ? exam.grade.name : 'NONE';
