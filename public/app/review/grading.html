@@ -48,6 +48,14 @@
         </span>
     </div>
 </div>
+
+<div ng-if="exam.state == 'GRADED_LOGGED'" class="review-grade-section padt20">
+    <div class="col-md-2 general-info-title">{{'sitnet_graded' | translate}}:</div>
+    <div class="col-md-10 general-info-content">
+       {{exam.gradedTime | date:'dd.MM.yyyy'}}
+    </div>
+</div>
+
 <div class="review-grade-row" ng-if="hasEssayQuestions">
     <div class="col-md-2 general-info-title">{{ 'sitnet_additional_info_for_registry' | translate }}:
         <sup><img popover-placement="right" popover-trigger="mouseenter"
