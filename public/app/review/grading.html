@@ -49,7 +49,12 @@
     </div>
 </div>
 <div class="review-grade-row" ng-if="hasEssayQuestions">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_additional_info_for_registry' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'sitnet_additional_info_for_registry' | translate }}:
+        <sup><img popover-placement="right" popover-trigger="mouseenter"
+                  uib-popover="{{'sitnet_additional_info_for_registry_description' | translate}}"
+                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
+    </div>
     <div class="col-md-10 general-info-content">
         <textarea id="infoForRegistry"
                   class="form-control"
@@ -63,7 +68,12 @@
 
 <div class="review-grade-row marb20" ng-show="getTeacherCount() > 1">
     <div ng-hide="isReadOnly()">
-        <div class="col-md-2 general-info-title">{{ 'sitnet_send_to_other_reviewers' | translate }}:</div>
+        <div class="col-md-2 general-info-title">{{ 'sitnet_send_to_other_reviewers' | translate }}:
+            <sup><img popover-placement="right" popover-trigger="mouseenter"
+                      uib-popover="{{'sitnet_send_to_other_reviewers_description' | translate}}"
+                      src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                      onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
+        </div>
         <div class="col-md-10 general-info-content">
             <textarea class="form-control" ng-model="$parent.message" rows="3" cols="120">
             </textarea>

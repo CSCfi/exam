@@ -67,7 +67,12 @@
 
                     <div class="col-md-12">
                         <div class="col-md-3 padl0">
-                            <div class="exam-basic-title">{{'sitnet_exam_validity' | translate}}</div>
+                            <div class="exam-basic-title">{{'sitnet_exam_validity' | translate}}
+                                <sup><img popover-placement="right" popover-trigger="mouseenter"
+                                          uib-popover="{{'sitnet_exam_validity_description' | translate}}"
+                                          src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                                          onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <div class="input-group">
@@ -123,6 +128,10 @@
             <!-- Exam length -->
             <div class="col-md-12 margin-20">
                 <div class="col-md-3 exam-basic-title padl0">{{'sitnet_exam_duration' | translate}} ({{'sitnet_minutes' | translate}}):
+                    <sup><img popover-placement="right" popover-trigger="mouseenter"
+                              uib-popover="{{'sitnet_exam_duration_description' | translate}}"
+                              src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                              onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
                 </div>
                 <div class="col-md-9">
                         <span  ng-repeat="duration in examDurations">
@@ -146,7 +155,8 @@
 
                     <div class="col-md-3 exam-basic-title">{{'sitnet_publish_max_count' | translate}}
                         <sup><img popover-placement="right" popover-trigger="mouseenter"
-                                  uib-popover="{{'sitnet_exam_trial_count_description' | translate}}" src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                                  uib-popover="{{'sitnet_exam_trial_count_description' | translate}}"
+                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
                                   onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
                     </div>
                     <div class="col-md-9">
@@ -160,7 +170,8 @@
                         <button ng-if="newExam.executionType.type==='PRIVATE'" class="btn btn-publish" ng-class="checkTrialCount()"
                                 ng-disabled="true">1
                         </button>
-                        <span ng-if="newExam.executionType.type==='PRIVATE'" class="text-muted">({{'sitnet_private_exam_trial_count_description' | translate}})</span>
+                        <span ng-if="newExam.executionType.type==='PRIVATE'" class="text-muted">
+                            ({{'sitnet_private_exam_trial_count_description' | translate}})</span>
                     </div>
                 </div>
 
@@ -168,6 +179,10 @@
                 <div class="col-md-12 padl0 margin-20" ng-hide="newExam.executionType.type==='PUBLIC'">
 
                     <div class="col-md-3 exam-basic-title">{{'sitnet_exam_participants' | translate}}
+                        <sup><img popover-placement="right" popover-trigger="mouseenter"
+                                  uib-popover="{{'sitnet_exam_participants_description' | translate}}"
+                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
                     </div>
                     <div class="col-md-9">
                         <input type="text" class="form-control wdth-30 make-inline"
