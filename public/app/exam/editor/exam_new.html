@@ -150,6 +150,49 @@
                         </div>
                     </div>
 
+                    <!-- Exam name and language -->
+                    <div ng-controller="ExamController">
+                        <div class="col-md-12 margin-20">
+                            <div class="review-list-title">{{ 'sitnet_exam_title' | translate }}
+                            </div>
+                        </div>
+                        <div class="row col-md-12 margin-20">
+                            <div class="col-md-3 exam-basic-title">{{'sitnet_exam_name' | translate}}
+                                <sup><img popover-placement="right" popover-trigger="mouseenter"
+                                          uib-popover="{{'sitnet_exam_title_description' | translate}}"
+                                          src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                                          onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
+
+                            </div>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control ng-pristine ng-valid wdth-30"
+                                       ng-model="newExamName"
+                                       ui-change="updateExam()"/>
+
+                            </div>
+                        </div>
+                        <div class="row col-md-12 margin-20">
+                            <div class="col-md-3 exam-basic-title">{{'sitnet_exam_language' | translate}}
+                                <sup><img popover-placement="right" popover-trigger="mouseenter"
+                                          uib-popover="{{'sitnet_exam_language_description' | translate}}"
+                                          src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                                          onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
+
+                            </div>
+                            <div class="col-md-9">
+                                <multiselect data-multiple="true"
+                                             ng-model="newExam.examLanguages"
+                                             ms-header="{{'sitnet_select' | translate}}"
+                                             ms-selected="{{selectedLanguages(newExam)}}"
+                                             options="language.name for language in examLanguages"
+                                             change="addExamLanguages(newExam)"
+                                             data-compare-by="code">
+                                </multiselect>
+
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- buttons -->
                     <div class="row col-md-12 padr0 mart40">
                         <span class="pull-right">

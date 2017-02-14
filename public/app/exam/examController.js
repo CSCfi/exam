@@ -48,6 +48,7 @@
 
                 $scope.fromDialog = false;
                 $scope.user = sessionService.getUser();
+                $scope.newExamName = '';
 
                 $scope.tabs = [
                     { title:'perus', active: $routeParams.tab == 1 },
@@ -162,6 +163,8 @@
                         $scope.typeSelected = false;
                         $scope.loader.loading = false;
                         $scope.createNewExam = true;
+                        $scope.newExamName = '';
+                        initialLanguages = 0;
                     } else if ($location.path().match(/exams\/course\/\d+$/)) {
                         $scope.newExam = ExamRes.exams.get({id: $routeParams.id});
                         $scope.typeSelected = true;
@@ -278,7 +281,6 @@
                 $scope.updateExamLanguages = function () {
 
                     if (initialLanguages && $scope.newExam.examLanguages.length !== initialLanguages) {
-
                         ExamRes.languages.reset({eid: $scope.newExam.id}, function () {
                             var promises = [];
                             angular.forEach($scope.newExam.examLanguages, function (language) {
@@ -293,6 +295,23 @@
                             toastr.error(error.data);
                         });
                     }
+                };
+
+                $scope.addExamLanguages = function () {
+
+                    ExamRes.languages.reset({eid: $scope.newExam.id}, function () {
+                        var promises = [];
+                        angular.forEach($scope.newExam.examLanguages, function (language) {
+                            promises.push(ExamRes.language.add({eid: $scope.newExam.id, code: language.code}));
+                        });
+                        $q.all(promises).then(function () {
+                            toastr.info($translate.instant('sitnet_exam_language_updated'));
+                            $scope.selectedLanguages($scope.newExam);
+                            initialLanguages = $scope.newExam.examLanguages.length;
+                        });
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
                 };
 
                 /**
@@ -804,7 +823,9 @@
                     prepareGradeScale(exam);
                     prepareAutoEvaluationConfig(overrideEvaluations);
                     recreateSectionIndices();
-                    $scope.updateTitle($scope.newExam);
+                    if ($scope.updateTitle) {
+                        $scope.updateTitle($scope.newExam);
+                    }
                     $scope.newExam.examLanguages.forEach(function (language) {
                         // Use front-end language names always to allow for i18n etc
                         language.name = getLanguageNativeName(language.code);
@@ -814,6 +835,8 @@
                 $scope.updateExam = function (overrideEvaluations, dontShowDialog) {
 
                     var examToSave = getUpdate();
+
+                    if($scope.newExamName!='') { examToSave.name = $scope.newExamName}
 
                     ExamRes.exams.update({id: $scope.newExam.id}, examToSave,
                         function (exam) {
