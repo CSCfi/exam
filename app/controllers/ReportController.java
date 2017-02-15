@@ -97,6 +97,20 @@ public class ReportController extends BaseController {
         }
     }
 
+    private boolean applyExamFilter(Exam e, Optional<Long> start, Optional<Long> end) {
+        Boolean result = e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && !e.getExamParticipations().isEmpty();
+        Long created = e.getCreated().getTime();
+        if (start.isPresent()) {
+            DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
+            result = result && startDate.isBefore(created);
+        }
+        if (end.isPresent()) {
+            DateTime endDate = new DateTime(end.get()).plusDays(1).withTimeAtStartOfDay();
+            result = result && endDate.isAfter(created);
+        }
+        return result;
+    }
+
     @Restrict({@Group("ADMIN")})
     public Result getPublishedExams(Optional<String> dept, Optional<Long> start, Optional<Long> end) {
         ExpressionList<Exam> query = Ebean.find(Exam.class)
@@ -109,14 +123,14 @@ public class ReportController extends BaseController {
                 .eq("state", Exam.State.DELETED)
                 .eq("state", Exam.State.ARCHIVED)
                 .endJunction();
-        query = applyFilters(query, "course", "created", dept.orElse(null), start.orElse(null), end.orElse(null));
+        query = applyFilters(query, "course", "created", dept.orElse(null), null, null);
         Set<Exam> exams = query.findSet();
         List<ExamInfo> infos = new ArrayList<>();
         for (Exam exam : exams) {
             ExamInfo info = new ExamInfo();
             info.name = String.format("[%s] %s", exam.getCourse().getCode(), exam.getName());
             info.participations = exam.getChildren().stream()
-                    .filter(e -> e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && !e.getExamParticipations().isEmpty())
+                    .filter(e -> applyExamFilter(e, start, end))
                     .collect(Collectors.toList())
                     .size();
             infos.add(info);
@@ -127,7 +141,8 @@ public class ReportController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result getReservations(Optional<String> dept, Optional<Long> start, Optional<Long> end) {
         ExpressionList<Reservation> query = Ebean.find(Reservation.class).where();
-        query = applyFilters(query, "enrolment.exam.course", "startAt", dept.orElse(null), start.orElse(null), end.orElse(null));
+        query = applyFilters(query, "enrolment.exam.course", "startAt",
+                dept.orElse(null), start.orElse(null), end.orElse(null));
         return ok(query.findList());
     }
 
