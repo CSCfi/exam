@@ -68,4 +68,5 @@ email.template.maturity.participant.notification.title=Sinulle on luotu kypsyysn
 email.template.maturity.exam.aborted.subject=Opiskelija on keskeyttänyt kypsyysnäytteen SV
 email.template.maturity.exam.aborted.message=Opiskelija {0} on päättänyt keskeyttää kypsyysnäytteen {1} suorittamisen eikä suoritusta tule arvioida. SV
 email.template.maturity.exam.returned.subject=Kypsyysnäyte on palautettu SV
+email.template.maturity.exam.returned.message=Opiskelija {0} on suorittanut kypsyysnäytteen {1}. SV
 email.template.maturity.noshow.subject=Opiskelija ei saapunut kypsyysnäytetenttiin SV

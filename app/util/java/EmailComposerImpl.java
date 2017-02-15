@@ -447,7 +447,7 @@ class EmailComposerImpl implements EmailComposer {
                     student.getFirstName(), student.getLastName(), student.getEmail()),
                     String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
             String reviewLinkUrl = String.format("%s/exams/review/%d", HOSTNAME, exam.getId());
-            String reviewLinkText = messaging.get(lang, templatePrefix + "exam.returned.link");
+            String reviewLinkText = messaging.get(lang, "email.template.exam.returned.link");
             stringValues.put("review_link", reviewLinkUrl);
             stringValues.put("review_link_text", reviewLinkText);
         }
