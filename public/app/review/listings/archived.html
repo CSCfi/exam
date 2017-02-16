@@ -33,14 +33,14 @@
     </div>
 
     <table class="table table-striped exams-table">
-        <thead ng-init="archivedPredicate = 'exam.gradedTime'">
+        <thead ng-init="archivedPredicate = 'displayedGradingTime'">
         <tr>
             <th sort-exam by="user.lastName" text="sitnet_student" predicate="archivedPredicate" reverse="reverse"></th>
             <th sort-exam by="user.email" text="sitnet_email" predicate="archivedPredicate" reverse="reverse"></th>
             <th sort-exam by="started" text="sitnet_exam_duration" predicate="archivedPredicate" reverse="reverse"></th>
             <th sort-exam by="displayedGrade" text="sitnet_grade" predicate="archivedPredicate" reverse="reverse"></th>
             <th sort-exam by="displayedCredit" text="sitnet_exam_credit" predicate="archivedPredicate" reverse="reverse"></th>
-            <th sort-exam by="exam.gradedTime" text="sitnet_graded" predicate="archivedPredicate" reverse="reverse"></th>
+            <th sort-exam by="displayedGradingTime" text="sitnet_graded" predicate="archivedPredicate" reverse="reverse"></th>
         </tr>
         </thead>
 
@@ -64,7 +64,7 @@
             <td class="table-column-10">
                 {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
             </td>
-            <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+            <td class="table-column-15">{{review.displayedGradingTime | date:'dd.MM.yyyy'}}</td>
         </tr>
         <!--Fill if page not full-->
         <tr ng-repeat="r in [] | pagefill: archivedReviews.length:currentPageArchived:pageSize">

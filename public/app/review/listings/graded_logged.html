@@ -35,7 +35,7 @@
     </div>
 
     <table class="table table-striped exams-table">
-    <thead ng-init="gradedLoggedPredicate = 'exam.gradedTime'">
+    <thead ng-init="gradedLoggedPredicate = 'displayedGradingTime'">
     <tr>
         <th class="dropdown" uib-dropdown>
             <button class="btn btn-xs btn-default" data-toggle="dropdown" uib-dropdown-toggle>
@@ -60,7 +60,7 @@
         <th sort-exam by="started" text="sitnet_exam_duration" predicate="gradedLoggedPredicate" reverse="reverse"></th>
         <th sort-exam by="displayedGrade" text="sitnet_grade" predicate="gradedLoggedPredicate" reverse="reverse"></th>
         <th sort-exam by="displayedCredit" text="sitnet_exam_credit" predicate="gradedLoggedPredicate" reverse="reverse"></th>
-        <th sort-exam by="exam.gradedTime" text="sitnet_graded" predicate="gradedLoggedPredicate" reverse="reverse"></th>
+        <th sort-exam by="displayedGradingTime" text="sitnet_graded" predicate="gradedLoggedPredicate" reverse="reverse"></th>
     </tr>
     </thead>
 
@@ -87,7 +87,7 @@
         <td class="table-column-10">
             {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
         </td>
-        <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+        <td class="table-column-15">{{review.displayedGradingTime | date:'dd.MM.yyyy'}}</td>
     </tr>
     <!--Fill if page not full-->
     <tr ng-repeat="r in [] | pagefill: gradedLoggedReviews.length:currentPageGradedLogged:pageSize">

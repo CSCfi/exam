@@ -237,7 +237,9 @@
                         $scope.gradedLoggedReviews = reviews.filter(function (r) {
                             return r.exam.state === 'GRADED_LOGGED';
                         });
-                        $scope.gradedLoggedReviews.forEach(function(r) {
+                        $scope.gradedLoggedReviews.forEach(function (r) {
+                            r.displayedGradingTime = r.exam.languageInspection ?
+                                r.exam.languageInspection.finishedAt : r.exam.gradingTime;
                             r.displayedGrade = $scope.translateGrade(r.exam);
                         });
 
@@ -245,12 +247,18 @@
                         $scope.rejectedReviews = reviews.filter(function (r) {
                             return r.exam.state === 'REJECTED';
                         });
+                        $scope.rejectedReviews.forEach(function (r) {
+                            r.displayedGradingTime = r.exam.languageInspection ?
+                                r.exam.languageInspection.finishedAt : r.exam.gradingTime;
+                        });
                         $scope.toggleRejectedReviews = $scope.rejectedReviews.length > 0;
                         $scope.archivedReviews = reviews.filter(function (r) {
                             return r.exam.state === 'ARCHIVED';
                         });
                         $scope.toggleArchivedReviews = $scope.archivedReviews.length > 0;
                         $scope.archivedReviews.forEach(function (r) {
+                            r.displayedGradingTime = r.exam.languageInspection ?
+                                r.exam.languageInspection.finishedAt : r.exam.gradingTime;
                             r.displayedGrade = $scope.translateGrade(r.exam);
                             r.displayedCredit = $scope.printExamCredit(r.exam.course.credits, r.exam.customCredit);
                         });
@@ -384,7 +392,7 @@
                         };
 
                         // Close modal if user clicked the back button and no changes made
-                        $scope.$on('$routeChangeStart', function() {
+                        $scope.$on('$routeChangeStart', function () {
                             if (!window.onbeforeunload) {
                                 $modalInstance.dismiss();
                             }
@@ -392,16 +400,16 @@
                     }];
 
                     $modal.open({
-                       templateUrl: EXAM_CONF.TEMPLATES_PATH + 'review/listings/no_show.html',
-                       backdrop: 'static',
-                       keyboard: true,
-                       controller: ctrl,
-                       windowClass: 'question-editor-modal',
-                       resolve: {
-                           noShows: function () {
-                               return $scope.noShows;
-                           }
-                       }
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'review/listings/no_show.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: ctrl,
+                        windowClass: 'question-editor-modal',
+                        resolve: {
+                            noShows: function () {
+                                return $scope.noShows;
+                            }
+                        }
                     });
 
                 };
@@ -423,7 +431,7 @@
                         };
 
                         // Close modal if user clicked the back button and no changes made
-                        $scope.$on('$routeChangeStart', function() {
+                        $scope.$on('$routeChangeStart', function () {
                             if (!window.onbeforeunload) {
                                 $modalInstance.dismiss();
                             }
@@ -431,11 +439,11 @@
                     }];
 
                     $modal.open({
-                       templateUrl: EXAM_CONF.TEMPLATES_PATH + 'review/listings/aborted.html',
-                       backdrop: 'static',
-                       keyboard: true,
-                       controller: ctrl,
-                       windowClass: 'question-editor-modal',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'review/listings/aborted.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: ctrl,
+                        windowClass: 'question-editor-modal',
                         resolve: {
                             aborted: function () {
                                 return $scope.abortedExams;

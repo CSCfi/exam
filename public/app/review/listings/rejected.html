@@ -31,7 +31,7 @@
         </div>
 
         <table class="table table-striped exams-table">
-            <thead ng-init="rejectedPredicate = 'exam.gradedTime'">
+            <thead ng-init="rejectedPredicate = 'displayedGradingTime'">
             <tr>
                 <th sort-exam by="user.lastName" text="sitnet_student" predicate="rejectedPredicate" reverse="reverse"></th>
                 <th sort-exam by="user.email" text="sitnet_email" predicate="rejectedPredicate" reverse="reverse"></th>
@@ -39,7 +39,7 @@
                 <th sort-exam by="deadline" text="sitnet_review_deadline" predicate="rejectedPredicate" reverse="reverse"></th>
                 <th sort-exam by="displayedGrade" text="sitnet_grade" predicate="rejectedPredicate" reverse="reverse"></th>
                 <th sort-exam by="displayedCredit" text="sitnet_exam_credit" predicate="rejectedPredicate" reverse="reverse"></th>
-                <th sort-exam by="exam.gradedTime" text="sitnet_graded" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort-exam by="displayedGradingTime" text="sitnet_graded" predicate="rejectedPredicate" reverse="reverse"></th>
             </tr>
             </thead>
             <tbody>
@@ -65,7 +65,7 @@
                 <td class="table-column-10">
                     {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
                 </td>
-                <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+                <td class="table-column-15">{{review.displayedGradingTime | date:'dd.MM.yyyy'}}</td>
             </tr>
             <!--Fill if page not full-->
             <tr ng-repeat="r in [] | pagefill: rejectedReviews.length:currentPageRejected:pageSize">
