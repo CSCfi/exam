@@ -260,7 +260,8 @@ public class ReservationController extends BaseController {
         }
 
         if (end.isPresent()) {
-            DateTime endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser());
+            DateTime endDate = AppUtil.withTimeAtEndOfDayConsideringTz(
+                    DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser()));
             query = query.lt("reservation.endAt", endDate.toDate());
         }
 

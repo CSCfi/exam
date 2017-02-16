@@ -112,6 +112,11 @@ public class AppUtil {
         return src.withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
     }
 
+    public static DateTime withTimeAtEndOfDayConsideringTz(DateTime src) {
+        DateTimeZone dtz = getDefaultTimeZone();
+        return src.plusDays(1).withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
+    }
+
     public static OwnedModel setCreator(OwnedModel object, User user) {
         object.setCreator(user);
         object.setCreated(DateTime.now().toDate());
