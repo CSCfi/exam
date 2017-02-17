@@ -307,7 +307,7 @@ public class EnrolmentController extends BaseController {
         if (user.hasRole("STUDENT", getSession())) {
             query = query.eq("user", user);
         }
-        ExamEnrolment enrolment = query.findUnique();
+        ExamEnrolment enrolment = query.setMaxRows(1).findUnique();
         if (enrolment == null) {
             return notFound();
         } else {

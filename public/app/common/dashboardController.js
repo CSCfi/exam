@@ -44,11 +44,13 @@
                 $scope.showRoomGuide = function (id) {
 
                     // fetch room instructions
-                    $http.get('/app/enroll/room/' + id)
-                                                    .success(function (data) {
-                                                        $scope.info = data;
-                                                        $scope.currentLanguageText = currentLanguage();
-                                                    });
+                    if(!$scope.currentLanguageText) {
+                        $http.get('/app/enroll/room/' + id)
+                            .success(function (data) {
+                                $scope.info = data;
+                                $scope.currentLanguageText = currentLanguage();
+                            });
+                    }
 
                     if($scope.showGuide == id) {
                         $scope.showGuide = 0;
