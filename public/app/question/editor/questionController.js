@@ -222,15 +222,48 @@
                     newQuestion.options.push({correctOption: false});
                 };
 
-                function removeOption(option) {
-                    $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
+                function removeOption(selectedOption, isRadio) {
+
+                    var hasCorrectAnswer = false;
+                    var hasWrongAnswer = false;
+                    if(isRadio) {
+                        $scope.newQuestion.options.forEach(function (option) {
+                            if(option.id != selectedOption.id) {
+                                if(option.correctOption) { hasCorrectAnswer=true; }
+                                if(!option.correctOption) { hasWrongAnswer=true; }
+                            }
+                        });
+                    }
+                    else {
+                        $scope.newQuestion.options.forEach(function (option) {
+                            if(option.id != selectedOption.id) {
+                                if(option.defaultScore > 0) { hasCorrectAnswer=true; }
+                                if(option.defaultScore < 0) { hasWrongAnswer=true; }
+                            }
+                        });
+                    }
+
+                    if(!$scope.isInPublishedExam) {
+                        // luonnoksen vaihtoehtoja saa poistella miten lystää
+                        $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(selectedOption), 1);
+                    }
+                    else if(hasCorrectAnswer && hasWrongAnswer) {
+                        // julkaistussa kysymyksessä pitää jäädä jäljelle vähintään yksi oikea ja yksi väärä vaihtoehto
+                        $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(selectedOption), 1);
+                    }
+                    else {
+                        // virhetilanne: yritetää poistaa viimeistä oikeaa tai väärää vaihtoehtoa julkaistusta kysymyksestä
+                        toastr.error($translate.instant("sitnet_action_disabled_minimum_options"));
+                    }
+
+
                 }
 
-                $scope.removeOption = function (option) {
+                $scope.removeOption = function (option, isRadio) {
                     if ($scope.lotteryOn) {
                         toastr.error($translate.instant("sitnet_action_disabled_lottery_on"));
                     } else {
-                        removeOption(option);
+                        removeOption(option, isRadio);
                     }
                 };
 

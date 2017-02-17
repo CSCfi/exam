@@ -170,11 +170,6 @@
                                 <i class="fa fa-exclamation-circle reddish"></i>
                                 <small>{{'sitnet_shared_question_property_info' | translate}}</small>
                             </span>
-                            <br/>
-                            <span ng-if="isInPublishedExam">
-                                <i class="fa fa-exclamation-circle reddish"></i>
-                                <small>{{'sitnet_exam_multiple_change_not_allowed' | translate}}</small>
-                            </span>
                         </div>
                         <div class="col-md-5 question-option-title">
                             {{'sitnet_word_points' | translate | uppercase}}
@@ -198,7 +193,7 @@
                                        ng-model="option.score"
                                        required="true"
                                        ng-disabled="lotteryOn"/>
-                                    <span ng-if="!isInPublishedExam" ng-click="removeOption(option)" class="question-option-trash pointer">
+                                    <span ng-click="removeOption(option, false)" class="question-option-trash pointer">
                                         <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
                                     </span>
                             </div>
@@ -206,11 +201,6 @@
                     </div>
 
                     <!-- Type specific content - option -->
-                    <div ng-if="question.type === 'MultipleChoiceQuestion' && isInPublishedExam" class="marb10">
-                        <i class="fa fa-exclamation-circle reddish mart10"></i>
-                        <small>{{'sitnet_exam_multiple_change_not_allowed' | translate}}</small>
-                    </div>
-
                     <div ng-if="question.type === 'MultipleChoiceQuestion'"
                          ng-repeat="option in sectionQuestion.options">
 
@@ -224,7 +214,7 @@
                                    ng-click="selectIfDefault(option.option.option, $event)"
                                    required="true"/>
 
-                            <div ng-if="!isInPublishedExam" ng-click="removeOption(option)" class="make-inline question-option-trash">
+                            <div ng-click="removeOption(option,true)" class="make-inline question-option-trash">
                                 <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
                             </div>
                         </div>

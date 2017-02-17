@@ -45,12 +45,50 @@
                     $scope.sectionQuestion.options.push({option: option});
                 };
 
-                $scope.removeOption = function (option) {
+                $scope.removeOption = function (selectedOption, isRadio) {
+
                     if ($scope.lotteryOn) {
                         toastr.error($translate.instant("sitnet_action_disabled_lottery_on"));
                         return;
                     }
-                    $scope.sectionQuestion.options.splice($scope.sectionQuestion.options.indexOf(option), 1);
+
+                    var hasCorrectAnswer = false;
+                    var hasWrongAnswer = false;
+
+                    if(isRadio) {
+                        $scope.sectionQuestion.options.forEach(function (option) {
+                            if(option.id != selectedOption.id) {
+                                if(option.option.correctOption) { hasCorrectAnswer=true; }
+                                if(!option.option.correctOption) { hasWrongAnswer=true; }
+                            }
+                        });
+                    }
+                    else {
+                        $scope.sectionQuestion.options.forEach(function (option) {
+                            if(option.id != selectedOption.id) {
+                                if(option.option.defaultScore > 0) { hasCorrectAnswer=true; }
+                                if(option.option.defaultScore < 0) { hasWrongAnswer=true; }
+                            }
+                        });
+                    }
+
+                    if(!$scope.isInPublishedExam) {
+                        // luonnoksen vaihtoehtoja saa poistella miten lystää
+                        $scope.sectionQuestion.options.splice($scope.sectionQuestion.options.indexOf(selectedOption), 1);
+                    }
+                    else if(hasCorrectAnswer && hasWrongAnswer) {
+                        // julkaistussa kysymyksessä pitää jäädä jäljelle vähintään yksi oikea ja yksi väärä vaihtoehto
+                        $scope.sectionQuestion.options.splice($scope.sectionQuestion.options.indexOf(selectedOption), 1);
+                    }
+                    else {
+                        // virhetilanne: yritetää poistaa viimeistä oikeaa tai väärää vaihtoehtoa julkaistusta kysymyksestä
+                        toastr.error($translate.instant("sitnet_action_disabled_minimum_options"));
+                    }
+
+                };
+
+                $scope.calculateDefaultMaxPoints = function (question) {
+                    return questionService.calculateDefaultMaxPoints(question);
                 };
 
                 $scope.correctAnswerToggled = function (option) {
