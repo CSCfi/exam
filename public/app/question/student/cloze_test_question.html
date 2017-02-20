@@ -8,7 +8,14 @@
         </small>
     </div>
 </div>
-
+<div class="padl0 question-type-text">
+    <span ng-if="sectionQuestion.evaluationType == 'Selection'">
+         {{'sitnet_evaluation_select' | translate}}
+    </span>
+    <span ng-if="sectionQuestion.evaluationType !== 'Selection'">
+        {{sectionQuestion.derivedMaxScore}} {{'sitnet_unit_points' | translate}}
+    </span>
+</div>
 <div class="row top-margin-1">
     <div class="col-md-12">
         <button ng-click="saveTextualAnswer(sectionQuestion)"
