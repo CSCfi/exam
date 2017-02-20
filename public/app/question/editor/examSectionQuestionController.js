@@ -8,6 +8,7 @@
 
                 $scope.examNames = [];
                 $scope.isInPublishedExam = false;
+                $scope.questionCorrectOption = '';
 
                 $scope.showWarning = function () {
                     return $scope.examNames.length > 1;

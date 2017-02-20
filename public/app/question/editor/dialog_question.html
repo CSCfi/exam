@@ -203,21 +203,24 @@
                     <!-- Type specific content - option -->
                     <div ng-if="question.type === 'MultipleChoiceQuestion'"
                          ng-repeat="option in sectionQuestion.options">
+                         <div class="col-md-12">
+                            <div class="col-md-6 question-option-empty" ng-class="{'question-correct-option':option.option.correctOption}">
+                                <input id="optionText" type="text" focus-on="opt{{option.id}}" class="make-inline question-option-input radiobut"
+                                       ng-model="option.option.option"
+                                       ng-click="selectIfDefault(option.option.option, $event)"
+                                       required="true"/>
+                            </div>
+                            <div class="col-md-2 question-option-empty-radio" ng-class="{'question-correct-option-radio':option.option.correctOption}">
+                                <input name="correctOption" type="radio" ng-model="option.option.correctOption" ng-value="true" ng-click="correctAnswerToggled(option)"
+                                       ng-disabled="optionDisabled(option)" class="make-inline question-option-radio">
+                            </div>
 
-                        <div class="form-horizontal question-editor-option">
-
-                            <input name="correctOption" type="radio" ng-model="option.option.correctOption" ng-value="true" ng-click="correctAnswerToggled(option)"
-                                   ng-disabled="optionDisabled(option)" class="make-inline question-option-radio">
-
-                            <input id="optionText" type="text" focus-on="opt{{option.id}}" class="make-inline question-option-input"
-                                   ng-model="option.option.option"
-                                   ng-click="selectIfDefault(option.option.option, $event)"
-                                   required="true"/>
-
-                            <div ng-hide="lotteryOn" ng-click="removeOption(option,true)" class="make-inline question-option-trash">
+                            <div ng-hide="lotteryOn" ng-click="removeOption(option, true)" class="col-md-1 question-option-trash">
                                 <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
                             </div>
-                        </div>
+                            <div class="col-md-3">
+                            </div>
+                         </div>
                     </div>
 
 
