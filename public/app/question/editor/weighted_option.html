@@ -14,7 +14,7 @@
            required="true"
            ng-disabled="lotteryOn"/>
 
-            <span ng-click="removeOption(option,false)" class="question-option-trash pointer">
+            <span ng-hide="lotteryOn" ng-click="removeOption(option,false)" class="question-option-trash pointer">
                 <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
             </span>
 

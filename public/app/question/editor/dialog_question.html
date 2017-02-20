@@ -193,7 +193,7 @@
                                        ng-model="option.score"
                                        required="true"
                                        ng-disabled="lotteryOn"/>
-                                    <span ng-click="removeOption(option, false)" class="question-option-trash pointer">
+                                    <span ng-hide="lotteryOn" ng-click="removeOption(option, false)" class="question-option-trash">
                                         <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
                                     </span>
                             </div>
@@ -214,7 +214,7 @@
                                    ng-click="selectIfDefault(option.option.option, $event)"
                                    required="true"/>
 
-                            <div ng-click="removeOption(option,true)" class="make-inline question-option-trash">
+                            <div ng-hide="lotteryOn" ng-click="removeOption(option,true)" class="make-inline question-option-trash">
                                 <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
                             </div>
                         </div>
