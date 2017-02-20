@@ -54,6 +54,7 @@ public class StudentActionsController extends BaseController {
                 .fetch("gradedByUser", "firstName, lastName")
                 .fetch("examInspections.user", "firstName, lastName")
                 .fetch("parent.examOwners", "firstName, lastName")
+                .fetch("languageInspection", "approved, finishedAt")
                 .fetch("languageInspection.statement")
                 .fetch("languageInspection.statement.attachment")
                 .where()
@@ -131,7 +132,7 @@ public class StudentActionsController extends BaseController {
                     .ilike("exam.examInspections.user.lastName", condition)
                     .endJunction();
         }
-        return ok(query.findList());
+        return ok(query.findSet());
     }
 
     @ActionMethod

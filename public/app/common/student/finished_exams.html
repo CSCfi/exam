@@ -1,4 +1,4 @@
-<div id="dashboard">
+<div id="dashboard" ng-init="search()">
 
     <!-- Finished exams list -->
     <div class="top-row">
@@ -19,7 +19,7 @@
         <div class="col-md-6 col-xs-6 col-sm-6 padl0">
             <div class="student-details-title-wrap padleft">
                 <div class="form-group input-group">
-                    <input ng-change="searchParticipations()" ng-model="filter.text"
+                    <input ng-change="search()" ng-model="filter.text"
                            ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
                            class="form-control hgt40 marl15" placeholder="{{'sitnet_search' | translate }}">
                     <div class="input-group-addon search">
@@ -106,7 +106,7 @@
                                         {{ 'sitnet_exam_endtime' | translate }}:
                                     </div>
                                     <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                                        {{ participation.ended | adjustdst | date:'dd.MM.yyyy HH:mm'}}
+                                        {{ participation.ended | adjustdst | date:'dd.MM.yyyy'}}
                                     </div>
                                     <div class="clearfix visible-xs"></div>
                                     <div class="clearfix visible-sm"></div>
@@ -120,9 +120,7 @@
                             </div>
                         </div>
 
-                        <div class="student-exam-row" ng-if="participation.exam.state === 'GRADED_LOGGED' || participation.exam.state === 'REJECTED'
-                    || participation.exam.state === 'ARCHIVED' ||
-                    (participation.exam.state === 'GRADED' && participation.exam.autoEvaluationNotified)">
+                        <div class="student-exam-row" ng-if="participation.reviewedExam">
                             <div class="student-exam-row-infolink">
                                 <a class="infolink pointer" ng-click="showEvaluations(participation.exam.id)">
                                     <span ng-show="showEval!=participation.exam.id">{{ 'sitnet_comments_open' | translate}}</span>
@@ -133,28 +131,16 @@
                                                                                                src="../../assets/assets/images/arrow_down.png"></a>
                             </div>
                             <div class="student-exam-row-infobox" ng-show="showEval==participation.exam.id"
-                                 ng-controller="ExamFeedbackController" ng-include="evaluationPath"
-                                 ng-init="loadReview(participation.exam.id);">
-
+                                 ng-include="evaluationPath">
                             </div>
                         </div>
-                        <div class="student-exam-row" ng-if="(participation.exam.state === 'GRADED' && !participation.exam.autoEvaluationNotified) ||
-                    participation.exam.state === 'REVIEW'|| participation.exam.state === 'REVIEW_STARTED'"
+                        <div class="student-exam-row" ng-if="!participation.reviewedExam"
                              class="text-muted">
                             <div class="student-exam-row-infolink">{{'sitnet_no_comments' | translate}}</div>
                         </div>
 
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="pad-15" ng-if="filtered">
-        <div class="bottom-row">
-            <div class="col-md-12">
-                <a class="infolink pointer" href="/student/finishedexams">{{ 'sitnet_show_all_participations' |
-                    translate }}</a>
             </div>
         </div>
     </div>

@@ -1,6 +1,6 @@
 <div id="dashboard">
 
-    <div class="row" ng-show="reviewedExam.grade.name === 'NONE'">
+    <div class="row" ng-show="participation.reviewedExam.grade.name === 'NONE'">
         <div class="notice-wrap">
             <span class="form-group"><img class="nopad" src="../../../assets/assets/images/icon_info.png">
                     &nbsp;
@@ -9,7 +9,7 @@
         </div>
     </div>
 
-    <div class="row" ng-show="reviewedExam.state === 'GRADED'">
+    <div class="row" ng-show="participation.reviewedExam.state === 'GRADED'">
         <div class="notice-wrap">
             <span class="form-group"><img class="nopad" src="../../../assets/assets/images/icon_info.png">
                     &nbsp;
@@ -26,7 +26,7 @@
                     {{'sitnet_exam_credit' | translate}}:
                 </div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                    {{ reviewedExam.credit }} {{'sitnet_exam_credit_abbr' | translate}}
+                    {{ participation.reviewedExam.credit }} {{'sitnet_exam_credit_abbr' | translate}}
                 </div>
                 <div class="clearfix visible-xs"></div>
                 <div class="clearfix visible-sm"></div>
@@ -34,58 +34,36 @@
                     {{'sitnet_exam_grade' | translate}}:
                 </div>
                 <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                    {{ reviewedExam.grade.displayName }}
+                    {{ participation.reviewedExam.grade.displayName }}
                 </div>
             </div>
         </div>
     </div>
 
     <!-- maturity evaluation-->
-    <div class="row" ng-show="reviewedExam.executionType.type === 'MATURITY'">
+    <div class="row">
         <div class="col-md-12">
-            <div class="row mart10">
-                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                    {{'sitnet_inspection_status' | translate}}:
-                </div>
-                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                    <span ng-if="reviewedExam.state === 'ABORTED'"
-                          class="status">{{'sitnet_aborted_exam' | translate}}
-                    </span>
-                    <span ng-if="reviewedExam.state ==='REVIEW' || exam.state === 'REVIEW_STARTED'  || exam.state === 'STUDENT_STARTED'"
-                          class="status">{{'sitnet_exam_status_' + reviewedExam.state | lowercase | translate}}
-                    </span>
-                    <span ng-if="reviewedExam.state === 'GRADED'" class="status">
-                        {{'sitnet_exam_status_' + reviewedExam.state | lowercase | translate}}
-                    </span>
-                    <span ng-if="reviewedExam.state === 'GRADED_LOGGED'" class="status">
-                        {{'sitnet_exam_status_' + reviewedExam.state | lowercase | translate}}
-                    </span>
-                    <span ng-if="reviewedExam.state === 'REJECTED'" class="status">
-                        {{'sitnet_exam_status_' + reviewedExam.state | lowercase | translate}}
-                    </span>
-                </div>
-                <div class="clearfix visible-xs"></div>
-                <div class="clearfix visible-sm"></div>
+            <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                     {{'sitnet_graded' | translate}}:
                 </div>
-                <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                    {{reviewedExam.gradedTime | date:'dd.MM.yyyy'}}
+                <div class="col-xs-6 col-sm-6 col-md-5 col-lg-3">
+                    {{participation.reviewedExam.gradedTime | date:'dd.MM.yyyy'}}
                 </div>
             </div>
         </div>
     </div>
 
-
     <!-- total score: only show if not maturity and actual grade given -->
-    <div class="row evaluation-padtop" ng-hide="reviewedExam.executionType.type === 'MATURITY' || reviewedExam.grade.name === 'NONE'">
+    <div class="row evaluation-padtop"
+         ng-hide="participation.reviewedExam.executionType.type === 'MATURITY' || participation.reviewedExam.grade.name === 'NONE'">
         <div class="col-md-12">
             <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                     {{'sitnet_total_score' | translate}}:
                 </div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                    {{ scores.totalScore}} / {{scores.maxScore}}
+                    {{ participation.scores.totalScore}} / {{participation.scores.maxScore}}
                 </div>
                 <div class="clearfix visible-xs"></div>
                 <div class="clearfix visible-sm"></div>
@@ -100,16 +78,17 @@
     </div>
 
     <!-- approved and rejected: only show if not maturity and actual grade given -->
-    <div class="row evaluation-padtop" ng-hide="reviewedExam.executionType.type === 'MATURITY' || reviewedExam.grade.name === 'NONE'">
+    <div class="row evaluation-padtop"
+         ng-hide="participation.reviewedExam.executionType.type === 'MATURITY' || participation.reviewedExam.grade.name === 'NONE'">
         <div class="col-md-12">
 
             <!-- only show if approved or rejected answer count is given -->
-            <div class="row" ng-if="scores.hasApprovedRejectedAnswers">
+            <div class="row" ng-if="participation.scores.hasApprovedRejectedAnswers">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                     {{'sitnet_approved' | translate }}:
                 </div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                    {{ scores.approvedAnswerCount }}
+                    {{ participation.scores.approvedAnswerCount }}
                 </div>
                 <div class="clearfix visible-xs"></div>
                 <div class="clearfix visible-sm"></div>
@@ -117,14 +96,31 @@
                     {{'sitnet_rejected' | translate }}:
                 </div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                    {{ scores.rejectedAnswerCount }}
+                    {{ participation.scores.rejectedAnswerCount }}
                 </div>
             </div>
         </div>
     </div>
 
+
     <!-- comments: only show if comments given -->
-    <div class="row evaluation-padtop margin-10" ng-if="reviewedExam.examFeedback.comment">
+    <div class="row evaluation-padtop margin-10" ng-show="participation.reviewedExam.languageInspection">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'Sisällön arvosana' | translate}}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                    {{ participation.reviewedExam.contentGrade }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" ng-class="!participation.reviewedExam.languageInspection ? 'evaluation-padtop margin-10' : ''"
+         ng-if="participation.reviewedExam.examFeedback.comment">
         <div class="col-md-12">
             <div class="row">
                 <div class="col-md-12">
@@ -132,22 +128,24 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 evaluation-padtop general-info-content" ng-bind-html="reviewedExam.examFeedback.comment">
+                <div class="col-md-12 evaluation-padtop general-info-content" ng-bind-html="participation.reviewedExam.examFeedback.comment">
                 </div>
             </div>
         </div>
     </div>
 
     <!-- comment attachment: only show if attachment uploaded -->
-    <div class="row evaluation-padtop" ng-if="reviewedExam.examFeedback && reviewedExam.examFeedback.attachment">
+    <div class="row evaluation-padtop"
+         ng-if="participation.reviewedExam.examFeedback && participation.reviewedExam.examFeedback.attachment">
         <div class="col-md-12">
             <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                        {{'sitnet_feedback_attachment' | translate}}:
+                    {{'sitnet_feedback_attachment' | translate}}:
                 </div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3" ng-controller="AttachmentController">
-                    <a class="link-text pointer col-md-8" ng-click="downloadFeedbackAttachment(reviewedExam)">
-                        {{reviewedExam.examFeedback.attachment.fileName}}
+                    <a class="link-text pointer col-md-8"
+                       ng-click="downloadFeedbackAttachment(participation.reviewedExam)">
+                        {{participation.reviewedExam.examFeedback.attachment.fileName}}
                     </a>
                 </div>
                 <div class="clearfix visible-xs"></div>
@@ -162,8 +160,22 @@
         </div>
     </div>
 
-    <!-- inspector statement: only show if statement given -->
-    <div class="row evaluation-padtop margin-20" ng-if="reviewedExam.languageInspection">
+    <!-- credits and grade-->
+    <div class="row evaluation-padtop margin-20" ng-if="participation.reviewedExam.languageInspection">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'sitnet_language_inspections' | translate}}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    {{ participation.reviewedExam.grade.displayName }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- inspector statement: only show if language inspection done -->
+    <div class="row " ng-if="participation.reviewedExam.languageInspection">
         <div class="col-md-12">
 
             <div class="row">
@@ -172,7 +184,8 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 evaluation-padtop general-info-content" ng-bind-html="reviewedExam.languageInspection.statement.comment">
+                <div class="col-md-12 evaluation-padtop general-info-content"
+                     ng-bind-html="participation.reviewedExam.languageInspection.statement.comment">
                 </div>
             </div>
         </div>
@@ -180,15 +193,16 @@
 
 
     <!-- statement attachment: only show if attachment uploaded -->
-    <div class="row evaluation-padtop" ng-if="reviewedExam.languageInspection.statement.attachment">
+    <div class="row evaluation-padtop" ng-if="participation.reviewedExam.languageInspection.statement.attachment">
         <div class="col-md-12">
             <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                     {{'sitnet_statement_attachment' | translate}}:
                 </div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3" ng-controller="AttachmentController">
-                    <a class="link-text pointer col-md-8" ng-click="downloadStatementAttachment(reviewedExam)">
-                        {{reviewedExam.languageInspection.statement.attachment.fileName}}
+                    <a class="link-text pointer col-md-8"
+                       ng-click="downloadStatementAttachment(participation.reviewedExam)">
+                        {{participation.reviewedExam.languageInspection.statement.attachment.fileName}}
                     </a>
                 </div>
                 <div class="clearfix visible-xs"></div>

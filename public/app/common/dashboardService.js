@@ -74,20 +74,7 @@
                                 }
                             });
                             scope.userEnrolments = enrolments;
-                            StudentExamRes.finishedExams.query(
-                                function (participations) {
-                                    if ($routeParams.id) {
-                                        participations = participations.filter(function(p) {
-                                            return p.exam.id == $routeParams.id;
-                                        });
-                                        scope.filtered = true;
-                                    }
-                                    scope.participations = participations;
-                                    deferred.resolve(scope);
-                                },
-                                function (error) {
-                                    deferred.reject(error);
-                                });
+                            deferred.resolve(scope);
                         },
                         function (error) {
                             deferred.reject(error);
@@ -125,7 +112,7 @@
                         scope.executionTypes = types;
                         ExamRes.reviewerExams.query(function (reviewerExams) {
                             scope.draftExams = reviewerExams.filter(function (review) {
-                               return review.state === 'DRAFT' || review.state === 'SAVED';
+                               return (review.state === 'DRAFT' || review.state === 'SAVED') && examService.isOwner(review);
                             });
                             scope.draftExams.forEach(function(de) {
                                 de.ownerAggregate = de.examOwners.map(function (o) {

@@ -327,7 +327,8 @@
 
                 self.isOwner = function (exam) {
                     var user = sessionService.getUser();
-                    return exam && exam.parent.examOwners.filter(function (o) {
+                    var examToCheck = exam && exam.parent ? exam.parent : exam;
+                    return examToCheck && examToCheck.examOwners.filter(function (o) {
                             return o.id === user.id;
                         }).length > 0;
                 };
