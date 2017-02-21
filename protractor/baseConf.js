@@ -14,6 +14,9 @@ module.exports = {
     specs: ['e2e/**/*-spec.js'],
     framework: 'jasmine2',
     allScriptsTimeout: 30000,
+    jasmineNodeOpts: {
+        defaultTimeoutInterval: 120000
+    },
     beforeLaunch: function () {
         return new Promise(function (resolve) {
             reporter.beforeLaunch(resolve);
@@ -24,7 +27,7 @@ module.exports = {
         browser.driver.manage().window().setSize(1200, 1000);
 
         // Disable animations so e2e tests run more quickly
-        console.log("node version " + process.version);
+        console.log("Node version " + process.version);
         var disableNgAnimate = function () {
             angular.module('disableNgAnimate', []).run(['$animate', function ($animate) {
                 $animate.enabled(false);

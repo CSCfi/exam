@@ -35,23 +35,30 @@ var Common = function () {
     };
 
     this.waitToasters = function () {
-        browser.wait(EC.visibilityOf(element(by.css('.toast'))), 3000)
+        browser.wait(EC.visibilityOf(element(by.css('.toast'))), 20000)
             .then(function () {
-                console.log("Toaster visible!");
+                console.log("Toasters visible!");
+                console.log("Click all toasters");
                 element.all(by.css('.toast')).each(function (toast) {
-                    toast.click();
-                });
-                console.log("Wait toasters to be gone!");
-                browser.wait(function () {
-                    var deferred = protractor.promise.defer();
-                    var toaster = element(by.css('.toast'));
-                    toaster.isPresent()
-                        .then(function (isPresent) {
-                            deferred.fulfill(!isPresent);
+                    toast.isPresent().then(function (present) {
+                        if (!present) {
+                            console.log("Toaster is not present anymore.");
+                            return;
+                        }
+                        toast.getInnerHtml().then(function (text) {
+                            console.log("Click " + text);
                         });
-                    return deferred.promise;
-                }, 3000);
-                console.log("All toasters are gone!");
+                        toast.click();
+                    })
+                }).then(function () {
+                    console.log("All clicked! waiting toasters to be gone...");
+                    browser.wait(function () {
+                        return element.all(by.css('.toast')).count()
+                            .then(function (count) {
+                                return count === 0;
+                            });
+                    }, 10000);
+                });
             });
     };
 };
