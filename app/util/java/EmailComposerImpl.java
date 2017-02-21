@@ -404,15 +404,15 @@ class EmailComposerImpl implements EmailComposer {
                 String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         String title = messaging.get(lang, templatePrefix + "participant.notification.title");
 
-        String examInfo = messaging.get(lang, templatePrefix + "participant.notification.exam",
+        String examInfo = messaging.get(lang, "email.template.participant.notification.exam",
                 String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
-        String teacherName = messaging.get(lang, templatePrefix + "participant.notification.teacher", getTeachers(exam));
-        String examPeriod = messaging.get(lang, templatePrefix + "participant.notification.exam.period",
+        String teacherName = messaging.get(lang, "email.template.participant.notification.teacher", getTeachers(exam));
+        String examPeriod = messaging.get(lang, "email.templateparticipant.notification.exam.period",
                 String.format("%s - %s", DF.print(new DateTime(exam.getExamActiveStartDate())),
                         DF.print(new DateTime(exam.getExamActiveEndDate()))));
-        String examDuration = messaging.get(lang, templatePrefix + "participant.notification.exam.duration",
+        String examDuration = messaging.get(lang, "email.template.participant.notification.exam.duration",
                 exam.getDuration());
-        String reservationInfo = messaging.get(lang, templatePrefix + "participant.notification.please.reserve");
+        String reservationInfo = messaging.get(lang, "email.template.participant.notification.please.reserve");
         String bookingLink = String.format("%s/calendar/%d", HOSTNAME, exam.getId());
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("title", title);
