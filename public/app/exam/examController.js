@@ -1067,6 +1067,9 @@
                     if (['PRIVATE', 'MATURITY'].indexOf(exam.executionType.type) > -1 && exam.examEnrolments.length < 1) {
                         errors.participants = $translate.instant('sitnet_no_participants');
                     }
+                    if (exam.executionType.type === 'MATURITY' && !_.isBoolean(exam.subjectToLanguageInspection)) {
+                        errors.languageInspection = $translate.instant('sitnet_language_inspection_setting_not_chosen');
+                    }
 
                     if ($scope.autoevaluation.enabled && hasDuplicatePercentages(exam)) {
                         errors.autoevaluation = $translate.instant('sitnet_autoevaluation_percentages_not_unique');

@@ -127,14 +127,14 @@
                 </div>
 
                 <!-- Subject to language inspection-->
-                <div ng-show="newExam.executionType.type==='MATURITY'">
+                <div class="row col-md-12 margin-20" ng-show="newExam.executionType.type==='MATURITY'">
                     <div class="col-md-3 exam-basic-title">{{'sitnet_subject_to_language_inspection' | translate}}</div>
                     <div class="col-md-9">
-                        <button class="btn btn-review" ng-class="newExam.subjectToLanguageInspection ? 'btn-primary' : ''"
+                        <button class="btn btn-review" ng-class="newExam.subjectToLanguageInspection === true ? 'btn-primary' : ''"
                                 ng-disabled="newExam.state === 'PUBLISHED'"
                                 ng-click="newExam.subjectToLanguageInspection = true; updateExam()">{{'DIALOGS_YES' | translate }}
                         </button>&nbsp;
-                        <button class="btn btn-review" ng-class="newExam.subjectToLanguageInspection ? '' : 'btn-primary'"
+                        <button class="btn btn-review" ng-class="newExam.subjectToLanguageInspection === false ? 'btn-primary' : ''"
                                 ng-disabled="newExam.state === 'PUBLISHED'"
                                 ng-click="newExam.subjectToLanguageInspection = false; updateExam()">{{'DIALOGS_NO' | translate }}
                         </button>
@@ -269,7 +269,7 @@
                     </button>
                 </div>
             </div>
-            
+
         </div>
     </div>
     <!-- Buttons -->

@@ -244,7 +244,7 @@ public class ExamController extends BaseController {
         exam.getExamSections().stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
-                .forEach( esq -> {
+                .forEach(esq -> {
                     ClozeTestAnswer answer = new ClozeTestAnswer();
                     answer.setQuestion(esq);
                     esq.setClozeTestAnswer(answer);
@@ -326,6 +326,11 @@ public class ExamController extends BaseController {
                 if (exam.getExamLanguages().isEmpty()) {
                     return Optional.of(badRequest("no exam languages specified"));
                 }
+                if (exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString())) {
+                    if (parse("subjectToLanguageInspection", node, Boolean.class) == null) {
+                        return Optional.of(badRequest("language inspection requirement not configured"));
+                    }
+                }
                 if (exam.isPrivate() && exam.getState() != Exam.State.PUBLISHED) {
                     // No participants added, this is not good.
                     if (exam.getExamEnrolments().isEmpty()) {
@@ -394,7 +399,7 @@ public class ExamController extends BaseController {
         Integer trialCount = parse("trialCount", node, Integer.class);
         Boolean expanded = parse("expanded", node, Boolean.class, false);
         Boolean requiresLanguageInspection = parse("subjectToLanguageInspection",
-                node, Boolean.class, false);
+                node, Boolean.class);
         Boolean questionSheetReturnPolicy = parse("questionSheetReturnPolicy",
                 node, Boolean.class, false);
         if (examName != null) {
@@ -720,9 +725,6 @@ public class ExamController extends BaseController {
         exam.setDuration(AppUtil.getExamDurations().get(0));
         if (AppUtil.isCourseGradeScaleOverridable()) {
             exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0));
-        }
-        if(executionType.equals("MATURITY")) {
-            exam.setSubjectToLanguageInspection(true);
         }
 
         exam.save();
