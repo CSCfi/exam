@@ -26,10 +26,10 @@
                 var getQueryParams = function () {
                     var params = {};
                     if ($scope.dateService.startDate) {
-                        params.start = Date.parse($scope.dateService.startDate);
+                        params.start = $scope.dateService.startDate;
                     }
                     if ($scope.dateService.endDate) {
-                        params.end = Date.parse($scope.dateService.endDate);
+                        params.end = $scope.dateService.endDate;
                     }
                     var departments = $scope.departments.filter(function (d) {
                         return d.filtered;
