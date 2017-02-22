@@ -456,7 +456,7 @@
                         window.onbeforeunload = null;
                         $location.path("/student/logout/finished");
                     }, function (error) {
-                        toastr.error($translate.instant(error));
+                        toastr.error($translate.instant(error.data));
                     });
                 };
 
