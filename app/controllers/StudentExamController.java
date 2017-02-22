@@ -131,7 +131,7 @@ public class StudentExamController extends BaseController {
             }
             return ok("Exam sent for review");
         } else {
-            return forbidden("exam already returned");
+            return ok("exam already returned");
         }
     }
 
