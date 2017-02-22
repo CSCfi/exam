@@ -67,6 +67,7 @@
                 <th class="with-top" sort-exam by="user.email" text="sitnet_email" predicate="gradedPredicate" reverse="reverse"></th>
                 <th class="with-top" sort-exam by="started" text="sitnet_exam_duration" predicate="gradedPredicate" reverse="reverse"></th>
                 <th class="with-top with-space" sort-exam by="deadline" text="sitnet_review_deadline" predicate="gradedPredicate" reverse="reverse"></th>
+                <th class="with-top" sort-exam by="exam.totalScore" text="sitnet_total_score" predicate="gradedPredicate" reverse="reverse"></th>
                 <th class="with-top" sort-exam by="displayedGrade" text="sitnet_grade" predicate="gradedPredicate" reverse="reverse"></th>
                 <th class="with-top" sort-exam by="displayedCredit" text="sitnet_exam_credit" predicate="gradedPredicate" reverse="reverse"></th>
                 <th class="with-top" sort-exam by="exam.gradedTime" text="sitnet_graded" predicate="gradedPredicate" reverse="reverse"></th>
@@ -94,6 +95,12 @@
                 </td>
                 <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                         ng-bind-html="review.deadline | diffInDaysToNow"></span>)
+                </td>
+                <td class="table-column-10">{{review.exam.totalScore}} / {{review.exam.maxScore}}
+                    <span ng-if="review.exam.rejectedAnswerCount > 0 || review.exam.approvedAnswerCount > 0">
+                                <br />{{'sitnet_approved' | translate }}: {{ review.exam.approvedAnswerCount }}
+                                <br />{{'sitnet_rejected' | translate }}: {{ review.exam.rejectedAnswerCount }}
+                            </span>
                 </td>
                 <td class="table-column-15">{{translateGrade(review.exam)}}</td>
                 <td class="table-column-10">
