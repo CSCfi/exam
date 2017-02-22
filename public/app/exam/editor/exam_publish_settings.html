@@ -225,6 +225,24 @@
 
                 </div>
 
+                <div class="col-md-12 mart40">
+                    <div class="review-list-title">{{ 'sitnet_enrolment_url' | translate }}
+                        <sup><img popover-placement="right" popover-trigger="mouseenter"
+                                  uib-popover="{{'sitnet_enrolment_url_description' | translate}}"
+                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" />
+                        </sup>
+                    </div>
+                </div>
+
+                <!-- Link to enrolment -->
+                <div class="col-md-12 padl0 margin-20">
+                    <div class="col-md-12">
+                        <div class=""><a href="{{ hostname.hostname }}/enroll/{{ newExam.course.code }}/exam/{{ newExam.id }}">
+                            {{ hostname.hostname }}/enroll/{{ newExam.course.code }}/exam/{{ newExam.id }}</a></div>
+                    </div>
+                </div>
+
                 <!-- Autoevaluation -->
                 <div class="bottom-padding-2" ng-show="canBeAutoEvaluated()"
                         ng-include="templates.autoEvaluation"></div>
