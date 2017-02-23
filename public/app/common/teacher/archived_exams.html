@@ -43,13 +43,21 @@
                     <td class="table-column-teachers"><teacher-list exam="exam" /></td>
                     <td class="text-center">
                         <a ng-click="deleteExam(exam, 'archived')" class="pointer">
-                            <img src="../../../assets/assets/images/icon_trashcan.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_trashcan.png'" />
+                            <img src="../../../assets/assets/images/icon_trashcan.svg" alt="exam"
+                                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_trashcan.png'"
+                                 popover-placement="left" popover-trigger="mouseenter"
+                                 uib-popover="{{'sitnet_exam_remove' | translate}}"
+                            />
                         </a>
                     </td>
                     <td class="text-center">
                         <span class="dropdown pointer" uib-dropdown>
                             <a href class="dropdown-toggle" uib-dropdown-toggle>
-                                <img src="../../../assets/assets/images/icon_copy.svg" alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_copy.png'" />
+                                <img src="../../../assets/assets/images/icon_copy.svg" alt="exam"
+                                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_copy.png'"
+                                     popover-placement="left" popover-trigger="mouseenter"
+                                     uib-popover="{{'sitnet_copy' | translate}}"
+                                />
                             </a>
                             <ul class="dropdown-menu pull-right" style="min-width: 17em">
                                 <li class="dropdown-header">{{'sitnet_choose_execution_type' | translate}}</li>
