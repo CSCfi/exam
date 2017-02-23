@@ -262,16 +262,11 @@ public class ExamController extends BaseController {
         }
     }
 
-    private void notifyPartiesAboutPrivateExamPublication(Exam exam) {
+    private void notifyParticipantsAboutPrivateExamPublication(Exam exam) {
         User sender = getLoggedUser();
-        // Include participants, inspectors and owners. Exclude the sender.
-        Set<User> users = exam.getExamEnrolments().stream().map(ExamEnrolment::getUser).collect(Collectors.toSet());
-        users.addAll(exam.getExamInspections().stream().map(ExamInspection::getUser).collect(Collectors.toSet()));
-        users.addAll(exam.getExamOwners());
-        users.remove(sender);
-
+        Set<User> participants = exam.getExamEnrolments().stream().map(ExamEnrolment::getUser).collect(Collectors.toSet());
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            for (User u : users) {
+            for (User u : participants) {
                 emailComposer.composePrivateExamParticipantNotification(u, sender, exam);
                 Logger.info("Exam participation notification email sent to {}", u.getEmail());
             }
@@ -336,7 +331,7 @@ public class ExamController extends BaseController {
                     if (exam.getExamEnrolments().isEmpty()) {
                         return Optional.of(badRequest("sitnet_no_participants"));
                     }
-                    notifyPartiesAboutPrivateExamPublication(exam);
+                    notifyParticipantsAboutPrivateExamPublication(exam);
                 }
                 if (exam.isPrintout() && exam.getExaminationDates().isEmpty()) {
                     return Optional.of(badRequest("no examination dates specified"));
