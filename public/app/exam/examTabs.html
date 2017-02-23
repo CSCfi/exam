@@ -5,7 +5,7 @@
                 <a href="/"><img class="arrow_icon" src="../../../assets/assets/images/icon_history.png"></a>
                 <div class="student-exam-details-title">{{examInfo.title}}</div>
             </div>
-            <span class="exam-status">{{'sitnet_' + examFull.state | lowercase | translate}}</span>
+            <span ng-show="examFull.state" class="exam-status">{{'sitnet_' + examFull.state | lowercase | translate}}</span>
         </div>
     </div>
 

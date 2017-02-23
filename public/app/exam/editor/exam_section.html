@@ -1,14 +1,6 @@
 
 <div class="col-md-12 mart10" id="section{{section.id}}">
     <div class="review-list-title">{{ 'sitnet_section_title' | translate }}
-        <a class="pointer" popover-placement="left" popover-popup-delay="1000"
-           popover-trigger="mouseenter" uib-popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
-           ng-click="section.expanded = !section.expanded; expandSection(section)">
-            <img ng-show="!section.expanded" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
-                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
-            <img ng-show="section.expanded" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
-                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
-        </a>
         <!-- settings -->
         <div class="dropdown pull-right exam-section-settings" uib-dropdown>
             <a class="dropdown-toggle fa-stack fa-lg pull-right" uib-dropdown-toggle>
@@ -92,6 +84,14 @@
 
 <div class="col-md-12 mart20">
     <div class="review-list-title">{{ 'sitnet_exam_questions' | translate }}
+        <a class="pointer" popover-placement="left" popover-popup-delay="1000"
+           popover-trigger="mouseenter" uib-popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
+           ng-click="section.expanded = !section.expanded; expandSection(section)">
+            <img ng-show="!section.expanded" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
+                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
+            <img ng-show="section.expanded" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
+                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+        </a>
     </div>
 </div>
 
