@@ -35,10 +35,14 @@
                             </div>
 
                             <!-- settings menu -->
-                            <div ng-controller="DropdownCtrl" class="student-exam-settings" title="{{'sitnet_settings' | translate}}">
+                            <div ng-controller="DropdownCtrl" class="student-exam-settings">
                                 <span uib-dropdown on-toggle="toggled(open)">
                                     <a href id="simple-dropdown" uib-dropdown-toggle>
-                                        <img class="arrow_icon" src="assets/assets/images/settings_dots.png">
+                                        <img class="arrow_icon" alt="{{'sitnet_change_enrolment_info' | translate}}"
+                                             src="assets/assets/images/settings_dots.png"
+                                             popover-placement="left" popover-trigger="mouseenter"
+                                             uib-popover="{{'sitnet_change_enrolment_info' | translate}}"
+                                        >
                                     </a>
                                     <ul class="dropdown-menu settings" uib-dropdown-menu aria-labelledby="simple-dropdown">
                                         <li ng-if="enrolment.reservation">

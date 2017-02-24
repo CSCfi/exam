@@ -834,5 +834,6 @@
   "sitnet_error_autoevaluation_essay_question": "Automaattisesti arvioitavaan tenttiin ei ole mahdollista lisätä esseekysymyksiä EN",
   "sitnet_action_disabled_minimum_options":"Julkaistussa kysymyksessä pitää olla vähintään yksi oikea ja yksi väärä vaihtoehto EN",
   "sitnet_content_grade": "Sisällön arvosana EN",
-  "sitnet_language_inspection_setting_not_chosen": "Tieto kielentarkastuksen pakollisuudesta puuttuu EN"
+  "sitnet_language_inspection_setting_not_chosen": "Tieto kielentarkastuksen pakollisuudesta puuttuu EN",
+  "sitnet_change_enrolment_info": "Muuta ilmoittautumisen tietoja EN"
 }
