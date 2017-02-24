@@ -358,9 +358,11 @@
                                 qid: question.id,
                                 oids: ids
                             },
-                            function (options) {
+                            function () {
                                 toastr.info($translate.instant('sitnet_answer_saved'));
-                                question.options = options;
+                                question.options.forEach(function (o) {
+                                    o.answered = ids.indexOf(o.id) > -1;
+                                });
                                 examService.setQuestionColors(question);
                             }, function (error) {
 

@@ -30,6 +30,7 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
 @Restrict({@Group("STUDENT")})
@@ -194,8 +195,9 @@ public class StudentExamController extends BaseController {
     public Result answerMultiChoice(String hash, Long qid) {
         return getEnrolmentError(hash).orElseGet(() -> {
             ArrayNode node = (ArrayNode) request().body().asJson().get("oids");
-            List<Long> optionIds = new ArrayList<>();
-            node.forEach(n -> optionIds.add(n.asLong()));
+            List<Long> optionIds = StreamSupport.stream(node.spliterator(), false)
+                    .map(JsonNode::asLong)
+                    .collect(Collectors.toList());
             ExamSectionQuestion question =
                     Ebean.find(ExamSectionQuestion.class, qid);
             if (question == null) {
@@ -205,8 +207,7 @@ public class StudentExamController extends BaseController {
                 o.setAnswered(optionIds.contains(o.getId()));
                 o.update();
             });
-            PathProperties pp = PathProperties.parse("(id, answered, option(id, option))");
-            return ok(question.getOptions(), pp);
+            return ok();
         });
     }
 

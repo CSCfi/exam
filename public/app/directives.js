@@ -201,21 +201,9 @@
                         });
                     }
 
-                    function onChange() {
-                        updateModel();
-                    }
-
-                    function onDataReady() {
-                        updateModel();
-                    }
-
-                    function onMode() {
-                        updateModel();
-                    }
-
-                    ck.on('change', onChange);
-                    ck.on('dataReady', onDataReady);
-                    ck.on('mode', onMode); // Editing mode change
+                    ck.on('change', _.debounce(updateModel, 100)); // This can bring down the UI if not scaled down
+                    ck.on('dataReady', updateModel);
+                    ck.on('mode', updateModel); // Editing mode change
 
                     ngModel.$render = function (value) {
                         tmp = ngModel.$modelValue;
