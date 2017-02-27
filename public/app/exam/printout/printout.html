@@ -14,11 +14,6 @@
             <h3>TENTTI &dash; TENTAMEN &dash; EXAM</h3>
         </div>
     </div>
-    <div class="prow">
-        <div class="col-md-12 instruction">
-            Opettaja t&auml;ytt&auml;&auml; / Tentator fyller i / Lecturer fills in
-        </div>
-    </div>
     <div class="prow pbreak">
         <div class="col-md-12">
             <table class="infotable" ng-init="ctrl.viewPrintout()">
@@ -33,11 +28,6 @@
                     <td colspan="2">
                         <strong>Tentin nimi / Tentamens namn / Exam name:</strong><br />
                         <h4>{{ctrl.exam.name}}</h4>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <strong>Tiedekunta / Fakultet / Faculty:</strong>
                     </td>
                 </tr>
                 <tr>
@@ -97,18 +87,6 @@
                         </div>
                     </td>
                 </tr>
-                <tr>
-                    <td colspan="2">
-                        <strong>Kysymyspaperi on palautettava / Papper som innehåller frågor måste återvändas / Paper with exam questions must be returned:</strong><br />
-                        <label class="checkbox-inline">
-                            <input type="checkbox" onclick="return false;" ng-checked="ctrl.exam.questionSheetReturnPolicy">Kyllä / Ja / Yes
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" onclick="return false;" ng-checked="!ctrl.exam.questionSheetReturnPolicy">Ei / Nej / No
-                        </label>
-                    </td>
-                </tr>
-
             </table>
         </div>
     </div>

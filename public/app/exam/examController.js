@@ -676,10 +676,6 @@
                     return $scope.newExam && $scope.newExam.examType.type === type ? "btn-primary" : "";
                 };
 
-                $scope.checkQuestionSheetReturnPolicy = function (policy) {
-                    return $scope.newExam && $scope.newExam.questionSheetReturnPolicy === policy ? "btn-primary" : "";
-                };
-
                 $scope.setExamGradeScale = function (grading) {
                     $scope.newExam.gradeScale = grading;
                     $scope.updateExam(true);
@@ -687,11 +683,6 @@
 
                 $scope.setExamType = function (type) {
                     $scope.newExam.examType.type = type;
-                    $scope.updateExam();
-                };
-
-                $scope.setQuestionSheetReturnPolicy = function (policy) {
-                    $scope.newExam.questionSheetReturnPolicy = policy;
                     $scope.updateExam();
                 };
 
@@ -798,7 +789,6 @@
                             } : null,
                         "trialCount": $scope.newExam.trialCount || undefined,
                         "subjectToLanguageInspection": $scope.newExam.subjectToLanguageInspection,
-                        "questionSheetReturnPolicy": $scope.newExam.questionSheetReturnPolicy,
                         "objectVersion": $scope.newExam.objectVersion
                     };
                     for (var k in overrides) {

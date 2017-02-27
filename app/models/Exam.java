@@ -159,8 +159,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     // Number of times a student is allowed to take the exam before getting a grade
     private Integer trialCount;
 
-    private Boolean questionSheetReturnPolicy;
-
     @ManyToOne
     private ExamType creditType;
 
@@ -377,14 +375,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setAnswerLanguage(String answerLanguage) {
         this.answerLanguage = answerLanguage;
-    }
-
-    public Boolean getQuestionSheetReturnPolicy() {
-        return questionSheetReturnPolicy;
-    }
-
-    public void setQuestionSheetReturnPolicy(Boolean questionSheetReturnPolicy) {
-        this.questionSheetReturnPolicy = questionSheetReturnPolicy;
     }
 
     public String generateHash() {

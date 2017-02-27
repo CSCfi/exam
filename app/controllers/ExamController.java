@@ -395,8 +395,6 @@ public class ExamController extends BaseController {
         Boolean expanded = parse("expanded", node, Boolean.class, false);
         Boolean requiresLanguageInspection = parse("subjectToLanguageInspection",
                 node, Boolean.class);
-        Boolean questionSheetReturnPolicy = parse("questionSheetReturnPolicy",
-                node, Boolean.class, false);
         if (examName != null) {
             exam.setName(examName);
         }
@@ -440,7 +438,6 @@ public class ExamController extends BaseController {
         exam.generateHash();
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
-        exam.setQuestionSheetReturnPolicy(questionSheetReturnPolicy);
         exam.save();
         return ok(exam);
     }
@@ -728,7 +725,6 @@ public class ExamController extends BaseController {
         exam.setTrialCount(1);
 
         exam.setExpanded(true);
-        exam.setQuestionSheetReturnPolicy(false);
         exam.save();
 
         ObjectNode part = Json.newObject();
