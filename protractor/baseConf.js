@@ -7,9 +7,10 @@ var reporter = new HtmlScreenshotReporter({
     filename: 'protractor-report.html',
     captureOnlyFailedSpecs: true
 });
-
+var baseUrl = 'http://localhost:9000';
+var fixture = new Fixture();
 module.exports = {
-    baseUrl: 'http://localhost:9000',
+    baseUrl: baseUrl,
     seleniumServerJar: '../node_modules/protractor/node_modules/webdriver-manager/selenium/selenium-server-standalone-2.53.1.jar',
     specs: ['e2e/**/*-spec.js'],
     framework: 'jasmine2',
@@ -38,11 +39,15 @@ module.exports = {
 
         // Add screenshot reporter for failure cases
         jasmine.getEnv().addReporter(reporter);
-        new Fixture().loadFixture();
+        // Make initial request to trigger evolutions.
+        return browser.get(baseUrl, 20000);
     },
     afterLaunch: function (exitCode) {
         return new Promise(function (resolve) {
-            reporter.afterLaunch(resolve.bind(this, exitCode));
+            console.log("Cleaning up...");
+            fixture.destroy().then(function () {
+                reporter.afterLaunch(resolve.bind(this, exitCode));
+            });
         });
     }
 };

@@ -14,7 +14,7 @@ describe('Exam teacher', function () {
     var script = 'test_dump.sql';
 
     beforeEach(function () {
-        fixture.loadFixture(script);
+        fixture.loadFixtures(script);
         loginPage.load();
         loginPage.login('maikaope', 'maikaope');
     });

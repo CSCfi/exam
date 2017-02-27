@@ -39,7 +39,7 @@ describe('Exam teacher', function () {
 
         teacherDashboard.selectTab(1);
 
-        expect(teacherDashboard.getFinishedExams().count()).toBe(29);
+        expect(teacherDashboard.getFinishedExams().count()).toBe(0);
     });
 
     it('should create new exam', function () {

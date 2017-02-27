@@ -8,6 +8,9 @@ var Common = function () {
     var logs = Logs(browser);
 
     this.beforeAll = function (username, password, role) {
+        fixture.clearFixtures().then(function () {
+            fixture.loadFixtures(['users.json']);
+        });
         loginPage.load();
         loginPage.login(username, password);
         if (role) {
@@ -19,9 +22,14 @@ var Common = function () {
 
     this.afterAll = function () {
         loginPage.logout();
+        fixture.destroy();
     };
 
     this.beforeEach = function () {
+        fixture.clearFixtures().then(function () {
+            fixture.loadFixtures();
+        });
+
         logs.ignore(function (entry) {
             console.log("LOG: " + entry.message);
             return entry.message.indexOf('401 (Unauthorized)') !== -1;
@@ -30,8 +38,7 @@ var Common = function () {
     };
 
     this.afterEach = function () {
-        fixture.loadFixture();
-        return logs.verify();
+        logs.verify();
     };
 
     this.waitToasters = function () {

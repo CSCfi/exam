@@ -22,7 +22,7 @@ describe('Exam teacher', function () {
         var lang = "'fi'";
 
         //fixture.addUser(id, email, last_name, first_name, password, lang);
-        fixture.loadFixture();
+        fixture.loadFixtures();
         loginPage.load();
         loginPage.login('fyssaopettaja', 'fyssaope');
     });

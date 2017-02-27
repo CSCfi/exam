@@ -23,6 +23,9 @@
     "phantomjs-prebuilt": "^2.1.7",
     "protractor": "^4",
     "protractor-browser-logs": "^1.0",
-    "protractor-jasmine2-screenshot-reporter": "^0.3"
+    "protractor-jasmine2-screenshot-reporter": "^0.3",
+    "sql-fixtures": "^1",
+    "pg": "^6",
+    "merge-json": "0.1.0-b.3"
   }
 }

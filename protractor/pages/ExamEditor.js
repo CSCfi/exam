@@ -19,7 +19,7 @@ var ExamEditor = function () {
             var question = questions.get(index);
             question.click();
             var q = {};
-            q.name = question.element(by.xpath('//td[@class="question-table-name"]//p')).getInnerHtml();
+            q.name = question.element(by.xpath('//td[@class="question-table-name"]/span')).getInnerHtml();
             console.log("Question: " + q.name);
             selectedQuestions.push(q);
         }
@@ -43,6 +43,9 @@ var ExamEditor = function () {
     };
 
     this.selectType = function (type) {
+        element(by.id('createExam')).getOuterHtml().then(function (html) {
+           console.log(html);
+        });
         element(by.id('createExam')).all(by.css('option')).get(type).click();
     };
 
@@ -53,7 +56,7 @@ var ExamEditor = function () {
 
     this.continueToExam = function () {
         element(by.css('button[ng-click="continueToExam()"]')).click();
-        expect(browser.getCurrentUrl()).toMatch(/.+\/exams\/examTabs\/\d{4}\/\d/);
+        expect(browser.getCurrentUrl()).toMatch(/.+\/exams\/examTabs\/\d+\/\d+/);
     };
 
     this.openQuestionLibraryForSection = function (section) {
@@ -61,7 +64,7 @@ var ExamEditor = function () {
     };
 
     this.validateSectionQuestions = function (section, expectedQuestions) {
-        var actualQuestions = section.all(by.xpath('//div[contains(@class, "review-question-title")]//p'));
+        var actualQuestions = section.all(by.xpath('//div[contains(@class, "review-question-title")]'));
         for (var i = 0; i < expectedQuestions.length; i++) {
             expect(actualQuestions.get(i).getInnerHtml(), expectedQuestions[i].name);
         }
