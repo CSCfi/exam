@@ -36,10 +36,11 @@
                 <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
             </div>
         </div>
-        <div class="review-attachment-button review-list-speed-button marr20"><a target="_self" class="pointer"
-                                                                          href="/exams/reviews/{{eid}}/speedreview">
-            {{'sitnet_speed_review' | translate}} ({{examReviews.length}})
-        </a></div>
+        <div ng-hide="newExam.executionType.type==='MATURITY'" class="review-attachment-button review-list-speed-button marr20">
+            <a target="_self" class="pointer" href="/exams/reviews/{{eid}}/speedreview">
+                {{'sitnet_speed_review' | translate}} ({{examReviews.length}})
+            </a>
+        </div>
 
     </div>
 
