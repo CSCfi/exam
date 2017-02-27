@@ -304,7 +304,7 @@
     &.divider {
       border-left: 1px solid white;
       margin-left: 18px;
-
+      padding: 0;
     }
 
     span {
@@ -331,9 +331,16 @@
       img {
         margin-left: 10px;
         margin-top: 5px;
-        vertical-align: top;
       }
+
+      a {
+        cursor: pointer;
+        text-decoration: none;
+      }
+
     }
+
+
 
     .exam-clock {
       font-family: $sitnet-family-helvetica;
