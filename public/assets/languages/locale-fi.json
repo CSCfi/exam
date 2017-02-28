@@ -783,7 +783,7 @@
   "sitnet_approve_maturity": "Hyväksy suoritus",
   "sitnet_printout_exam": "Paperitentti",
   "sitnet_allowed_tools": "Sallitut apuvälineet",
-  "sitnet_return_question_sheet": "Kysymyspaperi on palautettava",
+  "sitnet_internal_exam_reference": "Sisäinen postiosoite",
   "sitnet_examination_dates": "Tenttimispäivät",
   "sitnet_print_attachment": "Lataa tentin liitetiedosto tulostusta varten",
   "sitnet_print_attachment_reminder": "Tentillä on liitetiedosto, muistathan tulostaa sen erikseen.",

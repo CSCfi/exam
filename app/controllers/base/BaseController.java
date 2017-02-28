@@ -82,8 +82,6 @@ public class BaseController extends Controller {
         return value == null ? defaultValue : value;
     }
 
-
-
     protected Result ok(Object object) {
         String body = Ebean.json().toJson(object);
         return ok(body).as("application/json");

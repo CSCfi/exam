@@ -56,6 +56,14 @@
                     <div class="col-md-9">{{ getExecutionTypeTranslation() | translate}}</div>
                 </div>
 
+                <div ng-show="newExam.executionType.type==='PRINTOUT'" class="row col-md-12 margin-20">
+                    <div class="col-md-3 exam-basic-title">{{'sitnet_internal_exam_reference' | translate}}</div>
+                    <div class="col-md-9">
+                        <input type="text" maxlength="128" ng-model="newExam.internalRef" ui-change="updateExam()" />
+                    </div>
+                </div>
+
+
                 <!-- Exam review -->
                 <div class="col-md-12 margin-20">
                     <div class="review-list-title">{{ 'sitnet_exam_review_settings' | translate }}
@@ -256,6 +264,7 @@
                         </textarea>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

@@ -68,8 +68,7 @@
                                                href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                 </td>
                 <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
-                    {{'sitnet_clock_short' |
-                    translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                    {{'sitnet_clock_short' | translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
                     {{review.ended | adjustdst | date: 'HH:mm'}}
                     ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
                 </td>
@@ -78,11 +77,11 @@
                 </td>
                 <td class="table-column-teachers">
                     <div ng-repeat="inspection in review.inspections">
-                                    <span ng-class="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
-                                        <span ng-class="isOwner(inspection.user, review.exam.examOwners) ? 'bold' : ''">
-                                            {{inspection.user.firstName}} {{inspection.user.lastName}}
-                                        </span>
-                                    </span>
+                        <span ng-class="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
+                            <span ng-class="isOwner(inspection.user, review.exam.examOwners) ? 'bold' : ''">
+                                {{inspection.user.firstName}} {{inspection.user.lastName}}
+                            </span>
+                        </span>
                     </div>
                 </td>
                 <td class="table-column-15"

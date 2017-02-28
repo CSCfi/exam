@@ -783,7 +783,7 @@
   "sitnet_approve_maturity": "Approve maturity test",
   "sitnet_printout_exam": "Paper exam",
   "sitnet_allowed_tools": "The devices allowed in the exam",
-  "sitnet_return_question_sheet": "Paper with exam questions must be returned",
+  "sitnet_internal_exam_reference": "Internal address",
   "sitnet_examination_dates": "Examination dates",
   "sitnet_print_attachment": "Download the attachment of the exam for printing",
   "sitnet_print_attachment_reminder": "There is an attachment in the exam. Please remember to print it",

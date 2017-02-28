@@ -395,6 +395,7 @@ public class ExamController extends BaseController {
         Boolean expanded = parse("expanded", node, Boolean.class, false);
         Boolean requiresLanguageInspection = parse("subjectToLanguageInspection",
                 node, Boolean.class);
+        String internalRef = parse("internalRef", node, String.class);
         if (examName != null) {
             exam.setName(examName);
         }
@@ -438,6 +439,7 @@ public class ExamController extends BaseController {
         exam.generateHash();
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
+        exam.setInternalRef(internalRef);
         exam.save();
         return ok(exam);
     }

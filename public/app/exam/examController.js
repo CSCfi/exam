@@ -789,6 +789,7 @@
                             } : null,
                         "trialCount": $scope.newExam.trialCount || undefined,
                         "subjectToLanguageInspection": $scope.newExam.subjectToLanguageInspection,
+                        "internalRef": $scope.newExam.internalRef,
                         "objectVersion": $scope.newExam.objectVersion
                     };
                     for (var k in overrides) {

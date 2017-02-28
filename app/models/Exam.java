@@ -182,6 +182,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private Boolean subjectToLanguageInspection;
 
+    // Optional internal reference to this exam
+    private String internalRef;
+
     public User getGradedByUser() {
         return gradedByUser;
     }
@@ -632,6 +635,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setSubjectToLanguageInspection(Boolean subjectToLanguageInspection) {
         this.subjectToLanguageInspection = subjectToLanguageInspection;
+    }
+
+    public String getInternalRef() {
+        return internalRef;
+    }
+
+    public void setInternalRef(String internalRef) {
+        this.internalRef = internalRef;
     }
 
     @Transient
