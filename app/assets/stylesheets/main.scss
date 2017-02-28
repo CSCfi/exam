@@ -39,10 +39,11 @@ p {
 
 .vmenu-on {
   width: auto;
-  margin-left: 230px;
+  margin-left: 17.025em;
+  overflow-x: hidden;
 
   @media (max-width: $sitnet-mobile) {
-    margin-left: 0px;
+    margin-left: 0;
   }
 }
 
