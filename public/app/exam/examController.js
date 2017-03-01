@@ -48,14 +48,13 @@
 
                 $scope.fromDialog = false;
                 $scope.user = sessionService.getUser();
-                $scope.newExamName = '';
 
                 $scope.tabs = [
-                    { title:'perus', active: $routeParams.tab == 1 },
-                    { title:'kysymys', active: $routeParams.tab == 2 },
-                    { title:'julkaisu', active: $routeParams.tab == 3 },
-                    { title:'suoritukset', active: $routeParams.tab == 4 }
-                  ];
+                    {title: 'perus', active: $routeParams.tab == 1},
+                    {title: 'kysymys', active: $routeParams.tab == 2},
+                    {title: 'julkaisu', active: $routeParams.tab == 3},
+                    {title: 'suoritukset', active: $routeParams.tab == 4}
+                ];
 
                 var getReleaseTypeByName = function (name) {
                     var matches = $scope.autoevaluation.releaseTypes.filter(function (rt) {
@@ -163,18 +162,19 @@
                         $scope.typeSelected = false;
                         $scope.loader.loading = false;
                         $scope.createNewExam = true;
-                        $scope.newExamName = '';
                         initialLanguages = 0;
                     } else if ($location.path().match(/exams\/course\/\d+$/)) {
-                        $scope.newExam = ExamRes.exams.get({id: $routeParams.id});
+                        ExamRes.exams.get({id: $routeParams.id}, function (exam) {
+                            $scope.newExam = exam;
+                        });
                         $scope.typeSelected = true;
                     } else {
                         // Parent scope deals with the actual exam fetching
                         $scope.initializeExam(refresh).then(function (exam) {
 
                             // route evaluators to 4th tab, don't show exam info
-                            if(!filterOwners($scope.user.id, exam)) {
-                               $scope.tabs[3].active=true;
+                            if (!filterOwners($scope.user.id, exam)) {
+                                $scope.tabs[3].active = true;
                             }
 
                             $scope.typeSelected = true;
@@ -261,7 +261,7 @@
                 };
 
                 $scope.updateSoftwareInfo = function () {
-                    if (initialSoftware && $scope.newExam.softwares.length !== initialSoftware) {
+                    if (!angular.isUndefined(initialSoftware) && $scope.newExam.softwares.length !== initialSoftware) {
                         var softwareIds = $scope.newExam.softwares.map(function (s) {
                             return s.id;
                         }).join();
@@ -280,7 +280,7 @@
 
                 $scope.updateExamLanguages = function () {
 
-                    if (initialLanguages && $scope.newExam.examLanguages.length !== initialLanguages) {
+                    if (!angular.isUndefined(initialLanguages) && $scope.newExam.examLanguages.length !== initialLanguages) {
                         ExamRes.languages.reset({eid: $scope.newExam.id}, function () {
                             var promises = [];
                             angular.forEach($scope.newExam.examLanguages, function (language) {
@@ -405,6 +405,12 @@
                     $scope.newOwner.user.id = $item.id;
                 };
 
+                $scope.cancelNewExam = function () {
+                    ExamRes.exams.remove({id: $scope.newExam.id}, function (ex) {
+                        toastr.success($translate.instant('sitnet_exam_removed'));
+                        $location.path('/');
+                    });
+                };
 
                 $scope.allExamOwners = function (filter, criteria) {
 
@@ -826,8 +832,6 @@
                 $scope.updateExam = function (overrideEvaluations, dontShowDialog) {
 
                     var examToSave = getUpdate();
-
-                    if($scope.newExamName!='') { examToSave.name = $scope.newExamName}
 
                     ExamRes.exams.update({id: $scope.newExam.id}, examToSave,
                         function (exam) {

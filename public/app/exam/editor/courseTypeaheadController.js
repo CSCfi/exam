@@ -66,9 +66,9 @@
                         $item = inserted_course;
                         toastr.success($translate.instant('sitnet_course_added'));
 
-                        ExamRes.course.update({eid: exam.id, cid: $item.id}, function (updated_exam) {
+                        ExamRes.course.update({eid: exam.id, cid: $item.id}, function (course) {
                             toastr.success($translate.instant('sitnet_exam_associated_with_course'));
-                            $scope.newExam = updated_exam;
+                            $scope.newExam.course = course;
                         }, function (error) {
                             toastr.error($translate.instant('sitnet_course_not_found'));
                         });
@@ -78,9 +78,9 @@
                     });
                 } else {
 
-                    ExamRes.course.update({eid: exam.id, cid: $item.id}, function (updated_exam) {
+                    ExamRes.course.update({eid: exam.id, cid: $item.id}, function (course) {
                         toastr.success($translate.instant('sitnet_exam_associated_with_course'));
-                        $scope.newExam = updated_exam;
+                        $scope.newExam.course = course;
                     }, function (error) {
                         toastr.error($translate.instant('sitnet_course_not_found'));
                     });

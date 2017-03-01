@@ -777,7 +777,7 @@ public class ExamController extends BaseController {
             }
             exam.setCourse(course);
             exam.save();
-            return ok(exam);
+            return ok(course);
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }

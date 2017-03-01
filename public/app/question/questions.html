@@ -226,12 +226,14 @@
                         </td>
                         <td class="padl20">
                             <a ng-if="question.allowedToRemove" ng-click="deleteQuestion(question)" class="pointer">
-                                <i class="fa fa-trash-o fa-fw"></i>
+                                <i class="fa fa-trash-o fa-fw" popover-placement="left" popover-trigger="mouseenter"
+                                   uib-popover="{{'sitnet_exam_remove' | translate}}"></i>
                             </a>
                         </td>
                         <td class="padl20 padr10">
                             <a class="bold-button" ng-click="copyQuestion(question, false)">
-                                <i class="fa fa-clone fa-fw"></i>
+                                <i class="fa fa-clone fa-fw" popover-placement="left" popover-trigger="mouseenter"
+                                   uib-popover="{{'sitnet_copy' | translate}}"></i>
                             </a>
                         </td>
                     </tr>
