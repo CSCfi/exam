@@ -8,14 +8,22 @@ import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
-import models.*;
+import models.Course;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamRoom;
+import models.Reservation;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
 import play.mvc.Result;
-import util.AppUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ReportController extends BaseController {
@@ -40,13 +48,11 @@ public class ReportController extends BaseController {
             result = result.in(String.format("%s.department", deptFieldPrefix), (Object[]) depts);
         }
         if (start != null) {
-            DateTime startDate = AppUtil.withTimeAtStartOfDayConsideringTz(
-                    DateTime.parse(start, ISODateTimeFormat.dateTimeParser()));
+            DateTime startDate = DateTime.parse(start, ISODateTimeFormat.dateTimeParser());
             result = result.ge(dateField, startDate.toDate());
         }
         if (end != null) {
-            DateTime endDate = AppUtil.withTimeAtEndOfDayConsideringTz(
-                    DateTime.parse(end, ISODateTimeFormat.dateTimeParser()));
+            DateTime endDate = DateTime.parse(end, ISODateTimeFormat.dateTimeParser()).plusDays(1);
             result = result.lt(dateField, endDate.toDate());
         }
         return result;
@@ -105,13 +111,11 @@ public class ReportController extends BaseController {
         Boolean result = e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && !e.getExamParticipations().isEmpty();
         Long created = e.getCreated().getTime();
         if (start.isPresent()) {
-            DateTime startDate = AppUtil.withTimeAtStartOfDayConsideringTz(
-                    DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser()));
+            DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
             result = result && startDate.isBefore(created);
         }
         if (end.isPresent()) {
-            DateTime endDate = AppUtil.withTimeAtEndOfDayConsideringTz(
-                    DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser()));
+            DateTime endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser()).plusDays(1);
             result = result && endDate.isAfter(created);
         }
         return result;
