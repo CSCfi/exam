@@ -407,7 +407,7 @@ class EmailComposerImpl implements EmailComposer {
         String examInfo = messaging.get(lang, "email.template.participant.notification.exam",
                 String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         String teacherName = messaging.get(lang, "email.template.participant.notification.teacher", getTeachers(exam));
-        String examPeriod = messaging.get(lang, "email.templateparticipant.notification.exam.period",
+        String examPeriod = messaging.get(lang, "email.template.participant.notification.exam.period",
                 String.format("%s - %s", DF.print(new DateTime(exam.getExamActiveStartDate())),
                         DF.print(new DateTime(exam.getExamActiveEndDate()))));
         String examDuration = messaging.get(lang, "email.template.participant.notification.exam.duration",
