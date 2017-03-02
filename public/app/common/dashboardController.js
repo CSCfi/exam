@@ -11,9 +11,11 @@
                 $scope.templates = dashboardService.getTemplates();
                 // Pagesize for showing finished exams
                 $scope.pageSize = 10;
+
+                $scope.filter = {};
+
                 $scope.showInst = 0;
                 $scope.showGuide = 0;
-                $scope.filtertext = '';
                 $scope.reduceDraftCount = 0;
 
                 $scope.printExamDuration = function (exam) {

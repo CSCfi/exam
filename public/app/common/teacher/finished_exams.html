@@ -2,6 +2,7 @@
     <div class="form-group input-group search tab-search">
         <input ng-model="filter.text"
                type="text"
+               ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
                class="form-control search" placeholder="{{'sitnet_exam_search_description' | translate }}"
                ng-change="search()">
         <div class="input-group-addon search">
