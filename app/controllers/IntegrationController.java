@@ -187,7 +187,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return request.get().thenApplyAsync(onSuccess);
     }
 
-    private static List<GradeScale> getGradeScales(JsonNode src) {
+    private List<GradeScale> getGradeScales(JsonNode src) {
         JsonNode node = src;
         List<GradeScale> scales = new ArrayList<>();
         if (node.has("gradeScale")) {
@@ -225,6 +225,9 @@ public class IntegrationController extends BaseController implements ExternalAPI
                         Grade g = new Grade();
                         g.setName(grade.get("description").asText());
                         g.setGradeScale(gs);
+                        // Dumb JSON API gives us boolean values as strings
+                        g.setMarksRejection(Boolean.valueOf(
+                                parse("isRejected", grade, String.class, "false")));
                         g.save();
                     }
                     scales.add(gs);
@@ -274,7 +277,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
     }
 
-    private static Optional<Course> parseCourse(JsonNode node) throws ParseException {
+    private Optional<Course> parseCourse(JsonNode node) throws ParseException {
         // check that this is a course node, response can also contain error messages and so on
         if (node.has("identifier") && node.has("courseUnitCode") && node.has("courseUnitTitle") && node.has("institutionName")) {
             Course course = new Course();
@@ -334,7 +337,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return Optional.empty();
     }
 
-    private static List<Course> parseCourses(JsonNode response) throws ParseException {
+    private List<Course> parseCourses(JsonNode response) throws ParseException {
         List<Course> results = new ArrayList<>();
         if (response.get("status").asText().equals("OK") && response.has("CourseUnitInfo")) {
             JsonNode root = response.get("CourseUnitInfo");

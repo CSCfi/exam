@@ -17,6 +17,9 @@ public class Grade extends Model {
     @Column
     private String name;
 
+    @Column
+    private Boolean marksRejection;
+
     @ManyToOne
     @JsonBackReference
     private GradeScale gradeScale;
@@ -35,6 +38,14 @@ public class Grade extends Model {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Boolean getMarksRejection() {
+        return marksRejection;
+    }
+
+    public void setMarksRejection(Boolean marksRejection) {
+        this.marksRejection = marksRejection;
     }
 
     public GradeScale getGradeScale() {

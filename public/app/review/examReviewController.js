@@ -155,7 +155,7 @@
                 $scope.$on('$localeChangeSuccess', function () {
                     setCredits();
                     $scope.examGrading.forEach(function (eg) {
-                       eg.name = examService.getExamGradeDisplayName(eg.type);
+                        eg.name = examService.getExamGradeDisplayName(eg.type);
                     });
                 });
 
@@ -412,11 +412,14 @@
 
                 $scope.insertEssayScore = function (sectionQuestion) {
                     var answer = sectionQuestion.essayAnswer;
-                    if (!answer || isNaN(answer.evaluatedScore)) {
+                    if (!answer || isNaN(answer.evaluatedScore)) {
                         return;
                     }
 
-                    QuestionRes.score.update({id: sectionQuestion.id, evaluatedScore: answer.evaluatedScore}, function (q) {
+                    QuestionRes.score.update({
+                        id: sectionQuestion.id,
+                        evaluatedScore: answer.evaluatedScore
+                    }, function (q) {
                         toastr.info($translate.instant("sitnet_graded"));
                         if (q.evaluationType === "Selection") {
                             setQuestionAmounts();
@@ -484,7 +487,7 @@
                                 if ($scope.user.isAdmin) {
                                     $location.path("/");
                                 } else {
-                                    $location.path("exams/examTabs/"+exam.parent.id+"/4");
+                                    $location.path("exams/examTabs/" + exam.parent.id + "/4");
                                 }
                             }
                         });
@@ -522,7 +525,7 @@
                             // Just save feedback and leave
                             $scope.saveFeedback(true).then(function () {
                                 toastr.info($translate.instant('sitnet_saved'));
-                                $location.path("exams/examTabs/"+exam.parent.id+"/4");
+                                $location.path("exams/examTabs/" + exam.parent.id + "/4");
                             });
                         }
                     } else if ($scope.isUnderLanguageInspection()) {
@@ -581,7 +584,7 @@
                                 if ($scope.user.isAdmin) {
                                     $location.path("/");
                                 } else {
-                                    $location.path("exams/examTabs/"+exam.parent.id+"/4");
+                                    $location.path("exams/examTabs/" + exam.parent.id + "/4");
                                 }
                             });
                         });
@@ -624,7 +627,7 @@
                         } else if ($scope.user.isAdmin) {
                             $location.path("/");
                         } else {
-                            $location.path("exams/examTabs/"+$scope.exam.parent.id+"/4");
+                            $location.path("exams/examTabs/" + $scope.exam.parent.id + "/4");
                         }
                     }, function (error) {
                         toastr.error(error.data);
@@ -639,7 +642,7 @@
                         } else {
                             ExamRes.review.update({id: examToRecord.id}, examToRecord, function () {
                                 if (exam.state !== 'GRADED') {
-                                    if(exam.executionType.type == 'MATURITY') {
+                                    if (exam.executionType.type == 'MATURITY') {
                                         toastr.info($translate.instant("sitnet_maturity_review_graded"));
                                     }
                                     else {
@@ -787,7 +790,7 @@
                     if (!$scope.isUnderLanguageInspection()) {
                         return false;
                     }
-                    return !$scope.exam.languageInspection.statement || !$scope.exam.languageInspection.statement.comment;
+                    return !$scope.exam.languageInspection.statement || !$scope.exam.languageInspection.statement.comment;
                 };
 
                 $scope.proceedWithMaturity = function (alternate) {
@@ -821,8 +824,7 @@
                     return $scope.exam.executionType.type == 'MATURITY' &&
                         !$scope.exam.subjectToLanguageInspection &&
                         $scope.exam.grade &&
-                        $scope.exam.grade.type &&
-                        ['REJECTED', 'I', '0', 'NONE'].indexOf($scope.exam.grade.type) > -1;
+                        $scope.exam.grade.marksRejection
                 };
 
                 $scope.getNextMaturityState = function () {
@@ -838,8 +840,8 @@
                     if ($scope.isAwaitingInspection()) {
                         return MATURITY_STATES.AWAIT_INSPECTION;
                     }
-                    var disapproved = !$scope.exam.grade || !$scope.exam.grade.type ||
-                        ['REJECTED', 'I', '0', 'NONE'].indexOf($scope.exam.grade.type) > -1;
+                    var grade = $scope.exam.grade;
+                    var disapproved = !grade || grade.marksRejection;
 
                     return disapproved ? MATURITY_STATES.REJECT_STRAIGHTAWAY :
                         MATURITY_STATES.LANGUAGE_INSPECT;
@@ -856,7 +858,7 @@
                             else if ($scope.user.isAdmin) {
                                 $location.path("/");
                             } else {
-                                $location.path("exams/examTabs/"+$scope.exam.parent.id+"/4");
+                                $location.path("exams/examTabs/" + $scope.exam.parent.id + "/4");
                             }
                         }, function (error) {
                             toastr.error(error.data);
@@ -888,7 +890,7 @@
                                     if ($scope.user.isAdmin) {
                                         $location.path("/");
                                     } else {
-                                        $location.path("exams/examTabs/"+ $scope.exam.parent.id+"/4");
+                                        $location.path("exams/examTabs/" + $scope.exam.parent.id + "/4");
                                     }
                                 });
                             }, function (error) {
