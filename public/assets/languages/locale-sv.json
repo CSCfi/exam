@@ -111,7 +111,7 @@
   "sitnet_exit_preview": "Stäng förhandsvisning",
   "sitnet_faculty_name": "Fakultet / Organisation",
   "sitnet_finished_exams": "Publicerade tentamina som syns inte för studerande (tentamensperiod är över eller alla valda studerande har utfört tentamen)",
-  "sitnet_finished_exams_title": "Tentamensperioden är avslutad",
+  "sitnet_finished_exams_title": "Obedömda tentamina",
   "sitnet_grade": "Vitsord",
   "sitnet_grade_scale": "Vitsordsskala",
   "sitnet_graded": "Bedömd",
