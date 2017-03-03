@@ -233,13 +233,9 @@
                             <select id="evaluationType" class="form-control wdt240" ng-model="sectionQuestion.evaluationType"
                                     ng-change="updateEvaluationType()"
                                     ng-required="question.type == 'EssayQuestion'">
-                            <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
+                                <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
                                 <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
                             </select>
-                            <i ng-if="showWarning()" class="fa fa-exclamation-circle reddish mart10"></i>
-                            <small ng-if="showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
-                            </span>
-
                         </div>
                     </div>
                 </div>
