@@ -629,7 +629,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.gradeless = gradeless;
     }
 
-    public Boolean isSubjectToLanguageInspection() {
+    public Boolean getSubjectToLanguageInspection() {
         return subjectToLanguageInspection;
     }
 
