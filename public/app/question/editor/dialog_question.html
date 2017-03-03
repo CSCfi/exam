@@ -232,8 +232,7 @@
                         <div class="col-md-9">
                             <select id="evaluationType" class="form-control wdt240" ng-model="sectionQuestion.evaluationType"
                                     ng-change="updateEvaluationType()"
-                                    ng-required="question.type == 'EssayQuestion'"
-                                    ng-disabled="showWarning()">
+                                    ng-required="question.type == 'EssayQuestion'">
                             <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
                                 <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
                             </select>

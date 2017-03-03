@@ -138,8 +138,7 @@
             <div class="col-md-9">
                 <select id="evaluationType" class="form-control wdt240" ng-model="newQuestion.defaultEvaluationType"
                         ng-change="updateEvaluationType()"
-                        ng-required="newQuestion.type == 'EssayQuestion'"
-                        ng-disabled="showWarning()">
+                        ng-required="newQuestion.type == 'EssayQuestion'">
                     <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
                     <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
                 </select>
@@ -147,7 +146,6 @@
                     <i class="fa fa-exclamation-circle reddish mart10"></i>
                     <small>{{'sitnet_exam_essay_change_not_allowed' | translate}}</small>
                 </span>
-
             </div>
         </div>
 
