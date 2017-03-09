@@ -15,7 +15,7 @@ trait Authenticator {
 
   val sessionCache: CacheApi
 
-  def getKey: String = LOGIN_TYPE match {
+  def getAuthHeaderName: String = LOGIN_TYPE match {
     case "HAKA" => "Shib-Session-Id"
     case _ => "x-exam-authentication"
   }

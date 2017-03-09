@@ -835,5 +835,6 @@
   "sitnet_action_disabled_minimum_options": "Frågan används i en tentamen. Det behövs åtminstone ett korrekt och ett fel alternativ.",
   "sitnet_content_grade": "Bedömning av substans",
   "sitnet_language_inspection_setting_not_chosen": "Välj om språkgranskning behövs eller ej",
-  "sitnet_change_enrolment_info": "Byt bokningens information"
+  "sitnet_change_enrolment_info": "Byt bokningens information",
+  "sitnet_error_score_input": "Virheellinen pistemäärä SV"
 }

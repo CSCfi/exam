@@ -81,26 +81,26 @@
                 </div>
                 <div>
                     <span ng-show="sectionQuestion.evaluationType === 'Points'">
-                        <form>
+                        <form name="foo">
                             <input id="score" name="score" type="number" class="form-control"
                                    ng-model="sectionQuestion.essayAnswer.evaluatedScore" step="1"
                                    ui-blur="insertEssayScore(sectionQuestion)"
-                                   ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/"
                                    ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
                                    min="0" max="{{sectionQuestion.maxScore}}" />
+                                <small ng-show="foo.$invalid" class="alert-danger">
+                                    <i class="fa fa-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}
+                                </small>
                         </form>
                     </span>
                     <span ng-show="sectionQuestion.evaluationType === 'Selection'">
                         <select class="form-control" ng-model="sectionQuestion.essayAnswer.evaluatedScore"
                                 ng-change="insertEssayScore(sectionQuestion)"
                                 ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()">
-                            <option value="1" ng-selected="sectionQuestion.essayAnswer.evaluatedScore == 1">{{
-                                'sitnet_approved' |
-                                translate }}
+                            <option value="1" ng-selected="sectionQuestion.essayAnswer.evaluatedScore == 1">
+                                {{ 'sitnet_approved' | translate }}
                             </option>
-                            <option value="0" ng-selected="sectionQuestion.essayAnswer.evaluatedScore == 0">{{
-                                'sitnet_rejected' |
-                                translate }}
+                            <option value="0" ng-selected="sectionQuestion.essayAnswer.evaluatedScore == 0">
+                                {{ 'sitnet_rejected' | translate }}
                             </option>
                         </select>
                     </span>
@@ -110,8 +110,7 @@
                 <!-- answer length & recommended length-->
                 <div ng-show="sectionQuestion.reviewExpanded">
                         <span>{{ 'sitnet_answer_length' | translate}}:</span>
-                        {{ getWordCount(sectionQuestion.essayAnswer.answer) }} {{'sitnet_words' |
-                        translate }},
+                        {{ getWordCount(sectionQuestion.essayAnswer.answer) }} {{'sitnet_words' | translate }},
                         {{ 'sitnet_approximately' | translate }}
                         {{ getCharacterCount(sectionQuestion.essayAnswer.answer) }} {{'sitnet_characters' |
                         translate
