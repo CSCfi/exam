@@ -65,6 +65,14 @@
 
 
     <div class="col-md-12 margin-20 padl0 padr0">
+        <div class="col-md-3 exam-basic-title padl0" ng-if="newQuestion.id">
+            {{ 'sitnet_question_id' | translate}}
+        </div>
+        <div class="col-md-9 padr0" ng-if="newQuestion.id">
+            #{{ newQuestion.id }}
+        </div>
+    </div>
+    <div class="col-md-12 margin-20 padl0 padr0">
         <div class="col-md-3 exam-basic-title padl0">
             {{'sitnet_new_question_type' | translate}}
             <sup><img popover-placement="right" popover-trigger="mouseenter"

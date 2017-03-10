@@ -1,5 +1,6 @@
 <div class="student-enrolment-wrapper review-view">
 
+    <div class="review-points-exam"><strong>#{{sectionQuestion.question.id}}</strong></div>
     <!-- question points -->
     <div class="review-points-exam" ng-if="sectionQuestion.evaluationType === 'Points'
                  || sectionQuestion.question.type === 'ClozeTestQuestion'
@@ -17,7 +18,7 @@
     <div class="marl10 make-inline">
         <div class="review-question-title make-inline" ng-bind-html="trustAsHtml(sectionQuestion.question.question)"
              mathjax></div>
-        <a ng-click="sectionQuestion.expanded = !sectionQuestion.expanded" class="pointer-hand">
+        <a ng-click="sectionQuestion.expanded = !sectionQuestion.expanded" class="pointer-hand" ng-show="sectionQuestion.answerInstructions || sectionQuestion.options.length > 0">
             <img ng-show="!sectionQuestion.expanded" src="../../../assets/assets/images/icon_list_show_right.svg"
                  alt="exam"
                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'"/>
@@ -48,7 +49,7 @@
         <img ng-if="sectionQuestion.answerInstructions.length > 0" src="../../../assets/assets/images/icon_info.png"
              alt="exam"
              onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'"/>
-        <span class="padl10">{{sectionQuestion.answerInstructions}}</span>
+        <span ng-if="sectionQuestion.answerInstructions.length > 0" class="padl10">{{sectionQuestion.answerInstructions}}</span>
         <ul class="exam-section-question-options">
             <li ng-show="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
                 ng-repeat="option in sectionQuestion.options">

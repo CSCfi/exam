@@ -836,5 +836,6 @@
   "sitnet_content_grade": "Grade of the content evaluation",
   "sitnet_language_inspection_setting_not_chosen": "Please select if the language evaluation is needed or not",
   "sitnet_change_enrolment_info": "Change enrolment",
-  "sitnet_error_score_input": "Virheellinen pistemäärä EN"
+  "sitnet_error_score_input": "Virheellinen pistemäärä EN",
+  "sitnet_question_id": "Kysymyksen tunniste EN"
 }
