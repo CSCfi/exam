@@ -4,6 +4,7 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
@@ -118,7 +119,7 @@ public class ReviewController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamReview(Long eid) {
-        Exam exam = createQuery()
+        ExpressionList<Exam> query = createQuery()
                 .where()
                 .eq("id", eid)
                 .disjunction()
@@ -127,16 +128,18 @@ public class ReviewController extends BaseController {
                 .eq("state", Exam.State.GRADED)
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .eq("state", Exam.State.REJECTED)
-                .eq("state", Exam.State.ARCHIVED)
-                .endJunction()
-                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
-                .findUnique();
+                .eq("state", Exam.State.ARCHIVED);
+        User user = getLoggedUser();
+        boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
+        if (isAdmin) {
+            query = query.eq("state", Exam.State.ABORTED);
+        }
+        query = query.endJunction();
+        Exam exam = query.orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber").findUnique();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        User user = getLoggedUser();
-        if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !user.hasRole("ADMIN", getSession()) &&
-                !exam.isViewableForLanguageInspector(user)) {
+        if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !isAdmin && !exam.isViewableForLanguageInspector(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
         exam.getExamSections().stream()

@@ -484,11 +484,7 @@
                                 }, 1000);
                             } else {
                                 toastr.info($translate.instant("sitnet_review_graded"));
-                                if ($scope.user.isAdmin) {
-                                    $location.path("/");
-                                } else {
-                                    $location.path("exams/examTabs/" + exam.parent.id + "/4");
-                                }
+                                $location.path($scope.getExitUrl($scope.exam));
                             }
                         });
                     }, function (error) {
@@ -581,14 +577,14 @@
                         $scope.saveFeedback(true).then(function () {
                             ExamRes.archive.update({ids: exam.id, fastForward: true}, function () {
                                 toastr.info($translate.instant('sitnet_exams_archived'));
-                                if ($scope.user.isAdmin) {
-                                    $location.path("/");
-                                } else {
-                                    $location.path("exams/examTabs/" + exam.parent.id + "/4");
-                                }
+                                $location.path($scope.getExitUrl(exam));
                             });
                         });
                     });
+                };
+
+                $scope.getExitUrl = function (exam) {
+                    return $scope.user.isAdmin ? "/" : "exams/examTabs/" + exam.parent.id + "/4";
                 };
 
                 $scope.addInspectionComment = function (exam) {
@@ -624,10 +620,8 @@
                         toastr.info($translate.instant('sitnet_review_recorded'));
                         if (followUpUrl) {
                             $location.path(followUpUrl);
-                        } else if ($scope.user.isAdmin) {
-                            $location.path("/");
                         } else {
-                            $location.path("exams/examTabs/" + $scope.exam.parent.id + "/4");
+                            $location.path($scope.getExitUrl($scope.exam));
                         }
                     }, function (error) {
                         toastr.error(error.data);
@@ -855,10 +849,8 @@
                             if (followUpUrl) {
                                 $location.path(followUpUrl);
                             }
-                            else if ($scope.user.isAdmin) {
-                                $location.path("/");
-                            } else {
-                                $location.path("exams/examTabs/" + $scope.exam.parent.id + "/4");
+                            else {
+                                $location.path($scope.getExitUrl($scope.exam));
                             }
                         }, function (error) {
                             toastr.error(error.data);
@@ -887,11 +879,7 @@
                             ExamRes.review.update({id: $scope.exam.id}, params, function () {
                                 LanguageInspectionRes.inspection.add({examId: $scope.exam.id}, function () {
                                     toastr.info($translate.instant('sitnet_sent_for_language_inspection'));
-                                    if ($scope.user.isAdmin) {
-                                        $location.path("/");
-                                    } else {
-                                        $location.path("exams/examTabs/" + $scope.exam.parent.id + "/4");
-                                    }
+                                    $location.path($scope.getExitUrl($scope.exam));
                                 });
                             }, function (error) {
                                 toastr.error(error.data);
