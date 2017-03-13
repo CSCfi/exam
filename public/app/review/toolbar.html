@@ -27,11 +27,11 @@
                ng-click="rejectMaturity(true)">
                 {{'sitnet_reject_maturity' | translate}}</a>
         </div>
-        <div ng-if="!isReadOnly()" class="review-attachment-button exam-questions-buttons marl10"><a target="_self" class="pointer"
-                                                                               ng-disabled="isReadOnly()"
-                                                                               ng-click="updateExam(exam)">
-            {{'sitnet_save_changes' | translate}}
-        </a></div>
+        <div ng-if="!isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
+            <a target="_self" class="pointer" ng-disabled="isReadOnly()" ng-click="updateExam(exam)">
+                {{'sitnet_save_changes' | translate}}
+            </a>
+        </div>
     </span>
 
 

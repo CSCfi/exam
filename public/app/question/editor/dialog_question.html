@@ -200,7 +200,7 @@
                             </div>
                             <div class="col-md-5">
                                 <input id="optionScore" name="maxScore" class="question-option-input points"
-                                       type="number" step="0.01" ng-pattern="/^-?[0-9]+(\.[0-9]{1,2})?$/"
+                                       type="number" step="1"
                                        ng-model="option.score"
                                        required="true"
                                        ng-disabled="lotteryOn"/>
@@ -260,8 +260,8 @@
                     </div>
                     <div class="col-md-9">
                         <input id="maxScore" name="maxScore" type="number" class="form-control wdt100"
-                               ng-model="sectionQuestion.maxScore" step="0.01" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/"
-                               min="1" max="1000000"
+                               ng-model="sectionQuestion.maxScore" step="1"
+                               min="0" max="1000000"
                                required ng-disabled="lotteryOn"/>
                     </div>
                 </div>
