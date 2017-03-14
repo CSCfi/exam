@@ -506,19 +506,6 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result resetExamSoftwareInfo(Long eid) {
-        Exam exam = Ebean.find(Exam.class, eid);
-        if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
-        }
-
-        exam.getSoftwareInfo().clear();
-        exam.update();
-
-        return ok(Json.toJson(exam));
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result resetExamLanguages(Long eid) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
@@ -527,7 +514,7 @@ public class ExamController extends BaseController {
         exam.getExamLanguages().clear();
         exam.update();
 
-        return ok(Json.toJson(exam));
+        return ok();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -547,7 +534,7 @@ public class ExamController extends BaseController {
             }
         }
         exam.update();
-        return ok(Json.toJson(exam));
+        return ok();
     }
 
     private static boolean softwareRequirementDoable(Exam exam) {
@@ -569,7 +556,7 @@ public class ExamController extends BaseController {
         exam.getExamLanguages().add(language);
         exam.update();
 
-        return ok(Json.toJson(exam));
+        return ok();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
