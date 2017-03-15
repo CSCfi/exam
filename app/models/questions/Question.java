@@ -224,7 +224,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
     }
 
     @Transient
-    private boolean nodeExists (JsonNode node, String name) {
+    private boolean nodeExists(JsonNode node, String name) {
         return node.get(name) != null && !node.get(name).isNull();
     }
 
@@ -240,10 +240,9 @@ public class Question extends OwnedModel implements AttachmentContainer {
             Set<String> distinctIds = answers.stream().map(a -> a.attr("id")).collect(Collectors.toSet());
             if (answers.size() != distinctIds.size()) {
                 reason = "duplicate ids found";
-            }
-            else if (answers.stream()
-                        .map(a -> a.attr("precision"))
-                        .anyMatch(p -> p.isEmpty() || !NumberUtils.isParsable(p))) {
+            } else if (answers.stream()
+                    .map(a -> a.attr("precision"))
+                    .anyMatch(p -> p.isEmpty() || !NumberUtils.isParsable(p))) {
                 reason = "invalid precision found";
             } else if (answers.stream()
                     .filter(a -> a.attr("numeric").equals("true"))
@@ -285,6 +284,12 @@ public class Question extends OwnedModel implements AttachmentContainer {
                 case WeightedMultipleChoiceQuestion:
                     if (!nodeExists(node, "options") || node.get("options").size() < 2) {
                         reason = "sitnet_minimum_of_two_options_required";
+                    } else {
+                        ArrayNode options = (ArrayNode) node.get("options");
+                        if (StreamSupport.stream(options.spliterator(), false)
+                                .noneMatch(n -> n.get("defaultScore").asDouble() > 0)) {
+                            reason = "sitnet_correct_option_required";
+                        }
                     }
                     break;
                 case ClozeTestQuestion:
@@ -332,10 +337,10 @@ public class Question extends OwnedModel implements AttachmentContainer {
     @Transient
     public Double getMinDefaultScore() {
         if (getType() == Type.WeightedMultipleChoiceQuestion) {
-                return options.stream()
-                        .map(MultipleChoiceOption::getDefaultScore)
-                        .filter(score -> score != null && score < 0)
-                        .reduce(0.0, (sum, x) -> sum += x);
+            return options.stream()
+                    .map(MultipleChoiceOption::getDefaultScore)
+                    .filter(score -> score != null && score < 0)
+                    .reduce(0.0, (sum, x) -> sum += x);
         }
         return 0.0;
     }

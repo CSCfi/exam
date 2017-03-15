@@ -267,7 +267,6 @@ public class ExamSectionController extends QuestionController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertQuestion(Long eid, Long sid, Integer seq, Long qid) {
-
         Exam exam = Ebean.find(Exam.class, eid);
         ExamSection section = Ebean.find(ExamSection.class, sid);
         Question question = Ebean.find(Question.class, qid);
@@ -438,6 +437,10 @@ public class ExamSectionController extends QuestionController {
         }
     }
 
+    private boolean hasPositiveOptionScore(ArrayNode an) {
+        return StreamSupport.stream(an.spliterator(), false).anyMatch(n -> n.get("score").asDouble() > 0);
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateDistributedExamQuestion(Long esqId) {
         User user = getLoggedUser();
@@ -461,13 +464,17 @@ public class ExamSectionController extends QuestionController {
             return notFound();
         }
         JsonNode body = request().body().asJson();
+        if (question.getType() == Question.Type.WeightedMultipleChoiceQuestion &&
+                !hasPositiveOptionScore((ArrayNode) body.get("options"))) {
+            return badRequest("sitnet_correct_option_required");
+        }
         // Update question: text
         JsonNode questionNode = body.get("question");
         question.setQuestion(parse("question", questionNode, String.class));
         question.update();
         updateExamQuestion(examSectionQuestion, body);
         examSectionQuestion.update();
-        if (question.getType() != Question.Type.EssayQuestion) {
+        if (question.getType() != Question.Type.EssayQuestion && question.getType() != Question.Type.ClozeTestQuestion) {
             // Process the options, this has an impact on the base question options as well as all the section questions
             // utilizing those.
             processExamQuestionOptions(question, examSectionQuestion, (ArrayNode) body.get("options"));
