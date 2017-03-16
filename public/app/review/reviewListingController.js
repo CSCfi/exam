@@ -264,7 +264,8 @@
                 var send = function (review) {
                     var deferred = $q.defer();
                     var exam = review.exam;
-                    if (exam.grade && exam.creditType && exam.answerLanguage) {
+                    var resource = exam.gradeless ? ExamRes.register : ExamRes.saveRecord;
+                    if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
                         var examToRecord = {
                             "id": exam.id,
                             "state": "GRADED_LOGGED",
@@ -276,8 +277,10 @@
                             "answerLanguage": exam.answerLanguage
                         };
 
-                        ExamRes.saveRecord.add(examToRecord, function () {
-                            //$route.reload();
+                        resource.add(examToRecord, function () {
+                            review.selected = false;
+                            review.displayedGradingTime = review.exam.languageInspection ?
+                                review.exam.languageInspection.finishedAt : review.exam.gradedTime;
                             $scope.gradedReviews.splice($scope.gradedReviews.indexOf(review), 1);
                             $scope.gradedLoggedReviews.push(review);
                             deferred.resolve();
