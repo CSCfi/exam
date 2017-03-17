@@ -837,5 +837,6 @@
   "sitnet_language_inspection_setting_not_chosen": "Välj om språkgranskning behövs eller ej",
   "sitnet_change_enrolment_info": "Byt bokningens information",
   "sitnet_error_score_input": "Virheellinen pistemäärä SV",
-  "sitnet_question_id": "Kysymyksen tunniste SV"
+  "sitnet_question_id": "Kysymyksen tunniste SV",
+  "sitnet_inspection_comment_info": "Skriv en meddelande för den andra bedömaren (student kan inte se)"
 }

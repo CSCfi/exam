@@ -837,5 +837,6 @@
   "sitnet_language_inspection_setting_not_chosen": "Valitse tehdäänkö kypsyysnäytteelle kielentarkastus",
   "sitnet_change_enrolment_info": "Muuta ilmoittautumisen tietoja",
   "sitnet_error_score_input": "Virheellinen pistemäärä",
-  "sitnet_question_id": "Kysymyksen tunniste"
+  "sitnet_question_id": "Kysymyksen tunniste",
+  "sitnet_inspection_comment_info": "Kirjoita viesti tai kommentti toiselle arvioijalle (ei näy opiskelijalle)"
 }
