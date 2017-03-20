@@ -152,7 +152,7 @@ public class ReviewController extends BaseController {
         User user = getLoggedUser();
         Set<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
-                .fetch("exam", "id, name, state, gradedTime, customCredit, creditType, answerLanguage, trialCount")
+                .fetch("exam", "id, name, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount")
                 .fetch("exam.grade", "id, name")
                 .fetch("exam.gradeScale")
                 .fetch("exam.gradeScale.grades", new FetchConfig().query())
