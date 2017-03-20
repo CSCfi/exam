@@ -70,7 +70,8 @@
                 };
 
                 ctrl.exitPreview = function () {
-                    $location.path("/exams/examTabs/" + $routeParams.id + "/2");
+                    var path = $routeParams.tab ? "/exams/examTabs/" + $routeParams.id + "/" +$routeParams.tab : "/printouts";
+                    $location.path(path);
                 };
 
                 ctrl.print = function () {
