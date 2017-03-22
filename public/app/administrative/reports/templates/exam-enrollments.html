@@ -7,11 +7,11 @@
     <div class="col-md-10">
         <label for="enrolment">{{'sitnet_select_exam' | translate}}</label>
         <div class="form-group" id="enrolment">
-            <ui-select ng-model="$$ctrl.selectedFields.enrolment">
+            <ui-select ng-model="$ctrl.selectedFields.enrolment">
                 <ui-select-match allow-clear="true" placeholder="{{'sitnet_enrolment' | translate}}">
                     {{$select.selected.course.code}} - {{$select.selected.name}}
                 </ui-select-match>
-                <ui-select-choices repeat="exam in ($$ctrl.examnames | filter: $select.search | limitTo: 50) track by exam.id">
+                <ui-select-choices repeat="exam in ($ctrl.examNames | filter: $select.search | limitTo: 50) track by exam.id">
                     <div>{{exam.course.code}} - {{exam.name}}</div>
                 </ui-select-choices>
             </ui-select>

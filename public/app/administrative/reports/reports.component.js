@@ -17,7 +17,7 @@ angular.module("administrative.reports")
                     examReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-report.html",
                     examReportJson: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-report-json.html",
                     examAnswers: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-answers.html",
-                    examEnrollmentsReport: EXAM_CONF.TEMPLATES_PATH + "administrative/templates/reports/exam-enrollments.html",
+                    examEnrollmentsReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-enrollments.html",
                     studentReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/student.html",
                     examRecordsCsv: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-records-csv.html"
                 };
@@ -31,7 +31,7 @@ angular.module("administrative.reports")
                 };
 
                 ctrl.rooms = RoomResource.rooms.query();
-                ctrl.examnames = Reports.examnames.query();
+                ctrl.examNames = Reports.examNames.query();
 
                 ctrl.teachers = UserRes.usersByRole.query({role: "TEACHER"});
                 ctrl.students = UserRes.usersByRole.query({role: "STUDENT"});

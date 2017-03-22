@@ -67,7 +67,7 @@ libraryDependencies ++= Seq(
 
 dependencyOverrides += "org.webjars.bower" % "angular" %  ngVersion
 
-dependencyOverrides += "org.webjars.bower" % "angular-sanitize" % "1.4.7"
+dependencyOverrides += "org.webjars.bower" % "angular-sanitize" % ngVersion
 
 dependencyOverrides += "org.webjars.bower" % "jquery" % "2.1.4"
 

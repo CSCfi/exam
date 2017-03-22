@@ -10,7 +10,7 @@
             <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button"
                     id="dropDownMenu1"
                     data-toggle="dropdown" aria-expanded="true">
-                {{ $ctrl.selectedFields.room.name | truncate: 100 }}&nbsp;<span class="caret"></span>
+                {{ $ctrl.selectedFields.room.name | translate | truncate: 100 }}&nbsp;<span class="caret"></span>
             </button>
             <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
                 aria-labelledby="dropDownMenu1">
