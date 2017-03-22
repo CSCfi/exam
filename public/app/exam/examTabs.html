@@ -1,0 +1,35 @@
+<div id="dashboard" ng-controller="ExamTabsController">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-details-title-wrap">
+                <a href="/"><img class="arrow_icon" src="../../../assets/assets/images/icon_history.png"></a>
+                <div class="student-exam-details-title">{{examInfo.title}}</div>
+            </div>
+            <span ng-show="examFull.state" class="exam-status">{{'sitnet_' + examFull.state | lowercase | translate}}</span>
+        </div>
+    </div>
+
+    <div class="tab-wrapper-exams" ng-controller="ExamController">
+        <uib-tabset>
+            <uib-tab ng-if="isOwner || user.isAdmin" index="0" active="tabs[0].active" heading="{{ 'sitnet_exam_basic_information_tab' | translate }}">
+                <div ng-include="tabtemplates.examBasicPath"></div>
+            </uib-tab>
+            <!--
+            <uib-tab index="2" heading="{{ 'sitnet_exam_materials_tab' | translate }}">
+                <div ng-include="templates.examMaterialsPath"></div>
+            </uib-tab>
+            -->
+            <uib-tab ng-if="isOwner || user.isAdmin" index="1" active="tabs[1].active" heading="{{ 'sitnet_exam_question_tab' | translate }}">
+                <div ng-include="tabtemplates.examQuestionsPath"></div>
+            </uib-tab>
+            <uib-tab ng-if="isOwner || user.isAdmin" index="2" active="tabs[2].active" heading="{{ 'sitnet_exam_publish_tab' | translate }}">
+                <div ng-include="tabtemplates.examPublishSettingsPath"></div>
+            </uib-tab>
+            <uib-tab ng-if="!user.isAdmin && newExam.executionType.type !== 'PRINTOUT'" index="3" active="tabs[3].active" heading="{{ 'sitnet_exam_responses' | translate }}">
+                <div ng-include="tabtemplates.reviewListPath"></div>
+            </uib-tab>
+        </uib-tabset>
+    </div>
+</div>
+
+

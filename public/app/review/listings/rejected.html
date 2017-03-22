@@ -1,32 +1,49 @@
-<div class="main-row" ng-show="rejectedReviews.length > 0">
-    <span class="col-md-12">
-        <a ng-click="toggleRejected()" class="header-icon fa-stack fa-lg">
-            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-            <i ng-show="!toggleRejectedReviews" class="fa fa-chevron-right fa-stack-1x"></i>
-            <i ng-show="toggleRejectedReviews" class="fa fa-chevron-down fa-stack-1x"></i>
-        </a>
-        <span class="exams-list-title-text pointer">
-            {{ 'sitnet_exam_rejected' | translate }}
-        </span>
-    </span>
+<div class="main-row">
+    <div class="col-md-12">
+        <div class="review-list-title" >{{ 'sitnet_exam_rejected' | translate }}
+            <a ng-click="toggleRejected()" class="pointer">
+                <img ng-show="!toggleRejectedReviews" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
+                <img ng-show="toggleRejectedReviews" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+            </a>
+        </div>
+    </div>
 </div>
 
-<div class="detail-row" ng-show="toggleRejectedReviews">
-    <div class="col-md-12">
-        <table class="table table-bordered table-striped exams-table">
-            <thead ng-init="rejectedPredicate = 'exam.gradedTime'">
+<div ng-show="rejectedReviews.length === 0">
+    <div class="review-no-results"><i class="fa fa-exclamation-circle padl20 grayish"></i>
+        {{ 'sitnet_exam_no_rejected' | translate }}</div>
+</div>
+
+
+<div ng-show="toggleRejectedReviews && rejectedReviews.length > 0">
+
+        <div class="form-group input-group search tab-search review-list-search padl0 marl30">
+            <input ng-model="filterRejected"
+                   ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
+                   class="form-control search"
+                   placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
+                   popover-trigger="mouseenter" uib-popover="{{ 'sitnet_exam_search_description' | translate }}">
+            <div class="input-group-addon search">
+                <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+            </div>
+        </div>
+
+        <table class="table table-striped exams-table">
+            <thead ng-init="rejectedPredicate = 'displayedGradingTime'">
             <tr>
-                <th sort by="user.lastName" text="sitnet_student" predicate="rejectedPredicate" reverse="reverse"></th>
-                <th sort by="user.email" text="sitnet_email" predicate="rejectedPredicate" reverse="reverse"></th>
-                <th sort by="started" text="sitnet_exam_duration" predicate="rejectedPredicate" reverse="reverse"></th>
-                <th sort by="deadline" text="sitnet_review_deadline" predicate="rejectedPredicate" reverse="reverse"></th>
-                <th sort by="displayedGrade" text="sitnet_grade" predicate="rejectedPredicate" reverse="reverse"></th>
-                <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="rejectedPredicate" reverse="reverse"></th>
-                <th sort by="exam.gradedTime" text="sitnet_graded" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort-exam by="user.lastName" text="sitnet_student" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort-exam by="user.email" text="sitnet_email" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort-exam by="started" text="sitnet_exam_duration" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort-exam by="deadline" text="sitnet_review_deadline" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort-exam by="displayedGrade" text="sitnet_grade" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort-exam by="displayedCredit" text="sitnet_exam_credit" predicate="rejectedPredicate" reverse="reverse"></th>
+                <th sort-exam by="displayedGradingTime" text="sitnet_graded" predicate="rejectedPredicate" reverse="reverse"></th>
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="review in rejectedReviews | orderBy:rejectedPredicate:reverse | offset: currentPageRejected*pageSize | limitTo: pageSize">
+            <tr ng-repeat="review in rejectedReviews | orderBy:rejectedPredicate:reverse | offset: currentPageRejected*pageSize | limitTo: pageSize | filter: filterRejected as resReject">
                 <td class="table-column-13 table-column-bold">
                     <a class="pointer" href="/exams/review/{{review.exam.id}}">
                         {{review.user.firstName}} {{review.user.lastName}}
@@ -44,11 +61,11 @@
                 <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                         ng-bind-html="review.deadline | diffInDaysToNow"></span>)
                 </td>
-                <td class="table-column-15">{{translateGrade(review.exam)}}</td>
+                <td class="table-column-15">{{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}</td>
                 <td class="table-column-10">
                     {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
                 </td>
-                <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+                <td class="table-column-15">{{review.displayedGradingTime | date:'dd.MM.yyyy'}}</td>
             </tr>
             <!--Fill if page not full-->
             <tr ng-repeat="r in [] | pagefill: rejectedReviews.length:currentPageRejected:pageSize">
@@ -60,9 +77,11 @@
                 <td></td>
                 <td></td>
             </tr>
+            <tr ng-if="resReject.length == 0"><td colspan="7">{{'sitnet_review_no_result' | translate}}</td></tr>
+
             </tbody>
         </table>
-    </div>
+
 </div>
 
 <div class="detail-row" ng-show="toggleRejectedReviews">

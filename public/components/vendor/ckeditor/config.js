@@ -3,48 +3,53 @@
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
-CKEDITOR.editorConfig = function (config) {
-    // Define changes to default configuration here.
-    // For complete reference see:
-    // http://docs.ckeditor.com/#!/api/CKEDITOR.config
+CKEDITOR.editorConfig = function( config ) {
+	// Define changes to default configuration here.
+	// For complete reference see:
+	// http://docs.ckeditor.com/#!/api/CKEDITOR.config
 
-    // The toolbar groups arrangement, optimized for two toolbar rows.
-    config.toolbarGroups = [
-        {name: 'clipboard', groups: ['clipboard', 'undo']},
-        {name: 'editing', groups: ['find', 'selection']},
-        {name: 'links'},
-        {name: 'insert'},
-        {name: 'forms'},
-        {name: 'tools'},
-        {name: 'document', groups: ['mode', 'document', 'doctools']},
-        {name: 'others'},
-        '/',
-        {name: 'basicstyles', groups: ['basicstyles', 'cleanup']},
-        {name: 'paragraph', groups: ['list', 'indent', 'blocks', 'align', 'bidi']},
-        {name: 'styles'},
-        {name: 'colors'},
-        {name: 'about'}
-    ];
+	// The toolbar groups arrangement, optimized for two toolbar rows.
+	config.toolbarGroups = [
+		{ name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
+                {name: 'editing', groups: ['find', 'selection']},
+		{ name: 'links' },
+		{ name: 'insert' },
+		{ name: 'forms' },
+		{ name: 'tools' },
+		{ name: 'document',	   groups: [ 'mode', 'document', 'doctools' ] },
+		{ name: 'others' },
+		'/',
+		{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+		{ name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+		{ name: 'styles' },
+		{ name: 'colors' },
+		{ name: 'about' }
+	];
 
-    // Remove some buttons provided by the standard plugins, which are
-    // not needed in the Standard(s) toolbar.
-    config.removeButtons = 'Underline';
-    config.removePlugins = 'image';
+	// Remove some buttons provided by the standard plugins, which are
+	// not needed in the Standard(s) toolbar.
+ 	config.removeButtons = 'Underline';
+	config.removePlugins = 'image';
 
-    // Set the most common block elements.
-    config.format_tags = 'p;h1;h2;h3;pre';
+	// Set the most common block elements.
+	config.format_tags = 'p;h1;h2;h3;pre';
+  	// Allow embedded questions to exist
+	config.extraAllowedContent = 'span[cloze, id, case-sensitive, numeric, precision]{text-decoration, border}(marker)';
 
-    // Simplify the dialog windows.
-    config.removeDialogTabs = 'image:advanced;link:advanced';
+	// Simplify the dialog windows.
+	config.removeDialogTabs = 'image:advanced;link:advanced';
 
-    config.mathJaxLib = "/assets/components/vendor/MathJax-2.6-latest/MathJax.js?config=TeX-AMS_HTML";
+	config.mathJaxLib = "/assets/components/vendor/MathJax-2.6-latest/MathJax.js?config=TeX-AMS_HTML";
 
-    // Uncomment this in order to enable resizing in both directions, default is vertical only
-    //config.resize_dir = 'both';
+	// Uncomment this in order to enable resizing in both directions, default is vertical only
+	//config.resize_dir = 'both';
 
 	config.wordcount = {
 		showParagraphs: false,
 		showCharCount: true,
         countSpacesAsChars: false
-	}
+	};
+
+	config.extraPlugins = 'clozetest';
+
 };

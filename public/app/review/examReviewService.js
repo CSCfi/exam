@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('examReviewService', ['$uibModal', '$q', '$translate', 'ExamRes', 'EXAM_CONF',
-            function ($modal, $q, $translate, ExamRes, EXAM_CONF) {
+        .service('examReviewService', ['$uibModal', '$q', '$translate', 'ExamRes', 'EXAM_CONF', 'examService',
+            function ($modal, $q, $translate, ExamRes, EXAM_CONF, examService) {
 
                 var self = this;
 
@@ -128,6 +128,31 @@
                     }
 
                     return tmp.textContent || tmp.innerText;
+                };
+
+                self.gradeExam = function (exam) {
+                    if (!exam.grade || !exam.grade.id) {
+                        exam.grade = {};
+                    }
+                    if (!exam.selectedGrade) {
+                        exam.selectedGrade = {};
+                    }
+                    var scale = exam.gradeScale || exam.parent.gradeScale || exam.course.gradeScale;
+                    scale.grades = scale.grades || [];
+                    exam.selectableGrades = scale.grades.map(function (grade) {
+                        grade.type = grade.name;
+                        grade.name = examService.getExamGradeDisplayName(grade.name);
+                        if (exam.grade && exam.grade.id === grade.id) {
+                            exam.grade.type = grade.type;
+                            exam.selectedGrade = grade;
+                        }
+                        return grade;
+                    });
+                    var noGrade = {type: 'NONE', name: examService.getExamGradeDisplayName('NONE')};
+                    if (exam.gradeless && !exam.selectedGrade) {
+                        exam.selectedGrade = noGrade;
+                    }
+                    exam.selectableGrades.push(noGrade);
                 };
 
                 self.countCharacters = function (text) {

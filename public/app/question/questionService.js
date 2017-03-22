@@ -2,17 +2,36 @@
     'use strict';
     angular.module('exam.services')
         .service('questionService', ['$q', '$translate', '$location', '$sessionStorage', 'QuestionRes',
-            function ($q, $translate, $location, $sessionStorage, QuestionRes) {
+            'ExamSectionQuestionRes', 'sessionService', 'fileService', 'AttachmentRes',
+            function ($q, $translate, $location, $sessionStorage, QuestionRes, ExamSectionQuestionRes, sessionService,
+                      fileService, AttachmentRes) {
 
                 var self = this;
 
-                self.createQuestion = function (type) {
-                    QuestionRes.questions.create({type: type},
-                        function (response) {
-                            toastr.info($translate.instant('sitnet_question_added'));
-                            $location.path("/questions/" + response.id);
-                        }
-                    );
+                self.getQuestionDraft = function (type) {
+                    var questionType;
+                    switch (type) {
+                        case 'essay':
+                            questionType = 'EssayQuestion';
+                            break;
+                        case 'multichoice':
+                            questionType = 'MultipleChoiceQuestion';
+                            break;
+                        case 'weighted':
+                            questionType = 'WeightedMultipleChoiceQuestion';
+                            break;
+                        case 'cloze':
+                            questionType = 'ClozeTestQuestion';
+                            break;
+                    }
+                    return {
+                        examSectionQuestions: [],
+                        options: [],
+                        questionOwners: [sessionService.getUser()],
+                        state: 'NEW',
+                        tags: [],
+                        type: questionType
+                    };
                 };
 
                 self.getQuestionAmounts = function (exam) {
@@ -46,11 +65,20 @@
 
                 // For weighted mcq
                 self.calculateMaxPoints = function (sectionQuestion) {
+                    if (!sectionQuestion.options) {
+                        return 0;
+                    }
                     return (sectionQuestion.options.filter(function (option) {
                         return option.score > 0;
                     }).reduce(function (a, b) {
                         return a + b.score;
                     }, 0));
+                };
+
+                self.scoreClozeTestAnswer = function (sectionQuestion) {
+                    var score = sectionQuestion.clozeTestAnswer.score;
+                    return parseFloat(score.correctAnswers * sectionQuestion.maxScore /
+                        (score.correctAnswers + score.incorrectAnswers).toFixed(2));
                 };
 
                 self.scoreWeightedMultipleChoiceAnswer = function (sectionQuestion) {
@@ -65,7 +93,7 @@
                 // For non-weighted mcq
                 self.scoreMultipleChoiceAnswer = function (sectionQuestion) {
                     var selected = sectionQuestion.options.filter(function (o) {
-                       return o.answered;
+                        return o.answered;
                     });
                     if (selected.length === 0) {
                         return 0;
@@ -114,6 +142,7 @@
                         case "MultipleChoiceQuestion":
                         case "WeightedMultipleChoiceQuestion":
                         case "EssayQuestion":
+                        case "ClozeTestQuestion":
                             _filter = filter;
                             break;
                         default:
@@ -130,20 +159,16 @@
                     });
                 };
 
-                self.loadQuestions = function () {
-                    if ($sessionStorage.libraryQuestions) {
-                        return JSON.parse($sessionStorage.libraryQuestions);
+                self.loadFilters = function () {
+                    if ($sessionStorage.questionFilters) {
+                        return JSON.parse($sessionStorage.questionFilters);
                     }
                     return {};
                 };
 
-                self.storeQuestions = function (questions, filters) {
-                    var data = {questions: questions, filters: filters};
-                    $sessionStorage.libraryQuestions = JSON.stringify(data);
-                };
-
-                self.clearQuestions = function () {
-                    delete $sessionStorage.libraryQuestions;
+                self.storeFilters = function (filters) {
+                    var data = {filters: filters};
+                    $sessionStorage.questionFilters = JSON.stringify(data);
                 };
 
                 self.range = function (min, max, step) {
@@ -155,16 +180,21 @@
                     return input;
                 };
 
-                self.updateQuestion = function (question, displayErrors) {
+                var getQuestionData = function (question) {
                     var questionToUpdate = {
-                        "id": question.id,
                         "type": question.type,
                         "defaultMaxScore": question.defaultMaxScore,
                         "question": question.question,
                         "shared": question.shared,
                         "defaultAnswerInstructions": question.defaultAnswerInstructions,
-                        "defaultEvaluationCriteria": question.defaultEvaluationCriteria
+                        "defaultEvaluationCriteria": question.defaultEvaluationCriteria,
+                        "questionOwners": question.questionOwners,
+                        "tags": question.tags,
+                        "options": question.options
                     };
+                    if (question.id) {
+                        questionToUpdate.id = question.id;
+                    }
 
                     // update question specific attributes
                     switch (questionToUpdate.type) {
@@ -172,17 +202,55 @@
                             questionToUpdate.defaultExpectedWordCount = question.defaultExpectedWordCount;
                             questionToUpdate.defaultEvaluationType = question.defaultEvaluationType;
                             break;
-
                         case 'MultipleChoiceQuestion':
                         case 'WeightedMultipleChoiceQuestion':
                             questionToUpdate.options = question.options;
                             break;
                     }
+                    return questionToUpdate;
+                };
+
+                self.createQuestion = function (question) {
+                    var body = getQuestionData(question);
                     var deferred = $q.defer();
-                    QuestionRes.questions.update(questionToUpdate,
-                        function () {
+
+                    QuestionRes.questions.create(body,
+                        function (response) {
+                            toastr.info($translate.instant('sitnet_question_added'));
+                            if (question.attachment && question.attachment.modified) {
+                                fileService.upload("/app/attachment/question", question.attachment,
+                                    {questionId: response.id}, question, null, function () {
+                                        deferred.resolve(response);
+                                    });
+                            } else {
+                                deferred.resolve(response);
+                            }
+                        }, function (error) {
+                            deferred.reject(error);
+                        }
+                    );
+                    return deferred.promise;
+                };
+
+                self.updateQuestion = function (question, displayErrors) {
+                    var body = getQuestionData(question);
+                    var deferred = $q.defer();
+                    QuestionRes.questions.update(body,
+                        function (response) {
                             toastr.info($translate.instant("sitnet_question_saved"));
-                            deferred.resolve();
+                            if (question.attachment && question.attachment.modified) {
+                                fileService.upload("/app/attachment/question", question.attachment,
+                                    {questionId: question.id}, question, null, function () {
+                                        deferred.resolve();
+                                    });
+                            }
+                            else if (question.attachment && question.attachment.removed) {
+                                AttachmentRes.questionAttachment.remove({id: question.id}, function () {
+                                    deferred.resolve(response);
+                                });
+                            } else {
+                                deferred.resolve(response);
+                            }
                         }, function (error) {
                             if (displayErrors) {
                                 toastr.error(error.data);
@@ -193,6 +261,48 @@
                     return deferred.promise;
                 };
 
+                self.updateDistributedExamQuestion = function (question, sectionQuestion) {
+                    var data = {
+                        "id": sectionQuestion.id,
+                        "maxScore": sectionQuestion.maxScore,
+                        "answerInstructions": sectionQuestion.answerInstructions,
+                        "evaluationCriteria": sectionQuestion.evaluationCriteria,
+                        "options": sectionQuestion.options,
+                        "question": question
+                    };
+
+                    // update question specific attributes
+                    switch (question.type) {
+                        case 'EssayQuestion':
+                            data.expectedWordCount = sectionQuestion.expectedWordCount;
+                            data.evaluationType = sectionQuestion.evaluationType;
+                            break;
+                    }
+                    var deferred = $q.defer();
+                    ExamSectionQuestionRes.distributed.update({id: sectionQuestion.id}, data,
+                        function (esq) {
+                            if (question.attachment && question.attachment.modified) {
+                                fileService.upload("/app/attachment/question", question.attachment,
+                                    {questionId: question.id}, question);
+                            }
+                            if (question.attachment && question.attachment.removed) {
+                                AttachmentRes.questionAttachment.remove({id: question.id});
+                            }
+                            deferred.resolve(esq);
+                        }, function (error) {
+                            toastr.error(error.data);
+                            deferred.reject();
+                        }
+                    );
+                    return deferred.promise;
+                };
+
+                self.toggleCorrectOption = function (option, options) {
+                    option.correctOption = true;
+                    angular.forEach(options, function (o) {
+                        o.correctOption = o === option;
+                    });
+                }
 
             }]);
 }());

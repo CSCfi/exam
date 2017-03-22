@@ -1,0 +1,180 @@
+#vmenu-admin {
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: 0;
+    position: fixed;
+
+i {
+    vertical-align: middle;
+}
+
+a {
+    color: $sitnet-dark-grey;
+}
+
+.logo {
+
+img {
+    display: block;
+    margin: auto;
+}
+}
+
+nav a {
+    display: block;
+    padding: 0.5em;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+li {
+    list-style: none;
+}
+
+ul {
+    padding: 0;
+}
+
+.nav-header {
+    background-color: $sitnet-light-grey;
+    color: $sitnet-dark-grey;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: block;
+    height: 300px;
+    width: 230px;
+}
+
+.nav-body {
+    position: fixed;
+    background-color: $sitnet-light-grey;
+    color: $sitnet-dark-grey;
+    top: 300px;
+    bottom: 60px;
+    overflow-y: auto;
+    width: 230px;
+}
+
+.links {
+li {
+a:hover {
+    color: $sitnet-blue-highlight;
+.menu-item {
+    color: $sitnet-blue-highlight;
+}
+}
+}
+}
+
+.nav-footer {
+    background-color: $sitnet-light-grey;
+    color: $sitnet-dark-grey;
+    display: block;
+    height: 60px;
+    position: fixed;
+    bottom: 0;
+    width: 230px;
+}
+
+.minimize .nav-header {
+    height: 175px;
+    width: 50px;
+}
+
+.minimize .nav-body {
+    top: 175px;
+    width: 50px;
+}
+
+.minimize .nav-footer {
+    width: 50px;
+}
+
+.menu-item {
+    margin: 0;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    font-size: 1em;
+    font-family: $sitnet-family-opensans-light;
+    color: $sitnet-text;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+.selected {
+a {
+    background-color: $sitnet-white;
+    color: $sitnet-blue;
+    text-decoration: none;
+}
+}
+
+.app-version {
+    padding: 0.5em 1em 1em;
+}
+
+.user {
+    width: 100%;
+}
+
+.user-name {
+    display: inline-block;
+    padding: 1.5em 1em 1em;
+    position: relative;
+    left: 0;
+    font-size: 1em;
+    font-family: $sitnet-family-opensans-light;
+    color: $sitnet-text;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+.minify {
+    bottom: 0;
+    padding: 0.5em;
+    float: right;
+    color: $sitnet-blue;
+}
+
+.minimize .menu-item {
+    display: none;
+}
+
+.locale-bar {
+    margin: 1em;
+}
+
+.locale-item {
+    padding-left: 1.2em;
+    padding-right: 1.2em;
+    cursor: pointer;
+    font-size: 1em;
+    font-family: $sitnet-family-opensans-light;
+    color: $sitnet-text;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+.minimize .locale-item {
+    text-align: center;
+    padding: 0.3em 0 0.3em 0;
+}
+
+.locale-item:hover {
+a {
+    color: $sitnet-blue-highlight;
+}
+}
+
+@media print {
+    .nav-container {
+        display: none !important;
+    }
+}
+}

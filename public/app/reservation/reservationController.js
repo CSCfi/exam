@@ -45,6 +45,7 @@
                 $scope.dateService = dateService;
 
                 $scope.reservationDetails = EXAM_CONF.TEMPLATES_PATH + "reservation/reservation_details.html";
+                $scope.reservationDetailsAdmin = EXAM_CONF.TEMPLATES_PATH + "reservation/admin/reservation_details_admin.html";
 
 
                 $scope.isAdminView = function () {
@@ -132,13 +133,15 @@
                     });
                 });
 
+                $scope.stateclass = "";
                 $scope.printExamState = function (enrolment) {
-                    if (!enrolment.reservation) {
-                        console.warn("enrolment without reservation listed, possibly obsolete data #enrolment id: " +
-                            enrolment.id);
-                        return;
-                    }
                     return enrolment.reservation.noShow ? 'NO_SHOW' : enrolment.exam.state;
+                };
+
+
+                $scope.getStateclass = function (enrolment) {
+                    return enrolment.reservation.noShow ? 'no_show' : enrolment.exam.state.toLowerCase();
+
                 };
 
 
@@ -185,13 +188,11 @@
                             }
                         }
 
-                        var tzOffset = new Date().getTimezoneOffset() * 60000;
-
                         if ($scope.dateService.startDate) {
-                            params.start = Date.parse($scope.dateService.startDate) + tzOffset;
+                            params.start = $scope.dateService.startDate;
                         }
                         if ($scope.dateService.endDate) {
-                            params.end = Date.parse($scope.dateService.endDate);
+                            params.end = $scope.dateService.endDate;
                         }
 
                         ReservationResource.reservations.query(params,

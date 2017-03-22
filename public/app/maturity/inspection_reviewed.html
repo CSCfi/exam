@@ -1,0 +1,155 @@
+<div class="main-row">
+    <div class="col-md-12">
+        <div class="review-list-title" >{{ 'sitnet_processed_language_inspections' | translate }}
+            <span ng-show="hidefornow">{{ getProcessedInspectionsDetails() }}</span>
+            <a ng-click="toggleReviewed()" class="pointer">
+                <img ng-show="!toggleReviewedVisibility" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
+                <img ng-show="toggleReviewedVisibility" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+            </a>
+        </div>
+    </div>
+</div>
+
+<div ng-show="toggleReviewedVisibility">
+
+    <div class="top-row marb20 padt20">
+        <div class="col-md-12">
+                <!-- Start & End time datepickers -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <span class="exam-basic-selecttitle">&nbsp;</span>
+                        <div class="input-group">
+                            <input ng-model="filtertextReviewed"
+                                   ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
+                                   class="form-control hgt40"
+                                   placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
+                                   popover-trigger="mouseenter" uib-popover="{{ 'sitnet_exam_search_description' | translate }}">
+
+                            <div class="input-group-addon search">
+                                <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <form role="form" ng-controller="DatepickerCtrl">
+
+                    <div class="col-md-2">
+                        <span class="exam-basic-selecttitle">{{'sitnet_begin' | translate}}</span>
+                        <div class="input-group">
+                            <input type="text" class="form-control make-inline" uib-datepicker-popup="{{format}}"
+                                   ng-model="dateService.startDate"
+                                   is-open="startDateOpened" datepicker-options="dateOptions"
+                                   close-text="{{'sitnet_close' | translate}}"
+                                   current-text="{{'sitnet_today' | translate}}"
+                                   toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                                   clear-text="{{'sitnet_clear' | translate}}" ng-change="query(true)"
+                                    >
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" ng-click="openStartDate($event)">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <span class="exam-basic-selecttitle">{{'sitnet_end' | translate}}</span>
+                        <div class="input-group">
+
+                        <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
+                               ng-model="dateService.endDate"
+                               is-open="endDateOpened" datepicker-options="dateOptions"
+                               close-text="{{'sitnet_close' | translate}}"
+                               current-text="{{'sitnet_today' | translate}}"
+                               toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                               clear-text="{{'sitnet_clear' | translate}}" ng-change="query(true)">
+
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" ng-click="openEndDate($event)">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <span class="exam-basic-selecttitle">&nbsp;</span>
+                        <div class="review-attachment-button print-button mart20">
+                            <a ng-click="printReport()" class="pointer">
+                                {{'sitnet_print' | translate}}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-striped exams-table">
+        <thead ng-init="inspectionReadyPredicate='finishedAt'; reverse2=true">
+        <tr>
+            <th class="with-top" sort-exam by="exam.name" text="sitnet_exam_name" predicate="inspectionReadyPredicate"
+                reverse="reverse2"></th>
+            <th class="with-top">{{ 'sitnet_arrived' | translate }}</th>
+            <th class="with-top">{{ 'sitnet_student' | translate }}</th>
+            <th class="with-top" sort by="finishedAt" text="sitnet_finished" predicate="inspectionReadyPredicate"
+                reverse="reverse2"></th>
+            <th class="with-top">{{ 'sitnet_language_inspector' | translate }}</th>
+            <th class="with-top">{{ 'sitnet_inspection_finished' | translate }}</th>
+            <th class="with-top">{{ 'sitnet_language_inspections' | translate }}</th>
+            <th class="with-top">{{ 'sitnet_feedback' | translate }}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr ng-repeat="inspection in processedInspections | orderBy:inspectionReadyPredicate:reverse2 | offset: currentPage*pageSize | limitTo: pageSize | filter:filtertextReviewed as resRew">
+
+            <td class="table-column-15 table-column-bold">
+                <a  class="table-column-examname" href="/exams/review/{{inspection.exam.id}}">
+                    {{ inspection.exam.name }}</a>
+                <br/><span class="exam-code">{{ inspection.exam.course.code }}</span></td>
+            <td class="table-column-15">{{ inspection.created | date:'dd.MM.yyyy' }}</td>
+            <td class="table-column-15">
+                <span>{{ inspection.exam.creator.firstName }} {{ inspection.exam.creator.lastName }}</span>
+                <span ng-if="inspection.exam.creator.userIdentifier">&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
+                <span><br /><a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{ inspection.exam.creator.email }}</a></span>
+            </td>
+            <td class="table-column-15">{{ inspection.exam.created | date:'dd.MM.yyyy' }}</td>
+            <td class="table-column-15" ng-if="inspection.modifier">
+                <span>{{ inspection.modifier.firstName }} {{ inspection.modifier.lastName }} </span>
+                <span><br /><a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{ inspection.modifier.email }}</a></span>
+            </td>
+            <td class="table-column-15">{{ inspection.finishedAt | date:'dd.MM.yyyy' }}</td>
+            <td class="table-column-15">
+                <span ng-if="inspection.approved" class="approved">
+                    {{ 'sitnet_approved' | translate }}
+                </span>
+                <span ng-if="!inspection.approved" class="rejected">
+                    {{ 'sitnet_rejected' | translate }}
+                </span>
+
+            </td>
+            <td class="table-column-15"><a class="pointer smaller" ng-click="showStatement(inspection.statement)">{{ 'sitnet_view' | translate }}</a></td>
+        </tr>
+        <tr ng-if="resRew.length == 0"><td colspan="6">{{'sitnet_processed_language_inspections_no_results' | translate}}</td></tr>
+        <!--Fill if page not full-->
+        <tr ng-repeat="r in [] | pagefill: processedInspections.length:currentPage:pageSize">
+            <td class="table-column-examname">&nbsp;</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<div class="detail-row" ng-show="toggleReviewedVisibility">
+    <div col-md-12 ng-show="processedInspections.length > pageSize">
+        <paginator items="processedInspections" page-size="pageSize" current-page="currentPage"/>
+    </div>
+</div>
+

@@ -4,11 +4,8 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import models.Exam;
-import models.ExamParticipation;
-import models.ExamRecord;
-import models.GradeScale;
-import models.User;
+import controllers.base.BaseController;
+import models.*;
 import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
@@ -25,9 +22,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
@@ -69,8 +68,11 @@ public class ExamRecordController extends BaseController {
             record.setExamScore(score);
             record.save();
             final User user = getLoggedUser();
+            final Set<User> examinators = exam.getExecutionType().getType().equals(
+                    ExamExecutionType.Type.MATURITY.toString())
+                    ? exam.getParent().getExamOwners() : Collections.emptySet();
             actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+                emailComposer.composeInspectionReady(exam.getCreator(), user, exam, examinators);
                 Logger.info("Inspection ready notification email sent");
             }, actor.dispatcher());
             return ok();
@@ -81,6 +83,7 @@ public class ExamRecordController extends BaseController {
     public Result registerExamWithoutRecord() throws IOException {
         DynamicForm df = formFactory.form().bindFromRequest();
         final Exam exam = Ebean.find(Exam.class)
+                .fetch("languageInspection")
                 .fetch("parent")
                 .fetch("parent.creator")
                 .where()
@@ -155,12 +158,23 @@ public class ExamRecordController extends BaseController {
         return ok(Base64.getEncoder().encodeToString(bos.toByteArray()));
     }
 
+    private boolean isApprovedInLanguageInspection(Exam exam, User user) {
+        LanguageInspection li = exam.getLanguageInspection();
+        return li != null && li.getApproved() && li.getFinishedAt() != null &&
+                user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE);
+    }
+
+    private boolean isAllowedToRegister(Exam exam, User user) {
+        return exam.getParent().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession()) ||
+                isApprovedInLanguageInspection(exam, user);
+    }
+
     private Optional<Result> validateExamState(Exam exam, boolean gradeRequired) {
         if (exam == null) {
             return Optional.of(notFound());
         }
         User user = getLoggedUser();
-        if (!exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
+        if (!isAllowedToRegister(exam, user)) {
             return Optional.of(forbidden("You are not allowed to modify this object"));
         }
         if (exam.getGradedByUser() == null && exam.getAutoEvaluationConfig() != null) {

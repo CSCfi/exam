@@ -1,26 +1,23 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import models.api.Scorable;
 import models.api.Sortable;
 import models.base.OwnedModel;
+import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
+import play.mvc.Result;
 
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -48,7 +45,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     private String answerInstructions;
 
     @Column
-    private Integer maxScore;
+    private Double maxScore;
 
     @Transient
     private Double derivedMaxScore;
@@ -58,6 +55,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @OneToOne(cascade = CascadeType.ALL)
     private EssayAnswer essayAnswer;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private ClozeTestAnswer clozeTestAnswer;
 
     @Column
     private String evaluationCriteria;
@@ -105,11 +105,11 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         this.sequenceNumber = sequenceNumber;
     }
 
-    public Integer getMaxScore() {
+    public Double getMaxScore() {
         return maxScore;
     }
 
-    public void setMaxScore(Integer maxScore) {
+    public void setMaxScore(Double maxScore) {
         this.maxScore = maxScore;
     }
 
@@ -143,6 +143,14 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     public void setEssayAnswer(EssayAnswer essayAnswer) {
         this.essayAnswer = essayAnswer;
+    }
+
+    public ClozeTestAnswer getClozeTestAnswer() {
+        return clozeTestAnswer;
+    }
+
+    public void setClozeTestAnswer(ClozeTestAnswer clozeTestAnswer) {
+        this.clozeTestAnswer = clozeTestAnswer;
     }
 
     public String getEvaluationCriteria() {
@@ -214,8 +222,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @Transient
     @Override
-    public String getValidationResult() {
-        return question.getValidationResult();
+    public Optional<Result> getValidationResult(JsonNode node) {
+        return question.getValidationResult(node);
     }
 
     @Transient
@@ -225,7 +233,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             case EssayQuestion:
                 if (evaluationType == Question.EvaluationType.Points) {
                     return essayAnswer == null || essayAnswer.getEvaluatedScore() == null ? 0 :
-                            essayAnswer.getEvaluatedScore().doubleValue();
+                            essayAnswer.getEvaluatedScore();
                 }
                 break;
             case MultipleChoiceQuestion:
@@ -242,6 +250,19 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                         .reduce(0.0, (sum, x) -> sum += x);
                 // ATM minimum score is zero
                 return Math.max(0.0, evaluation);
+            case ClozeTestQuestion:
+                // sanity check
+                if (clozeTestAnswer == null) {
+                    return 0.0;
+                }
+                ClozeTestAnswer.Score score = clozeTestAnswer.getScore(this);
+                int correct = score.getCorrectAnswers();
+                int incorrect = score.getIncorrectAnswers();
+                if (correct + incorrect == 0) {
+                    return 0.0;
+                }
+                DecimalFormat df = new DecimalFormat("#.##");
+                return Double.valueOf(df.format(correct * maxScore / (correct + incorrect)));
         }
         return 0.0;
     }
@@ -252,11 +273,12 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         switch (question.getType()) {
             case EssayQuestion:
                 if (evaluationType == Question.EvaluationType.Points) {
-                    return maxScore == null ? 0 : maxScore.doubleValue();
+                    return maxScore == null ? 0 : maxScore;
                 }
                 break;
             case MultipleChoiceQuestion:
-                return maxScore == null ? 0 : maxScore.doubleValue();
+            case ClozeTestQuestion:
+                return maxScore == null ? 0 : maxScore;
             case WeightedMultipleChoiceQuestion:
                 return options.stream()
                         .map(ExamSectionQuestionOption::getScore)
@@ -297,10 +319,10 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     /**
      * Adds new answer option.
-     * If question type equals WeightedMultiChoiceQuestion, recalculates scores for old options so that max assessed score won't change.
+     * If question type equals WeightedMultiChoiceQuestion, recalculates scores for old options so that max assessed
+     * score won't change.
      *
      * @param option         New option to add.
-     * @param preserveScores If true other options scores will not be recalculated.
      */
     @Transient
     public void addOption(ExamSectionQuestionOption option, boolean preserveScores) {
@@ -311,12 +333,12 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         }
 
         if (option.getScore() > 0) {
-            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() > 0)
+            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() != null && o.getScore() > 0)
                     .collect(Collectors.toList());
             BigDecimal delta = calculateOptionScores(option.getScore(), opts);
             option.setScore(new BigDecimal(option.getScore()).add(delta).doubleValue());
         } else if (option.getScore() < 0) {
-            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() < 0)
+            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() != null && o.getScore() < 0)
                     .collect(Collectors.toList());
             BigDecimal delta = calculateOptionScores(option.getScore(), opts);
             option.setScore(new BigDecimal(option.getScore()).add(delta).doubleValue());
@@ -342,7 +364,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         }
 
         if (score > 0) {
-            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() > 0)
+            List<ExamSectionQuestionOption> opts = options.stream()
+                    .filter(o -> o.getScore() != null && o.getScore() > 0)
                     .collect(Collectors.toList());
             BigDecimal delta = calculateOptionScores(score*-1, opts);
             if (opts.size() > 0) {
@@ -350,7 +373,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
             }
         } else if (score < 0) {
-            List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() < 0)
+            List<ExamSectionQuestionOption> opts = options.stream()
+                    .filter(o -> o.getScore() != null && o.getScore() < 0)
                     .collect(Collectors.toList());
             BigDecimal delta = calculateOptionScores(score*-1, opts);
             if (opts.size() > 0) {

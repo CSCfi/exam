@@ -2,21 +2,30 @@
     'use strict';
     angular.module('exam.services')
         .service('reservationService', ['$q', '$uibModal', '$http', '$routeParams', '$translate', '$location', 'dialogs',
-            'dateService', 'sessionService', 'ReservationResource', 'EXAM_CONF',
+            'dateService', 'sessionService', 'ReservationResource', 'EXAM_CONF', 'InteroperabilityResource',
             function ($q, $modal, $http, $routeParams, $translate, $location, dialogs, dateService, sessionService,
-                      ReservationRes, EXAM_CONF) {
+                      ReservationRes, EXAM_CONF, InteroperabilityRes) {
 
                 var self = this;
 
                 self.removeReservation = function (enrolment) {
+                    var externalRef = enrolment.reservation.externalRef;
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
+                    var successFn = function () {
+                        delete enrolment.reservation;
+                        enrolment.reservationCanceled = true;
+                    };
+                    var errorFn = function (msg) {
+                        toastr.error(msg);
+                    };
                     dialog.result.then(function (btn) {
-                        $http.delete('/app/calendar/reservation/' + enrolment.reservation.id).success(function () {
-                            delete enrolment.reservation;
-                            enrolment.reservationCanceled = true;
-                        }).error(function (msg) {
-                            toastr.error(msg);
-                        });
+                        if (externalRef) {
+                            InteroperabilityRes.reservation.remove({ref: externalRef}, successFn, errorFn);
+                        } else {
+                            $http.delete('/app/calendar/reservation/' + enrolment.reservation.id)
+                                .success(successFn)
+                                .error(errorFn);
+                        }
                     });
                 };
 

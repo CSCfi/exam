@@ -1,0 +1,26 @@
+<div id="sitnet-dialog">
+    <div class="student-message-dialog-wrapper-padding">
+        <div class="student-enroll-dialog-wrap">
+            <div class="student-enroll-title">{{'sitnet_inspection_comment_title' |
+                translate}}</div>
+        </div>
+        <div>
+            <form role="form" id="infoForm" name="infoForm" novalidate>
+                <label for="infoForm" class="student-enroll-dialog-subtitle">{{ 'sitnet_inspection_comment_description' | translate }}</label>
+                <textarea rows="10" class="student-message-dialog-textarea" ng-model="data.comment">
+                </textarea>
+            </form>
+        </div>
+        <div class="student-message-dialog-footer">
+            <div class="student-message-dialog-button-save">
+                <button class="btn btn-sm btn-primary" ng-click="submit()">
+                    {{'sitnet_add' | translate}}
+                </button>
+            </div>
+            <div class="student-message-dialog-button-cancel">
+                <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

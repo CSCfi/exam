@@ -1,45 +1,71 @@
-<div class="col-md-12 pull-left bottom-padding-2 light-table">
-    <div class="col-md-1 pull-left" style="text-align: center">
-        <span class="info-column-large-icon fa-stack fa-2x pointer" ng-click="enrollExam(exam)"
-              popover-placement="top" popover-trigger="mouseenter"
-              uib-popover="{{'sitnet_enroll_to_exam' | translate}}">
-            <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
-            <i class="fa fa-arrow-circle-right sitnet-white fa-stack-1x"></i>
-        </span>
-    </div>
-    <div class="col-md-5 pull-left">
-        <div class="info-row col-md-12 pull-left">
-            <div class="info-row col-md-12 info-column">
-                <span class="header col-md-5">{{'sitnet_examcode_and_name' | translate}}:</span>
-                <a ng-href="/enroll/{{exam.course.code}}/exam/{{exam.id}}" class="col-md-7" style="padding-left: 0em">{{exam.course.code}}
-                    - {{exam.name}}</a>
+<div class="student-enrolment-wrapper details-view marr20" ng-class="(exam.enrolled && exam.reservationMade) ? '' : 'notactive'">
+    <div class="row">
+        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+            <span class="student-exam-row-title-blue">
+                <a href="/enroll/{{exam.course.code}}/exam/{{exam.id}}">{{exam.name}}</a></span><br/>
+            <span ng-if="exam.enrolled && !exam.reservationMade"
+                  class="student-exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
+
+        </div>
+        <div class="clearfix visible-xs"></div>
+        <div class="clearfix visible-sm"></div>
+
+        <div class="col-xs-6 col-sm-6 col-md-7 col-lg-7 mobile-pads">
+
+            <div class="row">
+                <div class="col-md-12">
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ 'sitnet_course_name' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{exam.course.code}} {{ exam.course.name }}
+                        </div>
+                        <div class="clearfix visible-xs"></div>
+                        <div class="clearfix visible-sm"></div>
+
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{'sitnet_exam_validity' | translate}}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{exam.examActiveStartDate | date:'dd.MM.yyyy'}}
+                            -
+                            {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+                        </div>
+                </div>
             </div>
-            <div class="info-row col-md-12 info-column">
-                <span class="header col-md-5">{{'sitnet_exam_validity' | translate}}:</span>
-                <span class="text col-md-7">
-                    {{exam.examActiveStartDate | date:'dd.MM.yyyy'}}
-                    -
-                    {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
-                </span>
-            </div>
-            <div class="info-row col-md-12 info-column">
-                <span class="header col-md-5">{{'sitnet_teachers' | translate}}:</span>
-                <span class="light-text col-md-7">
-                    <teacher-list exam="exam" />
-                </span>
+
+            <div class="row">
+                <div class="col-md-12">
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ 'sitnet_teachers' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3"><teacher-list exam="exam" /></div>
+                        <div class="clearfix visible-xs"></div>
+                        <div class="clearfix visible-sm"></div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{'sitnet_exam_language' | translate}}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{exam.languages.join(', ')}}
+                        </div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-6 pull-left">
-        <div class="info-row col-md-12 info-column">
-            <span class="header col-md-2">{{'sitnet_exam_language' | translate}}:</span>
-                                <span class="text col-md-10">
-                                    <span class="pull-left">{{exam.languages.join(', ')}}</span>
-                                </span>
+
+        <div class="clearfix visible-xs"></div>
+        <div class="clearfix visible-sm"></div>
+
+        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 mobile-pads">
+            <div class="student-message-dialog-button-save" ng-if="!exam.enrolled">
+                <button class="btn btn-success" ng-click="enrollExam(exam)">{{'sitnet_enroll_to_exam' | translate}}</button>
+            </div>
+            <div class="student-message-dialog-button-save" ng-if="exam.enrolled && !exam.reservationMade">
+                <button class="btn btn-success" ng-click="makeReservation(exam)">{{'sitnet_student_new_reservation' | translate}}</button>
+            </div>
+            <div class="student-message-dialog-button-save" ng-if="exam.enrolled && exam.reservationMade">
+                <span class="student-exam-all-required">{{'sitnet_enrolled_to_exam' | translate}}</span>
+            </div>
         </div>
-        <div class="info-row col-md-12 info-column">
-            <span class="header col-md-2">{{'sitnet_instruction' | translate}}:</span>
-            <span class="text col-md-10">{{exam.enrollInstruction}}</span>
-        </div>
+
     </div>
 </div>

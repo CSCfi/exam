@@ -1,11 +1,13 @@
 package controllers;
 
 import akka.actor.ActorSystem;
+import be.objectify.deadbolt.java.actions.Dynamic;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import controllers.base.BaseController;
 import models.Comment;
 import models.Exam;
 import models.LanguageInspection;
@@ -34,8 +36,8 @@ public class LanguageInspectionController extends BaseController {
     @Inject
     protected ActorSystem actor;
 
-    @Pattern(value = "CAN_INSPECT_LANGUAGE")
-    public Result listInspections(Optional<String> month) {
+    @Dynamic(value="inspector or admin", meta="pattern=CAN_INSPECT_LANGUAGE,role=ADMIN,anyMatch=true")
+    public Result listInspections(Optional<String> month, Optional<Long> start, Optional<Long> end) {
         ExpressionList<LanguageInspection> query = Ebean.find(LanguageInspection.class)
                 .fetch("exam")
                 .fetch("exam.course")
@@ -45,11 +47,24 @@ public class LanguageInspectionController extends BaseController {
                 .fetch("creator", "firstName, lastName, email, userIdentifier")
                 .fetch("assignee", "firstName, lastName, email, userIdentifier")
                 .where();
-        if (month.isPresent()) {
-            DateTime start = DateTime.parse(month.get()).withDayOfMonth(1).withMillisOfDay(0);
-            DateTime end = start.plusMonths(1);
-            query = query.between("finishedAt", start.toDate(), end.toDate());
-        } else {
+
+        if(start.isPresent() || end.isPresent()) {
+            if (start.isPresent()) {
+                DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
+                query = query.ge("finishedAt", startDate.toDate());
+            }
+
+            if (end.isPresent()) {
+                DateTime endDate = new DateTime(end.get()).plusDays(1).withTimeAtStartOfDay();
+                query = query.lt("finishedAt", endDate.toDate());
+            }
+        }
+        else if (month.isPresent()) {
+            DateTime startWithMonth = DateTime.parse(month.get()).withDayOfMonth(1).withMillisOfDay(0);
+            DateTime endWithMonth = startWithMonth.plusMonths(1);
+            query = query.between("finishedAt", startWithMonth.toDate(), endWithMonth.toDate());
+        }
+        else {
             DateTime beginningOfYear = DateTime.now().withDayOfYear(1);
             query = query
                     .disjunction()
@@ -57,6 +72,7 @@ public class LanguageInspectionController extends BaseController {
                     .gt("finishedAt", beginningOfYear.toDate())
                     .endJunction();
         }
+
         List<LanguageInspection> inspections = query.findList();
         return ok(inspections);
     }
@@ -72,9 +88,12 @@ public class LanguageInspectionController extends BaseController {
         if (exam.getLanguageInspection() != null) {
             return forbidden("already sent for inspection");
         }
+        if (!exam.getSubjectToLanguageInspection()) {
+            return forbidden("not allowed to send for inspection");
+        }
         LanguageInspection inspection = new LanguageInspection();
-        inspection.setCreator(getLoggedUser());
-        inspection.setCreated(new Date());
+        User user = getLoggedUser();
+        AppUtil.setCreator(inspection, user);
         inspection.setExam(exam);
         inspection.save();
         return ok();
@@ -89,7 +108,9 @@ public class LanguageInspectionController extends BaseController {
         if (inspection.getAssignee() != null) {
             return forbidden("Inspection already taken");
         }
-        inspection.setAssignee(getLoggedUser());
+        User user = getLoggedUser();
+        AppUtil.setModifier(inspection, user);
+        inspection.setAssignee(user);
         inspection.setStartedAt(new Date());
         inspection.update();
         return ok();
@@ -114,13 +135,15 @@ public class LanguageInspectionController extends BaseController {
         }
         inspection.setFinishedAt(new Date());
         inspection.setApproved(isApproved);
+
+        User user = getLoggedUser();
+        AppUtil.setModifier(inspection, user);
         inspection.update();
 
         Set<User> recipients = inspection.getExam().getParent().getExamOwners();
-        User sender = getLoggedUser();
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User recipient : recipients) {
-                emailComposer.composeLanguageInspectionFinishedMessage(recipient, sender, inspection);
+                emailComposer.composeLanguageInspectionFinishedMessage(recipient, user, inspection);
                 Logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
             }
         }, actor.dispatcher());
@@ -146,16 +169,20 @@ public class LanguageInspectionController extends BaseController {
         if (inspection.getFinishedAt() != null) {
             return forbidden("Inspection already finalized");
         }
+        User user = getLoggedUser();
         Comment statement = inspection.getStatement();
         if (statement == null) {
             statement = new Comment();
-            AppUtil.setCreator(statement, getLoggedUser());
+            AppUtil.setCreator(statement, user);
             statement.save();
             inspection.setStatement(statement);
             inspection.update();
         }
         statement.setComment(text);
+        AppUtil.setModifier(statement, user);
         statement.update();
+        AppUtil.setModifier(inspection, user);
+        inspection.update();
         return ok();
     }
 

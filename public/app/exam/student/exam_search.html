@@ -1,45 +1,44 @@
-<div id="sitnet-header" class="header">
-    <div class="col-md-12 header-wrapper">
-        <span class="header-text">{{'sitnet_exam_search' | translate}}</span>
-    </div>
-</div>
 <!-- Enrolled exams list -->
 <div id="dashboard">
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="alert alert-info info-box">
-                <span class="form-group"><i class="fa fa-lg fa-info-circle text-info"></i>
-                    &nbsp;
-                    <span ng-if="permissionCheck.active===false">{{ 'sitnet_exam_search_description' | translate }}</span>
-                    <span ng-if="permissionCheck.active===true">{{ 'sitnet_search_restricted' | translate }}</span>
-                </span>
-            </div>
+    <!-- Calendar view for enrolment -->
+    <div>
+        <div class="student-details-title-wrap padtop padleft">
+            <div class="student-exam-search-title">{{'sitnet_exams' | translate}}</div>
         </div>
     </div>
-    <div class="top-row" ng-show="permissionCheck.active===false">
-        <div class="col-md-4">
-            <div class="form-group input-group">
+    <div>
+        <div class="student-details-title-wrap padleft">
+            <span class="form-group"><img class="nopad" src="../../../assets/assets/images/icon_info.png">
+                &nbsp;
+                <span ng-if="permissionCheck.active===false">{{ 'sitnet_exam_search_description' | translate }}</span>
+                <span ng-if="permissionCheck.active===true">{{ 'sitnet_search_restricted' | translate }}</span>
+            </span>
+        </div>
+    </div>
+
+    <div ng-show="permissionCheck.active===false">
+        <div class="student-details-title-wrap padleft">
+            <div class="form-group input-group search">
                 <input ng-change="search()" ng-model="filter.text"
                        ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
-                       class="form-control" placeholder="{{'sitnet_search' | translate }}">
-                <div class="input-group-addon">
-                    <i class="fa fa-search fa-fw"></i>
+                       class="form-control search" placeholder="{{'sitnet_search' | translate }}">
+                <div class="input-group-addon search">
+                    <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
                 </div>
             </div>
         </div>
+        <div ng-if="exams.length > 0" class="student-exam-search-results">
+            {{'sitnet_student_exam_search_result' | translate}} {{exams.length}}
+            {{'sitnet_student_exam_search_result_continues' | translate}} <b>{{filter.text}}</b></div>
     </div>
-    <div class="top-row">
-        <div class="col-md-12">
-            <button ng-show="loader.loading" class="btn btn-success">{{'sitnet_searching' | translate }}...
-                <i class="fa fa-spinner fa-spin"></i>
-            </button>
-        </div>
+    <div class="student-details-title-wrap padleft">
+        <button ng-show="loader.loading" class="btn btn-success">{{'sitnet_searching' | translate }}...
+            <i class="fa fa-spinner fa-spin"></i>
+        </button>
     </div>
-    <div class="main-row">
-        <div class="col-md-12">
-            <div class="exams-list">
-                <div class="list-item" ng-repeat="exam in exams" ng-include="examPath" />
-            </div>
-        </div>
+
+    <div class="exams-list marr30">
+        <div class="list-item" ng-repeat="exam in exams" ng-include="examPath" />
     </div>
+
 </div>

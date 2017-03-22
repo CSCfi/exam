@@ -10,17 +10,30 @@ import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.base.BaseController;
 import exceptions.NotFoundException;
-import models.*;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamParticipation;
+import models.ExamRoom;
+import models.Reservation;
+import models.User;
 import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
+import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 
 public class ReservationController extends BaseController {
@@ -97,12 +110,26 @@ public class ReservationController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result permitRetrial(Long id) {
-        Reservation reservation = Ebean.find(Reservation.class, id);
+        Reservation reservation = Ebean.find(Reservation.class)
+                .fetch("enrolment.exam.executionType")
+                .where()
+                .idEq(id)
+                .findUnique();
         if (reservation == null) {
             return notFound("sitnet_not_found");
         }
-        reservation.setRetrialPermitted(true);
-        reservation.update();
+        ExamEnrolment enrolment = reservation.getEnrolment();
+        if (reservation.isNoShow() && enrolment.getExam().isPrivate()) {
+            // For no-shows with private examinations we remove the reservation so student can re-reserve.
+            // This is needed because student is not able to re-enroll by himself and th.
+            enrolment.setReservation(null);
+            enrolment.update();
+            reservation.delete();
+        } else {
+            // For public exams this is not necessary as student can re-enroll and make a new reservation in the process.
+            reservation.setRetrialPermitted(true);
+            reservation.update();
+        }
         return ok();
     }
 
@@ -203,7 +230,7 @@ public class ReservationController extends BaseController {
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result getReservations(Optional<String> state, Optional<Long> ownerId, Optional<Long> studentId,
                                   Optional<Long> roomId, Optional<Long> machineId, Optional<Long> examId,
-                                  Optional<Long> start, Optional<Long> end) {
+                                  Optional<String> start, Optional<String> end) {
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state, trialCount")
@@ -215,6 +242,7 @@ public class ReservationController extends BaseController {
                 .fetch("reservation.machine", "id, name, ipAddress, otherIdentifier")
                 .fetch("reservation.machine.room", "id, name, roomCode")
                 .where()
+                .isNotNull("reservation")
                 .ne("exam.state", Exam.State.DELETED);
 
         User user = getLoggedUser();
@@ -226,12 +254,14 @@ public class ReservationController extends BaseController {
         }
 
         if (start.isPresent()) {
-            DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
+            DateTime startDate = AppUtil.withTimeAtStartOfDayConsideringTz(
+                    DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser()));
             query = query.ge("reservation.startAt", startDate.toDate());
         }
 
         if (end.isPresent()) {
-            DateTime endDate = new DateTime(end.get()).plusDays(1).withTimeAtStartOfDay();
+            DateTime endDate = AppUtil.withTimeAtEndOfDayConsideringTz(
+                    DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser()));
             query = query.lt("reservation.endAt", endDate.toDate());
         }
 

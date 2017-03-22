@@ -1,7 +1,7 @@
 'use strict';
 describe('ExamController', function () {
 
-    var ctrl, scope, $httpBackend, q, ExamRes;
+    var ctrl, scope, $httpBackend, q, ExamRes, window;
 
     beforeEach(function () {
         module('exam');
@@ -16,8 +16,15 @@ describe('ExamController', function () {
             .preferredLanguage('en');
     }));
 
-    beforeEach(inject(function ($controller, $rootScope, $injector, $q) {
+    beforeEach(inject(function ($controller, $rootScope, $injector, $q, $window) {
         scope = $rootScope.$new();
+        scope.initializeExam = function () {
+          var d = $q.defer();
+          d.reject();
+          return d.promise;
+        };
+        window = $window;
+        window['toastr'] = {error: jasmine.createSpy('error'), warning: jasmine.createSpy('warning')};
         $httpBackend = $injector.get('$httpBackend');
         q = $q;
         var languageRes = $injector.get('LanguageRes');
@@ -37,6 +44,7 @@ describe('ExamController', function () {
             dialogs: {},
             sessionService: mockSessionService(),
             examService: mockExamService(),
+            enrolmentService: mockEnrolmentService(),
             ExamRes: ExamRes,
             QuestionRes: {},
             UserRes: {},
@@ -68,7 +76,7 @@ describe('ExamController', function () {
         section.sectionQuestions = [{id: 1, question: {}}, {id: 2, question:{}}];
         scope.newExam = {id: 1};
 
-        $httpBackend.expectPUT('/app/exams/1/section/1', section).respond(200, section);
+        $httpBackend.expectPUT('/app/exams/1/section/1').respond(200, section);
 
         scope.toggleLottery(section);
 
@@ -90,9 +98,7 @@ describe('ExamController', function () {
     });
 
     function createPromise(response) {
-        var deferred = q.defer();
-        deferred.resolve(response);
-        return deferred.promise;
+        return q.when(response);
     }
 
     function mockSessionService() {
@@ -113,6 +119,14 @@ describe('ExamController', function () {
             return createPromise({});
         });
         return examService;
+    }
+
+    function mockEnrolmentService() {
+        var enrolmentService = jasmine.createSpyObj('enrolmentService', ['enrollStudent']);
+        enrolmentService.enrollStudent.and.callFake(function () {
+            return createPromise({});
+        });
+        return enrolmentService;
     }
 
     function mockQuestionService() {

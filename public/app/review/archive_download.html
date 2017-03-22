@@ -1,13 +1,12 @@
 <div id="sitnet-dialog">
-    <div class="terms-dialog-header">
-        <h4 class="sitnet-white"><i class="fa fa-calendar"></i>&nbsp;&nbsp;{{'sitnet_exam_validity' |
-            translate}}</i></h4>
+    <div class="student-details-title-wrap mart20">
+        <div class="student-enroll-title">{{'sitnet_exam_validity' | translate}}</div>
     </div>
+    <div class="modal-body marl20">
 
-    <div class='modal-body'>
 
-        <div id="datetimepicker">
-            <div class="row">
+        <div class="row" id="datetimepicker">
+            <div class="col-md-12">
                 <div class="col-md-6">
                     <p>{{'sitnet_begin' | translate}}:</p>
                 </div>
@@ -15,7 +14,8 @@
                     <p>{{'sitnet_end' | translate}}:</p>
                 </div>
             </div>
-            <div class="row">
+            <div class="col-md-12">
+
                 <div class="col-md-6" ng-controller="DatepickerCtrl">
                     <p class="input-group">
                         <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
@@ -55,14 +55,13 @@
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
-            </button>
-        </div>
-        <div class="col-md-6">
-            <button class="btn btn-sm btn-primary" ng-click="ok()">
+            <button class="btn btn btn-success pull-left" ng-click="ok();">
                 {{'sitnet_search' | translate}}
             </button>
         </div>
+        <div class="col-md-6">
+            <button class="btn btn-primary pull-right" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+            </button>
+        </div>
     </div>
-
 </div>

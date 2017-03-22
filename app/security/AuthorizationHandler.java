@@ -5,7 +5,7 @@ import be.objectify.deadbolt.java.DeadboltHandler;
 import be.objectify.deadbolt.java.DynamicResourceHandler;
 import be.objectify.deadbolt.java.models.Subject;
 import com.avaje.ebean.Ebean;
-import controllers.BaseController;
+import controllers.base.BaseController;
 import models.Session;
 import models.User;
 import play.cache.CacheApi;
@@ -57,7 +57,7 @@ class AuthorizationHandler implements DeadboltHandler {
 
     @Override
     public CompletionStage<Optional<DynamicResourceHandler>> getDynamicResourceHandler(Http.Context context) {
-        return CompletableFuture.supplyAsync(Optional::empty);
+        return CompletableFuture.completedFuture(Optional.of(new CombinedRoleAndPermissionHandler()));
     }
 
     @Override

@@ -7,6 +7,8 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import play.Logger;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Stream;
 
 class EmailSenderImpl implements EmailSender {
@@ -30,7 +32,7 @@ class EmailSenderImpl implements EmailSender {
         Stream.of(attachments).forEach(a -> Logger.info("attachment: {}", a.getName()));
     }
 
-    private void doSend(String recipient, String sender, String subject, String content,
+    private void doSend(String recipient, String sender, Set<String> cc, String subject, String content,
                         EmailAttachment... attachments) throws EmailException {
         HtmlEmail email = new HtmlEmail();
         email.setCharset("utf-8");
@@ -45,6 +47,9 @@ class EmailSenderImpl implements EmailSender {
         email.addTo(recipient);
         email.setFrom(String.format("Exam <%s>", SYSTEM_ACCOUNT));
         email.addReplyTo(sender);
+        for (String addr : cc) {
+            email.addCc(addr);
+        }
         email.setHtmlMsg(content);
         if (USE_MOCK) {
             mockSending(email, content, attachments);
@@ -56,7 +61,16 @@ class EmailSenderImpl implements EmailSender {
     @Override
     public void send(String recipient, String sender, String subject, String content, EmailAttachment... attachments) {
         try {
-            doSend(recipient, sender, subject, content, attachments);
+            doSend(recipient, sender, Collections.emptySet(), subject, content, attachments);
+        } catch (EmailException e) {
+            Logger.error("Creating mail failed. Stacktrace follows", e);
+        }
+    }
+
+    @Override
+    public void send(String recipient, String sender, Set<String> cc, String subject, String content) {
+        try {
+            doSend(recipient, sender, cc, subject, content);
         } catch (EmailException e) {
             Logger.error("Creating mail failed. Stacktrace follows", e);
         }

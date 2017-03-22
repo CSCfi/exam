@@ -8,6 +8,7 @@ import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.base.BaseController;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamInspection;
@@ -20,8 +21,10 @@ import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UserController extends BaseController {
@@ -162,6 +165,8 @@ public class UserController extends BaseController {
             String uid = u.getUserIdentifier();
             String uidString = uid != null && !uid.isEmpty() ? String.format(" (%s)", u.getUserIdentifier()) : "";
             part.put("name", String.format("%s %s%s", u.getFirstName(), u.getLastName(), uidString));
+            part.put("firstName", u.getFirstName());
+            part.put("lastName", u.getLastName());
             array.add(part);
         }
         return array;
@@ -190,13 +195,18 @@ public class UserController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getQuestionOwnersByRoleFilter(String role, Long qid, String criteria) {
-        Question question = Ebean.find(Question.class, qid);
-        if (question == null) {
-            return notFound();
-        }
+    public Result getQuestionOwnersByRoleFilter(String role, String criteria, Optional<Long> qid) {
         List<User> users = findUsersByRoleAndName(role, criteria);
-        users.removeAll(question.getQuestionOwners());
+        Set<User> owners = new HashSet<>();
+        owners.add(getLoggedUser());
+        if (qid.isPresent()) {
+            Question question = Ebean.find(Question.class, qid.get());
+            if (question == null) {
+                return notFound();
+            }
+            owners.addAll(question.getQuestionOwners());
+        }
+        users.removeAll(owners);
         return ok(Json.toJson(asArray(users)));
     }
 

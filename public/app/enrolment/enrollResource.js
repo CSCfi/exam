@@ -46,7 +46,7 @@
                         code: "@id"
                     },
                     {
-                        "get": {method: "GET", isArray: false, params: {id: "@id"}}
+                        "get": {method: "GET", isArray: true, params: {id: "@id"}}
                     }
                 )
             };

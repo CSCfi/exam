@@ -47,17 +47,24 @@
                                     $scope.timeout = $timeout(function() {
                                         $location.path('/student/exam/' + $scope.enrolment.exam.hash);
                                     }, offset);
-                                    toastr.info(
-                                        Math.round(offset / 1000 / 60) + " " + $translate.instant('sitnet_minutes') + " " +
-                                        $translate.instant('sitnet_redirect_to_exam_offset') + ". " +
-                                        $translate.instant('sitnet_redirect_to_exam_notice') + ".");
+
                                 }
+
+                                // fetch room instructions
+                                $http.get('/app/enroll/room/' + $scope.enrolment.exam.id)
+                                                                .success(function (data) {
+                                                                    $scope.info = data;
+                                                                    $scope.currentLanguageText = currentLanguage();
+                                                                });
+
+
                             },
                             function(error) {
                                 toastr.error(error.data);
                             }
                         );
                     }
+
                 };
 
                 $scope.$on('upcomingExam', function() {
@@ -80,6 +87,37 @@
 
                 // This is just to get page refresh to route us back here
                 $http.get('/app/checkSession');
+
+                function currentLanguage() {
+                    var tmp = "";
+
+                    if ($scope.info &&
+                        $scope.info.reservation &&
+                        $scope.info.reservation.machine &&
+                        $scope.info.reservation.machine.room) {
+
+                        switch ($translate.use()) {
+                            case "fi":
+                                if ($scope.info.reservation.machine.room.roomInstruction) {
+                                    tmp = $scope.info.reservation.machine.room.roomInstruction;
+                                }
+                                break;
+                            case "sv":
+                                if ($scope.info.reservation.machine.room.roomInstructionSV) {
+                                    tmp = $scope.info.reservation.machine.room.roomInstructionSV;
+                                }
+                                break;
+                            case "en":
+                            /* falls through */
+                            default:
+                                if ($scope.info.reservation.machine.room.roomInstructionEN) {
+                                    tmp = $scope.info.reservation.machine.room.roomInstructionEN;
+                                }
+                                break;
+                        }
+                    }
+                    return tmp;
+                }
 
             }]);
 }());

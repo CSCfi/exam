@@ -102,6 +102,7 @@
                 reviewerExam: $resource("/app/reviewerexams/:eid", {eid: "@eid"}),
                 draft: $resource("/app/exams", null, {"create": {method: "POST"}}),
                 review: $resource("/app/review/:id", {id: "@id"}, {"update": {method: "PUT"}}),
+                inspectionComment: $resource("/app/review/:id/inspection", {id: "@id"}, {"create": {method: "POST"}}),
                 examReviews: $resource("/app/reviews/:eid", {eid: "@eid"},
                     {
                         "get": {method: "GET", params: {eid: "@eid"}}
@@ -234,7 +235,12 @@
                     {
                         "update": {method: "PUT"}
                     }),
-                reservationInfo: $resource("/app/exams/:eid/reservation", {eid: "@eid"})
+                reservationInfo: $resource("/app/exams/:eid/reservation", {eid: "@eid"}),
+                examinationDate: $resource("/app/exam/:eid/examinationdate/:edid", {eid: "@eid", edid: "@edid"},
+                    {
+                        "create": {method: "POST", params: {eid: "@eid"}},
+                        "delete": {method: "DELETE"}
+                    })
             };
         }]);
 }());

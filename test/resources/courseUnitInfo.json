@@ -45,7 +45,8 @@
           "10540035" : {
             "grade" : 10540035,
             "description" : "0\/5",
-            "scale" : 0
+            "scale" : 0,
+            "isRejected": "true"
           },
           "10540036" : {
             "grade" : 10540036,

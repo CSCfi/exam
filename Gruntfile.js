@@ -11,7 +11,8 @@ module.exports = function (grunt) {
                     'public/app/httpInterceptor.js', 'public/app/routes.js', 'public/app/administrative/**/*.js',
                     'public/app/common/**/*.js', 'public/app/enrolment/**/*.js', 'public/app/exam/**/*.js',
                     'public/app/facility/**/*.js', 'public/app/question/**/*.js', 'public/app/reservation/**/*.js',
-                    'public/app/maturity/**/*.js', 'public/app/review/**/*.js', 'public/app/utility/**/*.js'],
+                    'public/app/maturity/**/*.js', 'public/app/review/**/*.js', 'public/app/utility/**/*.js',
+                    'public/app/iop/**/*.js'],
                 dest: 'public/app/<%= pkg.name %>.js'
             }
         },

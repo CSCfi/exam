@@ -3,6 +3,8 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import controllers.api.ExternalAPI;
+import controllers.base.BaseController;
 import models.Course;
 import play.libs.Json;
 import play.mvc.Action;

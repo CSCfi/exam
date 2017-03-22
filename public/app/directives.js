@@ -160,9 +160,12 @@
             }])
 
 
-        .directive('ckEditor', function () {
+        .directive('ckEditor', ['$rootScope', function ($rootScope) {
             return {
-                require: '?ngModel',
+                require: 'ngModel',
+                scope: {
+                    enableClozeTest: '=?'
+                },
                 link: function (scope, elm, attr, ngModel) {
                     var tmp;
 
@@ -174,37 +177,33 @@
 
                     ck.on('instanceReady', function () {
                         ck.setData(tmp);
+                        if (!scope.enableClozeTest) {
+                            ck.getCommand('insertCloze').disable();
+                        }
+                    });
+
+                    scope.$watch('enableClozeTest', function (value) {
+                        var cmd = ck.getCommand('insertCloze');
+                        if (cmd) {
+                            if (!value) {
+                                cmd.disable();
+                            } else {
+                                cmd.enable();
+                            }
+                        }
                     });
 
                     function updateModel() {
-                        scope.$apply(function () {
-                            ngModel.$setViewValue(ck.getData());
+                        _.defer(function () {
+                            scope.$apply(function () {
+                                ngModel.$setViewValue(ck.getData());
+                            });
                         });
                     }
 
-                    function onChange() {
-                        updateModel();
-                    }
-                    function onKey() {
-                        updateModel();
-                    }
-                    function onDataReady() {
-                        updateModel();
-                    }
-                    function onMode() {
-                        updateModel();
-                    }
-
-                    // use "$scope.updateProperties" in controllers if needed to save the editor after losing focus a.k.a "onblur"
-                    ck.on('blur', function () {
-                        if (scope.updateProperties !== undefined) {
-                            scope.updateProperties();
-                        }
-                    });
-                    ck.on('change', onChange);
-                    ck.on('key', onKey);
-                    ck.on('dataReady', onDataReady);
-                    ck.on('mode', onMode); // Editing mode change
+                    ck.on('change', _.debounce(updateModel, 100)); // This can bring down the UI if not scaled down
+                    ck.on('dataReady', updateModel);
+                    ck.on('mode', updateModel); // Editing mode change
 
                     ngModel.$render = function (value) {
                         tmp = ngModel.$modelValue;
@@ -212,8 +211,33 @@
                     };
                 }
             };
-        })
+        }])
 
+        .directive('clozeTest', function($compile) {
+            return {
+                restrict: "E",
+                scope: {
+                    results: '=',
+                    content: '=',
+                    editable: '=?'
+                },
+                link: function(scope, element, attrs){
+                    var editable = angular.isUndefined(scope.editable) || scope.editable; // defaults to true
+                    var replacement = angular.element(scope.content);
+                    var inputs = replacement.find("input");
+                    for (var i = 0; i < inputs.length; ++i) {
+                        var input = inputs[i];
+                        var id = input.attributes.id.value;
+                        input.setAttribute('ng-model', 'results.' + id);
+                        if (!editable) {
+                            input.setAttribute('ng-disabled', 'true');
+                        }
+                    }
+                    element.replaceWith(replacement);
+                    $compile(replacement)(scope);
+                }
+            };
+        })
         .directive('uiBlur', function () {
             return function (scope, elem, attrs) {
 
@@ -336,19 +360,41 @@
                 }
             };
         }])
+        .directive('sortExam', [function () {
+            return {
+                restrict: 'A',
+                template: '<span ng-class="predicate === by ? \'sorted-column\' : \'\'" class="pointer"' +
+                'ng-click="predicate = by; reverse = !reverse">{{ text | translate }}&nbsp;' +
+                '<div ng-class="getSortClass()"></div>' +
+                '</span>',
+                scope: {
+                    predicate: '=',
+                    by: '@by',
+                    text: '@text',
+                    reverse: '='
+                }, link: function (scope, element, attrs) {
+                    scope.getSortClass = function () {
+                        return scope.predicate === scope.by ?
+                            (scope.reverse ? 'sort-img-down' : 'sort-img-up') : 'sort-img-down';
+                    };
+                }
+            };
+        }])
         .directive('teacherList', [function () {
             return {
                 restrict: 'E',
-                replace: true,
-                template: '<div><strong>' +
+                replace: false,
+                transclude: false,
+                template: '<div>' +
                 '<span ng-repeat="owner in exam.examOwners">' +
-                '{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}' +
-                '</span><br /></strong>' +
-                '<span ng-repeat="inspection in exam.examInspections">' +
+                '<strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>' +
+                '</span>' +
+                '<span ng-repeat="inspection in exam.examInspections">{{$first ? ", " : "";}}' +
                 '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +
                 '</span></div>',
                 scope: {
-                    exam: '=exam'
+                    exam: '=exam',
+                    addEnrolmentInformation: '&'
                 }
             };
         }])
@@ -356,10 +402,10 @@
             return {
                 restrict: 'E',
                 replace: true,
-                template: '<div><strong>' +
+                template: '<div>' +
                 '<span ng-repeat="owner in exam.parent.examOwners">' +
-                '{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}' +
-                '</span><br /></strong>' +
+                '<strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>' +
+                '</span><br />' +
                 '<span ng-repeat="inspection in exam.examInspections">' +
                 '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +
                 '</span></div>',
@@ -373,9 +419,9 @@
                 restrict: 'E',
                 replace: true,
                 template: '<ul class="pagination pagination-sm">' +
-                '<li ng-class="previousPageDisabled()"><a href="" ng-click="previousPage()">&larr;</a></li>' +
+                '<li ng-class="previousPageDisabled()"><a href="" ng-click="previousPage()">&#60;</a></li>' +
                 '<li ng-repeat="n in range()" ng-class="{active: isCurrent(n)}" ng-click="setPage(n)"><a href="">{{ printRange(n) }}</a></li>' +
-                '<li ng-class="nextPageDisabled()"><a target="_blank" ng-click="nextPage()">&rarr;</a></li>' +
+                '<li ng-class="nextPageDisabled()"><a target="_blank" ng-click="nextPage()">&#62;</a></li>' +
                 '</ul>',
                 scope: {
                     items: '=items',
@@ -397,7 +443,8 @@
                         if (scope.items) {
                             var begin = n * scope.pageSize + 1;
                             var end = Math.min(scope.items.length, (n + 1) * scope.pageSize);
-                            return begin + " - " + end;
+                            //return begin + " - " + end;
+                            return n + 1;
                         }
                     };
 

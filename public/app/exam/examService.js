@@ -32,6 +32,7 @@
                     ExamRes.draft.create({executionType: executionType},
                         function (response) {
                             toastr.info($translate.instant("sitnet_exam_added"));
+                            //return response.id;
                             $location.path("/exams/course/" + response.id);
                         }, function (error) {
                             toastr.error(error.data);
@@ -137,14 +138,6 @@
                     return deferred.promise;
                 };
 
-                var unique = function (array, key) {
-                    var seen = {};
-                    return array.filter(function (item) {
-                        var k = key(item);
-                        return seen.hasOwnProperty(k) ? false : (seen[k] = true);
-                    });
-                };
-
                 self.setCredit = function (exam) {
                     if (exam.customCredit !== undefined && exam.customCredit) {
                         exam.credit = exam.customCredit;
@@ -158,16 +151,18 @@
                     switch (sectionQuestion.question.type) {
                         case 'EssayQuestion':
                             var essayAnswer = sectionQuestion.essayAnswer;
-                            if (essayAnswer && essayAnswer.answer &&
-                                self.stripHtml(essayAnswer.answer).length > 0) {
-                                isAnswered = true;
-                            }
+                            isAnswered = essayAnswer && essayAnswer.answer &&
+                                self.stripHtml(essayAnswer.answer).length > 0;
                             break;
                         case 'MultipleChoiceQuestion':
                         case 'WeightedMultipleChoiceQuestion':
                             isAnswered = sectionQuestion.options.filter(function (o) {
                                     return o.answered;
                                 }).length > 0;
+                            break;
+                        case 'ClozeTestQuestion':
+                            var clozeTestAnswer = sectionQuestion.clozeTestAnswer;
+                            isAnswered = clozeTestAnswer && !_.isEmpty(clozeTestAnswer.answer);
                             break;
                         default:
                             break;
@@ -203,6 +198,10 @@
                             if (t.type === 'MATURITY') {
                                 t.name = 'sitnet_maturity';
                             }
+                            if (t.type === 'PRINTOUT') {
+                                t.name = 'sitnet_printout_exam';
+                            }
+
                         });
                         return deferred.resolve(types);
                     });
@@ -220,6 +219,9 @@
                     if (type === 'MATURITY') {
                         translation = 'sitnet_maturity';
                     }
+                    if (type === 'PRINTOUT') {
+                        translation = 'sitnet_printout_exam';
+                    }
                     return translation;
                 };
 
@@ -233,6 +235,9 @@
                                 break;
                             case "WeightedMultipleChoiceQuestion":
                                 score += questionService.scoreWeightedMultipleChoiceAnswer(sq);
+                                break;
+                            case "ClozeTestQuestion":
+                                score += questionService.scoreClozeTestAnswer(sq);
                                 break;
                             case "EssayQuestion":
                                 if (sq.essayAnswer && sq.essayAnswer.evaluatedScore && sq.evaluationType === 'Points') {
@@ -257,6 +262,7 @@
                         }
                         switch (sq.question.type) {
                             case "MultipleChoiceQuestion":
+                            case "ClozeTestQuestion":
                                 score += sq.maxScore;
                                 break;
                             case "WeightedMultipleChoiceQuestion":
@@ -321,13 +327,15 @@
 
                 self.isOwner = function (exam) {
                     var user = sessionService.getUser();
-                    return exam && exam.parent.examOwners.filter(function (o) {
+                    var examToCheck = exam && exam.parent ? exam.parent : exam;
+                    return examToCheck && examToCheck.examOwners.filter(function (o) {
                             return o.id === user.id;
                         }).length > 0;
                 };
 
                 self.isOwnerOrAdmin = function (exam) {
-                    return exam && (sessionService.getUser().isAdmin || self.isOwner(exam));
+                    var user = sessionService.getUser();
+                    return exam && user && (user.isAdmin || self.isOwner(exam));
                 };
 
             }]);

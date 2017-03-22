@@ -3,6 +3,7 @@ package util;
 import com.typesafe.config.ConfigFactory;
 import models.*;
 import models.base.OwnedModel;
+import models.iop.ExternalReservation;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -48,6 +49,10 @@ public class AppUtil {
         return ConfigFactory.load().getBoolean("sitnet.integration.enrolmentPermissionCheck.active");
     }
 
+    public static boolean isInteroperable() {
+        return ConfigFactory.load().getBoolean("sitnet.integration.iop.active");
+    }
+
     public static DateTimeZone getDefaultTimeZone() {
         String config = ConfigFactory.load().getString("sitnet.application.timezone");
         return DateTimeZone.forID(config);
@@ -70,7 +75,18 @@ public class AppUtil {
     }
 
     public static DateTime adjustDST(DateTime dateTime, Reservation reservation) {
-        return doAdjustDST(dateTime, reservation.getMachine().getRoom());
+        return reservation.getExternalReservation() != null ?
+                adjustDST(dateTime, reservation.getExternalReservation()) :
+                doAdjustDST(dateTime, reservation.getMachine().getRoom());
+    }
+
+    public static DateTime adjustDST(DateTime dateTime, ExternalReservation externalReservation) {
+        DateTime result = dateTime;
+        DateTimeZone dtz = DateTimeZone.forID(externalReservation.getRoomTz());
+        if (!dtz.isStandardOffset(System.currentTimeMillis())) {
+            result = dateTime.plusHours(1);
+        }
+        return result;
     }
 
     public static DateTime adjustDST(DateTime dateTime, ExamRoom room) {
@@ -89,6 +105,16 @@ public class AppUtil {
             result = dateTime.plusHours(1);
         }
         return result;
+    }
+
+    public static DateTime withTimeAtStartOfDayConsideringTz(DateTime src) {
+        DateTimeZone dtz = getDefaultTimeZone();
+        return src.withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
+    }
+
+    public static DateTime withTimeAtEndOfDayConsideringTz(DateTime src) {
+        DateTimeZone dtz = getDefaultTimeZone();
+        return src.plusDays(1).withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
     }
 
     public static OwnedModel setCreator(OwnedModel object, User user) {
@@ -130,6 +156,5 @@ public class AppUtil {
             Logger.info("Email sent to {}", r.getEmail());
         }
     }
-
 
 }

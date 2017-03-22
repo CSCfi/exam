@@ -1,15 +1,21 @@
 <div id="sitnet-dialog">
-    <div class="terms-dialog-header">
-        <h4 class="sitnet-white"><i class="fa fa-star-o"></i>&nbsp;&nbsp;{{'sitnet_statement' | translate}}</i></h4>
-    </div>
-    <div class="modal-body">
-        <p mathjax ng-bind-html="statement"></p>
-    </div>
-    <div class="modal-footer">
-        <div class="col-md-12 text-center">
-            <button class="btn btn-sm btn-primary" ng-click="ok()">
-                {{'sitnet_button_ok' | translate}}
-            </button>
+    <div class="student-message-dialog-wrapper-padding">
+        <div class="student-enroll-dialog-wrap">
+            <div class="student-enroll-title">{{'sitnet_give_feedback' | translate}}</div>
+        </div>
+        <div class="mart20">
+            {{inspection}}
+        </div>
+
+        <div class="mart20 student-feedback">
+            <p mathjax ng-bind-html="statement"></p>
+        </div>
+        <div class="student-message-dialog-footer">
+            <div class="student-message-dialog-button-save">
+                <button class="btn btn-sm btn-primary" ng-click="ok()">
+                    {{'sitnet_close' | translate}}
+                </button>
+            </div>
         </div>
     </div>
 </div>

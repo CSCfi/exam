@@ -7,11 +7,13 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.typesafe.config.ConfigFactory;
+import controllers.base.BaseController;
 import models.Attachment;
 import models.Comment;
 import models.Exam;
 import models.ExamSectionQuestion;
 import models.LanguageInspection;
+import models.Role;
 import models.User;
 import models.api.AttachmentContainer;
 import models.questions.EssayAnswer;
@@ -123,7 +125,11 @@ public class AttachmentController extends BaseController {
         }
         Map<String, String[]> m = body.asFormUrlEncoded();
         Long qid = Long.parseLong(m.get("questionId")[0]);
-        Question question = Ebean.find(Question.class, qid);
+        Question question = Ebean.find(Question.class)
+                .fetch("examSectionQuestions.examSection.exam.parent")
+                .where()
+                .idEq(qid)
+                .findUnique();
         if (question == null) {
             return notFound();
         }
@@ -179,6 +185,14 @@ public class AttachmentController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteExamAttachment(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
+        User user = getLoggedUser();
+        if (exam == null) {
+            return notFound();
+        }
+        if (!user.hasRole(Role.Name.ADMIN.toString(), getSession()) && !exam.isOwnedOrCreatedBy(user)) {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+
         removePrevious(exam);
         return redirect("/#/exams/" + String.valueOf(id));
     }
@@ -221,6 +235,10 @@ public class AttachmentController extends BaseController {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound();
+        }
+        User user = getLoggedUser();
+        if (!user.hasRole(Role.Name.ADMIN.toString(), getSession()) && !exam.isOwnedOrCreatedBy(user)) {
+            return forbidden("sitnet_error_access_forbidden");
         }
         String newFilePath;
         try {

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="18px" height="19px" viewBox="0 0 18 19" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 39.1 (31720) - http://www.bohemiancoding.com/sketch -->
+    <title>Book </title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M48,81.078 C45.0962,81.3068 43.0965,81.9944 42,82.482 L42,70.482 C43.0965,69.9944 45.0962,69.3068 48,69.078 L48,81.078 Z M34,69.078 C36.9038,69.3068 38.9035,69.9944 40,70.482 L40,82.482 C38.9035,81.9944 36.9038,81.3068 34,81.078 L34,69.078 Z M41,69 C41,69 38,67 32,67 L32,69 L32,81 L32,83 C36.002,83 38.6673,83.8894 40,84.482 C40.6653,84.7778 41,85 41,85 C41,85 41.3347,84.7778 42,84.482 C43.3327,83.8894 45.998,83 50,83 L50,81 L50,69 L50,67 C44,67 41,69 41,69 L41,69 Z" id="path-1"></path>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-2">
+            <feOffset dx="0" dy="1" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feColorMatrix values="0 0 0 0 0.109803922   0 0 0 0 0.109803922   0 0 0 0 0.109803922  0 0 0 1 0" type="matrix" in="shadowOffsetOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Etusivu" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Opiskelija---Etusivu-DESKTOP" transform="translate(-32.000000, -243.000000)">
+            <g id="valikko" transform="translate(0.000000, 176.000000)">
+                <g id="Book-">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+                    <use fill="#E7E7E7" fill-rule="evenodd" xlink:href="#path-1"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -52,14 +52,14 @@
                    popover-trigger="mouseenter" uib-popover="{{ 'sitnet_inactivate_room' | translate }}"
                    class="fa-stack fa-lg">
                     <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-                    <i class="fa fa-trash-o text-warning fa-stack-1x"></i>
+                    <i class="fa fa-trash-o text-warning pointer fa-stack-1x"></i>
                 </a>
                 <a ng-show="room.state === 'INACTIVE'" ng-click="enableRoom(room)" popover-placement="top"
                    popover-popup-delay="500"
                    popover-trigger="mouseenter" uib-popover="{{ 'sitnet_activate_room' | translate }}"
                    class="fa-stack fa-lg">
                     <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-                    <i class="fa fa-plus text-success fa-stack-1x"></i>
+                    <i class="fa fa-plus text-success pointer fa-stack-1x"></i>
                 </a>
 
             </span>

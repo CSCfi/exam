@@ -4,7 +4,7 @@
     </div>
 </div>
 
-<div id="dashboard" ng-init="view = 'PUBLISHED'; showExpired = false">
+<div id="dashboard" ng-init="view = 'PUBLISHED'; showExpired = false;">
 
     <!-- toolbar -->
     <div class="top-row">
@@ -97,7 +97,9 @@
                             reverse="reverse"></th>
                         <th sort by="ownerAggregate" text="sitnet_teachers" predicate="examsPredicate"
                             reverse="reverse"></th>
-                        <th sort by="examActiveEndDate" text="sitnet_exam_validity" predicate="examsPredicate"
+                        <th sort by="examActiveStartDate" text="sitnet_start_time" predicate="examsPredicate"
+                            reverse="reverse"></th>
+                        <th sort by="examActiveEndDate" text="sitnet_end_time" predicate="examsPredicate"
                             reverse="reverse"></th>
                         <th>{{ 'sitnet_copy' | translate }}</th>
                         <th>{{ 'sitnet_exam_remove' | translate }}</th>
@@ -108,9 +110,9 @@
                         <td>{{exam.course.code}}</td>
                         <td>
                             <a ng-if="exam.name" class="exams-info-title bold-button"
-                               href="/exams/{{exam.id}}">{{exam.name}}</a>
+                               href="/exams/examTabs/{{exam.id}}/1">{{exam.name}}</a>
                             <a ng-if="!exam.name" class="exams-info-title bold-button text-danger"
-                               href="/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}
+                               href="/exams/examTabs/{{exam.id}}/1">{{'sitnet_no_name' | translate}}
                             </a>
                         </td>
                         <td>{{ getExecutionTypeTranslation(exam) | translate | uppercase
@@ -120,8 +122,13 @@
                             <teacher-list exam="exam"/>
                         </td>
                         <td>
-                            <span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">
-                                {{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+                            <span ng-if="exam.examActiveStartDate">
+                                {{exam.examActiveStartDate | date:'dd.MM.yyyy'}}
+                            </span>
+                        </td>
+                        <td>
+                            <span ng-if="exam.examActiveEndDate">
+                                {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
                             </span>
                         </td>
                         <td class="text-center">

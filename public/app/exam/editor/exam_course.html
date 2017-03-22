@@ -5,91 +5,97 @@
     </a>
 </script>
 <div class="col-md-12" ng-controller="CourseTypeaheadCtrl">
-    <div class="sitnet-info-text col-md-12 row">{{'sitnet_course' | translate}}:</div>
-    <div class="col-md-12 section-border">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="sitnet-info-text">{{'sitnet_course_code' | translate}}:</div>
-                <div class="input-group">
-                    <input type="text" class="form-control ng-pristine ng-valid"
-                           ng-disabled="!user.isAdmin && newExam.hasEnrolmentsInEffect"
-                           ng-model="newExam.course.code"
-                           ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
-                           placeholder="{{'sitnet_search_course_by_code' | translate}}"
-                           uib-typeahead="c as c.code for c in getCourses('code', $viewValue)"
-                           typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
-                           typeahead-wait-ms="200"
-                           typeahead-focus-first="false"
-                           typeahead-min-length="2"
-                           typeahead-template-url="course_template.html"
-                           typeahead-loading="loadingCoursesByCode">
-                               <span class="input-group-addon">
-                                    <i ng-hide="loadingCoursesByCode" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" uib-popover="{{'sitnet_course_unique_code' | translate}}"></i>
-                                    <i ng-show="loadingCoursesByCode" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
-                               </span>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="sitnet-info-text">{{'sitnet_course_name' | translate}}:</div>
-                <div class="input-group">
-                    <input type="text" class="form-control ng-pristine ng-valid"
-                           ng-disabled="!user.isAdmin && newExam.hasEnrolmentsInEffect"
-                           ng-model="newExam.course.name"
-                           ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
-                           uib-typeahead="c as c.name for c in getCourses('name', $viewValue)"
-                           typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
-                           typeahead-wait-ms="200"
-                           typeahead-focus-first="false"
-                           typeahead-min-length="2"
-                           typeahead-template-url="course_template.html"
-                           typeahead-loading="loadingCoursesByName">
-                               <span class="input-group-addon">
-                                   <i ng-hide="loadingCoursesByName" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" uib-popover="{{'sitnet_course_name' | translate}}"></i>
-                                   <i ng-show="loadingCoursesByName" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
-                               </span>
-                </div>
-            </div>
+    <div class="row margin-20">
+        <div class="col-md-3">
         </div>
+        <div class="col-md-3">
+            <div class="exam-basic-selecttitle">{{'sitnet_course_code' | translate}}</div>
+        </div>
+        <div class="col-md-6">
+            <div class="exam-basic-selecttitle">{{'sitnet_course_name' | translate}}</div>
+        </div>
+    </div>
 
-        <!-- Course scope and organization name input elements -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="sitnet-info-text">{{'sitnet_course_scope' | translate}}:</div>
-                <div class="input-group">
-                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits" disabled>
-                            <span class="input-group-addon">
-                                <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" uib-popover="{{'sitnet_course_scope' | translate}}"></i>
-                            </span>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}:</div>
-                <div class="input-group">
-                    <input disabled type="text" class="form-control ng-pristine ng-valid"
-                           ng-model="newExam.course.organisation.name">
-                            <span class="input-group-addon">
-                                <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" uib-popover="{{'sitnet_faculty_name' | translate}}"></i>
-                            </span>
-                </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="exam-basic-title">{{'sitnet_course' | translate}}
+                <sup><img popover-placement="right" popover-trigger="mouseenter"
+                          uib-popover="{{'sitnet_select_exam_course_description' | translate}}"
+                          src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                          onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
             </div>
         </div>
-        <div class="row" ng-show="newExam.course.gradeScale">
-            <div class="col-md-6">
-                <div class="col-md-12 row sitnet-info-text">{{'sitnet_grade_scale' | translate}}:</div>
-                <div class="col-md-12 row">{{displayGradeScale(newExam.course.gradeScale)}}</div>
+        <div class="col-md-3">
+            <div class="input-group">
+                <input type="text" class="form-control ng-pristine ng-valid"
+                       ng-disabled="!user.isAdmin && newExam.hasEnrolmentsInEffect"
+                       ng-model="newExam.course.code"
+                       ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
+                       placeholder="{{'sitnet_search_course_by_code' | translate}}"
+                       uib-typeahead="c as c.code for c in getCourses('code', $viewValue)"
+                       typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
+                       typeahead-wait-ms="200"
+                       typeahead-focus-first="false"
+                       typeahead-min-length="2"
+                       typeahead-template-url="course_template.html"
+                       typeahead-loading="loadingCoursesByCode">
+                           <span class="input-group-addon">
+                                <i ng-hide="loadingCoursesByCode" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" uib-popover="{{'sitnet_course_unique_code' | translate}}"></i>
+                                <i ng-show="loadingCoursesByCode" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
+                           </span>
             </div>
         </div>
-        <div class="row" ng-hide="newExam.course === undefined">
-            <div class="row col-md-12">
-                <div class="sitnet-info-text col-md-12">{{'sitnet_enrolment_url' | translate}}:</div>
-            </div>
-            <div class="row col-md-12">
-                <div class="col-md-12">
-                    <a href="{{ hostname.hostname }}/enroll/{{ newExam.course.code }}/exam/{{ newExam.id }}">
-                        {{ hostname.hostname }}/enroll/{{ newExam.course.code }}/exam/{{ newExam.id }}</a>
-                </div>
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" class="form-control ng-pristine ng-valid"
+                       ng-disabled="!user.isAdmin && newExam.hasEnrolmentsInEffect"
+                       ng-model="newExam.course.name"
+                       ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
+                       uib-typeahead="c as c.name for c in getCourses('name', $viewValue)"
+                       typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
+                       typeahead-wait-ms="200"
+                       typeahead-focus-first="false"
+                       typeahead-min-length="2"
+                       typeahead-template-url="course_template.html"
+                       typeahead-loading="loadingCoursesByName">
+                           <span class="input-group-addon">
+                               <i ng-hide="loadingCoursesByName" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" uib-popover="{{'sitnet_course_name' | translate}}"></i>
+                               <i ng-show="loadingCoursesByName" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
+                           </span>
             </div>
         </div>
     </div>
+
+    <!-- Course scope and organization name elements -> 3 rows -->
+    <div class="row margin-20">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-3">
+            <div class="">{{'sitnet_course_scope' | translate}}</div>
+        </div>
+        <div class="col-md-6">
+            <div class="">{{newExam.course.credits}}</div>
+        </div>
+    </div>
+    <div class="row margin-20">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-3">
+            <div class="">{{'sitnet_faculty_name' | translate}}</div>
+        </div>
+        <div class="col-md-6">
+            <div class="">{{newExam.course.organisation.name}}</div>
+        </div>
+    </div>
+    <div class="row margin-20" ng-show="newExam.course.gradeScale">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-3">
+            <div class="">{{'sitnet_grade_scale' | translate}}</div>
+        </div>
+        <div class="col-md-6">
+            <div class="">{{displayGradeScale(newExam.course.gradeScale)}}</div>
+        </div>
+    </div>
+
 </div>

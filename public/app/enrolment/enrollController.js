@@ -2,8 +2,8 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('EnrollController', ['$scope', '$routeParams', 'examService', 'enrolmentService', 'dateService',
-            'EXAM_CONF',
-            function ($scope, $routeParams, examService, enrolmentService, dateService, EXAM_CONF) {
+            'EXAM_CONF', '$location',
+            function ($scope, $routeParams, examService, enrolmentService, dateService, EXAM_CONF, $location) {
 
                 $scope.enrollPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/enroll.html";
                 $scope.examPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/exam.html";
@@ -31,6 +31,9 @@
 
                 enrolmentService.listEnrolments($scope, $routeParams.code, $routeParams.id);
 
+                $scope.makeReservation = function (exam) {
+                    $location.path("/calendar/" + exam.id);
+                };
 
             }]);
 }());

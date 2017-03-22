@@ -10,15 +10,22 @@
                       fileService, sessionService, enrolmentService) {
 
                 $scope.sectionsBar = EXAM_CONF.TEMPLATES_PATH + "exam/student/student_sections_bar.html";
-                $scope.multipleChoiceOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
-                $scope.weightedMultipleChoiceOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/weighted_multiple_choice_option.html";
-                $scope.essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/essay_question.html";
+
+                var multipleChoiceOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
+                var weightedMultipleChoiceOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/weighted_multiple_choice_option.html";
+                var essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/essay_question.html";
+                var clozeTestQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/cloze_test_question.html";
                 $scope.sectionTemplate = EXAM_CONF.TEMPLATES_PATH + "exam/student/section_template.html";
 
                 // section back / forward buttons
                 $scope.pages = [];
                 $scope.previousButton = {};
                 $scope.nextButton = {};
+                $scope.showClock = true;
+
+                $scope.clockManagement = function () {
+                    $scope.showClock = !$scope.showClock;
+                };
 
                 var isPreview = function () {
                     return $location.path().match(/preview/) && $routeParams.id;
@@ -76,9 +83,17 @@
                         if ($scope.activeSection && $scope.activeSection.sectionQuestions) {
                             angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
                                 var question = sectionQuestion.question;
-                                var essayAnswer = sectionQuestion.essayAnswer;
-                                if (question.type === "EssayQuestion" && essayAnswer && essayAnswer.answer.length > 0) {
-                                    $scope.saveEssay(sectionQuestion, true);
+                                if (question.type === "EssayQuestion") {
+                                    var essayAnswer = sectionQuestion.essayAnswer;
+                                    if (essayAnswer && essayAnswer.answer.length > 0) {
+                                        $scope.saveTextualAnswer(sectionQuestion, true);
+                                    }
+                                }
+                                if (question.type === "ClozeTestQuestion") {
+                                    var clozeTestAnswer = sectionQuestion.clozeTestAnswer;
+                                    if (clozeTestAnswer && !_.isEmpty(clozeTestAnswer.answer)) {
+                                        $scope.saveTextualAnswer(sectionQuestion, true);
+                                    }
                                 }
                             });
                         }
@@ -109,13 +124,16 @@
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
                                 setSelection(sectionQuestion);
-                                template = $scope.multipleChoiceOptionTemplate;
+                                template = multipleChoiceOptionTemplate;
                                 break;
                             case "WeightedMultipleChoiceQuestion":
-                                template = $scope.weightedMultipleChoiceOptionTemplate;
+                                template = weightedMultipleChoiceOptionTemplate;
                                 break;
                             case "EssayQuestion":
-                                template = $scope.essayQuestionTemplate;
+                                template = essayQuestionTemplate;
+                                break;
+                            case "ClozeTestQuestion":
+                                template = clozeTestQuestionTemplate;
                                 break;
                             default:
                                 template = "fa-question-circle";
@@ -143,11 +161,21 @@
                             data.examSections.sort(function (a, b) {
                                 return a.sequenceNumber - b.sequenceNumber;
                             });
+                            data.examSections.forEach(function (es) {
+                                es.sectionQuestions.filter(function (esq) {
+                                    return esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer.answer;
+                                }).forEach(function (esq) {
+                                    esq.clozeTestAnswer.answer = JSON.parse(esq.clozeTestAnswer.answer);
+                                });
+                            });
+
+
                             $scope.exam = data;
                             if ($scope.exam.instruction && $scope.exam.instruction.length > 0) {
                                 // Add guide page
                                 $scope.pages.push('guide');
                             }
+
                             // set sections and question numbering
                             angular.forEach($scope.exam.examSections, function (section, index) {
                                 section.index = index + 1;
@@ -268,7 +296,7 @@
 
                 $scope.setActiveSection = function (sectionId) {
                     if (!isPreview() && $scope.activeSection && !$scope.guide) {
-                        saveAllEssaysOfSection($scope.activeSection);
+                        saveAllTextualAnswersOfSection($scope.activeSection);
                     }
                     // next
                     setNextButton(sectionId);
@@ -300,12 +328,12 @@
                         return;
                     }
                     var userNo = user.userNo ? ' (' + user.userNo + ')' : '';
-                    return user.firstname + " " + user.lastname + userNo;
+                    return user.firstName + " " + user.lastName + userNo;
                 };
 
                 // Called when the exit button is clicked
                 $scope.exitPreview = function () {
-                    $location.path("/exams/" + $routeParams.id);
+                    $location.path("/exams/examTabs/"+$routeParams.id+"/"+$routeParams.tab);
                 };
 
                 $scope.showMaturityInstructions = function (exam) {
@@ -330,9 +358,11 @@
                                 qid: question.id,
                                 oids: ids
                             },
-                            function (options) {
+                            function () {
                                 toastr.info($translate.instant('sitnet_answer_saved'));
-                                question.options = options;
+                                question.options.forEach(function (o) {
+                                    o.answered = ids.indexOf(o.id) > -1;
+                                });
                                 examService.setQuestionColors(question);
                             }, function (error) {
 
@@ -351,30 +381,32 @@
                     return $filter('truncate')(content, offset);
                 };
 
-                $scope.saveEssay = function (question, autosave) {
-                    question.questionStatus = $translate.instant("sitnet_answer_saved");
-
+                $scope.saveTextualAnswer = function (esq, autosave) {
+                    esq.questionStatus = $translate.instant("sitnet_answer_saved");
                     if (isPreview()) {
-                        examService.setQuestionColors(question);
+                        examService.setQuestionColors(esq);
                     } else {
                         var deferred = $q.defer();
                         var params = {
                             hash: $scope.exam.hash,
-                            qid: question.id
+                            qid: esq.id
                         };
+                        var type = esq.question.type;
+                        var answerObj = type === 'EssayQuestion' ? esq.essayAnswer : esq.clozeTestAnswer;
+                        var resource = type === 'EssayQuestion' ? StudentExamRes.essayAnswer.saveEssay : StudentExamRes.clozeTestAnswer.save;
                         var msg = {
-                            answer: question.essayAnswer.answer,
-                            objectVersion: question.essayAnswer ? question.essayAnswer.objectVersion : undefined
+                            answer: answerObj.answer,
+                            objectVersion: answerObj.objectVersion
                         };
-                        StudentExamRes.essayAnswer.saveEssay(params, msg,
+                        resource(params, msg,
                             function (answer) {
                                 if (autosave) {
-                                    question.autosaved = new Date();
+                                    esq.autosaved = new Date();
                                 } else {
                                     toastr.info($translate.instant("sitnet_answer_saved"));
-                                    examService.setQuestionColors(question);
+                                    examService.setQuestionColors(esq);
                                 }
-                                question.essayAnswer.objectVersion = answer.objectVersion;
+                                answerObj.objectVersion = answer.objectVersion;
                                 deferred.resolve();
                             }, function (error) {
                                 toastr.error(error.data);
@@ -384,15 +416,24 @@
                     }
                 };
 
-                var saveAllEssaysOfSection = function (section) {
+                var isTextualAnswer = function(esq) {
+                    switch (esq.question.type) {
+                        case "EssayQuestion":
+                            return esq.essayAnswer && esq.essayAnswer.answer.length > 0;
+                        case "ClozeTestQuestion":
+                            return esq.clozeTestAnswer && !_.isEmpty(esq.clozeTestAnswer.answer);
+                        default:
+                            return false;
+                    }
+                };
+
+                var saveAllTextualAnswersOfSection = function (section) {
                     var deferred = $q.defer();
                     var promises = [];
-                    angular.forEach(section.sectionQuestions, function (sectionQuestion) {
-                        var question = sectionQuestion.question;
-                        var essayAnswer = sectionQuestion.essayAnswer;
-                        if (question.type === "EssayQuestion" && essayAnswer && essayAnswer.answer.length > 0) {
-                            promises.push($scope.saveEssay(sectionQuestion, true));
-                        }
+                    section.sectionQuestions.filter(function (esq) {
+                        return isTextualAnswer(esq);
+                    }).forEach(function (esq) {
+                        promises.push($scope.saveTextualAnswer(esq, true));
                     });
                     $q.all(promises).then(function () {
                         deferred.resolve();
@@ -400,16 +441,14 @@
                     return deferred.promise;
                 };
 
-                var saveAllEssays = function () {
+                var saveAllTextualAnswers = function () {
                     var deferred = $q.defer();
                     var promises = [];
                     $scope.exam.examSections.forEach(function (section) {
                         section.sectionQuestions.filter(function (sq) {
-                            var essayAnswer = sq.essayAnswer;
-                            return sq.question.type === "EssayQuestion" && essayAnswer &&
-                                essayAnswer.answer.length > 0;
+                            return isTextualAnswer(sq);
                         }).forEach(function (sq) {
-                            promises.push($scope.saveEssay(sq, true));
+                            promises.push($scope.saveTextualAnswer(sq, true));
                         });
                     });
                     $q.all(promises).then(function () {
@@ -464,7 +503,7 @@
                 $scope.saveExam = function (exam) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_turn_exam'));
                     dialog.result.then(function () {
-                        saveAllEssays().then(function () {
+                        saveAllTextualAnswers().then(function () {
                             logout('sitnet_exam_returned');
                         });
                     });
@@ -489,13 +528,11 @@
                     var promises = [];
                     if (!$scope.guide) {
                         $scope.activeSection.sectionQuestions.filter(function (sq) {
-                            var essayAnswer = sq.essayAnswer;
-                            return sq.question.type === "EssayQuestion" && essayAnswer &&
-                                essayAnswer.answer.length > 0;
+                            return isTextualAnswer(sq);
                         }).forEach(function (question) {
-                            promises.push($scope.saveEssay(question));
+                            promises.push($scope.saveTextualAnswer(question));
                         });
-                        // Finally turn the exam (regardless of whether every essay saved successfully) and logout
+                        // Finally turn the exam (regardless of whether every answer saved successfully) and logout
                         $q.allSettled(promises).then(function () {
                             logout("sitnet_exam_time_is_up");
                         });
@@ -575,9 +612,8 @@
 
                     modalInstance.result.then(function () {
                         // OK button
+                        // TODO Why is there a redirect?
                         $location.path('/student/exam/' + $routeParams.hash);
-                    }, function () {
-                        // Cancel button
                     });
                 };
 

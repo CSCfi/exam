@@ -2,11 +2,18 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import be.objectify.deadbolt.java.actions.SubjectPresent;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+import controllers.base.ActionMethod;
+import controllers.base.BaseController;
 import exceptions.NotFoundException;
-import models.*;
+import models.Language;
+import models.Organisation;
+import models.Role;
+import models.Session;
+import models.User;
 import models.dto.Credentials;
 import org.joda.time.DateTime;
 import play.Environment;
@@ -28,6 +35,7 @@ public class SessionController extends BaseController {
     @Inject
     Environment environment;
 
+    @ActionMethod
     public Result login() {
         Result result;
         switch (LOGIN_TYPE) {
@@ -170,8 +178,8 @@ public class SessionController extends BaseController {
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
         result.put("token", token);
-        result.put("firstname", user.getFirstName());
-        result.put("lastname", user.getLastName());
+        result.put("firstName", user.getFirstName());
+        result.put("lastName", user.getLastName());
         result.put("lang", user.getLanguage().getCode());
         result.set("roles", Json.toJson(user.getRoles()));
         result.set("permissions", Json.toJson(user.getPermissions()));
@@ -240,7 +248,7 @@ public class SessionController extends BaseController {
         return result;
     }
 
-    @ActionMethod
+    @SubjectPresent
     public Result setLoginRole(Long uid, String roleName) {
         Session session = getSession();
         if (session == null) {

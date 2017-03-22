@@ -17,7 +17,7 @@ echo 'Keys:'
 ${SED} -e 's/\"//g' -e 's/^\s*//g' -e 's/:.*$//g' -e '/^{/d' -e '/^}/d' $1
 echo '\n======'
 echo 'Values:'
-${SED} -e 's/\"//g' -e 's/^\s*//g' -e 's/,\s*$//g' -e 's/^.*: //g' -e '/^{/d' -e '/^}/d' $1
+${SED} -e 's/\"//g' -e 's/^\s*//g' -e 's/,\s*$//g' -e 's/^.*[a-zA-Z0-9_]*: //g' -e '/^{/d' -e '/^}/d' $1
 echo '\n======'
 
 exit 0;

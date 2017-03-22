@@ -1,6 +1,8 @@
+import scala.util.Properties
+
 name := "exam"
 
-version := "3.2.9"
+version := "3.3.0-RC1"
 
 lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
@@ -16,7 +18,7 @@ libraryDependencies ++= Seq(javaJdbc, cache , javaWs, evolutions, filters,
   "net.sf.opencsv" % "opencsv" % "2.3",
   "org.jsoup" % "jsoup" % "1.8.3",
   "net.sf.biweekly" % "biweekly" % "0.4.3",
-  "com.google.code.gson" % "gson" % "2.4" % "test",
+  "com.google.code.gson" % "gson" % "2.4",
   "com.jayway.jsonpath" % "json-path" % "2.0.0" % "test",
   "com.icegreen" % "greenmail" % "1.4.1" % "test",
   "org.eclipse.jetty" % "jetty-server" % "9.2.13.v20150730" % "test",
@@ -32,6 +34,7 @@ libraryDependencies ++= Seq(
   "org.webjars.bower" % "angular-i18n" % "1.4.7",
   "org.webjars.bower" % "angular-resource" % "1.4.7",
   "org.webjars.bower" % "angular-route" % "1.4.7",
+  "org.webjars.bower" % "angular-mocks" % "1.4.7",
   "org.webjars.bower" % "angular-sanitize" % "1.4.7",
   "org.webjars.bower" % "angular-translate" % "2.11.0",
   "org.webjars.bower" % "angular-translate-loader-static-files" % "2.11.0",
@@ -55,10 +58,13 @@ libraryDependencies ++= Seq(
   "org.webjars" % "jquery-ui-touch-punch" % "0.2.3-2",
   "org.webjars" % "toastr" % "2.1.1",
   "org.webjars" % "angular-ui-bootstrap" % "0.14.3",
-  "org.webjars" % "ui-select2" % "0.0.5-1"
+  "org.webjars" % "ui-select2" % "0.0.5-1",
+  "org.webjars" % "underscorejs" % "1.8.3"
 )
 
 dependencyOverrides += "org.webjars.bower" % "angular" % "1.4.7"
+
+dependencyOverrides += "org.webjars.bower" % "angular-sanitize" % "1.4.7"
 
 dependencyOverrides += "org.webjars.bower" % "jquery" % "2.1.4"
 
@@ -68,4 +74,35 @@ routesImport += "util.scala.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 
-// PlayKeys.playRunHooks += Karma(baseDirectory.value)
+/**
+ * Karma test task.
+ */
+lazy val karmaTest = taskKey[Int]("Karma test task")
+karmaTest := {
+  baseDirectory.value + "/node_modules/karma/bin/karma start karma.conf.ci.js" !
+}
+
+/**
+ * Web driver update task.
+ */
+lazy val webDriver = taskKey[Int]("Web driver update task")
+webDriver := {
+  baseDirectory.value + "/node_modules/protractor/bin/webdriver-manager update" !
+}
+
+test in Test := {
+  if (karmaTest.value != 0)
+    sys.error("Karma tests failed!")
+  (test in Test).value
+}
+
+val conf = Properties.propOrEmpty("config.resource")
+
+PlayKeys.playRunHooks += {
+  if (conf.equals("protractor.conf") && webDriver.value == 0)
+    Protractor(baseDirectory.value,
+      Properties.propOrElse("protractor.config", "conf.js"),
+      Properties.propOrElse("protractor.args", " "))
+  else
+    Karma(baseDirectory.value)
+}

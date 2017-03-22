@@ -4,9 +4,12 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
+import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
+import controllers.base.BaseController;
 import models.*;
 import models.questions.EssayAnswer;
 import models.questions.Question;
@@ -37,13 +40,7 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
@@ -122,28 +119,34 @@ public class ReviewController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamReview(Long eid) {
-        Exam exam = createQuery()
+        ExpressionList<Exam> query = createQuery()
                 .where()
                 .eq("id", eid)
                 .disjunction()
-                .eq("state", Exam.State.ABORTED)
                 .eq("state", Exam.State.REVIEW)
                 .eq("state", Exam.State.REVIEW_STARTED)
                 .eq("state", Exam.State.GRADED)
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .eq("state", Exam.State.REJECTED)
-                .eq("state", Exam.State.ARCHIVED)
-                .endJunction()
-                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
-                .findUnique();
+                .eq("state", Exam.State.ARCHIVED);
+        User user = getLoggedUser();
+        boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
+        if (isAdmin) {
+            query = query.eq("state", Exam.State.ABORTED);
+        }
+        query = query.endJunction();
+        Exam exam = query.orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber").findUnique();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        User user = getLoggedUser();
-        if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !user.hasRole("ADMIN", getSession()) &&
-                !exam.isViewableForLanguageInspector(user)) {
+        if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !isAdmin && !exam.isViewableForLanguageInspector(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
+        exam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion
+                        && esq.getClozeTestAnswer() != null)
+                .forEach( esq -> esq.getClozeTestAnswer().setQuestionWithResults(esq));
         return ok(exam);
     }
 
@@ -152,7 +155,7 @@ public class ReviewController extends BaseController {
         User user = getLoggedUser();
         Set<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
-                .fetch("exam", "id, name, state, gradedTime, customCredit, creditType, answerLanguage, trialCount")
+                .fetch("exam", "id, name, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount")
                 .fetch("exam.grade", "id, name")
                 .fetch("exam.gradeScale")
                 .fetch("exam.gradeScale.grades", new FetchConfig().query())
@@ -161,6 +164,7 @@ public class ReviewController extends BaseController {
                 .fetch("exam.executionType")
                 .fetch("exam.examFeedback")
                 .fetch("exam.languageInspection")
+                .fetch("exam.examSections.sectionQuestions.clozeTestAnswer") // for getting the scores (see below)
                 .fetch("exam.examSections.sectionQuestions.question") // for getting the scores (see below)
                 .fetch("exam.examLanguages", new FetchConfig().query())
                 .fetch("exam.course", "code, credits")
@@ -203,7 +207,9 @@ public class ReviewController extends BaseController {
             essayQuestion.setEssayAnswer(answer);
             essayQuestion.update();
         }
-        answer.setEvaluatedScore(Integer.parseInt(df.get("evaluatedScore")));
+        String essayScore = df.get("evaluatedScore");
+        Double score = essayScore == null ? null : Double.parseDouble(essayScore);
+        answer.setEvaluatedScore(round(score));
         answer.update();
         return ok(Json.toJson(essayQuestion));
     }
@@ -216,13 +222,18 @@ public class ReviewController extends BaseController {
             return notFound("sitnet_exam_not_found");
         }
         User user = getLoggedUser();
-        if (!exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
+        Exam.State newState = Exam.State.valueOf(df.get("state"));
+        if (!isAllowedToModify(exam, user, newState)) {
             return forbidden("You are not allowed to modify this object");
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden("Not allowed to update grading of this exam");
         }
 
+        if (isRejectedInLanguageInspection(exam, user, newState)) {
+            // Just update state, do not allow other modifications here
+            return updateReviewState(exam, newState, true);
+        }
         Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
         String additionalInfo = df.get("additionalInfo") == null ? null : df.get("additionalInfo");
         if (grade != null) {
@@ -257,26 +268,13 @@ public class ReviewController extends BaseController {
         }
         exam.setAdditionalInfo(additionalInfo);
         exam.setAnswerLanguage(df.get("answerLanguage"));
-        exam.setState(Exam.State.valueOf(df.get("state")));
 
         if (df.get("customCredit") != null) {
             exam.setCustomCredit(Double.parseDouble(df.get("customCredit")));
         } else {
             exam.setCustomCredit(null);
         }
-        // set user only if exam is really graded, not just modified
-        if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)) {
-            exam.setGradedTime(new Date());
-            exam.setGradedByUser(getLoggedUser());
-            if (exam.hasState(Exam.State.REJECTED)) {
-                // inform student
-                notifyPartiesAboutPrivateExamRejection(exam);
-            }
-        }
-        exam.generateHash();
-        exam.update();
-
-        return ok();
+        return updateReviewState(exam, newState, false);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -383,6 +381,24 @@ public class ReviewController extends BaseController {
         }
         return ok(comment);
     }
+
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public Result addInspectionComment(Long id) {
+        Exam exam = Ebean.find(Exam.class, id);
+        if (exam == null) {
+            return notFound("Inspection not found");
+        }
+        DynamicForm df = formFactory.form().bindFromRequest();
+        InspectionComment ic = new InspectionComment();
+        User user = getLoggedUser();
+        AppUtil.setCreator(ic, user);
+        AppUtil.setModifier(ic, user);
+        ic.setComment(df.get("comment"));
+        ic.setExam(exam);
+        ic.save();
+        return ok(ic, PathProperties.parse("(creator(firstName, lastName, email), created, comment)"));
+    }
+
 
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
@@ -544,10 +560,43 @@ public class ReviewController extends BaseController {
         return ok(body);
     }
 
+
+    private boolean isRejectedInLanguageInspection(Exam exam, User user, Exam.State newState) {
+        LanguageInspection li = exam.getLanguageInspection();
+        return newState == Exam.State.REJECTED && li != null && !li.getApproved() &&
+                li.getFinishedAt() != null && user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE);
+    }
+
+    private boolean isAllowedToModify(Exam exam, User user, Exam.State newState) {
+        return exam.getParent().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession()) ||
+                isRejectedInLanguageInspection(exam, user, newState);
+    }
+
+    private Result updateReviewState(Exam exam, Exam.State newState, boolean stateOnly) {
+        exam.setState(newState);
+        // set grading info only if exam is really graded, not just modified
+        if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)) {
+            if (!stateOnly) {
+                exam.setGradedTime(new Date());
+                exam.setGradedByUser(getLoggedUser());
+            }
+            if (exam.hasState(Exam.State.REJECTED)) {
+                // inform student
+                notifyPartiesAboutPrivateExamRejection(exam);
+            }
+        }
+        exam.generateHash();
+        exam.update();
+        return ok();
+    }
+
     private void notifyPartiesAboutPrivateExamRejection(Exam exam) {
         User user = getLoggedUser();
+        final Set<User> examinators = exam.getExecutionType().getType().equals(
+                ExamExecutionType.Type.MATURITY.toString())
+                ? exam.getParent().getExamOwners() : Collections.emptySet();
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+            emailComposer.composeInspectionReady(exam.getCreator(), user, exam, examinators);
             Logger.info("Inspection rejection notification email sent");
         }, actor.dispatcher());
     }
@@ -573,9 +622,12 @@ public class ReviewController extends BaseController {
                 .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
                 .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore")
                 .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
+                .fetch("examSections.sectionQuestions.clozeTestAnswer", "id, question, answer, score")
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")
+                .fetch("inspectionComments")
+                .fetch("inspectionComments.creator", "firstName, lastName, email")
                 .fetch("languageInspection")
                 .fetch("languageInspection.assignee", "firstName, lastName, email")
                 .fetch("languageInspection.statement")

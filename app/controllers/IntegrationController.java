@@ -3,6 +3,7 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
@@ -14,6 +15,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
+import controllers.api.ExternalAPI;
+import controllers.base.BaseController;
 import models.*;
 import models.dto.ExamScore;
 import org.joda.time.DateTime;
@@ -124,8 +127,13 @@ public class IntegrationController extends BaseController implements ExternalAPI
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public CompletionStage<Collection<String>> getPermittedCourses(User user) throws MalformedURLException {
-        URL url = parseUrl(user);
+    public CompletionStage<Collection<String>> getPermittedCourses(User user) {
+        URL url;
+        try {
+            url = parseUrl(user);
+        } catch (MalformedURLException e) {
+           return CompletableFuture.supplyAsync(Collections::emptyList);
+        }
         WSRequest request = wsClient.url(url.toString().split("\\?")[0]);
         if (url.getQuery() != null) {
             request = request.setQueryString(url.getQuery());
@@ -185,7 +193,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return request.get().thenApplyAsync(onSuccess);
     }
 
-    private static List<GradeScale> getGradeScales(JsonNode src) {
+    private List<GradeScale> getGradeScales(JsonNode src) {
         JsonNode node = src;
         List<GradeScale> scales = new ArrayList<>();
         if (node.has("gradeScale")) {
@@ -223,6 +231,9 @@ public class IntegrationController extends BaseController implements ExternalAPI
                         Grade g = new Grade();
                         g.setName(grade.get("description").asText());
                         g.setGradeScale(gs);
+                        // Dumb JSON API gives us boolean values as strings
+                        g.setMarksRejection(Boolean.valueOf(
+                                parse("isRejected", grade, String.class, "false")));
                         g.save();
                     }
                     scales.add(gs);
@@ -234,13 +245,13 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return scales;
     }
 
-    @ActionMethod
+    @SubjectNotPresent
     public Result getNewRecords(String startDate) {
         return ok(Json.toJson(getScores(startDate)));
     }
 
     // for testing purposes
-    @ActionMethod
+    @SubjectNotPresent
     public Result getNewRecordsAlphabeticKeyOrder(String startDate) {
         try {
             return ok(convertNode(Json.toJson(getScores(startDate))));
@@ -272,7 +283,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
     }
 
-    private static Optional<Course> parseCourse(JsonNode node) throws ParseException {
+    private Optional<Course> parseCourse(JsonNode node) throws ParseException {
         // check that this is a course node, response can also contain error messages and so on
         if (node.has("identifier") && node.has("courseUnitCode") && node.has("courseUnitTitle") && node.has("institutionName")) {
             Course course = new Course();
@@ -332,7 +343,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return Optional.empty();
     }
 
-    private static List<Course> parseCourses(JsonNode response) throws ParseException {
+    private List<Course> parseCourses(JsonNode response) throws ParseException {
         List<Course> results = new ArrayList<>();
         if (response.get("status").asText().equals("OK") && response.has("CourseUnitInfo")) {
             JsonNode root = response.get("CourseUnitInfo");
@@ -361,11 +372,11 @@ public class IntegrationController extends BaseController implements ExternalAPI
         }
     }
 
-    @ActionMethod
+    @SubjectNotPresent
     public Result getReservations(Optional<String> start, Optional<String> end, Optional<Long> roomId) {
         PathProperties pp = PathProperties.parse("(startAt, endAt, noShow, " +
                 "user(firstName, lastName, email, userIdentifier), " +
-                "enrolment(exam(name, examOwners(firstName, lastName, email))), " +
+                "enrolment(exam(name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)))), " +
                 "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))");
         Query<Reservation> query = Ebean.find(Reservation.class);
         pp.apply(query);
@@ -384,11 +395,11 @@ public class IntegrationController extends BaseController implements ExternalAPI
         if (roomId.isPresent()) {
             el = el.eq("machine.room.id", roomId.get());
         }
-        List<Reservation> reservations = el.orderBy("startAt").findList();
+        Set<Reservation> reservations = el.orderBy("startAt").findSet();
         return ok(reservations, pp);
     }
 
-    @ActionMethod
+    @SubjectNotPresent
     public Result getRooms() {
         PathProperties pp = PathProperties.parse("(*, defaultWorkingHours(*), " +
                 "organization(*), mailAddress(*), examMachines(*))");
@@ -398,7 +409,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
         return ok(rooms, pp);
     }
 
-    @ActionMethod
+    @SubjectNotPresent
     public Result getRoomOpeningHours(Long roomId, Optional<String> date) {
         if (!date.isPresent()) {
             return badRequest("no search date given");

@@ -1,124 +1,184 @@
 <div id="studentexam">
+
+
     <div class="row">
-        <!-- LEFT COLUMN -->
-        <div class="col-md-8 exam-content-wrapper">
-            <div class="exam-content-column">
-
-                <!-- HEADER -->
-                <div class="row">
-                    <div id="sitnet-header" class="header">
-                        <div class="col-md-5 header-wrapper">
-                            <span class="header-text">{{headerText | translate}}</span>
-                        </div>
-                        <div class="col-md-7" style="line-height: 4em;">
-                            <span class="locale-item"> <a ng-click="switchLanguage('fi')">FIN</a></span>
-                            <span class="locale-item"> <a ng-click="switchLanguage('sv')">SWE</a></span>
-                            <span class="locale-item"> <a ng-click="switchLanguage('en')">ENG</a></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- EXAM AREA -->
-                <div class="row">
-                    <div class="col-md-12 bottom-padding-2">
-                        <div class="row" ng-show="!guide">
-                            <div class="col-md-12 studentexam-header">
-                                <span class="fa-stack fa-lg">
-                                  <i class="fa fa-stop fa-stack-2x sitnet-text-notice"></i>
-                                  <span class="fa-stack-1x sitnet-text">{{activeSection.index}}.</span>
-                                </span>
-                                <span class="sitnet-text">{{activeSection.name}}</span>
-                                    <span ng-show="isPreview() && activeSection.lotteryOn" class="sitnet-text-medium">
-                                        <small>({{ 'sitnet_lottery_questions' | translate }})</small>
-                                    </span>
-                            </div>
-                        </div>
-                        <div class="row" ng-show="guide">
-                            <div class="col-md-12 studentexam-header">
-                                <span class="fa-stack fa-lg">
-                                  <i class="fa fa-stop fa-stack-2x sitnet-text-notice"></i>
-                                  <span class="fa fa-info-circle fa-stack-1x sitnet-text"></span>
-                                </span>
-                                <span class="sitnet-text">{{'sitnet_exam_guide' | translate}}</span>
-                            </div>
-                        </div>
-
-                        <div class="row bottom-padding-2">
-                            <div class="col-md-12">
-                                <div class="section-container">
-                                    <div class="list-group" ng-include="sectionTemplate">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- SECTION NAVIGATION ARROWS AND LABELS -->
-                        <div class="row exam-navigation">
-                            <span class="col-md-12">
-                                <!-- PREVIOUS SECTION BUTTON -->
-                                <a class="blue_button" ng-show="previousButton.valid && !guide"
-                                   ng-click="setPreviousSection()">
-                                    <i class="fa fa-arrow-left sitnet-text-theme"></i><span>{{ previousButton.text }}</span>
-                                </a>
-                                <!-- NEXT SECTION BUTTON -->
-                                <a class="blue_button" ng-show="nextButton.valid" ng-click="setNextSection()">
-                                    <span>{{ nextButton.text }} </span><i
-                                        class="fa fa-arrow-right sitnet-text-theme icon_to_right"></i>
-                                </a>
-                            </span>
-                        </div>
-
-                    </div>
-                </div>
+        <div class="exam-header">
+            <div class="exam-header-img-wrap"><img src="../../../assets/assets/images/exam-logo-mobile.svg" alt="exam"
+                                                   onerror="this.onerror=null;this.src='../../../assets/assets/images/exam-logo-mobile.png'"/>
             </div>
-        </div>
+            <div class="exam-header-title divider"></div>
+            <div class="exam-header-title">{{ exam.course.name }} <span>{{ exam.course.code }}</span></div>
 
-        <!-- RIGHT COLUMN -->
-        <div class="col-md-4 floating-section">
+            <div class="language-selector">
+                <a class="exam-clock-text" ng-click="switchLanguage('fi')">FI</a>
+                <a class="exam-clock-text" ng-click="switchLanguage('sv')">SV</a>
+                <a class="exam-clock-text" ng-click="switchLanguage('en')">EN</a>
+                <span class="exam-header-title divider"></span>
+            </div>
+
             <div class="floating-clock">
                 <div class="header-wrapper">
                     <span ng-hide="isPreview()">
-                        <span class="exam-clock-text"><span class="sitnet-text-dark">{{'sitnet_exam_time_left' | translate}}</span></span>
+                        <span ng-if="showClock" class="exam-clock-text"><span
+                                class="sitnet-white">{{'sitnet_exam_time_left' | translate}}: </span></span>
                         <span class="exam-clock">
-                            <span ng-if="remainingTime > alarmLine">{{formatRemainingTime(remainingTime)}}</span>
-                            <span ng-if="remainingTime <= alarmLine" class="sitnet-text-alarm">{{formatRemainingTime(remainingTime)}}</span>
+                            <span ng-if="remainingTime > alarmLine && showClock">{{formatRemainingTime(remainingTime)}}</span>
+                            <span ng-if="remainingTime <= alarmLine && showClock" class="sitnet-text-alarm">{{formatRemainingTime(remainingTime)}}</span>
+                            <span class="clock-hide" ng-if="!showClock"><i>Kello piilotettu</i></span>
                         </span>
                     </span>
+                    <span><img ng-click="clockManagement()" src="../../../assets/assets/images/icon_clock.svg"
+                               alt="exam"
+                               onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_clock.png'"/></span>
                 </div>
             </div>
-            <!-- SECTIONS AREA -->
-            <div class="top-padding-2">
-                <div class="col-md-12 bottom-padding-2">
-                    <div class="info-column">
-                            <span class="header col-md-6">
-                                <span class="sitnet-text-dark">{{ 'sitnet_logged_in_as' | translate }}:</span>
-                            </span>
-                        <span class="text col-md-6">{{ getUser() }}</span>
-                    </div>
-                </div>
 
-                <div class="col-md-12">
-                    <div class="info-column">
-                            <span class="header col-md-6"><span
-                                    class="sitnet-text-dark">{{ 'sitnet_course_name' | translate }}:</span></span>
-                        <span class="text col-md-6">{{ exam.course.name }}&nbsp;</span>
-                    </div>
-                    <div class="info-column">
-                        <span class="header col-md-6 sitnet-text-dark"><span class="sitnet-text-dark">{{ 'sitnet_course_code' | translate }}:</span></span>
-                        <span class="text col-md-6">{{ exam.course.code }}&nbsp;</span>
-                    </div>
-                    <div class="info-column">
-                        <span class="header col-md-6 sitnet-text-dark"><span class="sitnet-text-dark">{{ 'sitnet_exam_name' | translate }}:</span></span>
-                        <span class="text col-md-6">{{ exam.name }}&nbsp;</span>
-                    </div>
-                    <div class="info-column">
-                        <span class="header col-md-6 sitnet-text-dark"><span class="sitnet-text-dark">{{ 'sitnet_exam_duration' | translate }}:</span></span>
-                        <span class="text col-md-6">{{ printExamDuration(exam) }}&nbsp;</span>
-                    </div>
-                </div>
-                <div class="col-md-12 top-padding-2 bottom-padding-2" ng-include="sectionsBar"></div>
-            </div>
         </div>
 
     </div>
+
+
+    <!-- LEFT COLUMN -->
+    <div class="col-md-8 col-xs-8">
+
+        <!-- EXAM AREA -->
+        <div class="bottom-padding-2">
+            <div class="row marr10" ng-show="!guide">
+                <div class="col-md-12 studentexam-header">
+                    <span class="exam-title">{{activeSection.index}}. {{activeSection.name}}</span>
+                    <span ng-show="isPreview() && activeSection.lotteryOn" class="sitnet-text-medium">
+                                <small>({{ 'sitnet_lottery_questions' | translate }})</small>
+                            </span>
+                </div>
+                <div class="guide-column">
+                    <div class="list-group" ng-include="sectionTemplate"></div>
+                </div>
+            </div>
+
+            <div ng-show="guide">
+                <div class="studentexam-header">
+                    <span class="exam-title">{{'sitnet_exam_guide' | translate}}</span>
+                </div>
+
+                <div class="guide-wrapper marr0 pad-15 col-md-12">
+                    <div class="guide-column">
+                        <span class="header col-md-4"><span>{{ 'sitnet_course_name' | translate }}:</span></span>
+                        <span class="text col-md-8">{{ exam.course.name }}&nbsp;</span>
+                    </div>
+                    <div class="guide-column">
+                        <span class="header col-md-4"><span>{{ 'sitnet_course_code' | translate }}:</span></span>
+                        <span class="text col-md-8">{{ exam.course.code }}&nbsp;</span>
+                    </div>
+                    <div class="guide-column">
+                        <span class="header col-md-4"><span>{{ 'sitnet_exam_name' | translate }}:</span></span>
+                        <span class="text col-md-8">{{ exam.name }}&nbsp;</span>
+                    </div>
+                    <div class="guide-column">
+                        <span class="header col-md-4"><span>{{ 'sitnet_exam_duration' | translate }}:</span></span>
+                        <span class="text col-md-8">{{ printExamDuration(exam) }}&nbsp;</span>
+                    </div>
+
+                    <div class="guide-column padtop">
+                        <span>{{ 'sitnet_exam_guide' | translate }}:</span>
+                    </div>
+                    <div class="guide-column">
+                        <div class="list-group" ng-include="sectionTemplate"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- SECTION NAVIGATION ARROWS AND LABELS -->
+            <div class="row exam-navigation">
+                    <span class="col-md-12">
+                        <!-- PREVIOUS SECTION BUTTON -->
+                        <a class="green_button previous" ng-show="previousButton.valid && !guide"
+                           ng-click="setPreviousSection()">
+                            <img class="arrow_icon" src="../../../assets/assets/images/icon_left_white.png"> {{ previousButton.text }}
+                        </a>
+                        <!-- NEXT SECTION BUTTON -->
+                        <a class="green_button" ng-show="nextButton.valid" ng-click="setNextSection()">
+                            {{ nextButton.text }} <img class="arrow_icon"
+                                                       src="../../../assets/assets/images/icon_right_white.png">
+                        </a>
+                    </span>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-md-4 col-xs-4 padl0 marb20" style="padding-top:19px;">
+
+
+        <!-- SECTIONS AREA -->
+        <div class="top-padding-6">
+            <div class="row bottom-padding-2 right-column-box padr15 padl15">
+
+                <!-- USERNAME -->
+                <div class="info-column bot-border">
+                    <img src="../../../assets/assets/images/icon_user.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_user.png'"/><span
+                        class="user-span">{{ getUser() }}</span>
+                </div>
+
+                <!-- SAVE -->
+                <div class="" ng-hide="isPreview()">
+                    <div class="pointer" ng-click="saveExam(exam)">
+                        <a class="green_button save-and-exit">{{'sitnet_save_and_return_exam' | translate}}</a>
+                    </div>
+                </div>
+
+                <!-- ABORT -->
+                <div class="button-separator" ng-hide="isPreview()">
+                    <div class="pointer" ng-click="abortExam(exam)">
+                        <a class="grey-button abort-and-exit">
+                            <img src="../../../assets/assets/images/icon_exit.svg" alt="exam"
+                                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_exit.png'"/><span
+                                class="abort-and-exit">{{'sitnet_abort_exam' | translate}}</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COURSE NAME -->
+            <div class="padl15">
+                <div class="more-separators"></div>
+            </div>
+            <div class="right-title">{{ exam.course.name }}</div>
+
+            <!-- ATTACHMENT -->
+            <div class="padl20" ng-show="exam.attachment" ng-controller="AttachmentController">
+                <div class="row pointer attachment-button" ng-click="downloadExamAttachment(exam)">
+                    <a class="green_button left-floater">
+                        {{'sitnet_exam_attachment' | translate}} <img
+                            src="../../../assets/assets/images/icon_attachment.svg" alt="exam"
+                            onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_attachment.png'"/>
+                    </a>
+                </div>
+                <div class="attachment-name">{{exam.attachment.fileName | uppercase}}</div>
+
+            </div>
+
+
+            <div class="top-padding-2 bottom-padding-2 padl15" ng-include="sectionsBar"></div>
+
+
+            <div class="top-padding-2 padl40" ng-show="isPreview()">
+                <div class="row pointer" ng-click="exitPreview(exam)">
+                    <a class="col-md-1 fa-stack">
+                        <i class="fa fa-stop-o fa-stack-2x"></i>
+                        <i class="fa fa-ban fa-stack-2x sitnet-text-alarm font20"/>
+                    </a>
+                    <div class="col-md-10 vcenter padl05">
+                        {{'sitnet_exit_preview' | translate}}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 </div>

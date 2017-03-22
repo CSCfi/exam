@@ -29,12 +29,18 @@
                         "update": {method: "PUT"}
                     }
                 ),
-                exception: $resource("/app/exception/:id",
+                exceptions: $resource("/app/exception",
+                    {},
                     {
-                        id: "@id"
+                        "update": {method: "PUT"}
+                    }),
+
+                exception: $resource("/app/rooms/:roomId/exception/:exceptionId",
+                    {
+                        roomId: "@roomId",
+                        exceptionId: "@exceptionId"
                     },
                     {
-                        "update": {method: "PUT"},
                         "remove": {method: "DELETE"}
                     }),
 
