@@ -38,7 +38,7 @@ angular.module('exam').config(['$translateProvider', '$routeProvider', '$httpPro
         });
 
         /* main navigation */
-        $routeProvider.when('/', {templateUrl: tmpl + 'common/home.html', controller: 'DashboardCtrl'});
+        $routeProvider.when('/', {template: '<dashboard></dashboard>'});
         $routeProvider.when('/questions', {templateUrl: tmpl + 'question/questions.html', controller: 'LibraryCtrl'});
         $routeProvider.when('/exams', {templateUrl: tmpl + 'exam/exams.html', controller: 'ExamListingController'});
 
@@ -62,20 +62,18 @@ angular.module('exam').config(['$translateProvider', '$routeProvider', '$httpPro
         });
 
         /* booking */
-        $routeProvider.when('/calendar/:id', {templateUrl: tmpl + 'reservation/calendar.html'});
+        $routeProvider.when('/calendar/:id', {template: tmpl + 'reservation/calendar.html'});
         $routeProvider.when('/iop/calendar/:id', {templateUrl: tmpl + 'reservation/iop/external_calendar.html'});
 
         $routeProvider.when('/invalid_session', {templateUrl: tmpl + 'common/invalid_session.html'});
 
         /* extra */
-        $routeProvider.when('/login', {templateUrl: tmpl + 'common/login.html', controller: 'SessionCtrl'});
-        $routeProvider.when('/logout', {templateUrl: tmpl + 'common/login.html', controller: 'SessionCtrl'});
-        $routeProvider.when('/machines/:id', {templateUrl: tmpl + 'facility/machine.html', controller: 'MachineCtrl'});
+        $routeProvider.when('/logout', {template: '<logout></logout>'});
         $routeProvider.when('/softwares', {templateUrl: tmpl + 'facility/software.html', controller: 'RoomCtrl'});
-        $routeProvider.when('/accessibility', {
-            templateUrl: tmpl + 'facility/accessibility.html',
-            controller: 'AccessibilityCtrl'
-        });
+
+        $routeProvider.when('/accessibility', {template: '<accessibility></accessibility>'});
+        $routeProvider.when('/machines/:id', {template: '<machine></machine>'});
+
         $routeProvider.when('/softwares/update/:id/:name', {
             templateUrl: tmpl + 'facility/software.html',
             controller: 'RoomCtrl'
@@ -108,7 +106,7 @@ angular.module('exam').config(['$translateProvider', '$routeProvider', '$httpPro
             controller: 'ExamSearchCtrl'
         });
         $routeProvider.when('/student/finishedexams', {
-            templateUrl: tmpl + 'common/student/finished_exams.html',
+            templateUrl: tmpl + 'exam/student/finished_exams.html',
             controller: 'ExamFeedbackController'
         });
         $routeProvider.when('/student/logout/:reason?', {
@@ -139,14 +137,9 @@ angular.module('exam').config(['$translateProvider', '$routeProvider', '$httpPro
             templateUrl: tmpl + 'exam/student/exam.html',
             controller: 'StudentExamController'
         });
-        $routeProvider.when('/reservations', {
-            templateUrl: tmpl + 'reservation/teacher_reservations.html',
-            controller: 'ReservationCtrl'
-        });
-        $routeProvider.when('/reservations/:eid', {
-            templateUrl: tmpl + 'reservation/teacher_reservations.html',
-            controller: 'ReservationCtrl'
-        });
+        $routeProvider.when('/reservations', {template: '<reservations user-role="teacher"></reservations>'});
+        $routeProvider.when('/reservations/:eid', {template: '<reservations user-role="teacher"></reservations>'});
+
         $routeProvider.when('/exams/examTabs/:id/:tab', {templateUrl: tmpl + 'exam/examTabs.html'});
 
         /* Admin */
@@ -158,8 +151,8 @@ angular.module('exam').config(['$translateProvider', '$routeProvider', '$httpPro
         });
         $routeProvider.when('/reports', {template: '<reports></reports>'});
         $routeProvider.when('/statistics', {template: '<statistics></statistics>'});
-        $routeProvider.when('/settings', {templateUrl: tmpl + 'administrative/settings.html'});
-        $routeProvider.when('/users', {templateUrl: tmpl + 'administrative/users.html', controller: 'UserCtrl'});
+        $routeProvider.when('/settings', {template: '<settings></settings>'});
+        $routeProvider.when('/users', {template: '<users></users>'});
 
 
         /* Print */

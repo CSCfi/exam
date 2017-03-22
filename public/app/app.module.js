@@ -34,6 +34,11 @@ angular.module('exam', [
     'exam.directives',
     'exam.filters',
     'exam.utils',
-    'administrative'
+    'administrative',
+    'dashboard',
+    'facility',
+    'navigation',
+    'reservation',
+    'session'
 ]);
 

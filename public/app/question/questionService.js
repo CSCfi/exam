@@ -2,8 +2,8 @@
     'use strict';
     angular.module('exam.services')
         .service('questionService', ['$q', '$translate', '$location', '$sessionStorage', 'QuestionRes',
-            'ExamSectionQuestionRes', 'sessionService', 'fileService', 'AttachmentRes',
-            function ($q, $translate, $location, $sessionStorage, QuestionRes, ExamSectionQuestionRes, sessionService,
+            'ExamSectionQuestionRes', 'Session', 'fileService', 'AttachmentRes',
+            function ($q, $translate, $location, $sessionStorage, QuestionRes, ExamSectionQuestionRes, Session,
                       fileService, AttachmentRes) {
 
                 var self = this;
@@ -27,7 +27,7 @@
                     return {
                         examSectionQuestions: [],
                         options: [],
-                        questionOwners: [sessionService.getUser()],
+                        questionOwners: [Session.getUser()],
                         state: 'NEW',
                         tags: [],
                         type: questionType

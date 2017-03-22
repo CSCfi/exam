@@ -1,10 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'sessionService', '$location', '$uibModal', '$http',
+        .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'Session', '$location', '$uibModal', '$http',
             'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'EXAM_CONF', 'dateService', '$translate', '$route',
             'SettingsResource', 'InteroperabilityResource',
-            function (dialogs, $scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource,
+            function (dialogs, $scope, $routeParams, Session, $location, $modal, $http, SoftwareResource,
                       RoomResource, ExamMachineResource, EXAM_CONF, dateService, $translate, $route, SettingsRes,
                       InteroperabilityRes) {
 
@@ -13,7 +13,7 @@
                 $scope.machineTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/machine.html";
                 $scope.addressTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/address.html";
                 $scope.hoursTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/open_hours.html";
-                $scope.user = sessionService.getUser();
+                $scope.user = Session.getUser();
                 $scope.examStartingHours = Array.apply(null, new Array(24)).map(function (x, i) {
                     return {startingHour: i + ":00", selected: true};
                 });

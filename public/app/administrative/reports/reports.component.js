@@ -4,7 +4,7 @@ angular.module("administrative.reports")
     .component('reports', {
         templateUrl: '/assets/app/administrative/reports/reports.template.html',
         controller: ['$translate', 'EXAM_CONF', 'Reports', 'RoomResource', 'dateService', '$filter', 'UserRes', 'fileService',
-            function Reports($translate, EXAM_CONF, Reports, RoomResource, dateService, $filter, UserRes, fileService) {
+            function ($translate, EXAM_CONF, Reports, RoomResource, dateService, $filter, UserRes, fileService) {
 
                 var ctrl = this;
 

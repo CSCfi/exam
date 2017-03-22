@@ -1,11 +1,11 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('QuestionOwnerController', ['$scope', '$uibModalInstance', 'question', 'sessionService', '$translate',
+        .controller('QuestionOwnerController', ['$scope', '$uibModalInstance', 'question', 'Session', '$translate',
             'QuestionRes', 'UserRes', 'limitToFilter',
-            function ($scope, $modalInstance, question, sessionService, $translate, QuestionRes, UserRes, limitToFilter) {
+            function ($scope, $modalInstance, question, Session, $translate, QuestionRes, UserRes, limitToFilter) {
 
-                $scope.user = sessionService.getUser();
+                $scope.user = Session.getUser();
                 $scope.question = question;
 
                 $scope.newOwner = {id: null, name: null};

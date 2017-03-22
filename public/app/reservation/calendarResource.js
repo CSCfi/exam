@@ -3,7 +3,8 @@
     angular.module("exam.resources")
         .factory("CalendarRes", ['$resource', function ($resource) {
             return {
-                slots: $resource("/app/calendar/:eid/:rid", {eid: "@eid", rid: "@rid"})
+                slots: $resource("/app/calendar/:eid/:rid", {eid: "@eid", rid: "@rid"}),
+                reservationWindow: $resource("/app/settings/reservationWindow")
             };
         }]);
 }());

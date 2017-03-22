@@ -1,12 +1,12 @@
 (function() {
     'use strict';
     angular.module("exam.controllers")
-        .controller('WaitingRoomCtrl', ['$scope', '$http', '$timeout', '$translate', '$location', 'sessionService',
+        .controller('WaitingRoomCtrl', ['$scope', '$http', '$timeout', '$translate', '$location', 'Session',
             'StudentExamRes', 'waitingRoomService', 'dateService', 'enrolmentService',
-            function($scope, $http, $timeout, $translate, $location, sessionService, StudentExamRes, waitingRoomService,
+            function($scope, $http, $timeout, $translate, $location, Session, StudentExamRes, waitingRoomService,
                      dateService, enrolmentService) {
 
-                var user = sessionService.getUser();
+                var user = Session.getUser();
 
                 var calculateOffset = function() {
                     var startsAt = moment($scope.enrolment.reservation.startAt);
@@ -78,7 +78,7 @@
                 };
 
                 $scope.getUsername = function() {
-                    return sessionService.getUserName();
+                    return Session.getUserName();
                 };
 
                 $scope.showInstructions = function(enrolment) {

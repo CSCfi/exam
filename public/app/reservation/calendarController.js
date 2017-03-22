@@ -44,7 +44,7 @@
                     uiCalendarConfig.calendars.myCalendar.fullCalendar('gotoDate', moment.max(moment(),
                         moment($scope.examInfo.examActiveStartDate)));
                 });
-                SettingsResource.reservationWindow.get(function (setting) {
+                CalendarRes.reservationWindow.get(function (setting) {
                     $scope.reservationWindowSize = setting.value;
                     $scope.reservationWindowEndDate = moment().add(setting.value, 'days');
                 });

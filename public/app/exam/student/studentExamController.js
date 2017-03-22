@@ -3,11 +3,11 @@
     angular.module("exam.controllers")
         .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$filter', '$q', '$interval',
             '$routeParams', '$sce', '$http', '$uibModal', '$location', '$translate', '$timeout', 'EXAM_CONF',
-            'StudentExamRes', 'dateService', 'examService', 'questionService', 'fileService', 'sessionService',
+            'StudentExamRes', 'dateService', 'examService', 'questionService', 'fileService', 'Session',
             'enrolmentService',
             function (dialogs, $rootScope, $scope, $filter, $q, $interval, $routeParams, $sce, $http, $modal, $location,
                       $translate, $timeout, EXAM_CONF, StudentExamRes, dateService, examService, questionService,
-                      fileService, sessionService, enrolmentService) {
+                      fileService, Session, enrolmentService) {
 
                 $scope.sectionsBar = EXAM_CONF.TEMPLATES_PATH + "exam/student/student_sections_bar.html";
 
@@ -323,7 +323,7 @@
                 };
 
                 $scope.getUser = function () {
-                    var user = sessionService.getUser();
+                    var user = Session.getUser();
                     if (!user) {
                         return;
                     }
