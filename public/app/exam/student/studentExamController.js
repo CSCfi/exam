@@ -287,7 +287,7 @@
                     }
                     $scope.previousButton = {valid: true};
                     if (previousPage !== 'guide') {
-                        $scope.previousButton.text = findSection(previousPage).name;
+                        $scope.previousButton.text = findSection(sectionId).name;
                         return;
                     }
                     $scope.previousButton.isGuide = true;

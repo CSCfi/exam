@@ -378,7 +378,6 @@ public class StudentExamController extends BaseController {
             GradeEvaluation ge = it.next();
             int threshold = 0;
             if (ge.getPercentage() > percentage) {
-                // Grade falls short of threshold
                 grade = prev == null ? ge.getGrade() : prev.getGrade();
                 threshold = prev == null ? ge.getPercentage() : prev.getPercentage();
             }

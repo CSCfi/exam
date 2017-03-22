@@ -362,11 +362,6 @@ public class Question extends OwnedModel implements AttachmentContainer {
         return new EqualsBuilder().append(id, other.getId()).build();
     }
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(id).build();
-    }
-
     public Question copy() {
         Question question = new Question();
         BeanUtils.copyProperties(this, question, "id", "options", "tags", "children");

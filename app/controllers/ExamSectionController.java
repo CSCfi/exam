@@ -280,10 +280,6 @@ public class ExamSectionController extends QuestionController {
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        if (exam.getAutoEvaluationConfig() != null && question.getType() == Question.Type.EssayQuestion) {
-            return forbidden("not possible to insert essay questions when autoevaluation is turned on");
-        }
-
         // TODO: response payload should be trimmed down (use path properties)
         return insertQuestion(exam, section, question, user, seq)
                 .orElse(ok(Json.toJson(section)));
