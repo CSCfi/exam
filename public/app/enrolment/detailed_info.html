@@ -6,16 +6,21 @@
     </div>
 </div>
 
-
-<div class="student-enrolment-wrapper details-view">
+<div class="student-enrolment-wrapper details-view marr20">
         <div class="student-exam-header-row">
             <div class="student-message-dialog-button-save" ng-if="!exam.alreadyEnrolled && !exam.noTrialsLeft">
                 <button class="btn btn-success" ng-click="enrollExam(exam)">{{'sitnet_enroll_to_exam' | translate}}</button>
             </div>
-            <div class="student-details-indicator" ng-if="exam.alreadyEnrolled">{{'sitnet_enrolled_to_exam' | translate}}</div>
+            <div class="student-details-indicator" ng-if="exam.alreadyEnrolled && exam.reservationMade">{{'sitnet_enrolled_to_exam' | translate}}</div>
 
             <div class="student-details-title">{{exam.name}}</div>
-            <div class="student-details-subtitle">{{exam.course.code}}</div>
+            <div class="student-details-subtitle">
+                <span ng-if="!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft"
+                      class="exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
+                <span ng-if="exam.reservationMade"
+                      class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
+
+            </div>
         </div>
         <div >
             <div class="row">
@@ -23,7 +28,7 @@
                         {{ 'sitnet_course_name' | translate }}:
                 </div>
                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                    {{ exam.course.name }}
+                    {{exam.course.code}} {{ exam.course.name }}
                 </div>
                 <div class="clearfix visible-xs"></div>
                 <div class="clearfix visible-sm"></div>
@@ -113,6 +118,14 @@
                 </div>
                 <div ng-bind-html="exam.maturityInstructions"></div>
             </div>
+
+            <div ng-if="!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft" class="student-message-dialog-button-save">
+
+                <a class="link-button"
+                   href="/calendar/{{exam.id}}">{{'sitnet_student_new_reservation'
+                    | translate}}</a>
+            </div>
+
 
         </div>
 </div>

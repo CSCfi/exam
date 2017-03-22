@@ -9,7 +9,7 @@ import javax.persistence.Id;
 @Entity
 public class ExamExecutionType extends Model {
 
-    public enum Type { PRIVATE, PUBLIC, MATURITY }
+    public enum Type { PRIVATE, PUBLIC, MATURITY, PRINTOUT }
 
     @Id
     private Integer id;

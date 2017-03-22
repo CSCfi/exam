@@ -1,19 +1,23 @@
 <div id="sitnet-dialog">
-    <div class="terms-dialog-header">
-        <h4 class="sitnet-white"><i class="fa fa-user"></i>&nbsp;&nbsp;{{'sitnet_accept_useragreement' | translate}}</i></h4>
-    </div>
-    <div class="modal-body" ng-controller="SettingsController">
-        <div ng-bind-html="eula.value">
+
+    <div class="student-message-dialog-wrapper-padding">
+        <div class="student-enroll-dialog-wrap">
+            <div class="student-enroll-title">{{'sitnet_accept_useragreement' | translate}}</div>
         </div>
-    </div>
-    <div class="modal-footer">
-        <div class="col-md-6">
-            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_decline' | translate}}</button>
+        <div class="modal-body" ng-controller="SettingsController">
+            <div ng-bind-html="eula.value">
+            </div>
         </div>
-        <div class="col-md-6">
-            <button class="btn btn-sm btn-primary" ng-click="ok()">
-                {{'sitnet_button_accept' | translate}}
-            </button>
+        <div class="student-message-dialog-footer">
+            <div class="student-message-dialog-button-save">
+                <button class="btn btn-sm btn-primary" ng-click="ok()">
+                    {{'sitnet_button_accept' | translate}}
+                </button>
+            </div>
+            <div class="student-message-dialog-button-cancel">
+                <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_decline' | translate}}
+                </button>
+            </div>
         </div>
     </div>
 </div>

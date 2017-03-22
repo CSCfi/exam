@@ -12,16 +12,28 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import exceptions.NotFoundException;
-import models.*;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamParticipation;
+import models.ExamRoom;
+import models.Reservation;
+import models.User;
 import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
+import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 
 public class ReservationController extends BaseController {
@@ -218,7 +230,7 @@ public class ReservationController extends BaseController {
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result getReservations(Optional<String> state, Optional<Long> ownerId, Optional<Long> studentId,
                                   Optional<Long> roomId, Optional<Long> machineId, Optional<Long> examId,
-                                  Optional<Long> start, Optional<Long> end) {
+                                  Optional<String> start, Optional<String> end) {
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state, trialCount")
@@ -242,12 +254,14 @@ public class ReservationController extends BaseController {
         }
 
         if (start.isPresent()) {
-            DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
+            DateTime startDate = AppUtil.withTimeAtStartOfDayConsideringTz(
+                    DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser()));
             query = query.ge("reservation.startAt", startDate.toDate());
         }
 
         if (end.isPresent()) {
-            DateTime endDate = new DateTime(end.get()).plusDays(1).withTimeAtStartOfDay();
+            DateTime endDate = AppUtil.withTimeAtEndOfDayConsideringTz(
+                    DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser()));
             query = query.lt("reservation.endAt", endDate.toDate());
         }
 

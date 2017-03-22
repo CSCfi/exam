@@ -23,8 +23,6 @@
                 $scope.nextButton = {};
                 $scope.showClock = true;
 
-                $scope.clozeAnswers = {};
-
                 $scope.clockManagement = function () {
                     $scope.showClock = !$scope.showClock;
                 };
@@ -335,7 +333,7 @@
 
                 // Called when the exit button is clicked
                 $scope.exitPreview = function () {
-                    $location.path("/exams/" + $routeParams.id);
+                    $location.path("/exams/examTabs/"+$routeParams.id+"/"+$routeParams.tab);
                 };
 
                 $scope.showMaturityInstructions = function (exam) {
@@ -360,9 +358,11 @@
                                 qid: question.id,
                                 oids: ids
                             },
-                            function (options) {
+                            function () {
                                 toastr.info($translate.instant('sitnet_answer_saved'));
-                                question.options = options;
+                                question.options.forEach(function (o) {
+                                    o.answered = ids.indexOf(o.id) > -1;
+                                });
                                 examService.setQuestionColors(question);
                             }, function (error) {
 
@@ -495,7 +495,7 @@
                         window.onbeforeunload = null;
                         $location.path("/student/logout/finished");
                     }, function (error) {
-                        toastr.error($translate.instant(error));
+                        toastr.error($translate.instant(error.data));
                     });
                 };
 

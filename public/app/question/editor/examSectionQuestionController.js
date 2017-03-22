@@ -6,6 +6,14 @@
             function ($rootScope, $scope, $q, $modal, $translate, $location, $timeout, QuestionRes, ExamSectionQuestionRes,
                       questionService, EXAM_CONF, $sce, fileService, dialogs) {
 
+                $scope.examNames = [];
+                $scope.isInPublishedExam = false;
+                $scope.questionCorrectOption = '';
+
+                $scope.showWarning = function () {
+                    return $scope.examNames.length > 1;
+                };
+
                 $scope.getOptions = function () {
                     return $scope.sectionQuestion.options;
                 };
@@ -38,12 +46,28 @@
                     $scope.sectionQuestion.options.push({option: option});
                 };
 
-                $scope.removeOption = function (option) {
+                $scope.removeOption = function (selectedOption) {
+
                     if ($scope.lotteryOn) {
                         toastr.error($translate.instant("sitnet_action_disabled_lottery_on"));
                         return;
                     }
-                    $scope.sectionQuestion.options.splice($scope.sectionQuestion.options.indexOf(option), 1);
+
+                    var hasCorrectAnswer = $scope.sectionQuestion.options.filter(function (o) {
+                            return o.id != selectedOption.id && (o.option.correctOption || o.option.defaultScore > 0);
+                        }).length > 0;
+
+                    // Either not published exam or correct answer exists
+                    if (!$scope.isInPublishedExam || hasCorrectAnswer) {
+                        $scope.sectionQuestion.options.splice($scope.sectionQuestion.options.indexOf(selectedOption), 1);
+                    } else {
+                        toastr.error($translate.instant("sitnet_action_disabled_minimum_options"));
+                    }
+
+                };
+
+                $scope.calculateDefaultMaxPoints = function (question) {
+                    return questionService.calculateDefaultMaxPoints(question);
                 };
 
                 $scope.correctAnswerToggled = function (option) {
@@ -151,6 +175,9 @@
                     QuestionRes.questions.get({id: $scope.sectionQuestion.question.id}, function (data) {
                         $scope.question = data;
                         var examNames = $scope.question.examSectionQuestions.map(function (esq) {
+                            if (esq.examSection.exam.state == 'PUBLISHED') {
+                                $scope.isInPublishedExam = true;
+                            }
                             return esq.examSection.exam.name;
                         });
                         // remove duplicates

@@ -3,6 +3,8 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.base.GeneratedIdentityModel;
 import models.iop.ExternalReservation;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.Interval;
 
 import javax.annotation.Nonnull;
@@ -129,5 +131,22 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
     @Override
     public int compareTo(@Nonnull Reservation o) {
         return startAt.compareTo(o.startAt);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Reservation)) return false;
+        Reservation that = (Reservation) o;
+        return new EqualsBuilder()
+                .append(id, that.id)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .toHashCode();
     }
 }

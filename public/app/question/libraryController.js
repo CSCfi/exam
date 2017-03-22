@@ -1,10 +1,13 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('LibraryCtrl', ['dialogs', '$q', '$filter', '$sce', '$scope', '$rootScope', '$location', '$translate', 'sessionService', 'QuestionRes',
-            'questionService', 'ExamRes', 'CourseRes', 'TagRes', 'UserRes',
-            function (dialogs, $q, $filter, $sce, $scope, $rootScope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
-
+        .controller('LibraryCtrl', ['dialogs', '$q', '$filter', '$sce', '$scope', '$rootScope', '$location',
+                    '$translate', 'sessionService', 'QuestionRes', 'questionService', 'ExamRes', 'CourseRes',
+                    'TagRes', 'UserRes', 'EXAM_CONF',
+            function (dialogs, $q, $filter, $sce, $scope, $rootScope, $location, 
+                        $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes,
+                        TagRes, UserRes, EXAM_CONF) {
+        
                 var step = 100;
 
                 $scope.pageSize = 25;
@@ -17,6 +20,17 @@
                 $scope.limitations = {};
                 $scope.filter = {};
                 $scope.moreQuestions = false;
+                $scope.addEditQuestion = {};
+                $scope.addEditQuestion.showForm = false;
+                $scope.libCtrl = {};
+                $scope.libCtrl.from = true;
+
+                $scope.templates = {
+                    newQuestion: EXAM_CONF.TEMPLATES_PATH + "question/editor/question.html",
+                    dialogQuestion: EXAM_CONF.TEMPLATES_PATH + "question/editor/dialog_question.html",
+                    librarySearch: EXAM_CONF.TEMPLATES_PATH + "question/library_search.html",
+                    libraryResults: EXAM_CONF.TEMPLATES_PATH + "question/library_results.html"
+                };
 
                 $scope.session = sessionService;
 
@@ -25,6 +39,25 @@
                 var htmlDecode = function (text) {
                     return $('<div/>').html(text).text();
                 };
+
+                $scope.constructQuestion = function() {
+                    if(!$scope.addEditQuestion.showForm) {
+                        $scope.addEditQuestion.showForm=true;
+                        $scope.baseQuestionId = null;
+                    }
+                    else {
+                        $scope.addEditQuestion.showForm=false;
+                        $scope.baseQuestionId = null;
+                    };
+                }
+
+                $scope.setBaseQuestionId = function(questionId) {
+
+                    $scope.addEditQuestion.id = questionId;
+                    $scope.baseQuestionId = questionId;
+                    $scope.addEditQuestion.showForm=true
+                }
+
 
                 $scope.applyFreeSearchFilter = function () {
                     if ($scope.filter.text) {
@@ -81,6 +114,16 @@
                     var isSelected = angular.element("." + selectAllCssClass).prop("checked");
                     angular.forEach(angular.element("." + checkboxesCssClass), function (input) {
                         angular.element(input).prop("checked", isSelected);
+                    });
+                };
+
+                $scope.countSelections = function () {
+                    $scope.total = 0;
+                    angular.forEach(angular.element(".questionToUpdate"), function (input) {
+                        if(angular.element(input).prop("checked")) {
+                            $scope.total+=1;
+                        }
+
                     });
                 };
 
@@ -379,12 +422,17 @@
                     });
                 };
 
-                $scope.copyQuestion = function (question) {
+                $scope.copyQuestion = function (question, fromDialog) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_copy_question'));
                     dialog.result.then(function (btn) {
                         QuestionRes.question.copy({id: question.id}, function (copy) {
                             toastr.info($translate.instant('sitnet_question_copied'));
-                            $location.path("/questions/" + copy.id);
+                            if(fromDialog) {
+                                $scope.setBaseQuestionId(copy.id);
+                            }
+                            else  {
+                                $location.path("/questions/" + copy.id);
+                            }
                         });
                     });
                 };

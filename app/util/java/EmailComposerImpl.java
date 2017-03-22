@@ -63,7 +63,7 @@ class EmailComposerImpl implements EmailComposer {
      * This notification is sent to student, when teacher has reviewed the exam
      */
     @Override
-    public void composeInspectionReady(User student, User reviewer, Exam exam) {
+    public void composeInspectionReady(User student, User reviewer, Exam exam, Set<User> cc) {
         String templatePath = getTemplatesRoot() + "reviewReady.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(student);
@@ -90,7 +90,8 @@ class EmailComposerImpl implements EmailComposer {
 
         //Send notification
         String senderEmail = reviewer != null ? reviewer.getEmail() : SYSTEM_ACCOUNT;
-        emailSender.send(student.getEmail(), senderEmail, subject, template);
+        Set<String> ccEmails = cc.stream().map(User::getEmail).collect(Collectors.toSet());
+        emailSender.send(student.getEmail(), senderEmail, ccEmails, subject, template);
     }
 
     /**
@@ -325,10 +326,9 @@ class EmailComposerImpl implements EmailComposer {
     }
 
     private String getTeachersAsText(Exam exam) {
-        List<String> owners = exam.getExamOwners().stream()
+        return exam.getExamOwners().stream()
                 .map(eo -> String.format("%s %s", eo.getFirstName(), eo.getLastName()))
-                .collect(Collectors.toList());
-        return String.join(", ", owners);
+                .collect(Collectors.joining(", "));
     }
 
     @Override
@@ -359,7 +359,6 @@ class EmailComposerImpl implements EmailComposer {
 
         Map<String, String> stringValues = new HashMap<>();
         if (isStudentUser) {
-            String link = String.format("%s/enroll/%s", HOSTNAME, enrolment.getExam().getCourse().getCode());
             String time = String.format("%s - %s", DTF.print(adjustDST(reservation.getStartAt(), TZ)),
                     DTF.print(adjustDST(reservation.getEndAt(), TZ)));
             Exam source = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent() : enrolment.getExam();
@@ -370,7 +369,7 @@ class EmailComposerImpl implements EmailComposer {
             stringValues.put("time", messaging.get(lang, "email.template.reservation.date", time));
             stringValues.put("place", messaging.get(lang, "email.template.reservation.room", room));
             stringValues.put("new_time", messaging.get(lang, "email.template.reservation.cancel.message.student.new.time"));
-            stringValues.put("link", link);
+            stringValues.put("link", HOSTNAME);
         } else {
             String time = TF.print(adjustDST(reservation.getStartAt(), TZ));
             stringValues.put("message", messaging.get(lang, "email.template.reservation.cancel.message", date, time, room));
@@ -387,10 +386,9 @@ class EmailComposerImpl implements EmailComposer {
     private static String getTeachers(Exam exam) {
         Set<User> teachers = new HashSet<>(exam.getExamOwners());
         teachers.addAll(exam.getExamInspections().stream().map(ExamInspection::getUser).collect(Collectors.toSet()));
-        List<String> names = teachers.stream()
-                .map((t) -> String.format("%s %s <%s>", t.getFirstName(), t.getLastName(), t.getEmail()))
-                .collect(Collectors.toList());
-        return String.join(", ", names);
+        return teachers.stream()
+                .map(t -> String.format("%s %s <%s>", t.getFirstName(), t.getLastName(), t.getEmail()))
+                .collect(Collectors.joining(", "));
     }
 
     @Override
@@ -398,9 +396,14 @@ class EmailComposerImpl implements EmailComposer {
         String templatePath = getTemplatesRoot() + "participationNotification.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(student);
-        String subject = messaging.get(lang, "email.template.participant.notification.subject",
+
+        boolean isMaturity = exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString());
+        String templatePrefix = String.format("email.template%s.", isMaturity ? ".maturity" : "");
+
+        String subject = messaging.get(lang, templatePrefix + "participant.notification.subject",
                 String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
-        String title = messaging.get(lang, "email.template.participant.notification.title");
+        String title = messaging.get(lang, templatePrefix + "participant.notification.title");
+
         String examInfo = messaging.get(lang, "email.template.participant.notification.exam",
                 String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         String teacherName = messaging.get(lang, "email.template.participant.notification.teacher", getTeachers(exam));
@@ -428,17 +431,19 @@ class EmailComposerImpl implements EmailComposer {
         Lang lang = getLang(toUser);
         User student = exam.getCreator();
         String templatePath, subject, message;
+        boolean isMaturity = exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString());
+        String templatePrefix = String.format("email.template%s.", isMaturity ? ".maturity" : "");
         Map<String, String> stringValues = new HashMap<>();
         if (exam.getState() == Exam.State.ABORTED) {
             templatePath = getTemplatesRoot() + "examAborted.html";
-            subject = messaging.get(lang, "email.template.exam.aborted.subject");
-            message = messaging.get(lang, "email.template.exam.aborted.message", String.format("%s %s <%s>",
+            subject = messaging.get(lang, templatePrefix + "exam.aborted.subject");
+            message = messaging.get(lang, templatePrefix + "exam.aborted.message", String.format("%s %s <%s>",
                     student.getFirstName(), student.getLastName(), student.getEmail()),
                     String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         } else {
             templatePath = getTemplatesRoot() + "examEnded.html";
-            subject = messaging.get(lang, "email.template.exam.returned.subject");
-            message = messaging.get(lang, "email.template.exam.returned.message", String.format("%s %s <%s>",
+            subject = messaging.get(lang, templatePrefix + "exam.returned.subject");
+            message = messaging.get(lang, templatePrefix + "exam.returned.message", String.format("%s %s <%s>",
                     student.getFirstName(), student.getLastName(), student.getEmail()),
                     String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
             String reviewLinkUrl = String.format("%s/exams/review/%d", HOSTNAME, exam.getId());
@@ -457,8 +462,10 @@ class EmailComposerImpl implements EmailComposer {
         String templatePath = getTemplatesRoot() + "noShow.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(toUser);
-        String subject = messaging.get(lang, "email.template.noshow.subject");
-        String message = messaging.get(lang, "email.template.noshow.message", String.format("%s %s <%s>",
+        boolean isMaturity = exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString());
+        String templatePrefix = String.format("email.template%s.", isMaturity ? ".maturity" : "");
+        String subject = messaging.get(lang, templatePrefix + "noshow.subject");
+        String message = messaging.get(lang, templatePrefix + "noshow.message", String.format("%s %s <%s>",
                 student.getFirstName(), student.getLastName(), student.getEmail()),
                 String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         Map<String, String> stringValues = new HashMap<>();
@@ -576,14 +583,11 @@ class EmailComposerImpl implements EmailComposer {
                 .findList();
     }
 
-    private static <K,V extends Comparable<? super V>> SortedSet<Map.Entry<K,V>> sortByValue(Map<K,V> map) {
-        SortedSet<Map.Entry<K,V>> set = new TreeSet<>(
-                new Comparator<Map.Entry<K, V>>() {
-                    @Override
-                    public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
-                        int res = e1.getValue().compareTo(e2.getValue());
-                        return res != 0 ? res : 1;
-                    }
+    private static <K, V extends Comparable<? super V>> SortedSet<Map.Entry<K, V>> sortByValue(Map<K, V> map) {
+        SortedSet<Map.Entry<K, V>> set = new TreeSet<>(
+                (e1, e2) -> {
+                    int res = e1.getValue().compareTo(e2.getValue());
+                    return res != 0 ? res : 1;
                 }
         );
         set.addAll(map.entrySet());

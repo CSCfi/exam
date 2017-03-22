@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -84,6 +85,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         List<Grade> grades = Ebean.find(Grade.class).where()
                 .eq("gradeScale.id", course.getGradeScale().getId()).findList();
         assertThat(grades).hasSize(7);
+        assertThat(grades.stream().filter(Grade::getMarksRejection).collect(Collectors.toList())).hasSize(1);
     }
 
 
@@ -105,6 +107,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         List<Grade> grades = Ebean.find(Grade.class).where()
                 .eq("gradeScale.id", course.getGradeScale().getId()).findList();
         assertThat(grades).hasSize(7);
+        assertThat(grades.stream().filter(Grade::getMarksRejection).collect(Collectors.toList())).hasSize(1);
     }
 
     @Test

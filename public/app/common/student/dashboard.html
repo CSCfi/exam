@@ -11,7 +11,7 @@
 
     <div class="top-row">
         <div class="col-md-12 list-item" ng-repeat="enrolment in userEnrolments | orderBy: 'reservation.startAt'">
-            <div class="student-enrolment-wrapper">
+            <div class="student-enrolment-wrapper marl20 marr20">
                 <div class="col-md-12">
 
                     <div class="student-exam-header-row">
@@ -25,7 +25,7 @@
                             <!-- exam title n stuff -->
                             <div class="student-enrolment-exam">
                                 <a href="/enroll/{{enrolment.exam.course.code}}/exam/{{enrolment.exam.id}}">
-                                {{enrolment.exam.name}}</a> <span class="exam-code">{{enrolment.exam.course.code}}</span><br/>
+                                {{enrolment.exam.name}}</a><br/>
                                 <span ng-if="enrolment.exam.state ==='PUBLISHED' && enrolment.reservation"
                                       class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
                                 <span ng-if="enrolment.exam.state ==='PUBLISHED' && !enrolment.reservation"
@@ -38,7 +38,11 @@
                             <div ng-controller="DropdownCtrl" class="student-exam-settings">
                                 <span uib-dropdown on-toggle="toggled(open)">
                                     <a href id="simple-dropdown" uib-dropdown-toggle>
-                                        <img class="arrow_icon" src="assets/assets/images/settings_dots.png">
+                                        <img class="arrow_icon" alt="{{'sitnet_change_enrolment_info' | translate}}"
+                                             src="assets/assets/images/settings_dots.png"
+                                             popover-placement="left" popover-trigger="mouseenter"
+                                             uib-popover="{{'sitnet_change_enrolment_info' | translate}}"
+                                        >
                                     </a>
                                     <ul class="dropdown-menu settings" uib-dropdown-menu aria-labelledby="simple-dropdown">
                                         <li ng-if="enrolment.reservation">
@@ -98,6 +102,7 @@
                                     {{ 'sitnet_course_name' | translate }}:
                                 </div>
                                 <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                                    <span class="exam-code"><b>{{enrolment.exam.course.code}}</b></span>
                                     {{ enrolment.exam.course.name }}
                                 </div>
                                 <div class="clearfix visible-xs"></div>
@@ -117,7 +122,7 @@
 
                             </div>
                         </div>
-                        <div class="col-md-12" ng-if="enrolment.reservation" style="padding-top:10px;">
+                        <div class="col-md-12 padt10" ng-if="enrolment.reservation">
                             <div class="row">
                                 <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                                     {{ 'sitnet_exam_room' | translate }}:
@@ -165,6 +170,15 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="student-exam-row" ng-if="enrolment.reservation">
+                        <div class="student-exam-row-infolink">
+                            <a class="infolink pointer" ng-click="showRoomGuide(enrolment.exam.id)">{{ 'sitnet_room_guidance' |
+                                translate}} <img class="arrow_icon" ng-show="showGuide!=enrolment.exam.id" src="assets/assets/images/arrow_right.png"><img class="arrow_icon" ng-show="showGuide==enrolment.exam.id" src="assets/assets/images/arrow_down.png"></a>
+
+                        </div>
+                        <div class="student-exam-row-infobox" ng-show="showGuide==enrolment.exam.id">{{currentLanguageText}}</div>
                     </div>
 
                     <div class="student-exam-row">

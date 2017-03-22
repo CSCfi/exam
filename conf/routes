@@ -61,6 +61,11 @@ POST          /app/exams/:eid/inspector/:uid                             control
 DELETE        /app/exams/inspector/:id                                   controllers.ExamInspectionController.deleteInspection(id: Long)
 PUT           /app/exams/inspection/:id                                  controllers.ExamInspectionController.updateInspection(id: Long)
 
+############### Printout exam interface ###############
+POST          /app/exam/:id/examinationdate                              controllers.ExaminationDateController.insertExaminationDate(id: Long)
+DELETE        /app/exam/:id/examinationdate/:edid                        controllers.ExaminationDateController.removeExaminationDate(id: Long, edid: Long)
+GET           /app/exam/printouts                                        controllers.ExamController.listPrintouts
+
 
 ############### Exam record interface ###############
 POST          /app/exam/record                                           controllers.ExamRecordController.addExamRecord()
@@ -83,7 +88,7 @@ POST          /app/student/exams/:hash/clozetest/:questionId             control
 GET           /app/feedback/exams/:eid                                   controllers.StudentActionsController.getExamFeedback(eid: Long)
 GET           /app/feedback/exams/:eid/score                             controllers.StudentActionsController.getExamScore(eid: Long)
 GET           /app/student/inspectors/exam/:id                           controllers.StudentActionsController.getExamInspectors(id: Long)
-GET           /app/student/finishedexams                                 controllers.StudentActionsController.getFinishedExams
+GET           /app/student/finishedexams                                 controllers.StudentActionsController.getFinishedExams(filter: java.util.Optional[String])
 GET           /app/enrolments                                            controllers.StudentActionsController.getEnrolmentsForUser
 GET           /app/student/exam/:eid                                     controllers.StudentActionsController.getExamInfo(eid: Long)
 GET           /app/student/exams                                         controllers.StudentActionsController.listAvailableExams(filter: java.util.Optional[String])
@@ -123,7 +128,7 @@ GET           /app/exam/:eid/attachments                                 control
 
 
 ############### Language inspection interface ###############
-GET           /app/inspections                                           controllers.LanguageInspectionController.listInspections(month: java.util.Optional[String])
+GET           /app/inspections                                           controllers.LanguageInspectionController.listInspections(month: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
 POST          /app/inspection                                            controllers.LanguageInspectionController.createInspection
 PUT           /app/inspection/:id                                        controllers.LanguageInspectionController.assignInspection(id: Long)
 PUT           /app/inspection/:id/approval                               controllers.LanguageInspectionController.setApproval(id: Long)
@@ -196,7 +201,7 @@ GET           /app/reservations/students                                 control
 GET           /app/reservations/teachers                                 controllers.ReservationController.getTeachers
 GET           /app/reservations/examrooms                                controllers.ReservationController.getExamRooms
 GET           /app/reservations/exams                                    controllers.ReservationController.getExams
-GET           /app/reservations                                          controllers.ReservationController.getReservations(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], roomId: java.util.Optional[java.lang.Long], machineId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
+GET           /app/reservations                                          controllers.ReservationController.getReservations(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], roomId: java.util.Optional[java.lang.Long], machineId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[String], end: java.util.Optional[String])
 DELETE        /app/reservations/:id                                      controllers.ReservationController.removeReservation(id: Long)
 PUT           /app/reservations/:id                                      controllers.ReservationController.permitRetrial(id: Long)
 GET           /app/reservations/:id/machines                             controllers.ReservationController.findAvailableMachines(id: Long)
@@ -309,11 +314,11 @@ GET           /app/statistics/student/:id/:from/:to                      control
 
 ################# Reports interface ##################
 
-GET           /app/reports/participations                                controllers.ReportController.getExamParticipations(dept: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
+GET           /app/reports/participations                                controllers.ReportController.getExamParticipations(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 GET           /app/reports/departments                                   controllers.ReportController.listDepartments
-GET           /app/reports/exams                                         controllers.ReportController.getPublishedExams(dept: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
-GET           /app/reports/reservations                                  controllers.ReportController.getReservations(dept: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
-GET           /app/reports/responses                                     controllers.ReportController.getResponses(dept: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
+GET           /app/reports/exams                                         controllers.ReportController.getPublishedExams(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
+GET           /app/reports/reservations                                  controllers.ReportController.getReservations(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
+GET           /app/reports/responses                                     controllers.ReportController.getResponses(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 
 ########################################################
 GET           /assets/assets/images/nav/*file                            controllers.NavbarAssets.at(path="/public", file)

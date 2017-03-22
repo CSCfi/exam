@@ -27,6 +27,9 @@
                 </div>
             </div>
         </div>
+        <div ng-if="exams.length > 0" class="student-exam-search-results">
+            {{'sitnet_student_exam_search_result' | translate}} {{exams.length}}
+            {{'sitnet_student_exam_search_result_continues' | translate}} <b>{{filter.text}}</b></div>
     </div>
     <div class="student-details-title-wrap padleft">
         <button ng-show="loader.loading" class="btn btn-success">{{'sitnet_searching' | translate }}...
@@ -34,7 +37,7 @@
         </button>
     </div>
 
-    <div class="exams-list">
+    <div class="exams-list marr30">
         <div class="list-item" ng-repeat="exam in exams" ng-include="examPath" />
     </div>
 

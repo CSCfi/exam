@@ -17,17 +17,19 @@ public class SystemErrorHandler implements HttpErrorHandler {
 
     @Override
     public CompletionStage<Result> onClientError(Http.RequestHeader request, int statusCode, String message) {
-        Logger.warn("onClientError: URL: {}, status: {}, msg: {}", request.uri(), statusCode, message);
-        if (statusCode == play.mvc.Http.Status.BAD_REQUEST) {
-            return CompletableFuture.supplyAsync(() -> Results.badRequest(Json.toJson(new ApiError(message))));
-        }
-        if (statusCode == play.mvc.Http.Status.NOT_FOUND) {
-            return CompletableFuture.supplyAsync(() -> Results.notFound(Json.toJson(new ApiError(message))));
-        }
-        if (statusCode == Http.Status.UNAUTHORIZED || statusCode == Http.Status.FORBIDDEN) {
-            return CompletableFuture.supplyAsync(() -> Results.unauthorized(Json.toJson(new ApiError(message))));
-        }
-        return CompletableFuture.supplyAsync(() -> Results.internalServerError(Json.toJson(new ApiError(message))));
+        return CompletableFuture.supplyAsync(() -> {
+            Logger.warn("onClientError: URL: {}, status: {}, msg: {}", request.uri(), statusCode, message);
+            if (statusCode == play.mvc.Http.Status.BAD_REQUEST) {
+                return Results.badRequest(Json.toJson(new ApiError(message)));
+            }
+            if (statusCode == play.mvc.Http.Status.NOT_FOUND) {
+                return Results.notFound(Json.toJson(new ApiError(message)));
+            }
+            if (statusCode == Http.Status.UNAUTHORIZED || statusCode == Http.Status.FORBIDDEN) {
+                return Results.unauthorized(Json.toJson(new ApiError(message)));
+            }
+            return Results.internalServerError(Json.toJson(new ApiError(message)));
+        });
     }
 
     @Override
@@ -44,9 +46,9 @@ public class SystemErrorHandler implements HttpErrorHandler {
                 if (cause instanceof IllegalArgumentException) {
                     return Results.badRequest(Json.toJson(new ApiError(errorMessage)));
                 }
-            }
-            if (exception instanceof OptimisticLockException) {
-                return Results.badRequest("sitnet_error_data_has_changed");
+                if (cause instanceof OptimisticLockException) {
+                    return Results.badRequest("sitnet_error_data_has_changed");
+                }
             }
             return Results.internalServerError(Json.toJson(new ApiError(errorMessage)));
         });

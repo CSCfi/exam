@@ -1,0 +1,151 @@
+<script>
+    $(document).ready(function () {
+
+        $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function (e) {
+            e.stopPropagation();
+        });
+
+    });
+</script>
+<div class="row col-md-12">
+    <div class="col-md-6">
+        <div class="form-group input-group search question-search padl20">
+            <input class="form-control hgt40 wdt400"
+                   ng-change="applyFreeSearchFilter()"
+                   ng-model="filter.text" type="text"
+                   placeholder="{{'sitnet_search_by_question_text' | translate }}">
+            <div class="input-group-addon search">
+                <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+            </div>
+        </div>
+        <div class="form-group input-group search question-search" ng-if="user.isAdmin">
+            <strong>{{'sitnet_search_by_owner' | translate}}</strong>
+            <input class="form-control searcht"
+                   ng-change="applyOwnerSearchFilter()"
+                   ng-model="filter.owner"
+                   type="text"
+                   placeholder="{{'sitnet_search_by_owner' | translate }}">
+            <div class="input-group-addon search">
+                <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div id="filters" class="form-group question-search">
+            <span class="dropdown" uib-dropdown>
+                <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                        data-toggle="dropdown" aria-expanded="true" ng-click="listCourses()">
+                    {{'sitnet_course' | translate}}&nbsp;<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                    aria-labelledby="dropDownMenu1">
+                    <li role="presentation" class="input-group">
+                        <input ng-model="limitations.courses" type="text" class="form-control"
+                               placeholder="{{'sitnet_search' | translate }}">
+                        <div class="input-group-addon">
+                            <i class="fa fa-search fa-fw"></i>
+                        </div>
+                    </li>
+                    <li ng-repeat="course in courses | filter:limitations.courses" ng-hide='course.filtered'
+                        role="presentation"
+                        ng-click="applyFilter(course)">
+                        <a role="menuitem">{{course.name | truncate:30}}</a>
+                    </li>
+                </ul>
+            </span>
+            <span class="dropdown" uib-dropdown>
+                <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
+                        data-toggle="dropdown" aria-expanded="true" ng-click="listExams()">
+                    {{'sitnet_exam' | translate}}&nbsp;<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu pull-left" style="padding-left: 0; min-width: 17em" role="menu"
+                    aria-labelledby="dropDownMenu2">
+                    <li role="presentation" class="input-group">
+                        <input ng-model="limitations.exams" type="text" class="form-control"
+                               placeholder="{{'sitnet_search' | translate }}">
+
+                        <div class="input-group-addon">
+                            <i class="fa fa-search fa-fw"></i>
+                        </div>
+                    </li>
+                    <li ng-repeat="exam in exams | filter:limitations.exams" ng-hide='exam.filtered'
+                        role="presentation"
+                        ng-click="applyFilter(exam)">
+                        <a role="menuitem">{{exam.name | truncate:30}}</a>
+                    </li>
+                </ul>
+            </span>
+
+            <span class="dropdown" uib-dropdown>
+                <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu3"
+                        data-toggle="dropdown" aria-expanded="true" ng-click="listTags()">
+                    {{'sitnet_category' | translate}}&nbsp;<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                    aria-labelledby="dropDownMenu3">
+                    <li role="presentation" class="input-group">
+                        <input ng-model="limitations.tags" type="text" class="form-control"
+                               placeholder="{{'sitnet_search' | translate }}">
+
+                        <div class="input-group-addon">
+                            <i class="fa fa-search fa-fw"></i>
+                        </div>
+                    </li>
+                    <li ng-repeat="tag in tags | filter:limitations.tags" ng-hide='tag.filtered' role="presentation"
+                        ng-click="applyFilter(tag)">
+                        <a role="menuitem" ng-class="tag.isSectionTag ? 'text-dim' : 'text'"
+                           title="{{tag.isSectionTag ? 'sitnet_exam_section' : 'sitnet_category' | translate; }}">
+                            {{tag.name | truncate:30}}
+                        </a>
+                    </li>
+                </ul>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row col-md-12 margin-20">
+    <div class="col-md-6">
+        <div ng-if="total > 0" class="padl30 questions-selections-box">
+            <div class="make-inline">
+                <span class="padr10">{{total}} {{'sitnet_questions_selected' | translate}}</span> -
+            </div>
+            <div class="make-inline">
+                <div class="question-add-owners-box">
+                        <span class="padl10">
+                        <i class="fa fa-user fa-fw" style="color:#266B99;"></i>
+                            &nbsp;<a class="bold-button" ng-click="if(showAdder==true) ? showAdder = false : showAdder = true">{{'sitnet_add_question_owner' | translate}}</a></span>
+
+                    <div ng-show="showAdder">
+                        <div class="input-group">
+                            <input type="text" class="form-control ng-pristine ng-valid question-add-owners"
+                                   ng-model="newTeacher"
+                                   placeholder="{{'sitnet_add_question_owner' | translate}}"
+                                   uib-typeahead="t as t.name for t in teachers | filter:$viewValue | limitTo:8"
+                                   typeahead-on-select="onTeacherSelect($item, $model, $label, newExam)"
+                                   typeahead-wait-ms="100"
+                                   typeahead-focus-first="false"
+                                   typeahead-min-length="2"
+                                   typeahead-loading="teachersLoad">
+                        </div>
+                        <div class="col-md-2 bottom-padding-2 padl10">
+                            <input type="button" class="btn green border-green whitetext" ng-disabled="ownerProcess" ng-click="addOwnerForSelected()"
+                                   value="{{'sitnet_add' | translate}}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <ul class="inline-list">
+            <li ng-repeat='tag in getTags()'>{{tag.name}}
+                <button class="library-button-remove"
+                        ng-click="applyFilter(tag)"
+                        title="{{'sitnet_remove' | translate}}">
+                    <img src="../../../assets/assets/images/icon_remove.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_remove.png'" />
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>

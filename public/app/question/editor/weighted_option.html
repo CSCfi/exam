@@ -1,27 +1,23 @@
-<div class="form-horizontal question-editor-option" ng-class="option.defaultScore > 0 ? 'alert-success' : 'alert-danger'">
-    <div class="form-group">
-        <label for="optionScore" class="col-md-1 control-label">{{'sitnet_word_points' | translate}}:</label>
-        <div class="col-md-2">
-            <input id="optionScore" class="form-control" name="maxScore"
-                   type="number" step="0.01" ng-pattern="/^-?[0-9]+(\.[0-9]{1,2})?$/"
-                   class="form-control"
-                   ng-model="option.defaultScore"
-                   required="true"
-                   ng-disabled="lotteryOn"/>
-        </div>
-        <div class="col-md-9 pull-right">
-            <div ng-click="removeOption(option)" class="pull-right text-danger fa-2x">
-                <i class="fa fa-times pointer" title="{{'sitnet_remove' | translate}}"></i>
-            </div>
-        </div>
+<div class="col-md-12 form-horizontal question-editor-option">
+
+    <div class="col-md-7">
+        <input id="optionText" type="text" focus-on="opt{{option.id}}" class="question-option-input"
+           ng-model="option.option"
+           ng-click="selectIfDefault(option.option, $event)"
+           required="true"/>
     </div>
-    <div class="form-group">
-        <label for="optionText" class="col-md-1 control-label"></label>
-        <div class="col-md-11">
-            <input id="optionText" type="text" focus-on="opt{{option.id}}" class="form-control"
-               ng-model="option.option"
-               ng-click="selectIfDefault(option.option, $event)"
-               required="true"/>
-        </div>
+
+    <div class="col-md-5">
+        <input id="optionScore" name="maxScore" class="question-option-input points"
+           type="number" step="1"
+           ng-model="option.defaultScore"
+           required="true"
+           ng-disabled="lotteryOn"/>
+
+            <span ng-hide="lotteryOn" ng-click="removeOption(option,false)" class="question-option-trash pointer">
+                <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
+            </span>
+
     </div>
+
 </div>

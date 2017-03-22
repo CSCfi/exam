@@ -133,9 +133,9 @@ public class EnrolmentController extends BaseController {
                     .endJunction()
                     .findList();
             if (enrolments.isEmpty()) {
-                return notFound();
+                return notFound("error not found");
             }
-            return ok();
+            return ok(enrolments);
         }
         return forbidden("sitnet_no_trials_left");
     }
@@ -307,7 +307,7 @@ public class EnrolmentController extends BaseController {
         if (user.hasRole("STUDENT", getSession())) {
             query = query.eq("user", user);
         }
-        ExamEnrolment enrolment = query.findUnique();
+        ExamEnrolment enrolment = query.setMaxRows(1).findUnique();
         if (enrolment == null) {
             return notFound();
         } else {

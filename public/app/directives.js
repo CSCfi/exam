@@ -182,6 +182,17 @@
                         }
                     });
 
+                    scope.$watch('enableClozeTest', function (value) {
+                        var cmd = ck.getCommand('insertCloze');
+                        if (cmd) {
+                            if (!value) {
+                                cmd.disable();
+                            } else {
+                                cmd.enable();
+                            }
+                        }
+                    });
+
                     function updateModel() {
                         _.defer(function () {
                             scope.$apply(function () {
@@ -190,21 +201,9 @@
                         });
                     }
 
-                    function onChange() {
-                        updateModel();
-                    }
-
-                    function onDataReady() {
-                        updateModel();
-                    }
-
-                    function onMode() {
-                        updateModel();
-                    }
-
-                    ck.on('change', onChange);
-                    ck.on('dataReady', onDataReady);
-                    ck.on('mode', onMode); // Editing mode change
+                    ck.on('change', _.debounce(updateModel, 100)); // This can bring down the UI if not scaled down
+                    ck.on('dataReady', updateModel);
+                    ck.on('mode', updateModel); // Editing mode change
 
                     ngModel.$render = function (value) {
                         tmp = ngModel.$modelValue;
@@ -361,6 +360,26 @@
                 }
             };
         }])
+        .directive('sortExam', [function () {
+            return {
+                restrict: 'A',
+                template: '<span ng-class="predicate === by ? \'sorted-column\' : \'\'" class="pointer"' +
+                'ng-click="predicate = by; reverse = !reverse">{{ text | translate }}&nbsp;' +
+                '<div ng-class="getSortClass()"></div>' +
+                '</span>',
+                scope: {
+                    predicate: '=',
+                    by: '@by',
+                    text: '@text',
+                    reverse: '='
+                }, link: function (scope, element, attrs) {
+                    scope.getSortClass = function () {
+                        return scope.predicate === scope.by ?
+                            (scope.reverse ? 'sort-img-down' : 'sort-img-up') : 'sort-img-down';
+                    };
+                }
+            };
+        }])
         .directive('teacherList', [function () {
             return {
                 restrict: 'E',
@@ -368,7 +387,7 @@
                 transclude: false,
                 template: '<div>' +
                 '<span ng-repeat="owner in exam.examOwners">' +
-                '{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}' +
+                '<strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>' +
                 '</span>' +
                 '<span ng-repeat="inspection in exam.examInspections">{{$first ? ", " : "";}}' +
                 '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +

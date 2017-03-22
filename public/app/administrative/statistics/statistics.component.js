@@ -29,10 +29,10 @@ angular.module("administrative.statistics")
                 var getQueryParams = function () {
                     var params = {};
                     if (ctrl.dateService.startDate) {
-                        params.start = Date.parse(ctrl.dateService.startDate);
+                        params.start = ctrl.dateService.startDate;
                     }
                     if (ctrl.dateService.endDate) {
-                        params.end = Date.parse(ctrl.dateService.endDate);
+                        params.end = ctrl.dateService.endDate;
                     }
                     var departments = ctrl.departments.filter(function (d) {
                         return d.filtered;

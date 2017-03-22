@@ -12,9 +12,10 @@
   }
 
   .section-border {
-    padding: 15px 15px 30px 15px;
-    border: 1px solid $sitnet-common-medium;
+    padding: 15px 15px 30px 0px;
+    border: 1px solid white;
     margin-bottom: 1em;
+    margin-top:1em;
   }
 
   .section-handle:hover {
@@ -67,10 +68,12 @@
 
   .create-new {
     display: block;
-    color: $sitnet-dark-grey;
-    border: 2px dashed $sitnet-teacher-turquoise-dark-inactive;
+    color: #4c4c4c;
+    border: 4px dashed #3CA34F;
+    border-radius: 4px;
     padding: 1em;
-    margin: 1em 0 1em 0;
+    margin: 1em 30px 1em 30px;
+    background-color: #EDFFF0;
 
     div > i {
       margin-right: 1em;
@@ -80,15 +83,6 @@
     div > span {
       line-height: 2em;
     }
-  }
-
-  .create-new:hover {
-    display: block;
-    color: $sitnet-dark-grey;
-    border: 2px dashed $sitnet-teacher-turquoise-dark-inactive;
-    padding: 1em;
-    margin-bottom: 1em;
-    margin-top: 1em;
   }
 
   .total-score {
@@ -136,10 +130,6 @@
     padding: 1em;
   }
 
-  .create-new:hover {
-    background-color: $sitnet-beige-active;
-  }
-
   .exam-question-option {
     background-color: $sitnet-white;
     border: 1px solid $sitnet-common-medium;
@@ -148,7 +138,8 @@
   }
 
   .exam-question-option-text {
-    padding-left: 0.6em;
+    color: #2C2C2C;
+    font-size: 14px;
   }
 
   .exam-editor-question-item {
@@ -270,10 +261,14 @@
   }
 
   .cloze-correct {
+    margin: 0.5em 0 0.5em 0;
+    border-radius: 4px;
     background: #ccffcc;
   }
 
   .cloze-incorrect {
+    margin: 0.5em 0 0.5em 0;
+    border-radius: 4px;
     background: #feeeef;
   }
 
@@ -286,15 +281,26 @@
     list-style: none;
   }
 
+  .exam-answered-correct {
+    border: 1px solid #3CA34F;
+    background-color: #F3FFF5;
+    padding: 10px;
+    border-radius:4px;
+  }
 
-  //  -webkit-touch-callout: none;
-  //  -webkit-user-select: none;
-  //  -khtml-user-select: none;
-  //  -moz-user-select: none;
-  //  -ms-user-select: none;
-  //  user-select: none;
-  //  outline-style:none;
+  .exam-answered-wrong {
+    border: 1px solid #ED4459;
+    background-color: #FFF6F7;
+    padding: 10px;
+    border-radius:4px;
+  }
 
+  .exam-not-answered {
+    border: 1px solid white;
+    background-color: white;
+    padding: 10px;
+    border-radius:4px;
+  }
 
 }
 

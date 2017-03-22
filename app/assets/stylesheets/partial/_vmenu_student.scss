@@ -1,0 +1,284 @@
+#vmenu-student {
+
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 0;
+  position: fixed;
+
+  @media (max-width: $sitnet-mobile) {
+    position: relative;
+    z-index: 1;
+  }
+
+
+  i {
+    vertical-align: middle;
+  }
+
+  .logo {
+
+    img {
+      display: block;
+      margin-left: 3.57em;
+      margin-right: 3.57em;
+      margin-top: 1.07em;
+
+      @media (max-width: $sitnet-mobile) {
+        margin-top:0em;
+        margin-left: 20px;
+        padding-top: 15px;
+      }
+
+
+    }
+  }
+
+  a {
+    display: block;
+    background-color: $sitnet-light-grey_new;
+    color: $sitnet-white;
+    text-decoration: none;
+    padding-left:1.5em;
+    border-left:3px solid $sitnet-light-grey_new;
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 1.5em;
+    }
+
+  }
+
+  a:hover {
+    text-decoration: none;
+    color: $sitnet-white;
+    border-left:3px solid #3CA34F;
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 1.5em;
+    }
+
+  }
+
+  .selected {
+    a {
+      background-color: $sitnet-light-grey_new;
+      border-left:3px solid #3CA34F;
+      color: $sitnet-white;
+      text-decoration: none;
+      padding-left:1.5em;
+      @media (max-width: $sitnet-mobile) {
+        margin-left: 1.5em;
+      }
+
+    }
+  }
+
+  li {
+    list-style: none;
+    margin-bottom: 2.5em;
+    @media (max-width: $sitnet-mobile) {
+      margin-bottom: 1.0em;
+    }
+  }
+
+  ul {
+    padding: 0;
+  }
+
+  .nav-header {
+    background-color: $sitnet-light-grey_new;
+    color: $sitnet-dark-grey;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: block;
+    height: 162px;
+    width: 17.125em;
+
+    @media (max-width: $sitnet-mobile) {
+      position: relative;
+      width: 100%;
+      height: 80px;
+    }
+
+    .mobile-menu {
+      float:right;
+
+      img {
+        padding-top: 30px;
+      }
+    }
+
+  }
+
+  .nav-body {
+    position: fixed;
+    background-color: $sitnet-light-grey_new;
+    color: $sitnet-dark-grey;
+    top: 162px;
+    bottom: 40px;
+    overflow-y: auto;
+    width: 17.125em;
+
+    @media (max-width: $sitnet-mobile) {
+      display: none; /* oletuksena piiloon, napista aukeaa valikko */
+    }
+
+  }
+
+  .nav-body-mobile {
+
+    @media (max-width: $sitnet-mobile) {
+      background-color: $sitnet-light-grey_new;
+      color: $sitnet-dark-grey;
+      position: relative;
+      width: 100%;
+      padding-top:15px;
+      padding-bottom: 39px;
+    }
+
+  }
+
+  .nav-footer {
+    background-color: $sitnet-light-green_new;
+    color: $sitnet-dark-grey;
+    display: block;
+    height: 40px;
+    position: fixed;
+    bottom: 0;
+    width: 17.125em;
+
+    @media (max-width: $sitnet-mobile) {
+      display: none;
+    }
+
+  }
+
+  .nav-user {
+    @media (max-width: $sitnet-mobile) {
+      display: none;
+    }
+  }
+
+  .minimize .nav-header {
+    height: 175px;
+    width: 50px;
+  }
+
+  .minimize .nav-body {
+    top: 175px;
+    width: 50px;
+  }
+
+  .minimize .nav-footer {
+    width: 50px;
+  }
+
+  .menu-item {
+    margin: 0;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    font-size: 1em;
+    font-family: $sitnet-family-opensans-light;
+    color: $sitnet-white;
+    font-weight: 300;
+    letter-spacing: 1px;
+    padding-left: 1em;
+  }
+
+  .app-version {
+    padding: 0.5em 1em 1em;
+  }
+
+  .user {
+
+    position: fixed;
+    bottom: 60px;
+    color: white;
+  }
+
+  .user-name {
+    display: inline-block;
+    padding: 1.5em 1em 1em;
+    position: relative;
+    left: 0;
+    font-size: 1em;
+    font-family: $sitnet-family-opensans-light;
+    color: white;
+    font-weight: 300;
+    letter-spacing: 1px;
+  }
+
+  .minify {
+    bottom: 0;
+    padding: 0.5em;
+    float: right;
+    color: $sitnet-blue;
+  }
+
+  .minimize .menu-item {
+    display: none;
+  }
+
+  .locale-bar {
+    margin-left: 1.7em;
+    margin-top: 0.4em;
+  }
+
+  .locale-item {
+    cursor: pointer;
+    font-size: 1em;
+    font-family: $sitnet-family-opensans-light;
+    color: $sitnet-text;
+    font-weight: 300;
+    letter-spacing: 1px;
+    display: inline-block;
+
+    a {
+      color:$sitnet-language-link-text;
+      display: block;
+      padding: 0.5em;
+      margin-left: 1.5em;
+      background-color: transparent;
+      border:0px;
+      text-decoration: none;
+
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    a:active {
+      font-weight: bold;
+    }
+
+  }
+
+  .minimize .locale-item {
+    text-align: center;
+    padding: 0.3em 0 0.3em 0;
+  }
+
+  .locale-item:hover {
+    a {
+      color: $sitnet-language-link-text;
+      font-weight: bold;
+    }
+  }
+
+  @media print {
+    .nav-container {
+      display: none !important;
+    }
+  }
+
+  .user-logo {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+
+  .user-data {
+    display: inline-block;
+  }
+}

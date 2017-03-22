@@ -22,7 +22,7 @@
     margin-top: 168px;
 
     .top-padding-2 {
-      padding-top:0px;
+      padding-top:0;
     }
 
   }
@@ -35,7 +35,6 @@
     border-bottom: 1px solid #B1B1B1;
     margin-bottom: 20px;
     margin-top: 20px;
-    margin-right: 45px;
     margin-left: 15px;
   }
 
@@ -43,9 +42,10 @@
     color: #2C2C2C;
     font-size: 20px;
     font-family: $sitnet-family-helvetica;
+    padding-left: 15px;
   }
 
-  margin: 0 14px 0 16px;
+  margin: 0 14px 0 0;
 
   .studentexam-header {
     padding-left: 1.2em;
@@ -86,7 +86,8 @@
     display: inline;
     margin: 0;
     line-height: 1.5em;
-    font-size: 0.9em;
+    font-size: 22px;
+    color: #2C2C2C;
 
     p {
       margin: 0;
@@ -100,7 +101,6 @@
 
   .exam-question-container {
     background-color: $sitnet-white;
-    padding-top: 0.4em;
     clear: both;
   }
 
@@ -147,8 +147,6 @@
 
     :hover, :active, :focus, :active:focus {
       background-color: #358F45;
-      border: 1px solid #358F45;
-      text-decoration: none;
     }
 
     &.left-floater {
@@ -159,10 +157,29 @@
       display: inline-block;
       margin-right: 15px;
       font-size: 14px;
-      a:hover {
-        font-size: 14px;
-      }
+      letter-spacing: 0.3px;
     }
+
+    &.left-floater-for-section {
+      float:left;
+      padding: 5px;
+      padding-left: 20px;
+      display: inline-block;
+      margin-right: 15px;
+      margin-left: 0px;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+    }
+
+    &.right-for-section {
+      padding: 5px;
+      padding-left: 20px;
+      display: inline-block;
+      margin-left: 0px;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+    }
+
 
     &.previous {
       float:left;
@@ -287,7 +304,7 @@
     &.divider {
       border-left: 1px solid white;
       margin-left: 18px;
-
+      padding: 0;
     }
 
     span {
@@ -295,6 +312,19 @@
     }
 
 
+  }
+
+  .language-selector {
+    display: inline-block;
+    position: absolute;
+    margin-top: 26px;
+    right: 420px;
+
+    a {
+      cursor: pointer;
+      color: white;
+      text-decoration: none;
+    }
   }
 
   .floating-clock {
@@ -313,9 +343,10 @@
 
       img {
         margin-left: 10px;
-        margin-top: 5px;
-        vertical-align: top;
+        margin-top: 10px;
+        padding-left: 0;
       }
+
     }
 
     .exam-clock {
@@ -363,6 +394,8 @@
     padding: 30px;
     margin-bottom: 10px;
     margin-top:30px;
+    padding-left:60px;
+    padding-right: 60px;
 
     .guide-column {
       color: #555555;
@@ -381,7 +414,7 @@
   }
 
   .right-column-box {
-    width: 332px;
+//    width: 332px;
     border: 2px solid #EDEDED;
     border-radius: 4px;
     margin-left: 15px;
@@ -396,7 +429,7 @@
     }
 
     a.save-and-exit {
-      width: 300px;
+      width: 100%;
       text-align: center;
     }
 
@@ -406,8 +439,9 @@
     }
 
     a.abort-and-exit {
-      width: 300px;
+      width: 100%;
       text-align: center;
+      margin-top: 20px;
     }
 
     .bot-border {
@@ -432,16 +466,24 @@
     font-family:$sitnet-family-helvetica;
     font-size:12px;
     color:#555555;
-    float: right;
-    margin-top: 30px;
-    margin-right: 30px;
+    margin-top: 10px;
+
+    @media (max-width: 1050px) {
+      margin-top: 3px;
+    }
+
+  }
+
+  .section-answered {
+      padding-left: 0px !important;
+      padding-right: 0px !important;
   }
 
   .phase-box {
     border-radius: 4px;
     border: 2px solid #EDEDED;
     border-left: #5BC26E 4px solid;
-    margin-right: 1.9em;
+    margin-right: 0.1em;
     padding: 10px;
     margin-bottom: 10px;
     font-family:$sitnet-family-helvetica;
@@ -462,23 +504,23 @@
   .section-box-title {
     display: inline-block;
     float: left;
-    margin-left: 15px;
+    margin-left: 10px;
     margin-top: 10px;
     color: #2C2C2C;
-    font-size: 20px;
+    font-size: 16px;
     font-family: $sitnet-family-helvetica;
 
     &.arrow {
       margin-left: 0px;
       padding-left: 0px;
       margin-top: 0px;
+      float:right;
     }
 
   }
 
   .question-type {
     display: inline-block;
-    float: right;
     margin-right: 10px;
   }
 
@@ -487,7 +529,7 @@
     font-family: $sitnet-family-helvetica;
     font-size: 16px;
     font-weight: 400;
-    margin-right:10px;
+
     display: inline-block;
 
     &.info {
@@ -520,5 +562,35 @@
     float: right;
   }
 
+  .cloze-input {
+    margin: 0.5em 0 0.5em 0;
+    border-radius: 4px;
+  }
+
+  .wrap-title {
+    margin-left: -50px;
+    margin-right: -50px;
+    margin-bottom: 50px;
+  }
+
+  .section-header-left {
+    float:left;
+    height: initial;
+  }
+
+  .section-header-middle {
+    float:none;
+    margin-right: 35px;
+    margin-left: 40px;
+  }
+
+  .section-header-right {
+    float:right; height: initial;
+  }
+
+  .filename-text {
+    color:#555555;
+    font-size: 12px;
+  }
 
 }

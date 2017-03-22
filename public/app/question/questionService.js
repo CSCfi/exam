@@ -65,6 +65,9 @@
 
                 // For weighted mcq
                 self.calculateMaxPoints = function (sectionQuestion) {
+                    if (!sectionQuestion.options) {
+                        return 0;
+                    }
                     return (sectionQuestion.options.filter(function (option) {
                         return option.score > 0;
                     }).reduce(function (a, b) {
@@ -210,13 +213,14 @@
                 self.createQuestion = function (question) {
                     var body = getQuestionData(question);
                     var deferred = $q.defer();
+
                     QuestionRes.questions.create(body,
                         function (response) {
                             toastr.info($translate.instant('sitnet_question_added'));
                             if (question.attachment && question.attachment.modified) {
                                 fileService.upload("/app/attachment/question", question.attachment,
                                     {questionId: response.id}, question, null, function () {
-                                        deferred.resolve();
+                                        deferred.resolve(response);
                                     });
                             } else {
                                 deferred.resolve(response);

@@ -17,11 +17,13 @@ import util.AppUtil;
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentContainer {
@@ -66,10 +68,13 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private boolean shared;
 
-    // An ExamSection may be used only in one Exam
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
     private Set<ExamSection> examSections;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
+    @JsonManagedReference
+    private Set<ExaminationDate> examinationDates;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     protected Exam parent;
@@ -175,7 +180,10 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private boolean gradeless;
 
-    private boolean subjectToLanguageInspection;
+    private Boolean subjectToLanguageInspection;
+
+    // Optional internal reference to this exam
+    private String internalRef;
 
     public User getGradedByUser() {
         return gradedByUser;
@@ -191,6 +199,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setExamOwners(Set<User> examOwners) {
         this.examOwners = examOwners;
+    }
+
+    public Set<ExaminationDate> getExaminationDates() {
+        return examinationDates;
+    }
+
+    public void setExaminationDates(Set<ExaminationDate> examinationDates) {
+        this.examinationDates = examinationDates;
     }
 
     // Aggregate properties, required as fields by Ebean
@@ -524,7 +540,10 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                     questionCopy.save();
                 }
                 esq.save();
-                esq.getOptions().forEach(ExamSectionQuestionOption::save);
+                // Randomize order of options. Set won't cut it especially because the one we get from ebean is linked
+                List<ExamSectionQuestionOption> shuffled = esq.getOptions().stream().collect(Collectors.toList());
+                Collections.shuffle(shuffled);
+                shuffled.forEach(ExamSectionQuestionOption::save);
             }
             clone.getExamSections().add(esCopy);
         }
@@ -610,12 +629,20 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.gradeless = gradeless;
     }
 
-    public boolean isSubjectToLanguageInspection() {
+    public Boolean getSubjectToLanguageInspection() {
         return subjectToLanguageInspection;
     }
 
-    public void setSubjectToLanguageInspection(boolean subjectToLanguageInspection) {
+    public void setSubjectToLanguageInspection(Boolean subjectToLanguageInspection) {
         this.subjectToLanguageInspection = subjectToLanguageInspection;
+    }
+
+    public String getInternalRef() {
+        return internalRef;
+    }
+
+    public void setInternalRef(String internalRef) {
+        this.internalRef = internalRef;
     }
 
     @Transient
@@ -659,7 +686,12 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     @Transient
     public boolean isPrivate() {
-        return !executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString());
+        return !executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString()) && !isPrintout();
+    }
+
+    @Transient
+    public boolean isPrintout() {
+        return executionType.getType().equals(ExamExecutionType.Type.PRINTOUT.toString());
     }
 
     @Transient

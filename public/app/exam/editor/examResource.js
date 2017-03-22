@@ -235,7 +235,12 @@
                     {
                         "update": {method: "PUT"}
                     }),
-                reservationInfo: $resource("/app/exams/:eid/reservation", {eid: "@eid"})
+                reservationInfo: $resource("/app/exams/:eid/reservation", {eid: "@eid"}),
+                examinationDate: $resource("/app/exam/:eid/examinationdate/:edid", {eid: "@eid", edid: "@edid"},
+                    {
+                        "create": {method: "POST", params: {eid: "@eid"}},
+                        "delete": {method: "DELETE"}
+                    })
             };
         }]);
 }());

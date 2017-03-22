@@ -82,7 +82,7 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                             this.setValue(element.getAttribute('precision') || 0);
                         },
                         commit: function (element) {
-                            element.setAttribute('precision', this.getValue());
+                            element.setAttribute('precision', this.getValue() || 0);
                         },
                         validate: CKEDITOR.dialog.validate.functions(function(val) {
                             return !val || parseFloat(val) >= 0;

@@ -27,6 +27,7 @@ $sitnet-grey: #c0c0c0;
 $sitnet-light-grey: #e6e6e6;
 $sitnet-light-grey_new: rgb(33,33,33);
 $sitnet-light-green_new: rgb(50,149,61);
+$sitnet-green-new: #3CA34F;
 $sitnet-dark-grey: #4c4c4c;
 $sitnet-dark: #3e3e3e;
 $sitnet-beige: #f6f2e6;
@@ -34,6 +35,8 @@ $sitnet-beige-active: #F7D56F;
 $sitnet-white: #fff;
 $sitnet-black: #000;
 $sitnet-red: #f00;
+$sitnet-rejected: #ED4459;
+$sitnet-approved: #3CA34F;
 
 $sitnet-teacher-turquoise-dark-active: #006674;
 $sitnet-teacher-turquoise-dark-inactive: #7ab3bc;
@@ -125,7 +128,7 @@ $sitnet-background: #ffffff;
 .sitnet-teacher-blue-light {color: $sitnet-teacher-blue-light;}
 .sitnet-teacher-green-dark {color: $sitnet-teacher-green-dark;}
 .sitnet-teacher-green-light {color: $sitnet-teacher-green-light;}
-
+.text-danger { color: #F35D6D !important;}
 // #### muuta defined ##############################################
 .greenHover:hover {
   color: $sitnet-ready;
@@ -147,6 +150,7 @@ $sitnet-background: #ffffff;
 .popover {
   font-size: 11px;
   color: $sitnet-text;
+  width:300px;
 }
 .base {
   background-color: $sitnet-background;
@@ -410,4 +414,231 @@ $sitnet-icon-size: 32px;
 
 .pointer {
   cursor: pointer;
+}
+
+
+.mar60 {
+  margin-top: 60px !important;
+}
+
+.pad30 {
+  padding-top:30px !important;
+  padding-bottom:30px !important;
+}
+
+.padt20 {
+  padding-top: 20px !important;
+}
+
+.padt50 {
+  padding-top: 50px !important;
+}
+
+.padl0 {
+  padding-left: 0px !important;
+}
+
+.padl05 {
+  padding-left: 5px !important;
+}
+
+.padl10{
+  padding-left: 10px !important;
+}
+
+.padl15{
+  padding-left: 15px !important;
+}
+
+.padl20{
+  padding-left: 20px !important;
+}
+
+.padl30{
+  padding-left: 30px !important;
+}
+
+.padl40{
+  padding-left: 40px !important;
+}
+
+.padr0{
+  padding-right: 0px !important;
+}
+
+.padr10{
+  padding-right: 10px !important;
+}
+
+.padr15{
+  padding-right: 15px !important;
+}
+
+.padr20{
+  padding-right: 20px !important;
+}
+
+.padr30{
+  padding-right: 30px !important;
+}
+
+.padr40{
+  padding-right: 40px !important;
+}
+
+.padl60{
+  padding-left: 60px !important;
+}
+
+.padl80{
+  padding-left: 80px !important;
+}
+
+.padr60 {
+  padding-right: 60px !important;
+}
+
+.padb30{
+  padding-bottom: 30px !important;
+}
+
+.mar0 {
+  margin:0px !important;
+}
+
+.mart05 {
+  margin:5px !important;
+}
+
+.mart0 {
+  margin-top:0px !important;
+}
+
+.mart10 {
+  margin-top:10px !important;
+}
+
+.mart20 {
+  margin-top:20px !important;
+}
+
+.mart30 {
+  margin-top:30px !important;
+}
+
+.mart40 {
+  margin-top:40px !important;
+}
+
+.marl0 {
+  margin-left:0px !important;
+}
+
+.marl10 {
+  margin-left:10px !important;
+}
+
+.marl15 {
+  margin-left:15px !important;
+}
+
+.marl20 {
+  margin-left:20px !important;
+}
+
+.marl30 {
+  margin-left:30px !important;
+}
+
+.marl50 {
+  margin-left:50px !important;
+}
+
+.marr-20 {
+  margin-right:-20px !important;
+}
+
+.marr0 {
+  margin-right:0px !important;
+}
+
+.marr10 {
+  margin-right:10px !important;
+}
+
+.marr15 {
+  margin-right:15px !important;
+}
+
+.marr20 {
+  margin-right:20px !important;
+}
+
+.marr30 {
+  margin-right:30px !important;
+}
+
+.marr50 {
+  margin-right:50px !important;
+}
+
+.marr110 {
+  margin-right:110px !important;
+}
+
+
+.marb10 {
+  margin-bottom: 10px !important;
+}
+
+.marb20 {
+  margin-bottom: 20px !important;
+}
+
+.marb30 {
+  margin-bottom: 30px !important;
+}
+
+.wdth-30 {
+  width: 30em !important;
+}
+
+.wdt150 {
+  width: 150px !important;
+}
+
+.wdt400 {
+  width: 400px !important;
+}
+
+.hgt40 {
+  height: 40px !important;
+}
+
+.wdtin {
+  width:initial !important;
+}
+
+.make-inline {
+  display: inline-block !important;
+}
+
+.btn-cancel {
+  color: #fff !important;
+  background-color: #7F7F7F !important;
+  border-color: #6B6B6B !important;
+}
+
+.btn-cancel:hover {
+  color: #fff !important;
+  background-color: #6B6B6B !important;
+  border-color: #6B6B6B !important;
+}
+
+.font20 {
+  font-size: 20px !important;
+}
+
+.grey-top {
+  border-top: 1px solid #ddd;
 }

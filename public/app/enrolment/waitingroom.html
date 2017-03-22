@@ -9,7 +9,7 @@
 </div>
 
 <div id="dashboard">
-    <div class="student-enrolment-wrapper waitingroom">
+    <div ng-hide="!enrolment" class="student-enrolment-wrapper waitingroom">
         <div class="col-md-12">
 
             <div class="student-exam-header-row">
@@ -21,14 +21,8 @@
                     </div>
                     <!-- exam title n stuff -->
                     <div class="student-enrolment-exam">
-                        <a href="/enroll/{{enrolment.exam.course.code}}/exam/{{enrolment.exam.id}}">
-                            {{enrolment.exam.name}}</a> <span class="exam-code">{{enrolment.exam.course.code}}</span><br/>
-                                <span ng-if="enrolment.exam.state ==='PUBLISHED' && enrolment.reservation"
-                                      class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
-                                <span ng-if="enrolment.exam.state ==='PUBLISHED' && !enrolment.reservation"
-                                      class="exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
-                                <span ng-if="enrolment.exam.state === 'STUDENT_STARTED'"
-                                      class="exam-ready">{{'sitnet_state_started' | translate}}</span>
+                        {{enrolment.exam.name}}<br/>
+                        <span class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
                     </div>
                 </div>
             </div>
@@ -40,6 +34,7 @@
                             {{ 'sitnet_course_name' | translate }}:
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            <span class="exam-code">{{enrolment.exam.course.code}}</span>
                             {{ enrolment.exam.course.name }}
                         </div>
                         <div class="clearfix visible-xs"></div>
@@ -100,8 +95,15 @@
             </div>
 
             <div class="student-exam-row">
-                <div class="student-exam-row-infolink"><b>{{ 'sitnet_view_instructions' |
+                <div class="student-exam-row-infolink"><b>{{ 'sitnet_room_guidance' |
                         translate}}</b>
+                </div>
+                <div class="student-exam-row-infobox">{{ currentLanguageText }}</div>
+            </div>
+
+            <div class="student-exam-row">
+                <div class="student-exam-row-infolink"><b>{{ 'sitnet_view_instructions' |
+                    translate}}</b>
                 </div>
                 <div class="student-exam-row-infobox">{{enrolment.exam.enrollInstruction}}</div>
             </div>

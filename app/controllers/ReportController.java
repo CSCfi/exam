@@ -8,12 +8,22 @@ import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
-import models.*;
+import models.Course;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamRoom;
+import models.Reservation;
 import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ReportController extends BaseController {
@@ -31,25 +41,25 @@ public class ReportController extends BaseController {
     }
 
     private <T> ExpressionList<T> applyFilters(ExpressionList<T> query, String deptFieldPrefix, String dateField,
-                                               String dept, Long start, Long end) {
+                                               String dept, String start, String end) {
         ExpressionList<T> result = query;
         if (dept != null) {
             String[] depts = dept.split(",");
             result = result.in(String.format("%s.department", deptFieldPrefix), (Object[]) depts);
         }
         if (start != null) {
-            DateTime startDate = new DateTime(start).withTimeAtStartOfDay();
+            DateTime startDate = DateTime.parse(start, ISODateTimeFormat.dateTimeParser());
             result = result.ge(dateField, startDate.toDate());
         }
         if (end != null) {
-            DateTime endDate = new DateTime(end).plusDays(1).withTimeAtStartOfDay();
+            DateTime endDate = DateTime.parse(end, ISODateTimeFormat.dateTimeParser()).plusDays(1);
             result = result.lt(dateField, endDate.toDate());
         }
         return result;
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result getExamParticipations(Optional<String> dept, Optional<Long> start, Optional<Long> end) {
+    public Result getExamParticipations(Optional<String> dept, Optional<String> start, Optional<String> end) {
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("exam", "id, created")
                 .where()
@@ -97,8 +107,22 @@ public class ReportController extends BaseController {
         }
     }
 
+    private boolean applyExamFilter(Exam e, Optional<String> start, Optional<String> end) {
+        Boolean result = e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && !e.getExamParticipations().isEmpty();
+        Long created = e.getCreated().getTime();
+        if (start.isPresent()) {
+            DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
+            result = result && startDate.isBefore(created);
+        }
+        if (end.isPresent()) {
+            DateTime endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser()).plusDays(1);
+            result = result && endDate.isAfter(created);
+        }
+        return result;
+    }
+
     @Restrict({@Group("ADMIN")})
-    public Result getPublishedExams(Optional<String> dept, Optional<Long> start, Optional<Long> end) {
+    public Result getPublishedExams(Optional<String> dept, Optional<String> start, Optional<String> end) {
         ExpressionList<Exam> query = Ebean.find(Exam.class)
                 .fetch("course", "code")
                 .where()
@@ -109,14 +133,14 @@ public class ReportController extends BaseController {
                 .eq("state", Exam.State.DELETED)
                 .eq("state", Exam.State.ARCHIVED)
                 .endJunction();
-        query = applyFilters(query, "course", "created", dept.orElse(null), start.orElse(null), end.orElse(null));
+        query = applyFilters(query, "course", "created", dept.orElse(null), null, null);
         Set<Exam> exams = query.findSet();
         List<ExamInfo> infos = new ArrayList<>();
         for (Exam exam : exams) {
             ExamInfo info = new ExamInfo();
             info.name = String.format("[%s] %s", exam.getCourse().getCode(), exam.getName());
             info.participations = exam.getChildren().stream()
-                    .filter(e -> e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && !e.getExamParticipations().isEmpty())
+                    .filter(e -> applyExamFilter(e, start, end))
                     .collect(Collectors.toList())
                     .size();
             infos.add(info);
@@ -125,15 +149,16 @@ public class ReportController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result getReservations(Optional<String> dept, Optional<Long> start, Optional<Long> end) {
+    public Result getReservations(Optional<String> dept, Optional<String> start, Optional<String> end) {
         ExpressionList<Reservation> query = Ebean.find(Reservation.class).where();
-        query = applyFilters(query, "enrolment.exam.course", "startAt", dept.orElse(null), start.orElse(null), end.orElse(null));
+        query = applyFilters(query, "enrolment.exam.course", "startAt",
+                dept.orElse(null), start.orElse(null), end.orElse(null));
         return ok(query.findList());
     }
 
 
     @Restrict({@Group("ADMIN")})
-    public Result getResponses(Optional<String> dept, Optional<Long> start, Optional<Long> end) {
+    public Result getResponses(Optional<String> dept, Optional<String> start, Optional<String> end) {
         ExpressionList<Exam> query = Ebean.find(Exam.class).where()
                 .isNotNull("parent")
                 .isNotNull("course");

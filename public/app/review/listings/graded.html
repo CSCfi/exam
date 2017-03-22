@@ -1,23 +1,49 @@
 <div class="main-row">
-    <span class="col-md-12">
-        <a ng-click="toggleGraded()" class="header-icon fa-stack fa-lg">
-            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-            <i ng-show="!toggleGradedReviews" class="fa fa-chevron-right fa-stack-1x"></i>
-            <i ng-show="toggleGradedReviews" class="fa fa-chevron-down fa-stack-1x"></i>
-        </a>
-        <span class="exams-list-title-text pointer">
-            {{ 'sitnet_exam_reviewed' | translate }}
-        </span>
-    </span>
-</div>
-
-<div class="indented-row" ng-show="gradedReviews.length === 0">
-    <div class="col-md-12 text">N/A</div>
-</div>
-
-<div class="detail-row" ng-show="toggleGradedReviews && gradedReviews.length > 0">
     <div class="col-md-12">
-        <table class="table table-bordered table-striped exams-table">
+        <div class="review-list-title" >{{ 'sitnet_exam_reviewed' | translate }}
+            <a ng-click="toggleGraded()" class="pointer">
+                <img ng-show="!toggleGradedReviews" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
+                <img ng-show="toggleGradedReviews" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+            </a>
+            <sup class="padl05"><img popover-placement="right" popover-trigger="mouseenter"
+                                     uib-popover="{{'sitnet_graded_description' | translate}}"
+                                     src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
+        </div>
+    </div>
+</div>
+
+<div ng-show="gradedReviews.length === 0">
+    <div class="review-no-results">
+        <i class="fa fa-exclamation-circle padl20 grayish"></i>
+        {{ 'sitnet_exam_no_logged' | translate }}</div>
+
+    </div>
+</div>
+
+<div ng-show="toggleGradedReviews && gradedReviews.length > 0">
+
+    <div class="col-md-12">
+        <div class="form-group input-group search tab-search review-list-search padl0 marl10">
+            <input ng-model="filtergraded"
+                   ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
+                   class="form-control search"
+                   placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
+                   popover-trigger="mouseenter" uib-popover="{{ 'sitnet_exam_search_description' | translate }}">
+            <div class="input-group-addon search">
+                <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+            </div>
+        </div>
+
+        <div class="review-attachment-button review-list-speed-button marr20" ng-show="toggleGradedReviews && gradedReviews.length > 0">
+            <a target="_self" class="pointer" ng-click="sendSelectedToRegistry()">
+            {{'sitnet_send_results_to_registry' | translate}}
+        </a></div>
+    </div>
+
+        <table class="table table-striped exams-table">
             <thead ng-init="gradedPredicate='deadline'">
             <tr>
                 <th class="dropdown" uib-dropdown>
@@ -37,28 +63,29 @@
                         </li>
                     </ul>
                 </th>
-                <th sort by="user.lastName" text="sitnet_student" predicate="gradedPredicate" reverse="reverse"></th>
-                <th sort by="user.email" text="sitnet_email" predicate="gradedPredicate" reverse="reverse"></th>
-                <th sort by="started" text="sitnet_exam_duration" predicate="gradedPredicate" reverse="reverse"></th>
-                <th sort by="deadline" text="sitnet_review_deadline" predicate="gradedPredicate" reverse="reverse"></th>
-                <th sort by="displayedGrade" text="sitnet_grade" predicate="gradedPredicate" reverse="reverse"></th>
-                <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="gradedPredicate" reverse="reverse"></th>
-                <th sort by="exam.gradedTime" text="sitnet_graded" predicate="gradedPredicate" reverse="reverse"></th>
+                <th class="with-top" sort-exam by="user.lastName" text="sitnet_student" predicate="gradedPredicate" reverse="reverse"></th>
+                <th class="with-top" sort-exam by="user.email" text="sitnet_email" predicate="gradedPredicate" reverse="reverse"></th>
+                <th class="with-top" sort-exam by="started" text="sitnet_exam_duration" predicate="gradedPredicate" reverse="reverse"></th>
+                <th class="with-top with-space" sort-exam by="deadline" text="sitnet_review_deadline" predicate="gradedPredicate" reverse="reverse"></th>
+                <th class="with-top" sort-exam by="exam.totalScore" text="sitnet_total_score" predicate="gradedPredicate" reverse="reverse"></th>
+                <th class="with-top" sort-exam by="displayedGrade" text="sitnet_grade" predicate="gradedPredicate" reverse="reverse"></th>
+                <th class="with-top" sort-exam by="displayedCredit" text="sitnet_exam_credit" predicate="gradedPredicate" reverse="reverse"></th>
+                <th class="with-top" sort-exam by="exam.gradedTime" text="sitnet_graded" predicate="gradedPredicate" reverse="reverse"></th>
             </tr>
             </thead>
 
             <tbody>
-            <tr ng-repeat="review in gradedReviews | orderBy:gradedPredicate:reverse | offset: currentPageGraded*pageSize | limitTo: pageSize">
+            <tr ng-repeat="review in gradedReviews | orderBy:gradedPredicate:reverse | offset: currentPageGraded*pageSize | limitTo: pageSize | filter: filtergraded as resGraded">
                 <td class="table-column-checkbox">
                     <input type="checkbox" ng-model="review.selected" class="gradedReviewsBox" value="{{review.exam.id}}"/>
                 </td>
                 <td class="table-column-13 table-column-bold">
-                    <a class="pointer" ng-click="go(review.exam)">
+                    <a class="pointer" href="/exams/review/{{review.exam.id}}">
                         {{review.user.firstName}} {{review.user.lastName}}
                         <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
                     </a>
                 </td>
-                <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+                <td class="table-column-15"><a class="pointer smaller" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                 </td>
                 <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
                     {{'sitnet_clock_short' |
@@ -68,6 +95,12 @@
                 </td>
                 <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                         ng-bind-html="review.deadline | diffInDaysToNow"></span>)
+                </td>
+                <td class="table-column-10">{{review.exam.totalScore}} / {{review.exam.maxScore}}
+                    <span ng-if="review.exam.rejectedAnswerCount > 0 || review.exam.approvedAnswerCount > 0">
+                                <br />{{'sitnet_approved' | translate }}: {{ review.exam.approvedAnswerCount }}
+                                <br />{{'sitnet_rejected' | translate }}: {{ review.exam.rejectedAnswerCount }}
+                            </span>
                 </td>
                 <td class="table-column-15">{{translateGrade(review.exam)}}</td>
                 <td class="table-column-10">
@@ -86,9 +119,11 @@
                 <td></td>
                 <td></td>
             </tr>
+            <tr ng-if="resGraded.length == 0"><td colspan="8">{{'sitnet_review_no_result' | translate}}</td></tr>
+
             </tbody>
         </table>
-    </div>
+
 </div>
 
 <div class="detail-row" ng-show="toggleGradedReviews">
@@ -96,12 +131,3 @@
         <paginator items="gradedReviews" page-size="pageSize" current-page="currentPageGraded"/>
     </div>
 </div>
-
-<div class="main-row" ng-show="toggleGradedReviews && gradedReviews.length > 0">
-    <div class="col-md-12">
-        <button class="btn btn-primary" ng-click="sendSelectedToRegistry()">
-            {{'sitnet_send_results_to_registry' | translate}}
-        </button>
-    </div>
-</div>
-

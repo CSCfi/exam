@@ -1,35 +1,58 @@
 <div class="main-row">
-            <span class="col-md-12">
-                <span class="exams-list-title-text pointer">
-                    {{'sitnet_archived_exams' | translate}}
-                </span>
-            </span>
+    <div class="col-md-12">
+        <div class="review-list-title" >{{ 'sitnet_archived_exams' | translate }}
+            <a ng-click="toggleArchived()" class="pointer">
+                <img ng-show="!toggleArchivedReviews" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
+                <img ng-show="toggleArchivedReviews" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+            </a>
+        </div>
+    </div>
 </div>
-<div class="indented-row" ng-show="archivedReviews.length === 0">
-    <div class="col-md-12 text">N/A</div>
+
+<div ng-show="archivedReviews.length === 0">
+    <div class="col-md-12 review-no-results">
+        <i class="fa fa-exclamation-circle padl20 grayish"></i>
+        {{ 'sitnet_exam_archived' | translate }}</div>
 </div>
-<div class="col-md-12" ng-show="archivedReviews.length > 0">
-    <table class="table table-bordered table-striped exams-table">
-        <thead ng-init="archivedPredicate = 'exam.gradedTime'">
+
+
+
+<div ng-show="toggleArchivedReviews && archivedReviews.length > 0">
+
+    <div class="form-group input-group search tab-search review-list-search padl0 marl30">
+        <input ng-model="filterArchived"
+               ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
+               class="form-control search"
+               placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
+               popover-trigger="mouseenter" uib-popover="{{ 'sitnet_exam_search_description' | translate }}">
+        <div class="input-group-addon search">
+            <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+        </div>
+    </div>
+
+    <table class="table table-striped exams-table">
+        <thead ng-init="archivedPredicate = 'displayedGradingTime'">
         <tr>
-            <th sort by="user.lastName" text="sitnet_student" predicate="archivedPredicate" reverse="reverse"></th>
-            <th sort by="user.email" text="sitnet_email" predicate="archivedPredicate" reverse="reverse"></th>
-            <th sort by="started" text="sitnet_exam_duration" predicate="archivedPredicate" reverse="reverse"></th>
-            <th sort by="displayedGrade" text="sitnet_grade" predicate="archivedPredicate" reverse="reverse"></th>
-            <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="archivedPredicate" reverse="reverse"></th>
-            <th sort by="exam.gradedTime" text="sitnet_graded" predicate="archivedPredicate" reverse="reverse"></th>
+            <th sort-exam by="user.lastName" text="sitnet_student" predicate="archivedPredicate" reverse="reverse"></th>
+            <th sort-exam by="user.email" text="sitnet_email" predicate="archivedPredicate" reverse="reverse"></th>
+            <th sort-exam by="started" text="sitnet_exam_duration" predicate="archivedPredicate" reverse="reverse"></th>
+            <th sort-exam by="displayedGrade" text="sitnet_grade" predicate="archivedPredicate" reverse="reverse"></th>
+            <th sort-exam by="displayedCredit" text="sitnet_exam_credit" predicate="archivedPredicate" reverse="reverse"></th>
+            <th sort-exam by="displayedGradingTime" text="sitnet_graded" predicate="archivedPredicate" reverse="reverse"></th>
         </tr>
         </thead>
 
         <tbody>
-        <tr ng-repeat="review in archivedReviews | orderBy:archivedPredicate:reverse| offset: currentPageArchived*pageSize | limitTo: pageSize">
+        <tr ng-repeat="review in archivedReviews | orderBy:archivedPredicate:reverse| offset: currentPageArchived*pageSize | limitTo: pageSize | filter: filterArchived as resArchived">
             <td class="table-column-13 table-column-bold">
-                <a class="pointer" ng-click="go(review.exam)">
+                <a class="pointer" href="/exams/review/{{review.exam.id}}">
                     {{review.user.firstName}} {{review.user.lastName}}
                     <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
                 </a>
             </td>
-            <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+            <td class="table-column-15"><a class="pointer smaller" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
             </td>
             <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
                 {{'sitnet_clock_short' |
@@ -41,13 +64,15 @@
             <td class="table-column-10">
                 {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
             </td>
-            <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+            <td class="table-column-15">{{review.displayedGradingTime | date:'dd.MM.yyyy'}}</td>
         </tr>
         <!--Fill if page not full-->
         <tr ng-repeat="r in [] | pagefill: archivedReviews.length:currentPageArchived:pageSize">
             <td class="table-column-examname">&nbsp;</td>
             <td colspan="5"></td>
         </tr>
+        <tr ng-if="resArchived.length == 0"><td colspan="6">{{'sitnet_review_no_result' | translate}}</td></tr>
+
         </tbody>
     </table>
 </div>

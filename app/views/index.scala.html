@@ -37,11 +37,11 @@
         <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/main.css")">
 
             <!-- vendor -->
-        <script src="@routes.WebJarAssets.at(webJarAssets.locate("jquery","dist/jquery.min.js"))"></script>
-        <script src="@routes.WebJarAssets.at(webJarAssets.locate("jquery-ui","jquery-ui.min.js"))"></script>
-        <script src="@routes.WebJarAssets.at(webJarAssets.locate("jquery-ui-touch-punch","jquery.ui.touch-punch.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("jquery", "dist/jquery.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("jquery-ui", "jquery-ui.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("jquery-ui-touch-punch", "jquery.ui.touch-punch.min.js"))"></script>
 
-        <script src="@routes.WebJarAssets.at(webJarAssets.locate("toastr","toastr.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("toastr", "toastr.js"))"></script>
         <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular", "angular.min.js"))"></script>
         <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-animate", "angular-animate.min.js"))"></script>
         <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-i18n", "angular-locale_en.js"))" type="text/javascript"></script>
@@ -62,7 +62,7 @@
         <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-strap", "debounce.min.js"))"></script>
         <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-strap", "dimensions.min.js"))"></script>
         <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-strap", "affix.min.js"))"></script>
-        <script src="@routes.WebJarAssets.at(webJarAssets.locate("momentjs","moment-with-locales.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("momentjs", "moment-with-locales.min.js"))"></script>
         <script src="@routes.WebJarAssets.at(webJarAssets.locate("moment-timezone", "moment-timezone-with-data.min.js"))"></script>
 
         <script src="@routes.WebJarAssets.at(webJarAssets.locate("fullcalendar", "fullcalendar.min.js"))"></script>
@@ -73,25 +73,25 @@
         <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-dynamic-locale", "dist/tmhDynamicLocale.min.js"))" type="text/javascript"></script>
         <script src="@routes.WebJarAssets.at(webJarAssets.locate("underscorejs", "underscore-min.js"))"></script>
 
-        <!-- Not available as webjars -->
+            <!-- Not available as webjars -->
         <script src="@routes.Assets.at("components/vendor/angular-promise-extras.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/dialogs.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/ckeditor/ckeditor.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/MathJax-2.6-latest/MathJax.js?config=TeX-AMS_HTML")" type="text/javascript"></script>
         <script>
-            if (window.CKEDITOR) {
-                CKEDITOR.env.isCompatible = true;
-                CKEDITOR.cacheForceReload = Date.now();
-                CKEDITOR.on('dialogDefinition', function(ev) {
-                    <!-- links to have a default target of '_blank' -->
-                    if (ev.data.name === 'link') {
-                        var def = ev.data.definition;
-                        def.removeContents('advanced');
-                        var field = def.getContents('target').get('linkTargetType');
-                        field['default'] = '_blank';
-                    }
-                });
-            }
+                if (window.CKEDITOR) {
+                    CKEDITOR.env.isCompatible = true;
+                    CKEDITOR.cacheForceReload = Date.now();
+                    CKEDITOR.on('dialogDefinition', function (ev) {
+                        <!-- links to have a default target of '_blank' -->
+                        if (ev.data.name === 'link') {
+                            var def = ev.data.definition;
+                            def.removeContents('advanced');
+                            var field = def.getContents('target').get('linkTargetType');
+                            field['default'] = '_blank';
+                        }
+                    });
+                }
         </script>
 
         @if(isProd) {
@@ -156,8 +156,10 @@
             <script src="@routes.Assets.at("app/exam/editor/examInspectionController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/editor/examEnrolmentController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/examService.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/exam/examTabsController.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/exam/printout/printoutController.js")" type="text/javascript"></script>
 
-                 <!-- facility -->
+                <!-- facility -->
             <script src="@routes.Assets.at("app/facility/roomResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/facility/softwareResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/facility/examMachineResource.js")" type="text/javascript"></script>
@@ -187,6 +189,7 @@
                 <!-- review -->
             <script src="@routes.Assets.at("app/review/examReviewController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/review/reviewListingController.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/review/speedReviewController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/review/examReviewService.js")" type="text/javascript"></script>
 
                 <!-- maturity -->
@@ -212,25 +215,28 @@
 
     <body ng-controller="SessionCtrl">
         <div ng-controller="NavigationCtrl">
-            <div ng-hide="examStarted" id="vmenu">
+            <div ng-if="user.isTeacher || user.isStudent" ng-hide="examStarted" id="vmenu" class="hidden-print">
                 <div class="nav-container">
                     <div class="nav-header">
                         @*Logo*@
                         <div class="logo">
                             <div class="hidden-mobile">
                                 @*<img src="@routes.Assets.at("assets/images/exam-logo-new.png")" alt="exam" />*@
-                                <img src="@routes.Assets.at("assets/images/exam-logo-new.svg")" alt="exam" onerror="this.onerror=null;this.src='assets/images/exam-logo-new.png'" />
+                                <img src="@routes.Assets.at("assets/images/exam-logo-new.svg")" alt="exam" onerror="this.onerror = null;
+                                this.src = 'assets/images/exam-logo-new.png'" />
                             </div>
                             <div class="visible-mobile">
                                 <div class="mobile-menu" ng-click="openMenu();" ng-hide="!user">
                                     @*<img src="@routes.Assets.at("assets/images/icon_menu_mobile.png")" alt="exam" />*@
-                                    <img src="@routes.Assets.at("assets/images/icon_menu_mobile.svg")" alt="exam" onerror="this.onerror=null;this.src='assets/images/icon_menu_mobile.png'" />
+                                    <img src="@routes.Assets.at("assets/images/icon_menu_mobile.svg")" alt="exam" onerror="this.onerror = null;
+                                    this.src = 'assets/images/icon_menu_mobile.png'" />
                                 </div>
                                 @*<img src="@routes.Assets.at("assets/images/exam-logo-mobile.png")" alt="exam" />*@
-                                <img src="@routes.Assets.at("assets/images/exam-logo-mobile.svg")" alt="exam" onerror="this.onerror=null;this.src='assets/images/exam-logo-mobile.png'" />
+                                <img src="@routes.Assets.at("assets/images/exam-logo-mobile.svg")" alt="exam" onerror="this.onerror = null;
+                                this.src = 'assets/images/exam-logo-mobile.png'" />
                             </div>
                         </div>
-                            @*Version number*@
+                        @*Version number*@
                         <div ng-hide="!appVersion">
                             <div class="app-version">
                                 <strong>v. {{ appVersion }}</strong>
@@ -266,7 +272,9 @@
                         <div class="user">
                             <div class="user-name">
                                 <div class="user-logo"><img src="@routes.Assets.at("assets/images/icon_menu_user.png")" alt="{{user.firstName}}&nbsp;{{user.lastName}}" /></div>
-                                <div class="user-data">{{user.firstName}}&nbsp;{{user.lastName}}<br/><span ng-show="user.isStudent">opiskelija</span></div>
+                                <div class="user-data">
+                                    {{user.firstName}}&nbsp;{{user.lastName}}<br/><span ng-show="user.isStudent">
+                                    opiskelija</span></div>
 
                             </div>
                         </div>
@@ -274,20 +282,99 @@
                     </div>
 
                     <div class="nav-footer">
-                           <div class="locale-bar">
-                                <span class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></span>
-                                <span class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></span>
-                                <span class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></span>
-                            </div>
+                        <div class="locale-bar">
+                            <span class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></span>
+                            <span class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></span>
+                            <span class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></span>
+                        </div>
                     </div>
 
                 </div>
             </div>
+
+            <div ng-if="user.isAdmin" ng-hide="examStarted" id="vmenu-admin" ng-init="minimizeNavigation = !canDisplayFullNavbar()">
+                <div class="nav-container">
+                    <div ng-class="minimizeNavigation ? 'minimize' : ''">
+                        <div class="nav-header">
+                            @*Logo*@
+                            <div class="logo">
+                                <div ng-hide="minimizeNavigation">
+                                    <img src="@routes.Assets.at("assets/images/exam-logo-black-small.png")" alt="exam" />
+                                </div>
+                                <div ng-hide="!minimizeNavigation">
+                                    @*<img src="@routes.Assets.at("assets/images/Exam_logo_vert.png")" alt="exam" />*@
+                                    <img width="50" height="90" src="@routes.Assets.at("assets/images/exam-logo-black-small-v.png")" alt="exam" />
+                                </div>
+                            </div>
+                            @*Version number*@
+                            <div ng-hide="minimizeNavigation || !appVersion" >
+                                <div class="app-version">
+                                    <strong>v. {{ appVersion }}</strong>
+                                </div>
+                            </div>
+                            @*Language selection*@
+                            <div ng-hide="minimizeNavigation">
+                                <div class="locale-bar">
+                                    <span class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></span>
+                                    <span class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></span>
+                                    <span class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></span>
+                                </div>
+                            </div>
+                            <div ng-hide="!minimizeNavigation">
+                                <div class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></div>
+                                <div class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></div>
+                                <div class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></div>
+                            </div>
+                            @*User info*@
+                            <div ng-hide="minimizeNavigation" >
+                                <div class="user">
+                                    <div class="user-name">
+                                        <p>{{user.firstName}}<br>{{user.lastName}}&nbsp;</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    @*Menu items*@
+                    <div ng-class="minimizeNavigation ? 'minimize' : ''">
+                        <div class="nav-body">
+                            <nav ng-class="minimizeNavigation ? 'minimize' : ''">
+                                <ul class="links">
+                                    <li ng-class="{selected: isActive(link)}" ng-repeat="link in links" ng-show="{{link.visible}}">
+                                        <a href="{{link.href}}">
+                                            <i class="fa fa-2x fa-fw {{link.class}}"></i>
+                                            <span class="menu-item">{{ link.name | translate }}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    <div ng-class="minimizeNavigation ? 'minimize' : ''">
+                        <div class="nav-footer">
+                            <div ng-click="minimizeNavigation = !minimizeNavigation" class="minify">
+                                <div ng-hide="minimizeNavigation">
+                                    <i class="pointer fa fa-3x fa-chevron-left hit"></i>
+                                </div>
+                                <div ng-hide="!minimizeNavigation">
+                                    <i class="pointer fa fa-3x fa-chevron-right hit"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             @*App content*@
             <div id="mainView" class="wide-container-fluid" ng-class="examStarted ? '' : 'vmenu-on'">
                 <div ng-view></div>
             </div>
+
         </div>
+
+
     </body>
 </html>
 

@@ -64,32 +64,24 @@
                             visible: (languageInspector || admin),
                             class: 'fa-language',
                             name: "sitnet_language_inspections",
-                            icon_svg: "icon_enrols.svg",
-                            icon_png: "icon_enrols.png"
-                        },
-                        {
-                            href: "/questions",
-                            visible: (admin || teacher),
-                            class: "fa-list-ol",
-                            name: "sitnet_library",
-                            icon_svg: "icon_enrols.svg",
-                            icon_png: "icon_enrols.png"
+                            icon_svg: "icon_language_inspection.svg",
+                            icon_png: "icon_language_inspection.png"
                         },
                         {
                             href: "/exams",
-                            visible: (admin || teacher),
+                            visible: (admin),
                             class: "fa-paste",
                             name: "sitnet_exams",
                             icon_svg: "icon_enrols.svg",
                             icon_png: "icon_enrols.png"
                         },
                         {
-                            href: "/reservations",
-                            visible: (teacher),
-                            class: "fa-clock-o",
-                            name: "sitnet_reservations",
-                            icon_svg: "icon_enrols.svg",
-                            icon_png: "icon_enrols.png"
+                            href: "/printouts",
+                            visible: (admin),
+                            class: "fa-print",
+                            name: "sitnet_printout_exams"
+                            //icon_svg: "icon_enrols.svg",
+                            //icon_png: "icon_enrols.png"
                         },
                         {
                             href: "/rooms",
@@ -128,8 +120,24 @@
                             visible: (admin),
                             class: "fa-users",
                             name: "sitnet_users",
-                            icon_svg: "icon_enrols.svg",
-                            icon_png: "icon_enrols.png"
+                            icon_svg: "icon_reservations.svg",
+                            icon_png: "icon_reservations.png"
+                        },
+                        {
+                            href: "/questions",
+                            visible: (admin || teacher),
+                            class: "fa-list-ol",
+                            name: "sitnet_library_new",
+                            icon_svg: "icon_pencil.svg",
+                            icon_png: "icon_pencil.png"
+                        },
+                        {
+                            href: "/reservations",
+                            visible: (teacher),
+                            class: "fa-clock-o",
+                            name: "sitnet_reservations_new",
+                            icon_svg: "icon_reservations.svg",
+                            icon_png: "icon_reservations.png"
                         },
                         {
                             href: "/student/exams",

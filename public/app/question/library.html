@@ -1,180 +1,56 @@
-<script>
-
-    var initResize = function () {
-        $('#library').each(function () {
-            var elem = $(this);
-            var resizeFn = function () {
-                var containerWidth = $("#lib-wrapper").width();
-                var padding = Math.max(parseInt(elem.css('paddingLeft')) +
-                        parseInt(elem.css('paddingRight')), 15);
-                console.log("lib container width: " + containerWidth);
-                console.log("padding: " + padding);
-                elem.css('width', containerWidth);
-            };
-
-            // add some timeout so that the UI can settle before calculating widths
-            window.setTimeout(function () {
-                resizeFn();
-                $(window).resize(resizeFn);
-            }, 200);
-        });
-    };
-
-    $(document).ready(function () {
-        console.log("on doc ready");
-        initResize();
-        $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function (e) {
-            e.stopPropagation();
-        });
-    });
-
-</script>
-
 <div id="library">
-    <div class="library-main" bs-affix sn-library data-spy="affix" data-offset-top="130" style="position: absolute; z-index: 799">
-        <div class="library-header">
-            <h4>
-                <div ng-click="session.minimizeLibrary = ! session.minimizeLibrary">
-                    <i ng-class="session.minimizeLibrary ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"></i>
-                    <i ng-class="session.minimizeLibrary ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"></i>
-                </div>
-            </h4>
-        </div>
-        <div class="library" ng-controller="LibraryCtrl"
-             ng-hide="session.minimizeLibrary">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="library-name">
-                        <h4>
-                            <i class="fa fa-briefcase"></i>
-                            {{'sitnet_library' | translate}}
-                        </h4>
+    <div class="library-main">
+        <div class="library" ng-controller="LibraryCtrl">
+
+            <!-- title row and add new question button -->
+            <div ng-if="!addEditQuestion.showForm" class="top-row">
+                <div class="col-md-12 marb20">
+                    <div class="student-enroll-title-wrap">
+                        <div class="student-enroll-title">{{'sitnet_library_choose' | translate}}</div>
                     </div>
-                </div>
-                <div class="col-md-12">
-                    <span class="dropdown" uib-dropdown>
-                        <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button"
-                                id="dropDownMenu1"
-                                data-toggle="dropdown" aria-expanded="true" ng-click="listCourses()">
-                            {{'sitnet_course' | translate}}&nbsp;<span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu filter-menu" role="menu"
-                            aria-labelledby="dropDownMenu1">
-                            <li role="presentation" class="input-group">
-                                <input ng-model="limitations.course" type="text" class="form-control"
-                                       placeholder="{{'sitnet_search' | translate }}">
-
-                                <div class="input-group-addon">
-                                    <i class="fa fa-search fa-fw"></i>
+                    <div class="library-toolbar">
+                        <div class="make-inline">
+                            <div class="library-button add-button">
+                                <div class="review-attachment-button print-button">
+                                    <a ng-click="constructQuestion()" class="pointer">
+                                        {{'sitnet_exam_library_new_question' | translate}}
+                                    </a>
                                 </div>
-                            </li>
-                            <li ng-repeat="course in courses | filter:limitations.courses" role="presentation"
-                                ng-class="course.filtered ? 'active': ''" ng-click="applyFilter(course)">
-                                <a role="menuitem" title="{{course.name}}">{{course.name | truncate:30}}</a>
-                            </li>
-                        </ul>
-                    </span>
-                    <span class="dropdown" uib-dropdown>
-                        <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button"
-                                id="dropDownMenu2"
-                                data-toggle="dropdown" aria-expanded="true" ng-click="listExams()">
-                            {{'sitnet_exam' | translate}}&nbsp;<span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu filter-menu" role="menu"
-                            aria-labelledby="dropDownMenu2">
-                            <li role="presentation" class="input-group">
-                                <input ng-model="limitations.exams" type="text" class="form-control"
-                                       placeholder="{{'sitnet_search' | translate }}">
-
-                                <div class="input-group-addon">
-                                    <i class="fa fa-search fa-fw"></i>
-                                </div>
-                            </li>
-                            <li ng-repeat="exam in exams | filter:limitations.exams" role="presentation"
-                                ng-class="exam.filtered ? 'active': ''" ng-click="applyFilter(exam)">
-                                <a role="menuitem" title="{{exam.name}}">{{exam.name | truncate:25}}</a>
-                            </li>
-                        </ul>
-                    </span>
-                    <span class="dropdown" uib-dropdown>
-                        <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button"
-                                id="dropDownMenu3"
-                                data-toggle="dropdown" aria-expanded="true" ng-click="listTags()">
-                            {{'sitnet_category' | translate}}&nbsp;<span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu filter-menu" role="menu"
-                            aria-labelledby="dropDownMenu3">
-                            <li role="presentation" class="input-group">
-                                <input ng-model="limitations.tags" type="text" class="form-control"
-                                       placeholder="{{'sitnet_search' | translate }}">
-
-                                <div class="input-group-addon">
-                                    <i class="fa fa-search fa-fw"></i>
-                                </div>
-                            </li>
-                            <li ng-repeat="tag in tags | filter:limitations.tags" role="presentation"
-                                ng-class="tag.filtered ? 'active': ''" ng-click="applyFilter(tag)">
-                                <a role="menuitem" ng-class="tag.isSectionTag ? 'text-dim' : 'text'"
-                                   title="{{tag.isSectionTag ? 'sitnet_exam_section' : 'sitnet_category' | translate; }}">
-                                    {{tag.name | truncate:30}}
-                                </a>
-                            </li>
-                        </ul>
-                    </span>
-                </div>
-            </div>
-            <div class="row" style="padding-top: 0.5em;">
-                <div class="col-md-12">
-                    <ul class="inline-list">
-                        <li>
-                            <button ng-repeat="tag in getTags()" type='button'
-                                    ng-click="applyFilter(tag)" class="btn btn-primary btn-xs"
-                                    style="margin: 0.2em">
-                                {{tag.name}}
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="input-group">
-                <input ng-change="applyFreeSearchFilter()" ng-model="filter.text" type="text" class="form-control"
-                       placeholder="{{'sitnet_search' | translate }}">
-
-                <div class="input-group-addon">
-                    <i class="fa fa-search fa-fw"></i>
-                </div>
-            </div>
-            <div style="max-width:100%;">
-                <div ng-if="moreQuestions" class="top-margin-1 sitnet-text-theme text-center">{{'sitnet_show_first'
-                    | translate }} {{maxVisible}} {{'sitnet_show_questions' | translate }}
-                </div>
-                <ul class="questions-wrapper"><!-- list-group results -->
-                    <li style="width:5%;" draggable="visibleQuestions" draggable-target=".sortable"
-                        class="drag-all-wrap draggable">
-                        <span class="vertical-text" ng-init="verticalText('vertical-text')">{{'sitnet_add_all' | translate}}</span>
-                    </li>
-                    <li class="question-list-wrapper">
-                        <div id="dashboard" class="library-question-header-inactive draggable"
-                             ng-repeat="question in visibleQuestions"
-                             ng-show="question"
-                             draggable="question" draggable-target=".sortable">
-                            <div class="library-row-icon"><i
-                                    class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
-                            </div>
-                            <div class="library-row-text-wrap">
-                                <div class="library-row-text" mathjax
-                                     ng-bind-html="question.question | truncate: 50"
-                                     title="{{longTextIfNotMath(question.question)}}"></div>
                             </div>
                         </div>
-                    </li>
-                </ul>
-                <div ng-if="moreQuestions" class="text-center">
-                    <hr style="border-top:1px solid rgba(0,0,0,0.05)"/>
-                    <a ng-click="showMore();" class="pointer sitnet-text-theme">{{'sitnet_show_more' | translate
-                        }}</a>
+                    </div>
                 </div>
             </div>
+
+            <!-- search bar and search parameters -->
+            <div ng-if="!addEditQuestion.showForm" ng-include="templates.librarySearch"></div>
+
+            <div ng-if="!addEditQuestion.showForm" class="col-md-12 padl0 padr0 marb20">
+                <span class="pull-left marl20">
+                    <div class="library-button make-inline mart20 marr30 marl10"><a target="_self" class="pointer" ng-click="addQuestions()">
+                        {{'sitnet_add_chosen' | translate}}
+                    </a></div>
+                </span>
+            </div>
+
+            <!-- resulting table with questions -->
+            <div ng-if="!addEditQuestion.showForm" ng-include="templates.libraryResults"></div>
+
+            <!-- new question form -->
+            <div ng-if="addEditQuestion.showForm" ng-include="templates.newQuestion" ></div>
+
+            <!-- Buttons -->
+            <div ng-if="!addEditQuestion.showForm" class="col-md-12 padl0 padr0 marb20">
+            <span class="pull-right">
+                <div class="library-button make-inline"><a target="_self" class="pointer preview" ng-click="cancelEdit()">
+                    {{'sitnet_button_cancel' | translate}}
+                </a></div>
+                <div class="library-button make-inline mart20 marr30 marl10"><a target="_self" class="pointer" ng-click="addQuestions()">
+                    {{'sitnet_add_chosen' | translate}}
+                </a></div>
+            </span>
+            </div>
         </div>
+
     </div>
 </div>

@@ -127,7 +127,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     double getTotalScore() {
         return sectionQuestions.stream()
                 .map(ExamSectionQuestion::getAssessedScore)
-                .filter(s -> s != null)
+                .filter(Objects::nonNull)
                 .reduce(0.0, (sum, x) -> sum += x);
     }
 
@@ -135,7 +135,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     double getMaxScore() {
         return sectionQuestions.stream()
                 .map(ExamSectionQuestion::getMaxAssessedScore)
-                .filter(s -> s != null)
+                .filter(Objects::nonNull)
                 .reduce(0.0, (sum, x) -> sum += x);
     }
 

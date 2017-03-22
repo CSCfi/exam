@@ -1,6 +1,8 @@
 @import "fonts";
 @import "partial/defines";
 @import "partial/vmenu";
+@import "partial/vmenu_student";
+@import "partial/vmenu_admin";
 @import "partial/header";
 @import "partial/exam";
 @import "partial/login";
@@ -16,6 +18,8 @@
 @import "partial/datetimepicker";
 @import "partial/feedback";
 @import "partial/mainview";
+@import "partial/printout";
+
 
 html {
   font-family: $sitnet-family-helvetica;
@@ -35,10 +39,11 @@ p {
 
 .vmenu-on {
   width: auto;
-  margin-left: 230px;
+  margin-left: 17.025em;
+  overflow-x: hidden;
 
   @media (max-width: $sitnet-mobile) {
-    margin-left: 0px;
+    margin-left: 0;
   }
 }
 
@@ -151,6 +156,11 @@ label {
     padding-top: 11px;
     padding-bottom: 11px;
     margin-left: 10px;
+
+    &.nowdt {
+      width: inherit;
+    }
+
   }
 
   button:hover, button:active, button:focus, button:active:focus {
@@ -171,6 +181,11 @@ label {
     padding-left: 20px;
     padding-right: 20px;
     color:white;
+
+    &.nowdt {
+      width: inherit;
+    }
+
   }
 
   a:hover, button:active, button:focus, button:active:focus {
@@ -330,6 +345,7 @@ label {
   width: 22%;
   float: right;
   margin-right: 30px;
+  cursor: not-allowed;
 
   a {
     font-size: 16px;
@@ -345,16 +361,30 @@ label {
     display: block;
     padding-top: 10px;
     padding-bottom: 10px;
+
+    &.cancel {
+      cursor: pointer;
+      background-color: #7F7F7F;
+      border: 1px solid #6B6B6B;
+
+    }
   }
 
   a:hover, button:active, button:focus, button:active:focus {
-    background-color: #979797;
+    background-color: #D8D8D8;
     border: 1px solid #979797;
+    &.cancel {
+      cursor: pointer;
+      background-color: #6B6B6B;
+      border: 1px solid #6B6B6B;
+    }
     text-decoration: none;
   }
 }
 
 .calendar-button-save-activated {
+
+    cursor: pointer;
 
     a {
       font-size: 16px;
@@ -548,7 +578,12 @@ label {
 
   &.search {
     height:40px !important;
-    width:400px !important;
+    width:550px !important;
+  }
+
+  &.langinsp {
+    height:40px !important;
+    width:350px !important;
   }
 
   &.login {
@@ -585,6 +620,7 @@ label {
 
 .pagination {
   margin-left: 15px;
+  margin-right: 25px;
 
   .disabled {
     display:none;
@@ -599,6 +635,8 @@ label {
       border: 0px;
       font-size: 16px;
       line-height: 1.3;
+      width:30px;
+      height:30px;
     }
     a:hover {
       color: #fff;
@@ -630,6 +668,8 @@ label {
     a:hover {
       color: #fff;
       background: #3CA34F;
+      width:30px;
+      height:30px;
     }
 
 

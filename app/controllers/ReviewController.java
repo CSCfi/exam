@@ -4,6 +4,7 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
@@ -39,13 +40,7 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
@@ -124,26 +119,27 @@ public class ReviewController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamReview(Long eid) {
-        Exam exam = createQuery()
+        ExpressionList<Exam> query = createQuery()
                 .where()
                 .eq("id", eid)
                 .disjunction()
-                .eq("state", Exam.State.ABORTED)
                 .eq("state", Exam.State.REVIEW)
                 .eq("state", Exam.State.REVIEW_STARTED)
                 .eq("state", Exam.State.GRADED)
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .eq("state", Exam.State.REJECTED)
-                .eq("state", Exam.State.ARCHIVED)
-                .endJunction()
-                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
-                .findUnique();
+                .eq("state", Exam.State.ARCHIVED);
+        User user = getLoggedUser();
+        boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
+        if (isAdmin) {
+            query = query.eq("state", Exam.State.ABORTED);
+        }
+        query = query.endJunction();
+        Exam exam = query.orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber").findUnique();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        User user = getLoggedUser();
-        if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !user.hasRole("ADMIN", getSession()) &&
-                !exam.isViewableForLanguageInspector(user)) {
+        if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !isAdmin && !exam.isViewableForLanguageInspector(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
         exam.getExamSections().stream()
@@ -159,7 +155,7 @@ public class ReviewController extends BaseController {
         User user = getLoggedUser();
         Set<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
-                .fetch("exam", "id, name, state, gradedTime, customCredit, creditType, answerLanguage, trialCount")
+                .fetch("exam", "id, name, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount")
                 .fetch("exam.grade", "id, name")
                 .fetch("exam.gradeScale")
                 .fetch("exam.gradeScale.grades", new FetchConfig().query())
@@ -168,6 +164,7 @@ public class ReviewController extends BaseController {
                 .fetch("exam.executionType")
                 .fetch("exam.examFeedback")
                 .fetch("exam.languageInspection")
+                .fetch("exam.examSections.sectionQuestions.clozeTestAnswer") // for getting the scores (see below)
                 .fetch("exam.examSections.sectionQuestions.question") // for getting the scores (see below)
                 .fetch("exam.examLanguages", new FetchConfig().query())
                 .fetch("exam.course", "code, credits")
@@ -595,8 +592,11 @@ public class ReviewController extends BaseController {
 
     private void notifyPartiesAboutPrivateExamRejection(Exam exam) {
         User user = getLoggedUser();
+        final Set<User> examinators = exam.getExecutionType().getType().equals(
+                ExamExecutionType.Type.MATURITY.toString())
+                ? exam.getParent().getExamOwners() : Collections.emptySet();
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+            emailComposer.composeInspectionReady(exam.getCreator(), user, exam, examinators);
             Logger.info("Inspection rejection notification email sent");
         }, actor.dispatcher());
     }

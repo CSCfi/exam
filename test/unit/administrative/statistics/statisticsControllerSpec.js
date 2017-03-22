@@ -43,7 +43,7 @@ describe('StatisticsController', function () {
     });
 
     it('should have load participation statistics', function () {
-        $httpBackend.expectGET('/app/reports/participations?end=1456783200000&start=1448920800000')
+        $httpBackend.expectGET('/app/reports/participations?end=Tue+Mar+01+2016+00:00:00+GMT%2B0200&start=Tue+Dec+01+2015+00:00:00+GMT%2B0200')
             .respond(readFixtures('participations.json'));
         scope.dateService.startDate = 'Tue Dec 01 2015 00:00:00 GMT+0200';
         scope.dateService.endDate = 'Tue Mar 01 2016 00:00:00 GMT+0200';

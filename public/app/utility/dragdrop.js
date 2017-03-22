@@ -61,7 +61,7 @@
                             var objToMove = scope.objects[startIndex];
                             scope.objects.splice(startIndex, 1);
                             scope.objects.splice(newIndex, 0, objToMove);
-                            // we move items in the array, propagete update to angular as well
+                            // we move items in the array, propagate update to angular as well
                             // since we're outside its lifecycle
                             scope.onMove({object: objToMove, from: startIndex, to: newIndex});
                         },

@@ -32,6 +32,7 @@
                     ExamRes.draft.create({executionType: executionType},
                         function (response) {
                             toastr.info($translate.instant("sitnet_exam_added"));
+                            //return response.id;
                             $location.path("/exams/course/" + response.id);
                         }, function (error) {
                             toastr.error(error.data);
@@ -197,6 +198,10 @@
                             if (t.type === 'MATURITY') {
                                 t.name = 'sitnet_maturity';
                             }
+                            if (t.type === 'PRINTOUT') {
+                                t.name = 'sitnet_printout_exam';
+                            }
+
                         });
                         return deferred.resolve(types);
                     });
@@ -213,6 +218,9 @@
                     }
                     if (type === 'MATURITY') {
                         translation = 'sitnet_maturity';
+                    }
+                    if (type === 'PRINTOUT') {
+                        translation = 'sitnet_printout_exam';
                     }
                     return translation;
                 };
@@ -319,7 +327,8 @@
 
                 self.isOwner = function (exam) {
                     var user = sessionService.getUser();
-                    return exam && exam.parent.examOwners.filter(function (o) {
+                    var examToCheck = exam && exam.parent ? exam.parent : exam;
+                    return examToCheck && examToCheck.examOwners.filter(function (o) {
                             return o.id === user.id;
                         }).length > 0;
                 };

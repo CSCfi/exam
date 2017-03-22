@@ -1,29 +1,38 @@
-<!-- Bottom toolbar -->
-<div class="detail-row bottom-padding-2">
-    <div class="col-md-1">
-            <span ng-show="!isReadOnly()">
-                <button ng-disabled="isReadOnly()"
-                        ng-click="updateExam(exam)" class="btn btn-primary">
-                    {{'sitnet_save' | translate}}
-                </button>
-            </span>
-            <span ng-show="isReadOnly() || (!isOwnerOrAdmin() && isGraded())" class="row">
-                <i class="fa fa-close text-info"></i></i>
-                <a href="/exams/reviews/{{ exam.parent.id }}">{{'sitnet_close' | translate}}</a>
-            </span>
+<!-- Buttons -->
+<div class="review-toolbar-wrapper padl0 padr0 marb20">
+
+    <div ng-show="isReadOnly() || (!isOwnerOrAdmin() && isGraded())"
+         class="review-attachment-button exam-questions-buttons marl15">
+        <a target="_self" class="pointer preview" href="{{getExitUrl(exam)}}">
+        {{'sitnet_close' | translate}}</a>
     </div>
-    <div class="col-md-2">
-        <span ng-show="!isReadOnly()">
-            <button class="btn btn-primary" ng-if="!isMaturityRejection()"
-                    ng-disabled="!isOwnerOrAdmin() || !examForm.$valid"
-                    ng-click="saveExamRecord(exam)">{{'sitnet_send_result_to_registry' | translate}}
-            </button>
-            <!-- This is the case for maturity exams that do not have language inspection, flow is the same as with
-                regular exam except that there is a rejection option to sending to registry -->
-            <button class="btn btn-primary" ng-if="isMaturityRejection()"
-                    ng-disabled="!isOwnerOrAdmin() || !examForm.$valid"
-                    ng-click="rejectMaturity(true)">{{'sitnet_reject_maturity' | translate}}
-            </button>
-        </span>
-    </div>
+
+
+    <span class="pull-right">
+
+        <div ng-show="!isReadOnly()"
+             class="review-attachment-button exam-questions-buttons">
+            <a target="_self" class="pointer preview"
+               ng-if="!isMaturityRejection()"
+               ng-disabled="!isOwnerOrAdmin() || !examForm.$valid"
+               ng-click="saveExamRecord(exam)">
+                {{'sitnet_send_result_to_registry' | translate}}</a>
+        </div>
+
+        <div ng-show="!isReadOnly()"
+             class="review-attachment-button exam-questions-buttons marl10">
+            <a target="_self" class="pointer preview"
+               ng-if="isMaturityRejection()"
+               ng-disabled="!isOwnerOrAdmin() || !examForm.$valid"
+               ng-click="rejectMaturity(true)">
+                {{'sitnet_reject_maturity' | translate}}</a>
+        </div>
+        <div ng-if="!isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
+            <a target="_self" class="pointer" ng-disabled="isReadOnly()" ng-click="updateExam(exam)">
+                {{'sitnet_save_changes' | translate}}
+            </a>
+        </div>
+    </span>
+
+
 </div>

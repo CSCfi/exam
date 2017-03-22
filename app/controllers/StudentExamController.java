@@ -27,15 +27,10 @@ import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
 @Restrict({@Group("STUDENT")})
@@ -130,14 +125,14 @@ public class StudentExamController extends BaseController {
                     exam.update();
                     User student = exam.getCreator();
                     actor.scheduler().scheduleOnce(Duration.create(5, TimeUnit.SECONDS),
-                            () -> emailComposer.composeInspectionReady(student, null, exam),
+                            () -> emailComposer.composeInspectionReady(student, null, exam, Collections.emptySet()),
                             actor.dispatcher());
                     Logger.debug("Mail sent about automatic evaluation to {}", student.getEmail());
                 }
             }
             return ok("Exam sent for review");
         } else {
-            return forbidden("exam already returned");
+            return ok("exam already returned");
         }
     }
 
@@ -184,7 +179,7 @@ public class StudentExamController extends BaseController {
             EssayAnswer answer = question.getEssayAnswer();
             if (answer == null) {
                 answer = new EssayAnswer();
-            } else {
+            } else if (df.get("objectVersion") != null) {
                 long objectVersion = Long.parseLong(df.get("objectVersion"));
                 answer.setObjectVersion(objectVersion);
             }
@@ -200,8 +195,9 @@ public class StudentExamController extends BaseController {
     public Result answerMultiChoice(String hash, Long qid) {
         return getEnrolmentError(hash).orElseGet(() -> {
             ArrayNode node = (ArrayNode) request().body().asJson().get("oids");
-            List<Long> optionIds = new ArrayList<>();
-            node.forEach(n -> optionIds.add(n.asLong()));
+            List<Long> optionIds = StreamSupport.stream(node.spliterator(), false)
+                    .map(JsonNode::asLong)
+                    .collect(Collectors.toList());
             ExamSectionQuestion question =
                     Ebean.find(ExamSectionQuestion.class, qid);
             if (question == null) {
@@ -211,8 +207,7 @@ public class StudentExamController extends BaseController {
                 o.setAnswered(optionIds.contains(o.getId()));
                 o.update();
             });
-            PathProperties pp = PathProperties.parse("(id, answered, option(id, option))");
-            return ok(question.getOptions(), pp);
+            return ok();
         });
     }
 
@@ -328,7 +323,7 @@ public class StudentExamController extends BaseController {
                         "examInspections(user(firstName, lastName))" +
                         "examSections(id, name, sequenceNumber, description, " + // ((
                         "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
-                        "question(id, type, question, attachment(fileName))" +
+                        "question(id, type, question, attachment(id, fileName))" +
                         "options(id, answered, option(id, option))" +
                         "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
                         "clozeTestAnswer(id, question, answer, objectVersion)" +
@@ -375,7 +370,7 @@ public class StudentExamController extends BaseController {
         Double maxScore = exam.getMaxScore();
         Double percentage = maxScore == 0 ? 0 : totalScore * 100 / maxScore;
         List<GradeEvaluation> gradeEvaluations = new ArrayList<>(exam.getAutoEvaluationConfig().getGradeEvaluations());
-        gradeEvaluations.sort((o1, o2) -> o1.getPercentage() - o2.getPercentage());
+        gradeEvaluations.sort(Comparator.comparingInt(GradeEvaluation::getPercentage));
         Grade grade = null;
         Iterator<GradeEvaluation> it = gradeEvaluations.iterator();
         GradeEvaluation prev = null;
@@ -386,7 +381,7 @@ public class StudentExamController extends BaseController {
                 grade = prev == null ? ge.getGrade() : prev.getGrade();
                 threshold = prev == null ? ge.getPercentage() : prev.getPercentage();
             }
-            if (!it.hasNext()) {
+            else if (!it.hasNext()) {
                 // Highest possible grade
                 grade = ge.getGrade();
                 threshold = ge.getPercentage();

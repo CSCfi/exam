@@ -77,15 +77,25 @@
                                 });
                                 setMaturityInstructions(exam).then(function (data) {
                                     exam = data;
-                                    EnrollRes.check.get({id: exam.id}, function () {
+                                    EnrollRes.check.get({id: exam.id}, function (enrollit) {
                                         exam.alreadyEnrolled = true;
+                                        enrollit.forEach(function (enrolli) {
+                                            if(enrolli.reservation) {
+                                                exam.reservationMade = true;
+                                            }
+                                        });
+
                                         scope.exam = exam;
                                     }, function (err) {
                                         exam.alreadyEnrolled = err.status !== 404;
                                         if (err.status === 403) {
                                             exam.noTrialsLeft = true;
                                         }
+
+                                        exam.reservationMade = false;
                                         scope.exam = exam;
+
+
                                     });
                                 });
                             },
@@ -102,12 +112,53 @@
                                 });
                                 return exam;
                             });
+
+                            // remove duplicate exam, which is already shown at the detailed info section.
+                            if(id) {
+                                angular.forEach(scope.exams, function(value, key) {
+                                  if(value.id == id) {
+                                    scope.exams.splice(scope.exams.indexOf(value),1);
+                                  }
+                                });
+                            }
+
+                            checkEnrolment(scope.exams);
+
                         },
                         function (error) {
                             toastr.error(error.data);
                         });
+
+
                     //}
                 };
+
+                var checkEnrolment = function (exams) {
+
+                    exams.forEach(function (exam) {
+
+                        EnrollRes.check.get({id: exam.id}, function (enrollit) {
+
+                            // check if student has reserved aquarium
+                            enrollit.forEach(function (enrolli) {
+                                if(enrolli.reservation) {
+                                    exam.reservationMade = true;
+                                }
+                            });
+
+                            // enrolled to exam
+                            exam.enrolled = true;
+
+                            }, function (err) {
+                                // not enrolled or made reservations
+                                exam.enrolled = false;
+                                exam.reservationMade = false;
+                            }
+                        );
+
+                    });
+
+                }
 
                 self.removeEnrolment = function (enrolment, enrolments) {
                     if (enrolment.reservation) {
@@ -221,6 +272,7 @@
                         console.log("closed");
                     });
                 };
+
 
             }]);
 }());

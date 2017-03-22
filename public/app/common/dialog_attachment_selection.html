@@ -16,18 +16,17 @@
 </script>
 
 <div id="sitnet-dialog">
-    <div class="terms-dialog-header">
-        <h4 class="sitnet-white"><i class="fa fa-upload"></i>&nbsp;&nbsp;
-            <span ng-if="!title">{{'sitnet_attachment_selection' | translate}}</span>
-            <span ng-if="title">{{ title | translate }}</span>
-        </h4>
+    <div class="student-details-title-wrap mart20">
+        <div class="student-enroll-title" ng-if="!title">{{'sitnet_attachment_selection' | translate}}</div>
+        <div class="student-enroll-title" ng-if="title">{{'sitnet_import_grades_from_csv' | translate}}</div>
     </div>
-    <div class="modal-body">
+
+        <div class="modal-body marl20">
         <div class="row">
             <div class="col-md-12">
                 <div class="input-group">
                     <span class="input-group-btn">
-                        <span class="btn btn-primary btn-file">
+                        <span class="btn btn-success btn-file">
                             {{ 'sitnet_choose' | translate }}<input type="file" file-model="attachmentFile">
                         </span>
                     </span>
@@ -40,19 +39,20 @@
                 <p>{{'sitnet_check_file_accessible' | translate}}</p>
             </div>
             <div class="col-md-12">
-                <p>{{'sitnet_max_file_size' | translate }} {{maxFileSize / 1000}} kB.</p>
+                <p>{{'sitnet_max_file_size' | translate }} {{maxFileSize / 1000000}} MB.</p>
             </div>
         </div>
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+            <button class="btn btn-primary pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
             </button>
         </div>
         <div class="col-md-6">
-            <button class="btn btn-sm btn-primary" ng-click="ok(); submit()">
+            <button class="btn btn btn-success pull-right" ng-click="ok(); submit()">
                 {{'sitnet_button_save' | translate}}
             </button>
         </div>
+
     </div>
 </div>

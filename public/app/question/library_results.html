@@ -1,0 +1,80 @@
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped library-table">
+            <thead>
+            <tr>
+                <th>
+                    <input type="checkbox" name="select_all" class="selectAllQuestions"
+                           ng-click="selectAll('selectAllQuestions', 'questionToUpdate'); countSelections();" popover-placement="top"
+                           popover-trigger="mouseenter" uib-popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
+                </th>
+                <th sort-exam by="id" text="sitnet_question" predicate="questionsPredicate" reverse="reverse"></th>
+                <th sort-exam by="modified" text="sitnet_modified" predicate="questionsPredicate" reverse="reverse"></th>
+                <th sort-exam by="displayedMaxScore" text="sitnet_max_score" predicate="questionsPredicate" reverse="reverse"></th>
+                <th sort-exam by="typeOrd" text="sitnet_question_type" predicate="questionsPredicate" reverse="reverse"></th>
+                <th sort-exam by="attachment.fileName" text="sitnet_attachment" predicate="questionsPredicate" reverse="reverse"></th>
+                <th ng-show="user.isAdmin" sort-exam by="ownerAggregate" text="sitnet_owner" predicate="questionsPredicate" reverse="reverse"></th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="question in filteredQuestions | orderBy: questionsPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize">
+                <td class="question-table-checkbox">
+                    <input type="checkbox" ng-click="countSelections()" class="questionToUpdate" value="{{question.id}}"/>
+                </td>
+                <td class="question-table-name">
+                    <span ng-if="question.question" mathjax ng-bind-html="question.question | truncate: 360"></span>
+                            <span ng-if="!question.question" class="text-danger">
+                                {{'sitnet_no_name' | translate}}
+                            </span>
+                    <div><a ng-click="setBaseQuestionId(question.id)" class="pointer">{{question.id}}</a></div>
+                </td>
+                <td>
+                    <span ng-if="question.modified" class="timestamp">{{question.modified | date:'dd.MM.yyyy HH:mm'}}</span>
+                </td>
+                <td>{{ question.displayedMaxScore | translate}}</td>
+                <td>
+                    <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
+                    <span ng-if="question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc' | translate}}</span>
+                    <span ng-if="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
+                    <span ng-if="question.type === 'ClozeTestQuestion'">{{ 'sitnet_toolbar_cloze_test_question' | translate }}</span>
+                </td>
+                <td class="question-table-name" ng-controller="AttachmentController">
+                    <a ng-if="question.attachment" class="pointer" ng-click="downloadQuestionAttachment(question)"><i class="fa fa-paperclip fa-fw"></i>
+                        {{ question.attachment.fileName }}
+                    </a>
+                </td>
+                <td ng-if="user.isAdmin">
+                    <span>{{question.creator.firstName}} {{question.creator.lastName}}</span>
+                    <span ng-if="question.creator.userIdentifier">&nbsp;({{question.creator.userIdentifier}})</span>
+                    <span><br/><a href="mailto:{{question.creator.email}}">{{question.creator.email}}</a></span>
+                </td>
+                <td class="padl20">
+                    <a ng-if="question.allowedToRemove" ng-click="deleteQuestion(question)" class="pointer">
+                        <i class="fa fa-trash-o fa-fw" popover-placement="left" popover-trigger="mouseenter"
+                           uib-popover="{{'sitnet_exam_remove' | translate}}"></i>
+                    </a>
+                </td>
+                <td class="padl20 padr10">
+                    <a class="bold-button" ng-click="copyQuestion(question, true)">
+                        <i class="fa fa-clone fa-fw" popover-placement="left" popover-trigger="mouseenter"
+                           uib-popover="{{'sitnet_copy' | translate}}"></i>
+                    </a>
+                </td>
+            </tr>
+            <!--Fill if page not full-->
+            <tr ng-repeat="r in [] | pagefill: filteredQuestions.length:currentPage:pageSize">
+                <td colspan="9">&nbsp;</td>
+                <td ng-if="user.isAdmin"></td>
+            </tr>
+
+            <tr ng-if="filteredQuestions.length == 0"><td colspan="9">{{'sitnet_exam_library_no_results' | translate}}</td></tr>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<div col-md-12 ng-show="filteredQuestions.length > pageSize">
+    <paginator items="filteredQuestions" page-size="pageSize" current-page="currentPage"/>
+</div>
