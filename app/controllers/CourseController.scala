@@ -6,7 +6,7 @@ import com.avaje.ebean.Ebean
 import controllers.api.ExternalAPI
 import models.{Course, User}
 import play.api.cache.CacheApi
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, AnyContent, Controller, Result}
 import play.libs.Json
 import util.scala.{Authenticator, JsonResponder}
 
@@ -19,10 +19,10 @@ import scala.concurrent.Future
 class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) extends Controller
   with Authenticator with JsonResponder {
 
-  override val sessionCache = cache
+  override val sessionCache: CacheApi = cache
   val CriteriaLengthLimiter = 2
 
-  def listCourses(filterType: Option[String], criteria: Option[String], user: User) = {
+  def listCourses(filterType: Option[String], criteria: Option[String], user: User): Future[Result] = {
     (filterType, criteria) match {
       case (Some("code"), Some(x)) =>
         FutureConverters.toScala(externalApi.getCourseInfoByCode(user, x)).map(i => java2Response(i))
@@ -42,7 +42,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
     }
   }
 
-  def getUserCourses(user: User, examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]], token: String) = {
+  def getUserCourses(user: User, examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]], token: String): Result = {
     var query = Ebean.find(classOf[Course]).where.isNotNull("name")
     if (!user.hasRole("ADMIN", getSession(token))) {
       query = query
@@ -64,8 +64,8 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
 
   // Actions ->
 
-  def getCourses(filterType: Option[String], criteria: Option[String]) = Action.async {
-    request => request.headers.get(getKey).map { token =>
+  def getCourses(filterType: Option[String], criteria: Option[String]): Action[AnyContent] = Action.async {
+    request => request.headers.get(getAuthHeaderName).map { token =>
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>
           listCourses(filterType, criteria, user)
@@ -77,8 +77,8 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
     }
   }
 
-  def getCourse(id: Long) = Action {
-    request => request.headers.get(getKey).map { token =>
+  def getCourse(id: Long): Action[AnyContent] = Action {
+    request => request.headers.get(getAuthHeaderName).map { token =>
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>
           val results = Ebean.find(classOf[Course], id)
@@ -91,8 +91,9 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
     }
   }
 
-  def listUsersCourses(examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]]) = Action {
-    request => request.headers.get(getKey).map { token =>
+  def listUsersCourses(examIds: Option[List[Long]], sectionIds: Option[List[Long]],
+                       tagIds: Option[List[Long]]): Action[AnyContent] = Action {
+    request => request.headers.get(getAuthHeaderName).map { token =>
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>
           getUserCourses(user, examIds, sectionIds, tagIds, token)

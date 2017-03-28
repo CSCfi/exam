@@ -46,43 +46,21 @@
                     $scope.sectionQuestion.options.push({option: option});
                 };
 
-                $scope.removeOption = function (selectedOption, isRadio) {
+                $scope.removeOption = function (selectedOption) {
 
                     if ($scope.lotteryOn) {
                         toastr.error($translate.instant("sitnet_action_disabled_lottery_on"));
                         return;
                     }
 
-                    var hasCorrectAnswer = false;
-                    var hasWrongAnswer = false;
+                    var hasCorrectAnswer = $scope.sectionQuestion.options.filter(function (o) {
+                            return o.id != selectedOption.id && (o.option.correctOption || o.option.defaultScore > 0);
+                        }).length > 0;
 
-                    if(isRadio) {
-                        $scope.sectionQuestion.options.forEach(function (option) {
-                            if(option.id != selectedOption.id) {
-                                if(option.option.correctOption) { hasCorrectAnswer=true; }
-                                if(!option.option.correctOption) { hasWrongAnswer=true; }
-                            }
-                        });
-                    }
-                    else {
-                        $scope.sectionQuestion.options.forEach(function (option) {
-                            if(option.id != selectedOption.id) {
-                                if(option.option.defaultScore > 0) { hasCorrectAnswer=true; }
-                                if(option.option.defaultScore < 0) { hasWrongAnswer=true; }
-                            }
-                        });
-                    }
-
-                    if(!$scope.isInPublishedExam) {
-                        // luonnoksen vaihtoehtoja saa poistella miten lystää
+                    // Either not published exam or correct answer exists
+                    if (!$scope.isInPublishedExam || hasCorrectAnswer) {
                         $scope.sectionQuestion.options.splice($scope.sectionQuestion.options.indexOf(selectedOption), 1);
-                    }
-                    else if(hasCorrectAnswer && hasWrongAnswer) {
-                        // julkaistussa kysymyksessä pitää jäädä jäljelle vähintään yksi oikea ja yksi väärä vaihtoehto
-                        $scope.sectionQuestion.options.splice($scope.sectionQuestion.options.indexOf(selectedOption), 1);
-                    }
-                    else {
-                        // virhetilanne: yritetää poistaa viimeistä oikeaa tai väärää vaihtoehtoa julkaistusta kysymyksestä
+                    } else {
                         toastr.error($translate.instant("sitnet_action_disabled_minimum_options"));
                     }
 
@@ -197,7 +175,7 @@
                     QuestionRes.questions.get({id: $scope.sectionQuestion.question.id}, function (data) {
                         $scope.question = data;
                         var examNames = $scope.question.examSectionQuestions.map(function (esq) {
-                            if(esq.examSection.exam.state=='PUBLISHED') {
+                            if (esq.examSection.exam.state == 'PUBLISHED') {
                                 $scope.isInPublishedExam = true;
                             }
                             return esq.examSection.exam.name;

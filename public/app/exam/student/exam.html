@@ -9,15 +9,17 @@
             <div class="exam-header-title divider"></div>
             <div class="exam-header-title">{{ exam.course.name }} <span>{{ exam.course.code }}</span></div>
 
+            <div class="language-selector">
+                <a class="exam-clock-text" ng-click="switchLanguage('fi')">FI</a>
+                <a class="exam-clock-text" ng-click="switchLanguage('sv')">SV</a>
+                <a class="exam-clock-text" ng-click="switchLanguage('en')">EN</a>
+                <span class="exam-header-title divider"></span>
+            </div>
 
             <div class="floating-clock">
                 <div class="header-wrapper">
-                    <a class="exam-clock-text" ng-click="switchLanguage('fi')">FI</a>
-                    <a class="exam-clock-text" ng-click="switchLanguage('sv')">SV</a>
-                    <a class="exam-clock-text" ng-click="switchLanguage('en')">EN</a>
-                    <span class="exam-header-title divider"></span>
                     <span ng-hide="isPreview()">
-                        <span class="exam-clock-text"><span
+                        <span ng-if="showClock" class="exam-clock-text"><span
                                 class="sitnet-white">{{'sitnet_exam_time_left' | translate}}: </span></span>
                         <span class="exam-clock">
                             <span ng-if="remainingTime > alarmLine && showClock">{{formatRemainingTime(remainingTime)}}</span>

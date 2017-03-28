@@ -21,14 +21,8 @@
                     </div>
                     <!-- exam title n stuff -->
                     <div class="student-enrolment-exam">
-                        <a href="/enroll/{{enrolment.exam.course.code}}/exam/{{enrolment.exam.id}}">
-                            {{enrolment.exam.name}}</a><br/>
-                                <span ng-if="enrolment.exam.state ==='PUBLISHED' && enrolment.reservation"
-                                      class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
-                                <span ng-if="enrolment.exam.state ==='PUBLISHED' && !enrolment.reservation"
-                                      class="exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
-                                <span ng-if="enrolment.exam.state === 'STUDENT_STARTED'"
-                                      class="exam-ready">{{'sitnet_state_started' | translate}}</span>
+                        {{enrolment.exam.name}}<br/>
+                        <span class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
                     </div>
                 </div>
             </div>

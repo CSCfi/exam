@@ -68,7 +68,7 @@ public class SystemRequestHandler implements ActionCreator {
                 Logger.info("Session with token {} not found", token);
             }
             return Optional.of(propagateAction());
-        } else if (!session.isValid()) {
+        } else if (!session.getValid()) {
             Logger.warn("Session #{} is marked as invalid", token);
             return Optional.of(new Action.Simple() {
                 @Override

@@ -166,6 +166,7 @@
                     } else if ($location.path().match(/exams\/course\/\d+$/)) {
                         ExamRes.exams.get({id: $routeParams.id}, function (exam) {
                             $scope.newExam = exam;
+                            initialLanguages = exam.examLanguages.length;
                         });
                         $scope.typeSelected = true;
                     } else {
@@ -298,20 +299,21 @@
                 };
 
                 $scope.addExamLanguages = function () {
-
-                    ExamRes.languages.reset({eid: $scope.newExam.id}, function () {
-                        var promises = [];
-                        angular.forEach($scope.newExam.examLanguages, function (language) {
-                            promises.push(ExamRes.language.add({eid: $scope.newExam.id, code: language.code}));
+                    if (!angular.isUndefined(initialLanguages) && $scope.newExam.examLanguages.length !== initialLanguages) {
+                        ExamRes.languages.reset({eid: $scope.newExam.id}, function () {
+                            var promises = [];
+                            angular.forEach($scope.newExam.examLanguages, function (language) {
+                                promises.push(ExamRes.language.add({eid: $scope.newExam.id, code: language.code}));
+                            });
+                            $q.all(promises).then(function () {
+                                toastr.info($translate.instant('sitnet_exam_language_updated'));
+                                $scope.selectedLanguages($scope.newExam);
+                                initialLanguages = $scope.newExam.examLanguages.length;
+                            });
+                        }, function (error) {
+                            toastr.error(error.data);
                         });
-                        $q.all(promises).then(function () {
-                            toastr.info($translate.instant('sitnet_exam_language_updated'));
-                            $scope.selectedLanguages($scope.newExam);
-                            initialLanguages = $scope.newExam.examLanguages.length;
-                        });
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
+                    }
                 };
 
                 /**

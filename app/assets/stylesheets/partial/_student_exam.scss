@@ -314,6 +314,19 @@
 
   }
 
+  .language-selector {
+    display: inline-block;
+    position: absolute;
+    margin-top: 26px;
+    right: 420px;
+
+    a {
+      cursor: pointer;
+      color: white;
+      text-decoration: none;
+    }
+  }
+
   .floating-clock {
 
     margin-top: 26px;
@@ -330,17 +343,11 @@
 
       img {
         margin-left: 10px;
-        margin-top: 5px;
-      }
-
-      a {
-        cursor: pointer;
-        text-decoration: none;
+        margin-top: 10px;
+        padding-left: 0;
       }
 
     }
-
-
 
     .exam-clock {
       font-family: $sitnet-family-helvetica;

@@ -6,6 +6,7 @@ import be.objectify.deadbolt.java.DynamicResourceHandler;
 import be.objectify.deadbolt.java.models.Subject;
 import com.avaje.ebean.Ebean;
 import controllers.base.BaseController;
+import models.Role;
 import models.Session;
 import models.User;
 import play.cache.CacheApi;
@@ -43,9 +44,14 @@ class AuthorizationHandler implements DeadboltHandler {
         User user = session == null ? null : Ebean.find(User.class, session.getUserId());
         // filter out roles not found in session
         if (user != null) {
-            user.setRoles(user.getRoles().stream()
-                    .filter((r) -> r.getName().equals(session.getLoginRole()))
-                    .collect(Collectors.toList()));
+            if (session.isTemporalStudent()) {
+                user.getRoles().clear();
+                user.getRoles().add(Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findUnique());
+            } else {
+                user.setRoles(user.getRoles().stream()
+                        .filter((r) -> r.getName().equals(session.getLoginRole()))
+                        .collect(Collectors.toList()));
+            }
         }
         return CompletableFuture.supplyAsync(() -> Optional.ofNullable(user));
     }
