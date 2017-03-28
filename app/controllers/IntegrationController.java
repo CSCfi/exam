@@ -227,7 +227,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
                         g.setGradeScale(gs);
                         // Dumb JSON API gives us boolean values as strings
                         g.setMarksRejection(Boolean.valueOf(
-                                parse("isRejected", grade, String.class, "false")));
+                                parse("isFailed", grade, String.class, "false")));
                         g.save();
                     }
                     scales.add(gs);
