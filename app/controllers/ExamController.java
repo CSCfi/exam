@@ -191,7 +191,7 @@ public class ExamController extends BaseController {
         }
         User user = getLoggedUser();
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole("ADMIN", getSession())) {
-            exam.getExamSections().stream().forEach(s -> s.setSectionQuestions(new TreeSet<>(s.getSectionQuestions())));
+            exam.getExamSections().forEach(s -> s.setSectionQuestions(new TreeSet<>(s.getSectionQuestions())));
             return ok(exam);
         } else {
             return forbidden("sitnet_error_access_forbidden");
@@ -800,7 +800,7 @@ public class ExamController extends BaseController {
                 .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
                 .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-                .fetch("examSections.sectionQuestions.options")
+                .fetch("examSections.sectionQuestions.options", new FetchConfig().query())
                 .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption, defaultScore")
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
