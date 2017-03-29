@@ -4,6 +4,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.CalendarController;
 import controllers.SettingsController;
+import controllers.StudentExamController;
 import controllers.iop.api.ExternalCalendarAPI;
 import exceptions.NotFoundException;
 import models.Exam;
@@ -84,20 +86,26 @@ public class ExternalCalendarController extends CalendarController implements Ex
                     .findList();
             Stream<JsonNode> stream = StreamSupport.stream(root.spliterator(), false);
             Map<Interval, Optional<Integer>> map = stream.collect(Collectors.toMap(n -> {
-                    DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("start").asText());
-                    DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("end").asText());
-                    return new Interval(start, end);
-                }, n -> Optional.of(n.get("availableMachines").asInt()),
-                (u, v) -> {
-                    throw new IllegalStateException(String.format("Duplicate key %s", u));
-                },
-                LinkedHashMap::new));
+                        DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("start").asText());
+                        DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("end").asText());
+                        return new Interval(start, end);
+                    }, n -> Optional.of(n.get("availableMachines").asInt()),
+                    (u, v) -> {
+                        throw new IllegalStateException(String.format("Duplicate key %s", u));
+                    },
+                    LinkedHashMap::new));
             return handleReservations(map, reservations, exam, null, user);
         }
         return Collections.emptySet();
     }
 
     // Actions invoked by central IOP server
+
+    @SubjectNotPresent
+    public Result provideEnrolment(String ref) {
+        ExamEnrolment enrolment = getPrototype(ref);
+        return ok(enrolment, StudentExamController.getPath(true));
+    }
 
     @SubjectNotPresent
     public Result provideReservation() {
@@ -482,4 +490,22 @@ public class ExternalCalendarController extends CalendarController implements Ex
             return wrapAsPromise(internalServerError(e.getMessage()));
         }
     }
+
+    private static Query<ExamEnrolment> createQuery() {
+        Query<ExamEnrolment> query = Ebean.find(ExamEnrolment.class);
+        PathProperties props = StudentExamController.getPath(true);
+        props.apply(query);
+        return query;
+    }
+
+    private static ExamEnrolment getPrototype(String ref) {
+        return createQuery()
+                .where()
+                .eq("reservation.externalRef", ref)
+                .isNull("exam.parent")
+                .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
+                .findUnique();
+    }
+
+
 }

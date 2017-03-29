@@ -268,6 +268,9 @@ DELETE        /integration/iop/reservations/:ref                         control
 POST          /integration/iop/reservations/external                     controllers.iop.ExternalCalendarController.requestReservation
 DELETE        /integration/iop/reservations/external/:ref                controllers.iop.ExternalCalendarController.requestReservationRemoval(ref: String)
 
+GET           /integration/iop/reservations/:ref                         controllers.iop.ExternalCalendarController.provideEnrolment(ref: String)
+
+
 ################# Time interface ######################
 GET           /app/time                                                  controllers.TimeController.getTime
 GET           /app/time/:id                                              controllers.TimeController.getExamRemainingTime(id: Long)
