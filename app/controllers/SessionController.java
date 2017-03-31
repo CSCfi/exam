@@ -11,11 +11,13 @@ import controllers.base.BaseController;
 import exceptions.NotFoundException;
 import models.Language;
 import models.Organisation;
+import models.Reservation;
 import models.Role;
 import models.Session;
 import models.User;
 import models.dto.Credentials;
 import org.joda.time.DateTime;
+import org.joda.time.Minutes;
 import play.Environment;
 import play.Logger;
 import play.libs.Json;
@@ -57,13 +59,15 @@ public class SessionController extends BaseController {
             return badRequest("No credentials!");
         }
         String eppn = id.get();
+        Set<Reservation> externalReservationsInEffect = getUpcomingExternalReservations(eppn);
+        boolean isTemporaryVisitor = !externalReservationsInEffect.isEmpty();
         User user = Ebean.find(User.class)
                 .where()
                 .eq("eppn", eppn)
                 .findUnique();
         try {
             if (user == null) {
-                user = createNewUser(eppn);
+                user = createNewUser(eppn, isTemporaryVisitor);
             } else {
                 updateUser(user);
             }
@@ -72,7 +76,8 @@ public class SessionController extends BaseController {
         }
         user.setLastLogin(new Date());
         user.save();
-        return createSession(user);
+        handleExternalReservations(user, externalReservationsInEffect);
+        return createSession(user, isTemporaryVisitor);
     }
 
     private Result devLogin() {
@@ -94,7 +99,25 @@ public class SessionController extends BaseController {
         }
         user.setLastLogin(new Date());
         user.update();
-        return createSession(user);
+        return createSession(user, false);
+    }
+
+    private Set<Reservation> getUpcomingExternalReservations(String eppn) {
+        DateTime now = AppUtil.adjustDST(new DateTime());
+        int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
+        DateTime future = now.plusMinutes(lookAheadMinutes);
+        return Ebean.find(Reservation.class).where()
+                .eq("externalUserRef", eppn)
+                .isNotNull("externalRef")
+                .le("startAt", future)
+                .gt("endAt", now).findSet();
+    }
+
+    private void handleExternalReservations(User user, Set<Reservation> externalReservationsInEffect) {
+        externalReservationsInEffect.forEach(r -> {
+            r.setUser(user);
+            r.update();
+        });
     }
 
     private static Language getLanguage(String code) {
@@ -153,17 +176,17 @@ public class SessionController extends BaseController {
         user.setLogoutUrl(parse(request().getHeader("logouturl")).orElse(null));
     }
 
-    private User createNewUser(String eppn) throws NotFoundException, AddressException {
+    private User createNewUser(String eppn, boolean ignoreRoleNotFound) throws NotFoundException, AddressException {
         User user = new User();
         user.getRoles().addAll(parseRoles(parse(request().getHeader("unscoped-affiliation"))
-                .orElseThrow(NotFoundException::new)));
+                .orElseThrow(NotFoundException::new), ignoreRoleNotFound));
         user.setLanguage(getLanguage(parse(request().getHeader("preferredLanguage")).orElse(null)));
         user.setEppn(eppn);
         updateUser(user);
         return user;
     }
 
-    private Result createSession(User user) {
+    private Result createSession(User user, boolean isTemporaryVisitor) {
         Session session = new Session();
         session.setSince(DateTime.now());
         session.setUserId(user.getId());
@@ -172,8 +195,10 @@ public class SessionController extends BaseController {
         if (user.getRoles().size() == 1) {
             session.setLoginRole(user.getRoles().get(0).getName());
         }
-
+        session.setTemporalStudent(isTemporaryVisitor);
         String token = createSession(session);
+        List<Role> roles = isTemporaryVisitor ?
+                Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList() : user.getRoles();
 
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
@@ -181,7 +206,7 @@ public class SessionController extends BaseController {
         result.put("firstName", user.getFirstName());
         result.put("lastName", user.getLastName());
         result.put("lang", user.getLanguage().getCode());
-        result.set("roles", Json.toJson(user.getRoles()));
+        result.set("roles", Json.toJson(roles));
         result.set("permissions", Json.toJson(user.getPermissions()));
         result.put("userAgreementAccepted", user.isUserAgreementAccepted());
         result.put("userIdentifier", user.getUserIdentifier());
@@ -200,7 +225,7 @@ public class SessionController extends BaseController {
         return ok(node);
     }
 
-    private static Set<Role> parseRoles(String attribute) throws NotFoundException {
+    private static Set<Role> parseRoles(String attribute, boolean ignoreRoleNotFound) throws NotFoundException {
         Map<Role, List<String>> roleMapping = getConfiguredRoleMapping();
         Set<Role> userRoles = new HashSet<>();
         for (String affiliation : attribute.split(";")) {
@@ -211,7 +236,7 @@ public class SessionController extends BaseController {
                 }
             }
         }
-        if (userRoles.isEmpty()) {
+        if (userRoles.isEmpty() && !ignoreRoleNotFound) {
             throw new NotFoundException("sitnet_error_role_not_found " + attribute);
         }
         return userRoles;
