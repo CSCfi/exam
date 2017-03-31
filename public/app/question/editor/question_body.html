@@ -203,9 +203,9 @@
             <div class="col-md-3 exam-basic-title"></div>
             <div class="col-md-9" ng-if="isUserAllowedToModifyOwners(newQuestion)">
                 <ul class="list-inline mart10 padl10">
-                    <li ng-repeat="user in newQuestion.questionOwners">{{user.firstName }} {{ user.lastName }}
+                    <li ng-repeat="user in newQuestion.questionOwners track by $index">{{user.firstName }} {{ user.lastName }}
                         <button class="reviewer-remove"
-                                ng-disabled="examOwners.length == 1" ng-click="removeOwner(user)"
+                                ng-disabled="newQuestion.questionOwners.length == 1" ng-click="removeOwner(user)"
                                 title="{{'sitnet_remove' | translate}}">
                             <img src="../../../assets/assets/images/icon_remove.svg" alt="exam"
                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_remove.png'" />
@@ -214,7 +214,7 @@
                 </ul>
             </div>
             <div class="col-md-9" ng-if="!isUserAllowedToModifyOwners(newQuestion)">
-                <span ng-repeat="user in newQuestion.questionOwners" class="label label-default" style="margin: 0.2em">
+                <span ng-repeat="user in newQuestion.questionOwners track by $index" class="label label-default" style="margin: 0.2em">
                     {{user.firstName }} {{ user.lastName }}
                 </span>
             </div>
