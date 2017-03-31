@@ -1,4 +1,4 @@
-package base;
+package util.java;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
@@ -12,7 +12,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-final class JsonDeserializer {
+public final class JsonDeserializer {
 
     private JsonDeserializer() {
     }
@@ -40,7 +40,7 @@ final class JsonDeserializer {
         }
     }
 
-    static <T> T deserialize(Class<T> model, JsonNode node) {
+    public static <T> T deserialize(Class<T> model, JsonNode node) {
         return gson.fromJson(node.toString(), model);
     }
 }

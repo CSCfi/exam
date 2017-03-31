@@ -3,6 +3,7 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.api.CountsAsTrial;
 import models.base.GeneratedIdentityModel;
+import models.json.ExternalExam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -21,6 +22,10 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     @ManyToOne
     @JsonBackReference
     private Exam exam;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "external_exam_id")
+    private ExternalExam externalExam;
 
     @OneToOne(cascade = CascadeType.REMOVE)
     private Reservation reservation;
@@ -54,6 +59,14 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
 
     public void setExam(Exam exam) {
         this.exam = exam;
+    }
+
+    public ExternalExam getExternalExam() {
+        return externalExam;
+    }
+
+    public void setExternalExam(ExternalExam externalExam) {
+        this.externalExam = externalExam;
     }
 
     public Reservation getReservation() {

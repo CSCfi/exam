@@ -269,7 +269,7 @@ POST          /integration/iop/reservations/external                     control
 DELETE        /integration/iop/reservations/external/:ref                controllers.iop.ExternalCalendarController.requestReservationRemoval(ref: String)
 
 GET           /integration/iop/reservations/:ref                         controllers.iop.ExternalCalendarController.provideEnrolment(ref: String)
-
+GET           /integration/iop/enrolments/:id                            controllers.iop.ExternalCalendarController.requestEnrolment(id: Long)
 
 ################# Time interface ######################
 GET           /app/time                                                  controllers.TimeController.getTime
