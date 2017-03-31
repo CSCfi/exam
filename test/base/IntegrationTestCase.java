@@ -12,6 +12,8 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import models.*;
+import models.questions.MultipleChoiceOption;
+import models.questions.Question;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,6 +28,7 @@ import play.libs.Yaml;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.java.JsonDeserializer;
 
 import javax.persistence.PersistenceException;
 import java.io.UnsupportedEncodingException;
@@ -219,6 +222,27 @@ public class IntegrationTestCase {
             }
         }
         return results.toArray(new String[results.size()]);
+    }
+
+    protected void initExamSectionQuestions(Exam exam) {
+        exam.setExamSections(new TreeSet<>(exam.getExamSections()));
+        exam.getExamInspections().stream().map(ExamInspection::getUser).forEach(u -> {
+            u.setLanguage(Ebean.find(Language.class, "en"));
+            u.update();
+        });
+        exam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
+                .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
+                .forEach(esq -> {
+                    for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
+                        ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+                        esqo.setOption(o);
+                        esqo.setScore(o.getDefaultScore());
+                        esq.getOptions().add(esqo);
+                    }
+                    esq.save();
+                });
     }
 
     private void assertPaths(JsonNode node, boolean shouldExist, String... paths) {

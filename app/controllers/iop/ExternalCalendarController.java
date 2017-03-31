@@ -4,13 +4,17 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
+import com.avaje.ebean.text.json.EJson;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.CalendarController;
 import controllers.SettingsController;
+import controllers.StudentExamController;
 import controllers.iop.api.ExternalCalendarAPI;
 import exceptions.NotFoundException;
 import models.Exam;
@@ -21,6 +25,7 @@ import models.MailAddress;
 import models.Reservation;
 import models.User;
 import models.iop.ExternalReservation;
+import models.json.ExternalExam;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -34,8 +39,10 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
+import util.java.JsonDeserializer;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -70,6 +77,12 @@ public class ExternalCalendarController extends CalendarController implements Ex
         return new URL(sb.toString());
     }
 
+    private static URL parseEnrolmentUrl(String reservationRef) throws MalformedURLException {
+        StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
+        sb.append(String.format("/api/enrolments/%s", reservationRef));
+        return new URL(sb.toString());
+    }
+
     private Set<TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user) {
         // Filter out slots that user has a conflicting reservation with
         if (node.isArray()) {
@@ -84,20 +97,29 @@ public class ExternalCalendarController extends CalendarController implements Ex
                     .findList();
             Stream<JsonNode> stream = StreamSupport.stream(root.spliterator(), false);
             Map<Interval, Optional<Integer>> map = stream.collect(Collectors.toMap(n -> {
-                    DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("start").asText());
-                    DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("end").asText());
-                    return new Interval(start, end);
-                }, n -> Optional.of(n.get("availableMachines").asInt()),
-                (u, v) -> {
-                    throw new IllegalStateException(String.format("Duplicate key %s", u));
-                },
-                LinkedHashMap::new));
+                        DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("start").asText());
+                        DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("end").asText());
+                        return new Interval(start, end);
+                    }, n -> Optional.of(n.get("availableMachines").asInt()),
+                    (u, v) -> {
+                        throw new IllegalStateException(String.format("Duplicate key %s", u));
+                    },
+                    LinkedHashMap::new));
             return handleReservations(map, reservations, exam, null, user);
         }
         return Collections.emptySet();
     }
 
     // Actions invoked by central IOP server
+
+    @SubjectNotPresent
+    public Result provideEnrolment(String ref) {
+        ExamEnrolment enrolment = getPrototype(ref);
+        if (enrolment == null) {
+            return notFound();
+        }
+        return ok(enrolment, StudentExamController.getPath(true));
+    }
 
     @SubjectNotPresent
     public Result provideReservation() {
@@ -190,6 +212,48 @@ public class ExternalCalendarController extends CalendarController implements Ex
     }
 
     // Actions invoked directly by logged in users
+    @Override
+    @SubjectNotPresent
+    public CompletionStage<Result> requestEnrolment(Long reservationId) throws MalformedURLException {
+        Reservation reservation = Ebean.find(Reservation.class, reservationId);
+        if (reservation == null) {
+            return wrapAsPromise(notFound());
+        }
+        User user = getLoggedUser();
+        URL url = parseEnrolmentUrl(reservation.getExternalRef());
+        WSRequest request = wsClient.url(url.toString());
+        Function<WSResponse, Result> onSuccess = response -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != 200) {
+                return internalServerError(root.get("message").asText("Connection refused"));
+            }
+            // Create external exam!
+            ExamEnrolment document = JsonDeserializer.deserialize(ExamEnrolment.class, root);
+            Exam exam = document.getExam();
+            Map<String, Object> content;
+            try {
+                ObjectMapper om = new ObjectMapper();
+                String txt = om.writeValueAsString(exam);
+                content = EJson.parseObject(txt);
+            } catch (IOException e) {
+                return internalServerError();
+            }
+            ExternalExam ee = new ExternalExam();
+            ee.setHash(exam.getHash());
+            ee.setContent(content);
+            ee.setCreator(user);
+            ee.setCreated(DateTime.now());
+            ee.save();
+
+            ExamEnrolment enrolment = new ExamEnrolment();
+            enrolment.setExternalExam(ee);
+            enrolment.setReservation(reservation);
+            enrolment.save();
+            return ok();
+        };
+        return request.get().thenApplyAsync(onSuccess);
+    }
+
 
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservation() throws MalformedURLException {
@@ -482,4 +546,22 @@ public class ExternalCalendarController extends CalendarController implements Ex
             return wrapAsPromise(internalServerError(e.getMessage()));
         }
     }
+
+    private static Query<ExamEnrolment> createQuery() {
+        Query<ExamEnrolment> query = Ebean.find(ExamEnrolment.class);
+        PathProperties props = StudentExamController.getPath(true);
+        props.apply(query);
+        return query;
+    }
+
+    private static ExamEnrolment getPrototype(String ref) {
+        return createQuery()
+                .where()
+                .eq("reservation.externalRef", ref)
+                .isNull("exam.parent")
+                .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
+                .findUnique();
+    }
+
+
 }

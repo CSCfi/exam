@@ -9,11 +9,11 @@ lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(javaJdbc, cache , javaWs, evolutions, filters,
-  "org.postgresql" % "postgresql" % "9.4-1204-jdbc4",
+  "org.postgresql" % "postgresql" % "42.0.0",
   "be.objectify" %% "deadbolt-java" % "2.5.0",
   "org.apache.commons" % "commons-email" % "1.4",
-  "org.apache.poi" % "poi" % "3.13",
-  "org.apache.poi" % "poi-ooxml" % "3.13",
+  "org.apache.poi" % "poi" % "3.15",
+  "org.apache.poi" % "poi-ooxml" % "3.15",
   "org.apache.commons" % "commons-compress" % "1.10",
   "net.sf.opencsv" % "opencsv" % "2.3",
   "org.jsoup" % "jsoup" % "1.8.3",

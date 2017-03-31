@@ -64,7 +64,7 @@ public class StudentExamController extends BaseController {
                 newExam.setCloned(true);
                 newExam.setDerivedMaxScores();
                 processClozeTestQuestions(newExam);
-                return ok(newExam, getPath());
+                return ok(newExam, getPath(false));
             });
         } else {
             // Exam started already
@@ -75,7 +75,7 @@ public class StudentExamController extends BaseController {
             possibleClone.setCloned(false);
             possibleClone.setDerivedMaxScores();
             processClozeTestQuestions(possibleClone);
-            return ok(possibleClone, getPath());
+            return ok(possibleClone, getPath(false));
         }
     }
 
@@ -232,6 +232,8 @@ public class StudentExamController extends BaseController {
         });
     }
 
+
+
     private static Exam getPrototype(String hash) {
         return createQuery()
                 .where()
@@ -316,9 +318,10 @@ public class StudentExamController extends BaseController {
         return Optional.empty();
     }
 
-    private static PathProperties getPath() {
-        return PathProperties.parse(
-                "(id, name, instruction, hash, duration, cloned, course(id, code, name), executionType(id, type), " + // (
+
+
+    public static PathProperties getPath(boolean includeEnrolment) {
+        String path = "(id, name, instruction, hash, duration, cloned, course(id, code, name), executionType(id, type), " + // (
                         "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
                         "examInspections(user(firstName, lastName))" +
                         "examSections(id, name, sequenceNumber, description, " + // ((
@@ -327,12 +330,13 @@ public class StudentExamController extends BaseController {
                         "options(id, answered, option(id, option))" +
                         "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
                         "clozeTestAnswer(id, question, answer, objectVersion)" +
-                        ")))");
+                        ")))";
+        return PathProperties.parse(includeEnrolment ? String.format("(exam%s)", path) : path);
     }
 
     private static Query<Exam> createQuery() {
         Query<Exam> query = Ebean.find(Exam.class);
-        PathProperties props = getPath();
+        PathProperties props = getPath(false);
         props.apply(query);
         return query;
     }
