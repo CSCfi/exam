@@ -211,21 +211,14 @@ public class ExternalCalendarController extends CalendarController implements Ex
         }
     }
 
-    // Actions invoked directly by logged in users
     @Override
-    @SubjectNotPresent
-    public CompletionStage<Result> requestEnrolment(Long reservationId) throws MalformedURLException {
-        Reservation reservation = Ebean.find(Reservation.class, reservationId);
-        if (reservation == null) {
-            return wrapAsPromise(notFound());
-        }
-        User user = getLoggedUser();
+    public CompletionStage<ExamEnrolment> requestEnrolment(User user, Reservation reservation) throws MalformedURLException {
         URL url = parseEnrolmentUrl(reservation.getExternalRef());
         WSRequest request = wsClient.url(url.toString());
-        Function<WSResponse, Result> onSuccess = response -> {
+        Function<WSResponse, ExamEnrolment> onSuccess = response -> {
             JsonNode root = response.asJson();
             if (response.getStatus() != 200) {
-                return internalServerError(root.get("message").asText("Connection refused"));
+                return null;
             }
             // Create external exam!
             ExamEnrolment document = JsonDeserializer.deserialize(ExamEnrolment.class, root);
@@ -236,25 +229,26 @@ public class ExternalCalendarController extends CalendarController implements Ex
                 String txt = om.writeValueAsString(exam);
                 content = EJson.parseObject(txt);
             } catch (IOException e) {
-                return internalServerError();
+                return null;
             }
             ExternalExam ee = new ExternalExam();
             ee.setHash(exam.getHash());
             ee.setContent(content);
             ee.setCreator(user);
-            ee.setCreated(DateTime.now());
+            ee.setCreated(DateTime.now()); // Set creator later, at this point we have no user
             ee.save();
 
             ExamEnrolment enrolment = new ExamEnrolment();
             enrolment.setExternalExam(ee);
             enrolment.setReservation(reservation);
+            enrolment.setUser(user);
             enrolment.save();
-            return ok();
+            return enrolment;
         };
         return request.get().thenApplyAsync(onSuccess);
     }
 
-
+    // Actions invoked directly by logged in users
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservation() throws MalformedURLException {
         User user = getLoggedUser();

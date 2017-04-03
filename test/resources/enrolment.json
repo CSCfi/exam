@@ -2,6 +2,7 @@
   "exam": {
     "id": 1,
     "name": "Johdatus alkeiden perusteisiin",
+    "state": "PUBLISHED",
     "course": {
       "id": 1,
       "code": "810136P",
