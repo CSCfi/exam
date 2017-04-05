@@ -327,11 +327,11 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Result result = get("/integration/iop/reservations/" + RESERVATION_REF);
         assertThat(result.status()).isEqualTo(200);
         JsonNode body = Json.parse(contentAsString(result));
-        ExamEnrolment ee = deserialize(ExamEnrolment.class, body);
-        assertThat(ee.getExam().getId()).isEqualTo(exam.getId());
-        assertThat(ee.getExam().getExamSections()).hasSize(exam.getExamSections().size());
+        Exam ee = deserialize(Exam.class, body);
+        assertThat(ee.getId()).isEqualTo(exam.getId());
+        assertThat(ee.getExamSections()).hasSize(exam.getExamSections().size());
         assertThat(
-                ee.getExam().getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum()).isEqualTo(
+                ee.getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum()).isEqualTo(
                 exam.getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum()
         );
     }
@@ -382,21 +382,6 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
     }
 
-/*    @Test
-    @RunAsStudent
-    public void testRequestEnrolment() throws Exception {
-        initialize(null);
-        Reservation reservation = new Reservation();
-        reservation.setExternalRef(RESERVATION_REF);
-        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
-        reservation.setMachine(room.getExamMachines().get(0));
-        reservation.save();
-
-        Result result = get("/integration/iop/enrolments/" + reservation.getId());
-        assertThat(result.status()).isEqualTo(200);
-    }
-*/
     @Test
     @RunAsStudent
     public void testRequestReservation() throws Exception {
@@ -408,6 +393,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.put("examId", exam.getId());
         json.put("orgId", ORG_REF);
         json.put("roomId", ROOM_REF);
+        json.put("requestingOrg", "foobar");
 
         Result result = request(Helpers.POST, "/integration/iop/reservations/external", json);
         assertThat(result.status()).isEqualTo(201);

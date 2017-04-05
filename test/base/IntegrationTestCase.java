@@ -2,8 +2,6 @@ package base;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.TxType;
-import com.avaje.ebean.annotation.Transactional;
 import com.avaje.ebean.config.ServerConfig;
 import com.avaje.ebeaninternal.api.SpiEbeanServer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,7 +34,12 @@ import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -88,6 +91,11 @@ public class IntegrationTestCase {
         }
     }
 
+    // Hook for having stuff done just before logging in a user.
+    protected void onBeforeLogin() throws Exception {
+        // Default does nothing
+    }
+
     @Before
     public void setUp() throws Exception {
         // Unfortunately we need to restart for each test because there is some weird issue with question id sequence.
@@ -102,6 +110,8 @@ public class IntegrationTestCase {
         db.shutdown();
 
         addTestData();
+
+        onBeforeLogin();
 
         Method testMethod = getClass().getDeclaredMethod(currentTest.getMethodName());
         if (testMethod.isAnnotationPresent(RunAsStudent.class)) {
@@ -148,10 +158,14 @@ public class IntegrationTestCase {
     }
 
     protected Result request(String method, String path, JsonNode body) {
-        return request(method, path, body, HAKA_HEADERS);
+        return request(method, path, body, HAKA_HEADERS, false);
     }
 
-    protected Result request(String method, String path, JsonNode body, Map<String, String> headers) {
+    protected Result request(String method, String path, JsonNode body, boolean followRedirects) {
+        return request(method, path, body, HAKA_HEADERS, followRedirects);
+    }
+
+    protected Result request(String method, String path, JsonNode body, Map<String, String> headers, boolean followRedirects) {
         Http.RequestBuilder request = fakeRequest(method, path);
         for (Map.Entry<String, String> header : headers.entrySet()) {
             request.headers().put(header.getKey(), new String[]{header.getValue()});
@@ -159,7 +173,12 @@ public class IntegrationTestCase {
         if (body != null && !method.equals(Helpers.GET)) {
             request = request.bodyJson(body);
         }
-        return Helpers.route(request);
+        Result result = Helpers.route(request);
+        if (followRedirects && result.redirectLocation().isPresent()) {
+            return request(method, result.redirectLocation().get(), body, headers, false);
+        } else {
+            return result;
+        }
     }
 
     protected void loginAsStudent() {
@@ -176,7 +195,7 @@ public class IntegrationTestCase {
 
     protected void login(String eppn) {
         HAKA_HEADERS.put("eppn", eppn);
-        Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS);
+        Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS, false);
         assertThat(result.status()).isEqualTo(200);
         JsonNode user = Json.parse(contentAsString(result));
         sessionToken = user.get("token").asText();
@@ -289,7 +308,6 @@ public class IntegrationTestCase {
         });
     }
 
-    @Transactional(type = TxType.REQUIRES_NEW)
     @SuppressWarnings("unchecked")
     private static void addTestData() {
         int userCount;

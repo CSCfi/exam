@@ -8,7 +8,6 @@ import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import controllers.api.ExternalAPI;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import models.*;
@@ -23,10 +22,12 @@ import play.db.ebean.Transactional;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import security.interceptors.SensitiveDataPolicy;
+import system.interceptors.ExamActionRouter;
 import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -37,8 +38,6 @@ import java.util.stream.StreamSupport;
 public class StudentExamController extends BaseController {
 
     @Inject
-    protected ExternalAPI externalAPI;
-    @Inject
     protected EmailComposer emailComposer;
     @Inject
     protected ActorSystem actor;
@@ -48,7 +47,8 @@ public class StudentExamController extends BaseController {
 
     @ActionMethod
     @Transactional
-    public Result startExam(String hash) {
+    @ExamActionRouter
+    public Result startExam(String hash) throws IOException {
         User user = getLoggedUser();
         Exam prototype = getPrototype(hash);
         Exam possibleClone = getPossibleClone(hash, user);
@@ -81,6 +81,7 @@ public class StudentExamController extends BaseController {
 
     @ActionMethod
     @Transactional
+    @ExamActionRouter
     public Result turnExam(String hash) {
         User user = getLoggedUser();
 
@@ -168,6 +169,7 @@ public class StudentExamController extends BaseController {
     }
 
     @ActionMethod
+    @ExamActionRouter
     public Result answerEssay(String hash, Long questionId) {
         return getEnrolmentError(hash).orElseGet(() -> {
             DynamicForm df = formFactory.form().bindFromRequest();
@@ -192,6 +194,7 @@ public class StudentExamController extends BaseController {
     }
 
     @ActionMethod
+    @ExamActionRouter
     public Result answerMultiChoice(String hash, Long qid) {
         return getEnrolmentError(hash).orElseGet(() -> {
             ArrayNode node = (ArrayNode) request().body().asJson().get("oids");
@@ -212,6 +215,7 @@ public class StudentExamController extends BaseController {
     }
 
     @ActionMethod
+    @ExamActionRouter
     public Result answerClozeTest(String hash, Long questionId) {
         return getEnrolmentError(hash).orElseGet(() -> {
             ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
@@ -231,8 +235,6 @@ public class StudentExamController extends BaseController {
             return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
         });
     }
-
-
 
     private static Exam getPrototype(String hash) {
         return createQuery()
@@ -289,7 +291,7 @@ public class StudentExamController extends BaseController {
                 .findUnique();
     }
 
-    private Optional<Result> getEnrolmentError(ExamEnrolment enrolment) {
+    protected Optional<Result> getEnrolmentError(ExamEnrolment enrolment) {
         // If this is null, it means someone is either trying to access an exam by wrong hash
         // or the reservation is not in effect right now.
         if (enrolment == null) {
@@ -319,18 +321,17 @@ public class StudentExamController extends BaseController {
     }
 
 
-
     public static PathProperties getPath(boolean includeEnrolment) {
         String path = "(id, name, state, instruction, hash, duration, cloned, course(id, code, name), executionType(id, type), " + // (
-                        "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
-                        "examInspections(user(firstName, lastName))" +
-                        "examSections(id, name, sequenceNumber, description, " + // ((
-                        "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
-                        "question(id, type, question, attachment(id, fileName))" +
-                        "options(id, answered, option(id, option))" +
-                        "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
-                        "clozeTestAnswer(id, question, answer, objectVersion)" +
-                        ")))";
+                "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
+                "examInspections(user(firstName, lastName))" +
+                "examSections(id, name, sequenceNumber, description, " + // ((
+                "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
+                "question(id, type, question, attachment(id, fileName))" +
+                "options(id, answered, option(id, option))" +
+                "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
+                "clozeTestAnswer(id, question, answer, objectVersion)" +
+                ")))";
         return PathProperties.parse(includeEnrolment ? String.format("(exam%s)", path) : path);
     }
 
@@ -341,12 +342,12 @@ public class StudentExamController extends BaseController {
         return query;
     }
 
-    private void processClozeTestQuestions(Exam exam) {
+    protected void processClozeTestQuestions(Exam exam) {
         Set<Question> questionsToHide = new HashSet<>();
         exam.getExamSections().stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
-                .forEach( esq -> {
+                .forEach(esq -> {
                     ClozeTestAnswer answer = esq.getClozeTestAnswer();
                     if (answer == null) {
                         answer = new ClozeTestAnswer();
@@ -384,8 +385,7 @@ public class StudentExamController extends BaseController {
             if (ge.getPercentage() > percentage) {
                 grade = prev == null ? ge.getGrade() : prev.getGrade();
                 threshold = prev == null ? ge.getPercentage() : prev.getPercentage();
-            }
-            else if (!it.hasNext()) {
+            } else if (!it.hasNext()) {
                 // Highest possible grade
                 grade = ge.getGrade();
                 threshold = ge.getPercentage();

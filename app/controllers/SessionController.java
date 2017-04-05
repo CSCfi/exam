@@ -10,6 +10,7 @@ import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import controllers.iop.api.ExternalCalendarAPI;
 import exceptions.NotFoundException;
+import models.ExamEnrolment;
 import models.Language;
 import models.Organisation;
 import models.Reservation;
@@ -142,10 +143,15 @@ public class SessionController extends BaseController {
     }
 
     private CompletionStage<Result> handleExternalReservation(User user, Reservation reservation) throws MalformedURLException {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation", reservation).findUnique();
+        if (enrolment != null) {
+            // already imported
+            return wrapAsPromise(ok());
+        }
         reservation.setUser(user);
         reservation.update();
         return externalCalendarAPI.requestEnrolment(user, reservation)
-                .thenApplyAsync(enrolment -> enrolment == null ? internalServerError() : ok());
+                .thenApplyAsync(e -> e == null ? internalServerError() : ok());
 
     }
 
