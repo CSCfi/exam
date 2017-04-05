@@ -812,7 +812,7 @@
   "sitnet_question_text_description": "Lisää kysymysteksti. Voit muotoilla tekstiä editorin toiminnoilla. Kysymystyypin valinnan jälkeen määritetään lisätiedot.",
   "sitnet_question_type_description": "Kysymystyypin valinta. Essee: vastaaminen editorilla tai lisäämällä 1 liite. Monivalinta (yksi oikein): määrittellään monta vaihtoehtoa, joista yksi on oikein. Monivalinta (monta oikein): määritellään monta vaihtoehtoa, joista voi olla monta oikein (väh. 1 oikein). Aukkotehtävä: määritellään kysymykstekstiin 1-n aukkoa. Opiskelija vastaa kirjoittamalla aukkoon.",
   "sitnet_question_owners_description": "Kysymyksen omistajilla on täydet oikeudet muokata kysymystä myös jos se on toisen omistajan tenteissä.",
-  "sitnet_question_attachment_description": "Opiskelijalle tentissä ladattavissa oleva tiedosto. Varmista, että tenttikoneilla on tiedostolle sopiva ohjelmisto käytettävissä.",
+  "sitnet_attachment_description": "Opiskelijalle tentissä ladattavissa oleva tiedosto. Varmista, että tenttikoneilla on tiedostolle sopiva ohjelmisto käytettävissä.",
   "sitnet_question_instruction_description": "Lisäohjeita opiskelijalle tentin aikana kysymykseen vastaamiseen.",
   "sitnet_question_tag_question_description": "Avainsanojen avulla voi kategorisoida kysymyksiäsi ja löytää ne helpommin.",
   "sitnet_question_evaluation_criteria_description": "Arviointikriteerit tukemaan kysymyksen arviointia. Kriteerit näkyvät vastauksen arvioinnin yhteydessä.",

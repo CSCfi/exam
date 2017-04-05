@@ -812,7 +812,7 @@
   "sitnet_question_text_description": "Sätt in texten till frågan. Du kan editera teksten med de olika funktionerna i editorn. Efter att du valt frågetyp kan du definera tilläggsinformation.",
   "sitnet_question_type_description": "Välj frågetyp. Text med luckor: Läraren definerar 1-n luckor i frågetexten. Studenten svarar genom att fylla i svaret i luckan.",
   "sitnet_question_owners_description": "Frågans ägare har fulla rättigheter att editera frågan även om den används i en annan ägares tentamen.",
-  "sitnet_question_attachment_description": "En fil som studerande kan öppna under tentamenstillfället. Försäkra dig om att tentdatorn har nödvändig programvara för att studenten skall kunna öppna filen.",
+  "sitnet_attachment_description": "En fil som studerande kan öppna under tentamenstillfället. Försäkra dig om att tentdatorn har nödvändig programvara för att studenten skall kunna öppna filen.",
   "sitnet_question_instruction_description": "Tilläggsinstruktioner för studerande om hur svara på frågan under tentamen. Lisäohjeita opiskelijalle tentin aikana kysymykseen vastaamiseen. SV",
   "sitnet_question_tag_question_description": "Med nyckelord kan du kategorisera dina frågor och hitta dem lättare.",
   "sitnet_question_evaluation_criteria_description": "Bedömningskriterier för att stöda bedömningen av frågan. Kriterierna syns vid bedömningen.",
