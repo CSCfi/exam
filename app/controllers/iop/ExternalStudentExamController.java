@@ -19,7 +19,7 @@ import org.joda.time.DateTime;
 import play.data.DynamicForm;
 import play.mvc.Result;
 import play.mvc.Results;
-import security.interceptors.SensitiveDataPolicy;
+import system.interceptors.SensitiveDataPolicy;
 import util.AppUtil;
 
 import java.io.IOException;

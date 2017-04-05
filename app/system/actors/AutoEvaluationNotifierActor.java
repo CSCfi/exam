@@ -1,6 +1,5 @@
-package system;
+package system.actors;
 
-import akka.actor.Props;
 import akka.actor.UntypedActor;
 import com.avaje.ebean.Ebean;
 import models.AutoEvaluationConfig;
@@ -11,19 +10,29 @@ import play.Logger;
 import util.AppUtil;
 import util.java.EmailComposer;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
-class AutoEvaluationNotifierActor extends UntypedActor {
+public class AutoEvaluationNotifierActor extends UntypedActor {
 
-    static final Props props = Props.create(AutoEvaluationNotifierActor.class);
+    private EmailComposer composer;
+
+    @Inject
+    public AutoEvaluationNotifierActor(EmailComposer composer) {
+        this.composer = composer;
+    }
+
+    private AutoEvaluationNotifierActor() {
+        // Needed by guice
+    }
+
 
     @Override
     public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Running auto evaluation notification check ...", getClass().getCanonicalName());
-        List<Exam> exams = Ebean.find(Exam.class)
+        Ebean.find(Exam.class)
                 .fetch("autoEvaluationConfig")
                 .where()
                 .eq("state", Exam.State.GRADED)
@@ -33,11 +42,10 @@ class AutoEvaluationNotifierActor extends UntypedActor {
                 .isNotNull("creditType")
                 .isNotNull("answerLanguage")
                 .isNull("autoEvaluationNotified")
-                .findList();
-        EmailComposer composer = (EmailComposer)message;
-        exams.stream()
+                .findList()
+                .stream()
                 .filter(this::isPastReleaseDate)
-                .forEach(exam -> notifyStudent(exam, composer));
+                .forEach(this::notifyStudent);
 
         Logger.debug("{}: ... Done", getClass().getCanonicalName());
     }
@@ -70,7 +78,7 @@ class AutoEvaluationNotifierActor extends UntypedActor {
         return releaseDate.isPresent() && releaseDate.get().isBeforeNow();
     }
 
-    private void notifyStudent(Exam exam, EmailComposer composer) {
+    private void notifyStudent(Exam exam) {
         User student = exam.getCreator();
         try {
             composer.composeInspectionReady(student, null, exam, Collections.emptySet());

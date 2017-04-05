@@ -20,7 +20,7 @@ import models.User;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.mvc.Result;
-import security.interceptors.SensitiveDataPolicy;
+import system.interceptors.SensitiveDataPolicy;
 import util.AppUtil;
 
 import javax.inject.Inject;

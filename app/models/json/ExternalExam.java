@@ -24,22 +24,25 @@ import java.util.Map;
 public class ExternalExam extends Model {
 
     @Id
-    String hash;
+    private String hash;
 
     @Temporal(TemporalType.TIMESTAMP)
-    public DateTime created;
+    private DateTime created;
 
     @Temporal(TemporalType.TIMESTAMP)
-    public DateTime started;
+    private DateTime started;
 
     @Temporal(TemporalType.TIMESTAMP)
-    public DateTime finished;
+    private DateTime finished;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private DateTime sent;
 
     @OneToOne
-    public User creator;
+    private User creator;
 
     @DbJsonB
-    Map<String, Object> content;
+    private Map<String, Object> content;
 
     @Version
     private long objectVersion;
@@ -74,6 +77,14 @@ public class ExternalExam extends Model {
 
     public void setFinished(DateTime finished) {
         this.finished = finished;
+    }
+
+    public DateTime getSent() {
+        return sent;
+    }
+
+    public void setSent(DateTime sent) {
+        this.sent = sent;
     }
 
     public User getCreator() {
@@ -115,5 +126,12 @@ public class ExternalExam extends Model {
         Map<String, Object> map = EJson.parseObject(txt);
         setContent(map);
         update();
+    }
+
+    @Transient
+    public JsonNode serializeJson() throws IOException {
+        ObjectMapper om = new ObjectMapper();
+        String json = om.writeValueAsString(this);
+        return om.readTree(json);
     }
 }

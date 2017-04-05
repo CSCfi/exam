@@ -21,7 +21,7 @@ import play.data.DynamicForm;
 import play.db.ebean.Transactional;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
-import security.interceptors.SensitiveDataPolicy;
+import system.interceptors.SensitiveDataPolicy;
 import system.interceptors.ExamActionRouter;
 import util.AppUtil;
 import util.java.EmailComposer;
