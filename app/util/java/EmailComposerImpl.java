@@ -126,7 +126,7 @@ class EmailComposerImpl implements EmailComposer {
 
     private class ReviewStats implements Comparable<ReviewStats> {
         int amount;
-        Date earliestDeadLine;
+        DateTime earliestDeadLine;
 
 
         @Override
@@ -163,7 +163,7 @@ class EmailComposerImpl implements EmailComposer {
                 stats = new ReviewStats();
             }
             stats.amount++;
-            if (stats.earliestDeadLine == null || review.getDeadline().before(stats.earliestDeadLine)) {
+            if (stats.earliestDeadLine == null || review.getDeadline().isBefore(stats.earliestDeadLine)) {
                 stats.earliestDeadLine = review.getDeadline();
             }
             examReviewMap.put(exam, stats);
@@ -517,7 +517,7 @@ class EmailComposerImpl implements EmailComposer {
         while (it.hasNext()) {
             ExamEnrolment enrolment = it.next();
             Reservation reservation = enrolment.getReservation();
-            if (reservation == null || reservation.getEndAt().before(new Date())) {
+            if (reservation == null || reservation.getEndAt().isBefore(DateTime.now())) {
                 it.remove();
             }
         }
@@ -625,9 +625,9 @@ class EmailComposerImpl implements EmailComposer {
         return Lang.forCode(user.getLanguage().getCode());
     }
 
-    private static DateTime adjustDST(Date date, DateTimeZone dtz) {
+    private static DateTime adjustDST(DateTime date, DateTimeZone dtz) {
         DateTime dateTime = new DateTime(date, dtz);
-        if (!dtz.isStandardOffset(date.getTime())) {
+        if (!dtz.isStandardOffset(date.getMillis())) {
             dateTime = dateTime.minusHours(1);
         }
         return dateTime;

@@ -41,7 +41,7 @@ public class CalendarController extends BaseController {
     protected ActorSystem system;
 
     @Inject
-    protected ExternalCalendarAPI externalCalendarAPI;
+    private ExternalCalendarAPI externalCalendarAPI;
 
     private static final int LAST_HOUR = 23;
 
@@ -143,8 +143,8 @@ public class CalendarController extends BaseController {
         // We are good to go :)
         Reservation oldReservation = enrolment.getReservation();
         Reservation reservation = new Reservation();
-        reservation.setEndAt(end.toDate());
-        reservation.setStartAt(start.toDate());
+        reservation.setEndAt(end);
+        reservation.setStartAt(start);
         reservation.setMachine(machine.get());
         reservation.setUser(user);
 

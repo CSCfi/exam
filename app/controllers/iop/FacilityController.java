@@ -28,7 +28,7 @@ import java.util.function.Function;
 public class FacilityController extends BaseController implements ExternalFacilityAPI {
 
     @Inject
-    protected WSClient wsClient;
+    private WSClient wsClient;
 
     private static URL parseUrl(String facilityRef) throws MalformedURLException {
         StringBuilder url = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));

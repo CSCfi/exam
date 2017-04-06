@@ -63,8 +63,8 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         machine.update();
         reservation.setMachine(machine);
         reservation.setUser(user);
-        reservation.setStartAt(DateTime.now().minusMinutes(10).toDate());
-        reservation.setEndAt(DateTime.now().plusMinutes(70).toDate());
+        reservation.setStartAt(DateTime.now().minusMinutes(10));
+        reservation.setEndAt(DateTime.now().plusMinutes(70));
         reservation.setExternalUserRef(user.getEppn());
         reservation.setExternalRef("foobar");
         reservation.save();

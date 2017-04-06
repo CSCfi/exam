@@ -35,10 +35,10 @@ public class EnrolmentController extends BaseController {
     protected EmailComposer emailComposer;
 
     @Inject
-    protected ExternalAPI externalAPI;
+    private ExternalAPI externalAPI;
 
     @Inject
-    protected ExternalCalendarAPI externalCalendarAPI;
+    private ExternalCalendarAPI externalCalendarAPI;
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result enrollExamList(String code) {
@@ -103,7 +103,7 @@ public class EnrolmentController extends BaseController {
 
     private static ExamEnrolment makeEnrolment(Exam exam, User user) {
         ExamEnrolment enrolment = new ExamEnrolment();
-        enrolment.setEnrolledOn(new Date());
+        enrolment.setEnrolledOn(DateTime.now());
         enrolment.setUser(user);
         enrolment.setExam(exam);
         enrolment.save();

@@ -103,12 +103,12 @@ public class StudentExamController extends BaseController {
 
         if (p != null) {
             DateTime now = AppUtil.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
-            p.setEnded(now.toDate());
-            p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
+            p.setEnded(DateTime.now());
+            p.setDuration(new DateTime(p.getEnded().getMillis() - p.getStarted().getMillis()));
 
             GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
             int deadlineDays = Integer.parseInt(settings.getValue());
-            Date deadline = new DateTime(p.getEnded()).plusDays(deadlineDays).toDate();
+            DateTime deadline = p.getEnded().plusDays(deadlineDays);
             p.setDeadline(deadline);
             p.save();
             exam.setState(Exam.State.REVIEW);
@@ -122,7 +122,7 @@ public class StudentExamController extends BaseController {
                 autoEvaluate(exam);
                 if (config.getReleaseType() == AutoEvaluationConfig.ReleaseType.IMMEDIATE) {
                     // Notify student immediately
-                    exam.setAutoEvaluationNotified(new Date());
+                    exam.setAutoEvaluationNotified(DateTime.now());
                     exam.update();
                     User student = exam.getCreator();
                     actor.scheduler().scheduleOnce(Duration.create(5, TimeUnit.SECONDS),
@@ -154,8 +154,8 @@ public class StudentExamController extends BaseController {
 
         if (p != null) {
             DateTime now = AppUtil.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
-            p.setEnded(now.toDate());
-            p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
+            p.setEnded(now);
+            p.setDuration(new DateTime(p.getEnded().getMillis() - p.getStarted().getMillis()));
             p.save();
             exam.setState(Exam.State.ABORTED);
             exam.update();
@@ -270,7 +270,7 @@ public class StudentExamController extends BaseController {
         examParticipation.setExam(studentExam);
         examParticipation.setReservation(enrolment.getReservation());
         DateTime now = AppUtil.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
-        examParticipation.setStarted(now.toDate());
+        examParticipation.setStarted(now);
         examParticipation.save();
         user.getParticipations().add(examParticipation);
 
@@ -407,7 +407,7 @@ public class StudentExamController extends BaseController {
         Grade grade = getGradeBasedOnScore(exam);
         if (grade != null) {
             exam.setGrade(grade);
-            exam.setGradedTime(new Date());
+            exam.setGradedTime(DateTime.now());
             exam.setCreditType(exam.getExamType());
             // NOTE: do not set graded by person here, one who makes a record will get the honor
             if (!exam.getExamLanguages().isEmpty()) {

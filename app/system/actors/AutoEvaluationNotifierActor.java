@@ -12,7 +12,6 @@ import util.java.EmailComposer;
 
 import javax.inject.Inject;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Optional;
 
 public class AutoEvaluationNotifierActor extends UntypedActor {
@@ -83,7 +82,7 @@ public class AutoEvaluationNotifierActor extends UntypedActor {
         try {
             composer.composeInspectionReady(student, null, exam, Collections.emptySet());
             Logger.debug("{}: ... Mail sent to {}", getClass().getCanonicalName(), student.getEmail());
-            exam.setAutoEvaluationNotified(new Date());
+            exam.setAutoEvaluationNotified(DateTime.now());
             exam.update();
         } catch (RuntimeException e) {
             Logger.error("{}: ... Sending email to {} failed", getClass().getCanonicalName(), student.getEmail());

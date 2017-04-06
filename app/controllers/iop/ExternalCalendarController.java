@@ -4,17 +4,13 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
-import com.avaje.ebean.text.json.EJson;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.CalendarController;
 import controllers.SettingsController;
-import controllers.StudentExamController;
 import controllers.iop.api.ExternalCalendarAPI;
 import exceptions.NotFoundException;
 import models.Exam;
@@ -25,7 +21,6 @@ import models.MailAddress;
 import models.Reservation;
 import models.User;
 import models.iop.ExternalReservation;
-import models.json.ExternalExam;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -39,10 +34,8 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
-import util.java.JsonDeserializer;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -57,7 +50,7 @@ import java.util.stream.StreamSupport;
 public class ExternalCalendarController extends CalendarController implements ExternalCalendarAPI {
 
     @Inject
-    protected WSClient wsClient;
+    private WSClient wsClient;
 
     private static URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration)
             throws MalformedURLException {
@@ -77,11 +70,6 @@ public class ExternalCalendarController extends CalendarController implements Ex
         return new URL(sb.toString());
     }
 
-    private static URL parseEnrolmentUrl(String reservationRef) throws MalformedURLException {
-        StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
-        sb.append(String.format("/api/enrolments/%s", reservationRef));
-        return new URL(sb.toString());
-    }
 
     private Set<TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user) {
         // Filter out slots that user has a conflicting reservation with
@@ -113,15 +101,6 @@ public class ExternalCalendarController extends CalendarController implements Ex
     // Actions invoked by central IOP server
 
     @SubjectNotPresent
-    public Result provideEnrolment(String ref) {
-        ExamEnrolment enrolment = getPrototype(ref);
-        if (enrolment == null) {
-            return notFound();
-        }
-        return ok(enrolment.getExam(), StudentExamController.getPath(false));
-    }
-
-    @SubjectNotPresent
     public Result provideReservation() {
         // Parse request body
         JsonNode node = request().body().asJson();
@@ -144,8 +123,8 @@ public class ExternalCalendarController extends CalendarController implements Ex
         // We are good to go :)
         Reservation reservation = new Reservation();
         reservation.setExternalRef(reservationRef);
-        reservation.setEndAt(end.toDate());
-        reservation.setStartAt(start.toDate());
+        reservation.setEndAt(end);
+        reservation.setStartAt(start);
         reservation.setMachine(machine.get());
         reservation.setExternalUserRef(userEppn);
         reservation.save();
@@ -209,42 +188,6 @@ public class ExternalCalendarController extends CalendarController implements Ex
         } else {
             return badRequest();
         }
-    }
-
-    @Override
-    public CompletionStage<ExamEnrolment> requestEnrolment(User user, Reservation reservation) throws MalformedURLException {
-        URL url = parseEnrolmentUrl(reservation.getExternalRef());
-        WSRequest request = wsClient.url(url.toString());
-        Function<WSResponse, ExamEnrolment> onSuccess = response -> {
-            JsonNode root = response.asJson();
-            if (response.getStatus() != 200) {
-                return null;
-            }
-            // Create external exam!
-            Exam document = JsonDeserializer.deserialize(Exam.class, root);
-            Map<String, Object> content;
-            try {
-                ObjectMapper om = new ObjectMapper();
-                String txt = om.writeValueAsString(document);
-                content = EJson.parseObject(txt);
-            } catch (IOException e) {
-                return null;
-            }
-            ExternalExam ee = new ExternalExam();
-            ee.setHash(document.getHash());
-            ee.setContent(content);
-            ee.setCreator(user);
-            ee.setCreated(DateTime.now());
-            ee.save();
-
-            ExamEnrolment enrolment = new ExamEnrolment();
-            enrolment.setExternalExam(ee);
-            enrolment.setReservation(reservation);
-            enrolment.setUser(user);
-            enrolment.save();
-            return enrolment;
-        };
-        return request.get().thenApplyAsync(onSuccess);
     }
 
     // Actions invoked directly by logged in users
@@ -387,8 +330,8 @@ public class ExternalCalendarController extends CalendarController implements Ex
                                            User user, String orgRef, String roomRef) {
         Reservation oldReservation = enrolment.getReservation();
         final Reservation reservation = new Reservation();
-        reservation.setEndAt(end.toDate());
-        reservation.setStartAt(start.toDate());
+        reservation.setEndAt(end);
+        reservation.setStartAt(start);
         reservation.setUser(user);
         reservation.setExternalRef(node.get("id").asText());
 
@@ -540,22 +483,6 @@ public class ExternalCalendarController extends CalendarController implements Ex
         } catch (MalformedURLException e) {
             return wrapAsPromise(internalServerError(e.getMessage()));
         }
-    }
-
-    private static Query<ExamEnrolment> createQuery() {
-        Query<ExamEnrolment> query = Ebean.find(ExamEnrolment.class);
-        PathProperties props = StudentExamController.getPath(true);
-        props.apply(query);
-        return query;
-    }
-
-    private static ExamEnrolment getPrototype(String ref) {
-        return createQuery()
-                .where()
-                .eq("reservation.externalRef", ref)
-                .isNull("exam.parent")
-                .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
-                .findUnique();
     }
 
 

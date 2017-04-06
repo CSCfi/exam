@@ -1,11 +1,11 @@
 package models.api;
 
 
-import java.util.Date;
+import org.joda.time.DateTime;
 
 public interface CountsAsTrial {
 
-    Date getTrialTime();
+    DateTime getTrialTime();
 
     boolean isProcessed();
 }

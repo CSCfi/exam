@@ -159,7 +159,7 @@ public class ReservationController extends BaseController {
 
         Reservation reservation = enrolment.getReservation();
         // Lets not send emails about historical reservations
-        if (reservation.getEndAt().after(new Date())) {
+        if (reservation.getEndAt().isAfter(DateTime.now())) {
             User student = enrolment.getUser();
             emailComposer.composeReservationCancellationNotification(student, reservation, msg, false, enrolment);
         }

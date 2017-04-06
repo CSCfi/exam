@@ -1,35 +1,37 @@
 package models.base;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import models.User;
-import play.data.format.Formats.DateTime;
+import org.joda.time.DateTime;
+import util.java.DateTimeAdapter;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import java.util.Date;
 
 @MappedSuperclass
 public class OwnedModel extends GeneratedIdentityModel {
 
 	@Temporal(TemporalType.TIMESTAMP)
-    @DateTime(pattern="yyyy/MM/dd")
-    protected Date created;
+	@JsonSerialize(using = DateTimeAdapter.class)
+	protected DateTime created;
 
 	@OneToOne
     protected User creator;
 
     @Temporal(TemporalType.TIMESTAMP)
-    protected Date modified;
+	@JsonSerialize(using = DateTimeAdapter.class)
+	protected DateTime modified;
 
 	@OneToOne
     protected User modifier;
 
-	public Date getCreated() {
+	public DateTime getCreated() {
 		return created;
 	}
 
-    public void setCreated(Date created) {
+    public void setCreated(DateTime created) {
 		this.created = created;
 	}
 
@@ -41,11 +43,11 @@ public class OwnedModel extends GeneratedIdentityModel {
 		this.creator = creator;
 	}
 
-    public Date getModified() {
+    public DateTime getModified() {
 		return modified;
 	}
 
-    public void setModified(Date modified) {
+    public void setModified(DateTime modified) {
 		this.modified = modified;
 	}
 

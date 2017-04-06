@@ -342,9 +342,9 @@ public class ExamController extends BaseController {
         return Optional.empty();
     }
 
-    private boolean isRestrictingValidityChange(Date newDate, Exam exam, boolean isStartDate) {
-        Date oldDate = isStartDate ? exam.getExamActiveStartDate() : exam.getExamActiveEndDate();
-        return isStartDate ? oldDate.before(newDate) : newDate.before(oldDate);
+    private boolean isRestrictingValidityChange(DateTime newDate, Exam exam, boolean isStartDate) {
+        DateTime oldDate = isStartDate ? exam.getExamActiveStartDate() : exam.getExamActiveEndDate();
+        return isStartDate ? oldDate.isBefore(newDate) : newDate.isBefore(oldDate);
     }
 
     private Optional<Result> updateTemporalFieldsAndValidate(Exam exam, JsonNode node, User user) {
@@ -359,17 +359,17 @@ public class ExamController extends BaseController {
         Long start = parse("examActiveStartDate", node, Long.class);
         Long end = parse("examActiveEndDate", node, Long.class);
         if (start != null && start != 0) {
-            Date newStart = new Date(start);
+            DateTime newStart = new DateTime(start);
             if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newStart, exam, true)) {
-                exam.setExamActiveStartDate(new Date(start));
+                exam.setExamActiveStartDate(newStart);
             } else {
                 return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
             }
         }
         if (end != null && end != 0) {
-            Date newEnd = new Date(end);
+            DateTime newEnd = new DateTime(end);
             if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newEnd, exam, false)) {
-                exam.setExamActiveEndDate(new Date(end));
+                exam.setExamActiveEndDate(newEnd);
             } else {
                 return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
             }
@@ -659,8 +659,8 @@ public class ExamController extends BaseController {
         copy.setParent(null);
         copy.setCourse(null);
         DateTime now = DateTime.now().withTimeAtStartOfDay();
-        copy.setExamActiveStartDate(now.toDate());
-        copy.setExamActiveEndDate(now.plusDays(1).toDate());
+        copy.setExamActiveStartDate(now);
+        copy.setExamActiveEndDate(now.plusDays(1));
         copy.save();
         return ok(copy);
     }
@@ -696,8 +696,8 @@ public class ExamController extends BaseController {
 
         DateTime start = DateTime.now().withTimeAtStartOfDay();
         if (!exam.isPrintout()) {
-            exam.setExamActiveStartDate(start.toDate());
-            exam.setExamActiveEndDate(start.plusDays(1).toDate());
+            exam.setExamActiveStartDate(start);
+            exam.setExamActiveEndDate(start.plusDays(1));
         }
         exam.setDuration(AppUtil.getExamDurations().get(0));
         if (AppUtil.isCourseGradeScaleOverridable()) {
@@ -722,10 +722,10 @@ public class ExamController extends BaseController {
     }
 
     private boolean hasFutureReservations(Exam exam) {
-        Date now = new Date();
+        DateTime now = DateTime.now();
         return exam.getExamEnrolments().stream()
                 .map(ExamEnrolment::getReservation)
-                .anyMatch(r -> r != null && r.getEndAt().after(now));
+                .anyMatch(r -> r != null && r.getEndAt().isAfter(now));
     }
 
     private boolean isPermittedToUpdate(Exam exam, User user) {

@@ -1,13 +1,20 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import models.api.CountsAsTrial;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.joda.time.DateTime;
+import util.java.DateTimeAdapter;
 
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 public class ExamParticipation extends GeneratedIdentityModel implements CountsAsTrial {
@@ -24,22 +31,26 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
     private Reservation reservation;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date started;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime started;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date ended;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime ended;
+
+    @Temporal(TemporalType.TIMESTAMP) // TODO: should be in seconds or minutes
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime duration;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date duration;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime deadline;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date deadline;
-
-    public Date getDeadline() {
+    public DateTime getDeadline() {
         return deadline;
     }
 
-    public void setDeadline(Date deadline) {
+    public void setDeadline(DateTime deadline) {
         this.deadline = deadline;
     }
 
@@ -67,32 +78,32 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
         this.reservation = reservation;
     }
 
-    public Date getStarted() {
+    public DateTime getStarted() {
         return started;
     }
 
-    public void setStarted(Date started) {
+    public void setStarted(DateTime started) {
         this.started = started;
     }
 
-    public Date getEnded() {
+    public DateTime getEnded() {
         return ended;
     }
 
-    public void setEnded(Date ended) {
+    public void setEnded(DateTime ended) {
         this.ended = ended;
     }
 
-    public Date getDuration() {
+    public DateTime getDuration() {
         return duration;
     }
 
-    public void setDuration(Date duration) {
+    public void setDuration(DateTime duration) {
         this.duration = duration;
     }
 
     @Override
-    public Date getTrialTime() {
+    public DateTime getTrialTime() {
         return started;
     }
 

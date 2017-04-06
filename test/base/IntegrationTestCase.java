@@ -17,18 +17,21 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.yaml.snakeyaml.Yaml;
 import play.Application;
 import play.db.Database;
 import play.db.Databases;
 import play.db.evolutions.Evolutions;
 import play.libs.Json;
-import play.libs.Yaml;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import util.java.JsonDeserializer;
 
 import javax.persistence.PersistenceException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
@@ -308,8 +311,10 @@ public class IntegrationTestCase {
         });
     }
 
+
+
     @SuppressWarnings("unchecked")
-    private static void addTestData() {
+    private void addTestData() throws Exception {
         int userCount;
         try {
             userCount = Ebean.find(User.class).findRowCount();
@@ -318,7 +323,10 @@ public class IntegrationTestCase {
             return;
         }
         if (userCount == 0) {
-            Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
+            Yaml yaml = new Yaml(new JodaPropertyConstructor());
+            InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
+            Map<String, List<Object>> all = (Map<String, List<Object>>) yaml.load(is);
+            is.close();
             if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
                 Ebean.saveAll(all.get("languages"));
             }

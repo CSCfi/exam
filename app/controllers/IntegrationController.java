@@ -79,7 +79,7 @@ public class IntegrationController extends BaseController implements ExternalAPI
     }
 
     @Inject
-    protected WSClient wsClient;
+    private WSClient wsClient;
 
     private static URL parseUrl(User user) throws MalformedURLException {
         if (user.getUserIdentifier() == null) {

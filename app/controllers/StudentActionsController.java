@@ -38,7 +38,7 @@ public class StudentActionsController extends BaseController {
     private static final boolean PERM_CHECK_ACTIVE = AppUtil.isEnrolmentPermissionCheckActive();
 
     @Inject
-    protected ExternalAPI externalAPI;
+    private ExternalAPI externalAPI;
 
 
     @ActionMethod

@@ -18,7 +18,7 @@ import java.util.concurrent.CompletionStage;
 public class CourseInfoController extends BaseController {
 
     @Inject
-    protected ExternalAPI externalAPI;
+    private ExternalAPI externalAPI;
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public CompletionStage<Result> insertCourseFromInterface(String code) throws MalformedURLException {
