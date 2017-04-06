@@ -3,6 +3,9 @@ CREATE TABLE external_exam (
   hash VARCHAR(32) NOT NULL,
   content JSONB NOT NULL,
   created TIMESTAMPTZ NOT NULL,
+  started TIMESTAMPTZ NULL,
+  finished TIMESTAMPTZ NULL,
+  sent TIMESTAMPTZ NULL,
   creator_id BIGINT NOT NULL,
   object_version BIGINT NOT NULL,
   CONSTRAINT PK_EXTERNAL_EXAM PRIMARY KEY (hash)

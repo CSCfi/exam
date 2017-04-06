@@ -1,29 +1,51 @@
-package system;
+package system.actors;
 
-import akka.actor.Props;
 import akka.actor.UntypedActor;
 import com.avaje.ebean.Ebean;
 import controllers.SettingsController;
-import models.*;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamInspection;
+import models.ExamParticipation;
+import models.GeneralSettings;
+import models.Reservation;
+import models.User;
+import models.json.ExternalExam;
 import org.joda.time.DateTime;
 import play.Logger;
 import util.AppUtil;
 import util.java.EmailComposer;
 
+import javax.inject.Inject;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class ExamAutoSaverActor extends UntypedActor {
+public class ExamAutoSaverActor extends UntypedActor {
 
-    static final Props props = Props.create(ExamAutoSaverActor.class);
+    private EmailComposer composer;
+
+    @Inject
+    public ExamAutoSaverActor(EmailComposer composer) {
+        this.composer = composer;
+    }
+
+    private ExamAutoSaverActor() {
+        // Needed by guice
+    }
+
 
     @Override
     public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Checking for ongoing exams ...", getClass().getCanonicalName());
-        EmailComposer composer = (EmailComposer) message;
+        checkLocalExams(message);
+        checkExternalExams();
+    }
+
+    private void checkLocalExams(Object message) {
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
                 .fetch("reservation")
@@ -33,14 +55,14 @@ class ExamAutoSaverActor extends UntypedActor {
                 .isNotNull("reservation")
                 .findList();
 
-        if (participations == null || participations.isEmpty()) {
+        if (participations.isEmpty()) {
             Logger.debug("{}: ... none found.", getClass().getCanonicalName());
             return;
         }
-        markEnded(participations, composer);
+        markEnded(participations);
     }
 
-    private void markEnded(List<ExamParticipation> participations, EmailComposer emailComposer) {
+    private void markEnded(List<ExamParticipation> participations) {
         for (ExamParticipation participation : participations) {
             Exam exam = participation.getExam();
             Reservation reservation = participation.getReservation();
@@ -67,12 +89,50 @@ class ExamAutoSaverActor extends UntypedActor {
                     recipients.addAll(exam.getParent().getExamOwners());
                     recipients.addAll(exam.getExamInspections().stream().map(
                             ExamInspection::getUser).collect(Collectors.toSet()));
-                    AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer);
+                    AppUtil.notifyPrivateExamEnded(recipients, exam, composer);
                 }
             } else {
                 Logger.info("{}: ... exam {} is ongoing until {}", getClass().getCanonicalName(), exam.getId(),
                         participationTimeLimit);
             }
+        }
+    }
+
+    private void checkExternalExams() {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .fetch("reservation")
+                .fetch("reservation.machine.room")
+                .where()
+                .isNotNull("externalExam")
+                .isNotNull("externalExam.started")
+                .isNull("externalExam.finished")
+                .isNotNull("reservation.externalRef")
+                .findList();
+        for (ExamEnrolment enrolment : enrolments) {
+            ExternalExam exam = enrolment.getExternalExam();
+            Exam content;
+            try {
+                content = exam.deserialize();
+            } catch (IOException e) {
+                Logger.error("failed to parse content out of an external exam");
+                continue;
+            }
+            Reservation reservation = enrolment.getReservation();
+            DateTime reservationStart = new DateTime(reservation.getStartAt());
+            DateTime participationTimeLimit = reservationStart.plusMinutes(content.getDuration());
+            DateTime now = AppUtil.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
+            if (participationTimeLimit.isBefore(now)) {
+                exam.setFinished(DateTime.now());
+                content.setState(Exam.State.REVIEW);
+                try {
+                    exam.serialize(content);
+                } catch (IOException e) {
+                    Logger.error("failed to parse content out of an external exam");
+                    continue;
+                }
+            }
+            Logger.info("{}: ... setting external exam {} state to REVIEW", getClass().getCanonicalName(), exam.getHash());
         }
     }
 

@@ -10,6 +10,7 @@ import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import controllers.iop.api.ExternalCalendarAPI;
 import exceptions.NotFoundException;
+import models.ExamEnrolment;
 import models.Language;
 import models.Organisation;
 import models.Reservation;
@@ -22,6 +23,7 @@ import org.joda.time.Minutes;
 import play.Environment;
 import play.Logger;
 import play.libs.Json;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import util.AppUtil;
@@ -42,6 +44,9 @@ public class SessionController extends BaseController {
 
     @Inject
     ExternalCalendarAPI externalCalendarAPI;
+
+    @Inject
+    HttpExecutionContext ec;
 
 
     @ActionMethod
@@ -114,7 +119,7 @@ public class SessionController extends BaseController {
         if (reservation != null) {
             try {
                 return handleExternalReservation(user, reservation).
-                        thenApplyAsync(r -> createSession(user, true));
+                        thenApplyAsync(r -> createSession(user, true), ec.current());
             } catch (MalformedURLException e) {
                 return wrapAsPromise(internalServerError());
             }
@@ -138,10 +143,15 @@ public class SessionController extends BaseController {
     }
 
     private CompletionStage<Result> handleExternalReservation(User user, Reservation reservation) throws MalformedURLException {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation", reservation).findUnique();
+        if (enrolment != null) {
+            // already imported
+            return wrapAsPromise(ok());
+        }
         reservation.setUser(user);
         reservation.update();
-        return externalCalendarAPI.requestEnrolment(reservation.getId())
-                .thenApplyAsync(result -> ok());
+        return externalCalendarAPI.requestEnrolment(user, reservation)
+                .thenApplyAsync(e -> e == null ? internalServerError() : ok());
 
     }
 

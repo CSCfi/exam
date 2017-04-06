@@ -1,4 +1,4 @@
-package system;
+package system.actors;
 
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -11,9 +11,9 @@ import util.AppUtil;
 import java.util.Date;
 import java.util.List;
 
-class ExamExpirationActor extends UntypedActor {
+public class ExamExpirationActor extends UntypedActor {
 
-    static final Props props = Props.create(ExamExpirationActor.class);
+    public static final Props props = Props.create(ExamExpirationActor.class);
 
     @Override
     public void onReceive(Object message) throws Exception {

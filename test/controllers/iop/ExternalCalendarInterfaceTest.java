@@ -13,13 +13,7 @@ import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
 import helpers.RemoteServerHelper;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamRoom;
-import models.GeneralSettings;
-import models.Language;
-import models.Reservation;
-import models.User;
+import models.*;
 import models.iop.ExternalReservation;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
@@ -163,12 +157,18 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         exam.setExamActiveEndDate(DateTime.now().plusDays(1).toDate());
         exam.update();
 
-        user = Ebean.find(User.class, other != null ? other.getId() : userId);
-        user.setLanguage(Ebean.find(Language.class, "en"));
-        user.update();
+        Long id = other == null ? userId : other.getId();
+
+        if (id != null) {
+            user = Ebean.find(User.class, id);
+            user.setLanguage(Ebean.find(Language.class, "en"));
+            user.update();
+        }
 
         room = Ebean.find(ExamRoom.class, 1L);
         room.setExternalRef(ROOM_REF);
+        room.getExamMachines().get(0).setIpAddress("127.0.0.1");
+        room.getExamMachines().get(0).update();
         room.update();
 
         enrolment = new ExamEnrolment();
@@ -327,28 +327,48 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Result result = get("/integration/iop/reservations/" + RESERVATION_REF);
         assertThat(result.status()).isEqualTo(200);
         JsonNode body = Json.parse(contentAsString(result));
-        ExamEnrolment ee = deserialize(ExamEnrolment.class, body);
-        assertThat(ee.getExam().getId()).isEqualTo(exam.getId());
-        assertThat(ee.getExam().getExamSections()).hasSize(exam.getExamSections().size());
+        Exam ee = deserialize(Exam.class, body);
+        assertThat(ee.getId()).isEqualTo(exam.getId());
+        assertThat(ee.getExamSections()).hasSize(exam.getExamSections().size());
         assertThat(
-                ee.getExam().getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum()).isEqualTo(
+                ee.getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum()).isEqualTo(
                 exam.getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum()
         );
     }
 
     @Test
-    @RunAsStudent
-    public void testRequestEnrolment() throws Exception {
+    public void testLoginAsTemporalStudentVisitor() throws Exception {
         initialize(null);
+        String eppn = "newuser@test.org";
+        assertThat(user).isNull();
+
         Reservation reservation = new Reservation();
+        reservation.setExternalUserRef(eppn);
         reservation.setExternalRef(RESERVATION_REF);
         reservation.setStartAt(DateTime.now().plusHours(2).toDate());
         reservation.setEndAt(DateTime.now().plusHours(3).toDate());
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
 
-        Result result = get("/integration/iop/enrolments/" + reservation.getId());
-        assertThat(result.status()).isEqualTo(200);
+        login(eppn);
+
+        User newUser = Ebean.find(User.class).where().eq("eppn", eppn).findUnique();
+        assertThat(newUser).isNotNull();
+        assertThat(newUser.getRoles()).hasSize(1);
+        assertThat(newUser.getRoles().get(0).getName()).isEqualTo(Role.Name.TEACHER.toString());
+
+        reservation = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findUnique();
+        assertThat(reservation.getUser().getId()).isEqualTo(newUser.getId());
+
+        // Try do some teacher stuff, see that it is not allowed
+        Result result = get("/app/reviewerexams");
+        assertThat(result.status()).isEqualTo(403);
+        // See that user is directed to waiting room
+        result = get("/app/enrolments");
+        assertThat(result.headers().containsKey("x-exam-upcoming-exam")).isTrue();
+
+        // see that enrolment was created for the user
+
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation.externalRef",
                 RESERVATION_REF).findUnique();
         assertThat(enrolment).isNotNull();
@@ -359,6 +379,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         JsonNode node = mapper.readTree(json);
         Exam parsedExam = JsonDeserializer.deserialize(Exam.class, node);
         assertThat(parsedExam.getId()).isEqualTo(exam.getId());
+
     }
 
     @Test
@@ -372,6 +393,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.put("examId", exam.getId());
         json.put("orgId", ORG_REF);
         json.put("roomId", ROOM_REF);
+        json.put("requestingOrg", "foobar");
 
         Result result = request(Helpers.POST, "/integration/iop/reservations/external", json);
         assertThat(result.status()).isEqualTo(201);

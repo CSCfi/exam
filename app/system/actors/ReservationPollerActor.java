@@ -1,6 +1,5 @@
-package system;
+package system.actors;
 
-import akka.actor.Props;
 import akka.actor.UntypedActor;
 import com.avaje.ebean.Ebean;
 import models.Exam;
@@ -11,18 +10,26 @@ import util.AppUtil;
 import util.java.EmailComposer;
 import util.java.NoShowHandlerUtil;
 
-import java.util.Date;
+import javax.inject.Inject;
 import java.util.List;
-import java.util.stream.Collectors;
 
-class ReservationPollerActor extends UntypedActor {
+public class ReservationPollerActor extends UntypedActor {
 
-    static final Props props = Props.create(ReservationPollerActor.class);
+    private EmailComposer composer;
+
+    @Inject
+    public ReservationPollerActor(EmailComposer composer) {
+        this.composer = composer;
+    }
+
+    private ReservationPollerActor() {
+        // Needed by guice
+    }
+
 
     @Override
     public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Running no-show check ...", getClass().getCanonicalName());
-        EmailComposer composer = (EmailComposer) message;
         DateTime now = AppUtil.adjustDST(DateTime.now());
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")

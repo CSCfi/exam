@@ -118,7 +118,7 @@ public class ExternalCalendarController extends CalendarController implements Ex
         if (enrolment == null) {
             return notFound();
         }
-        return ok(enrolment, StudentExamController.getPath(true));
+        return ok(enrolment.getExam(), StudentExamController.getPath(false));
     }
 
     @SubjectNotPresent
@@ -211,35 +211,27 @@ public class ExternalCalendarController extends CalendarController implements Ex
         }
     }
 
-    // Actions invoked directly by logged in users
     @Override
-    @SubjectNotPresent
-    public CompletionStage<Result> requestEnrolment(Long reservationId) throws MalformedURLException {
-        Reservation reservation = Ebean.find(Reservation.class, reservationId);
-        if (reservation == null) {
-            return wrapAsPromise(notFound());
-        }
-        User user = getLoggedUser();
+    public CompletionStage<ExamEnrolment> requestEnrolment(User user, Reservation reservation) throws MalformedURLException {
         URL url = parseEnrolmentUrl(reservation.getExternalRef());
         WSRequest request = wsClient.url(url.toString());
-        Function<WSResponse, Result> onSuccess = response -> {
+        Function<WSResponse, ExamEnrolment> onSuccess = response -> {
             JsonNode root = response.asJson();
             if (response.getStatus() != 200) {
-                return internalServerError(root.get("message").asText("Connection refused"));
+                return null;
             }
             // Create external exam!
-            ExamEnrolment document = JsonDeserializer.deserialize(ExamEnrolment.class, root);
-            Exam exam = document.getExam();
+            Exam document = JsonDeserializer.deserialize(Exam.class, root);
             Map<String, Object> content;
             try {
                 ObjectMapper om = new ObjectMapper();
-                String txt = om.writeValueAsString(exam);
+                String txt = om.writeValueAsString(document);
                 content = EJson.parseObject(txt);
             } catch (IOException e) {
-                return internalServerError();
+                return null;
             }
             ExternalExam ee = new ExternalExam();
-            ee.setHash(exam.getHash());
+            ee.setHash(document.getHash());
             ee.setContent(content);
             ee.setCreator(user);
             ee.setCreated(DateTime.now());
@@ -248,18 +240,20 @@ public class ExternalCalendarController extends CalendarController implements Ex
             ExamEnrolment enrolment = new ExamEnrolment();
             enrolment.setExternalExam(ee);
             enrolment.setReservation(reservation);
+            enrolment.setUser(user);
             enrolment.save();
-            return ok();
+            return enrolment;
         };
         return request.get().thenApplyAsync(onSuccess);
     }
 
-
+    // Actions invoked directly by logged in users
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservation() throws MalformedURLException {
         User user = getLoggedUser();
         // Parse request body
         JsonNode node = request().body().asJson();
+        String homeOrgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
         String orgRef = node.get("orgId").asText();
         String roomRef = node.get("roomId").asText();
         DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("start").asText());
@@ -288,6 +282,7 @@ public class ExternalCalendarController extends CalendarController implements Ex
         // Lets do this
         URL url = parseUrl(orgRef, roomRef, null);
         ObjectNode body = Json.newObject();
+        body.put("requestingOrg", homeOrgRef);
         body.put("start", ISODateTimeFormat.dateTime().print(start));
         body.put("end", ISODateTimeFormat.dateTime().print(end));
         body.put("user", user.getEppn());
