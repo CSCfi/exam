@@ -15,3 +15,4 @@ CREATE INDEX IX_EXAM_SECTION_QUESTION_CLOZE_TEST_ANSWER ON exam_section_question
 DROP INDEX IX_EXAM_SECTION_QUESTION_CLOZE_TEST_ANSWER;
 ALTER TABLE exam_section_question DROP cloze_test_answer_id CASCADE;
 DROP TABLE cloze_test_answer CASCADE;
+DROP SEQUENCE cloze_test_answer_seq;
