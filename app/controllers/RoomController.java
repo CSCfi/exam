@@ -4,8 +4,13 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
-import models.*;
+import models.Accessibility;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.ExamStartingHour;
+import models.MailAddress;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
@@ -21,7 +26,6 @@ import util.java.DateTimeUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public class RoomController extends BaseController {
@@ -39,15 +43,11 @@ public class RoomController extends BaseController {
         }
         List<ExamRoom> rooms = query.findList();
         for (ExamRoom room : rooms) {
-            Iterator<ExamMachine> i = room.getExamMachines().iterator();
-            while (i.hasNext()) {
-                ExamMachine machine = i.next();
-                if (machine.isArchived()) {
-                    i.remove();
-                }
-            }
+            room.getExamMachines().removeIf(ExamMachine::isArchived);
         }
-        return ok(Json.toJson(rooms));
+        PathProperties props = PathProperties.parse(
+                "(*, mailAddress(*), accessibility(*), examMachines(*, softwareInfo(*)))");
+        return ok(rooms, props);
     }
 
     @Restrict(@Group("ADMIN"))
@@ -56,7 +56,9 @@ public class RoomController extends BaseController {
         if (examRoom == null) {
             return notFound("room not found");
         }
-        return ok(Json.toJson(examRoom));
+        PathProperties props = PathProperties.parse(
+                "(*, defaultWorkingHours(*), calendarExceptionEvents(*), accessibility(*), mailAddress(*), examStartingHours(*), examMachines(*))");
+        return ok(examRoom, props);
     }
 
     @Restrict(@Group({"ADMIN"}))
@@ -110,7 +112,7 @@ public class RoomController extends BaseController {
 
         existing.update();
 
-        return ok(Json.toJson(existing));
+        return ok();
     }
 
     @Restrict(@Group({"ADMIN"}))
@@ -124,7 +126,7 @@ public class RoomController extends BaseController {
         existing.setStreet(address.getStreet());
         existing.setZip(address.getZip());
         existing.update();
-        return ok(Json.toJson(address));
+        return ok();
     }
 
     private List<DefaultWorkingHours> parseWorkingHours(JsonNode root) {
@@ -268,7 +270,6 @@ public class RoomController extends BaseController {
 
         if (!ids.isEmpty()) {
             for (String aid : ids) {
-                System.out.println(aid);
                 int accessibilityId;
                 try {
                     accessibilityId = Integer.parseInt(aid.trim());
@@ -303,7 +304,7 @@ public class RoomController extends BaseController {
         }
         room.setState(ExamRoom.State.INACTIVE.toString());
         room.update();
-        return ok(Json.toJson(room));
+        return ok();
     }
 
     @Restrict(@Group({"ADMIN"}))
@@ -315,7 +316,7 @@ public class RoomController extends BaseController {
         }
         room.setState(ExamRoom.State.ACTIVE.toString());
         room.update();
-        return ok(Json.toJson(room));
+        return ok();
     }
 }
 

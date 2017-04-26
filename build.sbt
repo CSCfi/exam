@@ -60,6 +60,8 @@ libraryDependencies ++= Seq(
 
 dependencyOverrides += "org.webjars.bower" % "angular" % "1.4.7"
 
+dependencyOverrides += "org.webjars.bower" % "angular-sanitize" % "1.4.7"
+
 dependencyOverrides += "org.webjars.bower" % "jquery" % "2.1.4"
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")

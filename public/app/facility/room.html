@@ -108,7 +108,7 @@
     </div>
     <div class="detail-row">
         <div class="col-md-6">
-            <span ng-repeat="hour in examStartingHours" class="label"
+            <span ng-repeat="hour in examStartingHours" class="label pointer"
                   ng-class="hour.selected ? 'label-success' : 'label-default'"
                   ng-click="hour.selected = !hour.selected" style="margin: 0.2em">{{hour.startingHour}}</span>
         </div>
