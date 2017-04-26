@@ -6,6 +6,7 @@ import models.ExamSectionQuestion;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -15,9 +16,9 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 import java.lang.reflect.Type;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.stream.StreamSupport;
 
 @Entity
 public class ClozeTestAnswer extends GeneratedIdentityModel {
@@ -51,9 +52,13 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         Elements blanks = doc.select(CLOZE_SELECTOR);
         blanks.forEach(b -> {
             boolean isNumeric = isNumeric(b);
-            StreamSupport.stream(b.attributes().spliterator(), false)
-                    .filter(attr -> !attr.getKey().equals("id"))
-                    .forEach(attr -> b.removeAttr(attr.getKey()));
+            Iterator<Attribute> it = b.attributes().iterator();
+            while (it.hasNext()) {
+                Attribute a = it.next();
+                if (!a.getKey().equals("id")) {
+                    it.remove();
+                }
+            }
             b.tagName("input");
             b.text("");
             b.attr("type", isNumeric ? "number" : "text");
@@ -80,9 +85,13 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             } else {
                 score.incorrectAnswers++;
             }
-            StreamSupport.stream(b.attributes().spliterator(), false)
-                    .filter(attr -> !attr.getKey().equals("id"))
-                    .forEach(attr -> b.removeAttr(attr.getKey()));
+            Iterator<Attribute> it = b.attributes().iterator();
+            while (it.hasNext()) {
+                Attribute a = it.next();
+                if (!a.getKey().equals("id")) {
+                    it.remove();
+                }
+            }
             b.tagName("input");
             b.text("");
             b.attr("class", isCorrectAnswer ? "cloze-correct" : "cloze-incorrect");
