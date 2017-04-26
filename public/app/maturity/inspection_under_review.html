@@ -52,8 +52,8 @@
             <td class="table-column-15 table-column-bold">
                 <span class="exam-basic-title">
                     {{ inspection.exam.name }}</span>
-                    <span ng-if="review.user.userIdentifier"><br/>({{ inspection.exam.course.code }})</span>
-                
+                    <span class="exam-code"><br/><b>{{ inspection.exam.course.code }}</b></span>
+
             </td>
             <td class="table-column-20">{{ inspection.created | date:'dd.MM.yyyy' }}
             </td>

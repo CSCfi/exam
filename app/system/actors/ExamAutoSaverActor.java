@@ -18,7 +18,6 @@ import util.java.EmailComposer;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,13 +69,13 @@ public class ExamAutoSaverActor extends UntypedActor {
             DateTime participationTimeLimit = reservationStart.plusMinutes(exam.getDuration());
             DateTime now = AppUtil.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
             if (participationTimeLimit.isBefore(now)) {
-                participation.setEnded(now.toDate());
+                participation.setEnded(now);
                 participation.setDuration(
-                        new Date(participation.getEnded().getTime() - participation.getStarted().getTime()));
+                        new DateTime(participation.getEnded().getMillis() - participation.getStarted().getMillis()));
 
                 GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
                 int deadlineDays = Integer.parseInt(settings.getValue());
-                Date deadline = new DateTime(participation.getEnded()).plusDays(deadlineDays).toDate();
+                DateTime deadline = new DateTime(participation.getEnded()).plusDays(deadlineDays);
                 participation.setDeadline(deadline);
 
                 participation.save();

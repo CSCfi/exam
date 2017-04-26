@@ -37,7 +37,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Date;
 import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -153,8 +152,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
         exam = Ebean.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findUnique();
         initExamSectionQuestions(exam);
-        exam.setExamActiveStartDate(DateTime.now().minusDays(1).toDate());
-        exam.setExamActiveEndDate(DateTime.now().plusDays(1).toDate());
+        exam.setExamActiveStartDate(DateTime.now().minusDays(1));
+        exam.setExamActiveEndDate(DateTime.now().plusDays(1));
         exam.update();
 
         Long id = other == null ? userId : other.getId();
@@ -210,8 +209,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Exam exam2 = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED).findList().get(1);
         Reservation reservation = new Reservation();
         reservation.setUser(user);
-        reservation.setStartAt(DateTime.now().plusMinutes(90).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(2).toDate());
+        reservation.setStartAt(DateTime.now().plusMinutes(90));
+        reservation.setEndAt(DateTime.now().plusHours(2));
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
         ExamEnrolment enrolment2 = new ExamEnrolment();
@@ -275,14 +274,14 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         room.setExternalRef(ROOM_REF);
         room.update();
 
-        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
-        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
 
         Result result = request(Helpers.POST, "/integration/iop/reservations", Json.newObject()
                 .put("id", RESERVATION_REF)
                 .put("roomId", ROOM_REF)
-                .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
-                .put("end", ISODateTimeFormat.dateTime().print(end.getTime()))
+                .put("start", ISODateTimeFormat.dateTime().print(start))
+                .put("end", ISODateTimeFormat.dateTime().print(end))
                 .put("user", "studentone@uni.org"));
         assertThat(result.status()).isEqualTo(201);
         Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findUnique();
@@ -300,8 +299,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         Reservation reservation = new Reservation();
         reservation.setExternalRef(RESERVATION_REF);
-        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
 
@@ -316,8 +315,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         initialize(Ebean.find(User.class, 1));
         Reservation reservation = new Reservation();
         reservation.setExternalRef(RESERVATION_REF);
-        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
 
@@ -345,8 +344,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Reservation reservation = new Reservation();
         reservation.setExternalUserRef(eppn);
         reservation.setExternalRef(RESERVATION_REF);
-        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
 
@@ -422,20 +421,20 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         // Setup
         initialize(null);
 
-        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
-        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
 
         Reservation reservation = new Reservation();
-        reservation.setStartAt(DateTime.now().minusMinutes(10).toDate());
-        reservation.setEndAt(DateTime.now().plusMinutes(10).toDate());
+        reservation.setStartAt(DateTime.now().minusMinutes(10));
+        reservation.setEndAt(DateTime.now().plusMinutes(10));
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();
 
         ObjectNode json = Json.newObject();
-        json.put("start", ISODateTimeFormat.dateTime().print(start.getTime()));
-        json.put("end", ISODateTimeFormat.dateTime().print(end.getTime()));
+        json.put("start", ISODateTimeFormat.dateTime().print(start));
+        json.put("end", ISODateTimeFormat.dateTime().print(end));
         json.put("examId", exam.getId());
         json.put("orgId", ORG_REF);
         json.put("roomId", ROOM_REF);
@@ -456,8 +455,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         Reservation reservation = new Reservation();
         reservation.setUser(user);
-        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
         reservation.setExternalRef(RESERVATION_REF);
         ExternalReservation er = new ExternalReservation();
         er.setOrgRef(ORG_REF);

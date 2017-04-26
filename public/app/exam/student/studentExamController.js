@@ -287,7 +287,7 @@
                     }
                     $scope.previousButton = {valid: true};
                     if (previousPage !== 'guide') {
-                        $scope.previousButton.text = findSection(sectionId).name;
+                        $scope.previousButton.text = findSection(previousPage).name;
                         return;
                     }
                     $scope.previousButton.isGuide = true;
@@ -479,7 +479,7 @@
                 $scope.timeChecked = false;
                 var getRemainingTime = function () {
                     if ($scope.exam && $scope.exam.id) {
-                        var req = $http.get('/app/time/' + $scope.exam.id);
+                        var req = $http.get('/app/time/' + $scope.exam.hash);
                         req.success(function (reply) {
                             $scope.timeChecked = true;
                             $scope.remainingTime = parseInt(reply);

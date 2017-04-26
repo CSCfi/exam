@@ -7,19 +7,18 @@ import models.ExamEnrolment;
 import org.joda.time.DateTime;
 import play.Logger;
 import util.AppUtil;
-import util.java.EmailComposer;
-import util.java.NoShowHandlerUtil;
+import util.java.NoShowHandler;
 
 import javax.inject.Inject;
 import java.util.List;
 
 public class ReservationPollerActor extends UntypedActor {
 
-    private EmailComposer composer;
+    private NoShowHandler handler;
 
     @Inject
-    public ReservationPollerActor(EmailComposer composer) {
-        this.composer = composer;
+    public ReservationPollerActor(NoShowHandler handler) {
+        this.handler = handler;
     }
 
     private ReservationPollerActor() {
@@ -42,7 +41,7 @@ public class ReservationPollerActor extends UntypedActor {
         if (enrolments.isEmpty()) {
             Logger.debug("{}: ... none found.", getClass().getCanonicalName());
         } else {
-            NoShowHandlerUtil.handleNoShows(enrolments, composer, getClass());
+            handler.handleNoShows(enrolments, getClass());
         }
     }
 

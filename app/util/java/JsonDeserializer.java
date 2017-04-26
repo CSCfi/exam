@@ -5,6 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
 
 import java.lang.reflect.Type;
@@ -20,6 +22,7 @@ public final class JsonDeserializer {
     private static final GsonBuilder gsonBuilder = new GsonBuilder();
     static {
         gsonBuilder.registerTypeAdapter(Date.class, new DateDeserializer());
+        gsonBuilder.registerTypeAdapter(DateTime.class, new DateTimeDeserializer());
     }
     private static final Gson gson = gsonBuilder.create();
 
@@ -32,6 +35,23 @@ public final class JsonDeserializer {
             } catch (ParseException e) {
                 try {
                     return new Date(json.getAsLong());
+                } catch (RuntimeException e2) {
+                    Logger.warn("Failed to parse date " + json.getAsString());
+                }
+            }
+            return null;
+        }
+    }
+
+    private static class DateTimeDeserializer implements com.google.gson.JsonDeserializer<DateTime> {
+
+        @Override
+        public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+            try {
+                return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString());
+            } catch (IllegalArgumentException e) {
+                try {
+                    return new DateTime(json.getAsLong());
                 } catch (RuntimeException e2) {
                     Logger.warn("Failed to parse date " + json.getAsString());
                 }

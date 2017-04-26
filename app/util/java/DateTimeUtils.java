@@ -4,15 +4,18 @@ import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
+import org.joda.time.base.AbstractInterval;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 
 public class DateTimeUtils {
 
-    public enum RestrictionType { RESTRICTIVE, NON_RESTRICTIVE }
+    public enum RestrictionType {RESTRICTIVE, NON_RESTRICTIVE}
 
     public static List<Interval> findGaps(List<Interval> reserved, Interval searchInterval) {
         List<Interval> gaps = new ArrayList<>();
@@ -97,7 +100,7 @@ public class DateTimeUtils {
         if (slots.size() <= 1) {
             return slots;
         }
-        Collections.sort(slots, (o1, o2) -> o1.getStart().compareTo(o2.getStart()));
+        slots.sort(Comparator.comparing(AbstractInterval::getStart));
         boolean isMerged = false;
         List<Interval> merged = new ArrayList<>();
         merged.add(slots.get(0));
@@ -120,18 +123,17 @@ public class DateTimeUtils {
         return merged;
     }
 
-    public static int resolveStartWorkingHourMillis(Date startTime, int timeZoneOffset) {
+    public static int resolveStartWorkingHourMillis(DateTime startTime, int timeZoneOffset) {
         return resolveMillisOfDay(startTime, timeZoneOffset);
     }
 
-    public static int resolveEndWorkingHourMillis(Date endTime, int timeZoneOffset) {
+    public static int resolveEndWorkingHourMillis(DateTime endTime, int timeZoneOffset) {
         int millis = resolveMillisOfDay(endTime, timeZoneOffset);
         return millis == 0 ? MILLIS_PER_DAY - 1 : millis;
     }
 
-    private static int resolveMillisOfDay(Date date, long offset) {
-        DateTime dateTime = new DateTime(date.getTime());
-        long millis = dateTime.getMillisOfDay() + offset;
+    private static int resolveMillisOfDay(DateTime date, long offset) {
+        long millis = date.getMillisOfDay() + offset;
         if (millis >= MILLIS_PER_DAY) {
             return (int) Math.abs(millis - MILLIS_PER_DAY);
         }

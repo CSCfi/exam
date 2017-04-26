@@ -6,19 +6,21 @@ import com.avaje.ebean.Query;
 import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import models.api.AttachmentContainer;
 import models.base.OwnedModel;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import util.AppUtil;
+import util.java.DateTimeAdapter;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -109,11 +111,13 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     // Exam valid/enrollable from
     @Temporal(TemporalType.TIMESTAMP)
-    private Date examActiveStartDate;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime examActiveStartDate;
 
     // Exam valid/enrollable until
     @Temporal(TemporalType.TIMESTAMP)
-    private Date examActiveEndDate;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime examActiveEndDate;
 
     // Exam duration (minutes)
     private Integer duration;
@@ -149,7 +153,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private User gradedByUser;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date gradedTime;
+    private DateTime gradedTime;
 
     @OneToOne
     private Comment examFeedback;
@@ -176,7 +180,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private Attachment attachment;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date autoEvaluationNotified;
+    private DateTime autoEvaluationNotified;
 
     private boolean gradeless;
 
@@ -272,11 +276,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.cloned = cloned;
     }
 
-    public Date getGradedTime() {
+    public DateTime getGradedTime() {
         return gradedTime;
     }
 
-    public void setGradedTime(Date gradedTime) {
+    public void setGradedTime(DateTime gradedTime) {
         this.gradedTime = gradedTime;
     }
 
@@ -565,19 +569,19 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return createCopy(user, false);
     }
 
-    public Date getExamActiveStartDate() {
+    public DateTime getExamActiveStartDate() {
         return examActiveStartDate;
     }
 
-    public void setExamActiveStartDate(Date examActiveStartDate) {
+    public void setExamActiveStartDate(DateTime examActiveStartDate) {
         this.examActiveStartDate = examActiveStartDate;
     }
 
-    public Date getExamActiveEndDate() {
+    public DateTime getExamActiveEndDate() {
         return examActiveEndDate;
     }
 
-    public void setExamActiveEndDate(Date examActiveEndDate) {
+    public void setExamActiveEndDate(DateTime examActiveEndDate) {
         this.examActiveEndDate = examActiveEndDate;
     }
 
@@ -613,11 +617,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.inspectionComments = inspectionComments;
     }
 
-    public Date getAutoEvaluationNotified() {
+    public DateTime getAutoEvaluationNotified() {
         return autoEvaluationNotified;
     }
 
-    public void setAutoEvaluationNotified(Date autoEvaluationNotified) {
+    public void setAutoEvaluationNotified(DateTime autoEvaluationNotified) {
         this.autoEvaluationNotified = autoEvaluationNotified;
     }
 

@@ -16,6 +16,7 @@ import models.User;
 import models.api.Sortable;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
+import org.joda.time.DateTime;
 import play.data.DynamicForm;
 import play.db.ebean.Transactional;
 import play.libs.Json;
@@ -252,7 +253,7 @@ public class ExamSectionController extends QuestionController {
 
         // Insert new section question
         sectionQuestion.setCreator(user);
-        sectionQuestion.setCreated(new Date());
+        sectionQuestion.setCreated(DateTime.now());
         sectionQuestion.setExamSection(section);
 
         updateExamQuestion(sectionQuestion, question);

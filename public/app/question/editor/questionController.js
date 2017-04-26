@@ -341,14 +341,23 @@
                 };
 
                 $scope.setQuestionOwner = function ($item, $model, $label) {
-                    $scope.newOwner.id = $item.id;
-                    $scope.newOwner.firstName = $item.firstName;
-                    $scope.newOwner.lastName = $item.lastName;
+
+                    // Using template to store the selected user
+                    $scope.newOwnerTemplate = $item;
+                    $scope.newOwnerTemplate.id = $item.id;
+                    $scope.newOwnerTemplate.firstName = $item.firstName;
+                    $scope.newOwnerTemplate.lastName = $item.lastName;
+                    $scope.newOwnerTemplate.name = $item.name;
                 };
 
                 $scope.addQuestionOwner = function () {
-                    if ($scope.newOwner.id) {
-                        $scope.newQuestion.questionOwners.push($scope.newOwner);
+                    if ($scope.newOwnerTemplate.id) {
+
+                        $scope.newQuestion.questionOwners.push($scope.newOwnerTemplate);
+
+                        // nullify input field and template
+                        $scope.newOwner.name = null;
+                        $scope.newOwnerTemplate = null;
                     }
                 };
 

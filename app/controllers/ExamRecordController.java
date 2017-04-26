@@ -7,6 +7,9 @@ import com.avaje.ebean.Ebean;
 import controllers.base.BaseController;
 import models.*;
 import models.dto.ExamScore;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
 import play.data.DynamicForm;
 import play.mvc.Result;
@@ -19,7 +22,6 @@ import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -231,7 +233,7 @@ public class ExamRecordController extends BaseController {
         return code;
     }
 
-    private static ExamScore createScore(ExamRecord record, Date examDate) {
+    private static ExamScore createScore(ExamRecord record, DateTime examDate) {
         Exam exam = record.getExam();
         ExamScore score = new ExamScore();
         score.setAdditionalInfo(exam.getAdditionalInfo());
@@ -247,10 +249,10 @@ public class ExamRecordController extends BaseController {
         score.setLecturerId(record.getTeacher().getUserIdentifier());
         score.setLecturerEmployeeNumber(record.getTeacher().getEmployeeNumber());
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
         // Record transfer timestamp (date)
-        score.setRegistrationDate(sdf.format(new Date()));
-        score.setExamDate(sdf.format(examDate));
+        score.setRegistrationDate(dtf.print(DateTime.now()));
+        score.setExamDate(dtf.print(examDate));
 
         score.setCourseImplementation(exam.getCourse().getCourseImplementation());
         score.setCourseUnitCode(exam.getCourse().getCode());

@@ -5,10 +5,10 @@ import akka.actor.UntypedActor;
 import com.avaje.ebean.Ebean;
 import models.Exam;
 import models.ExamRecord;
+import org.joda.time.DateTime;
 import play.Logger;
 import util.AppUtil;
 
-import java.util.Date;
 import java.util.List;
 
 public class ExamExpirationActor extends UntypedActor {
@@ -27,11 +27,15 @@ public class ExamExpirationActor extends UntypedActor {
                 .endJunction()
                 .findList();
 
-        Date now = new Date();
+        DateTime now = DateTime.now();
         for (Exam exam : exams) {
-            Date expirationDate = exam.getState() == Exam.State.ABORTED ?
+            DateTime expirationDate = exam.getState() == Exam.State.ABORTED ?
                     exam.getExamParticipations().get(0).getEnded() : exam.getGradedTime();
-            if (AppUtil.getExamExpirationDate(expirationDate).before(now)) {
+            if (expirationDate == null) {
+                Logger.error("no grading time for exam #" + exam.getId().toString());
+                continue;
+            }
+            if (AppUtil.getExamExpirationDate(expirationDate).isBefore(now) ) {
                 cleanExamData(exam);
                 Logger.info("{}: ... Marked exam {} as expired", getClass().getCanonicalName(), exam.getId());
             }

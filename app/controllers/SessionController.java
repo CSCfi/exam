@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
-import controllers.iop.api.ExternalCalendarAPI;
+import controllers.iop.api.ExternalExamAPI;
 import exceptions.NotFoundException;
 import models.ExamEnrolment;
 import models.Language;
@@ -40,13 +40,13 @@ import java.util.concurrent.CompletionStage;
 public class SessionController extends BaseController {
 
     @Inject
-    Environment environment;
+    private Environment environment;
 
     @Inject
-    ExternalCalendarAPI externalCalendarAPI;
+    private ExternalExamAPI externalExamAPI;
 
     @Inject
-    HttpExecutionContext ec;
+    private HttpExecutionContext ec;
 
 
     @ActionMethod
@@ -150,7 +150,7 @@ public class SessionController extends BaseController {
         }
         reservation.setUser(user);
         reservation.update();
-        return externalCalendarAPI.requestEnrolment(user, reservation)
+        return externalExamAPI.requestEnrolment(user, reservation)
                 .thenApplyAsync(e -> e == null ? internalServerError() : ok());
 
     }

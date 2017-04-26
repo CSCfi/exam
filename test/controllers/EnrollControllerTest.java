@@ -5,7 +5,11 @@ import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
 import com.google.common.collect.ImmutableMap;
 import helpers.RemoteServerHelper;
-import models.*;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamRoom;
+import models.Reservation;
+import models.User;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
@@ -18,7 +22,6 @@ import play.test.Helpers;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -86,7 +89,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testRecreateEnrolment() throws Exception {
         // Setup
-        Date enrolledOn = new Date();
+        DateTime enrolledOn = DateTime.now();
         enrolment.setEnrolledOn(enrolledOn);
         enrolment.save();
 
@@ -108,11 +111,11 @@ public class EnrollControllerTest extends IntegrationTestCase {
     public void testCreateEnrolmentFutureReservationExists() throws Exception {
         // Setup
         reservation.setMachine(room.getExamMachines().get(0));
-        reservation.setStartAt(DateTime.now().plusDays(1).toDate());
-        reservation.setEndAt(DateTime.now().plusDays(2).toDate());
+        reservation.setStartAt(DateTime.now().plusDays(1));
+        reservation.setEndAt(DateTime.now().plusDays(2));
         reservation.save();
 
-        Date enrolledOn = new Date();
+        DateTime enrolledOn = DateTime.now();
         enrolment.setEnrolledOn(enrolledOn);
         enrolment.setReservation(reservation);
         enrolment.save();
@@ -126,7 +129,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();
         assertThat(enrolments).hasSize(1);
         ExamEnrolment e = enrolments.get(0);
-        assertThat(e.getEnrolledOn().after(enrolledOn));
+        assertThat(e.getEnrolledOn().isAfter(enrolledOn));
         assertThat(e.getReservation()).isNull();
     }
 
@@ -135,11 +138,11 @@ public class EnrollControllerTest extends IntegrationTestCase {
     public void testCreateEnrolmentOngoingReservationExists() throws Exception {
         // Setup
         reservation.setMachine(room.getExamMachines().get(0));
-        reservation.setStartAt(DateTime.now().minusDays(1).toDate());
-        reservation.setEndAt(DateTime.now().plusDays(1).toDate());
+        reservation.setStartAt(DateTime.now().minusDays(1));
+        reservation.setEndAt(DateTime.now().plusDays(1));
         reservation.save();
 
-        Date enrolledOn = new Date();
+        DateTime enrolledOn = DateTime.now();
         enrolment.setEnrolledOn(enrolledOn);
         enrolment.setReservation(reservation);
         enrolment.save();
@@ -162,10 +165,10 @@ public class EnrollControllerTest extends IntegrationTestCase {
     public void testCreateEnrolmentPastReservationExists() throws Exception {
         // Setup
         reservation.setMachine(room.getExamMachines().get(0));
-        reservation.setStartAt(DateTime.now().minusDays(2).toDate());
-        reservation.setEndAt(DateTime.now().minusDays(1).toDate());
+        reservation.setStartAt(DateTime.now().minusDays(2));
+        reservation.setEndAt(DateTime.now().minusDays(1));
         reservation.save();
-        Date enrolledOn = new Date();
+        DateTime enrolledOn = DateTime.now();
         enrolment.setEnrolledOn(enrolledOn);
         enrolment.setReservation(reservation);
         enrolment.save();
@@ -179,7 +182,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();
         assertThat(enrolments).hasSize(2);
         ExamEnrolment e = enrolments.get(1);
-        assertThat(e.getEnrolledOn().after(enrolledOn));
+        assertThat(e.getEnrolledOn().isAfter(enrolledOn));
         assertThat(e.getReservation()).isNull();
     }
 
