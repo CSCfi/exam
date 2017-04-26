@@ -301,7 +301,7 @@
   "sitnet_exception_time_removed": "Dag(ar) med avvikande öppettider har raderats",
   "sitnet_exception_time_added": "Dag(ar) med avvikande öppettider har lagts till",
   "sitnet_internal_error": "Systemfel",
-  "sitnet_positive_integer_required": "Värdet ska vara ett positivt heltal (0-999999)",
+  "sitnet_positive_integer_required": "Värdet ska vara ett positivt heltal (0-1000)",
   "sitnet_endtime_before_starttime": "Sluttiden kan inte vara före starttiden",
   "sitnet_section_name": "Sektionens namn (visas för studerandena)",
   "sitnet_write_question_below": "Skriv tentamensfrågan i fältet nedan",

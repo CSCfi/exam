@@ -301,7 +301,7 @@
   "sitnet_exception_time_removed": "Poikkeusaukioloaika poistettu",
   "sitnet_exception_time_added": "Poikkeusaukioloaika lisätty",
   "sitnet_internal_error": "Järjestelmävirhe",
-  "sitnet_positive_integer_required": "Arvon pitää olla positiivinen kokonaisluku (0-999999)",
+  "sitnet_positive_integer_required": "Arvon pitää olla positiivinen kokonaisluku (0-1000)",
   "sitnet_endtime_before_starttime": "Lopetusaika ei voi olla ennen aloitusaikaa",
   "sitnet_section_name": "Aihealueen nimi (näkyy opiskelijoille)",
   "sitnet_write_question_below": "Kirjoita tenttikysymys alla olevaan kenttään",
