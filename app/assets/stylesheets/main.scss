@@ -47,6 +47,16 @@ p {
   }
 }
 
+.vmenu-on-admin {
+  width: auto;
+  margin-left: 230px;
+  overflow-x: hidden;
+
+  @media (max-width: $sitnet-mobile) {
+    margin-left: 0;
+  }
+}
+
 .vmenu-off {
   width: auto;
   margin-left: 50px;
