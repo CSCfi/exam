@@ -108,7 +108,7 @@
             <td class="table-column-15 table-column-bold">
                 <a  class="table-column-examname" href="/exams/review/{{inspection.exam.id}}">
                     {{ inspection.exam.name }}</a>
-                <br/><span class="exam-code">{{ inspection.exam.course.code }}</span></td>
+                <span class="exam-code"><br/><b>{{ inspection.exam.course.code }}</b></span>
             <td class="table-column-15">{{ inspection.created | date:'dd.MM.yyyy' }}</td>
             <td class="table-column-15">
                 <span>{{ inspection.exam.creator.firstName }} {{ inspection.exam.creator.lastName }}</span>
