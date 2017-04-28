@@ -10,10 +10,10 @@
         })
 
         .controller('QuestionCtrl', ['dialogs', '$rootScope', '$timeout', '$scope', '$q', '$http', '$uibModal', '$routeParams',
-            '$location', '$translate', 'focus', 'QuestionRes', 'questionService', 'ExamRes', 'TagRes', 'EXAM_CONF',
+            '$location', '$translate', 'focus', 'QuestionRes', 'questionService', 'ExamRes', 'EXAM_CONF',
             'fileService', 'sessionService', 'UserRes', 'limitToFilter',
             function (dialogs, $rootScope, $timeout, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus,
-                      QuestionRes, questionService, ExamRes, TagRes, EXAM_CONF, fileService, sessionService, UserRes, limitToFilter) {
+                      QuestionRes, questionService, ExamRes, EXAM_CONF, fileService, sessionService, UserRes, limitToFilter) {
 
                 var essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/essay_question.html";
                 var multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_question.html";
