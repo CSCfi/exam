@@ -38,9 +38,12 @@
     <table class="table table-striped exams-table">
         <thead ng-init="inspectionPredicate='arrived'; reverse=true">
         <tr>
-            <th class="with-top" sort-exam by="exam.name" text="sitnet_exam_name" predicate="inspectionPredicate"
-                reverse="reverse">{{ 'sitnet_exam_name' | translate }}</th>
-            <th class="with-top"  sort-exam by="arrived" text="sitnet_arrived" predicate="inspectionPredicate"
+            <th class="with-top" sort by="exam.course.code" text="sitnet_course_code" predicate="inspectionPredicate"
+                reverse="reverse"></th>
+            <th class="with-top" sort by="exam.name" text="sitnet_exam_name" predicate="inspectionPredicate"
+                reverse="reverse"></th>
+            <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers" predicate="inspectionPredicate" reverse="reverse2" ></th>
+            <th class="with-top" sort by="arrived" text="sitnet_arrived" predicate="inspectionPredicate"
                 reverse="reverse"></th>
             <th class="with-top" >{{ 'sitnet_student' | translate }}</th>
             <th class="with-top" >{{ 'sitnet_finished' | translate }}</th>
@@ -49,22 +52,29 @@
         </tr>
         <tbody>
         <tr ng-repeat="inspection in ongoingInspections | orderBy:inspectionPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize | filter:filtertext as res">
-            <td class="table-column-15 table-column-bold">
+            <td>
+                {{ inspection.exam.course.code }}
+            </td>
+            <td class="table-column-bold">
                 <span class="exam-basic-title">
-                    {{ inspection.exam.name }}</span>
-                    <span class="exam-code"><br/><b>{{ inspection.exam.course.code }}</b></span>
-
+                    {{ inspection.exam.name }}
+                </span>
             </td>
-            <td class="table-column-20">{{ inspection.created | date:'dd.MM.yyyy' }}
+            <td>
+                <span>
+                    {{ inspection.ownerAggregate }}
+                </span>
             </td>
-            <td class="table-column-15"><span>{{ inspection.exam.creator.firstName }} {{ inspection.exam.creator.lastName }}</span>
+            <td>{{ inspection.created | date:'dd.MM.yyyy' }}
+            </td>
+            <td><span>{{ inspection.exam.creator.firstName }} {{ inspection.exam.creator.lastName }}</span>
                 <span ng-if="inspection.exam.creator.userIdentifier">&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
                 <span><br /><a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{ inspection.exam.creator.email }}</a></span>
             </td>
-            <td class="table-column-20">{{ inspection.exam.created | date:'dd.MM.yyyy' }}
+            <td>{{ inspection.exam.created | date:'dd.MM.yyyy' }}
             <td ng-if="inspection.modifier">
                 <span>{{ inspection.modifier.firstName }} {{ inspection.modifier.lastName }} </span>
-                <span><br /><a href="mailto:{{ inspection.modifier.email }}">{{ inspection.modifier.email }}</a></span>
+                <span><br /><a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{ inspection.modifier.email }}</a></span>
             </td>
             <td ng-if="!inspection.modifier">
                 <span class="text-danger">{{'sitnet_undefined' | translate }}</span>
@@ -86,6 +96,8 @@
         <!--Fill if page not full-->
         <tr ng-repeat="r in [] | pagefill: examReviews.length:currentPage:pageSize">
             <td class="table-column-examname">&nbsp;</td>
+            <td></td>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>

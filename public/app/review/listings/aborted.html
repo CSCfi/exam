@@ -14,11 +14,11 @@
         <table class="table table-striped exams-table">
             <thead ng-init="abortedPredicate = 'started'">
             <tr>
-                <th sort-exam by="user.lastName" text="sitnet_student" predicate="abortedPredicate" reverse="reverse"></th>
-                <th sort-exam by="user.email" text="sitnet_email" predicate="abortedPredicate" reverse="reverse"></th>
-                <th sort-exam by="started" text="sitnet_exam_duration" predicate="abortedPredicate" reverse="reverse"></th>
+                <th sort by="user.lastName" text="sitnet_student" predicate="abortedPredicate" reverse="reverse"></th>
+                <th sort by="user.email" text="sitnet_email" predicate="abortedPredicate" reverse="reverse"></th>
+                <th sort by="started" text="sitnet_exam_duration" predicate="abortedPredicate" reverse="reverse"></th>
                 <th>{{'sitnet_exam_state' | translate}}</th>
-                <th sort-exam by="reservation.trialCount" text="sitnet_trial" predicate="noShowPredicate" reverse="reverse">{{'sitnet_trial' | translate}}</th>
+                <th sort by="reservation.trialCount" text="sitnet_trial" predicate="noShowPredicate" reverse="reverse">{{'sitnet_trial' | translate}}</th>
             </tr>
             </thead>
 

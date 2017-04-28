@@ -28,10 +28,11 @@
                 $scope.multiChoiceAnswerAdminTemplate = EXAM_CONF.TEMPLATES_PATH + "review/admin/multiple_choice_answer_admin.html";
                 $scope.weightedMultiChoiceAnswerAdminTemplate = EXAM_CONF.TEMPLATES_PATH + "review/admin/weighted_multiple_choice_answer_admin.html";
 
-                // paperitentti
+                // printout
                 $scope.printSectionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/exam_section.html";
                 $scope.printMultiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/multiple_choice_question.html";
                 $scope.printEssayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/essay_question.html";
+                $scope.printClozeTestQuestionTemplate= EXAM_CONF.TEMPLATES_PATH + "review/print/cloze_test.html";
 
                 $scope.printExam = function () {
                     window.open("/print/exam/" + $scope.exam.id, "_blank");

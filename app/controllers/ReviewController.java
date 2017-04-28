@@ -11,6 +11,7 @@ import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
 import models.*;
+import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.Question;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
@@ -146,9 +147,16 @@ public class ReviewController extends BaseController {
         }
         exam.getExamSections().stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
-                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion
-                        && esq.getClozeTestAnswer() != null)
-                .forEach( esq -> esq.getClozeTestAnswer().setQuestionWithResults(esq));
+                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
+                .forEach( esq -> {
+                    if (esq.getClozeTestAnswer() == null) {
+                        ClozeTestAnswer cta = new ClozeTestAnswer();
+                        cta.save();
+                        esq.setClozeTestAnswer(cta);
+                        esq.update();
+                    }
+                    esq.getClozeTestAnswer().setQuestionWithResults(esq);
+                });
         return ok(exam);
     }
 

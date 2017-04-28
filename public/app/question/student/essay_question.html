@@ -44,33 +44,33 @@
                        ng-click="removeQuestionAnswerAttachment(sectionQuestion, hash)">
                         {{'sitnet_remove_answer_attachment' | translate }}
                         <img src="../../../assets/assets/images/icon_attachment.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_attachment.png'" /></a>
-                </div>
+                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_attachment.png'"/>
+                    </a>
+                </span>
             </div>
+        </div>
 
-            <div class="row mart10" ng-show="sectionQuestion.essayAnswer && !sectionQuestion.essayAnswer.attachment">
-                <div ng-controller="AttachmentController" class="pull-right">
+        <div class="row mart10" ng-show="sectionQuestion.essayAnswer && !sectionQuestion.essayAnswer.attachment">
+            <div ng-controller="AttachmentController" class="pull-right">
 
                     <span class="padr10 filename-text" ng-show="!sectionQuestion.essayAnswer.attachment.fileName">
                         {{'sitnet_no_attachment' | translate }}
                     </span>
 
-                    <a class="pointer green_button right-for-section marr30"
-                       ng-click="selectFile(sectionQuestion)">
-                        {{'sitnet_upload_answer_attachment' | translate }}
-                        <img src="../../../assets/assets/images/icon_attachment.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_attachment.png'" /></a>
-                </div>
+                <a class="pointer green_button right-for-section marr30"
+                   ng-click="selectFile(sectionQuestion)">
+                    {{'sitnet_upload_answer_attachment' | translate }}
+                    <img src="../../../assets/assets/images/icon_attachment.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_attachment.png'"/></a>
             </div>
-
-
         </div>
-    </div>
-    <div class="mart20">
-        <button ng-disabled="isPreview()"
-                ng-click="saveTextualAnswer(sectionQuestion)"
-                class="green_button pull-right">{{'sitnet_save' | translate }}
-        </button>
-    </div>
 
+
+    </div>
+</div>
+<div class="mart20">
+    <button ng-disabled="isPreview()"
+            ng-click="saveTextualAnswer(sectionQuestion)"
+            class="green_button pull-right">{{'sitnet_save' | translate }}
+    </button>
 </div>
