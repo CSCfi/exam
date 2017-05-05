@@ -14,7 +14,7 @@
             </div>
         </div>
         <div class="detail-row padr0 padl0 mar0">
-            <div class="col-md-12 padr0 padl0 mar0" ng-repeat="sectionQuestion in section.sectionQuestions | orderBy: 'sequenceNumbe'">
+            <div class="col-md-12 padr0 padl0 mar0" ng-repeat="sectionQuestion in section.sectionQuestions | orderBy: 'sequenceNumber'">
                 <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
                      ng-include="multiplechoiceQuestionPath"></div>
                 <div ng-if="sectionQuestion.question.type === 'EssayQuestion'"

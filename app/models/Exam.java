@@ -19,13 +19,8 @@ import util.java.DateTimeAdapter;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
+import java.util.*;
+
 
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentContainer {
@@ -535,6 +530,12 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             ExamSection esCopy = es.copy(clone, produceStudentExam);
             AppUtil.setCreator(esCopy, user);
             AppUtil.setModifier(esCopy, user);
+            // Shuffle question options before saving
+            for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
+                List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
+                Collections.shuffle(shuffled);
+                esq.setOptions(new HashSet<>(shuffled));
+            }
             esCopy.save();
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
                 if (produceStudentExam) {
@@ -544,10 +545,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                     questionCopy.save();
                 }
                 esq.save();
-                // Randomize order of options. Set won't cut it especially because the one we get from ebean is linked
-                List<ExamSectionQuestionOption> shuffled = esq.getOptions().stream().collect(Collectors.toList());
-                Collections.shuffle(shuffled);
-                shuffled.forEach(ExamSectionQuestionOption::save);
             }
             clone.getExamSections().add(esCopy);
         }
@@ -556,8 +553,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             BeanUtils.copyProperties(attachment, copy, "id");
             clone.setAttachment(copy);
         }
-        // do we need this at all?
-        clone.setExamSections(new TreeSet<>(clone.getExamSections()));
         return clone;
     }
 

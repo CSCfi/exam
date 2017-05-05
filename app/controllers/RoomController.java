@@ -88,7 +88,7 @@ public class RoomController extends BaseController {
             room.getExamMachines().removeIf(ExamMachine::isArchived);
         }
         PathProperties props = PathProperties.parse(
-                "(*, mailAddress(*), accessibility(*), examMachines(*, softwareInfo(*)))");
+                "(*, mailAddress(*), accessibility(*), defaultWorkingHours(*), calendarExceptionEvents(*), examMachines(*, softwareInfo(*)))");
         return ok(rooms, props);
     }
 
