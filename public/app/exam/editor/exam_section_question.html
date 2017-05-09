@@ -63,10 +63,10 @@
             </li>
             <li ng-show="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
                 ng-repeat="option in sectionQuestion.options">
-                <img ng-show="{{option.score > 0}}" src="../../../assets/assets/images/icon_correct_answer_checkbox.png"
+                <img ng-show="{{option.score >= 0}}" src="../../../assets/assets/images/icon_correct_answer_checkbox.png"
                      alt="exam"
                      onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_correct_answer_checkbox.png'"/>
-                <img ng-show="{{option.score < 1}}" src="../../../assets/assets/images/icon_wrong_answer_checkbox.png"
+                <img ng-show="{{option.score < 0}}" src="../../../assets/assets/images/icon_wrong_answer_checkbox.png"
                      alt="exam"
                      onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_wrong_answer_checkbox.png'"/>
                 <span class="exam-question-option-text">{{option.option.option}}</span>
