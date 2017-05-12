@@ -78,22 +78,23 @@
 
                     <span class="review-question-title">{{ 'sitnet_grading_info' | translate }}</span>
                     <a ng-click="hideGradeInfo = !hideGradeInfo">
-                        <img ng-show="!hideGradeInfo" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
+                        <img ng-show="hideGradeInfo" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
                              onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
-                        <img ng-show="hideGradeInfo" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
+                        <img ng-hide="hideGradeInfo" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
                              onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
                     </a>
                 </div>
             </div>
 
-            <div ng-show="!hideGradeInfo" class="padl15 padr15">
+            <div ng-hide="hideGradeInfo" class="padl15 padr15">
 
                 <!-- Grading -->
                 <div ng-include="gradingPath"></div>
-                <!-- Floating feedback window -->
-                <div ng-include="feedbackWindowPath"></div>
 
             </div>
+            <!-- Floating feedback window -->
+            <div ng-include="feedbackWindowPath"></div>
+
 
         </div>
     </div>

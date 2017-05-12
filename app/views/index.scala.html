@@ -361,7 +361,8 @@
             </div>
 
             @*App content*@
-            <div id="mainView" class="wide-container-fluid" ng-class="examStarted ? '' : 'vmenu-on'">
+            <div id="mainView" class="wide-container-fluid"
+                ng-class="{'vmenu-on': !examStarted && !user.isAdmin, 'vmenu-on-admin': user.isAdmin}">
                 <div ng-view />
             </div>
 

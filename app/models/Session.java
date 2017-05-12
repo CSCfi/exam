@@ -7,6 +7,7 @@ public class Session {
     private DateTime since;
     private Boolean valid;
     private String loginRole;
+    private boolean temporalStudent;
 
     public Long getUserId() {
         return userId;
@@ -24,7 +25,7 @@ public class Session {
         this.since = since;
     }
 
-    public Boolean isValid() {
+    public Boolean getValid() {
         return valid;
     }
 
@@ -38,5 +39,13 @@ public class Session {
 
     public void setLoginRole(String loginRole) {
         this.loginRole = loginRole;
+    }
+
+    public boolean isTemporalStudent() {
+        return temporalStudent;
+    }
+
+    public void setTemporalStudent(boolean temporalStudent) {
+        this.temporalStudent = temporalStudent;
     }
 }

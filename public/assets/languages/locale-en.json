@@ -708,7 +708,7 @@
   "sitnet_public_question": "Public question (all teachers can edit)",
   "sitnet_error_drop_disabled_lottery_on": "Adding a question not allowed to a section where randomizing questions is used.",
   "sitnet_exam_section_question_lottery_on_warning": "Editing the question is restricted. Editing the points of a question that is randomized is not allowed.",
-  "sitnet_no_grading": "Only points",
+  "sitnet_no_grading": "No grading",
   "sitnet_archive_without_registration": "Lock without grading.",
   "sitnet_confirm_archiving_without_grade": "Lock the exam without final grading. The action cannot be cancelled.",
   "sitnet_no_grading_description": "The exam was not given a final grade in Exam.",

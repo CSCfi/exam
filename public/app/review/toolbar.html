@@ -9,28 +9,27 @@
 
 
     <span class="pull-right">
-
         <div ng-show="!isReadOnly()"
              class="review-attachment-button exam-questions-buttons">
-            <a target="_self" class="pointer preview"
+            <button class="pointer preview"
                ng-if="!isMaturityRejection()"
                ng-disabled="!isOwnerOrAdmin() || !examForm.$valid"
                ng-click="saveExamRecord(exam)">
-                {{'sitnet_send_result_to_registry' | translate}}</a>
+                {{'sitnet_send_result_to_registry' | translate}}</button>
         </div>
 
         <div ng-show="!isReadOnly()"
              class="review-attachment-button exam-questions-buttons marl10">
-            <a target="_self" class="pointer preview"
+            <button class="pointer preview"
                ng-if="isMaturityRejection()"
                ng-disabled="!isOwnerOrAdmin() || !examForm.$valid"
                ng-click="rejectMaturity(true)">
-                {{'sitnet_reject_maturity' | translate}}</a>
+                {{'sitnet_reject_maturity' | translate}}</button>
         </div>
         <div ng-if="!isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
-            <a target="_self" class="pointer" ng-disabled="isReadOnly()" ng-click="updateExam(exam)">
+            <button class="pointer" ng-disabled="isReadOnly()" ng-click="updateExam(exam)">
                 {{'sitnet_save_changes' | translate}}
-            </a>
+            </button>
         </div>
     </span>
 

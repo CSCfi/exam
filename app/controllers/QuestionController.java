@@ -162,7 +162,16 @@ public class QuestionController extends BaseController {
         question.getTags().clear();
         if (node.has("tags")) {
             for (JsonNode tagNode : node.get("tags")) {
-                Tag tag = Ebean.find(Tag.class, tagNode.get("id").asLong());
+                // See if we have an identical tag already and use it if that's the case
+                Tag tag = Ebean.find(Tag.class).where()
+                        .disjunction()
+                        .eq("id", tagNode.get("id").asLong())
+                        .conjunction()
+                        .eq("name", tagNode.get("name").asText())
+                        .eq("creator", user)
+                        .endJunction()
+                        .endJunction()
+                        .findUnique();
                 if (tag == null) {
                     tag = new Tag();
                     tag.setName(tagNode.get("name").asText());

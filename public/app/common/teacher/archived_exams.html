@@ -14,11 +14,12 @@
             <table class="table table-striped exams-table">
                 <thead ng-init="archivedPredicate='examActiveEndDate'; reverse=true;">
                 <tr>
-                    <th class="with-top" sort-exam by="name" text="sitnet_exam_name" predicate="archivedPredicate" reverse="reverse"></th>
-                    <th class="with-top" sort-exam by="executionType.type" text="sitnet_exam_type" predicate="archivedPredicate" reverse="reverse"></th>
-                    <th class="with-top" sort-exam by="examActiveEndDate" text="sitnet_exam_validity" predicate="archivedPredicate" reverse="reverse"></th>
-                    <th class="with-top with-space" sort-exam by="assessedCount" text="sitnet_participations_assessed" predicate="archivedPredicate" reverse="reverse"></th>
-                    <th class="with-top" sort-exam by="ownerAggregate" text="sitnet_teachers" predicate="archivedPredicate" reverse="reverse"></th>
+                    <th class="with-top" sort by="name" text="sitnet_exam_name" predicate="archivedPredicate" reverse="reverse"></th>
+                    <th class="with-top" sort by="course.code" text="sitnet_course_code" predicate="archivedPredicate" reverse="reverse"></th>
+                    <th class="with-top" sort by="executionType.type" text="sitnet_exam_type" predicate="archivedPredicate" reverse="reverse"></th>
+                    <th class="with-top" sort by="examActiveEndDate" text="sitnet_exam_validity" predicate="archivedPredicate" reverse="reverse"></th>
+                    <th class="with-top with-space" sort by="assessedCount" text="sitnet_participations_assessed" predicate="archivedPredicate" reverse="reverse"></th>
+                    <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers" predicate="archivedPredicate" reverse="reverse"></th>
                     <th>&nbsp;</th>
                     <th>&nbsp;</th>
                 </tr>
@@ -27,9 +28,13 @@
                 <tbody>
                 <tr ng-repeat="exam in filteredArchived | orderBy:archivedPredicate:reverse">
                     <td ng-if="exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
-                        {{ exam.name }}</a><br/><span class="exam-code">{{ exam.course.code }}</span></td>
+                        {{ exam.name }}</a>
+                    </td>
                     <td ng-if="!exam.name" class="table-column-examname">
                         <span class="text-danger">{{'sitnet_no_name' | translate}}</span>
+                    </td>
+                    <td>
+                        <span class="exam-code">{{ exam.course.code }}</span>
                     </td>
                     <td><span class="exam-type">{{ getExecutionTypeTranslation(exam) | translate }}</span></td>
                     <td class="table-column-open-until">{{ exam.examActiveStartDate | date:'dd.MM.yyyy' }} -

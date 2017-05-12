@@ -47,10 +47,10 @@
         <table class="table table-striped exams-table">
             <thead ng-init="reviewPredicate = 'deadline'">
             <tr>
-                <th class="with-top" sort-exam by="user.lastName" text="sitnet_student" predicate="reviewPredicate" reverse="reverse"></th>
-                <th class="with-top" sort-exam by="user.email" text="sitnet_email" predicate="reviewPredicate" reverse="reverse"></th>
-                <th class="with-top" sort-exam by="started" text="sitnet_exam_duration" predicate="reviewPredicate" reverse="reverse"></th>
-                <th class="with-space with-top" sort-exam by="deadline" text="sitnet_review_deadline" predicate="reviewPredicate" reverse="reverse"></th>
+                <th class="with-top" sort by="user.lastName" text="sitnet_student" predicate="reviewPredicate" reverse="reverse"></th>
+                <th class="with-top" sort by="user.email" text="sitnet_email" predicate="reviewPredicate" reverse="reverse"></th>
+                <th class="with-top" sort by="started" text="sitnet_exam_duration" predicate="reviewPredicate" reverse="reverse"></th>
+                <th class="with-space with-top" sort by="deadline" text="sitnet_review_deadline" predicate="reviewPredicate" reverse="reverse"></th>
                 <th class="with-space with-top">{{'sitnet_inspection_status' | translate}}</th>
                 <th class="with-space with-top">{{'sitnet_exam_state' | translate}}</th>
             </tr>

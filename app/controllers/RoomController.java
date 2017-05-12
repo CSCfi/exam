@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.base.BaseController;
@@ -34,7 +35,6 @@ import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
@@ -44,18 +44,18 @@ public class RoomController extends BaseController {
     private static final boolean IOP_ACTIVATED = ConfigFactory.load().getBoolean("sitnet.integration.iop.active");
 
     @Inject
-    protected ExternalFacilityAPI externalApi;
+    private ExternalFacilityAPI externalApi;
 
     @Inject
     protected ActorSystem system;
 
-    private CompletionStage<Result> updateRemote(ExamRoom room, Object response) throws MalformedURLException {
+    private CompletionStage<Result> updateRemote(ExamRoom room) throws MalformedURLException {
         if (room.getExternalRef() != null && IOP_ACTIVATED) {
             return externalApi.updateFacility(room)
-                    .thenApplyAsync(result -> ok(Json.toJson(room)))
+                    .thenApplyAsync(x -> ok("updated"))
                     .exceptionally(throwable -> internalServerError(throwable.getMessage()));
         } else {
-            return wrapAsPromise(response == null ? ok() : ok(Json.toJson(response)));
+            return wrapAsPromise(ok());
         }
     }
 
@@ -85,15 +85,11 @@ public class RoomController extends BaseController {
         }
         List<ExamRoom> rooms = query.findList();
         for (ExamRoom room : rooms) {
-            Iterator<ExamMachine> i = room.getExamMachines().iterator();
-            while (i.hasNext()) {
-                ExamMachine machine = i.next();
-                if (machine.isArchived()) {
-                    i.remove();
-                }
-            }
+            room.getExamMachines().removeIf(ExamMachine::isArchived);
         }
-        return ok(Json.toJson(rooms));
+        PathProperties props = PathProperties.parse(
+                "(*, mailAddress(*), accessibility(*), defaultWorkingHours(*), calendarExceptionEvents(*), examMachines(*, softwareInfo(*)))");
+        return ok(rooms, props);
     }
 
     @Restrict(@Group("ADMIN"))
@@ -102,7 +98,9 @@ public class RoomController extends BaseController {
         if (examRoom == null) {
             return notFound("room not found");
         }
-        return ok(Json.toJson(examRoom));
+        PathProperties props = PathProperties.parse(
+                "(*, defaultWorkingHours(*), calendarExceptionEvents(*), accessibility(*), mailAddress(*), examStartingHours(*), examMachines(*))");
+        return ok(examRoom, props);
     }
 
     @Restrict(@Group({"ADMIN"}))
@@ -122,7 +120,6 @@ public class RoomController extends BaseController {
                 "roomCode",
                 "buildingName",
                 "campus",
-                "transitionTime",
                 "accessibilityInfo",
                 "accessible",
                 "roomInstruction",
@@ -143,7 +140,6 @@ public class RoomController extends BaseController {
         existing.setRoomCode(room.getRoomCode());
         existing.setBuildingName(room.getBuildingName());
         existing.setCampus(room.getCampus());
-        existing.setTransitionTime(room.getTransitionTime());
         existing.setAccessible(room.getAccessible());
         existing.setRoomInstruction(room.getRoomInstruction());
         existing.setRoomInstructionEN(room.getRoomInstructionEN());
@@ -157,7 +153,7 @@ public class RoomController extends BaseController {
 
         existing.update();
 
-        return updateRemote(existing, existing);
+        return updateRemote(existing);
     }
 
     @Restrict(@Group({"ADMIN"}))
@@ -176,7 +172,7 @@ public class RoomController extends BaseController {
         existing.setZip(address.getZip());
         existing.update();
 
-        return updateRemote(room, address);
+        return updateRemote(room);
     }
 
     private List<DefaultWorkingHours> parseWorkingHours(JsonNode root) {
@@ -260,6 +256,7 @@ public class RoomController extends BaseController {
 
                 esh.save();
             }
+            asyncUpdateRemote(examRoom);
         }
         return ok();
     }
@@ -350,7 +347,7 @@ public class RoomController extends BaseController {
         }
         exception.delete();
         room.getCalendarExceptionEvents().remove(exception);
-        return updateRemote(room, null);
+        return updateRemote(room);
     }
 
     @Restrict(@Group({"ADMIN"}))

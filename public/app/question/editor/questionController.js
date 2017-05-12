@@ -10,10 +10,10 @@
         })
 
         .controller('QuestionCtrl', ['dialogs', '$rootScope', '$timeout', '$scope', '$q', '$http', '$uibModal', '$routeParams',
-            '$location', '$translate', 'focus', 'QuestionRes', 'questionService', 'ExamRes', 'TagRes', 'EXAM_CONF',
+            '$location', '$translate', 'focus', 'QuestionRes', 'questionService', 'ExamRes', 'EXAM_CONF',
             'fileService', 'sessionService', 'UserRes', 'limitToFilter',
             function (dialogs, $rootScope, $timeout, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus,
-                      QuestionRes, questionService, ExamRes, TagRes, EXAM_CONF, fileService, sessionService, UserRes, limitToFilter) {
+                      QuestionRes, questionService, ExamRes, EXAM_CONF, fileService, sessionService, UserRes, limitToFilter) {
 
                 var essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/essay_question.html";
                 var multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_question.html";
@@ -341,14 +341,23 @@
                 };
 
                 $scope.setQuestionOwner = function ($item, $model, $label) {
-                    $scope.newOwner.id = $item.id;
-                    $scope.newOwner.firstName = $item.firstName;
-                    $scope.newOwner.lastName = $item.lastName;
+
+                    // Using template to store the selected user
+                    $scope.newOwnerTemplate = $item;
+                    $scope.newOwnerTemplate.id = $item.id;
+                    $scope.newOwnerTemplate.firstName = $item.firstName;
+                    $scope.newOwnerTemplate.lastName = $item.lastName;
+                    $scope.newOwnerTemplate.name = $item.name;
                 };
 
                 $scope.addQuestionOwner = function () {
-                    if ($scope.newOwner.id) {
-                        $scope.newQuestion.questionOwners.push($scope.newOwner);
+                    if ($scope.newOwnerTemplate.id) {
+
+                        $scope.newQuestion.questionOwners.push($scope.newOwnerTemplate);
+
+                        // nullify input field and template
+                        $scope.newOwner.name = null;
+                        $scope.newOwnerTemplate = null;
                     }
                 };
 
