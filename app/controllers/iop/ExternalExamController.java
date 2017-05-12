@@ -41,6 +41,11 @@ public class ExternalExamController extends BaseController implements ExternalEx
     private WSClient wsClient;
 
 
+    private void persistExamAttainment(Exam src) {
+
+    }
+
+
     @SubjectNotPresent
     public Result addExamForAssessment(String ref) throws IOException {
         ExamEnrolment enrolment = getPrototype(ref);
@@ -70,6 +75,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
         DateTime deadline = ee.getFinished().plusDays(deadlineDays);
         ep.setDeadline(deadline);
         ep.save();
+
+        // autoevaluate?
 
         return created();
     }
