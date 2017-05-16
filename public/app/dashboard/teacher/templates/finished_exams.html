@@ -15,12 +15,13 @@
             <table class="table table-striped exams-table">
                 <thead ng-init="finishedPredicate='unassessedCount'; reverse=true;">
                 <tr>
-                    <th class="with-top" sort-exam by="name" text="sitnet_exam_name" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
-                    <th class="with-top" sort-exam by="executionType.type" text="sitnet_exam_type" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
-                    <th class="with-top" sort-exam by="examActiveEndDate" text="sitnet_exam_validity" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
-                    <th class="with-top" sort-exam by="unassessedCount" text="sitnet_participation_unreviewed" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
-                    <th class="with-top with-space" sort-exam by="unfinishedCount" text="sitnet_participation_unfinished" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
-                    <th class="with-top" sort-exam by="ownerAggregate" text="sitnet_teachers" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
+                    <th class="with-top" sort by="name" text="sitnet_exam_name" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
+                    <th class="with-top" sort by="course.code" text="sitnet_course_code" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
+                    <th class="with-top" sort by="executionType.type" text="sitnet_exam_type" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
+                    <th class="with-top" sort by="examActiveEndDate" text="sitnet_exam_validity" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
+                    <th class="with-top" sort by="unassessedCount" text="sitnet_participation_unreviewed" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
+                    <th class="with-top with-space" sort by="unfinishedCount" text="sitnet_participation_unfinished" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
+                    <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers" predicate="$ctrl.finishedPredicate" reverse="$ctrl.reverse"></th>
                     <th>&nbsp;</th>
                     <th>&nbsp;</th>
                 </tr>
@@ -31,17 +32,14 @@
                     ng-init="isOwner=f$ctrl.ilterOwners(user.id, exam)">
 
                     <td ng-if="exam.name" class="table-column-examname">
-
-                        <a ng-if="isOwner" href="/exams/examTabs/{{exam.id}}/1">
-                            {{ exam.name }}</a>
-                        <span ng-if="!isOwner">
-                            {{ exam.name }}</span>
-
-                        <br/><span class="exam-code">{{ exam.course.code }}</span>
-
+                        <a ng-if="isOwner" href="/exams/examTabs/{{exam.id}}/1">{{ exam.name }}</a>
+                        <span ng-if="!isOwner">{{ exam.name }}</span>
                     </td>
                     <td ng-if="!exam.name" class="table-column-examname">
                         <span class="text-danger">{{'sitnet_no_name' | translate}}</span>
+                    </td>
+                    <td>
+                        <span class="exam-code">{{ exam.course.code }}</span>
                     </td>
                     <td><span class="exam-type">{{ $ctrl.getExecutionTypeTranslation(exam) | translate }}</span></td>
                     <td class="table-column-open-until">{{ exam.examActiveStartDate | date:'dd.MM.yyyy' }} -

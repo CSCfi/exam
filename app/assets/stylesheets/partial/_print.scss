@@ -99,6 +99,13 @@
   word-wrap: break-word;
 }
 
+.marker {
+  @media print {
+    border: 1px solid;
+  }
+  background: yellow;
+}
+
 blockquote {
   color: #999;
   border: 0;

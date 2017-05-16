@@ -53,14 +53,14 @@
                     })
                 };
 
-                var times = [""]; // This is a dummy value for setting something for the table header
+                var times = ['']; // This is a dummy value for setting something for the table header
 
                 for (var i = 0; i <= 24; ++i) {
                     if (i > 0) {
-                        times.push(i + ":00");
+                        times.push(i + ':00');
                     }
                     if (i < 24) {
-                        times.push(i + ":30");
+                        times.push(i + ':30');
                     }
                 }
 
@@ -188,7 +188,7 @@
                 };
 
                 $scope.editingMultipleRooms = function () {
-                    return ($location.path() == '/rooms_edit/edit_multiple');
+                    return $location.path() === '/rooms_edit/edit_multiple';
                 };
 
                 $scope.getMassEditedRooms = function () {
@@ -216,7 +216,7 @@
                     } else {
                         RoomResource.rooms.get({id: $routeParams.id},
                             function (room) {
-                            room.availableForExternals = room.externalRef != null;
+                                room.availableForExternals = room.externalRef !== null;
                                 $scope.times = times;
                                 room.defaultWorkingHours.forEach(function (daySlot) {
                                     var timeSlots = slotToTimes(daySlot);
@@ -697,7 +697,7 @@
                 $scope.updateInteroperability = function(roomInstance) {
                     InteroperabilityRes.facility.update(roomInstance, function(data) {
                         roomInstance.externalRef = data.externalRef;
-                        roomInstance.availableForExternals = data.externalRef != null;
+                        roomInstance.availableForExternals = data.externalRef !== null;
                     });
                 }
 

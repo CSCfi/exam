@@ -264,13 +264,12 @@ public class StudentActionsController extends BaseController {
         }
         if (filter != null) {
             String condition = String.format("%%%s%%", filter);
-            query = query.disjunction()
+            query = query.disjunction();
+            applyUserFilter("examOwners", query, filter);
+            applyUserFilter("examInspections.user", query, filter);
+            query = query
                     .ilike("name", condition)
                     .ilike("course.code", condition)
-                    .ilike("examOwners.firstName", condition)
-                    .ilike("examOwners.lastName", condition)
-                    .ilike("examInspections.user.firstName", condition)
-                    .ilike("examInspections.user.lastName", condition)
                     .endJunction();
         }
         List<Exam> exams = query.orderBy("course.code").findList();

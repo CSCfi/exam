@@ -263,7 +263,6 @@ public class ExternalStudentExamController extends StudentExamController {
         } catch (IOException e) {
             return internalServerError();
         }
-        // TODO: how to send back to xm? Scheduled task?
         return ok();
     }
 

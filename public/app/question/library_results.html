@@ -8,12 +8,12 @@
                            ng-click="selectAll('selectAllQuestions', 'questionToUpdate'); countSelections();" popover-placement="top"
                            popover-trigger="mouseenter" uib-popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
                 </th>
-                <th sort-exam by="id" text="sitnet_question" predicate="questionsPredicate" reverse="reverse"></th>
-                <th sort-exam by="modified" text="sitnet_modified" predicate="questionsPredicate" reverse="reverse"></th>
-                <th sort-exam by="displayedMaxScore" text="sitnet_max_score" predicate="questionsPredicate" reverse="reverse"></th>
-                <th sort-exam by="typeOrd" text="sitnet_question_type" predicate="questionsPredicate" reverse="reverse"></th>
-                <th sort-exam by="attachment.fileName" text="sitnet_attachment" predicate="questionsPredicate" reverse="reverse"></th>
-                <th ng-show="user.isAdmin" sort-exam by="ownerAggregate" text="sitnet_owner" predicate="questionsPredicate" reverse="reverse"></th>
+                <th sort by="id" text="sitnet_question" predicate="questionsPredicate" reverse="reverse"></th>
+                <th sort by="modified" text="sitnet_modified" predicate="questionsPredicate" reverse="reverse"></th>
+                <th sort by="displayedMaxScore" text="sitnet_max_score" predicate="questionsPredicate" reverse="reverse"></th>
+                <th sort by="typeOrd" text="sitnet_question_type" predicate="questionsPredicate" reverse="reverse"></th>
+                <th sort by="attachment.fileName" text="sitnet_attachment" predicate="questionsPredicate" reverse="reverse"></th>
+                <th ng-show="user.isAdmin" sort by="ownerAggregate" text="sitnet_owner" predicate="questionsPredicate" reverse="reverse"></th>
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
             </tr>

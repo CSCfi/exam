@@ -32,13 +32,13 @@
         <table class="table table-striped exams-table">
             <thead ng-init="inspectionPredicate = 'deadline'">
             <tr>
-                <th sort-exam by="user.lastName" text="sitnet_student" predicate="inspectionPredicate" reverse="reverse"></th>
-                <th sort-exam by="user.email" text="sitnet_email" predicate="inspectionPredicate" reverse="reverse"></th>
-                <th sort-exam by="started" text="sitnet_exam_duration" predicate="inspectionPredicate" reverse="reverse"></th>
-                <th sort-exam by="deadline" text="sitnet_review_deadline" predicate="inspectionPredicate" reverse="reverse"></th>
-                <th sort-exam by="displayedGrade" text="sitnet_grade" predicate="inspectionPredicate" reverse="reverse"></th>
-                <th sort-exam by="displayedCredit" text="sitnet_exam_credit" predicate="inspectionPredicate" reverse="reverse"></th>
-                <th sort-exam by="exam.gradedTime" text="sitnet_graded" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="user.lastName" text="sitnet_student" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="user.email" text="sitnet_email" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="started" text="sitnet_exam_duration" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="deadline" text="sitnet_review_deadline" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="displayedGrade" text="sitnet_grade" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="exam.gradedTime" text="sitnet_graded" predicate="inspectionPredicate" reverse="reverse"></th>
             </tr>
             </thead>
             <tbody>

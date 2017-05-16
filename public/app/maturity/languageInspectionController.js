@@ -10,7 +10,7 @@
                 $scope.ongoingInspections = [];
                 $scope.processedInspections = [];
                 $scope.toggleUnderReviews = true;
-                $scope.selection = { opened: false, month: new Date()};
+                $scope.selection = {opened: false, month: new Date()};
                 $scope.templates = {
                     languageInspectionUnderReviewPath: EXAM_CONF.TEMPLATES_PATH + "maturity/inspection_under_review.html",
                     languageInspectionReviewedPath: EXAM_CONF.TEMPLATES_PATH + "maturity/inspection_reviewed.html"
@@ -18,23 +18,23 @@
 
                 $scope.dateService = dateService;
 
-                $scope.open = function($event) {
+                $scope.open = function ($event) {
                     $event.preventDefault();
                     $event.stopPropagation();
                     $scope.selection.opened = true;
                 };
 
-                $scope.printReport = function() {
+                $scope.printReport = function () {
                     setTimeout(function () {
                         window.print();
                     }, 500);
                 };
 
-                $scope.query = function(hasParameters) {
+                $scope.query = function (hasParameters) {
 
                     var params = {};
 
-                    if(hasParameters) {
+                    if (hasParameters) {
 
                         var tzOffset = new Date().getTimezoneOffset() * 60000;
 
@@ -53,9 +53,15 @@
                     }
 
                     LanguageInspectionRes.inspections.query(params, function (inspections) {
+                        inspections.forEach(function (i) {
+                            i.ownerAggregate = i.exam.parent.examOwners.map(function (o) {
+                                return o.firstName + ' ' + o.lastName;
+                            }).join(', ');
+                        });
                         $scope.ongoingInspections = inspections.filter(function (i) {
                             return !i.finishedAt;
                         });
+
                         $scope.processedInspections = inspections.filter(function (i) {
                             return i.finishedAt;
                         });
@@ -125,7 +131,7 @@
 
                 $scope.toggleReviewed = function () {
                     //if ($scope.processedInspections && $scope.processedInspections.length > 0) {
-                        $scope.toggleReviewedVisibility = !$scope.toggleReviewedVisibility;
+                    $scope.toggleReviewedVisibility = !$scope.toggleReviewedVisibility;
                     //}
                 };
 

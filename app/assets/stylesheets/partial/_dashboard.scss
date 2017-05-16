@@ -844,7 +844,7 @@
   }
 
   .review-attachment-button {
-    a {
+    a, button {
       font-size: 16px;
       font-family: $sitnet-family-helvetica;
       background-color: #3CA34F;
@@ -885,6 +885,11 @@
 
       }
 
+    }
+    button:disabled {
+      background-color: #7F7F7F;
+      color:#ffffff;
+      border:1px solid black;
     }
 
 

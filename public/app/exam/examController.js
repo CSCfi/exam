@@ -1401,7 +1401,7 @@
                                 questionService.createQuestion(baseQuestion).then(function (newQuestion) {
                                     // Now that new base question was created we make an exam section question out of it
                                     insertExamQuestion(examId, section.id, newQuestion.id,
-                                        section.sectionQuestions.length, $modalInstance);
+                                        section.sectionQuestions.length, $modalInstance, true);
                                 }, errFn);
                             } else {
                                 // Edit undistributed base question

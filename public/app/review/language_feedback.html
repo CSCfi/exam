@@ -39,7 +39,8 @@
                                 <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
                             </span>
                         </span>
-                    <button type="button" class="btn btn-default" ng-click="selectFile(true)">{{'sitnet_attach_file' | translate}}
+                    <button type="button" class="btn btn-default" ng-disabled="!exam.languageInspection.statement.id"
+                            ng-click="selectFile(true)">{{'sitnet_attach_file' | translate}}
                     </button>
                 </div>
             </div>
