@@ -17,6 +17,8 @@
         'ngPromiseExtras',
         'pascalprecht.translate',
         'ui.bootstrap',
+        'session',
+        'administrative',
         'exam.services',
         'exam.controllers',
         'exam.resources',

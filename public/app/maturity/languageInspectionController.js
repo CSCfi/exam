@@ -2,11 +2,11 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('LanguageInspectionCtrl', ['$scope', '$translate', '$uibModal', '$location', 'dialogs',
-            'EXAM_CONF', 'LanguageInspectionRes', 'sessionService', 'dateService',
-            function ($scope, $translate, $modal, $location, dialogs, EXAM_CONF, LanguageInspectionRes, sessionService,
-                      dateService) {
+            'EXAM_CONF', 'LanguageInspectionRes', 'Session', 'dateService',
+            function ($scope, $translate, $modal, $location, dialogs, EXAM_CONF, LanguageInspectionRes, Session,
+                        dateService) {
 
-                $scope.user = sessionService.getUser();
+                $scope.user = Session.getUser();
                 $scope.ongoingInspections = [];
                 $scope.processedInspections = [];
                 $scope.toggleUnderReviews = true;

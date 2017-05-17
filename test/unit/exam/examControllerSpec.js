@@ -5,9 +5,6 @@ describe('ExamController', function () {
 
     beforeEach(function () {
         module('exam');
-        module('exam.controllers');
-        module('exam.resources');
-        module('exam.services');
     });
 
     beforeEach(module('pascalprecht.translate', function ($translateProvider) {
@@ -42,7 +39,7 @@ describe('ExamController', function () {
             $scope: scope,
             EXAM_CONF: {},
             dialogs: {},
-            sessionService: mockSessionService(),
+            Session: mockSessionService(),
             examService: mockExamService(),
             enrolmentService: mockEnrolmentService(),
             ExamRes: ExamRes,
@@ -102,7 +99,7 @@ describe('ExamController', function () {
     }
 
     function mockSessionService() {
-        var sessionService = jasmine.createSpyObj('sessionService', ['getUser']);
+        var sessionService = jasmine.createSpyObj('Session', ['getUser']);
         sessionService.getUser.and.returnValue({isStudent: false});
         return sessionService;
     }
@@ -133,4 +130,5 @@ describe('ExamController', function () {
         var questionService = jasmine.createSpyObj('questionService', ['setFilter']);
         return questionService;
     }
+
 });

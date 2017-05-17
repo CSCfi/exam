@@ -319,9 +319,9 @@ public class ExamRoom extends GeneratedIdentityModel {
         defaultWorkingHours.stream().filter(dwh -> dwh.getWeekday().equalsIgnoreCase(day)).collect(Collectors.toList()).forEach(dwh -> {
             DateTime midnight = date.toDateTimeAtStartOfDay();
             DateTime start = midnight.withMillisOfDay(DateTimeUtils
-                    .resolveStartWorkingHourMillis(dwh.getStartTime(), dwh.getTimezoneOffset()));
+                    .resolveStartWorkingHourMillis(new DateTime(dwh.getStartTime()), dwh.getTimezoneOffset()));
             DateTime end = midnight.withMillisOfDay(DateTimeUtils
-                    .resolveEndWorkingHourMillis(dwh.getEndTime(), dwh.getTimezoneOffset()));
+                    .resolveEndWorkingHourMillis(new DateTime(dwh.getEndTime()), dwh.getTimezoneOffset()));
             Interval interval = new Interval(start, end);
             hours.add(new OpeningHours(interval, dwh.getTimezoneOffset()));
         });

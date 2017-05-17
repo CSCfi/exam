@@ -14,7 +14,6 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,8 +43,8 @@ public class ExamControllerTest extends IntegrationTestCase {
         });
         Set<Long> ids = new HashSet<>();
         for (Exam e : activeExams) {
-            e.setExamActiveStartDate(new Date());
-            e.setExamActiveEndDate(DateTime.now().plusWeeks(1).toDate());
+            e.setExamActiveStartDate(DateTime.now());
+            e.setExamActiveEndDate(DateTime.now().plusWeeks(1));
             e.update();
             ids.add(e.getId());
         }
@@ -62,8 +61,8 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertPathsExist(node, jsonPaths(expectedPaths, exams.size()));
         for (JsonNode n : exams) {
             Exam e = deserialize(Exam.class, n);
-            assertThat(e.getExamActiveEndDate().after(new Date()));
-            assertThat(e.getExamActiveStartDate().before(new Date()));
+            assertThat(e.getExamActiveEndDate().isAfterNow());
+            assertThat(e.getExamActiveStartDate().isBeforeNow());
             assertThat(ids.contains(e.getId()));
         }
     }

@@ -2,8 +2,6 @@ package base;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.TxType;
-import com.avaje.ebean.annotation.Transactional;
 import com.avaje.ebean.config.ServerConfig;
 import com.avaje.ebeaninternal.api.SpiEbeanServer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,28 +10,39 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import models.*;
+import models.questions.MultipleChoiceOption;
+import models.questions.Question;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.yaml.snakeyaml.Yaml;
 import play.Application;
 import play.db.Database;
 import play.db.Databases;
 import play.db.evolutions.Evolutions;
 import play.libs.Json;
-import play.libs.Yaml;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.java.JsonDeserializer;
 
 import javax.persistence.PersistenceException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -85,6 +94,11 @@ public class IntegrationTestCase {
         }
     }
 
+    // Hook for having stuff done just before logging in a user.
+    protected void onBeforeLogin() throws Exception {
+        // Default does nothing
+    }
+
     @Before
     public void setUp() throws Exception {
         // Unfortunately we need to restart for each test because there is some weird issue with question id sequence.
@@ -99,6 +113,8 @@ public class IntegrationTestCase {
         db.shutdown();
 
         addTestData();
+
+        onBeforeLogin();
 
         Method testMethod = getClass().getDeclaredMethod(currentTest.getMethodName());
         if (testMethod.isAnnotationPresent(RunAsStudent.class)) {
@@ -145,10 +161,14 @@ public class IntegrationTestCase {
     }
 
     protected Result request(String method, String path, JsonNode body) {
-        return request(method, path, body, HAKA_HEADERS);
+        return request(method, path, body, HAKA_HEADERS, false);
     }
 
-    protected Result request(String method, String path, JsonNode body, Map<String, String> headers) {
+    protected Result request(String method, String path, JsonNode body, boolean followRedirects) {
+        return request(method, path, body, HAKA_HEADERS, followRedirects);
+    }
+
+    protected Result request(String method, String path, JsonNode body, Map<String, String> headers, boolean followRedirects) {
         Http.RequestBuilder request = fakeRequest(method, path);
         for (Map.Entry<String, String> header : headers.entrySet()) {
             request.headers().put(header.getKey(), new String[]{header.getValue()});
@@ -156,7 +176,12 @@ public class IntegrationTestCase {
         if (body != null && !method.equals(Helpers.GET)) {
             request = request.bodyJson(body);
         }
-        return Helpers.route(request);
+        Result result = Helpers.route(request);
+        if (followRedirects && result.redirectLocation().isPresent()) {
+            return request(method, result.redirectLocation().get(), body, headers, false);
+        } else {
+            return result;
+        }
     }
 
     protected void loginAsStudent() {
@@ -173,7 +198,7 @@ public class IntegrationTestCase {
 
     protected void login(String eppn) {
         HAKA_HEADERS.put("eppn", eppn);
-        Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS);
+        Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS, false);
         assertThat(result.status()).isEqualTo(200);
         JsonNode user = Json.parse(contentAsString(result));
         sessionToken = user.get("token").asText();
@@ -221,6 +246,27 @@ public class IntegrationTestCase {
         return results.toArray(new String[results.size()]);
     }
 
+    protected void initExamSectionQuestions(Exam exam) {
+        exam.setExamSections(new TreeSet<>(exam.getExamSections()));
+        exam.getExamInspections().stream().map(ExamInspection::getUser).forEach(u -> {
+            u.setLanguage(Ebean.find(Language.class, "en"));
+            u.update();
+        });
+        exam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
+                .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
+                .forEach(esq -> {
+                    for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
+                        ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+                        esqo.setOption(o);
+                        esqo.setScore(o.getDefaultScore());
+                        esq.getOptions().add(esqo);
+                    }
+                    esq.save();
+                });
+    }
+
     private void assertPaths(JsonNode node, boolean shouldExist, String... paths) {
         Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
         for (String path : paths) {
@@ -265,9 +311,10 @@ public class IntegrationTestCase {
         });
     }
 
-    @Transactional(type = TxType.REQUIRES_NEW)
+
+
     @SuppressWarnings("unchecked")
-    private static void addTestData() {
+    private void addTestData() throws Exception {
         int userCount;
         try {
             userCount = Ebean.find(User.class).findRowCount();
@@ -276,7 +323,10 @@ public class IntegrationTestCase {
             return;
         }
         if (userCount == 0) {
-            Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
+            Yaml yaml = new Yaml(new JodaPropertyConstructor());
+            InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
+            Map<String, List<Object>> all = (Map<String, List<Object>>) yaml.load(is);
+            is.close();
             if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
                 Ebean.saveAll(all.get("languages"));
             }

@@ -7,9 +7,11 @@ import play.mvc.Result;
 
 import java.util.concurrent.CompletionStage;
 
+@FunctionalInterface
 @ImplementedBy(ExternalCalendarController.class)
 public interface ExternalCalendarAPI {
 
      CompletionStage<Result> removeReservation(Reservation reservation);
+
 }
 

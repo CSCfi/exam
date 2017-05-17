@@ -1,10 +1,10 @@
 (function() {
     'use strict';
     angular.module("exam.controllers")
-        .controller('WrongMachineCtrl', ['$scope', '$translate', '$http', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService', 'dateService',
-            function($scope, $translate, $http, $location, sessionService, StudentExamRes, waitingRoomService, dateService) {
+        .controller('WrongMachineCtrl', ['$scope', '$rootScope', '$translate', '$http', '$location', 'Session', 'StudentExamRes', 'waitingRoomService', 'dateService',
+            function($scope, $rootScope, $translate, $http, $location, Session, StudentExamRes, waitingRoomService, dateService) {
 
-                var user = sessionService.getUser();
+                var user = Session.getUser();
 
                 var proceed = function() {
                     if (user && user.isStudent) {
@@ -38,7 +38,7 @@
                     };
                 };
 
-                $scope.$on('wrongMachine', function() {
+                $rootScope.$on('wrongMachine', function() {
                     if (!$scope.enrolment && waitingRoomService.getEnrolmentId()) {
                         $scope.currentRoom = waitingRoomService.getActualRoom();
                         $scope.currentMachine = waitingRoomService.getActualMachine();
@@ -51,7 +51,7 @@
                 };
 
                 $scope.getUsername = function() {
-                    return sessionService.getUserName();
+                    return Session.getUserName();
                 };
 
                 // This is just to get page refresh to route us back here

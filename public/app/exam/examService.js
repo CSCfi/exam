@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('examService', ['$translate', '$q', '$location', 'ExamRes', 'questionService', 'sessionService',
-            function ($translate, $q, $location, ExamRes, questionService, sessionService) {
+        .service('examService', ['$translate', '$q', '$location', 'ExamRes', 'questionService', 'Session',
+            function ($translate, $q, $location, ExamRes, questionService, Session) {
 
                 var self = this;
 
@@ -326,7 +326,7 @@
                 };
 
                 self.isOwner = function (exam) {
-                    var user = sessionService.getUser();
+                    var user = Session.getUser();
                     var examToCheck = exam && exam.parent ? exam.parent : exam;
                     return examToCheck && examToCheck.examOwners.filter(function (o) {
                             return o.id === user.id;
@@ -334,7 +334,7 @@
                 };
 
                 self.isOwnerOrAdmin = function (exam) {
-                    var user = sessionService.getUser();
+                    var user = Session.getUser();
                     return exam && user && (user.isAdmin || self.isOwner(exam));
                 };
 

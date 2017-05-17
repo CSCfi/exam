@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamListingController', ['dialogs', '$scope', 'sessionService', 'examService',
+        .controller('ExamListingController', ['dialogs', '$scope', 'Session', 'examService',
             '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes',
-            function (dialogs, $scope, sessionService, examService,
+            function (dialogs, $scope, Session, examService,
                       $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes) {
 
                 $scope.filter = {};
@@ -11,7 +11,7 @@
                     loading: false
                 };
 
-                $scope.user = sessionService.getUser();
+                $scope.user = Session.getUser();
 
                 examService.listExecutionTypes().then(function (types) {
                     $scope.executionTypes = types;

@@ -9,33 +9,36 @@ lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(javaJdbc, cache , javaWs, evolutions, filters,
-  "org.postgresql" % "postgresql" % "9.4-1204-jdbc4",
+  "org.postgresql" % "postgresql" % "42.0.0",
   "be.objectify" %% "deadbolt-java" % "2.5.0",
   "org.apache.commons" % "commons-email" % "1.4",
-  "org.apache.poi" % "poi" % "3.13",
-  "org.apache.poi" % "poi-ooxml" % "3.13",
-  "org.apache.commons" % "commons-compress" % "1.10",
-  "net.sf.opencsv" % "opencsv" % "2.3",
-  "org.jsoup" % "jsoup" % "1.8.3",
-  "net.sf.biweekly" % "biweekly" % "0.4.3",
-  "com.google.code.gson" % "gson" % "2.4",
-  "com.jayway.jsonpath" % "json-path" % "2.0.0" % "test",
-  "com.icegreen" % "greenmail" % "1.4.1" % "test",
-  "org.eclipse.jetty" % "jetty-server" % "9.2.13.v20150730" % "test",
-  "org.eclipse.jetty" % "jetty-servlet" % "9.2.13.v20150730" % "test",
+  "org.apache.poi" % "poi" % "3.16",
+  "org.apache.poi" % "poi-ooxml" % "3.16",
+  "org.apache.commons" % "commons-compress" % "1.13",
+  "com.opencsv" % "opencsv" % "3.9",
+  "org.jsoup" % "jsoup" % "1.10.2",
+  "net.sf.biweekly" % "biweekly" % "0.6.1",
+  "com.google.code.gson" % "gson" % "2.8.0",
+  "com.jayway.jsonpath" % "json-path" % "2.2.0" % "test",
+  "com.icegreen" % "greenmail" % "1.5.4" % "test",
+  "org.eclipse.jetty" % "jetty-server" % "9.4.4.v20170414" % "test",
+  "org.eclipse.jetty" % "jetty-servlet" % "9.4.4.v20170414" % "test",
   "org.easytesting" % "fest-assert" % "1.4" % "test"
 )
 
+// Angular version. Remember to change locale location pattern in app.js when changing this!
+val ngVersion = "1.5.3"
+
 libraryDependencies ++= Seq(
   "org.webjars" %% "webjars-play" % "2.5.0",
-  "org.webjars.bower" % "angular" % "1.4.7",
-  "org.webjars.bower" % "angular-animate" % "1.4.7",
-  "org.webjars.bower" % "angular-cookies" % "1.4.7",
-  "org.webjars.bower" % "angular-i18n" % "1.4.7",
-  "org.webjars.bower" % "angular-resource" % "1.4.7",
-  "org.webjars.bower" % "angular-route" % "1.4.7",
-  "org.webjars.bower" % "angular-mocks" % "1.4.7",
-  "org.webjars.bower" % "angular-sanitize" % "1.4.7",
+  "org.webjars.bower" % "angular" % ngVersion,
+  "org.webjars.bower" % "angular-animate" %  ngVersion,
+  "org.webjars.bower" % "angular-cookies" %  ngVersion,
+  "org.webjars.bower" % "angular-i18n" %  ngVersion,
+  "org.webjars.bower" % "angular-resource" %  ngVersion,
+  "org.webjars.bower" % "angular-route" %  ngVersion,
+  "org.webjars.bower" % "angular-mocks" %  ngVersion,
+  "org.webjars.bower" % "angular-sanitize" % ngVersion,
   "org.webjars.bower" % "angular-translate" % "2.11.0",
   "org.webjars.bower" % "angular-translate-loader-static-files" % "2.11.0",
   "org.webjars.bower" % "angular-ui-calendar" % "1.0.1",
@@ -50,7 +53,7 @@ libraryDependencies ++= Seq(
   "org.webjars.bower" % "select2" % "3.5.4",
   "org.webjars.bower" % "angular-strap" % "2.3.7",
   "org.webjars.bower" % "FileSaver.js" % "0.0.2",
-  "org.webjars.bower" % "angular-dynamic-locale" % "0.1.30",
+  "org.webjars.bower" % "angular-dynamic-locale" % "0.1.32",
   "org.webjars.bower" % "font-awesome" % "4.6.1",
   "org.webjars.bower" % "fullcalendar" % "2.4.0",
   "org.webjars.bower" % "jquery" % "2.1.4",
@@ -62,9 +65,9 @@ libraryDependencies ++= Seq(
   "org.webjars" % "underscorejs" % "1.8.3"
 )
 
-dependencyOverrides += "org.webjars.bower" % "angular" % "1.4.7"
+dependencyOverrides += "org.webjars.bower" % "angular" %  ngVersion
 
-dependencyOverrides += "org.webjars.bower" % "angular-sanitize" % "1.4.7"
+dependencyOverrides += "org.webjars.bower" % "angular-sanitize" % ngVersion
 
 dependencyOverrides += "org.webjars.bower" % "jquery" % "2.1.4"
 

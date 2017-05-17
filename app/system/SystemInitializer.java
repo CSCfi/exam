@@ -14,10 +14,12 @@ import play.Logger;
 import play.inject.ApplicationLifecycle;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
+import system.actors.ExamExpirationActor;
 import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +39,8 @@ class SystemInitializer {
     private static final int EXAM_EXPIRY_POLLER_INTERVAL_DAYS = 1;
     private static final int AUTO_EVALUATION_NOTIFIER_START_AFTER_SECONDS = 60;
     private static final int AUTO_EVALUATION_NOTIFIER_INTERVAL_MINUTES = 15;
-
+    private static final int EXTERNAL_EXAM_SENDER_START_AFTER_SECONDS = 70;
+    private static final int EXTERNAL_EXAM_SENDER_INTERVAL_HOURS = 1;
 
     private EmailComposer composer;
     private ActorSystem system;
@@ -45,14 +48,18 @@ class SystemInitializer {
     private Map<String, Cancellable> tasks = new HashMap<>();
 
     @Inject
-    SystemInitializer(ActorSystem system, ApplicationLifecycle lifecycle, EmailComposer composer) {
+    SystemInitializer(ActorSystem system,
+                      ApplicationLifecycle lifecycle,
+                      EmailComposer composer,
+                      @Named("exam-auto-saver-actor") ActorRef examAutoSaver,
+                      @Named("reservation-checker-actor") ActorRef reservationChecker,
+                      @Named("auto-evaluation-notifier-actor") ActorRef autoEvaluationNotifier,
+                      @Named("external-exam-sender-actor") ActorRef externalExamSender) {
+
         this.system = system;
         this.composer = composer;
 
         ActorRef expirationChecker = system.actorOf(ExamExpirationActor.props);
-        ActorRef examAutoSaver = system.actorOf(ExamAutoSaverActor.props);
-        ActorRef reservationChecker = system.actorOf(ReservationPollerActor.props);
-        ActorRef autoEvaluationNotifier = system.actorOf(AutoEvaluationNotifierActor.props);
 
         String encoding = System.getProperty("file.encoding");
         if (!encoding.equals("UTF-8")) {
@@ -67,13 +74,13 @@ class SystemInitializer {
         tasks.put("AUTO_SAVER", system.scheduler().schedule(
                 Duration.create(EXAM_AUTO_SAVER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(EXAM_AUTO_SAVER_INTERVAL_MINUTES, TimeUnit.MINUTES),
-                examAutoSaver, composer,
+                examAutoSaver, "tick",
                 system.dispatcher(), null
         ));
         tasks.put("RESERVATION_POLLER", system.scheduler().schedule(
                 Duration.create(RESERVATION_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(RESERVATION_POLLER_INTERVAL_HOURS, TimeUnit.HOURS),
-                reservationChecker, composer,
+                reservationChecker, "tick",
                 system.dispatcher(), null
         ));
         tasks.put("EXPIRY_POLLER", system.scheduler().schedule(
@@ -85,8 +92,13 @@ class SystemInitializer {
         tasks.put("AUTOEVALUATION_NOTIFIER", system.scheduler().schedule(
                 Duration.create(AUTO_EVALUATION_NOTIFIER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(AUTO_EVALUATION_NOTIFIER_INTERVAL_MINUTES, TimeUnit.MINUTES),
-                autoEvaluationNotifier, composer,
+                autoEvaluationNotifier, "tick",
                 system.dispatcher(), null
+        ));
+        tasks.put("EXTERNAL_EXAM_SENDER", system.scheduler().schedule(
+                Duration.create(EXTERNAL_EXAM_SENDER_START_AFTER_SECONDS, TimeUnit.SECONDS),
+                Duration.create(EXTERNAL_EXAM_SENDER_INTERVAL_HOURS, TimeUnit.HOURS),
+                externalExamSender, "tick", system.dispatcher(), null
         ));
 
         scheduleWeeklyReport();

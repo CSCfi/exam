@@ -1,11 +1,11 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$filter', '$rootScope', '$q', '$sce', '$uibModal', 'sessionService', 'examService',
+        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$filter', '$rootScope', '$q', '$sce', '$uibModal', 'Session', 'examService',
             '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes',
             'SoftwareResource', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes', 'ExamSectionQuestionRes', 'limitToFilter',
             'enrolmentService',
-            function (dialogs, $scope, $timeout, $filter, $rootScope, $q, $sce, $modal, sessionService, examService,
+            function (dialogs, $scope, $timeout, $filter, $rootScope, $q, $sce, $modal, Session, examService,
                       $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes,
                       SoftwareResource, SettingsResource, fileService, questionService, EnrollRes, ExamSectionQuestionRes,
                       limitToFilter, enrolmentService) {
@@ -47,7 +47,7 @@
 
 
                 $scope.fromDialog = false;
-                $scope.user = sessionService.getUser();
+                $scope.user = Session.getUser();
 
                 $scope.tabs = [
                     {title: 'perus', active: $routeParams.tab == 1},

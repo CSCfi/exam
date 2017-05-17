@@ -7,7 +7,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.typesafe.config.ConfigFactory;
 import exceptions.MalformedDataException;
-import models.*;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamParticipation;
+import models.Session;
+import models.User;
 import models.api.CountsAsTrial;
 import play.cache.CacheApi;
 import play.data.DynamicForm;
@@ -17,10 +21,18 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import util.java.EmailComposer;
-import util.java.NoShowHandlerUtil;
+import util.java.NoShowHandler;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -38,6 +50,8 @@ public class BaseController extends Controller {
     protected CacheApi cache;
     @Inject
     protected FormFactory formFactory;
+    @Inject
+    protected NoShowHandler noShowHandler;
 
     protected <T> T bindForm(final Class<T> clazz) {
         final Form<T> form = formFactory.form(clazz);
@@ -213,7 +227,7 @@ public class BaseController extends Controller {
         return bos;
     }
 
-    private static void handleNoShow(User user, Long examId, EmailComposer composer) {
+    private void handleNoShow(User user, Long examId, EmailComposer composer) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .where()
@@ -223,7 +237,7 @@ public class BaseController extends Controller {
                 .eq("exam.id", examId)
                 .eq("exam.state", Exam.State.PUBLISHED)
                 .findList();
-        NoShowHandlerUtil.handleNoShows(enrolments, composer, null);
+        noShowHandler.handleNoShows(enrolments,  null);
     }
 
     protected boolean isAllowedToParticipate(Exam exam, User user, EmailComposer composer) {
@@ -251,7 +265,7 @@ public class BaseController extends Controller {
         List<CountsAsTrial> trials = new ArrayList<>(participations);
         trials.addAll(noShows);
         // Sort by trial time desc
-        Collections.sort(trials, (o1, o2) -> o1.getTrialTime().after(o2.getTrialTime()) ? -1 : 1);
+        trials.sort((o1, o2) -> o1.getTrialTime().isAfter(o2.getTrialTime()) ? -1 : 1);
 
         if (trials.size() >= trialCount) {
             List<CountsAsTrial> subset = trials.subList(0, trialCount);

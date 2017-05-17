@@ -19,6 +19,8 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import play.Logger;
 import play.data.DynamicForm;
@@ -426,22 +428,22 @@ public class ReviewController extends BaseController {
         return ok();
     }
 
-    private static boolean isEligibleForArchiving(Exam exam, Date start, Date end) {
+    private static boolean isEligibleForArchiving(Exam exam, DateTime start, DateTime end) {
         return exam.hasState(Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED)
-                && !(start != null && exam.getCreated().before(start))
-                && !(end != null && exam.getCreated().after(end));
+                && !(start != null && exam.getCreated().isBefore(start))
+                && !(end != null && exam.getCreated().isAfter(end));
     }
 
-    private static void createSummaryFile(ArchiveOutputStream aos, Date start, Date end, Exam exam,
+    private static void createSummaryFile(ArchiveOutputStream aos, DateTime start, DateTime end, Exam exam,
                                           Map<Long, String> questions) throws IOException {
         File file = File.createTempFile("summary", ".txt");
         FileOutputStream fos = new FileOutputStream(file);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
 
         if (start != null || end != null) {
-            DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+            DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy");
             writer.write(String.format("period: %s-%s",
-                    start == null ? "" : df.format(start), end == null ? "" : df.format(end)));
+                    start == null ? "" : dtf.print(start), end == null ? "" : dtf.print(end)));
             writer.newLine();
         }
         writer.write(String.format("exam id: %d", exam.getId()));
@@ -463,7 +465,7 @@ public class ReviewController extends BaseController {
         aos.closeArchiveEntry();
     }
 
-    private void createArchive(Exam prototype, ArchiveOutputStream aos, Date start, Date end) throws IOException {
+    private void createArchive(Exam prototype, ArchiveOutputStream aos, DateTime start, DateTime end) throws IOException {
         List<Exam> children = prototype.getChildren().stream()
                 .filter(e -> isEligibleForArchiving(e, start, end))
                 .collect(Collectors.toList());
@@ -538,15 +540,15 @@ public class ReviewController extends BaseController {
         if (prototype == null) {
             return notFound();
         }
-        Date startDate = null;
-        Date endDate = null;
+        DateTime startDate = null;
+        DateTime endDate = null;
         try {
             DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
             if (start.isPresent()) {
-                startDate = new DateTime(df.parse(start.get())).withTimeAtStartOfDay().toDate();
+                startDate = new DateTime(df.parse(start.get())).withTimeAtStartOfDay();
             }
             if (end.isPresent()) {
-                endDate = new DateTime(df.parse(end.get())).withTimeAtStartOfDay().plusDays(1).toDate();
+                endDate = new DateTime(df.parse(end.get())).withTimeAtStartOfDay().plusDays(1);
             }
         } catch (ParseException e) {
             return badRequest();
@@ -585,7 +587,7 @@ public class ReviewController extends BaseController {
         // set grading info only if exam is really graded, not just modified
         if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)) {
             if (!stateOnly) {
-                exam.setGradedTime(new Date());
+                exam.setGradedTime(DateTime.now());
                 exam.setGradedByUser(getLoggedUser());
             }
             if (exam.hasState(Exam.State.REJECTED)) {

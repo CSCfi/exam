@@ -54,8 +54,8 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
         Exam exam = Ebean.find(Exam.class).where()
                 .eq("course.code", "810136P")
                 .eq("state", Exam.State.PUBLISHED).findUnique();
-        exam.setExamActiveStartDate(DateTime.now().minusDays(1).toDate());
-        exam.setExamActiveEndDate(DateTime.now().plusDays(1).toDate());
+        exam.setExamActiveStartDate(DateTime.now().minusDays(1));
+        exam.setExamActiveEndDate(DateTime.now().plusDays(1));
         exam.save();
     }
 

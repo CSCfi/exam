@@ -3,16 +3,20 @@ package util.java;
 import models.*;
 import play.Logger;
 
+import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class NoShowHandlerUtil {
+public class NoShowHandlerUtil implements NoShowHandler {
 
-    public static void handleNoShows(List<ExamEnrolment> noShows, EmailComposer composer, Class<?> sender) {
+    @Inject
+    private EmailComposer composer;
+
+    public void handleNoShows(List<ExamEnrolment> noShows, Class<?> sender) {
         for (ExamEnrolment enrolment : noShows) {
-            handleNoShow(enrolment, composer);
+            handleNoShow(enrolment);
             if (sender != null) {
                 Logger.info("{}: ... marked reservation {} as no-show", sender.getCanonicalName(),
                         enrolment.getReservation().getId());
@@ -20,7 +24,7 @@ public class NoShowHandlerUtil {
         }
     }
 
-    private static void handleNoShow(ExamEnrolment enrolment, EmailComposer composer) {
+    public void handleNoShow(ExamEnrolment enrolment) {
         Reservation reservation = enrolment.getReservation();
         reservation.setNoShow(true);
         reservation.update();

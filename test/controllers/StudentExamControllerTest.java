@@ -13,7 +13,6 @@ import com.typesafe.config.ConfigFactory;
 import models.*;
 import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
-import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -26,7 +25,6 @@ import play.test.Helpers;
 import javax.mail.internet.MimeMessage;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.TreeSet;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -49,24 +47,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         super.setUp();
         Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
         exam = Ebean.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findUnique();
-        exam.setExamSections(new TreeSet<>(exam.getExamSections()));
-        exam.getExamInspections().stream().map(ExamInspection::getUser).forEach(u -> {
-            u.setLanguage(Ebean.find(Language.class, "en"));
-            u.update();
-        });
-        exam.getExamSections().stream()
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
-                .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
-                .forEach(esq -> {
-                    for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
-                        ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
-                        esqo.setOption(o);
-                        esqo.setScore(o.getDefaultScore());
-                        esq.getOptions().add(esqo);
-                    }
-                    esq.save();
-                });
+        initExamSectionQuestions(exam);
 
         user = Ebean.find(User.class, userId);
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);
@@ -75,8 +56,8 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         machine.update();
         reservation.setMachine(machine);
         reservation.setUser(user);
-        reservation.setStartAt(DateTime.now().minusMinutes(10).toDate());
-        reservation.setEndAt(DateTime.now().plusMinutes(70).toDate());
+        reservation.setStartAt(DateTime.now().minusMinutes(10));
+        reservation.setEndAt(DateTime.now().plusMinutes(70));
         reservation.save();
         enrolment.setExam(exam);
         enrolment.setUser(user);

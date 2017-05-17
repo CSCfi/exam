@@ -1,10 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamTabsController', ['$scope', '$q', '$routeParams', '$translate', 'ExamRes', 'EXAM_CONF', 'sessionService',
-            function ($scope, $q, $routeParams, $translate, ExamRes, EXAM_CONF, sessionService) {
+        .controller('ExamTabsController', ['$scope', '$q', '$routeParams', '$translate', 'ExamRes', 'EXAM_CONF', 'Session',
+            function ($scope, $q, $routeParams, $translate, ExamRes, EXAM_CONF, Session) {
 
-                $scope.user = sessionService.getUser();
+                $scope.user = Session.getUser();
                 $scope.examInfo = {};
                 $scope.examFull = {};
 

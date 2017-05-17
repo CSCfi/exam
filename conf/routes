@@ -84,6 +84,16 @@ POST          /app/student/exams/:hash/question/:qid/option              control
 POST          /app/student/exams/:hash/question/:questionId              controllers.StudentExamController.answerEssay(hash: String, questionId: Long)
 POST          /app/student/exams/:hash/clozetest/:questionId             controllers.StudentExamController.answerClozeTest(hash: String, questionId: Long)
 
+############### External student exam execution interface ###############
+PUT           /app/iop/student/exams/:hash                               controllers.iop.ExternalStudentExamController.turnExam(hash: String)
+PUT           /app/iop/student/exam/abort/:hash                          controllers.iop.ExternalStudentExamController.abortExam(hash: String)
+POST          /app/iop/student/exam/:hash                                controllers.iop.ExternalStudentExamController.startExam(hash: String)
+
+POST          /app/iop/student/exams/:hash/question/:qid/option          controllers.iop.ExternalStudentExamController.answerMultiChoice(hash: String, qid: Long)
+POST          /app/iop/student/exams/:hash/question/:questionId          controllers.iop.ExternalStudentExamController.answerEssay(hash: String, questionId: Long)
+POST          /app/iop/student/exams/:hash/clozetest/:questionId         controllers.iop.ExternalStudentExamController.answerClozeTest(hash: String, questionId: Long)
+
+
 ############### Student acions interface #########
 GET           /app/feedback/exams/:eid                                   controllers.StudentActionsController.getExamFeedback(eid: Long)
 GET           /app/feedback/exams/:eid/score                             controllers.StudentActionsController.getExamScore(eid: Long)
@@ -268,9 +278,10 @@ DELETE        /integration/iop/reservations/:ref                         control
 POST          /integration/iop/reservations/external                     controllers.iop.ExternalCalendarController.requestReservation
 DELETE        /integration/iop/reservations/external/:ref                controllers.iop.ExternalCalendarController.requestReservationRemoval(ref: String)
 
+GET           /integration/iop/reservations/:ref                         controllers.iop.ExternalExamController.provideEnrolment(ref: String)
+
 ################# Time interface ######################
-GET           /app/time                                                  controllers.TimeController.getTime
-GET           /app/time/:id                                              controllers.TimeController.getExamRemainingTime(id: Long)
+GET           /app/time/:hash                                             controllers.TimeController.getExamRemainingTime(hash: String)
 
 ################# Calendar interface ##################
 GET           /app/calendar/:examId/:roomId                              controllers.CalendarController.getSlots(examId: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer])

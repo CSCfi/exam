@@ -4,7 +4,12 @@ package system;
 import com.avaje.ebean.Ebean;
 import com.google.inject.Inject;
 import controllers.base.BaseController;
-import models.*;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.Session;
+import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.ISODateTimeFormat;
@@ -19,7 +24,11 @@ import util.AppUtil;
 
 import javax.xml.bind.DatatypeConverter;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -40,6 +49,7 @@ public class SystemRequestHandler implements ActionCreator {
     public Action createAction(Http.Request request, Method actionMethod) {
         String token = BaseController.getToken(request);
         Session session = cache.get(BaseController.SITNET_CACHE_KEY + token);
+        boolean temporalStudent = session != null && session.isTemporalStudent();
         User user = session == null ? null : Ebean.find(User.class, session.getUserId());
         AuditLogger.log(request, user);
 
@@ -50,7 +60,7 @@ public class SystemRequestHandler implements ActionCreator {
 
         return validateSession(session, token).orElseGet(() -> {
             updateSession(request, session, token);
-            if (user == null || !user.hasRole("STUDENT", session)) {
+            if ((user == null || !user.hasRole("STUDENT", session)) && !temporalStudent) {
                 // propagate further right away
                 return propagateAction();
             } else {
@@ -181,16 +191,20 @@ public class SystemRequestHandler implements ActionCreator {
         return true;
     }
 
+    private String getExamHash(ExamEnrolment enrolment) {
+        return enrolment.getExternalExam() != null ? enrolment.getExternalExam().getHash() : enrolment.getExam().getHash();
+    }
+
     private void handleOngoingEnrolment(ExamEnrolment enrolment, Http.RequestHeader request, Map<String, String> headers) {
         if (isMachineOk(enrolment, request, headers)) {
-            String hash = enrolment.getExam().getHash();
+            String hash = getExamHash(enrolment);
             headers.put("x-exam-start-exam", hash);
         }
     }
 
     private void handleUpcomingEnrolment(ExamEnrolment enrolment, Http.RequestHeader request, Map<String, String> headers) {
         if (isMachineOk(enrolment, request, headers)) {
-            String hash = enrolment.getExam().getHash();
+            String hash = getExamHash(enrolment);
             headers.put("x-exam-start-exam", hash);
             headers.put("x-exam-upcoming-exam", enrolment.getId().toString());
         }
@@ -204,11 +218,14 @@ public class SystemRequestHandler implements ActionCreator {
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
                 .fetch("exam")
+                .fetch("externalExam")
                 .where()
                 .eq("user.id", userId)
                 .disjunction()
                 .eq("exam.state", Exam.State.PUBLISHED)
                 .eq("exam.state", Exam.State.STUDENT_STARTED)
+                .jsonEqualTo("externalExam.content", "state", Exam.State.PUBLISHED.toString())
+                .jsonEqualTo("externalExam.content", "state", Exam.State.STUDENT_STARTED.toString())
                 .endJunction()
                 .le("reservation.startAt", future)
                 .gt("reservation.endAt", now)

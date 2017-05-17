@@ -2,10 +2,10 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('LibraryCtrl', ['dialogs', '$q', '$filter', '$sce', '$scope', '$rootScope', '$location',
-                    '$translate', 'sessionService', 'QuestionRes', 'questionService', 'ExamRes', 'CourseRes',
+                    '$translate', 'Session', 'QuestionRes', 'questionService', 'ExamRes', 'CourseRes',
                     'TagRes', 'UserRes', 'EXAM_CONF',
             function (dialogs, $q, $filter, $sce, $scope, $rootScope, $location, 
-                        $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes,
+                        $translate, Session, QuestionRes, questionService, ExamRes, CourseRes,
                         TagRes, UserRes, EXAM_CONF) {
         
                 var step = 100;
@@ -32,9 +32,9 @@
                     libraryResults: EXAM_CONF.TEMPLATES_PATH + "question/library_results.html"
                 };
 
-                $scope.session = sessionService;
+                $scope.session = Session;
 
-                $scope.user = sessionService.getUser();
+                $scope.user = Session.getUser();
 
                 var htmlDecode = function (text) {
                     return $('<div/>').html(text).text();

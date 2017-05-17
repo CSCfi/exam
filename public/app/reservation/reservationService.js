@@ -2,8 +2,8 @@
     'use strict';
     angular.module('exam.services')
         .service('reservationService', ['$q', '$uibModal', '$http', '$routeParams', '$translate', '$location', 'dialogs',
-            'dateService', 'sessionService', 'ReservationResource', 'EXAM_CONF', 'InteroperabilityResource',
-            function ($q, $modal, $http, $routeParams, $translate, $location, dialogs, dateService, sessionService,
+            'dateService', 'Session', 'ReservationResource', 'EXAM_CONF', 'InteroperabilityResource',
+            function ($q, $modal, $http, $routeParams, $translate, $location, dialogs, dateService, Session,
                       ReservationRes, EXAM_CONF, InteroperabilityRes) {
 
                 var self = this;
@@ -63,7 +63,7 @@
                 };
 
                 var getWeekdayNames = function () {
-                    var lang = sessionService.getUser().lang;
+                    var lang = Session.getUser().lang;
                     var locale = lang.toLowerCase() + "-" + lang.toUpperCase();
                     var options = {weekday: 'short'};
                     var weekday = dateService.getDateForWeekday;
@@ -197,7 +197,7 @@
                     }];
 
                     var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/change_machine_dialog.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/admin/change_machine_dialog.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: modalController
@@ -230,7 +230,7 @@
                     }];
 
                     var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/remove_reservation_dialog.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/admin/remove_reservation_dialog.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: modalController

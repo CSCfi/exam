@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
+import controllers.iop.api.ExternalExamAPI;
 import exceptions.NotFoundException;
+import models.ExamEnrolment;
 import models.Language;
 import models.Organisation;
 import models.Reservation;
@@ -21,6 +23,7 @@ import org.joda.time.Minutes;
 import play.Environment;
 import play.Logger;
 import play.libs.Json;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import util.AppUtil;
@@ -29,17 +32,26 @@ import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.util.*;
+import java.util.concurrent.CompletionStage;
 
 public class SessionController extends BaseController {
 
     @Inject
-    Environment environment;
+    private Environment environment;
+
+    @Inject
+    private ExternalExamAPI externalExamAPI;
+
+    @Inject
+    private HttpExecutionContext ec;
+
 
     @ActionMethod
-    public Result login() {
-        Result result;
+    public CompletionStage<Result> login() {
+        CompletionStage<Result> result;
         switch (LOGIN_TYPE) {
             case "HAKA":
                 result = hakaLogin();
@@ -48,19 +60,19 @@ public class SessionController extends BaseController {
                 result = devLogin();
                 break;
             default:
-                result = badRequest("login type not supported");
+                result = wrapAsPromise(badRequest("login type not supported"));
         }
         return result;
     }
 
-    private Result hakaLogin() {
+    private CompletionStage<Result> hakaLogin() {
         Optional<String> id = parse(request().getHeader("eppn"));
         if (!id.isPresent()) {
-            return badRequest("No credentials!");
+            return wrapAsPromise(badRequest("No credentials!"));
         }
         String eppn = id.get();
-        Set<Reservation> externalReservationsInEffect = getUpcomingExternalReservations(eppn);
-        boolean isTemporaryVisitor = !externalReservationsInEffect.isEmpty();
+        Reservation externalReservation = getUpcomingExternalReservation(eppn);
+        boolean isTemporaryVisitor = externalReservation != null;
         User user = Ebean.find(User.class)
                 .where()
                 .eq("eppn", eppn)
@@ -72,22 +84,21 @@ public class SessionController extends BaseController {
                 updateUser(user);
             }
         } catch (NotFoundException | AddressException e) {
-            return badRequest(e.getMessage());
+            return wrapAsPromise(badRequest(e.getMessage()));
         }
         user.setLastLogin(new Date());
         user.save();
-        handleExternalReservations(user, externalReservationsInEffect);
-        return createSession(user, isTemporaryVisitor);
+        return handleExternalReservationAndCreateSession(user, externalReservation);
     }
 
-    private Result devLogin() {
+    private CompletionStage<Result> devLogin() {
         if (!environment.isDev()) {
-            return unauthorized();
+            return wrapAsPromise(unauthorized());
         }
         Credentials credentials = bindForm(Credentials.class);
         Logger.debug("User login with username: {}", credentials.getUsername() + "@funet.fi");
         if (credentials.getPassword() == null || credentials.getUsername() == null) {
-            return unauthorized("sitnet_error_unauthenticated");
+            return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
         }
         String pwd = AppUtil.encodeMD5(credentials.getPassword());
         User user = Ebean.find(User.class)
@@ -95,29 +106,53 @@ public class SessionController extends BaseController {
                 .eq("password", pwd).findUnique();
 
         if (user == null) {
-            return unauthorized("sitnet_error_unauthenticated");
+            return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
         }
         user.setLastLogin(new Date());
         user.update();
-        return createSession(user, false);
+        // In dev environment we will not fiddle with the role definitions here regarding visitor status
+        Reservation externalReservation = getUpcomingExternalReservation(user.getEppn());
+        return handleExternalReservationAndCreateSession(user, externalReservation);
     }
 
-    private Set<Reservation> getUpcomingExternalReservations(String eppn) {
+    private CompletionStage<Result> handleExternalReservationAndCreateSession(User user, Reservation reservation) {
+        if (reservation != null) {
+            try {
+                return handleExternalReservation(user, reservation).
+                        thenApplyAsync(r -> createSession(user, true), ec.current());
+            } catch (MalformedURLException e) {
+                return wrapAsPromise(internalServerError());
+            }
+        } else {
+            return wrapAsPromise(createSession(user, false));
+        }
+    }
+
+    private Reservation getUpcomingExternalReservation(String eppn) {
         DateTime now = AppUtil.adjustDST(new DateTime());
         int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
         DateTime future = now.plusMinutes(lookAheadMinutes);
-        return Ebean.find(Reservation.class).where()
+        List<Reservation> reservations = Ebean.find(Reservation.class).where()
                 .eq("externalUserRef", eppn)
                 .isNotNull("externalRef")
                 .le("startAt", future)
-                .gt("endAt", now).findSet();
+                .gt("endAt", now)
+                .orderBy("startAt")
+                .findList();
+        return reservations.isEmpty() ? null : reservations.get(0);
     }
 
-    private void handleExternalReservations(User user, Set<Reservation> externalReservationsInEffect) {
-        externalReservationsInEffect.forEach(r -> {
-            r.setUser(user);
-            r.update();
-        });
+    private CompletionStage<Result> handleExternalReservation(User user, Reservation reservation) throws MalformedURLException {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation", reservation).findUnique();
+        if (enrolment != null) {
+            // already imported
+            return wrapAsPromise(ok());
+        }
+        reservation.setUser(user);
+        reservation.update();
+        return externalExamAPI.requestEnrolment(user, reservation)
+                .thenApplyAsync(e -> e == null ? internalServerError() : ok());
+
     }
 
     private static Language getLanguage(String code) {

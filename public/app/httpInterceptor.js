@@ -1,7 +1,7 @@
 angular.module('exam.services')
     .config(['$httpProvider', function ($httpProvider) {
-        $httpProvider.interceptors.push(['$q', '$cookies', 'sessionService', '$rootScope', '$location', '$translate', 'wrongRoomService', 'waitingRoomService',
-            function ($q, $cookies, sessionService, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {
+        $httpProvider.interceptors.push(['$q', '$cookies', 'Session', '$rootScope', '$location', '$translate', 'wrongRoomService', 'waitingRoomService',
+            function ($q, $cookies, Session, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {
                 return {
                     'request': function (request) {
                         if (request.method !== 'GET') {

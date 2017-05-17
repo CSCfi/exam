@@ -26,7 +26,6 @@ import util.AppUtil;
 
 import javax.persistence.PersistenceException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -246,7 +245,7 @@ public class QuestionController extends BaseController {
         if (!question.getExamSectionQuestions().stream()
                 .filter(esq -> {
                     Exam exam = esq.getExamSection().getExam();
-                    return exam.getState() == Exam.State.PUBLISHED && exam.getExamActiveEndDate().after(new Date());
+                    return exam.getState() == Exam.State.PUBLISHED && exam.getExamActiveEndDate().isAfterNow();
                 })
                 .collect(Collectors.toList())
                 .isEmpty()) {

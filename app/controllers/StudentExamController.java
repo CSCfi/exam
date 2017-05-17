@@ -8,7 +8,6 @@ import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import controllers.api.ExternalAPI;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import models.*;
@@ -22,11 +21,13 @@ import play.data.DynamicForm;
 import play.db.ebean.Transactional;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
-import security.interceptors.SensitiveDataPolicy;
+import system.interceptors.SensitiveDataPolicy;
+import system.interceptors.ExamActionRouter;
 import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -37,8 +38,6 @@ import java.util.stream.StreamSupport;
 public class StudentExamController extends BaseController {
 
     @Inject
-    protected ExternalAPI externalAPI;
-    @Inject
     protected EmailComposer emailComposer;
     @Inject
     protected ActorSystem actor;
@@ -48,7 +47,8 @@ public class StudentExamController extends BaseController {
 
     @ActionMethod
     @Transactional
-    public Result startExam(String hash) {
+    @ExamActionRouter
+    public Result startExam(String hash) throws IOException {
         User user = getLoggedUser();
         Exam prototype = getPrototype(hash);
         Exam possibleClone = getPossibleClone(hash, user);
@@ -64,7 +64,7 @@ public class StudentExamController extends BaseController {
                 newExam.setCloned(true);
                 newExam.setDerivedMaxScores();
                 processClozeTestQuestions(newExam);
-                return ok(newExam, getPath());
+                return ok(newExam, getPath(false));
             });
         } else {
             // Exam started already
@@ -75,12 +75,13 @@ public class StudentExamController extends BaseController {
             possibleClone.setCloned(false);
             possibleClone.setDerivedMaxScores();
             processClozeTestQuestions(possibleClone);
-            return ok(possibleClone, getPath());
+            return ok(possibleClone, getPath(false));
         }
     }
 
     @ActionMethod
     @Transactional
+    @ExamActionRouter
     public Result turnExam(String hash) {
         User user = getLoggedUser();
 
@@ -102,12 +103,12 @@ public class StudentExamController extends BaseController {
 
         if (p != null) {
             DateTime now = AppUtil.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
-            p.setEnded(now.toDate());
-            p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
+            p.setEnded(DateTime.now());
+            p.setDuration(new DateTime(p.getEnded().getMillis() - p.getStarted().getMillis()));
 
             GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
             int deadlineDays = Integer.parseInt(settings.getValue());
-            Date deadline = new DateTime(p.getEnded()).plusDays(deadlineDays).toDate();
+            DateTime deadline = p.getEnded().plusDays(deadlineDays);
             p.setDeadline(deadline);
             p.save();
             exam.setState(Exam.State.REVIEW);
@@ -121,7 +122,7 @@ public class StudentExamController extends BaseController {
                 autoEvaluate(exam);
                 if (config.getReleaseType() == AutoEvaluationConfig.ReleaseType.IMMEDIATE) {
                     // Notify student immediately
-                    exam.setAutoEvaluationNotified(new Date());
+                    exam.setAutoEvaluationNotified(DateTime.now());
                     exam.update();
                     User student = exam.getCreator();
                     actor.scheduler().scheduleOnce(Duration.create(5, TimeUnit.SECONDS),
@@ -153,8 +154,8 @@ public class StudentExamController extends BaseController {
 
         if (p != null) {
             DateTime now = AppUtil.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
-            p.setEnded(now.toDate());
-            p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
+            p.setEnded(now);
+            p.setDuration(new DateTime(p.getEnded().getMillis() - p.getStarted().getMillis()));
             p.save();
             exam.setState(Exam.State.ABORTED);
             exam.update();
@@ -168,6 +169,7 @@ public class StudentExamController extends BaseController {
     }
 
     @ActionMethod
+    @ExamActionRouter
     public Result answerEssay(String hash, Long questionId) {
         return getEnrolmentError(hash).orElseGet(() -> {
             DynamicForm df = formFactory.form().bindFromRequest();
@@ -192,6 +194,7 @@ public class StudentExamController extends BaseController {
     }
 
     @ActionMethod
+    @ExamActionRouter
     public Result answerMultiChoice(String hash, Long qid) {
         return getEnrolmentError(hash).orElseGet(() -> {
             ArrayNode node = (ArrayNode) request().body().asJson().get("oids");
@@ -212,6 +215,7 @@ public class StudentExamController extends BaseController {
     }
 
     @ActionMethod
+    @ExamActionRouter
     public Result answerClozeTest(String hash, Long questionId) {
         return getEnrolmentError(hash).orElseGet(() -> {
             ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
@@ -266,7 +270,7 @@ public class StudentExamController extends BaseController {
         examParticipation.setExam(studentExam);
         examParticipation.setReservation(enrolment.getReservation());
         DateTime now = AppUtil.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
-        examParticipation.setStarted(now.toDate());
+        examParticipation.setStarted(now);
         examParticipation.save();
         user.getParticipations().add(examParticipation);
 
@@ -287,7 +291,7 @@ public class StudentExamController extends BaseController {
                 .findUnique();
     }
 
-    private Optional<Result> getEnrolmentError(ExamEnrolment enrolment) {
+    protected Optional<Result> getEnrolmentError(ExamEnrolment enrolment) {
         // If this is null, it means someone is either trying to access an exam by wrong hash
         // or the reservation is not in effect right now.
         if (enrolment == null) {
@@ -316,33 +320,34 @@ public class StudentExamController extends BaseController {
         return Optional.empty();
     }
 
-    private static PathProperties getPath() {
-        return PathProperties.parse(
-                "(id, name, instruction, hash, duration, cloned, course(id, code, name), executionType(id, type), " + // (
-                        "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
-                        "examInspections(user(firstName, lastName))" +
-                        "examSections(id, name, sequenceNumber, description, " + // ((
-                        "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
-                        "question(id, type, question, attachment(id, fileName))" +
-                        "options(id, answered, option(id, option))" +
-                        "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
-                        "clozeTestAnswer(id, question, answer, objectVersion)" +
-                        ")))");
+
+    public static PathProperties getPath(boolean includeEnrolment) {
+        String path = "(id, name, state, instruction, hash, duration, cloned, course(id, code, name), executionType(id, type), " + // (
+                "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
+                "examInspections(user(firstName, lastName))" +
+                "examSections(id, name, sequenceNumber, description, " + // ((
+                "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
+                "question(id, type, question, attachment(id, fileName))" +
+                "options(id, answered, option(id, option))" +
+                "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
+                "clozeTestAnswer(id, question, answer, objectVersion)" +
+                ")))";
+        return PathProperties.parse(includeEnrolment ? String.format("(exam%s)", path) : path);
     }
 
     private static Query<Exam> createQuery() {
         Query<Exam> query = Ebean.find(Exam.class);
-        PathProperties props = getPath();
+        PathProperties props = getPath(false);
         props.apply(query);
         return query;
     }
 
-    private void processClozeTestQuestions(Exam exam) {
+    protected void processClozeTestQuestions(Exam exam) {
         Set<Question> questionsToHide = new HashSet<>();
         exam.getExamSections().stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
-                .forEach( esq -> {
+                .forEach(esq -> {
                     ClozeTestAnswer answer = esq.getClozeTestAnswer();
                     if (answer == null) {
                         answer = new ClozeTestAnswer();
@@ -380,8 +385,7 @@ public class StudentExamController extends BaseController {
             if (ge.getPercentage() > percentage) {
                 grade = prev == null ? ge.getGrade() : prev.getGrade();
                 threshold = prev == null ? ge.getPercentage() : prev.getPercentage();
-            }
-            else if (!it.hasNext()) {
+            } else if (!it.hasNext()) {
                 // Highest possible grade
                 grade = ge.getGrade();
                 threshold = ge.getPercentage();
@@ -403,7 +407,7 @@ public class StudentExamController extends BaseController {
         Grade grade = getGradeBasedOnScore(exam);
         if (grade != null) {
             exam.setGrade(grade);
-            exam.setGradedTime(new Date());
+            exam.setGradedTime(DateTime.now());
             exam.setCreditType(exam.getExamType());
             // NOTE: do not set graded by person here, one who makes a record will get the honor
             if (!exam.getExamLanguages().isEmpty()) {

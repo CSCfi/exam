@@ -21,7 +21,7 @@ import java.util.function.Function;
 public class OrganisationController extends BaseController {
 
     @Inject
-    protected WSClient wsClient;
+    private WSClient wsClient;
 
     private static URL parseUrl() throws MalformedURLException {
         StringBuilder url = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));

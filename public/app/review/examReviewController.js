@@ -1,11 +1,11 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamReviewController', ['dialogs', '$document', '$q', '$scope', 'sessionService', 'examReviewService',
+        .controller('ExamReviewController', ['dialogs', '$document', '$q', '$scope', 'Session', 'examReviewService',
             'examService', 'questionService', '$routeParams', '$http', '$uibModal', '$location', '$translate',
             '$timeout', '$sce', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'LanguageInspectionRes', 'QuestionRes',
             'dateService', 'fileService',
-            function (dialogs, $document, $q, $scope, sessionService, examReviewService, examService, questionService,
+            function (dialogs, $document, $q, $scope, Session, examReviewService, examService, questionService,
                       $routeParams, $http, $modal, $location, $translate, $timeout, $sce, EXAM_CONF, ExamRes, LanguageRes,
                       LanguageInspectionRes, QuestionRes, dateService, fileService) {
 
@@ -36,7 +36,7 @@
                     });
                 };
 
-                $scope.user = sessionService.getUser();
+                $scope.user = Session.getUser();
 
                 $scope.inspections = [];
                 $scope.examGrading = [];

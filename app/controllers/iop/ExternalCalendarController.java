@@ -50,7 +50,7 @@ import java.util.stream.StreamSupport;
 public class ExternalCalendarController extends CalendarController implements ExternalCalendarAPI {
 
     @Inject
-    protected WSClient wsClient;
+    private WSClient wsClient;
 
     private static URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration)
             throws MalformedURLException {
@@ -70,6 +70,7 @@ public class ExternalCalendarController extends CalendarController implements Ex
         return new URL(sb.toString());
     }
 
+
     private Set<TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user) {
         // Filter out slots that user has a conflicting reservation with
         if (node.isArray()) {
@@ -84,14 +85,14 @@ public class ExternalCalendarController extends CalendarController implements Ex
                     .findList();
             Stream<JsonNode> stream = StreamSupport.stream(root.spliterator(), false);
             Map<Interval, Optional<Integer>> map = stream.collect(Collectors.toMap(n -> {
-                    DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("start").asText());
-                    DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("end").asText());
-                    return new Interval(start, end);
-                }, n -> Optional.of(n.get("availableMachines").asInt()),
-                (u, v) -> {
-                    throw new IllegalStateException(String.format("Duplicate key %s", u));
-                },
-                LinkedHashMap::new));
+                        DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("start").asText());
+                        DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("end").asText());
+                        return new Interval(start, end);
+                    }, n -> Optional.of(n.get("availableMachines").asInt()),
+                    (u, v) -> {
+                        throw new IllegalStateException(String.format("Duplicate key %s", u));
+                    },
+                    LinkedHashMap::new));
             return handleReservations(map, reservations, exam, null, user);
         }
         return Collections.emptySet();
@@ -122,8 +123,8 @@ public class ExternalCalendarController extends CalendarController implements Ex
         // We are good to go :)
         Reservation reservation = new Reservation();
         reservation.setExternalRef(reservationRef);
-        reservation.setEndAt(end.toDate());
-        reservation.setStartAt(start.toDate());
+        reservation.setEndAt(end);
+        reservation.setStartAt(start);
         reservation.setMachine(machine.get());
         reservation.setExternalUserRef(userEppn);
         reservation.save();
@@ -190,12 +191,12 @@ public class ExternalCalendarController extends CalendarController implements Ex
     }
 
     // Actions invoked directly by logged in users
-
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservation() throws MalformedURLException {
         User user = getLoggedUser();
         // Parse request body
         JsonNode node = request().body().asJson();
+        String homeOrgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
         String orgRef = node.get("orgId").asText();
         String roomRef = node.get("roomId").asText();
         DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("start").asText());
@@ -224,6 +225,7 @@ public class ExternalCalendarController extends CalendarController implements Ex
         // Lets do this
         URL url = parseUrl(orgRef, roomRef, null);
         ObjectNode body = Json.newObject();
+        body.put("requestingOrg", homeOrgRef);
         body.put("start", ISODateTimeFormat.dateTime().print(start));
         body.put("end", ISODateTimeFormat.dateTime().print(end));
         body.put("user", user.getEppn());
@@ -328,8 +330,8 @@ public class ExternalCalendarController extends CalendarController implements Ex
                                            User user, String orgRef, String roomRef) {
         Reservation oldReservation = enrolment.getReservation();
         final Reservation reservation = new Reservation();
-        reservation.setEndAt(end.toDate());
-        reservation.setStartAt(start.toDate());
+        reservation.setEndAt(end);
+        reservation.setStartAt(start);
         reservation.setUser(user);
         reservation.setExternalRef(node.get("id").asText());
 
@@ -482,4 +484,6 @@ public class ExternalCalendarController extends CalendarController implements Ex
             return wrapAsPromise(internalServerError(e.getMessage()));
         }
     }
+
+
 }

@@ -4,6 +4,7 @@ import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
@@ -12,14 +13,9 @@ import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
 import helpers.RemoteServerHelper;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamRoom;
-import models.GeneralSettings;
-import models.Language;
-import models.Reservation;
-import models.User;
+import models.*;
 import models.iop.ExternalReservation;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -31,12 +27,16 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.java.JsonDeserializer;
 
 import javax.mail.internet.MimeMessage;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -118,6 +118,23 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         }
     }
 
+    public static class EnrolmentServlet extends HttpServlet {
+
+        @Override
+        protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_OK);
+
+            File file = new File("test/resources/enrolment.json");
+            try (FileInputStream fis = new FileInputStream(file); ServletOutputStream sos = response.getOutputStream()) {
+                IOUtils.copy(fis, sos);
+                sos.flush();
+            } catch (IOException e) {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+        }
+    }
+
     @BeforeClass
     public static void startServer() throws Exception {
         String baseUrl = String.format("/api/organisations/%s/facilities/%s", ORG_REF, ROOM_REF);
@@ -125,24 +142,32 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
                 ImmutableMap.of(
                         SlotServlet.class, String.format("%s/slots", baseUrl),
                         ReservationServlet.class, String.format("%s/reservations", baseUrl),
-                        ReservationRemovalServlet.class, String.format("%s/reservations/%s", baseUrl, RESERVATION_REF)
+                        ReservationRemovalServlet.class, String.format("%s/reservations/%s", baseUrl, RESERVATION_REF),
+                        EnrolmentServlet.class, String.format("/api/enrolments/%s", RESERVATION_REF)
                 )
         );
     }
 
-    private void initialize() throws Exception {
+    private void initialize(User other) throws Exception {
         Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
-        exam = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED).findList().get(0);
-        exam.setExamActiveStartDate(DateTime.now().minusDays(1).toDate());
-        exam.setExamActiveEndDate(DateTime.now().plusDays(1).toDate());
+        exam = Ebean.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findUnique();
+        initExamSectionQuestions(exam);
+        exam.setExamActiveStartDate(DateTime.now().minusDays(1));
+        exam.setExamActiveEndDate(DateTime.now().plusDays(1));
         exam.update();
 
-        user = Ebean.find(User.class, userId);
-        user.setLanguage(Ebean.find(Language.class, "en"));
-        user.update();
+        Long id = other == null ? userId : other.getId();
+
+        if (id != null) {
+            user = Ebean.find(User.class, id);
+            user.setLanguage(Ebean.find(Language.class, "en"));
+            user.update();
+        }
 
         room = Ebean.find(ExamRoom.class, 1L);
         room.setExternalRef(ROOM_REF);
+        room.getExamMachines().get(0).setIpAddress("127.0.0.1");
+        room.getExamMachines().get(0).update();
         room.update();
 
         enrolment = new ExamEnrolment();
@@ -164,7 +189,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testGetSlots() throws Exception {
-        initialize();
+        initialize(null);
         String url = String.format("/integration/iop/calendar/%d/%s?&org=%s&date=%s",
                 exam.getId(), room.getExternalRef(), ORG_REF, ISODateTimeFormat.date().print(LocalDate.now()));
         Result result = get(url);
@@ -180,12 +205,12 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     @RunAsStudent
     public void testGetSlotsWithConflictingReservation() throws Exception {
         // Setup a conflicting reservation
-        initialize();
+        initialize(null);
         Exam exam2 = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED).findList().get(1);
         Reservation reservation = new Reservation();
         reservation.setUser(user);
-        reservation.setStartAt(DateTime.now().plusMinutes(90).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(2).toDate());
+        reservation.setStartAt(DateTime.now().plusMinutes(90));
+        reservation.setEndAt(DateTime.now().plusHours(2));
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
         ExamEnrolment enrolment2 = new ExamEnrolment();
@@ -249,14 +274,14 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         room.setExternalRef(ROOM_REF);
         room.update();
 
-        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
-        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
 
         Result result = request(Helpers.POST, "/integration/iop/reservations", Json.newObject()
                 .put("id", RESERVATION_REF)
                 .put("roomId", ROOM_REF)
-                .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
-                .put("end", ISODateTimeFormat.dateTime().print(end.getTime()))
+                .put("start", ISODateTimeFormat.dateTime().print(start))
+                .put("end", ISODateTimeFormat.dateTime().print(end))
                 .put("user", "studentone@uni.org"));
         assertThat(result.status()).isEqualTo(201);
         Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findUnique();
@@ -274,8 +299,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         Reservation reservation = new Reservation();
         reservation.setExternalRef(RESERVATION_REF);
-        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
 
@@ -286,9 +311,80 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     }
 
     @Test
+    public void testProvideEnrolment() throws Exception {
+        initialize(Ebean.find(User.class, 1));
+        Reservation reservation = new Reservation();
+        reservation.setExternalRef(RESERVATION_REF);
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
+        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.save();
+
+        enrolment.setReservation(reservation);
+        enrolment.update();
+
+        Result result = get("/integration/iop/reservations/" + RESERVATION_REF);
+        assertThat(result.status()).isEqualTo(200);
+        JsonNode body = Json.parse(contentAsString(result));
+        Exam ee = deserialize(Exam.class, body);
+        assertThat(ee.getId()).isEqualTo(exam.getId());
+        assertThat(ee.getExamSections()).hasSize(exam.getExamSections().size());
+        assertThat(
+                ee.getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum()).isEqualTo(
+                exam.getExamSections().stream().mapToLong(es -> es.getSectionQuestions().size()).sum()
+        );
+    }
+
+    @Test
+    public void testLoginAsTemporalStudentVisitor() throws Exception {
+        initialize(null);
+        String eppn = "newuser@test.org";
+        assertThat(user).isNull();
+
+        Reservation reservation = new Reservation();
+        reservation.setExternalUserRef(eppn);
+        reservation.setExternalRef(RESERVATION_REF);
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
+        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.save();
+
+        login(eppn);
+
+        User newUser = Ebean.find(User.class).where().eq("eppn", eppn).findUnique();
+        assertThat(newUser).isNotNull();
+        assertThat(newUser.getRoles()).hasSize(1);
+        assertThat(newUser.getRoles().get(0).getName()).isEqualTo(Role.Name.TEACHER.toString());
+
+        reservation = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findUnique();
+        assertThat(reservation.getUser().getId()).isEqualTo(newUser.getId());
+
+        // Try do some teacher stuff, see that it is not allowed
+        Result result = get("/app/reviewerexams");
+        assertThat(result.status()).isEqualTo(403);
+        // See that user is directed to waiting room
+        result = get("/app/enrolments");
+        assertThat(result.headers().containsKey("x-exam-upcoming-exam")).isTrue();
+
+        // see that enrolment was created for the user
+
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation.externalRef",
+                RESERVATION_REF).findUnique();
+        assertThat(enrolment).isNotNull();
+        assertThat(enrolment.getExam()).isNull();
+        assertThat(enrolment.getExternalExam()).isNotNull();
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(enrolment.getExternalExam().getContent());
+        JsonNode node = mapper.readTree(json);
+        Exam parsedExam = JsonDeserializer.deserialize(Exam.class, node);
+        assertThat(parsedExam.getId()).isEqualTo(exam.getId());
+
+    }
+
+    @Test
     @RunAsStudent
     public void testRequestReservation() throws Exception {
-        initialize();
+        initialize(null);
 
         ObjectNode json = Json.newObject();
         json.put("start", ISODateTimeFormat.dateTime().print(DateTime.now().plusHours(1)));
@@ -296,6 +392,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.put("examId", exam.getId());
         json.put("orgId", ORG_REF);
         json.put("roomId", ROOM_REF);
+        json.put("requestingOrg", "foobar");
 
         Result result = request(Helpers.POST, "/integration/iop/reservations/external", json);
         assertThat(result.status()).isEqualTo(201);
@@ -322,22 +419,22 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     @RunAsStudent
     public void testRequestReservationPreviousInEffect() throws Exception {
         // Setup
-        initialize();
+        initialize(null);
 
-        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
-        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
 
         Reservation reservation = new Reservation();
-        reservation.setStartAt(DateTime.now().minusMinutes(10).toDate());
-        reservation.setEndAt(DateTime.now().plusMinutes(10).toDate());
+        reservation.setStartAt(DateTime.now().minusMinutes(10));
+        reservation.setEndAt(DateTime.now().plusMinutes(10));
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();
 
         ObjectNode json = Json.newObject();
-        json.put("start", ISODateTimeFormat.dateTime().print(start.getTime()));
-        json.put("end", ISODateTimeFormat.dateTime().print(end.getTime()));
+        json.put("start", ISODateTimeFormat.dateTime().print(start));
+        json.put("end", ISODateTimeFormat.dateTime().print(end));
         json.put("examId", exam.getId());
         json.put("orgId", ORG_REF);
         json.put("roomId", ROOM_REF);
@@ -354,12 +451,12 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testRequestReservationRemoval() throws Exception {
-        initialize();
+        initialize(null);
 
         Reservation reservation = new Reservation();
         reservation.setUser(user);
-        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
         reservation.setExternalRef(RESERVATION_REF);
         ExternalReservation er = new ExternalReservation();
         er.setOrgRef(ORG_REF);

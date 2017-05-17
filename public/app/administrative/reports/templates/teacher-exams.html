@@ -1,0 +1,72 @@
+<div class="top-row">
+    <h4 class="col-md-12">
+        {{'sitnet_get_all_teacher_exams' | translate}}
+    </h4>
+</div>
+<div class="bottom-row">
+
+    <div class="col-md-2">
+        <label for="teacher">{{'sitnet_teacher' | translate}}</label>
+        <div id="teacher" class="form-group">
+            <ui-select ng-model="$ctrl.selectedFields.teacher">
+                <ui-select-match allow-clear="true" placeholder="{{'sitnet_teacher' | translate}}">
+                    {{$select.selected.name}}
+                </ui-select-match>
+                <ui-select-choices repeat="teacher in ($ctrl.teachers | filter: $select.search | limitTo: 50) track by teacher.id">
+                    <div>{{teacher.name}}</div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
+    <!-- Start & End time datepickers -->
+    <div ng-controller="DatepickerCtrl">
+        <div class="col-md-4">
+            <label for="startAt">{{'sitnet_start_time' | translate}}</label>
+
+            <div id="startAt" class="input-group">
+                <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dateService.startDate"
+                       is-open="startDateOpened" datepicker-options="dateOptions" ng-required="true"
+                       close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}"
+                       toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}">
+
+                <span class="input-group-btn">
+                    <button class="btn btn-default" ng-click="openStartDate($event)">
+                        <i class="fa fa-calendar"></i>
+                    </button>
+                </span>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <label for="endAt">{{'sitnet_end_time' | translate}}</label>
+
+            <div id="endAt" class="input-group">
+                <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dateService.endDate"
+                       is-open="endDateOpened" min="dateService.startDate" datepicker-options="dateOptions"
+                       date-disabled="disabled(date, mode)"
+                       ng-required="true" close-text="{{'sitnet_close' | translate}}"
+                       current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                       clear-text="{{'sitnet_clear' | translate}}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" ng-click="openEndDate($event)">
+                        <i class="fa fa-calendar"></i>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <label for="link">&nbsp;</label>
+
+        <div id="link">
+            <a ng-click="$ctrl.getTeacherExamsByDate($ctrl.selectedFields.teacher, $ctrl.dateService.startDate, $ctrl.dateService.endDate)"
+               class="fa-stack fa-lg pointer pull-right" download popover-trigger="mouseenter"
+               uib-popover="{{'sitnet_download' | translate}}">
+                <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
+                <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
+            </a>
+        </div>
+    </div>
+</div>

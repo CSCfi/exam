@@ -1,6 +1,6 @@
 @(webJarAssets: WebJarAssets, isProd: Boolean)
 <!DOCTYPE html>
-<html ng-app="exam">
+<html lang="en" ng-app="exam">
     <head>
         <title>Exam</title>
 
@@ -102,34 +102,61 @@
             <script src="@routes.Assets.at("components/truncate.js")" type="text/javascript"></script>
 
                 <!-- app general -->
-            <script src="@routes.Assets.at("app/app.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/routes.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/app.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/app.constant.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/app.config.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/app.run.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/directives.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/filters.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/httpInterceptor.js")" type="text/javascript"></script>
 
-                <!-- administrative -->
-            <script src="@routes.Assets.at("app/administrative/settingsResource.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/administrative/reportResource.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/administrative/settingsController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/administrative/reports/reportController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/administrative/statistics/statisticsController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/administrative/userController.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/session/session.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/session/session.service.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/session/session.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/session/logout.component.js")" type="text/javascript"></script>
+
+
+            <!-- administrative -->
+            <script src="@routes.Assets.at("app/administrative/administrative.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/administrative/settings/settings.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/administrative/settings/settings.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/administrative/settings/settings.service.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/administrative/users/users.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/administrative/users/users.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/administrative/users/users.service.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/administrative/reports/reports.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/administrative/reports/reports.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/administrative/reports/reports.service.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/administrative/statistics/statistics.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/administrative/statistics/statistics.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/administrative/statistics/statistics.service.js")" type="text/javascript"></script>
 
                 <!-- common -->
-            <script src="@routes.Assets.at("app/common/dashboardService.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/common/sessionService.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/common/userResource.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/common/sessionController.js")" type="text/javascript"> </script>
-            <script src="@routes.Assets.at("app/common/navigationController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/common/dashboardController.js")" type="text/javascript"></script>
+
+
+            <script src="@routes.Assets.at("app/navigation/navigation.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/navigation/navigation.service.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/navigation/navigation.component.js")" type="text/javascript"></script>
+
+            <script src="@routes.Assets.at("app/dashboard/dashboard.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/dashboard/dashboard.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/dashboard/student/studentDashboard.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/dashboard/student/studentDashboard.service.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/dashboard/student/studentDashboard.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/dashboard/teacher/teacherDashboard.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/dashboard/teacher/teacherDashboard.service.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/dashboard/teacher/teacherDashboard.component.js")" type="text/javascript"></script>
+
+
+            <script src="@routes.Assets.at("app/common/settingsResource.js")" type="text/javascript"></script>
 
                 <!-- enrolment -->
             <script src="@routes.Assets.at("app/enrolment/wrongRoomService.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/enrolment/waitingRoomService.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/enrolment/enrollResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/enrolment/enrollController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/enrolment/examFeedbackController.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/exam/student/examFeedbackController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/enrolment/waitingRoomController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/enrolment/wrongMachineController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/enrolment/enrolmentService.js")" type="text/javascript"></script>
@@ -157,15 +184,19 @@
             <script src="@routes.Assets.at("app/facility/softwareResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/facility/examMachineResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/facility/roomController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/facility/machineController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/facility/machineModalController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/facility/accessibilityController.js")" type="text/javascript"></script>
 
-                <!-- question -->
+
+            <script src="@routes.Assets.at("app/facility/facility.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/facility/accessibility/accessibility.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/facility/accessibility/accessibility.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/facility/machines/machines.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/facility/machines/machines.service.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/facility/machines/machine.component.js")" type="text/javascript"></script>
+
+            <!-- question -->
             <script src="@routes.Assets.at("app/question/questionResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/question/editor/examSectionQuestionResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/question/editor/questionController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/question/editor/questionOwnerController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/question/editor/examSectionQuestionController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/question/questionService.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/question/libraryController.js")" type="text/javascript"></script>
@@ -173,11 +204,13 @@
             <script src="@routes.Assets.at("app/question/editor/tagTypeaheadController.js")" type="text/javascript"></script>
 
                 <!-- reservation -->
+            <script src="@routes.Assets.at("app/reservation/reservation.module.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/reservation/reservations.component.js")" type="text/javascript"></script>
+
             <script src="@routes.Assets.at("app/reservation/reservationResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/reservation/reservationService.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/reservation/calendarController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/reservation/calendarResource.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/reservation/reservationController.js")" type="text/javascript"></script>
 
                 <!-- review -->
             <script src="@routes.Assets.at("app/review/examReviewController.js")" type="text/javascript"></script>
@@ -206,170 +239,11 @@
         }
     </head>
 
-    <body ng-controller="SessionCtrl">
-        <div ng-controller="NavigationCtrl">
-            <div ng-if="user.isTeacher || user.isStudent" ng-hide="examStarted" id="vmenu" class="hidden-print">
-                <div class="nav-container">
-                    <div class="nav-header">
-                        @*Logo*@
-                        <div class="logo">
-                            <div class="hidden-mobile">
-                                @*<img src="@routes.Assets.at("assets/images/exam-logo-new.png")" alt="exam" />*@
-                                <img src="@routes.Assets.at("assets/images/exam-logo-new.svg")" alt="exam" onerror="this.onerror = null;
-                                this.src = 'assets/images/exam-logo-new.png'" />
-                            </div>
-                            <div class="visible-mobile">
-                                <div class="mobile-menu" ng-click="openMenu();" ng-hide="!user">
-                                    @*<img src="@routes.Assets.at("assets/images/icon_menu_mobile.png")" alt="exam" />*@
-                                    <img src="@routes.Assets.at("assets/images/icon_menu_mobile.svg")" alt="exam" onerror="this.onerror = null;
-                                    this.src = 'assets/images/icon_menu_mobile.png'" />
-                                </div>
-                                @*<img src="@routes.Assets.at("assets/images/exam-logo-mobile.png")" alt="exam" />*@
-                                <img src="@routes.Assets.at("assets/images/exam-logo-mobile.svg")" alt="exam" onerror="this.onerror = null;
-                                this.src = 'assets/images/exam-logo-mobile.png'" />
-                            </div>
-                        </div>
-                        @*Version number*@
-                        <div ng-hide="!appVersion">
-                            <div class="app-version">
-                                <strong>v. {{ appVersion }}</strong>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    @*Menu items*@
-                    <div class="nav-body">
-                        <ul class="links">
-                            <li ng-class="{selected: isActive(link)}" ng-repeat="link in links" ng-show="{{link.visible}}">
-                                <a class="menu_item_link" href="{{link.href}}">
-                                    <img width="18" src="@routes.NavbarAssets.at("assets/images/nav/{{link.icon_png}}")" alt="{{ link.name | translate }}" />
-                                    <span class="menu-item">{{ link.name | translate }}</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="nav-body-mobile" ng-show="mobileMenuOpen">
-                        <ul class="links">
-                            <li ng-class="{selected: isActive(link)}" ng-repeat="link in links" ng-show="{{link.visible}}">
-                                <a class="menu_item_link" href="{{link.href}}">
-                                    <img width="18" src="@routes.NavbarAssets.at("assets/images/nav/{{link.icon_png}}")" alt="{{ link.name | translate }}" />
-                                    <span class="menu-item">{{ link.name | translate }}</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    @*User info*@
-                    <div class="nav-user" ng-hide="!user">
-                        <div class="user">
-                            <div class="user-name">
-                                <div class="user-logo"><img src="@routes.Assets.at("assets/images/icon_menu_user.png")" alt="{{user.firstName}}&nbsp;{{user.lastName}}" /></div>
-                                <div class="user-data">
-                                    {{user.firstName}}&nbsp;{{user.lastName}}<br/><span ng-show="user.isStudent">
-                                    opiskelija</span></div>
-
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="nav-footer">
-                        <div class="locale-bar">
-                            <span class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></span>
-                            <span class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></span>
-                            <span class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></span>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div ng-if="user.isAdmin" ng-hide="examStarted" id="vmenu-admin" ng-init="minimizeNavigation = !canDisplayFullNavbar()">
-                <div class="nav-container">
-                    <div ng-class="minimizeNavigation ? 'minimize' : ''">
-                        <div class="nav-header">
-                            @*Logo*@
-                            <div class="logo">
-                                <div ng-hide="minimizeNavigation">
-                                    <img src="@routes.Assets.at("assets/images/exam-logo-black-small.png")" alt="exam" />
-                                </div>
-                                <div ng-hide="!minimizeNavigation">
-                                    @*<img src="@routes.Assets.at("assets/images/Exam_logo_vert.png")" alt="exam" />*@
-                                    <img width="50" height="90" src="@routes.Assets.at("assets/images/exam-logo-black-small-v.png")" alt="exam" />
-                                </div>
-                            </div>
-                            @*Version number*@
-                            <div ng-hide="minimizeNavigation || !appVersion" >
-                                <div class="app-version">
-                                    <strong>v. {{ appVersion }}</strong>
-                                </div>
-                            </div>
-                            @*Language selection*@
-                            <div ng-hide="minimizeNavigation">
-                                <div class="locale-bar">
-                                    <span class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></span>
-                                    <span class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></span>
-                                    <span class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></span>
-                                </div>
-                            </div>
-                            <div ng-hide="!minimizeNavigation">
-                                <div class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></div>
-                                <div class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></div>
-                                <div class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></div>
-                            </div>
-                            @*User info*@
-                            <div ng-hide="minimizeNavigation" >
-                                <div class="user">
-                                    <div class="user-name">
-                                        <p>{{user.firstName}}<br>{{user.lastName}}&nbsp;</p>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    @*Menu items*@
-                    <div ng-class="minimizeNavigation ? 'minimize' : ''">
-                        <div class="nav-body">
-                            <nav ng-class="minimizeNavigation ? 'minimize' : ''">
-                                <ul class="links">
-                                    <li ng-class="{selected: isActive(link)}" ng-repeat="link in links" ng-show="{{link.visible}}">
-                                        <a href="{{link.href}}">
-                                            <i class="fa fa-2x fa-fw {{link.class}}"></i>
-                                            <span class="menu-item">{{ link.name | translate }}</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
-                    <div ng-class="minimizeNavigation ? 'minimize' : ''">
-                        <div class="nav-footer">
-                            <div ng-click="minimizeNavigation = !minimizeNavigation" class="minify">
-                                <div ng-hide="minimizeNavigation">
-                                    <i class="pointer fa fa-3x fa-chevron-left hit"></i>
-                                </div>
-                                <div ng-hide="!minimizeNavigation">
-                                    <i class="pointer fa fa-3x fa-chevron-right hit"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            @*App content*@
-            <div id="mainView" class="wide-container-fluid"
-                ng-class="{'vmenu-on': !examStarted && !user.isAdmin, 'vmenu-on-admin': user.isAdmin}">
-                <div ng-view />
-            </div>
-
-        </div>
-
-
+    <body>
+        <session>
+        </session>
     </body>
+
 </html>
 
 

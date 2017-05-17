@@ -186,8 +186,8 @@ public class RoomController extends BaseController {
                 // Deliberately use first of Jan to have no DST in effect
                 DateTime startTime = DateTime.parse(block.get("start").asText(), formatter).withDayOfYear(1);
                 DateTime endTime = DateTime.parse(block.get("end").asText(), formatter).withDayOfYear(1);
-                dwh.setStartTime(startTime.toDate());
-                dwh.setEndTime(endTime.toDate());
+                dwh.setStartTime(startTime);
+                dwh.setEndTime(endTime);
                 result.add(dwh);
             }
         }
@@ -213,8 +213,8 @@ public class RoomController extends BaseController {
                 copy.setRoom(examRoom);
                 DateTime end = new DateTime(blueprint.getEndTime());
                 int offset = DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(end);
-                int endMillisOfDay = DateTimeUtils.resolveEndWorkingHourMillis(end.toDate(), offset) - offset;
-                copy.setEndTime(end.withMillisOfDay(endMillisOfDay).toDate());
+                int endMillisOfDay = DateTimeUtils.resolveEndWorkingHourMillis(end, offset) - offset;
+                copy.setEndTime(end.withMillisOfDay(endMillisOfDay));
                 copy.setTimezoneOffset(offset);
                 copy.save();
                 previous.add(copy);

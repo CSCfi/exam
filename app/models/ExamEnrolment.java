@@ -1,14 +1,17 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import models.api.CountsAsTrial;
 import models.base.GeneratedIdentityModel;
+import models.json.ExternalExam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.joda.time.DateTime;
+import util.java.DateTimeAdapter;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.Date;
 
 
 @Entity
@@ -22,11 +25,16 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     @JsonBackReference
     private Exam exam;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "external_exam_id")
+    private ExternalExam externalExam;
+
     @OneToOne(cascade = CascadeType.REMOVE)
     private Reservation reservation;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date enrolledOn;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime enrolledOn;
 
     private String information;
 
@@ -40,11 +48,11 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
         this.user = user;
     }
 
-    public Date getEnrolledOn() {
+    public DateTime getEnrolledOn() {
         return enrolledOn;
     }
 
-    public void setEnrolledOn(Date enrolledOn) {
+    public void setEnrolledOn(DateTime enrolledOn) {
         this.enrolledOn = enrolledOn;
     }
 
@@ -54,6 +62,14 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
 
     public void setExam(Exam exam) {
         this.exam = exam;
+    }
+
+    public ExternalExam getExternalExam() {
+        return externalExam;
+    }
+
+    public void setExternalExam(ExternalExam externalExam) {
+        this.externalExam = externalExam;
     }
 
     public Reservation getReservation() {
@@ -96,7 +112,7 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
 
     @Override
     @Transient
-    public Date getTrialTime() {
+    public DateTime getTrialTime() {
         return reservation == null ? null : reservation.getStartAt();
     }
 

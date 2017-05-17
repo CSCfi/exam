@@ -109,7 +109,7 @@ public class ReportController extends BaseController {
 
     private boolean applyExamFilter(Exam e, Optional<String> start, Optional<String> end) {
         Boolean result = e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && !e.getExamParticipations().isEmpty();
-        Long created = e.getCreated().getTime();
+        DateTime created = e.getCreated();
         if (start.isPresent()) {
             DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
             result = result && startDate.isBefore(created);
