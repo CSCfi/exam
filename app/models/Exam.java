@@ -542,7 +542,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
                     Question questionCopy = esq.getQuestion();
                     AppUtil.setCreator(questionCopy, user);
                     AppUtil.setModifier(questionCopy, user);
-                    questionCopy.save();
+                    questionCopy.update();
                 }
                 esq.save();
             }
