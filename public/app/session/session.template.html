@@ -1,6 +1,6 @@
 <div ng-if="!$ctrl.user" ng-include="$ctrl.loginTemplatePath" />
 <navigation ng-hide="$ctrl.hideNavBar"></navigation>
 <div id="mainView" class="wide-container-fluid"
-     ng-class="{'vmenu-on': !$ctrl.examStarted && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
+     ng-class="{'vmenu-on': !$ctrl.hideNavBar && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
     <div ng-view/>
 </div>

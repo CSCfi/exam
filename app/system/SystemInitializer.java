@@ -110,9 +110,10 @@ class SystemInitializer {
         });
     }
 
-    private int secondsUntilNextMondayRun(int scheduledHour) {
+    private int secondsUntilNextMondayRun() {
         DateTime now = DateTime.now();
-        int adjustedHours = scheduledHour;
+        // Every Monday at 5AM UTC
+        int adjustedHours = 5;
         if (!AppUtil.getDefaultTimeZone().isStandardOffset(now.getMillis())) {
             // Have the run happen an hour earlier to take care of DST offset
             adjustedHours -= 1;
@@ -128,11 +129,11 @@ class SystemInitializer {
             nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
         }
         // Case for: now there's no DST but by next run there will be.
-        if (adjustedHours == scheduledHour && !AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
+        if (adjustedHours == 5 && !AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
             nextRun = nextRun.minusHours(1);
         }
         // Case for: now there's DST but by next run there won't be
-        else if (adjustedHours != scheduledHour && AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
+        else if (adjustedHours != 5 && AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
             nextRun = nextRun.plusHours(1);
         }
 
@@ -143,8 +144,7 @@ class SystemInitializer {
     }
 
     private void scheduleWeeklyReport() {
-        // Every Monday at 5AM UTC
-        FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(5), TimeUnit.SECONDS);
+        FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(), TimeUnit.SECONDS);
         Cancellable reportTask = tasks.remove("REPORT_SENDER");
         if (reportTask != null) {
             reportTask.cancel();

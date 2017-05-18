@@ -12,18 +12,16 @@ import controllers.SettingsController;
 import controllers.StudentExamController;
 import controllers.base.BaseController;
 import controllers.iop.api.ExternalExamAPI;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamParticipation;
-import models.GeneralSettings;
-import models.Reservation;
-import models.User;
+import models.*;
 import models.json.ExternalExam;
+import models.questions.Question;
 import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
+import util.AppUtil;
 import util.java.JsonDeserializer;
 
 import javax.inject.Inject;
@@ -31,6 +29,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -40,9 +40,74 @@ public class ExternalExamController extends BaseController implements ExternalEx
     @Inject
     private WSClient wsClient;
 
+    private void processSections(Exam src, Exam dst, User user) {
+        Set<ExamSection> sections = new TreeSet<>();
+        sections.addAll(src.getExamSections());
+        for (ExamSection es : sections) {
+            ExamSection section = new ExamSection();
+            BeanUtils.copyProperties(es, section, "id", "exam", "sectionQuestions");
+            section.setExam(dst);
+            AppUtil.setCreator(section, user);
+            AppUtil.setModifier(section, user);
+            for (ExamSectionQuestion esq : es.getSectionQuestions()) {
+                ExamSectionQuestion esqCopy = new ExamSectionQuestion();
+                BeanUtils.copyProperties(esq, esqCopy, "id", "question", "options", "essayAnswer", "clozeTestAnswer");
+                Question blueprint = esq.getQuestion().copy();
+                blueprint.setParent(esq.getQuestion());
+                blueprint.save();
+                esqCopy.setQuestion(blueprint);
+                for (ExamSectionQuestionOption o : esq.getOptions()) {
+                    ExamSectionQuestionOption esqoCopy = new ExamSectionQuestionOption();
+                    BeanUtils.copyProperties(o, esqoCopy, "id", "");
+                    //esq.getOptions().add(o.copy());
+                }
+                //section.getSectionQuestions().add(esq.copy(!produceStudentExamSection));
+            }
+        }
 
-    private void persistExamAttainment(Exam src) {
+    }
 
+
+    private Exam createCopy(Exam src, Exam parent, User user) {
+        Exam clone = new Exam();
+        BeanUtils.copyProperties(src, clone, "id", "parent", "examSections", "examEnrolments", "examParticipations",
+                "examInspections", "autoEvaluationConfig", "creator", "created", "examOwners");
+        clone.setParent(parent);
+        AppUtil.setCreator(clone, user);
+        AppUtil.setModifier(clone, user);
+        clone.generateHash();
+        clone.save();
+
+        if (src.getAutoEvaluationConfig() != null) {
+            AutoEvaluationConfig configClone = src.getAutoEvaluationConfig().copy();
+            configClone.setExam(clone);
+            configClone.save();
+            clone.setAutoEvaluationConfig(configClone);
+        }
+        for (ExamInspection ei : src.getExamInspections()) {
+            ExamInspection inspection = new ExamInspection();
+            BeanUtils.copyProperties(ei, inspection, "id", "exam");
+            inspection.setExam(clone);
+            inspection.save();
+        }
+        Set<ExamSection> sections = new TreeSet<>();
+        sections.addAll(src.getExamSections());
+        for (ExamSection es : sections) {
+            ExamSection esCopy = es.copy(clone, true);
+            AppUtil.setCreator(esCopy, user);
+            AppUtil.setModifier(esCopy, user);
+            esCopy.save();
+            for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
+                Question questionCopy = esq.getQuestion();
+                AppUtil.setCreator(questionCopy, user);
+                AppUtil.setModifier(questionCopy, user);
+                questionCopy.save();
+                esq.save();
+            }
+            clone.getExamSections().add(esCopy);
+        }
+        clone.save();
+        return clone;
     }
 
 
@@ -58,6 +123,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             return badRequest();
         }
         Exam content = ee.deserialize();
+        Exam parent = Ebean.find(Exam.class).where().eq("hash", content.getHash()).findUnique();
         // TODO: deep copy and save
         content.save();
         enrolment.setExam(content);
