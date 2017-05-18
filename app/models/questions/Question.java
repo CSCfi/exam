@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Entity
@@ -289,12 +290,16 @@ public class Question extends OwnedModel implements AttachmentContainer {
         return new HashCodeBuilder().append(id).build();
     }
 
-    public Question copy() {
+    private Question doCopy(Map<Long, MultipleChoiceOption> optionMap) {
         Question question = new Question();
         BeanUtils.copyProperties(this, question, "id", "options", "tags", "children");
         question.setParent(this);
         for (MultipleChoiceOption o : options) {
-            question.getOptions().add(o.copy());
+            if (optionMap == null) {
+                question.getOptions().add(o.copy());
+            } else {
+                optionMap.put(o.getId(), o.copy());
+            }
         }
         if (attachment != null) {
             Attachment copy = new Attachment();
@@ -302,6 +307,14 @@ public class Question extends OwnedModel implements AttachmentContainer {
             question.setAttachment(copy);
         }
         return question;
+    }
+
+    public Question copy() {
+        return doCopy(null);
+    }
+
+    public Question copy(Map<Long, MultipleChoiceOption> optionMap) {
+        return doCopy(optionMap);
     }
 
     @Override

@@ -10,18 +10,14 @@ import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
+import play.Logger;
 
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -162,21 +158,39 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     }
 
     ExamSectionQuestion copy(boolean preserveOriginalQuestion) {
-        ExamSectionQuestion esq = new ExamSectionQuestion();
-        BeanUtils.copyProperties(this, esq, "id", "options");
+        ExamSectionQuestion esqCopy = new ExamSectionQuestion();
+        BeanUtils.copyProperties(this, esqCopy, "id", "options");
         Question blueprint;
-        if (!preserveOriginalQuestion) {
-            blueprint = question.copy();
+        if (preserveOriginalQuestion) {
+            // Use the existing question references, no copying
+            blueprint = question;
+            options.forEach(o -> esqCopy.getOptions().add(o.copy()));
+        } else {
+            // This is a little bit tricky. Need to map the original question options with copied ones so they can be
+            // associated with both question and exam section question options :)
+            Map<Long, MultipleChoiceOption> optionMap = new HashMap<>();
+            blueprint = question.copy(optionMap);
             blueprint.setParent(question);
             blueprint.save();
-        } else {
-            blueprint = question;
+            optionMap.forEach((k, optionCopy) -> {
+                optionCopy.setQuestion(blueprint);
+                optionCopy.save();
+                Optional<ExamSectionQuestionOption> esqoo = options.stream()
+                        .filter(o -> o.getOption().getId().equals(k))
+                        .findFirst();
+                if (esqoo.isPresent()) {
+                    ExamSectionQuestionOption esqo = esqoo.get();
+                    ExamSectionQuestionOption esqoCopy = esqo.copy();
+                    esqoCopy.setOption(optionCopy);
+                    esqCopy.getOptions().add(esqoCopy);
+                } else {
+                    Logger.error("Failed to copy a multi-choice question option!");
+                    throw new RuntimeException();
+                }
+            });
         }
-        esq.setQuestion(blueprint);
-        for (ExamSectionQuestionOption o : options) {
-            esq.getOptions().add(o.copy());
-        }
-        return esq;
+        esqCopy.setQuestion(blueprint);
+        return esqCopy;
     }
 
     @Override
@@ -344,7 +358,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         if (score > 0) {
             List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() > 0)
                     .collect(Collectors.toList());
-            BigDecimal delta = calculateOptionScores(score*-1, opts);
+            BigDecimal delta = calculateOptionScores(score * -1, opts);
             if (opts.size() > 0) {
                 ExamSectionQuestionOption first = opts.get(0);
                 first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
@@ -352,7 +366,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         } else if (score < 0) {
             List<ExamSectionQuestionOption> opts = options.stream().filter(o -> o.getScore() < 0)
                     .collect(Collectors.toList());
-            BigDecimal delta = calculateOptionScores(score*-1, opts);
+            BigDecimal delta = calculateOptionScores(score * -1, opts);
             if (opts.size() > 0) {
                 ExamSectionQuestionOption first = opts.get(0);
                 first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
