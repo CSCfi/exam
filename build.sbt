@@ -1,6 +1,6 @@
 name := "exam"
 
-version := "3.2.9"
+version := "3.2.10"
 
 lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
