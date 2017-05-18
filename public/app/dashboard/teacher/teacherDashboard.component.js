@@ -3,7 +3,7 @@ angular.module("dashboard.teacher")
     .component('teacherDashboard', {
         templateUrl: '/assets/app/dashboard/teacher/teacherDashboard.template.html',
         controller: ['TeacherDashboard', 'examService', 'dateService', 'Session', 'EXAM_CONF', 'ExamRes',
-            'dialogs', '$translate', '$location', '$filter', '$http',
+            'dialogs', '$translate', '$location', '$filter',
             function (TeacherDashboard, examService, dateService, Session, EXAM_CONF, ExamRes, dialogs,
                       $translate, $location, $filter) {
 
@@ -79,7 +79,7 @@ angular.module("dashboard.teacher")
                         var owner = exam.examOwners.filter(function (own) {
                             return (own.id === userId);
                         });
-                        if (owner.length > 0 || (owner.length == 0 && exam.unassessedCount > 0)) {
+                        if (owner.length > 0 || (owner.length === 0 && exam.unassessedCount > 0)) {
                             return exam;
                         }
                         return false;
@@ -90,7 +90,7 @@ angular.module("dashboard.teacher")
                         var owner = exam.examOwners.filter(function (own) {
                             return (own.id === userId);
                         });
-                        if (owner.length > 0 || (owner.length == 0 && exam.unassessedCount > 0)) {
+                        if (owner.length > 0 || (owner.length === 0 && exam.unassessedCount > 0)) {
                             return exam;
                         }
                         return false;
@@ -113,16 +113,16 @@ angular.module("dashboard.teacher")
                     dialog.result.then(function (btn) {
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
                             toastr.success($translate.instant('sitnet_exam_removed'));
-                            if (listing == 'archived') {
+                            if (listing === 'archived') {
                                 ctrl.archivedExams.splice(ctrl.archivedExams.indexOf(exam), 1);
                             }
-                            if (listing == 'finished') {
+                            if (listing === 'finished') {
                                 ctrl.finishedExams.splice(ctrl.finishedExams.indexOf(exam), 1);
                             }
-                            if (listing == 'draft') {
+                            if (listing === 'draft') {
                                 ctrl.draftExams.splice(ctrl.draftExams.indexOf(exam), 1);
                             }
-                            if (listing == 'active') {
+                            if (listing === 'active') {
                                 ctrl.activeExams.splice(ctrl.activeExams.indexOf(exam), 1);
                             }
 

@@ -26,7 +26,7 @@ angular.module("dashboard.student")
                 };
 
                 ctrl.showInstructions = function (id) {
-                    ctrl.showInst = ctrl.showInst == id ? 0 : id;
+                    ctrl.showInst = ctrl.showInst === id ? 0 : id;
                 };
 
                 ctrl.showRoomGuide = function (id) {
@@ -39,7 +39,7 @@ angular.module("dashboard.student")
                                 ctrl.currentLanguageText = currentLanguage();
                             });
                     }
-                    ctrl.showGuide = ctrl.showGuide == id ? 0 : id;
+                    ctrl.showGuide = ctrl.showGuide === id ? 0 : id;
                 };
 
                 ctrl.showMaturityInstructions = function (enrolment) {

@@ -1,8 +1,7 @@
 'use strict';
 
-angular.module('exam').run(['$http', '$route', '$interval', '$timeout', '$sessionStorage', 'Session', 'EXAM_CONF',
-    function ($http, $route, $interval, $timeout, $sessionStorage, Session, EXAM_CONF) {
-
+angular.module('exam').run(['$http', '$sessionStorage', 'Session', 'EXAM_CONF',
+    function ($http, $sessionStorage, Session, EXAM_CONF) {
         var user = $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY];
         if (user) {
             if (!user.loginRole) {
