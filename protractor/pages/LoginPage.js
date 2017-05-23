@@ -5,8 +5,8 @@ var LoginPage = function () {
     };
 
     this.login = function (username, password) {
-        element(by.model('credentials.username')).sendKeys(username);
-        element(by.model('credentials.password')).sendKeys(password);
+        element(by.model('$ctrl.credentials.username')).sendKeys(username);
+        element(by.model('$ctrl.credentials.password')).sendKeys(password);
         element(by.id('submit')).click();
     };
 
