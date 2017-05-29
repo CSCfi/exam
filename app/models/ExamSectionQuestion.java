@@ -172,6 +172,42 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         this.expectedWordCount = expectedWordCount;
     }
 
+    ExamSectionQuestion copyWithAnswers() {
+        ExamSectionQuestion esqCopy = new ExamSectionQuestion();
+        BeanUtils.copyProperties(this, esqCopy, "id", "options", "essayAnswer", "clozeTestAnswer");
+        // This is a little bit tricky. Need to map the original question options with copied ones so they can be
+        // associated with both question and exam section question options :)
+        Map<Long, MultipleChoiceOption> optionMap = new HashMap<>();
+        Question blueprint = question.copy(optionMap);
+        blueprint.setParent(question);
+        blueprint.save();
+        optionMap.forEach((k, optionCopy) -> {
+            optionCopy.setQuestion(blueprint);
+            optionCopy.save();
+            Optional<ExamSectionQuestionOption> esqoo = options.stream()
+                    .filter(o -> o.getOption().getId().equals(k))
+                    .findFirst();
+            if (esqoo.isPresent()) {
+                ExamSectionQuestionOption esqo = esqoo.get();
+                ExamSectionQuestionOption esqoCopy = esqo.copyWithAnswer();
+                esqoCopy.setOption(optionCopy);
+                esqCopy.getOptions().add(esqoCopy);
+            } else {
+                Logger.error("Failed to copy a multi-choice question option!");
+                throw new RuntimeException();
+            }
+        });
+        esqCopy.setQuestion(blueprint);
+        // Essay Answer
+        if (essayAnswer != null) {
+            esqCopy.setEssayAnswer(essayAnswer.copy());
+        }
+        if (clozeTestAnswer != null) {
+            esqCopy.setClozeTestAnswer(clozeTestAnswer.copy());
+        }
+        return esqCopy;
+    }
+
     ExamSectionQuestion copy(boolean preserveOriginalQuestion) {
         ExamSectionQuestion esqCopy = new ExamSectionQuestion();
         BeanUtils.copyProperties(this, esqCopy, "id", "options");

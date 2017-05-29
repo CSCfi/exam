@@ -2,7 +2,9 @@ package system.actors;
 
 import akka.actor.UntypedActor;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typesafe.config.ConfigFactory;
 import models.ExamEnrolment;
 import models.json.ExternalExam;
@@ -36,8 +38,6 @@ public class ExternalExamSenderActor extends UntypedActor {
     public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Running external exam sender ...", getClass().getCanonicalName());
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
-                .fetch("reservation")
                 .where()
                 .isNotNull("externalExam")
                 .isNull("externalExam.sent")
@@ -56,7 +56,6 @@ public class ExternalExamSenderActor extends UntypedActor {
 
     private void send(ExamEnrolment enrolment) throws IOException {
         URL url = parseUrl(enrolment.getReservation().getExternalRef());
-        JsonNode body = enrolment.getExternalExam().serializeJson();
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, Void> onSuccess = response -> {
             if (response.getStatus() != 201) {
@@ -68,7 +67,10 @@ public class ExternalExamSenderActor extends UntypedActor {
             }
             return null;
         };
-        request.post(body).thenApplyAsync(onSuccess);
+        String json = Ebean.json().toJson(enrolment.getExternalExam(), PathProperties.parse("(*, creator(id))"));
+        ObjectMapper om = new ObjectMapper();
+        JsonNode node = om.readTree(json);
+        request.post(node).thenApplyAsync(onSuccess);
     }
 
     private static URL parseUrl(String reservationRef) throws MalformedURLException {

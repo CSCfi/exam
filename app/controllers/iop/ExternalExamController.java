@@ -17,11 +17,13 @@ import models.json.ExternalExam;
 import models.questions.Question;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
+import play.db.ebean.Transactional;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import util.AppUtil;
+import util.java.AutoEvaluationHandler;
 import util.java.JsonDeserializer;
 
 import javax.inject.Inject;
@@ -40,33 +42,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
     @Inject
     private WSClient wsClient;
 
-    private void processSections(Exam src, Exam dst, User user) {
-        Set<ExamSection> sections = new TreeSet<>();
-        sections.addAll(src.getExamSections());
-        for (ExamSection es : sections) {
-            ExamSection section = new ExamSection();
-            BeanUtils.copyProperties(es, section, "id", "exam", "sectionQuestions");
-            section.setExam(dst);
-            AppUtil.setCreator(section, user);
-            AppUtil.setModifier(section, user);
-            for (ExamSectionQuestion esq : es.getSectionQuestions()) {
-                ExamSectionQuestion esqCopy = new ExamSectionQuestion();
-                BeanUtils.copyProperties(esq, esqCopy, "id", "question", "options", "essayAnswer", "clozeTestAnswer");
-                Question blueprint = esq.getQuestion().copy();
-                blueprint.setParent(esq.getQuestion());
-                blueprint.save();
-                esqCopy.setQuestion(blueprint);
-                for (ExamSectionQuestionOption o : esq.getOptions()) {
-                    ExamSectionQuestionOption esqoCopy = new ExamSectionQuestionOption();
-                    BeanUtils.copyProperties(o, esqoCopy, "id", "");
-                    //esq.getOptions().add(o.copy());
-                }
-                //section.getSectionQuestions().add(esq.copy(!produceStudentExamSection));
-            }
-        }
-
-    }
-
+    @Inject
+    private AutoEvaluationHandler autoEvaluationHandler;
 
     private Exam createCopy(Exam src, Exam parent, User user) {
         Exam clone = new Exam();
@@ -93,7 +70,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         Set<ExamSection> sections = new TreeSet<>();
         sections.addAll(src.getExamSections());
         for (ExamSection es : sections) {
-            ExamSection esCopy = es.copy(clone, true);
+            ExamSection esCopy = es.copyWithAnswers(clone);
             AppUtil.setCreator(esCopy, user);
             AppUtil.setModifier(esCopy, user);
             esCopy.save();
@@ -101,7 +78,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 Question questionCopy = esq.getQuestion();
                 AppUtil.setCreator(questionCopy, user);
                 AppUtil.setModifier(questionCopy, user);
-                questionCopy.save();
+                questionCopy.update();
                 esq.save();
             }
             clone.getExamSections().add(esCopy);
@@ -112,6 +89,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
 
     @SubjectNotPresent
+    @Transactional
     public Result addExamForAssessment(String ref) throws IOException {
         ExamEnrolment enrolment = getPrototype(ref);
         if (enrolment == null) {
@@ -123,14 +101,13 @@ public class ExternalExamController extends BaseController implements ExternalEx
             return badRequest();
         }
         Exam content = ee.deserialize();
-        Exam parent = Ebean.find(Exam.class).where().eq("hash", content.getHash()).findUnique();
-        // TODO: deep copy and save
-        content.save();
-        enrolment.setExam(content);
+        Exam parent = Ebean.find(Exam.class).where().eq("hash", ee.getHash()).findUnique();
+        Exam clone = createCopy(content, parent, enrolment.getUser());
+        enrolment.setExam(clone);
         enrolment.update();
 
         ExamParticipation ep = new ExamParticipation();
-        ep.setExam(content);
+        ep.setExam(clone);
         ep.setUser(ee.getCreator());
         ep.setStarted(ee.getStarted());
         ep.setEnded(ee.getFinished());
@@ -142,9 +119,24 @@ public class ExternalExamController extends BaseController implements ExternalEx
         ep.setDeadline(deadline);
         ep.save();
 
-        // autoevaluate?
-
+        autoEvaluationHandler.autoEvaluate(clone);
         return created();
+    }
+
+    private PathProperties getPath() {
+        String path = "(id, name, state, instruction, hash, duration, cloned, course(id, code, name), executionType(id, type), " + // (
+                "autoEvaluationConfig(releaseType, releaseDate, amountDays, gradeEvaluations(percentage, grade(id, gradeScale(id)))), " +
+                "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
+                "examInspections(user(firstName, lastName)), " +
+                "examType(id, type), creditType(id, type), gradeScale(id, displayName, grades(id, name)), " +
+                "examSections(id, name, sequenceNumber, description, " + // ((
+                "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
+                "question(id, type, question, attachment(id, fileName), options(id, option, correctOption, defaultScore)), " +
+                "options(id, answered, option(id, option)), " +
+                "essayAnswer(id, answer, objectVersion, attachment(fileName)), " +
+                "clozeTestAnswer(id, question, answer, objectVersion)" +
+                ")))";
+        return PathProperties.parse(path);
     }
 
     @SubjectNotPresent
@@ -153,7 +145,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         if (enrolment == null) {
             return notFound();
         }
-        return ok(enrolment.getExam(), StudentExamController.getPath(false));
+        return ok(enrolment.getExam(), getPath());
     }
 
     @Override

@@ -93,6 +93,7 @@ POST          /app/iop/student/exams/:hash/question/:qid/option          control
 POST          /app/iop/student/exams/:hash/question/:questionId          controllers.iop.ExternalStudentExamController.answerEssay(hash: String, questionId: Long)
 POST          /app/iop/student/exams/:hash/clozetest/:questionId         controllers.iop.ExternalStudentExamController.answerClozeTest(hash: String, questionId: Long)
 
+POST          /app/iop/exams/:ref                                        controllers.iop.ExternalExamController.addExamForAssessment(ref: String)
 
 ############### Student acions interface #########
 GET           /app/feedback/exams/:eid                                   controllers.StudentActionsController.getExamFeedback(eid: Long)

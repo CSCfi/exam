@@ -1,12 +1,12 @@
 {
   "id": 1,
   "name": "Johdatus alkeiden perusteisiin",
-  "state": "PUBLISHED",
   "course": {
     "id": 1,
     "code": "810136P",
     "name": "Johdatus alkeiden perusteisiin"
   },
+  "examType": null,
   "examOwners": [],
   "instruction": "Vastaa kolmeen tehtävään neljästä",
   "examSections": [
@@ -23,7 +23,33 @@
             "attachment": {
               "id": 1,
               "fileName": "pika.ohje"
-            }
+            },
+            "options": [
+              {
+                "id": 1,
+                "option": "3",
+                "correctOption": false,
+                "defaultScore": null
+              },
+              {
+                "id": 2,
+                "option": "42",
+                "correctOption": true,
+                "defaultScore": null
+              },
+              {
+                "id": 3,
+                "option": "99",
+                "correctOption": false,
+                "defaultScore": null
+              },
+              {
+                "id": 4,
+                "option": "7",
+                "correctOption": false,
+                "defaultScore": null
+              }
+            ]
           },
           "options": [
             {
@@ -75,7 +101,33 @@
             "id": 6,
             "type": "MultipleChoiceQuestion",
             "question": "Mikä on ikuisen elämän salaisuus?",
-            "attachment": null
+            "attachment": null,
+            "options": [
+              {
+                "id": 5,
+                "option": "IDDQD",
+                "correctOption": true,
+                "defaultScore": null
+              },
+              {
+                "id": 6,
+                "option": "IDKFA",
+                "correctOption": false,
+                "defaultScore": null
+              },
+              {
+                "id": 7,
+                "option": "IDCLIP",
+                "correctOption": false,
+                "defaultScore": null
+              },
+              {
+                "id": 8,
+                "option": "IDCHOPPERS",
+                "correctOption": false,
+                "defaultScore": null
+              }
+            ]
           },
           "options": [
             {
@@ -127,7 +179,8 @@
             "id": 22,
             "type": "ClozeTestQuestion",
             "question": "<p><span cloze=\"true\" id=\"1\">Pariisi</span>on Ranskan pääkaupunki. <span cloze=\"true\" id=\"2\">Berliini</span>on Saksan pääkaupunki.</p>",
-            "attachment": null
+            "attachment": null,
+            "options": []
           },
           "options": [],
           "sequenceNumber": 2,
@@ -154,7 +207,27 @@
             "id": 13,
             "type": "MultipleChoiceQuestion",
             "question": "Ekliptika on",
-            "attachment": null
+            "attachment": null,
+            "options": [
+              {
+                "id": 28,
+                "option": "Maapallon ratataso Aurinkoon nähden",
+                "correctOption": true,
+                "defaultScore": null
+              },
+              {
+                "id": 29,
+                "option": "Maapallon kiertoradan muoto",
+                "correctOption": false,
+                "defaultScore": null
+              },
+              {
+                "id": 30,
+                "option": "Kuun sirppi",
+                "correctOption": false,
+                "defaultScore": null
+              }
+            ]
           },
           "options": [
             {
@@ -198,7 +271,33 @@
             "id": 8,
             "type": "MultipleChoiceQuestion",
             "question": "Mitä lampaat laskevat jotta ne nukahtaisivat?",
-            "attachment": null
+            "attachment": null,
+            "options": [
+              {
+                "id": 12,
+                "option": "Lampaita",
+                "correctOption": true,
+                "defaultScore": null
+              },
+              {
+                "id": 13,
+                "option": "Ihmisiä",
+                "correctOption": false,
+                "defaultScore": null
+              },
+              {
+                "id": 14,
+                "option": "Paimenkoiria",
+                "correctOption": false,
+                "defaultScore": null
+              },
+              {
+                "id": 15,
+                "option": "Jokin muu",
+                "correctOption": false,
+                "defaultScore": null
+              }
+            ]
           },
           "options": [
             {
@@ -250,7 +349,33 @@
             "id": 14,
             "type": "MultipleChoiceQuestion",
             "question": "Tähdenlento eli",
-            "attachment": null
+            "attachment": null,
+            "options": [
+              {
+                "id": 31,
+                "option": "Meteoroidi",
+                "correctOption": false,
+                "defaultScore": null
+              },
+              {
+                "id": 32,
+                "option": "Meteori",
+                "correctOption": true,
+                "defaultScore": null
+              },
+              {
+                "id": 33,
+                "option": "Meteoriitti",
+                "correctOption": false,
+                "defaultScore": null
+              },
+              {
+                "id": 34,
+                "option": "Meteorologi",
+                "correctOption": false,
+                "defaultScore": null
+              }
+            ]
           },
           "options": [
             {
@@ -302,7 +427,8 @@
             "id": 23,
             "type": "ClozeTestQuestion",
             "question": "<p><span cloze=\"true\" id=\"1\">Budapest</span>on Unkarin pääkaupunki. <span cloze=\"true\" id=\"2\">Tukholma</span>on Ruotsin pääkaupunki.</p>",
-            "attachment": null
+            "attachment": null,
+            "options": []
           },
           "options": [],
           "sequenceNumber": 3,
@@ -329,7 +455,8 @@
             "id": 1,
             "type": "EssayQuestion",
             "question": "<u>Kerro toiseen maailmansotaan johtaneista syistä.</u>",
-            "attachment": null
+            "attachment": null,
+            "options": []
           },
           "options": [],
           "sequenceNumber": 0,
@@ -348,7 +475,8 @@
             "id": 2,
             "type": "EssayQuestion",
             "question": "Mitä tarkoitetaan \"oliolla\" ohjelmistokehityksessä?",
-            "attachment": null
+            "attachment": null,
+            "options": []
           },
           "options": [],
           "sequenceNumber": 1,
@@ -367,7 +495,8 @@
             "id": 3,
             "type": "EssayQuestion",
             "question": "Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.",
-            "attachment": null
+            "attachment": null,
+            "options": []
           },
           "options": [],
           "sequenceNumber": 2,
@@ -386,7 +515,8 @@
             "id": 24,
             "type": "ClozeTestQuestion",
             "question": "<p><span cloze=\"true\" id=\"1\">Istanbul</span>on Turkin pääkaupunki. <span cloze=\"true\" id=\"2\">Ateena</span>on Kreikan pääkaupunki.</p>",
-            "attachment": null
+            "attachment": null,
+            "options": []
           },
           "options": [],
           "sequenceNumber": 3,
@@ -412,8 +542,92 @@
       }
     }
   ],
-  "hash": "50ef606c36645af401cad5f041bd1765",
+  "autoEvaluationConfig": {
+    "releaseType": "IMMEDIATE",
+    "releaseDate": null,
+    "amountDays": null,
+    "gradeEvaluations": [
+      {
+        "grade": {
+          "id": 6,
+          "gradeScale": {
+            "id": 4
+          }
+        },
+        "percentage": 100
+      },
+      {
+        "grade": {
+          "id": 1,
+          "gradeScale": {
+            "id": 4
+          }
+        },
+        "percentage": 0
+      },
+      {
+        "grade": {
+          "id": 2,
+          "gradeScale": {
+            "id": 4
+          }
+        },
+        "percentage": 20
+      },
+      {
+        "grade": {
+          "id": 3,
+          "gradeScale": {
+            "id": 4
+          }
+        },
+        "percentage": 40
+      },
+      {
+        "grade": {
+          "id": 4,
+          "gradeScale": {
+            "id": 4
+          }
+        },
+        "percentage": 60
+      },
+      {
+        "grade": {
+          "id": 5,
+          "gradeScale": {
+            "id": 4
+          }
+        },
+        "percentage": 80
+      }
+    ]
+  },
+  "hash": "b13704e955a8565898dd24950d6f4479",
   "duration": 90,
+  "gradeScale": {
+    "id": 4,
+    "grades": [
+      {
+        "id": 1
+      },
+      {
+        "id": 2
+      },
+      {
+        "id": 3
+      },
+      {
+        "id": 4
+      },
+      {
+        "id": 5
+      },
+      {
+        "id": 6
+      }
+    ]
+  },
   "examLanguages": [
     {
       "code": "de"
@@ -428,6 +642,8 @@
       "code": "fi"
     }
   ],
+  "state": "PUBLISHED",
+  "creditType": null,
   "executionType": {
     "id": 1,
     "type": "PUBLIC"

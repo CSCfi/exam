@@ -266,6 +266,4 @@ public class ExternalStudentExamController extends StudentExamController {
         return ok();
     }
 
-
-
 }

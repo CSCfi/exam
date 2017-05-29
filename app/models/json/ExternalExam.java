@@ -128,10 +128,4 @@ public class ExternalExam extends Model {
         update();
     }
 
-    @Transient
-    public JsonNode serializeJson() throws IOException {
-        ObjectMapper om = new ObjectMapper();
-        String json = om.writeValueAsString(this);
-        return om.readTree(json);
-    }
 }

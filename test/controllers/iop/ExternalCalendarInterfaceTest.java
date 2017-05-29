@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -310,9 +311,24 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         assertThat(removed).isNull();
     }
 
+    private void setAutoEvaluationConfig() {
+        AutoEvaluationConfig config = new AutoEvaluationConfig();
+        config.setReleaseType(AutoEvaluationConfig.ReleaseType.IMMEDIATE);
+        config.setGradeEvaluations(new HashSet<>());
+        exam.getGradeScale().getGrades().forEach(g -> {
+            GradeEvaluation ge = new GradeEvaluation();
+            ge.setGrade(g);
+            ge.setPercentage(20 * Integer.parseInt(g.getName()));
+            config.getGradeEvaluations().add(ge);
+        });
+        config.setExam(exam);
+        config.save();
+    }
+
     @Test
     public void testProvideEnrolment() throws Exception {
         initialize(Ebean.find(User.class, 1));
+        setAutoEvaluationConfig();
         Reservation reservation = new Reservation();
         reservation.setExternalRef(RESERVATION_REF);
         reservation.setStartAt(DateTime.now().plusHours(2));

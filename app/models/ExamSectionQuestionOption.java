@@ -65,6 +65,14 @@ public class ExamSectionQuestionOption extends GeneratedIdentityModel {
         return esqo;
     }
 
+    ExamSectionQuestionOption copyWithAnswer() {
+        ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+        esqo.setOption(option);
+        esqo.setScore(score);
+        esqo.setAnswered(answered);
+        return esqo;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;

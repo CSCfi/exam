@@ -339,6 +339,10 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return hash;
     }
 
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
     public Integer getDuration() {
         return duration;
     }
