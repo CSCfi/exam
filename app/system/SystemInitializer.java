@@ -14,7 +14,6 @@ import play.Logger;
 import play.inject.ApplicationLifecycle;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
-import system.actors.ExamExpirationActor;
 import util.AppUtil;
 import util.java.EmailComposer;
 
@@ -54,12 +53,11 @@ class SystemInitializer {
                       @Named("exam-auto-saver-actor") ActorRef examAutoSaver,
                       @Named("reservation-checker-actor") ActorRef reservationChecker,
                       @Named("auto-evaluation-notifier-actor") ActorRef autoEvaluationNotifier,
+                      @Named("exam-expiration-actor") ActorRef examExpirationChecker,
                       @Named("external-exam-sender-actor") ActorRef externalExamSender) {
 
         this.system = system;
         this.composer = composer;
-
-        ActorRef expirationChecker = system.actorOf(ExamExpirationActor.props);
 
         String encoding = System.getProperty("file.encoding");
         if (!encoding.equals("UTF-8")) {
@@ -86,7 +84,7 @@ class SystemInitializer {
         tasks.put("EXPIRY_POLLER", system.scheduler().schedule(
                 Duration.create(EXAM_EXPIRY_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(EXAM_EXPIRY_POLLER_INTERVAL_DAYS, TimeUnit.DAYS),
-                expirationChecker, "tick",
+                examExpirationChecker, "tick",
                 system.dispatcher(), null
         ));
         tasks.put("AUTOEVALUATION_NOTIFIER", system.scheduler().schedule(

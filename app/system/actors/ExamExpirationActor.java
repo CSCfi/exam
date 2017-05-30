@@ -1,6 +1,5 @@
 package system.actors;
 
-import akka.actor.Props;
 import akka.actor.UntypedActor;
 import com.avaje.ebean.Ebean;
 import models.Exam;
@@ -12,8 +11,6 @@ import util.AppUtil;
 import java.util.List;
 
 public class ExamExpirationActor extends UntypedActor {
-
-    public static final Props props = Props.create(ExamExpirationActor.class);
 
     @Override
     public void onReceive(Object message) throws Exception {

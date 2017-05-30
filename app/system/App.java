@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import play.libs.akka.AkkaGuiceSupport;
 import system.actors.AutoEvaluationNotifierActor;
 import system.actors.ExamAutoSaverActor;
+import system.actors.ExamExpirationActor;
 import system.actors.ExternalExamSenderActor;
 import system.actors.ReservationPollerActor;
 
@@ -19,6 +20,7 @@ public class App extends AbstractModule implements AkkaGuiceSupport {
         bindActor(ReservationPollerActor.class, "reservation-checker-actor");
         bindActor(AutoEvaluationNotifierActor.class, "auto-evaluation-notifier-actor");
         bindActor(ExternalExamSenderActor.class, "external-exam-sender-actor");
+        bindActor(ExamExpirationActor.class, "exam-expiration-actor");
     }
 
 }

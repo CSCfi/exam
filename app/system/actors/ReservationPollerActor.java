@@ -21,11 +21,6 @@ public class ReservationPollerActor extends UntypedActor {
         this.handler = handler;
     }
 
-    private ReservationPollerActor() {
-        // Needed by guice
-    }
-
-
     @Override
     public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Running no-show check ...", getClass().getCanonicalName());

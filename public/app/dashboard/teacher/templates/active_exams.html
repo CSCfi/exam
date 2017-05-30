@@ -39,7 +39,7 @@
 
                 <tbody>
                 <tr ng-repeat="exam in $ctrl.filteredActive | orderBy:$ctrl.activePredicate:$ctrl.reverse"
-                    ng-init="$ctrl.isOwner=$ctrl.filterOwners(user.id, exam)">
+                    ng-init="$ctrl.isOwner=$ctrl.filterOwners(exam)">
 
                     <td ng-if="exam.name" class="table-column-examname">
                         <a ng-if="$ctrl.isOwner" href="/exams/examTabs/{{exam.id}}/1">{{ exam.name }}</a>

@@ -30,10 +30,6 @@ public class ExternalExamSenderActor extends UntypedActor {
         this.wsClient = wsClient;
     }
 
-    private ExternalExamSenderActor() {
-        // Needed by guice
-    }
-
     @Override
     public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Running external exam sender ...", getClass().getCanonicalName());
@@ -75,7 +71,7 @@ public class ExternalExamSenderActor extends UntypedActor {
 
     private static URL parseUrl(String reservationRef) throws MalformedURLException {
         return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host") +
-                String.format("/api/enrolments/%s", reservationRef));
+                String.format("/api/enrolments/%s/assessment", reservationRef));
     }
 
 }

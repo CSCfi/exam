@@ -10,6 +10,7 @@ angular.module("dashboard.teacher")
                 var ctrl = this;
 
                 ctrl.$onInit = function () {
+                    ctrl.userId = Session.getUser().id;
                     ctrl.templates = {
                         dashboardToolbarPath: EXAM_CONF.TEMPLATES_PATH + "dashboard/teacher/templates/toolbar.html",
                         dashboardActiveExamsPath: EXAM_CONF.TEMPLATES_PATH + "dashboard/teacher/templates/active_exams.html",
@@ -55,7 +56,6 @@ angular.module("dashboard.teacher")
                 ctrl.search = function () {
 
                     ctrl.reduceDraftCount = 0;
-                    var userId = Session.getUser().id;
 
                     // Use same search parameter for all the 4 result tables
                     ctrl.filteredFinished = $filter('filter')(ctrl.finishedExams, ctrl.filter.text);
@@ -66,7 +66,7 @@ angular.module("dashboard.teacher")
                     // for drafts, display exams only for owners AM-1658
                     ctrl.filteredDraft = ctrl.filteredDraft.filter(function (exam) {
                         var owner = exam.examOwners.filter(function (own) {
-                            return (own.id === userId);
+                            return (own.id === ctrl.userId);
                         });
                         if (owner.length > 0) {
                             return exam;
@@ -77,7 +77,7 @@ angular.module("dashboard.teacher")
                     // for finished, display exams only for owners OR if exam has unassessed reviews AM-1658
                     ctrl.filteredFinished = ctrl.filteredFinished.filter(function (exam) {
                         var owner = exam.examOwners.filter(function (own) {
-                            return (own.id === userId);
+                            return (own.id === ctrl.userId);
                         });
                         if (owner.length > 0 || (owner.length === 0 && exam.unassessedCount > 0)) {
                             return exam;
@@ -88,7 +88,7 @@ angular.module("dashboard.teacher")
                     // for active, display exams only for owners OR if exam has unassessed reviews AM-1658
                     ctrl.filteredActive = ctrl.filteredActive.filter(function (exam) {
                         var owner = exam.examOwners.filter(function (own) {
-                            return (own.id === userId);
+                            return (own.id === ctrl.userId);
                         });
                         if (owner.length > 0 || (owner.length === 0 && exam.unassessedCount > 0)) {
                             return exam;
@@ -135,9 +135,9 @@ angular.module("dashboard.teacher")
                     });
                 };
 
-                ctrl.filterOwners = function (userId, exam) {
+                ctrl.filterOwners = function (exam) {
                     var owner = exam.examOwners.filter(function (own) {
-                        return (own.id === userId);
+                        return (own.id === ctrl.userId);
                     });
                     return owner.length > 0;
                 };

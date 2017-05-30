@@ -108,7 +108,7 @@ public class StudentExamController extends BaseController {
 
         if (p != null) {
             DateTime now = AppUtil.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
-            p.setEnded(DateTime.now());
+            p.setEnded(now);
             p.setDuration(new DateTime(p.getEnded().getMillis() - p.getStarted().getMillis()));
 
             GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");

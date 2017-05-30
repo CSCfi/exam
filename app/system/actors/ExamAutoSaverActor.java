@@ -32,11 +32,6 @@ public class ExamAutoSaverActor extends UntypedActor {
         this.composer = composer;
     }
 
-    private ExamAutoSaverActor() {
-        // Needed by guice
-    }
-
-
     @Override
     public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Checking for ongoing exams ...", getClass().getCanonicalName());

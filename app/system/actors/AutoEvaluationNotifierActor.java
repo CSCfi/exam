@@ -23,11 +23,6 @@ public class AutoEvaluationNotifierActor extends UntypedActor {
         this.composer = composer;
     }
 
-    private AutoEvaluationNotifierActor() {
-        // Needed by guice
-    }
-
-
     @Override
     public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Running auto evaluation notification check ...", getClass().getCanonicalName());

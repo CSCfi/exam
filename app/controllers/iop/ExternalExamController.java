@@ -113,13 +113,15 @@ public class ExternalExamController extends BaseController implements ExternalEx
         ep.setEnded(ee.getFinished());
         ep.setReservation(enrolment.getReservation());
         ep.setDuration(new DateTime(ee.getFinished().getMillis() - ee.getStarted().getMillis()));
-        GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
-        int deadlineDays = Integer.parseInt(settings.getValue());
-        DateTime deadline = ee.getFinished().plusDays(deadlineDays);
-        ep.setDeadline(deadline);
-        ep.save();
 
-        autoEvaluationHandler.autoEvaluate(clone);
+        if (clone.getState().equals(Exam.State.REVIEW)) {
+            GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
+            int deadlineDays = Integer.parseInt(settings.getValue());
+            DateTime deadline = ee.getFinished().plusDays(deadlineDays);
+            ep.setDeadline(deadline);
+            autoEvaluationHandler.autoEvaluate(clone);
+        }
+        ep.save();
         return created();
     }
 
@@ -202,9 +204,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
     }
 
     private static URL parseUrl(String reservationRef) throws MalformedURLException {
-        StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
-        sb.append(String.format("/api/enrolments/%s", reservationRef));
-        return new URL(sb.toString());
+        return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host")
+                + String.format("/api/enrolments/%s", reservationRef));
     }
 
 
