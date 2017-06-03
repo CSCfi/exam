@@ -1,5 +1,5 @@
 'use strict';
-angular.module("dashboard")
+angular.module('app.dashboard')
     .component('dashboard', {
         templateUrl: '/assets/app/dashboard/dashboard.template.html',
         controller: ['Session',

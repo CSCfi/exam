@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module('app.exam')
         .controller('ExamOwnerController', ['$scope', '$uibModalInstance', 'exam', 'Session', '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF','ExamRes', 'UserRes', 'limitToFilter',
             function ($scope, $modalInstance, exam, Session, $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, UserRes, limitToFilter) {
 

@@ -1,4 +1,4 @@
 'use strict';
 
-angular.module('administrative.settings', []);
+angular.module('app.administrative.settings', []);
 

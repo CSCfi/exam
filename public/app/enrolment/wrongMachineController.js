@@ -1,6 +1,6 @@
 (function() {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module('app.enrolment')
         .controller('WrongMachineCtrl', ['$scope', '$rootScope', '$translate', '$http', '$location', 'Session', 'StudentExamRes', 'waitingRoomService', 'dateService',
             function($scope, $rootScope, $translate, $http, $location, Session, StudentExamRes, waitingRoomService, dateService) {
 

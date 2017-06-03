@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('exam.filters')
+    angular.module('app')
         .filter('newlines', function (text) {
             return text.replace(/\n/g, '');
         })

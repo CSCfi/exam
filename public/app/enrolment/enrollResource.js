@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.resources")
+    angular.module('app.enrolment')
         .factory("EnrollRes", ['$resource', function ($resource) {
             return {
                 list: $resource("/app/enroll/:code",

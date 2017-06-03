@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module("administrative.settings")
+angular.module('app.administrative.settings')
     .component('settings', {
         templateUrl: '/assets/app/administrative/settings/settings.template.html',
         controller: ['$translate', '$http', 'Settings',

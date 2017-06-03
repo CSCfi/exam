@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module("administrative.statistics")
+angular.module('app.administrative.statistics')
     .component('statistics', {
         templateUrl: '/assets/app/administrative/statistics/statistics.template.html',
         controller: ['$translate', 'EXAM_CONF', 'Statistics', 'RoomResource', 'dateService',

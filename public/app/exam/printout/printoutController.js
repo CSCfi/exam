@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module('app.exam')
         .controller('PrintoutController', ['$http', '$routeParams', '$location', '$sce', 'fileService',
             function ($http, $routeParams, $location, $sce, fileService) {
 

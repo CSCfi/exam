@@ -1,6 +1,6 @@
 (function() {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module('app.enrolment')
         .controller('WaitingRoomCtrl', ['$scope', '$http', '$timeout', '$translate', '$location', 'Session',
             'StudentExamRes', 'waitingRoomService', 'dateService', 'enrolmentService',
             function($scope, $http, $timeout, $translate, $location, Session, StudentExamRes, waitingRoomService,

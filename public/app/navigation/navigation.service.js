@@ -1,7 +1,7 @@
 'use strict';
 
 angular
-    .module("navigation")
+    .module('app.navigation')
     .factory('Navigation', ['$resource',
         function ($resource) {
             return {

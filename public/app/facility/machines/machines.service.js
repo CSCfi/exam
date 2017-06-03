@@ -1,7 +1,7 @@
 'use strict';
 
 angular
-    .module("facility.machines")
+    .module('app.facility.machines')
     .factory('Machines', ['$resource',
         function ($resource) {
             return {

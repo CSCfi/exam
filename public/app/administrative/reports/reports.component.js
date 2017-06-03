@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module("administrative.reports")
+angular.module('app.administrative.reports')
     .component('reports', {
         templateUrl: '/assets/app/administrative/reports/reports.template.html',
         controller: ['$translate', 'EXAM_CONF', 'Reports', 'RoomResource', 'dateService', '$filter', 'UserRes', 'fileService',

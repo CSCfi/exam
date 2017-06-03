@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.resources")
+    angular.module('app.maturity')
         .factory("LanguageInspectionRes", ['$resource', function ($resource) {
             return {
                 inspections: $resource("/app/inspections"),

@@ -1,6 +1,6 @@
 'use strict';
-angular.module("administrative.users")
-    .factory("UserManagement", ['$resource',
+angular.module('app.administrative.users')
+    .factory('UserManagement', ['$resource',
         function ($resource) {
             return {
                 users: $resource("/app/users"),

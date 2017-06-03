@@ -1,4 +1,4 @@
-angular.module('exam.services')
+angular.module('app')
     .config(['$httpProvider', function ($httpProvider) {
         $httpProvider.interceptors.push(['$q', '$cookies', 'Session', '$rootScope', '$location', '$translate', 'wrongRoomService', 'waitingRoomService',
             function ($q, $cookies, Session, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {

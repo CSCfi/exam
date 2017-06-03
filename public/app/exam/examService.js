@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('exam.services')
+    angular.module('app.exam')
         .service('examService', ['$translate', '$q', '$location', 'ExamRes', 'questionService', 'Session',
             function ($translate, $q, $location, ExamRes, questionService, Session) {
 

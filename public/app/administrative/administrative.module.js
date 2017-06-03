@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('administrative',
-    ['administrative.reports', 'administrative.statistics', 'administrative.settings', 'administrative.users']
+angular.module('app.administrative',
+    ['app.administrative.reports', 'app.administrative.statistics', 'app.administrative.settings', 'app.administrative.users']
 );
 

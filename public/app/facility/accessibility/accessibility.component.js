@@ -1,5 +1,5 @@
 'use strict';
-angular.module("facility.accessibility")
+angular.module('app.facility.accessibility')
     .component('accessibility', {
         templateUrl: '/assets/app/facility/accessibility/accessibility.template.html',
         controller: ['$translate', '$http', function ($translate, $http) {

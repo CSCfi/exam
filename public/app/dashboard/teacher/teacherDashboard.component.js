@@ -1,5 +1,5 @@
 'use strict';
-angular.module("dashboard.teacher")
+angular.module("app.dashboard.teacher")
     .component('teacherDashboard', {
         templateUrl: '/assets/app/dashboard/teacher/teacherDashboard.template.html',
         controller: ['TeacherDashboard', 'examService', 'dateService', 'Session', 'EXAM_CONF', 'ExamRes',

@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('session', []);
+angular.module('app.session', ['app.common']);

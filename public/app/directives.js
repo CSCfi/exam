@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('exam.directives')
+    angular.module('app')
 
         .directive('dateValidator', function () {
             return {

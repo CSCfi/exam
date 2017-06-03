@@ -1,4 +1,4 @@
-angular.module("administrative")
+angular.module('app.administrative.users')
     .component('users', {
         templateUrl: '/assets/app/administrative/users/users.template.html',
         controller: ['$timeout', '$translate', 'UserManagement', 'EXAM_CONF', 'Session',

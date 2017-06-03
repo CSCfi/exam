@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('exam.services')
+    angular.module('app.enrolment')
         .service('enrolmentService', ['$translate', '$q', '$location', '$uibModal', 'dialogs', 'EnrollRes', 'SettingsResource',
             'StudentExamRes', 'EXAM_CONF',
             function ($translate, $q, $location, $modal, dialogs, EnrollRes, SettingsResource, StudentExamRes, EXAM_CONF) {

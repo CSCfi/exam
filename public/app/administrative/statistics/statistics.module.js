@@ -1,4 +1,4 @@
 'use strict';
 
-angular.module('administrative.statistics', []);
+angular.module('app.administrative.statistics', []);
 

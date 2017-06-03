@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('exam.services')
+    angular.module('app.enrolment')
         .factory('wrongRoomService', ['$timeout', '$translate', function ($timeout, $translate) {
 
             var time = 1000 * 10;

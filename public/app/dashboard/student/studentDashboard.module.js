@@ -1,4 +1,4 @@
 'use strict';
 
-angular.module('dashboard.student', []);
+angular.module('app.dashboard.student', ['ngAnimate']);
 

@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module("app.exam")
         .controller('ExamListingController', ['dialogs', '$scope', 'Session', 'examService',
             '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes',
             function (dialogs, $scope, Session, examService,

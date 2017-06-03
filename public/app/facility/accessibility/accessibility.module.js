@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('facility.accessibility', []);
+angular.module('app.facility.accessibility', []);

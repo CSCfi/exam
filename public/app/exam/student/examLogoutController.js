@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module('app.exam')
         .controller('ExamLogoutCtrl', ['$scope', '$rootScope', '$timeout', '$translate', '$routeParams', '$location',
             function ($scope, $rootScope, $timeout, $translate, $routeParams, $location) {
 

@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module('app.enrolment')
         .controller('EnrollController', ['$scope', '$routeParams', 'examService', 'enrolmentService', 'dateService',
             'EXAM_CONF', '$location',
             function ($scope, $routeParams, examService, enrolmentService, dateService, EXAM_CONF, $location) {

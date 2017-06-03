@@ -1,5 +1,5 @@
 'use strict';
-angular.module('session')
+angular.module('app.session')
     .service('Session', ['$q', '$interval', '$sessionStorage', '$translate', '$injector', '$location',
         '$rootScope', '$timeout', 'tmhDynamicLocale', 'EXAM_CONF',
         function ($q, $interval, $sessionStorage, $translate, $injector, $location, $rootScope, $timeout,
@@ -34,11 +34,6 @@ angular.module('session')
                 UserRes = UserRes || $injector.get('UserRes');
                 return UserRes;
             };
-            var SettingsResource;
-            var settingsRes = function () {
-                SettingsResource = SettingsResource || $injector.get('SettingsResource');
-                return SettingsResource;
-            };
 
             self.getUser = function () {
                 return _user;
@@ -64,7 +59,7 @@ angular.module('session')
             var init = function () {
                 var deferred = $q.defer();
                 if (!_env) {
-                    settingsRes().environment.get(function (data) {
+                    http().get("/app/settings/environment").success(function (data) {
                         _env = data;
                         deferred.resolve();
                     });

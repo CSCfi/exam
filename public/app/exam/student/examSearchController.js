@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module('app.exam')
         .controller('ExamSearchCtrl', ['$scope', '$timeout', '$translate', 'StudentExamRes', 'EnrollRes',
                     'SettingsResource', 'examService', 'enrolmentService', 'EXAM_CONF', '$location',
             function ($scope, $timeout, $translate, StudentExamRes, EnrollRes, SettingsResource,

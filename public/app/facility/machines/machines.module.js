@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('facility.machines', []);
+angular.module('app.facility.machines', []);

@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('dashboard', ['dashboard.teacher', 'dashboard.student']); // admin tbd
+angular.module('app.dashboard', ['app.dashboard.teacher', 'app.dashboard.student', 'app.maturity', 'ui.bootstrap']);

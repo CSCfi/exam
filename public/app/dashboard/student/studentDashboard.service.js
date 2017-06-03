@@ -1,4 +1,4 @@
-angular.module('dashboard.student')
+angular.module('app.dashboard.student')
     .service('StudentDashboard', ['$q', 'StudentExamRes',
         function ($q, StudentExamRes) {
 

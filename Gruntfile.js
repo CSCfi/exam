@@ -6,13 +6,10 @@ module.exports = function (grunt) {
                 separator: ';'
             },
             dist: {
-                src: ['public/app/app.js', 'public/components/truncate.js', 'public/components/language.js',
-                    'public/app/directives.js', 'public/app/filters.js',
-                    'public/app/httpInterceptor.js', 'public/app/routes.js', 'public/app/administrative/**/*.js',
-                    'public/app/common/**/*.js', 'public/app/enrolment/**/*.js', 'public/app/exam/**/*.js',
-                    'public/app/facility/**/*.js', 'public/app/question/**/*.js', 'public/app/reservation/**/*.js',
-                    'public/app/maturity/**/*.js', 'public/app/review/**/*.js', 'public/app/utility/**/*.js',
-                    'public/app/iop/**/*.js'],
+                src: [
+                    'public/components/*.js',
+                    'public/app/**/*.module.js',
+                    'public/app/**/*.js'],
                 dest: 'public/app/<%= pkg.name %>.js'
             }
         },

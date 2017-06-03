@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module('app.maturity')
         .controller('LanguageInspectionCtrl', ['$scope', '$translate', '$uibModal', '$location', 'dialogs',
             'EXAM_CONF', 'LanguageInspectionRes', 'Session', 'dateService',
             function ($scope, $translate, $modal, $location, dialogs, EXAM_CONF, LanguageInspectionRes, Session,

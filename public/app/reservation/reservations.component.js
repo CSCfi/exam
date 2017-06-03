@@ -1,5 +1,5 @@
 'use strict';
-angular.module("reservation")
+angular.module('app.reservation')
     .component("reservations", {
         templateUrl: '/assets/app/reservation/reservations.template.html',
         bindings: {

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('exam').constant('EXAM_CONF', {
+angular.module('app').constant('EXAM_CONF', {
     AUTH_STORAGE_KEY: 'EXAM_USER',
     AUTH_HEADER: 'x-exam-authentication',
     CONTEXT_PATH: '/',

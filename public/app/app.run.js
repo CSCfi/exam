@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('exam').run(['$http', '$sessionStorage', 'Session', 'EXAM_CONF',
+angular.module('app').run(['$http', '$sessionStorage', 'Session', 'EXAM_CONF',
     function ($http, $sessionStorage, Session, EXAM_CONF) {
         var user = $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY];
         if (user) {

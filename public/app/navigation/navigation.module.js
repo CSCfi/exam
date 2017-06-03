@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('navigation', []);
+angular.module('app.navigation', []);

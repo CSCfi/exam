@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('exam').config(['$translateProvider', '$routeProvider', '$httpProvider', '$locationProvider',
+angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProvider', '$locationProvider',
     '$compileProvider', 'tmhDynamicLocaleProvider', 'EXAM_CONF',
     function ($translateProvider, $routeProvider, $httpProvider, $locationProvider, $compileProvider,
               tmhDynamicLocaleProvider, EXAM_CONF) {

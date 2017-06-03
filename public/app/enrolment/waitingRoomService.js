@@ -1,6 +1,6 @@
 (function() {
     'use strict';
-    angular.module('exam.services')
+    angular.module('app.enrolment')
         .factory('waitingRoomService', [function() {
 
             var enrolmentId;

@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.resources")
+    angular.module('app.exam')
         .factory("StudentExamRes", ['$resource', function ($resource) {
             return {
                 examInfo: $resource("/app/student/exam/:eid", {eid: "@eid"}),

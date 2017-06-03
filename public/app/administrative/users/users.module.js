@@ -1,4 +1,4 @@
 'use strict';
 
-angular.module('administrative.users', []);
+angular.module('app.administrative.users', []);
 

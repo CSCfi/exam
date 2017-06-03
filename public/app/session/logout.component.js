@@ -1,5 +1,5 @@
 'use strict';
-angular.module("session")
+angular.module('app.session')
     .component("logout", {
         controller: ['Session',
             function (Session) {

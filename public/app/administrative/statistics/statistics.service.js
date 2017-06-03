@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module("administrative.statistics")
-    .factory("Statistics", ['$resource', function ($resource) {
+angular.module('app.administrative.statistics')
+    .factory('Statistics', ['$resource', function ($resource) {
         return {
             departments: $resource("/app/reports/departments"),
             exams: $resource("/app/reports/exams"),

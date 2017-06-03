@@ -1,4 +1,4 @@
-angular.module("navigation")
+angular.module('app.navigation')
     .component("navigation", {
         templateUrl: '/assets/app/navigation/navigation.template.html',
         controller: ['$rootScope', '$location', 'Session', 'waitingRoomService', 'Navigation',

@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.resources")
+    angular.module('app.facility')
         .factory("RoomResource", ['$resource', function ($resource) {
             return {
                 rooms: $resource("/app/rooms/:id",

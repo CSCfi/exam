@@ -1,4 +1,4 @@
 'use strict';
 
-angular.module('facility', ['facility.accessibility', 'facility.machines']);
+angular.module('app.facility', ['app.facility.accessibility', 'app.facility.machines']);
 

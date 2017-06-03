@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module('app.facility')
         .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'Session', '$location', '$uibModal', '$http',
             'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'EXAM_CONF', 'dateService', '$translate', '$route',
             'SettingsResource', 'InteroperabilityResource',

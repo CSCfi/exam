@@ -1,5 +1,5 @@
 'use strict';
-angular.module("facility.machines")
+angular.module('app.facility.machines')
     .component('machine', {
         templateUrl: '/assets/app/facility/machines/machine.template.html',
         controller: ['$q', 'dialogs', '$routeParams', '$location', 'Machines', '$translate',

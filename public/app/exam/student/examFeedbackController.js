@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.controllers")
+    angular.module('app.exam')
         .controller('ExamFeedbackController', ['$scope', '$translate', 'StudentExamRes', 'examService', 'EXAM_CONF',
             function ($scope, $translate, StudentExamRes, examService, EXAM_CONF) {
 

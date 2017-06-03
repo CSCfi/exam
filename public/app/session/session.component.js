@@ -1,6 +1,6 @@
 'use strict';
-angular.module("session")
-    .component("session", {
+angular.module('app.session')
+    .component('session', {
         templateUrl: '/assets/app/session/session.template.html',
         controller: ['$location', 'Session', '$rootScope',
             function ($location, Session, $rootScope) {

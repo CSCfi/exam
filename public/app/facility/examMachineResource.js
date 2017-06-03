@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.resources")
+    angular.module('app.facility')
         .factory("ExamMachineResource", ['$resource', function ($resource) {
             return $resource(
                 "/app/machines/:id",
