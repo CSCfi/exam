@@ -9,7 +9,8 @@ module.exports = function (grunt) {
                 src: [
                     'public/components/*.js',
                     'public/app/**/*.module.js',
-                    'public/app/**/*.js'],
+                    'public/app/**/*.js',
+                    '!public/app/exam.*js'],
                 dest: 'public/app/<%= pkg.name %>.js'
             }
         },
