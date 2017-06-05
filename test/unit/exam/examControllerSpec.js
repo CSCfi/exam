@@ -4,7 +4,12 @@ describe('ExamController', function () {
     var ctrl, scope, $httpBackend, q, ExamRes, window;
 
     beforeEach(function () {
-        module('exam');
+        module('app.exam');
+        module('app.common');
+        module('app.question');
+        module('ngResource');
+        module('ngRoute');
+        module('ui.bootstrap');
     });
 
     beforeEach(module('pascalprecht.translate', function ($translateProvider) {

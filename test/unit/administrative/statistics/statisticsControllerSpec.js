@@ -4,7 +4,9 @@ describe('StatisticsComponent', function () {
     var ctrl, $httpBackend;
 
     beforeEach(function () {
-        module('exam');
+        module('app.utility');
+        module('app.administrative.statistics');
+        module('ngResource');
     });
 
     beforeEach(module('pascalprecht.translate', function ($translateProvider) {
@@ -19,7 +21,6 @@ describe('StatisticsComponent', function () {
         ctrl = $componentController('statistics', {
             $scope: $rootScope.$new(),
             EXAM_CONF: {},
-            Reports: $injector.get('Reports'),
             dateService: $injector.get('dateService'),
             RoomResource: {}
         });
