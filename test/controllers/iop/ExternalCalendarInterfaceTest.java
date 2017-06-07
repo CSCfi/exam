@@ -420,7 +420,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         assertThat(created).isNotNull();
 
         // Check that correct mail was sent
-        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
+        assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
@@ -493,7 +493,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         assertThat(Ebean.find(Reservation.class, reservation.getId())).isNull();
 
         // Check that correct mail was sent
-        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
+        assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));

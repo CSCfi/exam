@@ -51,6 +51,7 @@ import static play.test.Helpers.fakeRequest;
 
 public class IntegrationTestCase {
 
+    protected static final int MAIL_TIMEOUT = 20000;
     protected static Application app;
     private String sessionToken;
     protected Long userId;
