@@ -25,6 +25,7 @@ import play.mvc.Result;
 import util.AppUtil;
 import util.java.AutoEvaluationHandler;
 import util.java.JsonDeserializer;
+import util.java.NoShowHandler;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -44,6 +45,9 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @Inject
     private AutoEvaluationHandler autoEvaluationHandler;
+
+    @Inject
+    private NoShowHandler noShowHandler;
 
     private Exam createCopy(Exam src, Exam parent, User user) {
         Exam clone = new Exam();
@@ -148,6 +152,13 @@ public class ExternalExamController extends BaseController implements ExternalEx
             return notFound();
         }
         return ok(enrolment.getExam(), getPath());
+    }
+
+    @SubjectNotPresent
+    public Result addNoShow(String ref) {
+        ExamEnrolment enrolment = getPrototype(ref);
+        noShowHandler.handleNoShowAndNotify(enrolment);
+        return ok();
     }
 
     @Override

@@ -10,5 +10,6 @@ public interface NoShowHandler {
 
     void handleNoShows(List<ExamEnrolment> noShows, Class<?> sender);
     void handleNoShow(ExamEnrolment noShow);
+    void handleNoShowAndNotify(ExamEnrolment enrolment);
 
 }

@@ -87,6 +87,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(ee.getReservation().getEndAt()).isEqualTo(end);
         assertThat(ee.getExam().getId()).isEqualTo(exam.getId());
         assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
+        greenMail.purgeEmailFromAllMailboxes();
 
         // Check that correct mail was sent
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();

@@ -93,8 +93,6 @@ POST          /app/iop/student/exams/:hash/question/:qid/option          control
 POST          /app/iop/student/exams/:hash/question/:questionId          controllers.iop.ExternalStudentExamController.answerEssay(hash: String, questionId: Long)
 POST          /app/iop/student/exams/:hash/clozetest/:questionId         controllers.iop.ExternalStudentExamController.answerClozeTest(hash: String, questionId: Long)
 
-POST          /app/iop/exams/:ref                                        controllers.iop.ExternalExamController.addExamForAssessment(ref: String)
-
 ############### Student acions interface #########
 GET           /app/feedback/exams/:eid                                   controllers.StudentActionsController.getExamFeedback(eid: Long)
 GET           /app/feedback/exams/:eid/score                             controllers.StudentActionsController.getExamScore(eid: Long)
@@ -280,6 +278,8 @@ POST          /integration/iop/reservations/external                     control
 DELETE        /integration/iop/reservations/external/:ref                controllers.iop.ExternalCalendarController.requestReservationRemoval(ref: String)
 
 GET           /integration/iop/reservations/:ref                         controllers.iop.ExternalExamController.provideEnrolment(ref: String)
+POST          /integration/iop/exams/:ref                                 controllers.iop.ExternalExamController.addExamForAssessment(ref: String)
+POST          /integration/iop/reservations/:ref/noshow                  controllers.iop.ExternalExamController.addNoShow(ref: String)
 
 ################# Time interface ######################
 GET           /app/time/:hash                                             controllers.TimeController.getExamRemainingTime(hash: String)

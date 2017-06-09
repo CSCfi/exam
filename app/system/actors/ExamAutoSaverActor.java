@@ -117,7 +117,7 @@ public class ExamAutoSaverActor extends UntypedActor {
             DateTime participationTimeLimit = reservationStart.plusMinutes(content.getDuration());
             DateTime now = AppUtil.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
             if (participationTimeLimit.isBefore(now)) {
-                exam.setFinished(DateTime.now());
+                exam.setFinished(now);
                 content.setState(Exam.State.REVIEW);
                 try {
                     exam.serialize(content);
