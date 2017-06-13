@@ -51,15 +51,8 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         $routeProvider.when('/questions/library', {templateUrl: tmpl + 'question/library.html'});
 
         /* exams */
-        $routeProvider.when('/exams/:id', {templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
-        $routeProvider.when('/exams/course/:id', {
-            templateUrl: tmpl + 'exam/editor/exam_new.html',
-            controller: 'ExamController'
-        });
-        $routeProvider.when('/exams/course/newExam/:create', {
-            templateUrl: tmpl + 'exam/editor/exam_new.html',
-            controller: 'ExamController'
-        });
+        $routeProvider.when('/exams/new', {template: '<new-exam></new-exam>'});
+        $routeProvider.when('/exams/:id/course', {template: '<course-selection></course-selection>'});
 
         /* booking */
         $routeProvider.when('/calendar/:id', {templateUrl: tmpl + 'reservation/calendar.html'});

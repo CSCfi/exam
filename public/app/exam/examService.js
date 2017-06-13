@@ -20,7 +20,7 @@
 
                 self.getProcessedCount = function (exam) {
                     return exam.children.filter(function (child) {
-                        return ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) == -1;
+                        return ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) === -1;
                     }).length;
                 };
 
@@ -33,11 +33,48 @@
                         function (response) {
                             toastr.info($translate.instant("sitnet_exam_added"));
                             //return response.id;
-                            $location.path("/exams/course/" + response.id);
+                            $location.path('/exams/' + response.id + '/course');
                         }, function (error) {
                             toastr.error(error.data);
                         });
                 };
+
+                self.updateExam = function (exam, overrides) {
+                    var data = {
+                        "id": exam.id,
+                        "name": exam.name || "",
+                        "examType": exam.examType,
+                        "instruction": exam.instruction || "",
+                        "enrollInstruction": exam.enrollInstruction || "",
+                        "state": exam.state,
+                        "shared": exam.shared,
+                        "examActiveStartDate": exam.examActiveStartDate ?
+                            new Date(exam.examActiveStartDate).getTime() : undefined,
+                        "examActiveEndDate": exam.examActiveEndDate ?
+                            new Date(exam.examActiveEndDate).setHours(23, 59, 59, 999) : undefined,
+                        "duration": exam.duration,
+                        "grading": exam.gradeScale ? exam.gradeScale.id : undefined,
+                        "expanded": exam.expanded,
+                        "trialCount": exam.trialCount || undefined,
+                        "subjectToLanguageInspection": exam.subjectToLanguageInspection,
+                        "internalRef": exam.internalRef,
+                        "objectVersion": exam.objectVersion
+                    };
+                    for (var k in overrides) {
+                        if (overrides.hasOwnProperty(k)) {
+                            data[k] = overrides[k];
+                        }
+                    }
+                    var deferred = $q.defer();
+                    ExamRes.exams.update(data,
+                        function (exam) {
+                            deferred.resolve(exam);
+                        }, function (error) {
+                            deferred.reject(error);
+                        });
+                    return deferred.promise;
+                };
+
 
                 self.getExamTypeDisplayName = function (type) {
                     var name;

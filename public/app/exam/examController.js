@@ -19,7 +19,6 @@
                     section: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section.html",
                     question: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_question.html",
                     library: EXAM_CONF.TEMPLATES_PATH + "question/library.html",
-                    course: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_course.html",
                     sections: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_sections.html",
                     autoEvaluation: EXAM_CONF.TEMPLATES_PATH + "exam/editor/autoevaluation.html",
                     reviewListPath: EXAM_CONF.TEMPLATES_PATH + "review/review_list.html",
@@ -50,10 +49,10 @@
                 $scope.user = Session.getUser();
 
                 $scope.tabs = [
-                    {title: 'perus', active: $routeParams.tab == 1},
-                    {title: 'kysymys', active: $routeParams.tab == 2},
-                    {title: 'julkaisu', active: $routeParams.tab == 3},
-                    {title: 'suoritukset', active: $routeParams.tab == 4}
+                    {title: 'perus', active: $routeParams.tab === '1'},
+                    {title: 'kysymys', active: $routeParams.tab === '2'},
+                    {title: 'julkaisu', active: $routeParams.tab === '3'},
+                    {title: 'suoritukset', active: $routeParams.tab === '4'}
                 ];
 
                 var getReleaseTypeByName = function (name) {
@@ -147,91 +146,70 @@
                     return x;
                 };
 
-                $scope.createExam = function () {
-                    if ($scope.createExamModel.type.type != "") {
-                        $scope.typeSelected = true;
-                        examService.createExam($scope.createExamModel.type.type);
-                    }
-                };
-
                 var initializeExam = function (refresh) {
 
-                    if ($routeParams.create == 1) {
-                        // new exam about to be created
-                        // need some user data before actually creating it
-                        $scope.typeSelected = false;
-                        $scope.loader.loading = false;
-                        $scope.createNewExam = true;
-                        initialLanguages = 0;
-                    } else if ($location.path().match(/exams\/course\/\d+$/)) {
-                        ExamRes.exams.get({id: $routeParams.id}, function (exam) {
-                            $scope.newExam = exam;
-                            initialLanguages = exam.examLanguages.length;
-                        });
+                    // Parent scope deals with the actual exam fetching
+                    $scope.initializeExam(refresh).then(function (exam) {
+
+                        // route evaluators to 4th tab, don't show exam info
+                        if (!filterOwners($scope.user.id, exam)) {
+                            $scope.tabs[3].active = true;
+                        }
+
                         $scope.typeSelected = true;
-                    } else {
-                        // Parent scope deals with the actual exam fetching
-                        $scope.initializeExam(refresh).then(function (exam) {
-
-                            // route evaluators to 4th tab, don't show exam info
-                            if (!filterOwners($scope.user.id, exam)) {
-                                $scope.tabs[3].active = true;
-                            }
-
-                            $scope.typeSelected = true;
-                            $scope.newExam = exam;
-                            $scope.newExam.examLanguages.forEach(function (language) {
-                                // Use front-end language names always to allow for i18n etc
-                                language.name = getLanguageNativeName(language.code);
-                            });
-                            $scope.newExam.examSections.sort(function (a, b) {
-                                return a.sequenceNumber - b.sequenceNumber;
-                            });
-                            recreateSectionIndices();
-                            initialLanguages = exam.examLanguages.length;
-                            initialSoftware = exam.softwares.length;
-                            prepareGradeScale(exam);
-                            prepareAutoEvaluationConfig();
-                            getInspectors();
-                            getExamOwners();
-                            if (exam.examEnrolments.filter(function (ee) {
-                                    return ee.reservation && ee.reservation.endAt > new Date().getTime();
-                                }).length > 0) {
-                                // Enrolments/reservations in effect
-                                // TODO: this needs to check the enrolment also, not only reservations SIT-1714
-                                $scope.newExam.hasEnrolmentsInEffect = true;
-                            }
-                            if ($scope.newExam.executionType.type !== 'PUBLIC') {
-                                // Students that have taken this exam
-                                $scope.newExam.participants = getParticipations();
-                            }
-                            if ($scope.newExam.executionType.type === 'MATURITY') {
-                                // Show only essay questions in the question library
-                                questionService.setFilter('EssayQuestion');
-
-                                $scope.examTypes = $scope.examTypes.filter(function (t) {
-                                    return t.type === 'FINAL';
-                                });
-                            }
-                            $scope.createExamModel.type = $scope.newExam.executionType;
-                            $scope.subjectToLanguageInspection = $scope.newExam.subjectToLanguageInspection;
-
-                            if (exam.course && exam.course.code && exam.name) {
-                                $scope.examInfo.title = exam.course.code + " " + exam.name;
-                            }
-                            else if (exam.course && exam.course.code) {
-                                $scope.examInfo.title = exam.course.code + " " + $translate.instant("sitnet_no_name");
-                            }
-                            else {
-                                $scope.examInfo.title = exam.name;
-                            }
-                            $scope.examInfo.examOwners = exam.examOwners;
-                            $scope.examFull = exam;
-
-
-                            $scope.loader.loading = false;
+                        $scope.newExam = exam;
+                        $scope.newExam.examLanguages.forEach(function (language) {
+                            // Use front-end language names always to allow for i18n etc
+                            language.name = getLanguageNativeName(language.code);
                         });
-                    }
+                        $scope.newExam.examSections.sort(function (a, b) {
+                            return a.sequenceNumber - b.sequenceNumber;
+                        });
+                        recreateSectionIndices();
+                        initialLanguages = exam.examLanguages.length;
+                        initialSoftware = exam.softwares.length;
+                        prepareGradeScale(exam);
+                        prepareAutoEvaluationConfig();
+                        getInspectors();
+                        getExamOwners();
+                        if (exam.examEnrolments.filter(function (ee) {
+                                return ee.reservation && ee.reservation.endAt > new Date().getTime();
+                            }).length > 0) {
+                            // Enrolments/reservations in effect
+                            // TODO: this needs to check the enrolment also, not only reservations SIT-1714
+                            $scope.newExam.hasEnrolmentsInEffect = true;
+                        }
+                        if ($scope.newExam.executionType.type !== 'PUBLIC') {
+                            // Students that have taken this exam
+                            $scope.newExam.participants = getParticipations();
+                        }
+                        if ($scope.newExam.executionType.type === 'MATURITY') {
+                            // Show only essay questions in the question library
+                            questionService.setFilter('EssayQuestion');
+
+                            $scope.examTypes = $scope.examTypes.filter(function (t) {
+                                return t.type === 'FINAL';
+                            });
+                        }
+                        $scope.createExamModel.type = $scope.newExam.executionType;
+                        $scope.subjectToLanguageInspection = $scope.newExam.subjectToLanguageInspection;
+
+                        if (exam.course && exam.course.code && exam.name) {
+                            $scope.examInfo.title = exam.course.code + " " + exam.name;
+                        }
+                        else if (exam.course && exam.course.code) {
+                            $scope.examInfo.title = exam.course.code + " " + $translate.instant("sitnet_no_name");
+                        }
+                        else {
+                            $scope.examInfo.title = exam.name;
+                        }
+                        $scope.examInfo.examOwners = exam.examOwners;
+                        $scope.examFull = exam;
+
+
+                        $scope.loader.loading = false;
+                    });
+
                 };
 
                 // Here's the party
@@ -405,13 +383,6 @@
 
                 $scope.setExamOwner = function ($item, $model, $label) {
                     $scope.newOwner.user.id = $item.id;
-                };
-
-                $scope.cancelNewExam = function () {
-                    ExamRes.exams.remove({id: $scope.newExam.id}, function (ex) {
-                        toastr.success($translate.instant('sitnet_exam_removed'));
-                        $location.path('/');
-                    });
                 };
 
                 $scope.allExamOwners = function (filter, criteria) {
@@ -618,7 +589,7 @@
                 };
 
                 $scope.getExecutionTypeTranslation = function () {
-                    return examService.getExecutionTypeTranslation($scope.newExam.executionType.type);
+                    return !$scope.newExam || examService.getExecutionTypeTranslation($scope.newExam.executionType.type);
                 };
 
                 var recreateSectionIndices = function () {
@@ -641,10 +612,6 @@
                     }, function (error) {
                         toastr.error(error.data);
                     });
-                };
-
-                $scope.continueToExam = function () {
-                    $location.path("/exams/examTabs/" + $routeParams.id + "/1");
                 };
 
                 $scope.setExamDuration = function (duration) {
@@ -773,41 +740,6 @@
                     return questionService.calculateMaxPoints(question);
                 };
 
-                var getUpdate = function (overrides) {
-                    var update = {
-                        "id": $scope.newExam.id,
-                        "name": $scope.newExam.name || "",
-                        "examType": $scope.newExam.examType,
-                        "instruction": $scope.newExam.instruction || "",
-                        "enrollInstruction": $scope.newExam.enrollInstruction || "",
-                        "state": $scope.newExam.state,
-                        "shared": $scope.newExam.shared,
-                        "examActiveStartDate": $scope.newExam.examActiveStartDate ?
-                            new Date($scope.newExam.examActiveStartDate).getTime() : undefined,
-                        "examActiveEndDate": $scope.newExam.examActiveEndDate ?
-                            new Date($scope.newExam.examActiveEndDate).setHours(23, 59, 59, 999) : undefined,
-                        "duration": $scope.newExam.duration,
-                        "grading": $scope.newExam.gradeScale ? $scope.newExam.gradeScale.id : undefined,
-                        "expanded": $scope.newExam.expanded,
-                        "evaluationConfig": $scope.autoevaluation.enabled && $scope.canBeAutoEvaluated() ? {
-                                releaseType: $scope.selectedReleaseType().name,
-                                releaseDate: new Date($scope.newExam.autoEvaluationConfig.releaseDate).getTime(),
-                                amountDays: $scope.newExam.autoEvaluationConfig.amountDays,
-                                gradeEvaluations: $scope.newExam.autoEvaluationConfig.gradeEvaluations
-                            } : null,
-                        "trialCount": $scope.newExam.trialCount || undefined,
-                        "subjectToLanguageInspection": $scope.newExam.subjectToLanguageInspection,
-                        "internalRef": $scope.newExam.internalRef,
-                        "objectVersion": $scope.newExam.objectVersion
-                    };
-                    for (var k in overrides) {
-                        if (overrides.hasOwnProperty(k)) {
-                            update[k] = overrides[k];
-                        }
-                    }
-                    return update;
-                };
-
                 var onUpdate = function (exam, overrideEvaluations) {
                     exam.hasEnrolmentsInEffect = $scope.newExam.hasEnrolmentsInEffect;
                     exam.examSections.sort(function (a, b) {
@@ -831,22 +763,32 @@
                     });
                 };
 
-                $scope.updateExam = function (overrideEvaluations, dontShowDialog) {
+                $scope.updateExam = function (overrideEvaluations, dontShowDialog, overrides) {
+                    var config = {
+                        "evaluationConfig": $scope.autoevaluation.enabled && $scope.canBeAutoEvaluated() ? {
+                            releaseType: $scope.selectedReleaseType().name,
+                            releaseDate: new Date($scope.newExam.autoEvaluationConfig.releaseDate).getTime(),
+                            amountDays: $scope.newExam.autoEvaluationConfig.amountDays,
+                            gradeEvaluations: $scope.newExam.autoEvaluationConfig.gradeEvaluations
+                        } : null
+                    };
+                    angular.extend(config, overrides);
 
-                    var examToSave = getUpdate();
-
-                    ExamRes.exams.update({id: $scope.newExam.id}, examToSave,
-                        function (exam) {
-                            if (!dontShowDialog) {
-                                toastr.info($translate.instant("sitnet_exam_saved"));
-                            }
-                            onUpdate(exam, overrideEvaluations);
-                        }, function (error) {
-                            if (error.data) {
-                                var msg = error.data.message || error.data;
-                                toastr.error($translate.instant(msg));
-                            }
-                        });
+                    var deferred = $q.defer();
+                    examService.updateExam($scope.newExam, config).then(function (exam) {
+                        if (!dontShowDialog) {
+                            toastr.info($translate.instant("sitnet_exam_saved"));
+                        }
+                        onUpdate(exam, overrideEvaluations);
+                        deferred.resolve();
+                    }, function (error) {
+                        if (error.data) {
+                            var msg = error.data.message || error.data;
+                            toastr.error($translate.instant(msg));
+                        }
+                        deferred.reject();
+                    });
+                    return deferred.promise;
                 };
 
                 //Called when Preview Button is clicked
@@ -854,15 +796,10 @@
                     //First save the exam, so that
                     //we have something to preview
                     // TODO: Is this really necessary anymore?
-                    var examToSave = getUpdate();
-
-                    ExamRes.exams.update({id: examToSave.id}, examToSave,
-                        function () {
-                            var resource = $scope.newExam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
-                            $location.path("/exams/" + resource + "/" + $routeParams.id + "/" + fromTab);
-                        }, function (error) {
-                            toastr.error(error.data);
-                        });
+                    $scope.updateExam(false, true).then(function () {
+                        var resource = $scope.newExam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
+                        $location.path("/exams/" + resource + "/" + $routeParams.id + "/" + fromTab);
+                    });
                 };
 
                 // Called when Save button is clicked
@@ -877,15 +814,8 @@
                     }
                     var newState = $scope.newExam.state === 'PUBLISHED' ? 'PUBLISHED' : 'SAVED';
 
-                    var examToSave = getUpdate({"state": newState});
+                    $scope.updateExam(false, false, {"state": newState});
 
-                    ExamRes.exams.update({id: examToSave.id}, examToSave,
-                        function (exam) {
-                            toastr.info($translate.instant("sitnet_exam_saved"));
-                            onUpdate(exam);
-                        }, function (error) {
-                            toastr.error(error.data);
-                        });
                 };
 
                 var isAllowedToUnpublishOrRemove = function (exam) {
@@ -904,15 +834,10 @@
                         });
 
                         modalInstance.result.then(function () {
-                            var examToSave = getUpdate({"state": 'SAVED'});
-                            ExamRes.exams.update({id: examToSave.id}, examToSave,
-                                function () {
-                                    toastr.success($translate.instant("sitnet_exam_unpublished"));
-                                    $scope.newExam.state = 'SAVED';
-                                }, function (error) {
-                                    toastr.error(error.data);
-                                });
-
+                            $scope.updateExam(false, true, {"state": 'SAVED'}).then(function () {
+                                toastr.success($translate.instant("sitnet_exam_unpublished"));
+                                $scope.newExam.state = 'SAVED';
+                            });
                         }, function (error) {
                             // Cancel button clicked
                         });
@@ -984,18 +909,11 @@
                     modalInstance.result.then(function () {
 
                         // OK button clicked
-
-                        var examToSave = getUpdate({"state": 'PUBLISHED'});
-
-                        ExamRes.exams.update({id: examToSave.id}, examToSave,
-                            function (exam) {
-                                toastr.success($translate.instant("sitnet_exam_saved_and_published"));
-                                $location.url($location.path());
-                                $location.path("/");
-                            }, function (error) {
-                                toastr.error(error.data);
-                            });
-
+                        $scope.updateExam(false, true, {"state": 'PUBLISHED'}).then(function (){
+                            toastr.success($translate.instant("sitnet_exam_saved_and_published"));
+                            //$location.url($location.path());
+                            $location.path("/");
+                        });
                     }, function (error) {
                         // Cancel button clicked
                     });
