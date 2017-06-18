@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module('app.exam')
-        .controller('ExamTabsController', ['$scope', '$q', '$routeParams', '$translate', 'ExamRes', 'EXAM_CONF', 'Session',
-            function ($scope, $q, $routeParams, $translate, ExamRes, EXAM_CONF, Session) {
+        .controller('ExamTabsController', ['$scope', '$timeout', '$q', '$routeParams', '$translate', 'ExamRes', 'EXAM_CONF', 'Session',
+            function ($scope, $timeout, $q, $routeParams, $translate, ExamRes, EXAM_CONF, Session) {
 
                 $scope.user = Session.getUser();
                 $scope.examInfo = {};
@@ -16,15 +16,22 @@
                     examPublishSettingsPath: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_publish_settings.html"
                 };
 
-                $scope.updateTitle = function(exam) {
-                    if (exam.course && exam.course.code && exam.name) {
-                        $scope.examInfo.title = exam.course.code + " " + exam.name;
+                $scope.tabs = [
+                    {title: 'perus', active: $routeParams.tab === '1'},
+                    {title: 'kysymys', active: $routeParams.tab === '2'},
+                    {title: 'julkaisu', active: $routeParams.tab === '3'},
+                    {title: 'suoritukset', active: $routeParams.tab === '4'}
+                ];
+
+                $scope.updateTitle = function (code, name) {
+                    if (code && name) {
+                        $scope.examInfo.title = code + " " + name;
                     }
-                    else if (exam.course && exam.course.code) {
-                        $scope.examInfo.title = exam.course.code + " " + $translate.instant("sitnet_no_name");
+                    else if (code) {
+                        $scope.examInfo.title = code + " " + $translate.instant("sitnet_no_name");
                     }
                     else {
-                        $scope.examInfo.title = exam.name;
+                        $scope.examInfo.title = name;
                     }
                 };
 
@@ -36,7 +43,7 @@
                     } else {
                         ExamRes.exams.get({id: $routeParams.id}, function (exam) {
                             $scope.newExam = exam;
-                            $scope.updateTitle(exam);
+                            $scope.updateTitle(!exam.course ? undefined : exam.course.code, exam.name);
                             $scope.examInfo.examOwners = exam.examOwners;
                             $scope.examFull = exam;
                             $scope.isOwner = filterOwners($scope.user.id, $scope.examInfo);
@@ -45,6 +52,37 @@
                         return deferred.promise;
                     }
 
+                };
+
+                $scope.switchToBasicInfo = function () {
+                    $timeout(function() {
+                        $scope.tabs.forEach(function (t) {
+                            t.active = false;
+                        });
+                        $scope.tabs[0].active = true;
+                    });
+                };
+
+                $scope.switchToQuestions = function () {
+                    $timeout(function() {
+                        $scope.tabs.forEach(function (t) {
+                            t.active = false;
+                        });
+                        $scope.tabs[1].active = true;
+                    });
+                };
+
+                $scope.switchToPublishSettings = function () {
+                    $timeout(function() {
+                        $scope.tabs.forEach(function (t) {
+                            t.active = false;
+                        });
+                        $scope.tabs[2].active = true;
+                    });
+                };
+
+                $scope.titleUpdated = function (props) {
+                    $scope.updateTitle(props.code, props.name);
                 };
 
                 var filterOwners = function (userId, exam) {

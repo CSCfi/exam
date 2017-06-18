@@ -9,21 +9,18 @@
         </div>
     </div>
 
-    <div class="tab-wrapper-exams" ng-controller="ExamController">
+    <div class="tab-wrapper-exams">
         <uib-tabset>
             <uib-tab ng-if="isOwner || user.isAdmin" index="0" active="tabs[0].active" heading="{{ 'sitnet_exam_basic_information_tab' | translate }}">
-                <div ng-include="tabtemplates.examBasicPath"></div>
+                <basic-exam-info exam="newExam" on-next-tab-selected="switchToQuestions()" on-update="titleUpdated(props)"></basic-exam-info>
             </uib-tab>
-            <!--
-            <uib-tab index="2" heading="{{ 'sitnet_exam_materials_tab' | translate }}">
-                <div ng-include="templates.examMaterialsPath"></div>
-            </uib-tab>
-            -->
             <uib-tab ng-if="isOwner || user.isAdmin" index="1" active="tabs[1].active" heading="{{ 'sitnet_exam_question_tab' | translate }}">
-                <div ng-include="tabtemplates.examQuestionsPath"></div>
+                <sections exam="newExam" on-previous-tab-selected="switchToBasicInfo()"
+                          on-next-tab-selected="switchToPublishSettings()"
+                          on-new-library-question="initializeExam(true)"></sections>
             </uib-tab>
             <uib-tab ng-if="isOwner || user.isAdmin" index="2" active="tabs[2].active" heading="{{ 'sitnet_exam_publish_tab' | translate }}">
-                <div ng-include="tabtemplates.examPublishSettingsPath"></div>
+                <exam-publication exam="newExam" on-previous-tab-selected="switchToQuestions()"></exam-publication>
             </uib-tab>
             <uib-tab ng-if="!user.isAdmin && newExam.executionType.type !== 'PRINTOUT'" index="3" active="tabs[3].active" heading="{{ 'sitnet_exam_responses' | translate }}">
                 <div ng-include="tabtemplates.reviewListPath"></div>

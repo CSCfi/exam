@@ -209,7 +209,7 @@
                         code: "@code"
                     },
                     {
-                        "add": {method: "PUT"}
+                        "update": {method: "PUT"}
                     }),
                 languages: $resource("/app/exam/:eid/languages",
                     {
@@ -221,12 +221,13 @@
                 examTypes: $resource("/app/examtypes"),
                 executionTypes: $resource("/app/executiontypes"),
                 gradeScales: $resource("/app/gradescales"),
-                software: $resource("/app/exam/:eid/software",
+                software: $resource("/app/exam/:eid/software/:sid",
                     {
-                        eid: "@eid"
+                        eid: "@eid",
+                        sid: "@sid"
                     },
                     {
-                        "add": {method: "PUT"}
+                        "update": {method: "PUT"}
                     }),
                 reservation: $resource("/app/reservations/:id",
                     {

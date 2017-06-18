@@ -2,7 +2,7 @@
 
 angular.module('app.exam.editor')
     .component('newExam', {
-        templateUrl: '/assets/app/exam/editor/newExam.template.html',
+        templateUrl: '/assets/app/exam/editor/creation/newExam.template.html',
         controller: ['examService',
             function (examService) {
 

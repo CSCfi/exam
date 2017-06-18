@@ -29,7 +29,7 @@
                                   onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'"/></sup>
                     </div>
                     <div class="col-md-9">
-                        {{ $ctrl.getExecutionTypeTranslation() | translate}}
+                        {{ $ctrl.getExecutionTypeTranslation() | translate }}
                     </div>
                 </div>
 
@@ -96,25 +96,8 @@
 
                     </div>
                 </div>
-                <div class="row col-md-12 margin-20">
-                    <div class="col-md-3 exam-basic-title">{{'sitnet_exam_language' | translate}}
-                        <sup><img popover-placement="right" popover-trigger="mouseenter"
-                                  uib-popover="{{'sitnet_exam_language_description' | translate}}"
-                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'"/></sup>
 
-                    </div>
-                    <div class="col-md-9">
-                        <multiselect data-multiple="true"
-                                     ng-model="$ctrl.exam.examLanguages"
-                                     ms-header="{{'sitnet_select' | translate}}"
-                                     ms-selected="{{$ctrl.selectedLanguages()}}"
-                                     options="language.name for language in $ctrl.examLanguages"
-                                     change="$ctrl.addExamLanguages()"
-                                     data-compare-by="code">
-                        </multiselect>
-                    </div>
-                </div>
+                <language-selector exam="$ctrl.exam"></language-selector>
 
                 <!-- buttons -->
                 <div class="row col-md-12 padr0 mart40">

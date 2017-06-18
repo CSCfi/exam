@@ -51,7 +51,7 @@
                     );
                 };
 
-                self.enrollStudent = function (exam, student) {
+                self.enrollStudent = function (eid, student) {
                     var deferred = $q.defer();
                     EnrollRes.enrollStudent.create({eid: exam.id, uid: student.id},
                         function (enrolment) {

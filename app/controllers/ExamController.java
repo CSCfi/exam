@@ -556,7 +556,7 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result resetExamLanguages(Long eid) {
+    public Result updateExamSoftware(Long eid, Long sid) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
@@ -565,30 +565,11 @@ public class ExamController extends BaseController {
         if (!isPermittedToUpdate(exam, user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
-
-        exam.getExamLanguages().clear();
-        exam.update();
-
-        return ok();
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateExamSoftwareInfo(Long eid) {
-        List<String> softwareIds = parseArrayFieldFromBody("softwareIds");
-        Exam exam = Ebean.find(Exam.class, eid);
-        if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
-        }
-        User user = getLoggedUser();
-        if (!isPermittedToUpdate(exam, user)) {
-            return forbidden("sitnet_error_access_forbidden");
-        }
-
-        exam.getSoftwareInfo().clear();
-        List<Software> software;
-        if (!softwareIds.isEmpty()) {
-            software = Ebean.find(Software.class).where().idIn(softwareIds).findList();
-            exam.getSoftwareInfo().addAll(software);
+        Software software = Ebean.find(Software.class, sid);
+        if (exam.getSoftwareInfo().contains(software)) {
+            exam.getSoftwareInfo().remove(software);
+        } else {
+            exam.getSoftwareInfo().add(software);
             if (!softwareRequirementDoable(exam)) {
                 return badRequest("sitnet_no_required_softwares");
             }
@@ -607,7 +588,7 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addExamLanguage(Long eid, String code) {
+    public Result updateExamLanguage(Long eid, String code) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
@@ -618,9 +599,12 @@ public class ExamController extends BaseController {
         }
 
         Language language = Ebean.find(Language.class, code);
-        exam.getExamLanguages().add(language);
+        if (exam.getExamLanguages().contains(language)) {
+            exam.getExamLanguages().remove(language);
+        } else {
+            exam.getExamLanguages().add(language);
+        }
         exam.update();
-
         return ok();
     }
 

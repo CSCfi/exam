@@ -1,9 +1,10 @@
 'use strict';
 angular.module('app.exam.editor')
     .component('coursePicker', {
-        templateUrl: '/assets/app/exam/editor/coursePicker.template.html',
+        templateUrl: '/assets/app/exam/editor/common/coursePicker.template.html',
         bindings: {
-            exam: '='
+            exam: '<',
+            onUpdate: '&'
         },
         controller: ['$http', '$translate', 'CourseRes', 'ExamRes',
             function ($http, $translate, CourseRes, ExamRes) {
@@ -52,6 +53,7 @@ angular.module('app.exam.editor')
                             ExamRes.course.update({eid: exam.id, cid: $item.id}, function (course) {
                                 toastr.success($translate.instant('sitnet_exam_associated_with_course'));
                                 vm.exam.course = course;
+                                vm.onUpdate({course: course});
                             }, function () {
                                 toastr.error($translate.instant('sitnet_course_not_found'));
                             });
@@ -64,6 +66,7 @@ angular.module('app.exam.editor')
                         ExamRes.course.update({eid: exam.id, cid: $item.id}, function (course) {
                             toastr.success($translate.instant('sitnet_exam_associated_with_course'));
                             vm.exam.course = course;
+                            vm.onUpdate({course: course});
                         }, function () {
                             toastr.error($translate.instant('sitnet_course_not_found'));
                         });

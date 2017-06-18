@@ -39,15 +39,13 @@ GET           /app/reviewerexams                                         control
 
 GET           /app/examsearch                                            controllers.ExamController.listExams(courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList])
 
-PUT           /app/exam/:eid/software                                    controllers.ExamController.updateExamSoftwareInfo(eid: Long)
+PUT           /app/exam/:eid/software/:sid                               controllers.ExamController.updateExamSoftware(eid: Long, sid: Long)
 
-PUT           /app/exam/:eid/language/:code                              controllers.ExamController.addExamLanguage(eid: Long, code: String)
-DELETE        /app/exam/:eid/languages                                   controllers.ExamController.resetExamLanguages(eid: Long)
+PUT           /app/exam/:eid/language/:code                              controllers.ExamController.updateExamLanguage(eid: Long, code: String)
 
 GET           /app/examtypes                                             controllers.ExamController.getExamTypes
 GET           /app/executiontypes                                        controllers.ExamController.getExamExecutionTypes
 GET           /app/gradescales                                           controllers.ExamController.getExamGradeScales
-
 
 ############### Exam owner interface ###############
 GET           /app/exam/:id/owners                                       controllers.ExamOwnerController.getExamOwners(id: Long)

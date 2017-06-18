@@ -1,4 +1,4 @@
 'use strict';
 
-angular.module('app.exam.editor', ['ui.multiselect']);
+angular.module('app.exam.editor', ['ui.bootstrap']);
 

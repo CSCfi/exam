@@ -46,7 +46,7 @@ public class ExamInspectionController extends BaseController {
             return forbidden("already an inspector");
         }
         Comment comment = inspection.getComment();
-        String msg = comment.getComment();
+        String msg = comment == null ? "" : comment.getComment();
         // Exam name required before adding inspectors that are to receive an email notification
         if ((exam.getName() == null || exam.getName().isEmpty()) && !msg.isEmpty()) {
             return badRequest("sitnet_exam_name_missing_or_too_short");

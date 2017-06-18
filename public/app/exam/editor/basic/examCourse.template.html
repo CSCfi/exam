@@ -1,0 +1,45 @@
+<script type="text/ng-template" id="course_template.html">
+    <a style="cursor: pointer;">
+        <span style="cursor:pointer;font-weight: 500;" bind-html-unsafe="match.label"></span>
+        <span style="font-size:0.70em;color:#bbb;text-transform: uppercase;cursor:pointer;">{{match.model.code}} {{match.model.name}}</span>
+    </a>
+</script>
+<div class="col-md-12">
+    <div class="row margin-20">
+
+    <course-picker exam="$ctrl.exam" on-update="$ctrl.setCourse(course)"></course-picker>
+
+    </div>
+    <!-- Course scope and organization name elements -> 3 rows -->
+    <div class="row margin-20">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-3">
+            <div class="">{{'sitnet_course_scope' | translate}}</div>
+        </div>
+        <div class="col-md-6">
+            <div class="">{{$ctrl.exam.course.credits}}</div>
+        </div>
+    </div>
+    <div class="row margin-20">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-3">
+            <div class="">{{'sitnet_faculty_name' | translate}}</div>
+        </div>
+        <div class="col-md-6">
+            <div class="">{{$ctrl.exam.course.organisation.name}}</div>
+        </div>
+    </div>
+    <div class="row margin-20" ng-show="$ctrl.exam.course.gradeScale">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-3">
+            <div class="">{{'sitnet_grade_scale' | translate}}</div>
+        </div>
+        <div class="col-md-6">
+            <div class="">{{$ctrl.displayGradeScale()}}</div>
+        </div>
+    </div>
+
+</div>
