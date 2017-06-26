@@ -113,15 +113,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
             templateUrl: tmpl + 'review/review.html',
             controller: 'ExamReviewController'
         });
-        $routeProvider.when('/exams/reviews/:id', {
-            templateUrl: tmpl + 'review/review_list.html',
-            controller: 'ReviewListingController'
-        });
-        $routeProvider.when('/exams/reviews/:id/speedreview', {
-            templateUrl: tmpl + 'review/listings/speed_review.html',
-            controller: 'SpeedReviewController',
-            controllerAs: 'ctrl'
-        });
+        $routeProvider.when('/exams/reviews/:id/speedreview', {template: '<speed-review></speed-review>'});
         $routeProvider.when('/exams/preview/:id', {
             templateUrl: tmpl + 'exam/student/exam.html',
             controller: 'StudentExamController'
@@ -133,7 +125,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         $routeProvider.when('/reservations', {template: '<reservations user-role="teacher"></reservations>'});
         $routeProvider.when('/reservations/:eid', {template: '<reservations user-role="teacher"></reservations>'});
 
-        $routeProvider.when('/exams/examTabs/:id/:tab', {templateUrl: tmpl + 'exam/examTabs.html'});
+        $routeProvider.when('/exams/examTabs/:id/:tab', {template: '<exam-tabs></exam-tabs>'});
 
         /* Admin */
         $routeProvider.when('/rooms', {templateUrl: tmpl + 'facility/rooms.html', controller: 'RoomCtrl'});

@@ -3,9 +3,7 @@ angular.module('app.exam.editor')
     .component('examInspectorSelector', {
         templateUrl: '/assets/app/exam/editor/basic/examInspectorSelector.template.html',
         bindings: {
-            exam: '<',
-            onDelete: '&',
-            onInsert: '&'
+            exam: '<'
         },
         controller: ['$translate', 'limitToFilter', 'ExamRes', 'UserRes',
             function ($translate, limitToFilter, ExamRes, UserRes) {

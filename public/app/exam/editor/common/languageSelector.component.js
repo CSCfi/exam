@@ -3,16 +3,15 @@ angular.module('app.exam.editor')
     .component('languageSelector', {
         templateUrl: '/assets/app/exam/editor/common/languageSelector.template.html',
         bindings: {
-            exam: '<',
-            onUpdate: '&'
+            exam: '<'
         },
-        controller: ['$q', '$translate', 'LanguageRes', 'ExamRes',
-            function ($q, $translate, LanguageRes, ExamRes) {
+        controller: ['$q', '$translate', 'Language', 'ExamRes',
+            function ($q, $translate, Language, ExamRes) {
 
                 var vm = this;
 
                 vm.$onInit = function () {
-                    LanguageRes.languages.query(function (languages) {
+                    Language.languages.query(function (languages) {
                         vm.examLanguages = languages.map(function (language) {
                             language.name = getLanguageNativeName(language.code);
                             return language;

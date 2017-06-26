@@ -51,7 +51,7 @@ public class BaseController extends Controller {
     @Inject
     protected FormFactory formFactory;
     @Inject
-    protected NoShowHandler noShowHandler;
+    private NoShowHandler noShowHandler;
 
     protected <T> T bindForm(final Class<T> clazz) {
         final Form<T> form = formFactory.form(clazz);

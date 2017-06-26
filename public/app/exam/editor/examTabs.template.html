@@ -1,0 +1,40 @@
+<div id="dashboard">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-details-title-wrap">
+                <a href="/"><img class="arrow_icon" src="../../../../assets/assets/images/icon_history.png"></a>
+                <div class="student-exam-details-title">{{$ctrl.examInfo.title}}</div>
+            </div>
+            <span ng-show="$ctrl.exam.state" class="exam-status">{{'sitnet_' + $ctrl.exam.state | lowercase | translate}}</span>
+        </div>
+    </div>
+
+    <div class="tab-wrapper-exams">
+        <uib-tabset active="$ctrl.activeTab">
+            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner || $ctrl.user.isAdmin)" index="1"
+                     heading="{{ 'sitnet_exam_basic_information_tab' | translate }}">
+                <basic-exam-info exam="$ctrl.exam" on-next-tab-selected="$ctrl.switchToQuestions()"
+                                 on-update="$ctrl.titleUpdated(props)">
+
+                </basic-exam-info>
+            </uib-tab>
+            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner || $ctrl.user.isAdmin)" index="2"
+                     heading="{{ 'sitnet_exam_question_tab' | translate }}">
+                <sections exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToBasicInfo()"
+                          on-next-tab-selected="$ctrl.switchToPublishSettings()"
+                          on-new-library-question="$ctrl.initializeExam(true)">
+                </sections>
+            </uib-tab>
+            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner || $ctrl.user.isAdmin)" index="3"
+                     heading="{{ 'sitnet_exam_publish_tab' | translate }}">
+                <exam-publication exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToQuestions()"></exam-publication>
+            </uib-tab>
+            <uib-tab ng-if="$ctrl.exam && !$ctrl.user.isAdmin && $ctrl.exam.executionType.type !== 'PRINTOUT'" index="4"
+                     heading="{{ 'sitnet_exam_responses' | translate }}">
+                <review-list exam="$ctrl.exam"></review-list>
+            </uib-tab>
+        </uib-tabset>
+    </div>
+</div>
+
+

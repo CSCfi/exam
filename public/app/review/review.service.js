@@ -1,6 +1,6 @@
 'use strict';
 angular.module('app.review')
-    .service('examReviewService', ['$uibModal', '$q', '$translate', 'ExamRes', 'EXAM_CONF', 'examService',
+    .service('Review', ['$uibModal', '$q', '$translate', 'ExamRes', 'EXAM_CONF', 'examService',
         function ($modal, $q, $translate, ExamRes, EXAM_CONF, examService) {
 
             var self = this;
@@ -43,39 +43,6 @@ angular.module('app.review')
                     });
                 }
                 return deferred.promise;
-            };
-
-            self.showFeedbackEditor = function (exam) {
-                var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
-                    $scope.exam = angular.copy(exam);
-                    $scope.ok = function () {
-                        $modalInstance.close("Accepted");
-                        if (!exam.examFeedback) {
-                            exam.examFeedback = {};
-                        }
-                        exam.examFeedback.comment = $scope.exam.examFeedback.comment;
-                        self.saveFeedback(exam);
-                    };
-                    $scope.cancel = function () {
-                        $modalInstance.close("Canceled");
-                    };
-                }];
-
-                var modalInstance = $modal.open({
-                    templateUrl: EXAM_CONF.TEMPLATES_PATH + 'review/listings/feedback_modal.html',
-                    backdrop: 'static',
-                    keyboard: true,
-                    controller: modalController,
-                    resolve: {
-                        exam: function () {
-                            return exam;
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function () {
-                    console.log("closed");
-                });
             };
 
             self.isReadOnly = function (exam) {
@@ -122,7 +89,7 @@ angular.module('app.review')
                 var tmp = document.createElement("div");
                 tmp.innerHTML = html;
 
-                if (!tmp.textContent && typeof tmp.innerText == "undefined") {
+                if (!tmp.textContent && typeof tmp.innerText === "undefined") {
                     return "";
                 }
 

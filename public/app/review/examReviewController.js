@@ -1,11 +1,11 @@
 'use strict';
 angular.module('app.review')
-    .controller('ExamReviewController', ['dialogs', '$document', '$q', '$scope', 'Session', 'examReviewService',
+    .controller('ExamReviewController', ['dialogs', '$document', '$q', '$scope', 'Session', 'Review',
         'examService', 'questionService', '$routeParams', '$http', '$uibModal', '$location', '$translate',
-        '$timeout', '$sce', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'LanguageInspectionRes', 'QuestionRes',
+        '$timeout', '$sce', 'EXAM_CONF', 'ExamRes', 'Language', 'LanguageInspectionRes', 'QuestionRes',
         'dateService', 'fileService',
-        function (dialogs, $document, $q, $scope, Session, examReviewService, examService, questionService,
-                  $routeParams, $http, $modal, $location, $translate, $timeout, $sce, EXAM_CONF, ExamRes, LanguageRes,
+        function (dialogs, $document, $q, $scope, Session, Review, examService, questionService,
+                  $routeParams, $http, $modal, $location, $translate, $timeout, $sce, EXAM_CONF, ExamRes, Language,
                   LanguageInspectionRes, QuestionRes, dateService, fileService) {
 
             $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "review/exam_general_info.html";
@@ -45,7 +45,7 @@ angular.module('app.review')
             $scope.exam = {languageInspection: undefined};
 
             var pickExamLanguage = function () {
-                return examReviewService.pickExamLanguage($scope.exam);
+                return Review.pickExamLanguage($scope.exam);
             };
 
             $scope.setLanguage = function (lang) {
@@ -131,7 +131,7 @@ angular.module('app.review')
 
             var setExamLanguage = function () {
                 var lang = pickExamLanguage();
-                LanguageRes.languages.query(function (languages) {
+                Language.languages.query(function (languages) {
                     $scope.languages = languages.map(function (language) {
                         if (lang && lang.code === language.code) {
                             $scope.selections.language = language;
@@ -170,19 +170,19 @@ angular.module('app.review')
             };
 
             $scope.isReadOnly = function () {
-                return examReviewService.isReadOnly($scope.exam);
+                return Review.isReadOnly($scope.exam);
             };
 
             $scope.isGraded = function () {
-                return examReviewService.isGraded($scope.exam);
+                return Review.isGraded($scope.exam);
             };
 
             $scope.getWordCount = function (text) {
-                return examReviewService.countWords(text);
+                return Review.countWords(text);
             };
 
             $scope.getCharacterCount = function (text) {
-                return examReviewService.countCharacters(text);
+                return Review.countCharacters(text);
             };
 
             $scope.reviewStatus = [
@@ -434,7 +434,7 @@ angular.module('app.review')
             };
 
             $scope.saveFeedback = function (withoutNotice) {
-                return examReviewService.saveFeedback($scope.exam, withoutNotice);
+                return Review.saveFeedback($scope.exam, withoutNotice);
             };
 
             $scope.saveInspectionStatement = function () {
@@ -511,7 +511,7 @@ angular.module('app.review')
                     $scope.saveFeedback();
                 }
                 else {
-                    if (!examReviewService.checkCredit(exam)) {
+                    if (!Review.checkCredit(exam)) {
                         return;
                     }
                     var messages = [];
@@ -636,7 +636,7 @@ angular.module('app.review')
 
             $scope.saveExamRecord = function (reviewedExam, followUpUrl, silent) {
 
-                if (!examReviewService.checkCredit(reviewedExam)) {
+                if (!Review.checkCredit(reviewedExam)) {
                     return;
                 }
 
@@ -669,7 +669,7 @@ angular.module('app.review')
                         dialogNote = !silent && $translate.instant('sitnet_confirm_archiving_without_grade');
                         res = ExamRes.register.add;
                     } else {
-                        dialogNote = !silent && examReviewService.getRecordReviewConfirmationDialogContent(reviewedExam.examFeedback.comment);
+                        dialogNote = !silent && Review.getRecordReviewConfirmationDialogContent(reviewedExam.examFeedback.comment);
                         res = ExamRes.saveRecord.add;
                     }
                     if (!silent) {

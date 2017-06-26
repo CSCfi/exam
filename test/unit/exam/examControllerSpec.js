@@ -29,7 +29,7 @@ describe('ExamController', function () {
         window['toastr'] = {error: jasmine.createSpy('error'), warning: jasmine.createSpy('warning')};
         $httpBackend = $injector.get('$httpBackend');
         q = $q;
-        var languageRes = $injector.get('LanguageRes');
+        var languageRes = $injector.get('Language');
         var softwareResource = $injector.get('SoftwareResource');
         var settingsResource = $injector.get('SettingsResource');
         ExamRes = $injector.get('ExamRes');

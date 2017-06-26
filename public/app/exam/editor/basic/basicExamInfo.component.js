@@ -173,7 +173,7 @@ angular.module('app.exam.editor')
                 var refreshExamTypes = function () {
                     examService.refreshExamTypes().then(function (types) {
                         // Maturity can only have a FINAL type
-                        if (vm.exam.executionType.type === 'MATURITY') {
+                        if (vm.exam && vm.exam.executionType.type === 'MATURITY') {
                             types = types.filter(function (t) {
                                 return t.type === 'FINAL';
                             });

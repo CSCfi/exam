@@ -5,19 +5,19 @@
     <div class="modal-body marl20">
         <div class="row">
             <div class="col-md-12 padl0">
-                <textarea ck-editor rows="10" ng-model="exam.examFeedback.comment"></textarea>
+                <textarea ck-editor rows="10" ng-model="$ctrl.exam.examFeedback.comment"></textarea>
             </div>
         </div>
     </div>
     <div class="modal-footer">
 
         <div class="col-md-6">
-            <button class="btn btn btn-success pull-left" ng-click="ok();">
+            <button class="btn btn btn-success pull-left" ng-click="$ctrl.ok();">
                 {{'sitnet_save' | translate}}
             </button>
         </div>
         <div class="col-md-6">
-            <button class="btn btn-primary pull-right" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+            <button class="btn btn-primary pull-right" ng-click="$ctrl.cancel()">{{'sitnet_button_cancel' | translate}}
             </button>
         </div>
     </div>

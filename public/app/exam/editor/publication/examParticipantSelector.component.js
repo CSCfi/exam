@@ -3,7 +3,7 @@ angular.module('app.exam.editor')
     .component('examParticipantSelector', {
         templateUrl: '/assets/app/exam/editor/publication/examParticipantSelector.template.html',
         bindings: {
-            exam: '='
+            exam: '<'
         },
         controller: ['$translate', 'limitToFilter', 'UserRes', 'enrolmentService', 'EnrollRes',
             function ($translate, limitToFilter, UserRes, enrolmentService, EnrollRes) {

@@ -3,8 +3,7 @@ angular.module('app.exam.editor')
     .component('softwareSelector', {
         templateUrl: '/assets/app/exam/editor/basic/softwareSelector.template.html',
         bindings: {
-            exam: '<',
-            onUpdate: '@'
+            exam: '<'
         },
         controller: ['$translate', 'SoftwareResource', 'ExamRes',
             function ($translate, SoftwareResource, ExamRes) {

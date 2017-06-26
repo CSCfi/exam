@@ -60,7 +60,7 @@ libraryDependencies ++= Seq(
   "org.webjars" % "jquery-ui" % "1.11.4",
   "org.webjars" % "jquery-ui-touch-punch" % "0.2.3-2",
   "org.webjars" % "toastr" % "2.1.1",
-  "org.webjars" % "angular-ui-bootstrap" % "0.14.3",
+  "org.webjars" % "angular-ui-bootstrap" % "2.2.0",
   "org.webjars" % "ui-select2" % "0.0.5-1",
   "org.webjars" % "underscorejs" % "1.8.3"
 )
