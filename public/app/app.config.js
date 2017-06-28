@@ -109,10 +109,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
 
         /* Teacher */
-        $routeProvider.when('/exams/review/:id', {
-            templateUrl: tmpl + 'review/review.html',
-            controller: 'ExamReviewController'
-        });
+        $routeProvider.when('/exams/review/:id', {template: '<assessment></assessment>'});
         $routeProvider.when('/exams/reviews/:id/speedreview', {template: '<speed-review></speed-review>'});
         $routeProvider.when('/exams/preview/:id', {
             templateUrl: tmpl + 'exam/student/exam.html',
@@ -139,12 +136,8 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         $routeProvider.when('/settings', {template: '<settings></settings>'});
         $routeProvider.when('/users', {template: '<users></users>'});
 
-
-        /* Print */
-        $routeProvider.when('/print/exam/:id', {
-            templateUrl: tmpl + 'review/print/fullReview.html',
-            controller: 'ExamReviewController'
-        });
+        /* Print assessment */
+        $routeProvider.when('/print/exam/:id', {template: '<printed-assessment></printed-assessment>'});
 
         /* Printout exam */
         $routeProvider.when('/exams/printout/:id', {

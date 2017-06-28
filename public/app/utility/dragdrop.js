@@ -1,37 +1,5 @@
-"use strict";
+'use strict';
 angular.module('app.utility')
-    .factory('DragDropHandler', [function () {
-        return {
-            dragObject: undefined,
-            addObject: function (object, objects, to) {
-                objects.splice(to, 0, object);
-            }
-        };
-    }])
-
-    .directive('draggable', ['DragDropHandler', function (DragDropHandler) {
-        return {
-            scope: {
-                draggable: '='
-            },
-            link: function (scope, element, attrs) {
-                element.draggable({
-                    connectToSortable: attrs.draggableTarget,
-                    helper: "clone",
-                    revert: "invalid",
-                    appendTo: "body",
-                    start: function () {
-                        DragDropHandler.dragObject = scope.draggable;
-                    },
-                    stop: function () {
-                        DragDropHandler.dragObject = undefined;
-                    }
-                });
-
-                element.disableSelection();
-            }
-        };
-    }])
 
     .directive('sortable', [function () {
         return {
@@ -67,7 +35,7 @@ angular.module('app.utility')
         };
     }])
 
-    .directive('droppable', ['DragDropHandler', '$translate', '$parse', function (DragDropHandler, $translate, $parse) {
+    .directive('droppable', ['$translate', '$parse', function ($translate, $parse) {
         return {
             scope: {
                 objects: '=',
@@ -127,18 +95,6 @@ angular.module('app.utility')
 
                     element.disableSelection();
 
-                    element.on("sortdeactivate", function (event, ui) {
-                        var to = element.children().index(ui.item);
-                        if (DragDropHandler.dragObject && to > -1) {
-                            scope.$apply(function () {
-                                scope.onCreate({
-                                    object: DragDropHandler.dragObject,
-                                    to: to
-                                });
-                                ui.item.remove();
-                            });
-                        }
-                    });
                 }
             }
         };

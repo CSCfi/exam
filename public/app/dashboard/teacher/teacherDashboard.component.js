@@ -1,5 +1,5 @@
 'use strict';
-angular.module("app.dashboard.teacher")
+angular.module('app.dashboard.teacher')
     .component('teacherDashboard', {
         templateUrl: '/assets/app/dashboard/teacher/teacherDashboard.template.html',
         controller: ['TeacherDashboard', 'examService', 'dateService', 'Session', 'EXAM_CONF', 'ExamRes',
@@ -12,11 +12,11 @@ angular.module("app.dashboard.teacher")
                 ctrl.$onInit = function () {
                     ctrl.userId = Session.getUser().id;
                     ctrl.templates = {
-                        dashboardToolbarPath: EXAM_CONF.TEMPLATES_PATH + "dashboard/teacher/templates/toolbar.html",
-                        dashboardActiveExamsPath: EXAM_CONF.TEMPLATES_PATH + "dashboard/teacher/templates/active_exams.html",
-                        dashboardFinishedExamsPath: EXAM_CONF.TEMPLATES_PATH + "dashboard/teacher/templates/finished_exams.html",
-                        dashboardArchivedExamsPath: EXAM_CONF.TEMPLATES_PATH + "dashboard/teacher/templates/archived_exams.html",
-                        dashboardDraftExamsPath: EXAM_CONF.TEMPLATES_PATH + "dashboard/teacher/templates/draft_exams.html"
+                        dashboardToolbarPath: EXAM_CONF.TEMPLATES_PATH + 'dashboard/teacher/templates/toolbar.html',
+                        dashboardActiveExamsPath: EXAM_CONF.TEMPLATES_PATH + 'dashboard/teacher/templates/active_exams.html',
+                        dashboardFinishedExamsPath: EXAM_CONF.TEMPLATES_PATH + 'dashboard/teacher/templates/finished_exams.html',
+                        dashboardArchivedExamsPath: EXAM_CONF.TEMPLATES_PATH + 'dashboard/teacher/templates/archived_exams.html',
+                        dashboardDraftExamsPath: EXAM_CONF.TEMPLATES_PATH + 'dashboard/teacher/templates/draft_exams.html'
                     };
                     // Pagesize for showing finished exams
                     ctrl.pageSize = 10;
@@ -102,7 +102,7 @@ angular.module("app.dashboard.teacher")
                 ctrl.copyExam = function (exam, type) {
                     ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
                         toastr.success($translate.instant('sitnet_exam_copied'));
-                        $location.path("/exams/examTabs/" + copy.id + "/1/");
+                        $location.path('/exams/examTabs/' + copy.id + '/1/');
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -135,7 +135,14 @@ angular.module("app.dashboard.teacher")
                     });
                 };
 
+                ctrl.isOwner = function (exam) {
+                    return exam.examOwners.some(function (eo) {
+                        return eo.id === ctrl.userId;
+                    });
+                };
+
                 ctrl.filterOwners = function (exam) {
+                    if (!exam) return false;
                     var owner = exam.examOwners.filter(function (own) {
                         return (own.id === ctrl.userId);
                     });

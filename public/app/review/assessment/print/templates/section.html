@@ -1,0 +1,10 @@
+<blockquote><h4>{{$index + 1}}.&nbsp; &nbsp;{{section.name}}</h4></blockquote>
+<p>{{section.description}}</p>
+<div class="sub-content-row col-md-12" ng-repeat="sectionQuestion in section.sectionQuestions | orderBy: 'sequenceNumber'">
+    <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion' ||
+                sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
+         ng-include="$ctrl.templates.multiChoice">
+    </div>
+    <div ng-if="sectionQuestion.question.type === 'EssayQuestion'" ng-include="$ctrl.templates.essay"></div>
+    <div ng-if="sectionQuestion.question.type === 'ClozeTestQuestion'" ng-include="$ctrl.templates.clozeTest"></div>
+</div>

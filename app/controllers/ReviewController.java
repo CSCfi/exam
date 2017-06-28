@@ -245,7 +245,7 @@ public class ReviewController extends BaseController {
             return updateReviewState(exam, newState, true);
         }
         Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
-        String additionalInfo = df.get("additionalInfo") == null ? null : df.get("additionalInfo");
+        String additionalInfo = df.get("additionalInfo");
         if (grade != null) {
             Grade examGrade = Ebean.find(Grade.class, grade);
             GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
@@ -622,6 +622,14 @@ public class ReviewController extends BaseController {
                 .fetch("parent.gradeScale")
                 .fetch("parent.gradeScale.grades", new FetchConfig().query())
                 .fetch("parent.examOwners", new FetchConfig().query())
+                .fetch("examEnrolments")
+                .fetch("examEnrolments.reservation")
+                .fetch("examEnrolments.reservation.machine")
+                .fetch("examEnrolments.reservation.machine.room")
+                .fetch("examInspections")
+                .fetch("examInspections.user")
+                .fetch("examParticipations")
+                .fetch("examParticipations.user")
                 .fetch("examType")
                 .fetch("executionType")
                 .fetch("examSections")

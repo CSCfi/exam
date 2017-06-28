@@ -8,8 +8,8 @@ angular.module('app.exam.editor')
             onUpdate: '&',
             onNextTabSelected: '&'
         },
-        controller: ['$location', '$scope', '$translate', '$uibModal', 'dialogs', 'examService', 'ExamRes', 'SettingsResource', 'Attachment', 'EXAM_CONF',
-            function ($location, $scope, $translate, $modal, dialogs, examService, ExamRes, SettingsResource, Attachment, EXAM_CONF) {
+        controller: ['$location', '$scope', '$translate', '$uibModal', 'dialogs', 'examService', 'ExamRes', 'SettingsResource', 'Attachment', 'fileService',
+            function ($location, $scope, $translate, $modal, dialogs, examService, ExamRes, SettingsResource, Attachment, fileService) {
 
                 var vm = this;
 
@@ -91,42 +91,19 @@ angular.module('app.exam.editor')
                 };
 
                 vm.selectAttachmentFile = function () {
-
-                    var exam = vm.exam;
-
-                    var ctrl = ['$scope', '$uibModalInstance', 'fileService', function ($scope, $modalInstance, fileService) {
-
-                        $scope.newExam = exam;
-                        $scope.isTeacherModal = true;
-                        fileService.getMaxFilesize().then(function (data) {
-                            $scope.maxFileSize = data.filesize;
-                        });
-
-                        $scope.submit = function () {
-                            fileService.upload('/app/attachment/exam', $scope.attachmentFile, {examId: $scope.newExam.id}, $scope.newExam, $modalInstance);
-                        };
-
-                        $scope.cancel = function () {
-                            $modalInstance.dismiss('Cancelled');
-                        };
-
-                        // Close modal if user clicked the back button
-                        $scope.$on('$routeChangeStart', function () {
-                            $modalInstance.dismiss();
-                        });
-
-                    }];
-
-                    var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',
+                    $modal.open({
                         backdrop: 'static',
                         keyboard: true,
-                        controller: ctrl
-                    });
-
-                    modalInstance.result.then(function () {
-                        // OK button
-                        modalInstance.dismiss();
+                        animation: true,
+                        component: 'attachmentSelector',
+                        resolve: {
+                            isTeacherModal: function () {
+                                return true;
+                            }
+                        }
+                    }).result.then(function (data) {
+                        fileService.upload('/app/attachment/exam',
+                            data.attachmentFile, {examId: vm.exam.id}, vm.exam);
                     });
                 };
 
@@ -173,7 +150,7 @@ angular.module('app.exam.editor')
                 var refreshExamTypes = function () {
                     examService.refreshExamTypes().then(function (types) {
                         // Maturity can only have a FINAL type
-                        if (vm.exam && vm.exam.executionType.type === 'MATURITY') {
+                        if (vm.exam.executionType.type === 'MATURITY') {
                             types = types.filter(function (t) {
                                 return t.type === 'FINAL';
                             });

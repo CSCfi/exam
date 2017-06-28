@@ -289,7 +289,7 @@ angular.module('app.reservation')
                 weekNumbers: false,
                 firstDay: 1,
                 timeFormat: 'H:mm',
-                columnFormat: 'dddd D.M',
+                columnFormat: 'dd D.M',
                 titleFormat: 'D.M.YYYY',
                 slotLabelFormat: 'H:mm',
                 slotEventOverlap: false,

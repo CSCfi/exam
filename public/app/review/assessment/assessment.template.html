@@ -1,0 +1,99 @@
+<div id="dashboard">
+
+    <div class="top-row">
+        <div class="col-md-12" >
+            <div class="student-details-title-wrap">
+                <a href="/exams/examTabs/{{$ctrl.exam.parent.id}}/4">
+                    <img class="arrow_icon" src="../../../assets/assets/images/icon_history.png"></a>
+                    <div class="student-exam-details-title">{{'sitnet_exam_review' | translate}}</div>
+            </div>
+
+            <div class="review-attachment-button print-button">
+                <a ng-click="$ctrl.print()" class="pointer">
+                    {{'sitnet_print' | translate}}&nbsp;&nbsp;
+                </a>
+            </div>
+
+            <div class="status-floater">
+                <span class="inspection-title">{{'sitnet_inspection_status' | translate}}:</span>
+                <span ng-if="$ctrl.exam.state === 'ABORTED'"
+                      class="status">{{'sitnet_aborted_exam' | translate}}
+                </span>
+                <span ng-if="$ctrl.exam.state ==='REVIEW' || $ctrl.exam.state === 'REVIEW_STARTED'  || $ctrl.exam.state === 'STUDENT_STARTED'"
+                      class="status">{{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+                </span>
+                <span ng-if="$ctrl.exam.state === 'GRADED'" class="status">
+                    {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+                </span>
+                <span ng-if="$ctrl.exam.state === 'GRADED_LOGGED'" class="status">
+                    {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+                </span>
+                <span ng-if="$ctrl.exam.state === 'REJECTED'" class="status">
+                    {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+                </span>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-wrapper-exams review">
+        <div class="review-border">
+            <div class="padt50 padl30 padr30">
+                <div class="review-list-title">{{$ctrl.exam.course.code}} - {{$ctrl.exam.name}}, {{$ctrl.exam.course.credits}} op
+                    <a class="pointer" ng-click="$ctrl.hideGeneralInfo = !$ctrl.hideGeneralInfo">
+                        <img ng-show="hideGeneralInfo" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
+                        <img ng-show="!hideGeneralInfo" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+                    </a>
+                </div>
+            </div>
+            <!-- General Information -->
+            <r-general-info ng-if="$ctrl.exam && !$ctrl.hideGeneralInfo" exam="$ctrl.exam"></r-general-info>
+        </div>
+    </div>
+
+
+    <!-- Sections -->
+    <div ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'">
+        <r-exam-section exam="$ctrl.exam" section="section" on-score="$ctrl.scoreSet()" index="$index + 1"
+                        is-scorable="(!$ctrl.isGraded() || $ctrl.isOwnerOrAdmin()) && !$ctrl.isReadOnly()">
+        </r-exam-section>
+    </div>
+
+    <div class="tab-wrapper-exams review">
+        <div class="review-border">
+
+            <div class="padt50 padl30 padr30">
+                <div class="review-list-title">
+
+                    <span class="review-question-title">{{ 'sitnet_grading_info' | translate }}</span>
+                    <a ng-click="$ctrl.hideGradeInfo = !$ctrl.hideGradeInfo">
+                        <img ng-show="$ctrl.hideGradeInfo" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
+                        <img ng-hide="$ctrl.hideGradeInfo" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+                    </a>
+                </div>
+            </div>
+
+            <!-- Grading -->
+            <div ng-hide="$ctrl.hideGradeInfo" class="padl15 padr15">
+                <r-grading ng-if="$ctrl.exam && !$ctrl.exam.subjectToLanguageInspection"
+                           on-update="$ctrl.gradingUpdated()" user="$ctrl.user" exam="$ctrl.exam"
+                           question-summary="$ctrl.questionSummary">
+                </r-grading>
+                <r-maturity-grading ng-if="$ctrl.exam && $ctrl.exam.subjectToLanguageInspection"
+                                    on-update="$ctrl.gradingUpdated()" user="$ctrl.user" exam="$ctrl.exam">
+                </r-maturity-grading>
+            </div>
+
+            <!-- Floating feedback window -->
+            <r-feedback ng-if="$ctrl.exam && !$ctrl.isUnderLanguageInspection()" exam="$ctrl.exam"
+                        ng-hide="($ctrl.isGraded() && !$ctrl.isOwnerOrAdmin()) || $ctrl.isReadOnly()">
+            </r-feedback>
+            <r-statement ng-if="$ctrl.exam && $ctrl.isUnderLanguageInspection()" exam="$ctrl.exam"></r-statement>
+        </div>
+    </div>
+
+</div>

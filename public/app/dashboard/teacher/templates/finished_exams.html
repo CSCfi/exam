@@ -28,12 +28,11 @@
                 </thead>
 
                 <tbody>
-                <tr ng-repeat="exam in $ctrl.filteredFinished | orderBy:$ctrl.finishedPredicate:$ctrl.reverse"
-                    ng-init="isOwner=f$ctrl.ilterOwners(user.id, exam)">
+                <tr ng-repeat="exam in $ctrl.filteredFinished | orderBy:$ctrl.finishedPredicate:$ctrl.reverse">
 
                     <td ng-if="exam.name" class="table-column-examname">
-                        <a ng-if="isOwner" href="/exams/examTabs/{{exam.id}}/1">{{ exam.name }}</a>
-                        <span ng-if="!isOwner">{{ exam.name }}</span>
+                        <a ng-if="$ctrl.isOwner(exam)" href="/exams/examTabs/{{exam.id}}/1">{{ exam.name }}</a>
+                        <span ng-if="!$ctrl.isOwner(exam)">{{ exam.name }}</span>
                     </td>
                     <td ng-if="!exam.name" class="table-column-examname">
                         <span class="text-danger">{{'sitnet_no_name' | translate}}</span>

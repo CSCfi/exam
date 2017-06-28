@@ -18,7 +18,7 @@
                                     ngModel.$setValidity('badDate', false);
                                 }
                             } else {
-                                if (!moment(value, "DD.MM.YYYY").isValid()) {
+                                if (!moment(value, 'DD.MM.YYYY').isValid()) {
                                     ngModel.$setValidity('badDate', false);
                                 }
                             }
@@ -36,8 +36,8 @@
             return {
                 require: 'ngModel',
                 scope: {
-                    items: "=",
-                    property: "@property"
+                    items: '=',
+                    property: '@property'
                 },
                 link: function (scope, elem, attrs, ngModel) {
                     function validate(value) {
@@ -65,14 +65,14 @@
                     require: 'ngModel',
                     scope: {
                         ngModel: '=',
-                        datepickerOptions: "=",
-                        dateFormat: "=dateFormat",
-                        hourStep: "=",
-                        minuteStep: "=",
-                        showMeridian: "=",
-                        meredians: "=",
-                        mousewheel: "=",
-                        readonlyTime: "@"
+                        datepickerOptions: '=',
+                        dateFormat: '=dateFormat',
+                        hourStep: '=',
+                        minuteStep: '=',
+                        showMeridian: '=',
+                        meredians: '=',
+                        mousewheel: '=',
+                        readonlyTime: '@'
                     },
                     template: function (elem, attrs) {
                         function dashCase(name, separator) {
@@ -84,7 +84,7 @@
                         function createAttr(innerAttr, dateTimeAttrOpt) {
                             var dateTimeAttr = angular.isDefined(dateTimeAttrOpt) ? dateTimeAttrOpt : innerAttr;
                             if (attrs[dateTimeAttr]) {
-                                return dashCase(innerAttr) + "=\"" + dateTimeAttr + "\" ";
+                                return dashCase(innerAttr) + '="' + dateTimeAttr + '" ';
                             } else {
                                 return '';
                             }
@@ -93,7 +93,7 @@
                         function createFuncAttr(innerAttr, funcArgs, dateTimeAttrOpt) {
                             var dateTimeAttr = angular.isDefined(dateTimeAttrOpt) ? dateTimeAttrOpt : innerAttr;
                             if (attrs[dateTimeAttr]) {
-                                return dashCase(innerAttr) + "=\"" + dateTimeAttr + "({" + funcArgs + "})\" ";
+                                return dashCase(innerAttr) + '="' + dateTimeAttr + '({' + funcArgs + '})" ';
                             } else {
                                 return '';
                             }
@@ -102,7 +102,7 @@
                         function createEvalAttr(innerAttr, dateTimeAttrOpt) {
                             var dateTimeAttr = angular.isDefined(dateTimeAttrOpt) ? dateTimeAttrOpt : innerAttr;
                             if (attrs[dateTimeAttr]) {
-                                return dashCase(innerAttr) + "=\"" + attrs[dateTimeAttr] + "\" ";
+                                return dashCase(innerAttr) + '="' + attrs[dateTimeAttr] + '" ';
                             } else {
                                 return dashCase(innerAttr);
                             }
@@ -112,22 +112,22 @@
                             return previousAttrs + createAttr.apply(null, attr);
                         }
 
-                        var tmpl = "<div id=\"datetimepicker\" class=\"datetimepicker-wrapper\">" +
-                            "<input type=\"text\" class=\"form-control\" uib-datepicker-popup=\"{{dateFormat}}\" ng-click=\"open($event)\" is-open=\"opened\" ng-model=\"ngModel\" " +
-                            "datepicker-options=\"datepickerOptions\" close-text=\"{{'sitnet_close' | translate}}\" " +
-                            "current-text=\"{{'sitnet_today' | translate}}\" date-validator />\n" +
-                            "</div>\n" +
-                            "<div id=\"datetimepicker\" class=\"datetimepicker-wrapper\" ng-model=\"time\" ng-change=\"timeChange()\" style=\"display:inline-block\">\n" +
-                            "<uib-timepicker " + [
-                                ["hourStep"],
-                                ["minuteStep"],
-                                ["showMeridian"],
-                                ["meredians"],
-                                ["mousewheel"]
+                        var tmpl = '<div id="datetimepicker" class="datetimepicker-wrapper">' +
+                            '<input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-click="open($event)" is-open="opened" ng-model="ngModel" ' +
+                            'datepicker-options="datepickerOptions" close-text="{{\'sitnet_close\' | translate}}" ' +
+                            'current-text="{{\'sitnet_today\' | translate}}" date-validator />\n' +
+                            '</div>\n' +
+                            '<div id="datetimepicker" class="datetimepicker-wrapper" ng-model="time" ng-change="timeChange()" style="display:inline-block">\n' +
+                            '<uib-timepicker ' + [
+                                ['hourStep'],
+                                ['minuteStep'],
+                                ['showMeridian'],
+                                ['meredians'],
+                                ['mousewheel']
                             ].reduce(createAttrConcat, '') +
-                            createEvalAttr("readonlyInput", "readonlyTime") +
-                            "></uib-timepicker>\n" +
-                            "</div>";
+                            createEvalAttr('readonlyInput', 'readonlyTime') +
+                            '></uib-timepicker>\n' +
+                            '</div>';
                         return tmpl;
                     },
                     controller: ['$scope',
@@ -135,7 +135,7 @@
                             $scope.timeChange = function () {
                                 if ($scope.ngModel && $scope.time) {
                                     // convert from ISO format to Date
-                                    if (typeof $scope.ngModel == "string") $scope.ngModel = new Date($scope.ngModel);
+                                    if (typeof $scope.ngModel == 'string') $scope.ngModel = new Date($scope.ngModel);
                                     $scope.ngModel.setHours($scope.time.getHours(), $scope.time.getMinutes());
                                 }
                             };
@@ -213,18 +213,18 @@
             };
         }])
 
-        .directive('clozeTest', function($compile) {
+        .directive('clozeTest', function ($compile) {
             return {
-                restrict: "E",
+                restrict: 'E',
                 scope: {
                     results: '=',
                     content: '=',
                     editable: '=?'
                 },
-                link: function(scope, element, attrs){
+                link: function (scope, element, attrs) {
                     var editable = angular.isUndefined(scope.editable) || scope.editable; // defaults to true
                     var replacement = angular.element(scope.content);
-                    var inputs = replacement.find("input");
+                    var inputs = replacement.find('input');
                     for (var i = 0; i < inputs.length; ++i) {
                         var input = inputs[i];
                         var id = input.attributes.id.value;
@@ -284,6 +284,18 @@
                         scope.$apply(function () {
                             modelSetter(scope.$parent, element[0].files[0]);
                         });
+                    });
+                }
+            };
+        }])
+
+        .directive('fileSelector', [function () {
+            return {
+                restrict: 'A',
+                require: 'ngModel',
+                link: function (scope, element, attrs, ngModel) {
+                    element.bind('change', function () {
+                        ngModel.$setViewValue(element[0].files[0]);
                     });
                 }
             };
@@ -439,7 +451,7 @@
                     };
 
                     scope.previousPageDisabled = function () {
-                        return scope.currentPage === 0 ? "disabled" : "";
+                        return scope.currentPage === 0 ? 'disabled' : '';
                     };
 
 
@@ -450,7 +462,7 @@
                     };
 
                     scope.nextPageDisabled = function () {
-                        return scope.currentPage === pageCount ? "disabled" : "";
+                        return scope.currentPage === pageCount ? 'disabled' : '';
                     };
 
                     scope.range = function () {

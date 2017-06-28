@@ -1,0 +1,15 @@
+<div class="col-md-2 general-info-title ">{{$ctrl.participation.started | date:'dd.MM.yyyy' }}</div>
+<div class="col-md-2">
+        <span ng-style="$ctrl.participation.exam.state === 'ABORTED' ? {'color':'#F35D6C'} : {'color': '#3CA34F'}">
+            {{'sitnet_exam_status_' + $ctrl.participation.exam.state | lowercase | translate}}
+        </span>
+</div>
+<div class="col-md-2 sitnet-info-text-compact">
+    {{'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span style="color:#3CA34F;">{{ $ctrl.translateGrade() }}</span>
+</div>
+<div class="col-md-4 general-info-link-bold" ng-hide="$ctrl.participation.exam.state === 'ABORTED'">
+    <a class="pointer" ng-click="$ctrl.viewAnswers()">{{'sitnet_view_answers' | translate}}</a>
+</div>
+<div class="col-md-4 sitnet-info-text-compact" ng-show="$ctrl.participation.exam.state === 'ABORTED'">
+    &nbsp;
+</div>

@@ -306,7 +306,7 @@
                                 score += questionService.calculateMaxPoints(sq);
                                 break;
                             case "EssayQuestion":
-                                if (sq.evaluationType == 'Points') {
+                                if (sq.evaluationType === 'Points') {
                                     score += sq.maxScore;
                                 }
                                 break;
@@ -359,7 +359,7 @@
                     exam.examSections.forEach(function (section) {
                         total += self.getSectionTotalScore(section);
                     });
-                    return total;
+                    return total.toFixed(2);
                 };
 
                 self.isOwner = function (exam) {

@@ -7,7 +7,7 @@
                             this.src = '../../../assets/assets/images/exam-logo-new.png'"/>
                 </div>
                 <div class="visible-mobile">
-                    <div class="mobile-menu" ng-click="openMenu();" ng-hide="!$ctrl.user">
+                    <div class="mobile-menu" ng-click="$ctrl.openMenu();" ng-hide="!$ctrl.user">
                         <img src="../../../assets/assets/images/icon_menu_mobile.svg" alt="exam" onerror="this.onerror = null;
                                 this.src = '../../../assets/assets/images/icon_menu_mobile.png'"/>
                     </div>
@@ -37,7 +37,7 @@
         </div>
         <div class="nav-body-mobile" ng-show="$ctrl.mobileMenuOpen">
             <ul class="links">
-                <li ng-class="{selected: $ctrl.isActive(link)}" ng-repeat="link in links" ng-show="{{link.visible}}">
+                <li ng-class="{selected: $ctrl.isActive(link)}" ng-repeat="link in $ctrl.links" ng-show="{{link.visible}}">
                     <a class="menu_item_link" href="{{link.href}}">
                         <img width="18" src="../../../assets/assets/images/nav/{{link.icon_png}}"
                              alt="{{ link.name | translate }}"/>

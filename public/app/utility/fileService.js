@@ -6,8 +6,8 @@ angular.module('app.utility')
             var _maxFileSize;
 
             var svg = new Blob(
-                ["<svg xmlns='http://www.w3.org/2000/svg'></svg>"],
-                {type: "image/svg+xml;charset=utf-8"}
+                ['<svg xmlns=\'http://www.w3.org/2000/svg\'></svg>'],
+                {type: 'image/svg+xml;charset=utf-8'}
             );
             var img = new Image();
             img.onload = function () {
@@ -106,7 +106,9 @@ angular.module('app.utility')
                 })
                     .success(callback)
                     .error(function (error) {
-                        modal.dismiss();
+                        if (modal) {
+                            modal.dismiss();
+                        }
                         toastr.error(error);
                     });
             };

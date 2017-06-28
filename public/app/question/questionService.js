@@ -40,9 +40,9 @@ angular.module('app.question')
                         var question = sectionQuestion.question;
                         if (question.type === "EssayQuestion") {
                             if (sectionQuestion.evaluationType === "Selection" && sectionQuestion.essayAnswer) {
-                                if (sectionQuestion.essayAnswer.evaluatedScore == 1) {
+                                if (parseInt(sectionQuestion.essayAnswer.evaluatedScore) === 1) {
                                     data.accepted++;
-                                } else if (sectionQuestion.essayAnswer.evaluatedScore == 0) {
+                                } else if (parseInt(sectionQuestion.essayAnswer.evaluatedScore) === 0) {
                                     data.rejected++;
                                 }
                             }
