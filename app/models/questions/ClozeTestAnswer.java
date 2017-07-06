@@ -183,7 +183,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         }
         regex = regex.replace(ESC, "\\|");
         boolean isCaseSensitive = Boolean.parseBoolean(blank.attr("case-sensitive"));
-        Pattern pattern = Pattern.compile(regex, isCaseSensitive ? Pattern.CASE_INSENSITIVE : 0);
+        Pattern pattern = Pattern.compile(regex, isCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
         return pattern.matcher(answer).matches();
     }
 
