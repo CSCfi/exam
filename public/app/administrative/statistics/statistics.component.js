@@ -3,36 +3,38 @@
 angular.module('app.administrative.statistics')
     .component('statistics', {
         templateUrl: '/assets/app/administrative/statistics/statistics.template.html',
-        controller: ['$translate', 'EXAM_CONF', 'Statistics', 'RoomResource', 'dateService',
-            function ($translate, EXAM_CONF, Statistics, RoomResource, dateService) {
+        controller: ['$translate', 'EXAM_CONF', 'Statistics',
+            function ($translate, EXAM_CONF, Statistics) {
 
                 var ctrl = this;
-                ctrl.dateService = dateService;
-                ctrl.templates = {
-                    rooms: EXAM_CONF.TEMPLATES_PATH + "administrative/statistics/templates/rooms.html",
-                    exams: EXAM_CONF.TEMPLATES_PATH + "administrative/statistics/templates/exams.html",
-                    reservations: EXAM_CONF.TEMPLATES_PATH + "administrative/statistics/templates/reservations.html",
-                    responses: EXAM_CONF.TEMPLATES_PATH + "administrative/statistics/templates/responses.html"
-                };
-                ctrl.departments = [];
-                ctrl.limitations = {};
 
-                ctrl.exams = [];
-                ctrl.participations = {};
+                ctrl.$onInit = function () {
+                    ctrl.templates = {
+                        rooms: EXAM_CONF.TEMPLATES_PATH + "administrative/statistics/templates/rooms.html",
+                        exams: EXAM_CONF.TEMPLATES_PATH + "administrative/statistics/templates/exams.html",
+                        reservations: EXAM_CONF.TEMPLATES_PATH + "administrative/statistics/templates/reservations.html",
+                        responses: EXAM_CONF.TEMPLATES_PATH + "administrative/statistics/templates/responses.html"
+                    };
+                    ctrl.departments = [];
+                    ctrl.limitations = {};
 
-                Statistics.departments.get(function (data) {
-                    data.departments.forEach(function (d) {
-                        ctrl.departments.push({name: d});
+                    ctrl.exams = [];
+                    ctrl.participations = {};
+
+                    Statistics.departments.get(function (data) {
+                        data.departments.forEach(function (d) {
+                            ctrl.departments.push({name: d});
+                        });
                     });
-                });
+                };
 
                 var getQueryParams = function () {
                     var params = {};
-                    if (ctrl.dateService.startDate) {
-                        params.start = ctrl.dateService.startDate;
+                    if (ctrl.startDate) {
+                        params.start = ctrl.startDate;
                     }
-                    if (ctrl.dateService.endDate) {
-                        params.end = ctrl.dateService.endDate;
+                    if (ctrl.endDate) {
+                        params.end = ctrl.endDate;
                     }
                     var departments = ctrl.departments.filter(function (d) {
                         return d.filtered;
@@ -43,6 +45,14 @@ angular.module('app.administrative.statistics')
                         }).join();
                     }
                     return params;
+                };
+
+                ctrl.startDateChanged = function (date) {
+                    ctrl.startDate = date;
+                };
+
+                ctrl.endDateChanged = function (date) {
+                    ctrl.endDate = date;
                 };
 
                 ctrl.totalParticipations = function (month, room) {
@@ -72,7 +82,7 @@ angular.module('app.administrative.statistics')
                 };
 
                 var isBefore = function (a, b) {
-                    return a.getYear() < b.getYear() || (a.getYear() == b.getYear() && a.getMonth() < b.getMonth());
+                    return a.getYear() < b.getYear() || (a.getYear() === b.getYear() && a.getMonth() < b.getMonth());
                 };
 
                 var groupByMonths = function () {
@@ -104,8 +114,8 @@ angular.module('app.administrative.statistics')
                     }
                     ctrl.minDate = Math.min.apply(null, dates);
                     // Set max date to either now or requested end date (if any)
-                    if (ctrl.dateService.endDate) {
-                        dates.push(Date.parse(ctrl.dateService.endDate));
+                    if (ctrl.endDate) {
+                        dates.push(Date.parse(ctrl.endDate));
                     } else {
                         dates.push(new Date().getTime());
                     }

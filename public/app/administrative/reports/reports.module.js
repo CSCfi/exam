@@ -1,4 +1,4 @@
 'use strict';
 
-angular.module('app.administrative.reports', []);
+angular.module('app.administrative.reports', ['ui.select']);
 

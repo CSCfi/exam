@@ -6,7 +6,7 @@ angular.module('app.exam.editor')
             exam: '<'
         },
         controller: ['$filter', '$q', '$translate', '$uibModal', 'dialogs', 'ExamRes', 'dateService', 'examService',
-            'Review', 'fileService', 'EXAM_CONF',
+            'ReviewList', 'fileService', 'EXAM_CONF',
             function ($filter, $q, $translate, $modal, dialogs, ExamRes, dateService, examService, Review,
                       fileService, EXAM_CONF) {
 

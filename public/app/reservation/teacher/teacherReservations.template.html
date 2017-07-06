@@ -11,45 +11,13 @@
     <div class="reservation-border">
 
         <div class="pad30">
-            <div class="col-md-2 reservation-search-titles" ng-controller="DatepickerCtrl">
+            <div class="col-md-2 reservation-search-titles">
                 {{'sitnet_begin' | translate}}
-
-                <div class="input-group">
-                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
-                           ng-model="$ctrl.dateService.startDate"
-                           is-open="startDateOpened" datepicker-options="dateOptions"
-                           close-text="{{'sitnet_close' | translate}}"
-                           current-text="{{'sitnet_today' | translate}}"
-                           toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                           clear-text="{{'sitnet_clear' | translate}}" ng-change="$ctrl.query()">
-
-                    <span class="input-group-btn">
-                        <button class="btn btn-default green" ng-click="openStartDate($event)">
-                            <img src="../../../assets/assets/images/reservation_calendar.svg" alt="exam"
-                                 onerror="this.onerror=null;this.src='../../../assets/assets/images/reservation_calendar.png'" />
-                        </button>
-                    </span>
-                </div>
+                <date-picker on-update="$ctrl.startDateChanged(date)"></date-picker>
             </div>
-            <div class="col-md-2 reservation-search-titles" ng-controller="DatepickerCtrl">
+            <div class="col-md-2 reservation-search-titles">
                 <strong>{{'sitnet_end' | translate}}</strong>
-
-                <div class="input-group">
-                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="$ctrl.dateService.endDate"
-                           is-open="endDateOpened" datepicker-options="dateOptions"
-                           close-text="{{'sitnet_close' | translate}}"
-                           current-text="{{'sitnet_today' | translate}}"
-                           toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                           clear-text="{{'sitnet_clear' | translate}}" ng-change="$ctrl.query()"
-                           ng-init="$ctrl.dateService.endDate=undefined">
-
-                    <span class="input-group-btn">
-                        <button class="btn btn-default green" ng-click="openEndDate($event)">
-                            <img src="../../../assets/assets/images/reservation_calendar.svg" alt="exam"
-                                 onerror="this.onerror=null;this.src='../../../assets/assets/images/reservation_calendar.png'" />
-                        </button>
-                    </span>
-                </div>
+                <date-picker on-update="$ctrl.endDateChanged(date)"></date-picker>
             </div>
             <div class="col-md-2 reservation-search-titles">
                 <strong>{{'sitnet_student' | translate}}</strong>
@@ -72,7 +40,7 @@
         </div>
 
 
-        <div ng-init="$ctrl.query()" ng-include="$ctrl.reservationDetails"/>
+        <div ng-init="$ctrl.query()" ng-include="$ctrl.reservationDetails"></div>
 
     </div>
 </div>

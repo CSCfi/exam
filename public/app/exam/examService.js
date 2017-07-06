@@ -183,45 +183,6 @@
                     }
                 };
 
-                self.setQuestionColors = function (sectionQuestion) {
-                    var isAnswered;
-                    switch (sectionQuestion.question.type) {
-                        case 'EssayQuestion':
-                            var essayAnswer = sectionQuestion.essayAnswer;
-                            isAnswered = essayAnswer && essayAnswer.answer &&
-                                self.stripHtml(essayAnswer.answer).length > 0;
-                            break;
-                        case 'MultipleChoiceQuestion':
-                        case 'WeightedMultipleChoiceQuestion':
-                            isAnswered = sectionQuestion.options.filter(function (o) {
-                                    return o.answered;
-                                }).length > 0;
-                            break;
-                        case 'ClozeTestQuestion':
-                            var clozeTestAnswer = sectionQuestion.clozeTestAnswer;
-                            isAnswered = clozeTestAnswer && !_.isEmpty(clozeTestAnswer.answer);
-                            break;
-                        default:
-                            break;
-                    }
-                    if (isAnswered) {
-                        sectionQuestion.answered = true;
-                        sectionQuestion.questionStatus = $translate.instant("sitnet_question_answered");
-                        sectionQuestion.selectedAnsweredState = 'question-answered-header';
-                    } else {
-                        sectionQuestion.answered = false;
-                        sectionQuestion.questionStatus = $translate.instant("sitnet_question_unanswered");
-                        sectionQuestion.selectedAnsweredState = 'question-unanswered-header';
-                    }
-                };
-
-                self.stripHtml = function (text) {
-                    if (text && text.indexOf("math-tex") === -1) {
-                        return String(text).replace(/<[^>]+>/gm, '');
-                    }
-                    return text;
-                };
-
                 self.listExecutionTypes = function () {
                     var deferred = $q.defer();
                     ExamRes.executionTypes.query(function (types) {

@@ -5,10 +5,10 @@
             <a ng-click="toggleReviewed()" class="pointer">
                 <img ng-show="!toggleReviewedVisibility" src="../../../assets/assets/images/icon_list_show_right.svg"
                      alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'"/>
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png';"/>
                 <img ng-show="toggleReviewedVisibility" src="../../../assets/assets/images/icon_list_show_down.svg"
                      alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'"/>
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png';"/>
             </a>
         </div>
     </div>
@@ -40,44 +40,15 @@
                     </div>
                 </div>
 
-                <form role="form" ng-controller="DatepickerCtrl">
+                <form role="form">
 
                     <div class="col-md-2">
                         <span class="exam-basic-selecttitle">{{'sitnet_begin' | translate}}</span>
-                        <div class="input-group">
-                            <input type="text" class="form-control make-inline" uib-datepicker-popup="{{format}}"
-                                   ng-model="dateService.startDate"
-                                   is-open="startDateOpened" datepicker-options="dateOptions"
-                                   close-text="{{'sitnet_close' | translate}}"
-                                   current-text="{{'sitnet_today' | translate}}"
-                                   toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                                   clear-text="{{'sitnet_clear' | translate}}" ng-change="query(true)"
-                            >
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" ng-click="openStartDate($event)">
-                                    <i class="fa fa-calendar"></i>
-                                </button>
-                            </span>
-                        </div>
+                        <date-picker on-update="startDateChanged(date)"></date-picker>
                     </div>
                     <div class="col-md-2">
                         <span class="exam-basic-selecttitle">{{'sitnet_end' | translate}}</span>
-                        <div class="input-group">
-
-                            <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
-                                   ng-model="dateService.endDate"
-                                   is-open="endDateOpened" datepicker-options="dateOptions"
-                                   close-text="{{'sitnet_close' | translate}}"
-                                   current-text="{{'sitnet_today' | translate}}"
-                                   toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                                   clear-text="{{'sitnet_clear' | translate}}" ng-change="query(true)">
-
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" ng-click="openEndDate($event)">
-                                    <i class="fa fa-calendar"></i>
-                                </button>
-                            </span>
-                        </div>
+                        <date-picker on-update="endDateChanged(date)"></date-picker>
                     </div>
                     <div class="col-md-2">
                         <span class="exam-basic-selecttitle">&nbsp;</span>
@@ -96,17 +67,21 @@
     <table class="table table-striped exams-table">
         <thead ng-init="inspectionReadyPredicate='finishedAt'; reverse2=true">
         <tr>
-            <th class="with-top" sort by="exam.course.code" text="sitnet_course_code" predicate="inspectionReadyPredicate"
+            <th class="with-top" sort by="exam.course.code" text="sitnet_course_code"
+                predicate="inspectionReadyPredicate"
                 reverse="reverse2"></th>
             <th class="with-top" sort by="exam.name" text="sitnet_exam_name" predicate="inspectionReadyPredicate"
                 reverse="reverse2"></th>
-            <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers" predicate="inspectionReadyPredicate" reverse="reverse2"></th>
-            <th class="with-top" sort by="arrived" text="sitnet_arrived" predicate="inspectionReadyPredicate" reverse="reverse2"></th>
+            <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers" predicate="inspectionReadyPredicate"
+                reverse="reverse2"></th>
+            <th class="with-top" sort by="arrived" text="sitnet_arrived" predicate="inspectionReadyPredicate"
+                reverse="reverse2"></th>
             <th class="with-top">{{ 'sitnet_student' | translate }}</th>
             <th class="with-top" sort by="exam.created" text="sitnet_finished" predicate="inspectionReadyPredicate"
                 reverse="reverse2"></th>
             <th class="with-top">{{ 'sitnet_language_inspector' | translate }}</th>
-            <th class="with-top" sort by="finishedAt" text="sitnet_inspection_finished" predicate="inspectionReadyPredicate"
+            <th class="with-top" sort by="finishedAt" text="sitnet_inspection_finished"
+                predicate="inspectionReadyPredicate"
                 reverse="reverse2"></th>
             <th class="with-top">{{ 'sitnet_language_inspections' | translate }}</th>
             <th class="with-top">{{ 'sitnet_feedback' | translate }}</th>
@@ -127,7 +102,7 @@
             </td>
             <!-- 3 -->
             <td>
-                    {{ inspection.ownerAggregate }}
+                {{ inspection.ownerAggregate }}
             </td>
             <!-- 4 -->
             <td>{{ inspection.created | date:'dd.MM.yyyy' }}</td>

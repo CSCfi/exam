@@ -303,15 +303,16 @@ public class EnrolmentController extends BaseController {
                 .fetch("user.language")
                 .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
                 .where()
-                .eq("exam.id", eid);
+                .eq("exam.id", eid)
+                .isNotNull("reservation.machine.room");
         if (user.hasRole("STUDENT", getSession())) {
             query = query.eq("user", user);
         }
-        ExamEnrolment enrolment = query.setMaxRows(1).findUnique();
+        ExamEnrolment enrolment = query.findUnique();
         if (enrolment == null) {
             return notFound();
         } else {
-            return ok(enrolment);
+            return ok(enrolment.getReservation().getMachine().getRoom());
         }
     }
 

@@ -6,40 +6,16 @@
 <div class="bottom-row">
 
     <!-- Start & End time datepickers -->
-    <div ng-controller="DatepickerCtrl">
-        <div class="col-md-5">
-            <label for="startAt">{{'sitnet_from' | translate}}</label>
-
-            <div id="startAt" class="input-group">
-                <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="csvExport.startDate"
-                       is-open="startDateOpened" datepicker-options="dateOptions" ng-required="true"
-                       close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}"
-                       toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}">
-
-                <span class="input-group-btn">
-                    <button class="btn btn-default" ng-click="openStartDate($event)">
-                        <i class="fa fa-calendar"></i>
-                    </button>
-                </span>
-            </div>
+    <div class="col-md-5">
+        <label for="startAt">{{'sitnet_start_time' | translate}}</label>
+        <div id="startAt">
+            <date-picker on-update="$ctrl.recordCsvStartDateChanged(date)"></date-picker>
         </div>
-
-        <div class="col-md-5">
-            <label for="endAt">{{'sitnet_to' | translate}}</label>
-
-            <div id="endAt" class="input-group">
-                <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="csvExport.endDate"
-                       is-open="endDateOpened" min="csvExport.startDate" datepicker-options="dateOptions"
-                       date-disabled="disabled(date, mode)"
-                       ng-required="true" close-text="{{'sitnet_close' | translate}}"
-                       current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                       clear-text="{{'sitnet_clear' | translate}}">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" ng-click="openEndDate($event)">
-                        <i class="fa fa-calendar"></i>
-                    </button>
-                </span>
-            </div>
+    </div>
+    <div class="col-md-5">
+        <label for="endAt">{{'sitnet_end_time' | translate}}</label>
+        <div id="endAt">
+            <date-picker on-update="$ctrl.recordCsvEndDateChanged(date)"></date-picker>
         </div>
     </div>
 

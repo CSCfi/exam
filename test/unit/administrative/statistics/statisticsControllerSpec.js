@@ -1,7 +1,7 @@
 'use strict';
 describe('StatisticsComponent', function () {
 
-    var ctrl, $httpBackend;
+    var ctrl, $httpBackend, q;
 
     beforeEach(function () {
         module('app.utility');
@@ -20,10 +20,9 @@ describe('StatisticsComponent', function () {
         $httpBackend = $injector.get('$httpBackend');
         ctrl = $componentController('statistics', {
             $scope: $rootScope.$new(),
-            EXAM_CONF: {},
-            dateService: $injector.get('dateService'),
-            RoomResource: {}
+            EXAM_CONF: {}
         });
+        ctrl.$onInit();
         $httpBackend.expectGET('/app/reports/departments')
             .respond({departments: ['a', 'b', 'c']});
         $httpBackend.flush();
@@ -40,8 +39,8 @@ describe('StatisticsComponent', function () {
     it('should have load participation statistics', function () {
         $httpBackend.expectGET('/app/reports/participations?end=Tue+Mar+01+2016+00:00:00+GMT%2B0200&start=Tue+Dec+01+2015+00:00:00+GMT%2B0200')
             .respond(readFixtures('participations.json'));
-        ctrl.dateService.startDate = 'Tue Dec 01 2015 00:00:00 GMT+0200';
-        ctrl.dateService.endDate = 'Tue Mar 01 2016 00:00:00 GMT+0200';
+        ctrl.startDate = 'Tue Dec 01 2015 00:00:00 GMT+0200';
+        ctrl.endDate = 'Tue Mar 01 2016 00:00:00 GMT+0200';
         ctrl.listParticipations();
         $httpBackend.flush();
 
@@ -64,7 +63,10 @@ describe('StatisticsComponent', function () {
             console.info(date);
             months.push({year: date.getYear(), month: date.getMonth()});
         });
-        expect(months).toEqual([{year: 115, month: 11}, {year: 116, month: 0}, {year: 116, month: 1}, {year: 116, month: 2}]);
+        expect(months).toEqual([{year: 115, month: 11}, {year: 116, month: 0}, {year: 116, month: 1}, {
+            year: 116,
+            month: 2
+        }]);
     });
 
 });

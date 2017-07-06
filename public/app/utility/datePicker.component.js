@@ -3,11 +3,12 @@ angular.module('app.utility')
     .component('datePicker', {
         templateUrl: '/assets/app/utility/datePicker.template.html',
         bindings: {
-            initialDate: '<',
             onUpdate: '&',
-            extra: '<',
+            initialDate: '<?',
+            extra: '<?',
             onExtraAction: '&?',
-            extraText: '@'
+            extraText: '@?',
+            modelOptions: '<?'
         },
         controller: [
             function () {
@@ -15,7 +16,10 @@ angular.module('app.utility')
                 var vm = this;
 
                 vm.$onInit = function () {
-                    vm.date = vm.initialDate || new Date();
+                    if (angular.isUndefined(vm.modelOptions)) {
+                        vm.modelOptions = {};
+                    }
+                    vm.date = angular.isUndefined(vm.initialDate) ? new Date() : vm.initialDate;
                     vm.showWeeks = true;
                     vm.dateOptions = {
                         startingDay: 1
@@ -35,7 +39,7 @@ angular.module('app.utility')
 
                 vm.extraClicked = function () {
                     vm.onExtraAction({date: vm.date});
-                }
+                };
 
 
             }]

@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.utility')
-    .service('Attachment', ['dialogs', '$translate', 'AttachmentRes', 'fileService',
-        function (dialogs, $translate, AttachmentRes, fileService) {
+    .service('Attachment', ['$uibModal', 'dialogs', '$translate', 'AttachmentRes', 'fileService',
+        function ($modal, dialogs, $translate, AttachmentRes, fileService) {
 
             var self = this;
 
@@ -11,11 +11,11 @@ angular.module('app.utility')
 
             self.removeQuestionAnswerAttachment = function (question, hash) {
 
-                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant("sitnet_are_you_sure"));
+                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                 dialog.result.then(function (btn) {
                     AttachmentRes.questionAnswerAttachment.remove({qid: question.id, hash: hash},
                         function (answer) {
-                            toastr.info($translate.instant("sitnet_attachment_removed"));
+                            toastr.info($translate.instant('sitnet_attachment_removed'));
                             question.essayAnswer.objectVersion = answer.objectVersion;
                             delete question.essayAnswer.attachment;
                         }, function (error) {
@@ -26,12 +26,12 @@ angular.module('app.utility')
 
             self.removeExamAttachment = function (exam) {
 
-                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant("sitnet_are_you_sure"));
+                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                 dialog.result.then(function (btn) {
                     AttachmentRes.examAttachment.remove({id: exam.id},
 
                         function () {
-                            toastr.info($translate.instant("sitnet_attachment_removed"));
+                            toastr.info($translate.instant('sitnet_attachment_removed'));
                             exam.attachment = null;
                         }, function (error) {
                             toastr.error(error.data);
@@ -41,12 +41,12 @@ angular.module('app.utility')
 
             self.removeFeedbackAttachment = function (exam) {
 
-                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant("sitnet_are_you_sure"));
+                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                 dialog.result.then(function (btn) {
                     AttachmentRes.feedbackAttachment.remove({id: exam.id},
 
                         function () {
-                            toastr.info($translate.instant("sitnet_attachment_removed"));
+                            toastr.info($translate.instant('sitnet_attachment_removed'));
                             exam.examFeedback.attachment = null;
                         }, function (error) {
                             toastr.error(error.data);
@@ -56,11 +56,11 @@ angular.module('app.utility')
 
             self.removeStatementAttachment = function (exam) {
 
-                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant("sitnet_are_you_sure"));
+                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                 dialog.result.then(function (btn) {
                     AttachmentRes.statementAttachment.remove({id: exam.id},
                         function () {
-                            toastr.info($translate.instant("sitnet_attachment_removed"));
+                            toastr.info($translate.instant('sitnet_attachment_removed'));
                             delete exam.languageInspection.statement.attachment;
                         }, function (error) {
                             toastr.error(error.data);
@@ -92,7 +92,19 @@ angular.module('app.utility')
             };
 
             self.getFileSize = function (attachment) {
-                return attachment ? Math.round(attachment.size / 1000) + " kB" : null;
+                return attachment ? Math.round(attachment.size / 1000) + ' kB' : null;
+            };
+
+            self.selectFile = function (isTeacherModal, resolve) {
+                var resolution = angular.extend({}, resolve);
+                resolution.isTeacherModal = isTeacherModal;
+                return $modal.open({
+                    backdrop: 'static',
+                    keyboard: true,
+                    animation: true,
+                    component: 'attachmentSelector',
+                    resolve: resolution
+                }).result;
             };
 
 

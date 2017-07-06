@@ -2,9 +2,8 @@
     'use strict';
     angular.module('app.maturity')
         .controller('LanguageInspectionCtrl', ['$scope', '$translate', '$uibModal', '$location', 'dialogs',
-            'EXAM_CONF', 'LanguageInspectionRes', 'Session', 'dateService',
-            function ($scope, $translate, $modal, $location, dialogs, EXAM_CONF, LanguageInspectionRes, Session,
-                        dateService) {
+            'EXAM_CONF', 'LanguageInspectionRes', 'Session',
+            function ($scope, $translate, $modal, $location, dialogs, EXAM_CONF, LanguageInspectionRes, Session) {
 
                 $scope.user = Session.getUser();
                 $scope.ongoingInspections = [];
@@ -16,7 +15,13 @@
                     languageInspectionReviewedPath: EXAM_CONF.TEMPLATES_PATH + "maturity/inspection_reviewed.html"
                 };
 
-                $scope.dateService = dateService;
+                $scope.startDateChanged = function (date) {
+                    $scope.startDate = date;
+                };
+
+                $scope.endDateChanged = function (date) {
+                    $scope.endDate = date;
+                };
 
                 $scope.open = function ($event) {
                     $event.preventDefault();
@@ -41,11 +46,11 @@
                         if ($scope.selection.month) {
                             params.month = $scope.selection.month;
                         }
-                        if ($scope.dateService.startDate) {
-                            params.start = Date.parse($scope.dateService.startDate) + tzOffset;
+                        if ($scope.startDate) {
+                            params.start = Date.parse($scope.startDate) + tzOffset;
                         }
-                        if ($scope.dateService.endDate) {
-                            params.end = Date.parse($scope.dateService.endDate);
+                        if ($scope.endDate) {
+                            params.end = Date.parse($scope.endDate);
                         }
                     }
                     else {

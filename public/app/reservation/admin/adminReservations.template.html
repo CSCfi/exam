@@ -7,47 +7,19 @@
 <div id="dashboard">
     <div class="top-row">
         <div class="col-md-12">
-            <form role="form" ng-controller="DatepickerCtrl">
+            <form role="form">
                 <!-- Start & End time datepickers -->
                 <div class="row">
                     <div class="col-md-6">
                         <strong>{{'sitnet_begin' | translate}}</strong>
-                        <div class="input-group">
-                            <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
-                                   ng-model="$ctrl.dateService.startDate"
-                                   is-open="startDateOpened" datepicker-options="dateOptions"
-                                   close-text="{{'sitnet_close' | translate}}"
-                                   current-text="{{'sitnet_today' | translate}}"
-                                   toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                                   clear-text="{{'sitnet_clear' | translate}}" ng-change="$ctrl.query()"
-                                    >
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" ng-click="openStartDate($event)">
-                                    <i class="fa fa-calendar"></i>
-                                </button>
-                            </span>
-
-                        </div>
+                        <date-picker on-update="$ctrl.startDateChanged(date)"></date-picker>
                     </div>
                     <div class="col-md-6">
                         <strong>{{'sitnet_end' | translate}}</strong>
-                        <div class="input-group">
-                            <input type="text" class="form-control" uib-datepicker-popup="{{format}}"
-                                   ng-model="$ctrl.dateService.endDate"
-                                   is-open="endDateOpened" datepicker-options="dateOptions"
-                                   close-text="{{'sitnet_close' | translate}}"
-                                   current-text="{{'sitnet_today' | translate}}"
-                                   toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                                   clear-text="{{'sitnet_clear' | translate}}" ng-change="$ctrl.query()">
-
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" ng-click="openEndDate($event)">
-                                    <i class="fa fa-calendar"></i>
-                                </button>
-                            </span>
-                        </div>
+                        <date-picker on-update="$ctrl.endDateChanged(date)"></date-picker>
                     </div>
                 </div>
+                <!--Other pickers -->
                 <div class="row top-margin-1">
                     <div class="col-md-4">
                         <strong>{{'sitnet_exam_owner' | translate}}</strong>
@@ -92,6 +64,6 @@
         </div>
     </div>
 
-    <div class="top-margin-1" ng-init="$ctrl.query()" ng-include="$ctrl.reservationDetails"/>
+    <div class="top-margin-1" ng-init="$ctrl.query()" ng-include="$ctrl.reservationDetails"></div>
 
 </div>

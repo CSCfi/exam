@@ -260,12 +260,12 @@ angular.module('app.session')
                     firstName: user.firstName,
                     lastName: user.lastName,
                     lang: user.lang,
-                    loginRole: user.roles.length == 1 ? user.roles[0] : undefined,
+                    loginRole: user.roles.length === 1 ? user.roles[0] : undefined,
                     roles: user.roles,
                     isLoggedOut: false,
                     token: user.token,
                     userAgreementAccepted: user.userAgreementAccepted,
-                    userNo: user.userIdentifier,
+                    userIdentifier: user.userIdentifier,
                     permissions: user.permissions
                 };
                 _user.isAdmin = hasRole(_user, 'ADMIN');

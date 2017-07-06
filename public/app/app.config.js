@@ -78,10 +78,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         });
 
         /* Student */
-        $routeProvider.when('/student/exam/:hash', {
-            templateUrl: tmpl + 'exam/student/exam.html',
-            controller: 'StudentExamController'
-        });
+        $routeProvider.when('/student/exam/:hash', {template: '<examination is-preview="false"><examination>'});
         $routeProvider.when('/feedback/exams/:id', {
             templateUrl: tmpl + 'enrolment/exam_feedback.html',
             controller: 'ExamFeedbackController'
@@ -102,23 +99,14 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
             templateUrl: tmpl + 'exam/student/finished_exams.html',
             controller: 'ExamFeedbackController'
         });
-        $routeProvider.when('/student/logout/:reason?', {
-            templateUrl: tmpl + 'exam/student/exam_logout.html',
-            controller: 'ExamLogoutCtrl'
-        });
-
+        $routeProvider.when('/student/logout/:reason?', {template: '<examination-logout></examination-logout>'});
 
         /* Teacher */
         $routeProvider.when('/exams/review/:id', {template: '<assessment></assessment>'});
         $routeProvider.when('/exams/reviews/:id/speedreview', {template: '<speed-review></speed-review>'});
-        $routeProvider.when('/exams/preview/:id', {
-            templateUrl: tmpl + 'exam/student/exam.html',
-            controller: 'StudentExamController'
-        });
-        $routeProvider.when('/exams/preview/:id/:tab', {
-            templateUrl: tmpl + 'exam/student/exam.html',
-            controller: 'StudentExamController'
-        });
+        $routeProvider.when('/exams/preview/:id', {template: '<examination is-preview="true"><examination>'});
+        $routeProvider.when('/exams/preview/:id/:tab', {template: '<examination is-preview="true"><examination>'});
+
         $routeProvider.when('/reservations', {template: '<reservations user-role="teacher"></reservations>'});
         $routeProvider.when('/reservations/:eid', {template: '<reservations user-role="teacher"></reservations>'});
 

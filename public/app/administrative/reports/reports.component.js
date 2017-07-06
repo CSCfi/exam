@@ -8,33 +8,36 @@ angular.module('app.administrative.reports')
 
                 var ctrl = this;
 
-                ctrl.dateService = dateService;
-                ctrl.csvExport = {};
-                ctrl.templates = {
-                    examRoomReservations: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-room-reservations.html",
-                    teacherExamsReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/teacher-exams.html",
-                    reviewedExams: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/reviewed-exams.html",
-                    examReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-report.html",
-                    examReportJson: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-report-json.html",
-                    examAnswers: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-answers.html",
-                    examEnrollmentsReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-enrollments.html",
-                    studentReport: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/student.html",
-                    examRecordsCsv: EXAM_CONF.TEMPLATES_PATH + "administrative/reports/templates/exam-records-csv.html"
+                ctrl.$onInit = function () {
+                    ctrl.csvExport = {};
+                    ctrl.templates = {
+                        examRoomReservations: EXAM_CONF.TEMPLATES_PATH + 'administrative/reports/templates/exam-room-reservations.html',
+                        teacherExamsReport: EXAM_CONF.TEMPLATES_PATH + 'administrative/reports/templates/teacher-exams.html',
+                        reviewedExams: EXAM_CONF.TEMPLATES_PATH + 'administrative/reports/templates/reviewed-exams.html',
+                        examReport: EXAM_CONF.TEMPLATES_PATH + 'administrative/reports/templates/exam-report.html',
+                        examReportJson: EXAM_CONF.TEMPLATES_PATH + 'administrative/reports/templates/exam-report-json.html',
+                        examAnswers: EXAM_CONF.TEMPLATES_PATH + 'administrative/reports/templates/exam-answers.html',
+                        examEnrollmentsReport: EXAM_CONF.TEMPLATES_PATH + 'administrative/reports/templates/exam-enrollments.html',
+                        studentReport: EXAM_CONF.TEMPLATES_PATH + 'administrative/reports/templates/student.html',
+                        examRecordsCsv: EXAM_CONF.TEMPLATES_PATH + 'administrative/reports/templates/exam-records-csv.html'
+                    };
+
+                    ctrl.selectedFields = {
+                        room: {name: $translate.instant('sitnet_choose')}
+                    };
+
+                    ctrl.rooms = RoomResource.rooms.query();
+                    ctrl.examNames = Reports.examNames.query();
+
+                    ctrl.teachers = UserRes.usersByRole.query({role: 'TEACHER'});
+                    ctrl.students = UserRes.usersByRole.query({role: 'STUDENT'});
                 };
 
-                ctrl.selectedFields = {
-                    room: {name: $translate.instant("sitnet_choose")}
-                };
 
                 ctrl.setRoom = function (room) {
                     ctrl.selectedFields.room = room;
                 };
 
-                ctrl.rooms = RoomResource.rooms.query();
-                ctrl.examNames = Reports.examNames.query();
-
-                ctrl.teachers = UserRes.usersByRole.query({role: "TEACHER"});
-                ctrl.students = UserRes.usersByRole.query({role: "STUDENT"});
 
                 ctrl.getExamEnrollments = function (exam) {
                     if (exam) {
@@ -44,19 +47,19 @@ angular.module('app.administrative.reports')
                     }
                 };
 
-                ctrl.getStudentReport = function (student, from, to) {
+                ctrl.getStudentReport = function (student) {
                     if (student) {
-                        var f = $filter("date")(from, "dd.MM.yyyy");
-                        var t = $filter("date")(to, "dd.MM.yyyy");
+                        var f = $filter('date')(ctrl.studentStartDate || new Date(), 'dd.MM.yyyy');
+                        var t = $filter('date')(ctrl.studentEndDate || new Date(), 'dd.MM.yyyy');
                         fileService.download('/app/statistics/student/' + student.id + '/' + f + '/' + t, 'student_activity.xlsx');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_student'));
                     }
                 };
 
-                ctrl.getExamAnswerReport = function (from, to) {
-                    var f = $filter("date")(from, "dd.MM.yyyy");
-                    var t = $filter("date")(to, "dd.MM.yyyy");
+                ctrl.getExamAnswerReport = function () {
+                    var f = $filter('date')(ctrl.answerStartDate || new Date(), 'dd.MM.yyyy');
+                    var t = $filter('date')(ctrl.answerEndDate || new Date(), 'dd.MM.yyyy');
                     fileService.download('/app/statistics/allexams/' + f + '/' + t, 'exam_answers_' + f + '_' + t + '.xlsx');
                 };
 
@@ -76,15 +79,15 @@ angular.module('app.administrative.reports')
                     }
                 };
 
-                ctrl.getReviewsByDate = function (from, to) {
-                    var f = $filter("date")(from, "dd.MM.yyyy");
-                    var t = $filter("date")(to, "dd.MM.yyyy");
+                ctrl.getReviewsByDate = function () {
+                    var f = $filter('date')(ctrl.reviewStartDate || new Date(), 'dd.MM.yyyy');
+                    var t = $filter('date')(ctrl.reviewEndDate || new Date(), 'dd.MM.yyyy');
                     fileService.download('/app/statistics/reviewsbydate/' + f + '/' + t, 'reviews_' + f + '_' + t + '.xlsx');
                 };
 
-                ctrl.getTeacherExamsByDate = function (teacher, from, to) {
-                    var f = $filter("date")(from, "dd.MM.yyyy");
-                    var t = $filter("date")(to, "dd.MM.yyyy");
+                ctrl.getTeacherExamsByDate = function (teacher) {
+                    var f = $filter('date')(ctrl.teacherStartDate || new Date(), 'dd.MM.yyyy');
+                    var t = $filter('date')(ctrl.teacherEndDate || new Date(), 'dd.MM.yyyy');
                     if (teacher) {
                         fileService.download('/app/statistics/teacherexamsbydate/' + teacher.id + '/' + f + '/' + t,
                             'teacherexams_' + f + '_' + t + '.xlsx');
@@ -93,9 +96,9 @@ angular.module('app.administrative.reports')
                     }
                 };
 
-                ctrl.getRoomReservationsByDate = function (rid, from, to) {
-                    var f = $filter("date")(from, "dd.MM.yyyy");
-                    var t = $filter("date")(to, "dd.MM.yyyy");
+                ctrl.getRoomReservationsByDate = function (rid) {
+                    var f = $filter('date')(ctrl.reservationStartDate || new Date(), 'dd.MM.yyyy');
+                    var t = $filter('date')(ctrl.reservationEndDate || new Date(), 'dd.MM.yyyy');
                     if (rid > 0) {
                         fileService.download('/app/statistics/resbydate/' + rid + '/' + f + '/' + t, 'reservations_' + f + '_' + t + '.xlsx');
                     } else {
@@ -104,16 +107,61 @@ angular.module('app.administrative.reports')
                 };
 
                 ctrl.getExamRecords = function () {
-                    var start = new Date(ctrl.csvExport.startDate).getTime();
-                    var end = new Date(ctrl.csvExport.endDate).setHours(23, 59, 59, 999);
-                    if (!start) {
-                        start = 0;
-                    }
-                    if (!end) {
-                        end = new Date().setHours(23, 59, 59, 999);
-                    }
+                    var start = ctrl.recordCsvStartDate ? new Date(ctrl.recordCsvStartDate).getTime() : new Date().getTime();
+                    var end = ctrl.recordCsvEndDate
+                        ? new Date(ctrl.recordCsvEndDate).getTime().setHours(23, 59, 59, 999)
+                        : new Date().getTime().setHours(23, 59, 59, 999);
                     fileService.download('/app/exam/record', 'examrecords.csv', {'startDate': start, 'endDate': end});
                 };
+
+                ctrl.answerStartDateChanged = function (date) {
+                    ctrl.answerStartDate = date;
+                };
+
+                ctrl.answerEndDateChanged = function (date) {
+                    ctrl.answerEndDate = date;
+                };
+
+                ctrl.recordCsvStartDateChanged = function (date) {
+                    ctrl.recordCsvStartDate = date;
+                };
+
+                ctrl.recordCsvEndDateChanged = function (date) {
+                    ctrl.recordCsvEndDate = date;
+                };
+
+                ctrl.reservationStartDateChanged = function (date) {
+                    ctrl.reservationStartDate = date;
+                };
+
+                ctrl.reservationEndDateChanged = function (date) {
+                    ctrl.reservationEndDate = date;
+                };
+
+                ctrl.reviewStartDateChanged = function (date) {
+                    ctrl.reviewStartDate = date;
+                };
+
+                ctrl.reviewEndDateChanged = function (date) {
+                    ctrl.reviewEndDate = date;
+                };
+
+                ctrl.studentStartDateChanged = function (date) {
+                    ctrl.studentStartDate = date;
+                };
+
+                ctrl.studentEndDateChanged = function (date) {
+                    ctrl.studentEndDate = date;
+                };
+
+                ctrl.teacherStartDateChanged = function (date) {
+                    ctrl.teacherStartDate = date;
+                };
+
+                ctrl.teacherEndDateChanged = function (date) {
+                    ctrl.teacherEndDate = date;
+                };
+
 
             }
         ]

@@ -6,8 +6,8 @@ angular.module('app.reservation')
             'userRole': '@'
         },
         controller: ['ExamRes', '$location', '$http', 'EXAM_CONF',
-            'ReservationResource', 'reservationService', 'dateService', 'examService', '$timeout', '$routeParams', '$translate', '$filter',
-            function (ExamRes, $location, $http, EXAM_CONF, ReservationResource, reservationService, dateService, examService,
+            'ReservationResource', 'reservationService', 'examService', '$timeout', '$routeParams', '$translate', '$filter',
+            function (ExamRes, $location, $http, EXAM_CONF, ReservationResource, reservationService, examService,
                       $timeout, $routeParams, $translate, $filter) {
 
 
@@ -58,8 +58,6 @@ angular.module('app.reservation')
                 ctrl.stateOptions = angular.copy(select2options);
 
                 ctrl.teacherOptions = angular.copy(select2options);
-
-                ctrl.dateService = dateService;
 
                 ctrl.reservationDetails = EXAM_CONF.TEMPLATES_PATH + "reservation/reservation_details.html";
 
@@ -175,6 +173,14 @@ angular.module('app.reservation')
                     ctrl.query();
                 };
 
+                ctrl.startDateChanged = function (date) {
+                    ctrl.startDate = date;
+                };
+
+                ctrl.endDateChanged = function (date) {
+                    ctrl.endDate = date;
+                };
+
                 var somethingSelected = function (params) {
                     for (var k in params) {
                         if (!params.hasOwnProperty(k)) {
@@ -184,7 +190,7 @@ angular.module('app.reservation')
                             return true;
                         }
                     }
-                    return ctrl.dateService.startDate || ctrl.dateService.endDate;
+                    return ctrl.startDate || ctrl.endDate;
                 };
 
                 ctrl.query = function () {
@@ -204,11 +210,11 @@ angular.module('app.reservation')
                             }
                         }
 
-                        if (ctrl.dateService.startDate) {
-                            params.start = ctrl.dateService.startDate;
+                        if (ctrl.startDate) {
+                            params.start = ctrl.startDate;
                         }
-                        if (ctrl.dateService.endDate) {
-                            params.end = ctrl.dateService.endDate;
+                        if (ctrl.endDate) {
+                            params.end = ctrl.endDate;
                         }
 
                         ReservationResource.reservations.query(params,

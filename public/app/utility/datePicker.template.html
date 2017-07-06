@@ -1,6 +1,7 @@
 <div class="input-group">
     <input type="text" class="form-control" uib-datepicker-popup="{{$ctrl.format}}"
            ng-model="$ctrl.date"
+           ng-model-options="$ctrl.modelOptions"
            ng-change="$ctrl.dateChanged()"
            is-open="$ctrl.opened"
            datepicker-options="$ctrl.dateOptions"

@@ -129,7 +129,9 @@ angular.module('app.utility')
 
             var uploadAnswerAttachment = function (url, file, params, parent, modal) {
                 doUpload(url, file, params, parent, modal, function (answer) {
-                    modal.dismiss();
+                    if (modal) {
+                        modal.dismiss();
+                    }
                     parent.objectVersion = answer.objectVersion;
                     parent.attachment = answer.attachment;
                 });
