@@ -74,30 +74,36 @@ angular.module('app.examination')
                 return text;
             };
 
-            self.setQuestionColors = function (sectionQuestion) {
+            self.isAnswered = function (sq) {
                 var isAnswered;
-                switch (sectionQuestion.question.type) {
+                switch (sq.question.type) {
                     case 'EssayQuestion':
-                        var essayAnswer = sectionQuestion.essayAnswer;
+                        var essayAnswer = sq.essayAnswer;
                         isAnswered = essayAnswer && essayAnswer.answer &&
                             stripHtml(essayAnswer.answer).length > 0;
                         break;
                     case 'MultipleChoiceQuestion':
-                        isAnswered = angular.isDefined(sectionQuestion.selectedOption);
+                        isAnswered = angular.isDefined(sq.selectedOption) || sq.options.filter(function (o) {
+                                return o.answered;
+                            }).length > 0;
                         break;
                     case 'WeightedMultipleChoiceQuestion':
-                        isAnswered = sectionQuestion.options.filter(function (o) {
+                        isAnswered = sq.options.filter(function (o) {
                                 return o.answered;
                             }).length > 0;
                         break;
                     case 'ClozeTestQuestion':
-                        var clozeTestAnswer = sectionQuestion.clozeTestAnswer;
+                        var clozeTestAnswer = sq.clozeTestAnswer;
                         isAnswered = clozeTestAnswer && !_.isEmpty(clozeTestAnswer.answer);
                         break;
                     default:
-                        break;
+                        isAnswered = false;
                 }
-                if (isAnswered) {
+                return isAnswered;
+            };
+
+            self.setQuestionColors = function (sectionQuestion) {
+                if (self.isAnswered(sectionQuestion)) {
                     sectionQuestion.answered = true;
                     sectionQuestion.questionStatus = $translate.instant('sitnet_question_answered');
                     sectionQuestion.selectedAnsweredState = 'question-answered-header';

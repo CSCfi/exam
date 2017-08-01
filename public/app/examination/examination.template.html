@@ -12,12 +12,12 @@
         <div class="bottom-padding-2">
 
             <!-- EXAM SECTION -->
-            <examination-section ng-show="$ctrl.activeSection" section="$ctrl.activeSection" exam-hash="$ctrl.exam.hash"
+            <examination-section ng-if="$ctrl.activeSection" section="$ctrl.activeSection" exam-hash="$ctrl.exam.hash"
                                  is-preview="$ctrl.isPreview">
             </examination-section>
 
             <!-- ANSWER INSTRUCTIONS -->
-            <answer-instructions ng-show="!$ctrl.activeSection" exam="$ctrl.exam"></answer-instructions>
+            <answer-instructions ng-if="!$ctrl.activeSection" exam="$ctrl.exam"></answer-instructions>
 
             <!-- NAVIGATION -->
             <examination-navigation ng-if="$ctrl.exam" exam="$ctrl.exam" active-section="$ctrl.activeSection"

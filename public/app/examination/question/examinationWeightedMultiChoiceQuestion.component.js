@@ -23,18 +23,6 @@ angular.module('app.examination')
 
                 var vm = this;
 
-                vm.$onInit = function () {
-                    var answered = vm.sq.options.filter(function (o) {
-                        return o.answered;
-                    });
-                    if (answered.length > 1) {
-                        console.warn('several answered options for mcq');
-                    }
-                    if (answered.length === 1) {
-                        vm.sq.selectedOption = answered[0].id;
-                    }
-                };
-
                 vm.saveOption = function () {
                     Examination.saveOption(vm.examHash, vm.sq, vm.isPreview);
                 };

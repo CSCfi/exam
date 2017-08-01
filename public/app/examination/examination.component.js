@@ -51,7 +51,7 @@ angular.module('app.examination')
                 vm.timedOut = function () {
                     // Loop through all essay questions in the active section
                     if (vm.activeSection) {
-                        Examination.saveAllTextualAnswersOfSection(vm.section, vm.examHash, true).then(function () {
+                        Examination.saveAllTextualAnswersOfSection(vm.activeSection, vm.examHash, true).then(function () {
                             logout('sitnet_exam_time_is_up');
                         });
                     } else {

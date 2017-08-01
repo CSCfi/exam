@@ -12,38 +12,37 @@ angular.module('app.examination')
             function ($interval, Examination) {
 
                 var vm = this;
+                var _autosaver = null;
 
                 vm.$onInit = function () {
-                    setAutosaver();
+                    resetAutosaver();
                 };
 
                 vm.$onChanges = function (props) {
                     if (props.section) {
-                        if (!props.currentValue) {
-                            cancelAutosaver();
-                        }
-                        else if (!props.previousValue) {
-                            setAutosaver();
-                        }
+                        // Section changed
+                        resetAutosaver();
                     }
                 };
 
                 vm.$onDestroy = function () {
+                    // No section currently active
                     cancelAutosaver();
                 };
 
-                var setAutosaver = function () {
-                    if (vm.section && !vm.autosaver) {
-                        vm.autosaver = $interval(function () {
+                var resetAutosaver = function () {
+                    cancelAutosaver();
+                    if (vm.section) {
+                        _autosaver = $interval(function () {
                             Examination.saveAllTextualAnswersOfSection(vm.section, vm.examHash, true);
                         }, 1000 * 60);
                     }
                 };
 
                 var cancelAutosaver = function () {
-                    if (!vm.section && vm.autosaver) {
-                        $interval.cancel(vm.autosaver);
-                        delete vm.autosaver;
+                    if (_autosaver) {
+                        $interval.cancel(_autosaver);
+                        _autosaver = null;
                     }
                 };
             }

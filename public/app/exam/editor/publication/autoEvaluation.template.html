@@ -77,7 +77,7 @@
     <form role="form">
         <div class="bottom-row" ng-if="$ctrl.selectedReleaseType().name === 'GIVEN_DATE'">
             <div class="col-md-6">
-                <date-picker on-update="$ctrl.releaseDateChanged(date)"></date-picker>
+                <date-picker on-update="$ctrl.releaseDateChanged(date)" initial-date="null"></date-picker>
             </div>
         </div>
         <div class="bottom-row" ng-if="$ctrl.selectedReleaseType().name === 'GIVEN_AMOUNT_DAYS'">

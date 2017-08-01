@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         <small class="sitnet-info-text" ng-if="$ctrl.sq.autosaved">
-            {{'sitnet_autosaved' | translate}}:&nbsp;{{ sectionQuestion.autosaved | date:'HH:mm'}}
+            {{'sitnet_autosaved' | translate}}:&nbsp;{{$ctrl.sq.autosaved | date:'HH:mm'}}
         </small>
         <small class="sitnet-info-text" ng-if="!$ctrl.sq.autosaved">
             &nbsp;

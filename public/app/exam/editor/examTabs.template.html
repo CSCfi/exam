@@ -22,7 +22,7 @@
                      heading="{{ 'sitnet_exam_question_tab' | translate }}">
                 <sections exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToBasicInfo()"
                           on-next-tab-selected="$ctrl.switchToPublishSettings()"
-                          on-new-library-question="$ctrl.initializeExam(true)">
+                          on-new-library-question="$ctrl.reload()">
                 </sections>
             </uib-tab>
             <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner || $ctrl.user.isAdmin)" index="3"

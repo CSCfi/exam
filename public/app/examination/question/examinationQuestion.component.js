@@ -8,13 +8,16 @@ angular.module('app.examination')
             sq: '<',
             isPreview: '<'
         },
-        controller: ['$sce', '$filter', 'Attachment',
-            function ($sce, $filter, Attachment) {
+        controller: ['$sce', '$filter', 'Examination', 'Attachment',
+            function ($sce, $filter, Examination, Attachment) {
 
                 var vm = this;
 
                 vm.$onInit = function () {
                     vm.sq.expanded = true;
+                    if (vm.sq.clozeTestAnswer) {
+                        vm.sq.clozeTestAnswer.answer = JSON.parse(vm.sq.clozeTestAnswer.answer);
+                    }
                 };
 
                 vm.displayQuestionText = function (truncated) {
@@ -24,6 +27,10 @@ angular.module('app.examination')
 
                 vm.downloadQuestionAttachment = function () {
                     Attachment.downloadQuestionAttachment(vm.sq.question);
+                };
+
+                vm.isAnswered = function () {
+                    return Examination.isAnswered(vm.sq);
                 };
 
                 var truncate = function (content, offset) {

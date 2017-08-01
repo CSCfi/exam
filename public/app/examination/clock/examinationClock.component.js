@@ -13,11 +13,12 @@ angular.module('app.examination')
                 var vm = this;
 
                 var _syncInterval = 15; // Interval for syncing time with backend in seconds
-                var _secondsSinceSync = 0;
+                var _secondsSinceSync = _syncInterval + 1; // Init so that we sync right away
                 var _poller = {};
 
                 vm.$onInit = function () {
-                    vm.alarmThreshold = 300; // If less than five minutes left alert user.
+                    vm.alarmThreshold = 300; //  Alert user if less than five minutes left.
+                    vm.showRemainingTime = true;
                     checkRemainingTime();
                 };
 

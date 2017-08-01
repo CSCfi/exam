@@ -18,6 +18,12 @@ angular.module('app.exam.editor')
                     vm.activeTab = parseInt($routeParams.tab);
                 };
 
+                vm.reload = function () {
+                    ExamRes.exams.get({id: $routeParams.id}, function (exam) {
+                        vm.exam = exam;
+                    });
+                };
+
                 vm.updateTitle = function (code, name) {
                     if (code && name) {
                         vm.examInfo.title = code + ' ' + name;

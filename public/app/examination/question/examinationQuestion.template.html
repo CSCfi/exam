@@ -5,12 +5,12 @@
 
         <!-- question text -->
         <div class="section-header-left">
-            <div ng-if="$ctrl.sq.answered">
+            <div ng-if="$ctrl.isAnswered()">
                 <img class="mart05" src="../../../assets/assets/images/icon_question_type_ready_grey.png"
                      alt="exam"
                      onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_ready_grey.png';"/>
             </div>
-            <div ng-if="!$ctrl.sq.answered">
+            <div ng-if="!$ctrl.isAnswered()">
                 <img class="mart05" src="../../../assets/assets/images/icon_question_type_waiting.svg"
                      alt="exam"
                      onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_waiting.png';"/>
@@ -74,7 +74,7 @@
                                         is-preview="$ctrl.isPreview">
             </examination-essay-question>
 
-            <examination-cloze-test ng-switch-when="ClozeTest"
+            <examination-cloze-test ng-switch-when="ClozeTestQuestion"
                                     sq="$ctrl.sq"
                                     exam-hash="$ctrl.examHash">
             </examination-cloze-test>

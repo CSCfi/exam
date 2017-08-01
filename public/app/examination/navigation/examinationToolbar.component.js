@@ -75,11 +75,11 @@ angular.module('app.examination')
                         return section.sectionQuestions.length;
                     } else if (type === 'answered') {
                         return section.sectionQuestions.filter(function (sq) {
-                            return sq.answered;
+                            return Examination.isAnswered(sq);
                         }).length;
                     } else if (type === 'unanswered') {
                         return section.sectionQuestions.length - section.sectionQuestions.filter(function (sq) {
-                                return sq.answered;
+                                return Examination.isAnswered(sq);
                             }).length;
                     }
                 };
