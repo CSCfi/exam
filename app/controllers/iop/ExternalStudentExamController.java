@@ -213,7 +213,7 @@ public class ExternalStudentExamController extends StudentExamController {
     }
 
     private Optional<ExternalExam> getExternalExam(String hash) {
-        return Optional.ofNullable(Ebean.find(ExternalExam.class, hash));
+        return Optional.ofNullable(Ebean.find(ExternalExam.class).where().eq("hash", hash).findUnique());
     }
 
     private Optional<ExamEnrolment> getEnrolment(User user, ExternalExam prototype) {
@@ -243,7 +243,10 @@ public class ExternalStudentExamController extends StudentExamController {
 
     private Result terminateExam(String hash, Exam.State newState) {
         User user = getLoggedUser();
-        ExternalExam ee = Ebean.find(ExternalExam.class).where().idEq(hash).eq("creator", user).findUnique();
+        ExternalExam ee = Ebean.find(ExternalExam.class).where()
+                .eq("hash", hash)
+                .eq("creator", user)
+                .findUnique();
         if (ee == null) {
             return forbidden();
         }

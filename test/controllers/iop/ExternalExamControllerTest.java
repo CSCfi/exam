@@ -13,7 +13,6 @@ import models.Language;
 import models.Reservation;
 import models.User;
 import models.iop.ExternalReservation;
-import models.json.ExternalExam;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,13 +29,9 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
 
     private static final String RESERVATION_REF = "0e6d16c51f857a20ab578f57f105032e";
     private static final String ROOM_REF = "0e6d16c51f857a20ab578f57f1018456";
-    private static final String HASH = "7cf002da-4263-4843-99b1-e8af51e"; // Has to match with the one in the test json file
+    private static final String HASH = "7cf002da-4263-4843-99b1-e8af51e"; // Has to match with the externalRef in test json file
 
-    private ExternalExam ee;
     private Exam exam;
-    private User user;
-
-    private ExamRoom room;
     private ExamEnrolment enrolment;
 
     @Rule
@@ -53,10 +48,10 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         exam.setExamActiveEndDate(DateTime.now().plusDays(1));
         exam.setHash(HASH);
         exam.update();
-        user = Ebean.find(User.class, 1L);
+        User user = Ebean.find(User.class, 1L);
         user.setLanguage(Ebean.find(Language.class, "en"));
         user.update();
-        room = Ebean.find(ExamRoom.class, 1L);
+        ExamRoom room = Ebean.find(ExamRoom.class, 1L);
         room.setExternalRef(ROOM_REF);
         room.getExamMachines().get(0).setIpAddress("127.0.0.1");
         room.getExamMachines().get(0).update();
@@ -91,7 +86,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     }
 
     @Test
-    public void testReceiveeNoShow() throws Exception {
+    public void testReceiveNoShow() throws Exception {
         Reservation reservation = new Reservation();
         reservation.setExternalRef(RESERVATION_REF);
         reservation.setStartAt(DateTime.now().minusHours(3));

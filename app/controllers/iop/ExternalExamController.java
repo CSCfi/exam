@@ -34,6 +34,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -104,9 +105,11 @@ public class ExternalExamController extends BaseController implements ExternalEx
         if (ee == null) {
             return badRequest();
         }
-        Exam content = ee.deserialize();
-        Exam parent = Ebean.find(Exam.class).where().eq("hash", ee.getHash()).findUnique();
-        Exam clone = createCopy(content, parent, enrolment.getUser());
+        Exam parent = Ebean.find(Exam.class).where().eq("hash", ee.getExternalRef()).findUnique();
+        if (parent == null) {
+            return notFound();
+        }
+        Exam clone = createCopy(ee.deserialize(), parent, enrolment.getUser());
         enrolment.setExam(clone);
         enrolment.update();
 
@@ -181,7 +184,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 return null;
             }
             ExternalExam ee = new ExternalExam();
-            ee.setHash(document.getHash());
+            ee.setExternalRef(document.getHash());
+            ee.setHash(UUID.randomUUID().toString());
             ee.setContent(content);
             ee.setCreator(user);
             ee.setCreated(DateTime.now());

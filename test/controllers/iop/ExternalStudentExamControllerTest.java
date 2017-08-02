@@ -37,7 +37,6 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
 
     private Exam exam;
     private ExternalExam ee;
-    private User user;
 
     private ExamEnrolment enrolment = new ExamEnrolment();
     private ExamMachine machine;
@@ -49,10 +48,11 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
     @Override
     protected void onBeforeLogin() throws IOException {
         Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
-        user = Ebean.find(User.class, userId == null ? 3L : userId);
+        User user = Ebean.find(User.class, userId == null ? 3L : userId);
 
         ee = new ExternalExam();
-        ee.setHash(UUID.randomUUID().toString().substring(0, 31));
+        ee.setExternalRef(UUID.randomUUID().toString());
+        ee.setHash(UUID.randomUUID().toString());
         ee.setCreated(DateTime.now());
         ee.setCreator(user);
         ee.setContent(EJson.parseObject(
@@ -126,14 +126,21 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         // Execute
         Result result = request(Helpers.POST, "/app/student/exam/" + enrolment.getExternalExam().getHash(), null, true);
         assertThat(result.status()).isEqualTo(200);
-        DateTime started = Ebean.find(ExternalExam.class, enrolment.getExternalExam().getHash()).getStarted();
+        DateTime started = Ebean.find(ExternalExam.class).where()
+                .eq("hash", enrolment.getExternalExam().getHash())
+                .findUnique()
+                .getStarted();
 
         // Try again
         result = request(Helpers.POST, "/app/student/exam/" + enrolment.getExternalExam().getHash(), null, true);
         assertThat(result.status()).isEqualTo(200);
 
         // Check that starting time did not change
-        assertThat(Ebean.find(ExternalExam.class, enrolment.getExternalExam().getHash()).getStarted()).isEqualTo(started);
+        assertThat(Ebean.find(ExternalExam.class).where()
+                .eq("hash", enrolment.getExternalExam().getHash())
+                .findUnique()
+                .getStarted()
+        ).isEqualTo(started);
     }
 
 
@@ -158,7 +165,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
 
         // Check that an option was marked as answered in the database
-        ExternalExam savedExternalExam = Ebean.find(ExternalExam.class, ee.getHash());
+        ExternalExam savedExternalExam = Ebean.find(ExternalExam.class).where().eq("hash", ee.getHash()).findUnique();
         Exam savedExam = savedExternalExam.deserialize();
         ExamSectionQuestion savedQuestion = savedExam.getExamSections().stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
@@ -240,7 +247,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         });
         result = request(Helpers.PUT, String.format("/app/student/exams/%s", hash), null, true);
         assertThat(result.status()).isEqualTo(200);
-        ExternalExam turnedExam = Ebean.find(ExternalExam.class, hash);
+        ExternalExam turnedExam = Ebean.find(ExternalExam.class).where().eq("hash", hash).findUnique();
         assertThat(turnedExam.getFinished()).isNotNull();
         Exam content = turnedExam.deserialize();
         assertThat(content.getState()).isEqualTo(Exam.State.REVIEW);

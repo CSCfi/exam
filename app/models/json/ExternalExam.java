@@ -1,30 +1,32 @@
 package models.json;
 
-import com.avaje.ebean.Model;
 import com.avaje.ebean.annotation.DbJsonB;
 import com.avaje.ebean.text.json.EJson;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.Exam;
 import models.User;
+import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
 import util.java.JsonDeserializer;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-import javax.persistence.Version;
 import java.io.IOException;
 import java.util.Map;
 
 @Entity
-public class ExternalExam extends Model {
+public class ExternalExam extends GeneratedIdentityModel {
 
-    @Id
-    private String hash;
+    @Column
+    private String externalRef; // REFERENCE TO PARENT EXAM ELSEWHERE
+
+    @Column
+    private String hash; // LOCAL EXAM REFERENCE
 
     @Temporal(TemporalType.TIMESTAMP)
     private DateTime created;
@@ -44,15 +46,20 @@ public class ExternalExam extends Model {
     @DbJsonB
     private Map<String, Object> content;
 
-    @Version
-    private long objectVersion;
-
     public String getHash() {
         return hash;
     }
 
     public void setHash(String hash) {
         this.hash = hash;
+    }
+
+    public String getExternalRef() {
+        return externalRef;
+    }
+
+    public void setExternalRef(String externalRef) {
+        this.externalRef = externalRef;
     }
 
     public DateTime getCreated() {
@@ -93,14 +100,6 @@ public class ExternalExam extends Model {
 
     public void setCreator(User creator) {
         this.creator = creator;
-    }
-
-    public long getObjectVersion() {
-        return objectVersion;
-    }
-
-    public void setObjectVersion(long objectVersion) {
-        this.objectVersion = objectVersion;
     }
 
     public Map<String, Object> getContent() {

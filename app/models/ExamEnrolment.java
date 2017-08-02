@@ -26,7 +26,6 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     private Exam exam;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "external_exam_id")
     private ExternalExam externalExam;
 
     @OneToOne(cascade = CascadeType.REMOVE)
