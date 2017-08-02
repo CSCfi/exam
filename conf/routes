@@ -76,7 +76,7 @@ GET           /app/exam/record/export/report/:id                         control
 ############### Student exam execution interface ###############
 PUT           /app/student/exams/:hash                                   controllers.StudentExamController.turnExam(hash: String)
 PUT           /app/student/exam/abort/:hash                              controllers.StudentExamController.abortExam(hash: String)
-POST          /app/student/exam/:hash                                    controllers.StudentExamController.startExam(hash: String)
+GET           /app/student/exam/:hash                                    controllers.StudentExamController.startExam(hash: String)
 
 POST          /app/student/exams/:hash/question/:qid/option              controllers.StudentExamController.answerMultiChoice(hash: String, qid: Long)
 POST          /app/student/exams/:hash/question/:questionId              controllers.StudentExamController.answerEssay(hash: String, questionId: Long)
@@ -85,7 +85,7 @@ POST          /app/student/exams/:hash/clozetest/:questionId             control
 ############### External student exam execution interface ###############
 PUT           /app/iop/student/exams/:hash                               controllers.iop.ExternalStudentExamController.turnExam(hash: String)
 PUT           /app/iop/student/exam/abort/:hash                          controllers.iop.ExternalStudentExamController.abortExam(hash: String)
-POST          /app/iop/student/exam/:hash                                controllers.iop.ExternalStudentExamController.startExam(hash: String)
+GET           /app/iop/student/exam/:hash                                controllers.iop.ExternalStudentExamController.startExam(hash: String)
 
 POST          /app/iop/student/exams/:hash/question/:qid/option          controllers.iop.ExternalStudentExamController.answerMultiChoice(hash: String, qid: Long)
 POST          /app/iop/student/exams/:hash/question/:questionId          controllers.iop.ExternalStudentExamController.answerEssay(hash: String, questionId: Long)

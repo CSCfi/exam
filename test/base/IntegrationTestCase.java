@@ -161,6 +161,10 @@ public class IntegrationTestCase {
         return request(Helpers.GET, path, null);
     }
 
+    protected Result get(String path, boolean followRedirects) {
+        return request(Helpers.GET, path, null, HAKA_HEADERS, followRedirects);
+    }
+
     protected Result request(String method, String path, JsonNode body) {
         return request(method, path, body, HAKA_HEADERS, false);
     }

@@ -85,9 +85,9 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
     public void testCreateStudentExam() throws Exception {
 
         // Execute
-        Result result = request(Helpers.POST, "/app/student/exam/" + enrolment.getExternalExam().getHash(), null);
+        Result result = get("/app/student/exam/" + enrolment.getExternalExam().getHash());
         assertThat(result.status()).isEqualTo(303);
-        result = request(Helpers.POST, result.redirectLocation().get(), null);
+        result = get(result.redirectLocation().get());
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -114,9 +114,9 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         machine.update();
 
         // Execute
-        Result result = request(Helpers.POST, "/app/student/exam/" + enrolment.getExternalExam().getHash(), null);
+        Result result = get("/app/student/exam/" + enrolment.getExternalExam().getHash());
         assertThat(result.status()).isEqualTo(303);
-        result = request(Helpers.POST, result.redirectLocation().get(), null);
+        result = get(result.redirectLocation().get());
         assertThat(result.status()).isEqualTo(403);
     }
 
@@ -124,7 +124,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateStudentExamAlreadyCreated() throws Exception {
         // Execute
-        Result result = request(Helpers.POST, "/app/student/exam/" + enrolment.getExternalExam().getHash(), null, true);
+        Result result = get("/app/student/exam/" + enrolment.getExternalExam().getHash(), true);
         assertThat(result.status()).isEqualTo(200);
         DateTime started = Ebean.find(ExternalExam.class).where()
                 .eq("hash", enrolment.getExternalExam().getHash())
@@ -132,7 +132,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
                 .getStarted();
 
         // Try again
-        result = request(Helpers.POST, "/app/student/exam/" + enrolment.getExternalExam().getHash(), null, true);
+        result = get("/app/student/exam/" + enrolment.getExternalExam().getHash(), true);
         assertThat(result.status()).isEqualTo(200);
 
         // Check that starting time did not change
@@ -148,7 +148,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testAnswerMultiChoiceQuestion() throws Exception {
 
-        Result result = request(Helpers.POST, "/app/student/exam/" + enrolment.getExternalExam().getHash(), null, true);
+        Result result = get("/app/student/exam/" + enrolment.getExternalExam().getHash(), true);
 
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
@@ -180,7 +180,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testAnswerMultiChoiceQuestionWrongIP() throws Exception {
 
-        Result result = request(Helpers.POST, "/app/student/exam/" + enrolment.getExternalExam().getHash(), null, true);
+        Result result = get("/app/student/exam/" + enrolment.getExternalExam().getHash(), true);
 
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
@@ -207,7 +207,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testDoExam() throws Exception {
         String hash = enrolment.getExternalExam().getHash();
-        Result result = request(Helpers.POST, "/app/student/exam/" + hash, null, true);
+        Result result = get("/app/student/exam/" + enrolment.getExternalExam().getHash(), true);
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
         studentExam.getExamSections().stream().flatMap(es -> es.getSectionQuestions().stream()).forEach(esq -> {

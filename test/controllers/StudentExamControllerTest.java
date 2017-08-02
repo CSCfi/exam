@@ -10,22 +10,10 @@ import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamExecutionType;
-import models.ExamMachine;
-import models.ExamParticipation;
-import models.ExamRoom;
-import models.ExamSectionQuestion;
-import models.ExamSectionQuestionOption;
-import models.GradeEvaluation;
-import models.Reservation;
-import models.User;
+import models.*;
 import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.Question;
-import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,11 +21,13 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import static play.test.Helpers.contentAsString;
 
 import javax.mail.internet.MimeMessage;
 import java.util.HashSet;
 import java.util.Iterator;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
 
 public class StudentExamControllerTest extends IntegrationTestCase {
 
@@ -93,7 +83,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateStudentExam() throws Exception {
         // Execute
-        Result result = request(Helpers.POST, "/app/student/exam/" + exam.getHash(), null);
+        Result result = get("/app/student/exam/" + exam.getHash());
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -121,7 +111,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testAnswerMultiChoiceQuestion() throws Exception {
-        Result result = request(Helpers.POST, "/app/student/exam/" + exam.getHash(), null);
+        Result result = get("/app/student/exam/" + exam.getHash());
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
         ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).where()
@@ -155,7 +145,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testAnswerMultiChoiceQuestionWrongIP() throws Exception {
         // Setup
-        Result result = request(Helpers.POST, "/app/student/exam/" + exam.getHash(), null);
+        Result result = get("/app/student/exam/" + exam.getHash());
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
         ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).where()
@@ -180,7 +170,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testDoExamAndAutoEvaluate() throws Exception {
         setAutoEvaluationConfig();
-        Result result = request(Helpers.POST, "/app/student/exam/" + exam.getHash(), null);
+        Result result = get("/app/student/exam/" + exam.getHash());
         JsonNode node = Json.parse(contentAsString(result));
         final Exam studentExam = deserialize(Exam.class, node);
         studentExam.getExamSections().stream().flatMap(es -> es.getSectionQuestions().stream()).forEach(esq -> {
@@ -235,7 +225,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                 .where().eq("type", ExamExecutionType.Type.PRIVATE.toString())
                 .findUnique());
         exam.update();
-        Result result = request(Helpers.POST, "/app/student/exam/" + exam.getHash(), null);
+        Result result = get("/app/student/exam/" + exam.getHash());
         JsonNode node = Json.parse(contentAsString(result));
         return deserialize(Exam.class, node);
     }
@@ -287,7 +277,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         machine.update();
 
         // Execute
-        Result result = request(Helpers.POST, "/app/student/exam/" + exam.getHash(), null);
+        Result result = get("/app/student/exam/" + exam.getHash());
         assertThat(result.status()).isEqualTo(403);
 
         // Verify that no student exam was created
@@ -298,11 +288,11 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateSeveralStudentExamsFails() throws Exception {
         // Execute
-        Result result = request(Helpers.POST, "/app/student/exam/" + exam.getHash(), null);
+        Result result = get("/app/student/exam/" + exam.getHash());
         assertThat(result.status()).isEqualTo(200);
 
         // Try again
-        result = request(Helpers.POST, "/app/student/exam/" + exam.getHash(), null);
+        result = get("/app/student/exam/" + exam.getHash());
         assertThat(result.status()).isEqualTo(403);
 
         // Verify that no student exam was created
@@ -313,13 +303,13 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateStudentExamAlreadyStarted() throws Exception {
         // Execute
-        Result result = request(Helpers.POST, "/app/student/exam/" + exam.getHash(), null);
+        Result result = get("/app/student/exam/" + exam.getHash());
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
 
         // Try again
-        result = request(Helpers.POST, "/app/student/exam/" + studentExam.getHash(), null);
+        result = get("/app/student/exam/" + studentExam.getHash());
         assertThat(result.status()).isEqualTo(200);
 
         node = Json.parse(contentAsString(result));

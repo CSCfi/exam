@@ -16,11 +16,10 @@ angular.module('app.examination')
                             return $translate.instant('sitnet_unsaved_data_may_be_lost');
                         };
                     }
-                    var request = vm.isPreview ? $http.get : $http.post;
                     var url = '/app' + (
                             vm.isPreview ? '/exampreview/' + $routeParams.id : '/student/exam/' + $routeParams.hash
                         );
-                    request(url)
+                    $http.get(url)
                         .success(function (data) {
                             if (data.cloned) {
                                 // we came here with a reference to the parent exam so do not render page just yet,

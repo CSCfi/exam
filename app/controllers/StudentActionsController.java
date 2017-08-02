@@ -151,6 +151,8 @@ public class StudentActionsController extends BaseController {
                 .eq("user", getLoggedUser())
                 .findUnique();
 
+        // IF EXTERNAL EXAM, NO FETCHING THROUGH SQL, DESERIALIZE EXAM AND PASS AS JSON
+
         if (enrolment == null) {
             return notFound();
         } else {
