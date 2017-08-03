@@ -86,7 +86,6 @@ public class StudentExamController extends BaseController {
 
     @ActionMethod
     @Transactional
-    @ExamActionRouter
     public Result turnExam(String hash) {
         User user = getLoggedUser();
 
@@ -160,7 +159,6 @@ public class StudentExamController extends BaseController {
     }
 
     @ActionMethod
-    @ExamActionRouter
     public Result answerEssay(String hash, Long questionId) {
         return getEnrolmentError(hash).orElseGet(() -> {
             DynamicForm df = formFactory.form().bindFromRequest();
@@ -185,7 +183,6 @@ public class StudentExamController extends BaseController {
     }
 
     @ActionMethod
-    @ExamActionRouter
     public Result answerMultiChoice(String hash, Long qid) {
         return getEnrolmentError(hash).orElseGet(() -> {
             ArrayNode node = (ArrayNode) request().body().asJson().get("oids");
@@ -206,7 +203,6 @@ public class StudentExamController extends BaseController {
     }
 
     @ActionMethod
-    @ExamActionRouter
     public Result answerClozeTest(String hash, Long questionId) {
         return getEnrolmentError(hash).orElseGet(() -> {
             ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);

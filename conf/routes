@@ -74,22 +74,22 @@ GET           /app/exam/record/export/report/:id                         control
 
 
 ############### Student exam execution interface ###############
-PUT           /app/student/exams/:hash                                   controllers.StudentExamController.turnExam(hash: String)
-PUT           /app/student/exam/abort/:hash                              controllers.StudentExamController.abortExam(hash: String)
 GET           /app/student/exam/:hash                                    controllers.StudentExamController.startExam(hash: String)
+PUT           /app/student/exam/:hash                                    controllers.StudentExamController.turnExam(hash: String)
+PUT           /app/student/exam/abort/:hash                              controllers.StudentExamController.abortExam(hash: String)
 
-POST          /app/student/exams/:hash/question/:qid/option              controllers.StudentExamController.answerMultiChoice(hash: String, qid: Long)
-POST          /app/student/exams/:hash/question/:questionId              controllers.StudentExamController.answerEssay(hash: String, questionId: Long)
-POST          /app/student/exams/:hash/clozetest/:questionId             controllers.StudentExamController.answerClozeTest(hash: String, questionId: Long)
+POST          /app/student/exam/:hash/question/:qid/option               controllers.StudentExamController.answerMultiChoice(hash: String, qid: Long)
+POST          /app/student/exam/:hash/question/:questionId               controllers.StudentExamController.answerEssay(hash: String, questionId: Long)
+POST          /app/student/exam/:hash/clozetest/:questionId              controllers.StudentExamController.answerClozeTest(hash: String, questionId: Long)
 
 ############### External student exam execution interface ###############
-PUT           /app/iop/student/exams/:hash                               controllers.iop.ExternalStudentExamController.turnExam(hash: String)
-PUT           /app/iop/student/exam/abort/:hash                          controllers.iop.ExternalStudentExamController.abortExam(hash: String)
 GET           /app/iop/student/exam/:hash                                controllers.iop.ExternalStudentExamController.startExam(hash: String)
+PUT           /app/iop/student/exam/:hash                                controllers.iop.ExternalStudentExamController.turnExam(hash: String)
+PUT           /app/iop/student/exam/abort/:hash                          controllers.iop.ExternalStudentExamController.abortExam(hash: String)
 
-POST          /app/iop/student/exams/:hash/question/:qid/option          controllers.iop.ExternalStudentExamController.answerMultiChoice(hash: String, qid: Long)
-POST          /app/iop/student/exams/:hash/question/:questionId          controllers.iop.ExternalStudentExamController.answerEssay(hash: String, questionId: Long)
-POST          /app/iop/student/exams/:hash/clozetest/:questionId         controllers.iop.ExternalStudentExamController.answerClozeTest(hash: String, questionId: Long)
+POST          /app/iop/student/exam/:hash/question/:qid/option           controllers.iop.ExternalStudentExamController.answerMultiChoice(hash: String, qid: Long)
+POST          /app/iop/student/exam/:hash/question/:questionId           controllers.iop.ExternalStudentExamController.answerEssay(hash: String, questionId: Long)
+POST          /app/iop/student/exam/:hash/clozetest/:questionId          controllers.iop.ExternalStudentExamController.answerClozeTest(hash: String, questionId: Long)
 
 ############### Student acions interface #########
 GET           /app/feedback/exams/:eid                                   controllers.StudentActionsController.getExamFeedback(eid: Long)
@@ -97,7 +97,7 @@ GET           /app/feedback/exams/:eid/score                             control
 GET           /app/student/inspectors/exam/:id                           controllers.StudentActionsController.getExamInspectors(id: Long)
 GET           /app/student/finishedexams                                 controllers.StudentActionsController.getFinishedExams(filter: java.util.Optional[String])
 GET           /app/enrolments                                            controllers.StudentActionsController.getEnrolmentsForUser
-GET           /app/student/exam/:eid                                     controllers.StudentActionsController.getExamInfo(eid: Long)
+GET           /app/student/exam/:eid/info                                controllers.StudentActionsController.getExamInfo(eid: Long)
 GET           /app/student/exams                                         controllers.StudentActionsController.listAvailableExams(filter: java.util.Optional[String])
 GET           /app/enrolments/:eid                                       controllers.StudentActionsController.getEnrolment(eid: Long)
 

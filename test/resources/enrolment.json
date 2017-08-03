@@ -1,653 +1,608 @@
 {
-  "id": 1,
-  "name": "Johdatus alkeiden perusteisiin",
+  "id": 13630,
+  "hash": "152e5b9cdfc2d666e79cdb33617032f1",
+  "name": "Pokemon-siirtotentti, joka suoritetaan exam.csc.fi",
+  "grade": null,
+  "state": "STUDENT_STARTED",
+  "cloned": null,
   "course": {
-    "id": 1,
-    "code": "810136P",
-    "name": "Johdatus alkeiden perusteisiin"
+    "id": 11,
+    "code": "ayA110401",
+    "name": "Suomen kieli",
+    "level": null,
+    "campus": null,
+    "credits": null,
+    "endDate": null,
+    "lecturer": null,
+    "startDate": null,
+    "department": null,
+    "gradeScale": null,
+    "identifier": null,
+    "organisation": null,
+    "objectVersion": 0,
+    "courseMaterial": null,
+    "courseUnitType": null,
+    "creditsLanguage": null,
+    "degreeProgramme": null,
+    "institutionName": null,
+    "lecturerResponsible": null,
+    "courseImplementation": null
   },
-  "examType": null,
-  "examOwners": [],
-  "instruction": "Vastaa kolmeen tehtävään neljästä",
-  "examSections": [
+  "parent": null,
+  "shared": false,
+  "created": null,
+  "creator": null,
+  "private": false,
+  "duration": 45,
+  "examType": {
+    "id": 2,
+    "type": "FINAL",
+    "deprecated": null,
+    "objectVersion": 0
+  },
+  "expanded": false,
+  "maxScore": 24.0,
+  "modified": null,
+  "modifier": null,
+  "printout": false,
+  "gradeless": false,
+  "attachment": {
+    "id": null,
+    "created": null,
+    "creator": null,
+    "fileName": "testiliite_1.txt",
+    "filePath": null,
+    "mimeType": null,
+    "modified": null,
+    "modifier": null,
+    "objectVersion": 0
+  },
+  "creditType": null,
+  "examOwners": [
     {
-      "id": 1,
-      "name": "Monivalinnat 1",
-      "sectionQuestions": [
-        {
-          "id": 1,
-          "question": {
-            "id": 5,
-            "type": "MultipleChoiceQuestion",
-            "question": "Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?",
-            "attachment": {
-              "id": 1,
-              "fileName": "pika.ohje"
-            },
-            "options": [
-              {
-                "id": 1,
-                "option": "3",
-                "correctOption": false,
-                "defaultScore": null
-              },
-              {
-                "id": 2,
-                "option": "42",
-                "correctOption": true,
-                "defaultScore": null
-              },
-              {
-                "id": 3,
-                "option": "99",
-                "correctOption": false,
-                "defaultScore": null
-              },
-              {
-                "id": 4,
-                "option": "7",
-                "correctOption": false,
-                "defaultScore": null
-              }
-            ]
-          },
-          "options": [
-            {
-              "id": 4,
-              "option": {
-                "id": 1,
-                "option": "3"
-              },
-              "answered": false
-            },
-            {
-              "id": 5,
-              "option": {
-                "id": 2,
-                "option": "42"
-              },
-              "answered": false
-            },
-            {
-              "id": 6,
-              "option": {
-                "id": 3,
-                "option": "99"
-              },
-              "answered": false
-            },
-            {
-              "id": 7,
-              "option": {
-                "id": 4,
-                "option": "7"
-              },
-              "answered": false
-            }
-          ],
-          "sequenceNumber": 0,
-          "answerInstructions": null,
-          "maxScore": 7.0,
-          "evaluationType": null,
-          "essayAnswer": null,
-          "clozeTestAnswer": null,
-          "evaluationCriteria": null,
-          "expectedWordCount": null,
-          "derivedMaxScore": null
-        },
-        {
-          "id": 2,
-          "question": {
-            "id": 6,
-            "type": "MultipleChoiceQuestion",
-            "question": "Mikä on ikuisen elämän salaisuus?",
-            "attachment": null,
-            "options": [
-              {
-                "id": 5,
-                "option": "IDDQD",
-                "correctOption": true,
-                "defaultScore": null
-              },
-              {
-                "id": 6,
-                "option": "IDKFA",
-                "correctOption": false,
-                "defaultScore": null
-              },
-              {
-                "id": 7,
-                "option": "IDCLIP",
-                "correctOption": false,
-                "defaultScore": null
-              },
-              {
-                "id": 8,
-                "option": "IDCHOPPERS",
-                "correctOption": false,
-                "defaultScore": null
-              }
-            ]
-          },
-          "options": [
-            {
-              "id": 8,
-              "option": {
-                "id": 5,
-                "option": "IDDQD"
-              },
-              "answered": false
-            },
-            {
-              "id": 9,
-              "option": {
-                "id": 6,
-                "option": "IDKFA"
-              },
-              "answered": false
-            },
-            {
-              "id": 10,
-              "option": {
-                "id": 7,
-                "option": "IDCLIP"
-              },
-              "answered": false
-            },
-            {
-              "id": 11,
-              "option": {
-                "id": 8,
-                "option": "IDCHOPPERS"
-              },
-              "answered": false
-            }
-          ],
-          "sequenceNumber": 1,
-          "answerInstructions": null,
-          "maxScore": 7.0,
-          "evaluationType": null,
-          "essayAnswer": null,
-          "clozeTestAnswer": null,
-          "evaluationCriteria": null,
-          "expectedWordCount": null,
-          "derivedMaxScore": null
-        },
-        {
-          "id": 3,
-          "question": {
-            "id": 22,
-            "type": "ClozeTestQuestion",
-            "question": "<p><span cloze=\"true\" id=\"1\">Pariisi</span>on Ranskan pääkaupunki. <span cloze=\"true\" id=\"2\">Berliini</span>on Saksan pääkaupunki.</p>",
-            "attachment": null,
-            "options": []
-          },
-          "options": [],
-          "sequenceNumber": 2,
-          "answerInstructions": null,
-          "maxScore": 7.0,
-          "evaluationType": null,
-          "essayAnswer": null,
-          "clozeTestAnswer": null,
-          "evaluationCriteria": null,
-          "expectedWordCount": null,
-          "derivedMaxScore": null
-        }
-      ],
-      "sequenceNumber": 0,
-      "description": null
-    },
-    {
-      "id": 2,
-      "name": "Monivalinnat 2",
-      "sectionQuestions": [
-        {
-          "id": 4,
-          "question": {
-            "id": 13,
-            "type": "MultipleChoiceQuestion",
-            "question": "Ekliptika on",
-            "attachment": null,
-            "options": [
-              {
-                "id": 28,
-                "option": "Maapallon ratataso Aurinkoon nähden",
-                "correctOption": true,
-                "defaultScore": null
-              },
-              {
-                "id": 29,
-                "option": "Maapallon kiertoradan muoto",
-                "correctOption": false,
-                "defaultScore": null
-              },
-              {
-                "id": 30,
-                "option": "Kuun sirppi",
-                "correctOption": false,
-                "defaultScore": null
-              }
-            ]
-          },
-          "options": [
-            {
-              "id": 12,
-              "option": {
-                "id": 28,
-                "option": "Maapallon ratataso Aurinkoon nähden"
-              },
-              "answered": false
-            },
-            {
-              "id": 13,
-              "option": {
-                "id": 29,
-                "option": "Maapallon kiertoradan muoto"
-              },
-              "answered": false
-            },
-            {
-              "id": 14,
-              "option": {
-                "id": 30,
-                "option": "Kuun sirppi"
-              },
-              "answered": false
-            }
-          ],
-          "sequenceNumber": 0,
-          "answerInstructions": null,
-          "maxScore": 7.0,
-          "evaluationType": null,
-          "essayAnswer": null,
-          "clozeTestAnswer": null,
-          "evaluationCriteria": null,
-          "expectedWordCount": null,
-          "derivedMaxScore": null
-        },
-        {
-          "id": 5,
-          "question": {
-            "id": 8,
-            "type": "MultipleChoiceQuestion",
-            "question": "Mitä lampaat laskevat jotta ne nukahtaisivat?",
-            "attachment": null,
-            "options": [
-              {
-                "id": 12,
-                "option": "Lampaita",
-                "correctOption": true,
-                "defaultScore": null
-              },
-              {
-                "id": 13,
-                "option": "Ihmisiä",
-                "correctOption": false,
-                "defaultScore": null
-              },
-              {
-                "id": 14,
-                "option": "Paimenkoiria",
-                "correctOption": false,
-                "defaultScore": null
-              },
-              {
-                "id": 15,
-                "option": "Jokin muu",
-                "correctOption": false,
-                "defaultScore": null
-              }
-            ]
-          },
-          "options": [
-            {
-              "id": 15,
-              "option": {
-                "id": 12,
-                "option": "Lampaita"
-              },
-              "answered": false
-            },
-            {
-              "id": 16,
-              "option": {
-                "id": 13,
-                "option": "Ihmisiä"
-              },
-              "answered": false
-            },
-            {
-              "id": 17,
-              "option": {
-                "id": 14,
-                "option": "Paimenkoiria"
-              },
-              "answered": false
-            },
-            {
-              "id": 18,
-              "option": {
-                "id": 15,
-                "option": "Jokin muu"
-              },
-              "answered": false
-            }
-          ],
-          "sequenceNumber": 1,
-          "answerInstructions": null,
-          "maxScore": 7.0,
-          "evaluationType": null,
-          "essayAnswer": null,
-          "clozeTestAnswer": null,
-          "evaluationCriteria": null,
-          "expectedWordCount": null,
-          "derivedMaxScore": null
-        },
-        {
-          "id": 6,
-          "question": {
-            "id": 14,
-            "type": "MultipleChoiceQuestion",
-            "question": "Tähdenlento eli",
-            "attachment": null,
-            "options": [
-              {
-                "id": 31,
-                "option": "Meteoroidi",
-                "correctOption": false,
-                "defaultScore": null
-              },
-              {
-                "id": 32,
-                "option": "Meteori",
-                "correctOption": true,
-                "defaultScore": null
-              },
-              {
-                "id": 33,
-                "option": "Meteoriitti",
-                "correctOption": false,
-                "defaultScore": null
-              },
-              {
-                "id": 34,
-                "option": "Meteorologi",
-                "correctOption": false,
-                "defaultScore": null
-              }
-            ]
-          },
-          "options": [
-            {
-              "id": 19,
-              "option": {
-                "id": 31,
-                "option": "Meteoroidi"
-              },
-              "answered": false
-            },
-            {
-              "id": 20,
-              "option": {
-                "id": 32,
-                "option": "Meteori"
-              },
-              "answered": false
-            },
-            {
-              "id": 21,
-              "option": {
-                "id": 33,
-                "option": "Meteoriitti"
-              },
-              "answered": false
-            },
-            {
-              "id": 22,
-              "option": {
-                "id": 34,
-                "option": "Meteorologi"
-              },
-              "answered": false
-            }
-          ],
-          "sequenceNumber": 2,
-          "answerInstructions": null,
-          "maxScore": 7.0,
-          "evaluationType": null,
-          "essayAnswer": null,
-          "clozeTestAnswer": null,
-          "evaluationCriteria": null,
-          "expectedWordCount": null,
-          "derivedMaxScore": null
-        },
-        {
-          "id": 7,
-          "question": {
-            "id": 23,
-            "type": "ClozeTestQuestion",
-            "question": "<p><span cloze=\"true\" id=\"1\">Budapest</span>on Unkarin pääkaupunki. <span cloze=\"true\" id=\"2\">Tukholma</span>on Ruotsin pääkaupunki.</p>",
-            "attachment": null,
-            "options": []
-          },
-          "options": [],
-          "sequenceNumber": 3,
-          "answerInstructions": null,
-          "maxScore": 7.0,
-          "evaluationType": null,
-          "essayAnswer": null,
-          "clozeTestAnswer": null,
-          "evaluationCriteria": null,
-          "expectedWordCount": null,
-          "derivedMaxScore": null
-        }
-      ],
-      "sequenceNumber": 1,
-      "description": null
-    },
-    {
-      "id": 3,
-      "name": "Essee kysymykset",
-      "sectionQuestions": [
-        {
-          "id": 8,
-          "question": {
-            "id": 1,
-            "type": "EssayQuestion",
-            "question": "<u>Kerro toiseen maailmansotaan johtaneista syistä.</u>",
-            "attachment": null,
-            "options": []
-          },
-          "options": [],
-          "sequenceNumber": 0,
-          "answerInstructions": null,
-          "maxScore": 7.0,
-          "evaluationType": "Points",
-          "essayAnswer": null,
-          "clozeTestAnswer": null,
-          "evaluationCriteria": null,
-          "expectedWordCount": null,
-          "derivedMaxScore": null
-        },
-        {
-          "id": 9,
-          "question": {
-            "id": 2,
-            "type": "EssayQuestion",
-            "question": "Mitä tarkoitetaan \"oliolla\" ohjelmistokehityksessä?",
-            "attachment": null,
-            "options": []
-          },
-          "options": [],
-          "sequenceNumber": 1,
-          "answerInstructions": null,
-          "maxScore": 7.0,
-          "evaluationType": "Points",
-          "essayAnswer": null,
-          "clozeTestAnswer": null,
-          "evaluationCriteria": null,
-          "expectedWordCount": null,
-          "derivedMaxScore": null
-        },
-        {
-          "id": 10,
-          "question": {
-            "id": 3,
-            "type": "EssayQuestion",
-            "question": "Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.",
-            "attachment": null,
-            "options": []
-          },
-          "options": [],
-          "sequenceNumber": 2,
-          "answerInstructions": null,
-          "maxScore": 7.0,
-          "evaluationType": "Points",
-          "essayAnswer": null,
-          "clozeTestAnswer": null,
-          "evaluationCriteria": null,
-          "expectedWordCount": null,
-          "derivedMaxScore": null
-        },
-        {
-          "id": 11,
-          "question": {
-            "id": 24,
-            "type": "ClozeTestQuestion",
-            "question": "<p><span cloze=\"true\" id=\"1\">Istanbul</span>on Turkin pääkaupunki. <span cloze=\"true\" id=\"2\">Ateena</span>on Kreikan pääkaupunki.</p>",
-            "attachment": null,
-            "options": []
-          },
-          "options": [],
-          "sequenceNumber": 3,
-          "answerInstructions": null,
-          "maxScore": 7.0,
-          "evaluationType": null,
-          "essayAnswer": null,
-          "clozeTestAnswer": null,
-          "evaluationCriteria": null,
-          "expectedWordCount": null,
-          "derivedMaxScore": null
-        }
-      ],
-      "sequenceNumber": 2,
-      "description": null
+      "id": null,
+      "eppn": null,
+      "email": null,
+      "roles": [],
+      "language": null,
+      "lastName": "Teacher",
+      "firstName": "Marjut",
+      "lastLogin": null,
+      "logoutUrl": null,
+      "enrolments": [],
+      "identifier": null,
+      "inspections": [],
+      "permissions": [],
+      "organisation": null,
+      "objectVersion": 0,
+      "employeeNumber": null,
+      "participations": [],
+      "userIdentifier": null,
+      "userAgreementAccepted": false
     }
   ],
-  "examInspections": [
-    {
-      "user": {
-        "lastName": "Opettaja",
-        "firstName": "Olli"
-      }
-    }
-  ],
-  "autoEvaluationConfig": {
-    "releaseType": "IMMEDIATE",
-    "releaseDate": null,
-    "amountDays": null,
-    "gradeEvaluations": [
-      {
-        "grade": {
-          "id": 6,
-          "gradeScale": {
-            "id": 4
-          }
-        },
-        "percentage": 100
-      },
-      {
-        "grade": {
-          "id": 1,
-          "gradeScale": {
-            "id": 4
-          }
-        },
-        "percentage": 0
-      },
-      {
-        "grade": {
-          "id": 2,
-          "gradeScale": {
-            "id": 4
-          }
-        },
-        "percentage": 20
-      },
-      {
-        "grade": {
-          "id": 3,
-          "gradeScale": {
-            "id": 4
-          }
-        },
-        "percentage": 40
-      },
-      {
-        "grade": {
-          "id": 4,
-          "gradeScale": {
-            "id": 4
-          }
-        },
-        "percentage": 60
-      },
-      {
-        "grade": {
-          "id": 5,
-          "gradeScale": {
-            "id": 4
-          }
-        },
-        "percentage": 80
-      }
-    ]
-  },
-  "hash": "b13704e955a8565898dd24950d6f4479",
-  "duration": 90,
+  "examRecord": null,
   "gradeScale": {
-    "id": 4,
+    "id": 1,
+    "type": null,
     "grades": [
       {
-        "id": 1
+        "id": 4,
+        "name": "1",
+        "marksRejection": null
       },
       {
-        "id": 2
+        "id": 5,
+        "name": "2",
+        "marksRejection": null
       },
       {
-        "id": 3
+        "id": 6,
+        "name": "3",
+        "marksRejection": null
       },
       {
-        "id": 4
+        "id": 7,
+        "name": "4",
+        "marksRejection": null
       },
       {
-        "id": 5
+        "id": 8,
+        "name": "5",
+        "marksRejection": null
       },
       {
-        "id": 6
+        "id": 3,
+        "name": "0",
+        "marksRejection": null
       }
-    ]
+    ],
+    "description": null,
+    "displayName": null,
+    "externalRef": null
   },
-  "examLanguages": [
+  "gradedTime": null,
+  "totalScore": 0.0,
+  "trialCount": null,
+  "instruction": "Nämä ohjeet pitäisi näkyä opiskelijalle kuin teet tenttiä. Testataan kappalejakoa.\n\n\nTämä on eri kappaleessa.",
+  "internalRef": null,
+  "customCredit": null,
+  "examFeedback": null,
+  "examSections": [
     {
-      "code": "de"
+      "id": 15471,
+      "name": "Lyhyet esseet",
+      "created": null,
+      "creator": null,
+      "ordinal": 0,
+      "expanded": false,
+      "modified": null,
+      "modifier": null,
+      "lotteryOn": false,
+      "description": "Tässä kappaleessa on lyhyitä esseitä, ei arvontaa.",
+      "objectVersion": 0,
+      "sequenceNumber": 0,
+      "lotteryItemCount": 0,
+      "sectionQuestions": [
+        {
+          "id": 19455,
+          "created": null,
+          "creator": null,
+          "options": [],
+          "ordinal": 0,
+          "approved": false,
+          "maxScore": 6.0,
+          "minScore": 0.0,
+          "modified": null,
+          "modifier": null,
+          "question": {
+            "id": 25290,
+            "tags": [],
+            "type": "EssayQuestion",
+            "state": null,
+            "parent": null,
+            "shared": false,
+            "created": null,
+            "creator": null,
+            "options": [],
+            "modified": null,
+            "modifier": null,
+            "question": "<p>Kerro Pokemonin Gymeist&auml;. T&auml;ss&auml; kysymyksess&auml; my&ouml;s liite.&nbsp;</p>\n\n<p>Alla oleva taulukko.</p>\n\n<table border=\"1\" cellpadding=\"1\" cellspacing=\"1\" style=\"width:500px\">\n\t<tbody>\n\t\t<tr>\n\t\t\t<td>Punaisten gymi</td>\n\t\t\t<td>Keltaisten gymi</td>\n\t\t\t<td>Sinisten gymi</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>&nbsp;</td>\n\t\t\t<td>&nbsp;</td>\n\t\t\t<td>&nbsp;</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>&nbsp;</td>\n\t\t\t<td>&nbsp;</td>\n\t\t\t<td>&nbsp;</td>\n\t\t</tr>\n\t</tbody>\n</table>\n\n<p><em>T&auml;m&auml; on italicilla.&nbsp;</em></p>\n\n<p><strong>Ja t&auml;m&auml; boldilla.&nbsp;</strong></p>\n\n<p>Ja t&auml;ss&auml; on yl&auml;indeksi<sup>2</sup>.</p>\n\n<p>Ja t&auml;ss&auml; alaindeksi<sub>ala</sub>.</p>\n",
+            "attachment": {
+              "id": 8783,
+              "created": null,
+              "creator": null,
+              "fileName": "testiliite_2.txt",
+              "filePath": null,
+              "mimeType": null,
+              "modified": null,
+              "modifier": null,
+              "objectVersion": 0
+            },
+            "objectVersion": 0,
+            "questionOwners": [],
+            "defaultMaxScore": null,
+            "maxDefaultScore": 0.0,
+            "minDefaultScore": 0.0,
+            "defaultEvaluationType": null,
+            "defaultExpectedWordCount": null,
+            "defaultAnswerInstructions": null,
+            "defaultEvaluationCriteria": null
+          },
+          "rejected": false,
+          "essayAnswer": null,
+          "assessedScore": 0.0,
+          "objectVersion": 0,
+          "evaluationType": "Points",
+          "sequenceNumber": 0,
+          "clozeTestAnswer": null,
+          "derivedMaxScore": null,
+          "maxAssessedScore": 6.0,
+          "expectedWordCount": 500,
+          "answerInstructions": "Ja tämä on kysymykseen liittyvä ohjeistus eli muista lukea liite!.",
+          "evaluationCriteria": "Ja tässä arviointikriteereitä joita ei näytetä opiskelijalle."
+        },
+        {
+          "id": 19456,
+          "created": null,
+          "creator": null,
+          "options": [],
+          "ordinal": 1,
+          "approved": false,
+          "maxScore": 6.0,
+          "minScore": 0.0,
+          "modified": null,
+          "modifier": null,
+          "question": {
+            "id": 25291,
+            "tags": [],
+            "type": "EssayQuestion",
+            "state": null,
+            "parent": null,
+            "shared": false,
+            "created": null,
+            "creator": null,
+            "options": [],
+            "modified": null,
+            "modifier": null,
+            "question": "<p>Ja t&auml;ss&auml; toinen helpompi essee. Kirjoita t&auml;h&auml;n Raideista.&nbsp;</p>\n",
+            "attachment": null,
+            "objectVersion": 0,
+            "questionOwners": [],
+            "defaultMaxScore": null,
+            "maxDefaultScore": 0.0,
+            "minDefaultScore": 0.0,
+            "defaultEvaluationType": null,
+            "defaultExpectedWordCount": null,
+            "defaultAnswerInstructions": null,
+            "defaultEvaluationCriteria": null
+          },
+          "rejected": false,
+          "essayAnswer": null,
+          "assessedScore": 0.0,
+          "objectVersion": 0,
+          "evaluationType": "Points",
+          "sequenceNumber": 1,
+          "clozeTestAnswer": null,
+          "derivedMaxScore": null,
+          "maxAssessedScore": 6.0,
+          "expectedWordCount": 500,
+          "answerInstructions": null,
+          "evaluationCriteria": null
+        }
+      ]
     },
     {
-      "code": "en"
-    },
-    {
-      "code": "sv"
-    },
-    {
-      "code": "fi"
+      "id": 15472,
+      "name": "Monivalinnat",
+      "created": null,
+      "creator": null,
+      "ordinal": 1,
+      "expanded": false,
+      "modified": null,
+      "modifier": null,
+      "lotteryOn": false,
+      "description": "Tässä kokonaisuudessa on monivalintakysymykset.",
+      "objectVersion": 0,
+      "sequenceNumber": 1,
+      "lotteryItemCount": 0,
+      "sectionQuestions": [
+        {
+          "id": 19457,
+          "created": null,
+          "creator": null,
+          "options": [
+            {
+              "id": 15952,
+              "score": null,
+              "option": {
+                "id": 19319,
+                "option": "Dragonite CP 3055",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 15951,
+              "score": null,
+              "option": {
+                "id": 19320,
+                "option": "Rhydon Cp 2821",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 15950,
+              "score": null,
+              "option": {
+                "id": 19321,
+                "option": "Golem CP 2581",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            }
+          ],
+          "ordinal": 0,
+          "approved": false,
+          "maxScore": 6.0,
+          "minScore": 0.0,
+          "modified": null,
+          "modifier": null,
+          "question": {
+            "id": 25292,
+            "tags": [],
+            "type": "MultipleChoiceQuestion",
+            "state": null,
+            "parent": null,
+            "shared": false,
+            "created": null,
+            "creator": null,
+            "options": [
+              {
+                "id": 19321,
+                "option": "Golem CP 2581",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              {
+                "id": 19320,
+                "option": "Rhydon Cp 2821",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              {
+                "id": 19319,
+                "option": "Dragonite CP 3055",
+                "defaultScore": null,
+                "correctOption": true,
+                "objectVersion": 0
+              }
+            ],
+            "modified": null,
+            "modifier": null,
+            "question": "<p>Mik&auml; n&auml;ist&auml; pokemoneista on vahvin taistelussa?</p>\n",
+            "attachment": null,
+            "objectVersion": 0,
+            "questionOwners": [],
+            "defaultMaxScore": null,
+            "maxDefaultScore": 0.0,
+            "minDefaultScore": 0.0,
+            "defaultEvaluationType": null,
+            "defaultExpectedWordCount": null,
+            "defaultAnswerInstructions": null,
+            "defaultEvaluationCriteria": null
+          },
+          "rejected": false,
+          "essayAnswer": null,
+          "assessedScore": 0.0,
+          "objectVersion": 0,
+          "evaluationType": null,
+          "sequenceNumber": 0,
+          "clozeTestAnswer": null,
+          "derivedMaxScore": null,
+          "maxAssessedScore": 6.0,
+          "expectedWordCount": null,
+          "answerInstructions": null,
+          "evaluationCriteria": null
+        },
+        {
+          "id": 19458,
+          "created": null,
+          "creator": null,
+          "options": [
+            {
+              "id": 15957,
+              "score": null,
+              "option": {
+                "id": 19322,
+                "option": "Krabby",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 15956,
+              "score": null,
+              "option": {
+                "id": 19323,
+                "option": "Paras",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 15955,
+              "score": null,
+              "option": {
+                "id": 19324,
+                "option": "Psyduck",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 15954,
+              "score": null,
+              "option": {
+                "id": 19325,
+                "option": "Meowth",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 15953,
+              "score": null,
+              "option": {
+                "id": 19326,
+                "option": "Venonat",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            }
+          ],
+          "ordinal": 1,
+          "approved": false,
+          "maxScore": null,
+          "minScore": 0.0,
+          "modified": null,
+          "modifier": null,
+          "question": {
+            "id": 25293,
+            "tags": [],
+            "type": "WeightedMultipleChoiceQuestion",
+            "state": null,
+            "parent": null,
+            "shared": false,
+            "created": null,
+            "creator": null,
+            "options": [
+              {
+                "id": 19326,
+                "option": "Venonat",
+                "defaultScore": -2.0,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              {
+                "id": 19325,
+                "option": "Meowth",
+                "defaultScore": -2.0,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              {
+                "id": 19324,
+                "option": "Psyduck",
+                "defaultScore": 3.0,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              {
+                "id": 19323,
+                "option": "Paras",
+                "defaultScore": -2.0,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              {
+                "id": 19322,
+                "option": "Krabby",
+                "defaultScore": 3.0,
+                "correctOption": false,
+                "objectVersion": 0
+              }
+            ],
+            "modified": null,
+            "modifier": null,
+            "question": "<p>Mitk&auml; kaksi n&auml;ist&auml; ovat vesipokemeja?</p>\n",
+            "attachment": null,
+            "objectVersion": 0,
+            "questionOwners": [],
+            "defaultMaxScore": null,
+            "maxDefaultScore": 6.0,
+            "minDefaultScore": -6.0,
+            "defaultEvaluationType": null,
+            "defaultExpectedWordCount": null,
+            "defaultAnswerInstructions": null,
+            "defaultEvaluationCriteria": null
+          },
+          "rejected": false,
+          "essayAnswer": null,
+          "assessedScore": 0.0,
+          "objectVersion": 0,
+          "evaluationType": null,
+          "sequenceNumber": 1,
+          "clozeTestAnswer": null,
+          "derivedMaxScore": null,
+          "maxAssessedScore": 0.0,
+          "expectedWordCount": null,
+          "answerInstructions": null,
+          "evaluationCriteria": null
+        },
+        {
+          "id": 19459,
+          "created": null,
+          "creator": null,
+          "options": [],
+          "ordinal": 2,
+          "approved": false,
+          "maxScore": 6.0,
+          "minScore": 0.0,
+          "modified": null,
+          "modifier": null,
+          "question": {
+            "id": 25294,
+            "tags": [],
+            "type": "ClozeTestQuestion",
+            "state": null,
+            "parent": null,
+            "shared": false,
+            "created": null,
+            "creator": null,
+            "options": [],
+            "modified": null,
+            "modifier": null,
+            "question": "<p>Pok&eacute;mon on <span case-sensitive=\"false\" class=\"marker\" cloze=\"true\" id=\"$9obs\" numeric=\"false\" precision=\"0\" style=\"border:1px solid\">japanilainen</span> tuotesarja. Se sai alkunsa Satoshi Tajirin kehitt&auml;m&auml;st&auml;, vuonna 1996 Nintendon Game Boy:lle julkaistusta videoroolipelist&auml;. Sana &rdquo;Pok&eacute;mon&rdquo; on lyhenne sanoista &rdquo;pocket monsters&rdquo;, &rdquo;taskuhirvi&ouml;t&rdquo;. Peleiss&auml; on satoja erilaisia Pok&eacute;mon-hahmoja ja tavoitteena on ker&auml;t&auml; jokainen niist&auml; ja kouluttaa hahmoista hyv&auml; tiimi. Tuotesarjaan kuuluu videopelien lis&auml;ksi ker&auml;ilykorttipeli, anime, manga ja lukuisia muita tuotteita. Tunnetuin Pok&eacute;mon-hahmo on sarjan maskotti, keltainen s&auml;hk&ouml;hiiriolento &nbsp;<span case-sensitive=\"false\" class=\"marker\" cloze=\"true\" id=\"$vr28\" numeric=\"false\" precision=\"0\" style=\"border:1px solid\">Pikachu|pikachu</span>.[1] Br&auml;ndi&auml; hallitsee ja lisensoi The Pokemon Company, josta Nintendo omistaa 32 %.[2] Nimi &quot;Pok&eacute;mon&quot; ja hahmojen nimet yms. ovat Nintendon tavaramerkkej&auml;.[3]</p>\n",
+            "attachment": null,
+            "objectVersion": 0,
+            "questionOwners": [],
+            "defaultMaxScore": null,
+            "maxDefaultScore": 0.0,
+            "minDefaultScore": 0.0,
+            "defaultEvaluationType": null,
+            "defaultExpectedWordCount": null,
+            "defaultAnswerInstructions": null,
+            "defaultEvaluationCriteria": null
+          },
+          "rejected": false,
+          "essayAnswer": null,
+          "assessedScore": 0.0,
+          "objectVersion": 0,
+          "evaluationType": null,
+          "sequenceNumber": 2,
+          "clozeTestAnswer": null,
+          "derivedMaxScore": null,
+          "maxAssessedScore": 6.0,
+          "expectedWordCount": null,
+          "answerInstructions": null,
+          "evaluationCriteria": null
+        }
+      ]
     }
   ],
-  "state": "PUBLISHED",
-  "creditType": null,
+  "softwareInfo": [],
+  "examLanguages": [
+    {
+      "code": "fi",
+      "name": null,
+      "objectVersion": 0
+    }
+  ],
   "executionType": {
     "id": 1,
     "type": "PUBLIC"
   },
-  "attachment": null,
-  "cloned": null
+  "objectVersion": 0,
+  "additionalInfo": null,
+  "answerLanguage": null,
+  "examEnrolments": [],
+  "examInspections": [],
+  "examinationDates": [],
+  "enrollInstruction": null,
+  "examActiveEndDate": null,
+  "examParticipations": [],
+  "inspectionComments": [],
+  "languageInspection": null,
+  "examActiveStartDate": null,
+  "autoEvaluationConfig": null,
+  "autoEvaluationNotified": null,
+  "subjectToLanguageInspection": null
 }

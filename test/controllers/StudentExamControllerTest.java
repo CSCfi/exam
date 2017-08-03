@@ -121,14 +121,14 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                 .get(0);
         Iterator<ExamSectionQuestionOption> it = question.getOptions().iterator();
         ExamSectionQuestionOption option = it.next();
-        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
+        result = request(Helpers.POST, String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(),
                 question.getId()), createMultipleChoiceAnswerData(option));
         assertThat(result.status()).isEqualTo(200);
 
 
         // Change answer
         option = it.next();
-        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
+        result = request(Helpers.POST, String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(),
                 question.getId()), createMultipleChoiceAnswerData(option));
         assertThat(result.status()).isEqualTo(200);
     }
@@ -160,7 +160,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         machine.update();
 
         // Execute
-        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
+        result = request(Helpers.POST, String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(),
                 question.getId()), createMultipleChoiceAnswerData(option));
         assertThat(result.status()).isEqualTo(403);
     }
@@ -183,7 +183,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                     if (answer != null && answer.getObjectVersion() > 0) {
                         body.put("objectVersion", answer.getObjectVersion());
                     }
-                    r = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d",
+                    r = request(Helpers.POST, String.format("/app/student/exam/%s/question/%d",
                             studentExam.getHash(), esq.getId()), body);
                     assertThat(r.status()).isEqualTo(200);
                     break;
@@ -195,7 +195,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                     if (clozeAnswer != null && clozeAnswer.getObjectVersion() > 0) {
                         content.put("objectVersion", clozeAnswer.getObjectVersion());
                     }
-                    r = request(Helpers.POST, String.format("/app/student/exams/%s/clozetest/%d",
+                    r = request(Helpers.POST, String.format("/app/student/exam/%s/clozetest/%d",
                             studentExam.getHash(), esq.getId()), content);
                     assertThat(r.status()).isEqualTo(200);
                     break;
@@ -207,13 +207,13 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                             .get(0);
                     Iterator<ExamSectionQuestionOption> it = sectionQuestion.getOptions().iterator();
                     ExamSectionQuestionOption option = it.next();
-                    r = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", studentExam.getHash(),
+                    r = request(Helpers.POST, String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(),
                             esq.getId()), createMultipleChoiceAnswerData(option));
                     assertThat(r.status()).isEqualTo(200);
                     break;
             }
         });
-        result = request(Helpers.PUT, String.format("/app/student/exams/%s", studentExam.getHash()), null);
+        result = request(Helpers.PUT, String.format("/app/student/exam/%s", studentExam.getHash()), null);
         assertThat(result.status()).isEqualTo(200);
         Exam turnedExam = Ebean.find(Exam.class, studentExam.getId());
         assertThat(turnedExam.getGrade()).isNotNull();
@@ -234,7 +234,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testDoPrivateExam() throws Exception {
         Exam studentExam = createPrivateStudentExam();
-        Result result = request(Helpers.PUT, String.format("/app/student/exams/%s", studentExam.getHash()), null);
+        Result result = request(Helpers.PUT, String.format("/app/student/exam/%s", studentExam.getHash()), null);
         assertThat(result.status()).isEqualTo(200);
 
         // Check that correct mail was sent

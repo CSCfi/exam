@@ -15,6 +15,7 @@ import models.User;
 import models.json.ExternalExam;
 import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
+import models.questions.Question;
 import org.joda.time.DateTime;
 import play.data.DynamicForm;
 import play.mvc.Result;
@@ -23,8 +24,10 @@ import system.interceptors.SensitiveDataPolicy;
 import util.AppUtil;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -60,10 +63,29 @@ public class ExternalStudentExamController extends StudentExamController {
                 externalExam.update();
             }
             newExam.setCloned(false);
+            newExam.setExternal(true);
             newExam.setDerivedMaxScores();
             processClozeTestQuestions(newExam);
             return ok(newExam, getPath(false));
         });
+    }
+
+    @Override
+    protected void processClozeTestQuestions(Exam exam) {
+        Set<Question> questionsToHide = new HashSet<>();
+        exam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
+                .forEach(esq -> {
+                    ClozeTestAnswer answer = esq.getClozeTestAnswer();
+                    if (answer == null) {
+                        answer = new ClozeTestAnswer();
+                    }
+                    answer.setQuestion(esq);
+                    esq.setClozeTestAnswer(answer);
+                    questionsToHide.add(esq.getQuestion());
+                });
+        questionsToHide.forEach(q -> q.setQuestion(null));
     }
 
     @ActionMethod

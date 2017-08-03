@@ -16,29 +16,19 @@ angular.module('app.examination')
                             return $translate.instant('sitnet_unsaved_data_may_be_lost');
                         };
                     }
-                    var url = '/app' + (
-                            vm.isPreview ? '/exampreview/' + $routeParams.id : '/student/exam/' + $routeParams.hash
-                        );
-                    $http.get(url)
-                        .success(function (data) {
-                            if (data.cloned) {
-                                // we came here with a reference to the parent exam so do not render page just yet,
-                                // reload with reference to student exam that we just created
-                                $location.path('/student/exam/' + data.hash);
-                                return;
-                            }
-                            data.examSections.sort(function (a, b) {
+                    Examination.startExam($routeParams.hash, vm.isPreview, $routeParams.id)
+                        .then(function (exam) {
+                            exam.examSections.sort(function (a, b) {
                                 return a.sequenceNumber - b.sequenceNumber;
                             });
                             // set section indices
-                            angular.forEach(data.examSections, function (section, index) {
+                            angular.forEach(exam.examSections, function (section, index) {
                                 section.index = index + 1;
                             });
 
-                            vm.exam = data;
+                            vm.exam = exam;
                             setActiveSection({type: 'guide'});
-                        })
-                        .error(function () {
+                        }, function () {
                             $location.path('/');
                         });
                 };

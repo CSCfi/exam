@@ -56,7 +56,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         ee.setCreated(DateTime.now());
         ee.setCreator(user);
         ee.setContent(EJson.parseObject(
-                Files.toString(new File("test/resources/enrolment.json"), Charset.forName("UTF-8"))));
+                Files.toString(new File("test/resources/enrolment2.json"), Charset.forName("UTF-8"))));
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);
         machine = room.getExamMachines().get(0);
         machine.setIpAddress("127.0.0.1"); // so that the IP check won't fail
@@ -160,7 +160,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
                 .get();
         Iterator<ExamSectionQuestionOption> it = question.getOptions().iterator();
         ExamSectionQuestionOption option = it.next();
-        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", enrolment.getExternalExam().getHash(),
+        result = request(Helpers.POST, String.format("/app/iop/student/exam/%s/question/%d/option", enrolment.getExternalExam().getHash(),
                 question.getId()), createMultipleChoiceAnswerData(option), true);
         assertThat(result.status()).isEqualTo(200);
 
@@ -198,7 +198,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         machine.update();
 
 
-        result = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", enrolment.getExternalExam().getHash(),
+        result = request(Helpers.POST, String.format("/app/iop/student/exam/%s/question/%d/option", enrolment.getExternalExam().getHash(),
                 question.getId()), createMultipleChoiceAnswerData(option), true);
         assertThat(result.status()).isEqualTo(403);
     }
@@ -220,7 +220,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
                     if (answer != null && answer.getObjectVersion() > 0) {
                         body.put("objectVersion", answer.getObjectVersion());
                     }
-                    r = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d",
+                    r = request(Helpers.POST, String.format("/app/iop/student/exam/%s/question/%d",
                             hash, esq.getId()), body, true);
                     assertThat(r.status()).isEqualTo(200);
                     break;
@@ -232,20 +232,20 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
                     if (clozeAnswer != null && clozeAnswer.getObjectVersion() > 0) {
                         content.put("objectVersion", clozeAnswer.getObjectVersion());
                     }
-                    r = request(Helpers.POST, String.format("/app/student/exams/%s/clozetest/%d",
-                            hash, esq.getId()), content, true);
+                    r = request(Helpers.POST, String.format("/app/iop/student/exam/%s/clozetest/%d",
+                            hash, esq.getId()), content);
                     assertThat(r.status()).isEqualTo(200);
                     break;
                 default:
                     Iterator<ExamSectionQuestionOption> it = esq.getOptions().iterator();
                     ExamSectionQuestionOption option = it.next();
-                    r = request(Helpers.POST, String.format("/app/student/exams/%s/question/%d/option", hash,
+                    r = request(Helpers.POST, String.format("/app/iop/student/exam/%s/question/%d/option", hash,
                             esq.getId()), createMultipleChoiceAnswerData(option), true);
                     assertThat(r.status()).isEqualTo(200);
                     break;
             }
         });
-        result = request(Helpers.PUT, String.format("/app/student/exams/%s", hash), null, true);
+        result = request(Helpers.PUT, String.format("/app/iop/student/exam/%s", hash), null);
         assertThat(result.status()).isEqualTo(200);
         ExternalExam turnedExam = Ebean.find(ExternalExam.class).where().eq("hash", hash).findUnique();
         assertThat(turnedExam.getFinished()).isNotNull();

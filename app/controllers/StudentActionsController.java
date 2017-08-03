@@ -24,6 +24,7 @@ import system.interceptors.SensitiveDataPolicy;
 import util.AppUtil;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
@@ -101,7 +102,7 @@ public class StudentActionsController extends BaseController {
         exam.setApprovedAnswerCount();
         exam.setRejectedAnswerCount();
         exam.setTotalScore();
-        PathProperties pp  = PathProperties.parse("(*)");
+        PathProperties pp = PathProperties.parse("(*)");
         return ok(exam, pp);
     }
 
@@ -136,27 +137,26 @@ public class StudentActionsController extends BaseController {
     }
 
     @ActionMethod
-    public Result getEnrolment(Long eid) {
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
-                .fetch("exam.course", "name, code")
-                .fetch("exam.examOwners", "firstName, lastName")
-                .fetch("exam.examInspections.user", "firstName, lastName")
-                .fetch("user", "id")
-                .fetch("reservation", "startAt, endAt")
-                .fetch("reservation.machine", "name")
-                .fetch("reservation.machine.room", "name, roomCode, localTimezone")
-                .where()
+    public Result getEnrolment(Long eid) throws IOException {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .idEq(eid)
                 .eq("user", getLoggedUser())
                 .findUnique();
-
-        // IF EXTERNAL EXAM, NO FETCHING THROUGH SQL, DESERIALIZE EXAM AND PASS AS JSON
-
         if (enrolment == null) {
             return notFound();
+        }
+        PathProperties pp = PathProperties.parse("(*, exam(*, course(name, code), examOwners(firstName, lastName), " +
+                "examInspections(user(firstName, lastName))), user(id), reservation(startAt, endAt, " +
+                "machine(name, room(name, roomCode, localTimezone))))");
+
+        if (enrolment.getExternalExam() == null) {
+            return ok(enrolment, pp);
         } else {
-            return ok(enrolment);
+            // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+            // Works in this particular use case
+            Exam exam = enrolment.getExternalExam().deserialize();
+            enrolment.setExam(exam);
+            return ok(enrolment, pp);
         }
     }
 
@@ -277,8 +277,6 @@ public class StudentActionsController extends BaseController {
         List<Exam> exams = query.orderBy("course.code").findList();
         return ok(exams);
     }
-
-
 
 
 }

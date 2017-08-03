@@ -10,9 +10,9 @@ angular.module('app.examination')
             onPageSelect: '&'
         },
         controller: ['$http', '$location', '$routeParams', '$translate', 'dialogs', 'Session', 'Examination',
-            'StudentExamRes', 'Attachment', 'enrolmentService',
-            function ($http, $location, $routeParams, $translate, dialogs, Session, Examination, StudentExamRes,
-                      Attachment, enrolmentService) {
+            'Attachment', 'enrolmentService',
+            function ($http, $location, $routeParams, $translate, dialogs, Session, Examination, Attachment,
+                      enrolmentService) {
 
                 var vm = this;
 
@@ -50,7 +50,7 @@ angular.module('app.examination')
                 vm.abortExam = function () {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
                     dialog.result.then(function () {
-                        StudentExamRes.exam.abort({hash: vm.exam.hash}, function () {
+                        Examination.abort(vm.exam.hash).success(function () {
                             toastr.info($translate.instant('sitnet_exam_aborted'), {timeOut: 5000});
                             window.onbeforeunload = null;
                             $location.path('/student/logout/aborted');

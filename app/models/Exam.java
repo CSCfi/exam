@@ -218,8 +218,10 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Transient
     private int approvedAnswerCount;
 
-    // Cloned - needed as field for serialization :(
-    private Boolean cloned;
+    @Transient
+    private boolean cloned;
+    @Transient
+    private boolean external;
 
     public Double getTotalScore() {
         return examSections.stream()
@@ -262,13 +264,20 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         approvedAnswerCount = getApprovedAnswerCount();
     }
 
-    @Transient
-    public Boolean isCloned() {
+    public boolean isCloned() {
         return cloned;
     }
 
-    public void setCloned(Boolean cloned) {
+    public void setCloned(boolean cloned) {
         this.cloned = cloned;
+    }
+
+    public boolean isExternal() {
+        return external;
+    }
+
+    public void setExternal(boolean external) {
+        this.external = external;
     }
 
     public DateTime getGradedTime() {

@@ -1,25 +1,47 @@
 'use strict';
 angular.module('app.examination')
-    .service('Examination', ['$q', '$location', '$translate', 'examService', 'StudentExamRes',
-        function ($q, $location, $translate, examService, StudentExamRes) {
+    .service('Examination', ['$q', '$location', '$http', '$translate',
+        function ($q, $location, $http, $translate) {
 
             var self = this;
+            var _external;
 
-            self.saveTextualAnswer = function (esq, hash, autosave) {
+            var getResource = function (url) {
+                return _external ? url.replace('/app/', '/app/iop/') : url;
+            };
+
+            self.startExam = function (hash, isPreview, id) {
+                var request = isPreview ? $http.get : $http.post;
+                var url = isPreview && id ? '/app/exampreview/' + id : '/app/student/exam/' + hash;
+                var deferred = $q.defer();
+                request(url).success(function (data) {
+                    if (data.cloned) {
+                        // we came here with a reference to the parent exam so do not render page just yet,
+                        // reload with reference to student exam that we just created
+                        $location.path('/student/exam/' + data.hash);
+                    }
+                    _external = data.external;
+                    deferred.resolve(data);
+                }).error(function (err) {
+                    deferred.reject(err);
+                });
+                return deferred.promise;
+            };
+
+            self.saveTextualAnswer = function (esq, exam, autosave) {
                 esq.questionStatus = $translate.instant('sitnet_answer_saved');
                 var deferred = $q.defer();
-                var params = {
-                    hash: hash,
-                    qid: esq.id
-                };
                 var type = esq.question.type;
                 var answerObj = type === 'EssayQuestion' ? esq.essayAnswer : esq.clozeTestAnswer;
-                var resource = type === 'EssayQuestion' ? StudentExamRes.essayAnswer.saveEssay : StudentExamRes.clozeTestAnswer.save;
+                var url = getResource(type === 'EssayQuestion' ?
+                        '/app/student/exam/' + exam.hash + '/question/' + esq.id :
+                        '/app/student/exam/' + exam.hash + '/clozetest/' + esq.id
+                    , exam);
                 var msg = {
                     answer: answerObj.answer,
                     objectVersion: answerObj.objectVersion
                 };
-                resource(params, msg,
+                $http.post(url, msg,
                     function (answer) {
                         if (autosave) {
                             esq.autosaved = new Date();
@@ -126,11 +148,8 @@ angular.module('app.examination')
                     ids = [sq.selectedOption];
                 }
                 if (!preview) {
-                    StudentExamRes.multipleChoiceAnswer.saveMultipleChoice({
-                            hash: hash,
-                            qid: sq.id,
-                            oids: ids
-                        },
+                    var url = getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option/', hash);
+                    $http.post(url, {oids: ids},
                         function () {
                             toastr.info($translate.instant('sitnet_answer_saved'));
                             sq.options.forEach(function (o) {
@@ -146,8 +165,14 @@ angular.module('app.examination')
 
             };
 
+            self.abort = function (hash) {
+                var url = getResource('/app/student/exam/abort/' + hash);
+                return $http.put(url);
+            };
+
             self.logout = function (msg, hash) {
-                StudentExamRes.exams.update({hash: hash}, function () {
+                var url = getResource('/app/student/exam/' + hash, hash);
+                $http.put(url, function () {
                     toastr.info($translate.instant(msg), {timeOut: 5000});
                     window.onbeforeunload = null;
                     $location.path('/student/logout/finished');
