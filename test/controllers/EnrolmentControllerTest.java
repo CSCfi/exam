@@ -3,32 +3,42 @@ package controllers;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.text.json.EJson;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.Files;
 import helpers.RemoteServerHelper;
 import models.Exam;
 import models.ExamEnrolment;
+import models.ExamMachine;
 import models.ExamRoom;
 import models.Reservation;
 import models.User;
+import models.json.ExternalExam;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.java.JsonDeserializer;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.nio.charset.Charset;
 import java.util.List;
+import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
 
-public class EnrollControllerTest extends IntegrationTestCase {
+public class EnrolmentControllerTest extends IntegrationTestCase {
 
     private Exam exam;
     private User user;
@@ -69,6 +79,37 @@ public class EnrollControllerTest extends IntegrationTestCase {
         reservation = new Reservation();
         reservation.setUser(user);
         room = Ebean.find(ExamRoom.class, 1L);
+    }
+
+    @Test
+    @RunAsStudent
+    public void testGetEnrolmentForExternalExam() throws Exception {
+        ExternalExam ee = new ExternalExam();
+        ee.setExternalRef(UUID.randomUUID().toString());
+        ee.setHash(UUID.randomUUID().toString());
+        ee.setCreated(DateTime.now());
+        ee.setCreator(user);
+        ee.setContent(EJson.parseObject(
+                Files.toString(new File("test/resources/enrolment.json"), Charset.forName("UTF-8"))));
+        ExamMachine machine = room.getExamMachines().get(0);
+        machine.setIpAddress("127.0.0.1");
+        machine.update();
+        reservation.setMachine(machine);
+        reservation.setStartAt(DateTime.now().plusMinutes(30));
+        reservation.setEndAt(DateTime.now().plusMinutes(75));
+        reservation.setExternalUserRef(user.getEppn());
+        reservation.setExternalRef("foobar");
+        reservation.save();
+        enrolment.setExternalExam(ee);
+        enrolment.setExam(null);
+        enrolment.setReservation(reservation);
+        enrolment.save();
+
+        Result result = get("/app/enrolments/" + enrolment.getId());
+        assertThat(result.status()).isEqualTo(200);
+        JsonNode node = Json.parse(contentAsString(result));
+        ExamEnrolment data  = JsonDeserializer.deserialize(ExamEnrolment.class, node);
+        assertThat(data.getExam()).isNotNull();
     }
 
     @Test

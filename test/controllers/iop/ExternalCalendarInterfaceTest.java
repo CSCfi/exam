@@ -393,7 +393,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         String json = mapper.writeValueAsString(enrolment.getExternalExam().getContent());
         JsonNode node = mapper.readTree(json);
         Exam parsedExam = JsonDeserializer.deserialize(Exam.class, node);
-        assertThat(parsedExam.getId()).isEqualTo(exam.getId());
+        assertThat(parsedExam.getId()).isEqualTo(13630); // ID that is in enrolment.json
 
     }
 

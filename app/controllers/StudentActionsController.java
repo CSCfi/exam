@@ -138,16 +138,19 @@ public class StudentActionsController extends BaseController {
 
     @ActionMethod
     public Result getEnrolment(Long eid) throws IOException {
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).fetch("exam").fetch("externalExam").where()
                 .idEq(eid)
                 .eq("user", getLoggedUser())
                 .findUnique();
         if (enrolment == null) {
             return notFound();
         }
-        PathProperties pp = PathProperties.parse("(*, exam(*, course(name, code), examOwners(firstName, lastName), " +
-                "examInspections(user(firstName, lastName))), user(id), reservation(startAt, endAt, " +
-                "machine(name, room(name, roomCode, localTimezone))))");
+        PathProperties pp = PathProperties.parse(
+                "(*, exam(*, " +
+                        "course(name, code), examOwners(firstName, lastName), examInspections(user(firstName, lastName)), " +
+                        "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone)))" +
+                        " ))"
+        );
 
         if (enrolment.getExternalExam() == null) {
             return ok(enrolment, pp);
@@ -155,6 +158,7 @@ public class StudentActionsController extends BaseController {
             // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
             // Works in this particular use case
             Exam exam = enrolment.getExternalExam().deserialize();
+            enrolment.setExternalExam(null);
             enrolment.setExam(exam);
             return ok(enrolment, pp);
         }

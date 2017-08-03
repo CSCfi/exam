@@ -11,10 +11,9 @@ angular.module('app.examination')
             };
 
             self.startExam = function (hash, isPreview, id) {
-                var request = isPreview ? $http.get : $http.post;
                 var url = isPreview && id ? '/app/exampreview/' + id : '/app/student/exam/' + hash;
                 var deferred = $q.defer();
-                request(url).success(function (data) {
+                $http.get(url).success(function (data) {
                     if (data.cloned) {
                         // we came here with a reference to the parent exam so do not render page just yet,
                         // reload with reference to student exam that we just created

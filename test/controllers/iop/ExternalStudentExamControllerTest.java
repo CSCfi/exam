@@ -56,7 +56,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         ee.setCreated(DateTime.now());
         ee.setCreator(user);
         ee.setContent(EJson.parseObject(
-                Files.toString(new File("test/resources/enrolment2.json"), Charset.forName("UTF-8"))));
+                Files.toString(new File("test/resources/enrolment.json"), Charset.forName("UTF-8"))));
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);
         machine = room.getExamMachines().get(0);
         machine.setIpAddress("127.0.0.1"); // so that the IP check won't fail
