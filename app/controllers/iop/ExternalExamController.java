@@ -115,7 +115,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
         ExamParticipation ep = new ExamParticipation();
         ep.setExam(clone);
-        ep.setUser(ee.getCreator());
+        ep.setUser(enrolment.getUser());
         ep.setStarted(ee.getStarted());
         ep.setEnded(ee.getFinished());
         ep.setReservation(enrolment.getReservation());

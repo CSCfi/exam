@@ -62,7 +62,7 @@ public class AssessmentSenderActor extends UntypedActor {
             } else {
                 ee.setSent(DateTime.now());
                 ee.update();
-                Logger.error("Reservation " + ref + " processed successfully");
+                Logger.info("Assessment for reservation " + ref + " processed successfully");
             }
             return null;
         };
