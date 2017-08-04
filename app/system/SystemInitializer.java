@@ -38,8 +38,8 @@ class SystemInitializer {
     private static final int EXAM_EXPIRY_POLLER_INTERVAL_DAYS = 1;
     private static final int AUTO_EVALUATION_NOTIFIER_START_AFTER_SECONDS = 60;
     private static final int AUTO_EVALUATION_NOTIFIER_INTERVAL_MINUTES = 15;
-    private static final int EXTERNAL_EXAM_SENDER_START_AFTER_SECONDS = 70;
-    private static final int EXTERNAL_EXAM_SENDER_INTERVAL_HOURS = 1;
+    private static final int ASSESSMENT_SENDER_START_AFTER_SECONDS = 70;
+    private static final int ASSESSMENT_SENDER_INTERVAL_HOURS = 1;
 
     private EmailComposer composer;
     private ActorSystem system;
@@ -54,7 +54,7 @@ class SystemInitializer {
                       @Named("reservation-checker-actor") ActorRef reservationChecker,
                       @Named("auto-evaluation-notifier-actor") ActorRef autoEvaluationNotifier,
                       @Named("exam-expiration-actor") ActorRef examExpirationChecker,
-                      @Named("external-exam-sender-actor") ActorRef externalExamSender) {
+                      @Named("assessment-sender-actor") ActorRef assessmentSender) {
 
         this.system = system;
         this.composer = composer;
@@ -94,9 +94,9 @@ class SystemInitializer {
                 system.dispatcher(), null
         ));
         tasks.put("EXTERNAL_EXAM_SENDER", system.scheduler().schedule(
-                Duration.create(EXTERNAL_EXAM_SENDER_START_AFTER_SECONDS, TimeUnit.SECONDS),
-                Duration.create(EXTERNAL_EXAM_SENDER_INTERVAL_HOURS, TimeUnit.HOURS),
-                externalExamSender, "tick", system.dispatcher(), null
+                Duration.create(ASSESSMENT_SENDER_START_AFTER_SECONDS, TimeUnit.SECONDS),
+                Duration.create(ASSESSMENT_SENDER_INTERVAL_HOURS, TimeUnit.HOURS),
+                assessmentSender, "tick", system.dispatcher(), null
         ));
 
         scheduleWeeklyReport();

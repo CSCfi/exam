@@ -21,18 +21,18 @@ import java.net.URL;
 import java.util.List;
 import java.util.function.Function;
 
-public class ExternalExamSenderActor extends UntypedActor {
+public class AssessmentSenderActor extends UntypedActor {
 
     private WSClient wsClient;
 
     @Inject
-    public ExternalExamSenderActor(WSClient wsClient) {
+    public AssessmentSenderActor(WSClient wsClient) {
         this.wsClient = wsClient;
     }
 
     @Override
     public void onReceive(Object message) throws Exception {
-        Logger.debug("{}: Running external exam sender ...", getClass().getCanonicalName());
+        Logger.debug("{}: Running assessment sender ...", getClass().getCanonicalName());
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .where()
                 .isNotNull("externalExam")
@@ -51,19 +51,22 @@ public class ExternalExamSenderActor extends UntypedActor {
     }
 
     private void send(ExamEnrolment enrolment) throws IOException {
-        URL url = parseUrl(enrolment.getReservation().getExternalRef());
+        String ref = enrolment.getReservation().getExternalRef();
+        Logger.debug("Sending back assessment for reservation " + ref);
+        URL url = parseUrl(ref);
         WSRequest request = wsClient.url(url.toString());
+        ExternalExam ee = enrolment.getExternalExam();
         Function<WSResponse, Void> onSuccess = response -> {
             if (response.getStatus() != 201) {
-                Logger.error("Failed in sending the exam to XM");
+                Logger.error("Failed in sending assessment for reservation " + ref);
             } else {
-                ExternalExam ee = enrolment.getExternalExam();
                 ee.setSent(DateTime.now());
                 ee.update();
+                Logger.error("Reservation " + ref + " processed successfully");
             }
             return null;
         };
-        String json = Ebean.json().toJson(enrolment.getExternalExam(), PathProperties.parse("(*, creator(id))"));
+        String json = Ebean.json().toJson(ee, PathProperties.parse("(*, creator(id))"));
         ObjectMapper om = new ObjectMapper();
         JsonNode node = om.readTree(json);
         request.post(node).thenApplyAsync(onSuccess);
