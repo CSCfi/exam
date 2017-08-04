@@ -33,9 +33,9 @@ angular.module('app.examination')
                 var type = esq.question.type;
                 var answerObj = type === 'EssayQuestion' ? esq.essayAnswer : esq.clozeTestAnswer;
                 var url = getResource(type === 'EssayQuestion' ?
-                        '/app/student/exam/' + hash + '/question/' + esq.id :
-                        '/app/student/exam/' + hash + '/clozetest/' + esq.id
-                    , exam);
+                    '/app/student/exam/' + hash + '/question/' + esq.id :
+                    '/app/student/exam/' + hash + '/clozetest/' + esq.id
+                );
                 var msg = {
                     answer: answerObj.answer,
                     objectVersion: answerObj.objectVersion
@@ -147,7 +147,7 @@ angular.module('app.examination')
                     ids = [sq.selectedOption];
                 }
                 if (!preview) {
-                    var url = getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option', hash);
+                    var url = getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
                     $http.post(url, {oids: ids},
                         function () {
                             toastr.info($translate.instant('sitnet_answer_saved'));
@@ -170,7 +170,7 @@ angular.module('app.examination')
             };
 
             self.logout = function (msg, hash) {
-                var url = getResource('/app/student/exam/' + hash, hash);
+                var url = getResource('/app/student/exam/' + hash);
                 $http.put(url, function () {
                     toastr.info($translate.instant(msg), {timeOut: 5000});
                     window.onbeforeunload = null;
