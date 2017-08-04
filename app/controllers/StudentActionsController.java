@@ -138,7 +138,18 @@ public class StudentActionsController extends BaseController {
 
     @ActionMethod
     public Result getEnrolment(Long eid) throws IOException {
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).fetch("exam").fetch("externalExam").where()
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .fetch("externalExam")
+                .fetch("exam.course", "name, code")
+                .fetch("exam.examOwners", "firstName, lastName", new FetchConfig().query())
+                .fetch("exam.examInspections", new FetchConfig().query())
+                .fetch("exam.examInspections.user", "firstName, lastName")
+                .fetch("user", "id")
+                .fetch("reservation", "startAt, endAt")
+                .fetch("reservation.machine", "name")
+                .fetch("reservation.machine.room", "name, roomCode, localTimezone")
+                .where()
                 .idEq(eid)
                 .eq("user", getLoggedUser())
                 .findUnique();
@@ -146,10 +157,8 @@ public class StudentActionsController extends BaseController {
             return notFound();
         }
         PathProperties pp = PathProperties.parse(
-                "(*, exam(*, " +
-                        "course(name, code), examOwners(firstName, lastName), examInspections(user(firstName, lastName)), " +
-                        "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone)))" +
-                        " ))"
+                "(*, exam(*, course(name, code), examOwners(firstName, lastName), examInspections(user(firstName, lastName))), " +
+                        "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone))))"
         );
 
         if (enrolment.getExternalExam() == null) {
