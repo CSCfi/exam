@@ -35,6 +35,7 @@ public class TimeController extends BaseController {
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
                 .fetch("exam")
+                .fetch("externalExam")
                 .where()
                 .disjunction()
                 .eq("exam.hash", hash)

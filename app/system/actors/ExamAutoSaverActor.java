@@ -94,7 +94,7 @@ public class ExamAutoSaverActor extends UntypedActor {
 
     private void checkExternalExams() {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
+                .fetch("externalExam")
                 .fetch("reservation")
                 .fetch("reservation.machine.room")
                 .where()

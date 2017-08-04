@@ -175,6 +175,14 @@ public class ExternalExamController extends BaseController implements ExternalEx
             }
             // Create external exam!
             Exam document = JsonDeserializer.deserialize(Exam.class, root);
+            // Set references so that:
+            // - external ref is the reference we got from outside. Must not be changed.
+            // - local ref is an UUID X. It is used locally for referencing the exam
+            // - content's hash is set to X in order to simplify things with frontend
+
+            String externalRef = document.getHash();
+            String ref = UUID.randomUUID().toString();
+            document.setHash(ref);
             Map<String, Object> content;
             try {
                 ObjectMapper om = new ObjectMapper();
@@ -184,8 +192,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 return null;
             }
             ExternalExam ee = new ExternalExam();
-            ee.setExternalRef(document.getHash());
-            ee.setHash(UUID.randomUUID().toString());
+            ee.setExternalRef(externalRef);
+            ee.setHash(ref);
             ee.setContent(content);
             ee.setCreator(user);
             ee.setCreated(DateTime.now());
