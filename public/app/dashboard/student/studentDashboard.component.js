@@ -29,17 +29,17 @@ angular.module("app.dashboard.student")
                     ctrl.showInst = ctrl.showInst === id ? 0 : id;
                 };
 
-                ctrl.showRoomGuide = function (id) {
+                ctrl.showRoomGuide = function (hash) {
 
                     // fetch room instructions
                     if (!ctrl.currentLanguageText) {
-                        $http.get('/app/enroll/room/' + id)
+                        $http.get('/app/enroll/room/' + hash)
                             .success(function (data) {
                                 ctrl.info = data;
                                 ctrl.currentLanguageText = currentLanguage();
                             });
                     }
-                    ctrl.showGuide = ctrl.showGuide === id ? 0 : id;
+                    ctrl.showGuide = ctrl.showGuide === hash ? 0 : hash;
                 };
 
                 ctrl.showMaturityInstructions = function (enrolment) {

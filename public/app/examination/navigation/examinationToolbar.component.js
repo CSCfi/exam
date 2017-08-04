@@ -18,7 +18,7 @@ angular.module('app.examination')
 
                 vm.$onInit = function () {
                     if (!vm.isPreview) {
-                        $http.get('/app/enroll/room/' + vm.exam.id)
+                        $http.get('/app/enroll/room/' + vm.exam.hash)
                             .success(function (data) {
                                 vm.room = data;
                             });

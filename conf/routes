@@ -153,7 +153,7 @@ DELETE        /app/enroll/:id                                            control
 DELETE        /app/enroll/student/:id                                    controllers.EnrolmentController.removeStudentEnrolment(id: Long)
 PUT           /app/enrolments/:eid                                       controllers.EnrolmentController.updateEnrolment(eid: Long)
 
-GET           /app/enroll/room/:eid                                      controllers.EnrolmentController.getRoomInfoFromEnrolment(eid: Long)
+GET           /app/enroll/room/:hash                                     controllers.EnrolmentController.getRoomInfoFromEnrolment(hash: String)
 
 
 ############### Courses interface ###############

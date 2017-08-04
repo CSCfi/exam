@@ -50,12 +50,13 @@
                                 }
 
                                 // fetch room instructions
-                                $http.get('/app/enroll/room/' + $scope.enrolment.exam.id)
-                                    .success(function (data) {
-                                        $scope.info = data;
-                                        $scope.currentLanguageText = currentLanguage();
-                                    });
-
+                                if (!$scope.info) {
+                                    $http.get('/app/enroll/room/' + $scope.enrolment.exam.hash)
+                                        .success(function (data) {
+                                            $scope.info = data;
+                                            $scope.currentLanguageText = currentLanguage();
+                                        });
+                                }
 
                             },
                             function (error) {

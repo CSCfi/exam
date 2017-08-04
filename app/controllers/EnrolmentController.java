@@ -296,14 +296,17 @@ public class EnrolmentController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public Result getRoomInfoFromEnrolment(Long eid) {
+    public Result getRoomInfoFromEnrolment(String hash) {
         User user = getLoggedUser();
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("user", "id")
                 .fetch("user.language")
                 .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
                 .where()
-                .eq("exam.id", eid)
+                .disjunction()
+                .eq("exam.hash", hash)
+                .eq("externalExam.hash", hash)
+                .endJunction()
                 .isNotNull("reservation.machine.room");
         if (user.hasRole("STUDENT", getSession())) {
             query = query.eq("user", user);
