@@ -54,6 +54,8 @@ angular.module('app.examination')
                             toastr.info($translate.instant('sitnet_exam_aborted'), {timeOut: 5000});
                             window.onbeforeunload = null;
                             $location.path('/student/logout/aborted');
+                        }).error(function (err) {
+                            toastr.error(err.data);
                         });
                     });
                 };

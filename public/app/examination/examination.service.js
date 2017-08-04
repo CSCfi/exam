@@ -40,20 +40,19 @@ angular.module('app.examination')
                     answer: answerObj.answer,
                     objectVersion: answerObj.objectVersion
                 };
-                $http.post(url, msg,
-                    function (answer) {
-                        if (autosave) {
-                            esq.autosaved = new Date();
-                        } else {
-                            toastr.info($translate.instant('sitnet_answer_saved'));
-                            self.setQuestionColors(esq);
-                        }
-                        answerObj.objectVersion = answer.objectVersion;
-                        deferred.resolve();
-                    }, function (error) {
-                        toastr.error(error.data);
-                        deferred.reject();
-                    });
+                $http.post(url, msg).success(function (answer) {
+                    if (autosave) {
+                        esq.autosaved = new Date();
+                    } else {
+                        toastr.info($translate.instant('sitnet_answer_saved'));
+                        self.setQuestionColors(esq);
+                    }
+                    answerObj.objectVersion = answer.objectVersion;
+                    deferred.resolve();
+                }).error(function (error) {
+                    toastr.error(error.data);
+                    deferred.reject();
+                });
                 return deferred.promise;
             };
 
@@ -148,16 +147,15 @@ angular.module('app.examination')
                 }
                 if (!preview) {
                     var url = getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
-                    $http.post(url, {oids: ids},
-                        function () {
-                            toastr.info($translate.instant('sitnet_answer_saved'));
-                            sq.options.forEach(function (o) {
-                                o.answered = ids.indexOf(o.id) > -1;
-                            });
-                            self.setQuestionColors(sq);
-                        }, function (error) {
-
+                    $http.post(url, {oids: ids}).success(function () {
+                        toastr.info($translate.instant('sitnet_answer_saved'));
+                        sq.options.forEach(function (o) {
+                            o.answered = ids.indexOf(o.id) > -1;
                         });
+                        self.setQuestionColors(sq);
+                    }).error(function (error) {
+                        toastr.error(error.data);
+                    });
                 } else {
                     self.setQuestionColors(sq);
                 }
@@ -171,11 +169,11 @@ angular.module('app.examination')
 
             self.logout = function (msg, hash) {
                 var url = getResource('/app/student/exam/' + hash);
-                $http.put(url, function () {
+                $http.put(url).success(function () {
                     toastr.info($translate.instant(msg), {timeOut: 5000});
                     window.onbeforeunload = null;
                     $location.path('/student/logout/finished');
-                }, function (error) {
+                }).error(function (error) {
                     toastr.error($translate.instant(error.data));
                 });
             };
