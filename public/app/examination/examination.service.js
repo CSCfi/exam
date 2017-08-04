@@ -27,14 +27,14 @@ angular.module('app.examination')
                 return deferred.promise;
             };
 
-            self.saveTextualAnswer = function (esq, exam, autosave) {
+            self.saveTextualAnswer = function (esq, hash, autosave) {
                 esq.questionStatus = $translate.instant('sitnet_answer_saved');
                 var deferred = $q.defer();
                 var type = esq.question.type;
                 var answerObj = type === 'EssayQuestion' ? esq.essayAnswer : esq.clozeTestAnswer;
                 var url = getResource(type === 'EssayQuestion' ?
-                        '/app/student/exam/' + exam.hash + '/question/' + esq.id :
-                        '/app/student/exam/' + exam.hash + '/clozetest/' + esq.id
+                        '/app/student/exam/' + hash + '/question/' + esq.id :
+                        '/app/student/exam/' + hash + '/clozetest/' + esq.id
                     , exam);
                 var msg = {
                     answer: answerObj.answer,
@@ -147,7 +147,7 @@ angular.module('app.examination')
                     ids = [sq.selectedOption];
                 }
                 if (!preview) {
-                    var url = getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option/', hash);
+                    var url = getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option', hash);
                     $http.post(url, {oids: ids},
                         function () {
                             toastr.info($translate.instant('sitnet_answer_saved'));
