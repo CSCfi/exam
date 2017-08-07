@@ -141,7 +141,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 "examSections(id, name, sequenceNumber, description, " + // ((
                 "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
                 "question(id, type, question, attachment(id, fileName), options(id, option, correctOption, defaultScore)), " +
-                "options(id, answered, option(id, option)), " +
+                "options(id, answered, score, option(id, option)), " +
                 "essayAnswer(id, answer, objectVersion, attachment(fileName)), " +
                 "clozeTestAnswer(id, question, answer, objectVersion)" +
                 ")))";
