@@ -3,6 +3,7 @@
     angular.module('app.exam')
         .factory('StudentExamRes', ['$resource', function ($resource) {
             return {
+                exams: $resource("/app/student/exams"),
                 examInfo: $resource('/app/student/exam/:eid/info', {eid: '@eid'}),
                 finishedExams: $resource('/app/student/finishedexams'),
                 enrolments: $resource('/app/enrolments'),

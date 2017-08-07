@@ -1,6 +1,6 @@
 'use strict';
 angular.module('app.reservation')
-    .component("reservations", {
+    .component('reservations', {
         templateUrl: '/assets/app/reservation/reservations.template.html',
         bindings: {
             'userRole': '@'
@@ -14,11 +14,12 @@ angular.module('app.reservation')
                 var ctrl = this;
 
                 ctrl.$onInit = function () {
-                   if (ctrl.userRole === 'admin') {
-                       ctrl.templateUrl = EXAM_CONF.TEMPLATES_PATH + "reservation/admin/adminReservations.template.html";
-                   } else if (ctrl.userRole === 'teacher') {
-                       ctrl.templateUrl = EXAM_CONF.TEMPLATES_PATH + "reservation/teacher/teacherReservations.template.html";
-                   }
+                    ctrl.startDate = ctrl.endDate = new Date();
+                    if (ctrl.userRole === 'admin') {
+                        ctrl.templateUrl = EXAM_CONF.TEMPLATES_PATH + 'reservation/admin/adminReservations.template.html';
+                    } else if (ctrl.userRole === 'teacher') {
+                        ctrl.templateUrl = EXAM_CONF.TEMPLATES_PATH + 'reservation/teacher/teacherReservations.template.html';
+                    }
                 };
 
 
@@ -59,7 +60,7 @@ angular.module('app.reservation')
 
                 ctrl.teacherOptions = angular.copy(select2options);
 
-                ctrl.reservationDetails = EXAM_CONF.TEMPLATES_PATH + "reservation/reservation_details.html";
+                ctrl.reservationDetails = EXAM_CONF.TEMPLATES_PATH + 'reservation/reservation_details.html';
 
 
                 ctrl.isAdminView = function () {
@@ -95,7 +96,7 @@ angular.module('app.reservation')
                             ctrl.examOwners.forEach(function (owner) {
                                 ctrl.teacherOptions.data.push({
                                     id: owner.id,
-                                    text: owner.firstName + " " + owner.lastName
+                                    text: owner.firstName + ' ' + owner.lastName
                                 });
                             });
                         },
@@ -147,7 +148,7 @@ angular.module('app.reservation')
                     });
                 });
 
-                ctrl.stateclass = "";
+                ctrl.stateclass = '';
                 ctrl.printExamState = function (enrolment) {
                     return enrolment.reservation.noShow ? 'NO_SHOW' : enrolment.exam.state;
                 };
@@ -155,7 +156,6 @@ angular.module('app.reservation')
 
                 ctrl.getStateclass = function (enrolment) {
                     return enrolment.reservation.noShow ? 'no_show' : enrolment.exam.state.toLowerCase();
-
                 };
 
 
@@ -175,10 +175,12 @@ angular.module('app.reservation')
 
                 ctrl.startDateChanged = function (date) {
                     ctrl.startDate = date;
+                    ctrl.query();
                 };
 
                 ctrl.endDateChanged = function (date) {
                     ctrl.endDate = date;
+                    ctrl.query();
                 };
 
                 var somethingSelected = function (params) {
@@ -265,7 +267,7 @@ angular.module('app.reservation')
 
                 function findRoom(id) {
                     var i = ctrl.examrooms.map(function (er) {
-                        return er.id
+                        return er.id;
                     }).indexOf(id);
                     if (i >= 0) {
                         return ctrl.examrooms[i];
@@ -285,7 +287,7 @@ angular.module('app.reservation')
                         if (!roomContains(room, machine)) {
                             return;
                         }
-                        data.children.push({id: machine.id, text: machine.name === null ? "" : machine.name});
+                        data.children.push({id: machine.id, text: machine.name === null ? '' : machine.name});
                     });
                     ctrl.machineOptions.data.push(data);
                 }
