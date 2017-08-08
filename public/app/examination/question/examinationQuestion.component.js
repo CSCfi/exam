@@ -15,8 +15,9 @@ angular.module('app.examination')
 
                 vm.$onInit = function () {
                     vm.sq.expanded = true;
-                    if (vm.sq.clozeTestAnswer) {
-                        vm.sq.clozeTestAnswer.answer = JSON.parse(vm.sq.clozeTestAnswer.answer);
+                    var answerData = vm.sq.clozeTestAnswer;
+                    if (answerData && typeof answerData.answer === 'string') {
+                        answerData.answer = JSON.parse(answerData.answer);
                     }
                 };
 

@@ -51,7 +51,7 @@
     <div class="top-padding-2 bottom-padding-2 padl15">
         <ul class="list-muted">
 
-            <li class="row pointer phase-box" ng-class="guide ? '' : 'notactive'"
+            <li class="row pointer phase-box" ng-class="!$ctrl.activeSection ? '' : 'notactive'"
                 ng-click="$ctrl.selectGuidePage()">
                 <div class="col-md-11 vcenter">{{'sitnet_exam_guide' | translate}}</div>
             </li>
@@ -60,8 +60,8 @@
                 ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'"
                 ng-class="$ctrl.activeSection.index === section.index ? '' : 'notactive'"
                 ng-click="$ctrl.selectSection(section)"
-                popover-placement="left" popover-popup-delay="1000" popover-append-to-body="true"
-                popover-trigger="mouseenter"
+                popover-placement="left"
+                popover-trigger="'mouseenter'"
                 uib-popover="{{section.name}}: {{'sitnet_question_status_answered' | translate}}
                  {{ $ctrl.getQuestionAmount(section, 'answered')}}, {{'sitnet_questions_total' | translate}}
                  {{ $ctrl.getQuestionAmount(section, 'total') }}">
@@ -95,7 +95,7 @@
 
         <!-- INSTRUCTIONS -->
         <div class="col-md-12" ng-hide="$ctrl.exam.executionType.type === 'MATURITY'">
-            <div class="row pointer" popover-placement="left" popover-trigger="click" popover-append-to-body="true"
+            <div class="row pointer" popover-placement="left" popover-trigger="'mouseenter'"
                  uib-popover="{{ $ctrl.displayRoomInstructions() }}">
                 <a class="col-md-1" style="margin-top: 7px;">
                     <img src="../../../assets/assets/images/icon_info.svg" alt="exam"
