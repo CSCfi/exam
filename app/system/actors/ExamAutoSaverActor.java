@@ -1,29 +1,38 @@
-package system;
+package system.actors;
 
-import akka.actor.Props;
 import akka.actor.UntypedActor;
 import com.avaje.ebean.Ebean;
 import controllers.SettingsController;
-import models.*;
+import models.Exam;
+import models.ExamInspection;
+import models.ExamParticipation;
+import models.GeneralSettings;
+import models.Reservation;
+import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
 import util.AppUtil;
 import util.java.EmailComposer;
 
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class ExamAutoSaverActor extends UntypedActor {
+public class ExamAutoSaverActor extends UntypedActor {
 
-    static final Props props = Props.create(ExamAutoSaverActor.class);
+    private EmailComposer composer;
+
+    @Inject
+    public ExamAutoSaverActor(EmailComposer composer) {
+        this.composer = composer;
+    }
 
     @Override
     public void onReceive(Object message) throws Exception {
         Logger.debug("{}: Checking for ongoing exams ...", getClass().getCanonicalName());
-        EmailComposer composer = (EmailComposer) message;
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
                 .fetch("reservation")
@@ -37,10 +46,10 @@ class ExamAutoSaverActor extends UntypedActor {
             Logger.debug("{}: ... none found.", getClass().getCanonicalName());
             return;
         }
-        markEnded(participations, composer);
+        markEnded(participations);
     }
 
-    private void markEnded(List<ExamParticipation> participations, EmailComposer emailComposer) {
+    private void markEnded(List<ExamParticipation> participations) {
         for (ExamParticipation participation : participations) {
             Exam exam = participation.getExam();
             Reservation reservation = participation.getReservation();
@@ -67,7 +76,7 @@ class ExamAutoSaverActor extends UntypedActor {
                     recipients.addAll(exam.getParent().getExamOwners());
                     recipients.addAll(exam.getExamInspections().stream().map(
                             ExamInspection::getUser).collect(Collectors.toSet()));
-                    AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer);
+                    AppUtil.notifyPrivateExamEnded(recipients, exam, composer);
                 }
             } else {
                 Logger.info("{}: ... exam {} is ongoing until {}", getClass().getCanonicalName(), exam.getId(),

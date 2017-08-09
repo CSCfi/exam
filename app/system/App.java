@@ -1,15 +1,26 @@
 package system;
 
 import com.google.inject.AbstractModule;
+import play.libs.akka.AkkaGuiceSupport;
+import system.actors.AutoEvaluationNotifierActor;
+import system.actors.ExamAutoSaverActor;
+import system.actors.ExamExpirationActor;
+import system.actors.ReservationPollerActor;
+import system.actors.ReservationReminderActor;
 
 import javax.inject.Singleton;
 
 @Singleton
-public class App extends AbstractModule {
+public class App extends AbstractModule implements AkkaGuiceSupport {
 
     @Override
     protected void configure() {
         bind(SystemInitializer.class).asEagerSingleton();
+        bindActor(ExamAutoSaverActor.class, "exam-auto-saver-actor");
+        bindActor(ReservationPollerActor.class, "reservation-checker-actor");
+        bindActor(AutoEvaluationNotifierActor.class, "auto-evaluation-notifier-actor");
+        bindActor(ExamExpirationActor.class, "exam-expiration-actor");
+        bindActor(ReservationReminderActor.class, "reservation-reminder-actor");
     }
 
 }

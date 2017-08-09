@@ -30,7 +30,7 @@ public interface EmailComposer {
     /**
      * Message sent to student when reservation has been made.
      */
-    void composeReservationNotification(User student, Reservation reservation, Exam exam);
+    void composeReservationNotification(User student, Reservation reservation, Exam exam, Boolean isReminder);
 
     /**
      * Message sent to newly added inspectors.
