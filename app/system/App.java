@@ -7,6 +7,7 @@ import system.actors.AutoEvaluationNotifierActor;
 import system.actors.ExamAutoSaverActor;
 import system.actors.ExamExpirationActor;
 import system.actors.ReservationPollerActor;
+import system.actors.ReservationReminderActor;
 
 import javax.inject.Singleton;
 
@@ -21,6 +22,7 @@ public class App extends AbstractModule implements AkkaGuiceSupport {
         bindActor(AutoEvaluationNotifierActor.class, "auto-evaluation-notifier-actor");
         bindActor(AssessmentSenderActor.class, "assessment-sender-actor");
         bindActor(ExamExpirationActor.class, "exam-expiration-actor");
+        bindActor(ReservationReminderActor.class, "reservation-reminder-actor");
     }
 
 }

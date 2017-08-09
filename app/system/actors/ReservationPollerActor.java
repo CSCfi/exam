@@ -30,7 +30,10 @@ public class ReservationPollerActor extends UntypedActor {
                 .where()
                 .eq("reservation.noShow", false)
                 .lt("reservation.endAt", now.toDate())
+                .disjunction()
                 .eq("exam.state", Exam.State.PUBLISHED)
+                .isNull("externalExam.started")
+                .endJunction()
                 .findList();
 
         if (enrolments.isEmpty()) {

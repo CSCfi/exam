@@ -4,6 +4,7 @@ email.enrolment.no.reservation=NOTE: You have not booked an exam time yet
 email.enrolment.no.enrolments=No exam bookings
 email.weekly.report.subject=Weekly exam summary
 email.machine.reservation.subject=Exam time booking
+email.machine.reservation.reminder.subject = Reminder of exam time booking
 email.review.request.subject=An exam paper has been appointed to you for assessment
 email.reservation.cancellation.subject=Following exam booking has been cancelled:
 email.reservation.cancellation.subject.forced=Your booking for exam "{0}" has been cancelled

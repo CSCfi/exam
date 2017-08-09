@@ -197,12 +197,13 @@ class EmailComposerImpl implements EmailComposer {
     }
 
     @Override
-    public void composeReservationNotification(User recipient, Reservation reservation, Exam exam) {
+    public void composeReservationNotification(User recipient, Reservation reservation, Exam exam, Boolean isReminder) {
         String templatePath = getTemplatesRoot() + "reservationConfirmed.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(recipient);
-        String subject = String.format("%s: \"%s\"", messaging.get(lang, "email.machine.reservation.subject"), exam.getName());
-
+        String subject = String.format("%s: \"%s\"", messaging.get(lang, isReminder ?
+                "email.machine.reservation.reminder.subject" :
+                "email.machine.reservation.subject"), exam.getName());
         String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getCode());
         String teacherName;
 

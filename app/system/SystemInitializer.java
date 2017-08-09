@@ -40,6 +40,8 @@ class SystemInitializer {
     private static final int AUTO_EVALUATION_NOTIFIER_INTERVAL_MINUTES = 15;
     private static final int ASSESSMENT_SENDER_START_AFTER_SECONDS = 70;
     private static final int ASSESSMENT_SENDER_INTERVAL_HOURS = 1;
+    private static final int RESERVATION_REMINDER_START_AFTER_SECONDS = 80;
+    private static final int RESERVATION_REMINDER_INTERVAL_MINUTES = 10;
 
     private EmailComposer composer;
     private ActorSystem system;
@@ -54,7 +56,8 @@ class SystemInitializer {
                       @Named("reservation-checker-actor") ActorRef reservationChecker,
                       @Named("auto-evaluation-notifier-actor") ActorRef autoEvaluationNotifier,
                       @Named("exam-expiration-actor") ActorRef examExpirationChecker,
-                      @Named("assessment-sender-actor") ActorRef assessmentSender) {
+                      @Named("assessment-sender-actor") ActorRef assessmentSender,
+                      @Named("reservation-reminder-actor") ActorRef reservationReminder) {
 
         this.system = system;
         this.composer = composer;
@@ -97,6 +100,11 @@ class SystemInitializer {
                 Duration.create(ASSESSMENT_SENDER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(ASSESSMENT_SENDER_INTERVAL_HOURS, TimeUnit.HOURS),
                 assessmentSender, "tick", system.dispatcher(), null
+        ));
+        tasks.put("RESERVATION_REMINDER", system.scheduler().schedule(
+                Duration.create(RESERVATION_REMINDER_START_AFTER_SECONDS, TimeUnit.SECONDS),
+                Duration.create(RESERVATION_REMINDER_INTERVAL_MINUTES, TimeUnit.MINUTES),
+                reservationReminder, "tick", system.dispatcher(), null
         ));
 
         scheduleWeeklyReport();

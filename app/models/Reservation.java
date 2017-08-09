@@ -33,6 +33,8 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
 
     private boolean retrialPermitted;
 
+    private boolean reminderSent;
+
     @OneToOne(mappedBy = "reservation")
     @JsonBackReference
     private ExamEnrolment enrolment;
@@ -82,6 +84,14 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
 
     public void setRetrialPermitted(boolean retrialPermitted) {
         this.retrialPermitted = retrialPermitted;
+    }
+
+    public boolean isReminderSent() {
+        return reminderSent;
+    }
+
+    public void setReminderSent(boolean reminderSent) {
+        this.reminderSent = reminderSent;
     }
 
     public ExamMachine getMachine() {

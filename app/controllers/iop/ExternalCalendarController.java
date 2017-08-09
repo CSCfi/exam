@@ -335,6 +335,11 @@ public class ExternalCalendarController extends CalendarController implements Ex
         reservation.setUser(user);
         reservation.setExternalRef(node.get("id").asText());
 
+        // If this is due in less than a day, make sure we won't send a reminder
+        if (start.minusDays(1).isBeforeNow()) {
+            reservation.setReminderSent(true);
+        }
+
         ExternalReservation external = new ExternalReservation();
         external.setOrgRef(orgRef);
         external.setRoomRef(roomRef);
@@ -360,7 +365,7 @@ public class ExternalCalendarController extends CalendarController implements Ex
         reservation.setMachine(parseExternalMachineData(machineNode));
         // Send some emails asynchronously
         system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            emailComposer.composeReservationNotification(user, reservation, exam);
+            emailComposer.composeReservationNotification(user, reservation, exam, false);
             Logger.info("Reservation confirmation email sent to {}", user.getEmail());
         }, system.dispatcher());
     }

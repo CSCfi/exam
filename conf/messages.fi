@@ -4,6 +4,7 @@ email.enrolment.no.reservation=HUOM! Et ole vielä varannut tenttiaikaa tenttiti
 email.enrolment.no.enrolments=Ei tenttiaikojen varauksia
 email.weekly.report.subject=Tenttijärjestelmän viikkokooste
 email.machine.reservation.subject=Tenttiajanvaraus
+email.machine.reservation.reminder.subject = Muistutus tenttiajanvarauksesta
 email.review.request.subject=Sinut on lisätty arvioijaksi
 email.reservation.cancellation.subject=Perumasi tenttiajanvaraus:
 email.reservation.cancellation.subject.forced=Ajanvarauksesi tenttiin "{0}" on peruutettu

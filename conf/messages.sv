@@ -4,6 +4,7 @@ email.enrolment.no.reservation=OBS! Du har inte ännu bokat tid för tentamen!
 email.enrolment.no.enrolments=Inga bokningar
 email.weekly.report.subject=Veckosammanfattning
 email.machine.reservation.subject=Bokning
+email.machine.reservation.reminder.subject = Påminnelse om bokning
 email.review.request.subject=Du är markerad som examinator för tentamen
 email.reservation.cancellation.subject=Bokningen du annulerar
 email.reservation.cancellation.subject.forced=Din bokning för tentamen "{0}" är annulerad
