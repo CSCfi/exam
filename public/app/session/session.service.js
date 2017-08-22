@@ -1,3 +1,4 @@
+'';
 'use strict';
 angular.module('app.session')
     .service('Session', ['$q', '$interval', '$sessionStorage', '$translate', '$injector', '$location',
@@ -41,7 +42,7 @@ angular.module('app.session')
 
             self.getUserName = function () {
                 if (_user) {
-                    return _user.firstName + " " + _user.lastName;
+                    return _user.firstName + ' ' + _user.lastName;
                 }
             };
 
@@ -59,7 +60,7 @@ angular.module('app.session')
             var init = function () {
                 var deferred = $q.defer();
                 if (!_env) {
-                    http().get("/app/settings/environment").success(function (data) {
+                    http().get('/app/settings/environment').success(function (data) {
                         _env = data;
                         deferred.resolve();
                     });
@@ -72,7 +73,7 @@ angular.module('app.session')
             self.setLoginEnv = function (scope) {
                 init().then(function () {
                     if (!_env.isProd) {
-                        scope.loginTemplatePath = EXAM_CONF.TEMPLATES_PATH + "session/templates/dev_login.html";
+                        scope.loginTemplatePath = EXAM_CONF.TEMPLATES_PATH + 'session/templates/dev_login.html';
                     }
                 });
             };
@@ -88,17 +89,17 @@ angular.module('app.session')
 
             var onLogoutSuccess = function (data) {
                 $rootScope.$broadcast('userUpdated');
-                toastr.success($translate.instant("sitnet_logout_success"));
+                toastr.success($translate.instant('sitnet_logout_success'));
                 window.onbeforeunload = null;
-                var localLogout = window.location.protocol + "//" + window.location.host + "/Shibboleth.sso/Logout";
+                var localLogout = window.location.protocol + '//' + window.location.host + '/Shibboleth.sso/Logout';
                 if (data && data.logoutUrl) {
-                    window.location.href = data.logoutUrl + "?return=" + localLogout;
+                    window.location.href = data.logoutUrl + '?return=' + localLogout;
                 } else if (!_env || _env.isProd) {
                     // redirect to SP-logout directly
                     window.location.href = localLogout;
                 } else {
                     // DEV logout
-                    $location.path("/");
+                    $location.path('/');
                     http().get('/app/checkSession');
                 }
                 $timeout(toastr.clear, 300);
@@ -124,7 +125,7 @@ angular.module('app.session')
             };
 
             self.openEulaModal = function (user) {
-                var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                var ctrl = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
                     $scope.ok = function () {
                         // OK button
                         userRes().updateAgreementAccepted.update(function () {
@@ -135,14 +136,14 @@ angular.module('app.session')
                         });
                         $modalInstance.dismiss();
                         if ($location.url() === '/login' || $location.url() === '/logout') {
-                            $location.path("/");
+                            $location.path('/');
                         } else {
                             route().reload();
                         }
                     };
                     $scope.cancel = function () {
                         $modalInstance.dismiss('cancel');
-                        $location.path("/logout");
+                        $location.path('/logout');
                     };
                 }];
                 var m = modal().open({
@@ -152,12 +153,12 @@ angular.module('app.session')
                     controller: ctrl
                 });
                 m.result.then(function () {
-                    console.log("closed");
+                    console.log('closed');
                 });
             };
 
             self.openRoleSelectModal = function (user) {
-                var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                var ctrl = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
                     $scope.user = user;
                     $scope.ok = function (role) {
                         userRes().userRoles.update({id: user.id, role: role.name}, function () {
@@ -172,19 +173,19 @@ angular.module('app.session')
                             if (user.isStudent && !user.userAgreementAccepted) {
                                 self.openEulaModal(user);
                             } else if ($location.url() === '/login' || $location.url() === '/logout') {
-                                $location.path("/");
+                                $location.path('/');
                             } else {
                                 route().reload();
                             }
                         }, function (error) {
                             toastr.error(error.data);
-                            $location.path("/logout");
+                            $location.path('/logout');
                         });
 
                     };
                     $scope.cancel = function () {
                         $modalInstance.dismiss('cancel');
-                        $location.path("/logout");
+                        $location.path('/logout');
                     };
                 }];
                 var m = modal().open({
@@ -200,15 +201,15 @@ angular.module('app.session')
                 });
 
                 m.result.then(function () {
-                    console.log("closed");
+                    console.log('closed');
                 });
             };
 
             var redirect = function () {
                 if ($location.path() === '/' && _user.isLanguageInspector) {
-                    $location.path("/inspections");
+                    $location.path('/inspections');
                 } else if (_env && !_env.isProd) {
-                    $location.path(_user.isLanguageInspector ? "/inspections" : "/");
+                    $location.path(_user.isLanguageInspector ? '/inspections' : '/');
                 }
             };
 
@@ -216,7 +217,7 @@ angular.module('app.session')
                 self.restartSessionCheck();
                 $rootScope.$broadcast('userUpdated');
                 var welcome = function () {
-                    toastr.success($translate.instant("sitnet_welcome") + " " + _user.firstName + " " + _user.lastName);
+                    toastr.success($translate.instant('sitnet_welcome') + ' ' + _user.firstName + ' ' + _user.lastName);
                 };
                 $timeout(welcome, 2000);
                 if (!_user.loginRole) {
@@ -230,7 +231,7 @@ angular.module('app.session')
             };
 
             var onLoginFailure = function (message) {
-                $location.path("/");
+                $location.path('/');
                 toastr.error(message);
             };
 
@@ -310,20 +311,20 @@ angular.module('app.session')
 
             var checkSession = function () {
                 http().get('/app/checkSession').success(function (data) {
-                    if (data === "alarm") {
+                    if (data === 'alarm') {
                         toastr.options = {
                             timeOut: 0,
                             preventDuplicates: true,
                             onclick: function () {
                                 http().put('/app/extendSession', {}).success(function () {
-                                    toastr.info($translate.instant("sitnet_session_extended"));
+                                    toastr.info($translate.instant('sitnet_session_extended'));
                                     toastr.options.timeout = 1000;
                                 });
                             }
                         };
-                        toastr.warning($translate.instant("sitnet_continue_session"),
-                            $translate.instant("sitnet_session_will_expire_soon"));
-                    } else if (data === "no_session") {
+                        toastr.warning($translate.instant('sitnet_continue_session'),
+                            $translate.instant('sitnet_session_will_expire_soon'));
+                    } else if (data === 'no_session') {
                         if (_scheduler) {
                             $interval.cancel(_scheduler);
                         }

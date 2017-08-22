@@ -8,7 +8,8 @@ angular.module('app.utility')
             extra: '<?',
             onExtraAction: '&?',
             extraText: '@?',
-            modelOptions: '<?'
+            modelOptions: '<?',
+            optional: '<?'
         },
         controller: [
             function () {

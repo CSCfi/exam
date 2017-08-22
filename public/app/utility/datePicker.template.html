@@ -11,7 +11,7 @@
            clear-text="{{'sitnet_clear' | translate}}"
            onkeydown="return false;"
            date-validator
-           required>
+           ng-required="!$ctrl.optional">
     <span class="input-group-btn">
         <button class="btn btn-default green" ng-click="$ctrl.openPicker($event)">
             <img src="../../../assets/assets/images/reservation_calendar.svg" alt="exam"

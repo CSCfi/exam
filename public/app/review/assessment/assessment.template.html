@@ -20,16 +20,16 @@
                       class="status">{{'sitnet_aborted_exam' | translate}}
                 </span>
                 <span ng-if="$ctrl.exam.state ==='REVIEW' || $ctrl.exam.state === 'REVIEW_STARTED'  || $ctrl.exam.state === 'STUDENT_STARTED'"
-                      class="status">{{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+                      class="status">{{'sitnet_exam_status_' + $ctrl.exam.state | lowercase | translate}}
                 </span>
                 <span ng-if="$ctrl.exam.state === 'GRADED'" class="status">
-                    {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+                    {{'sitnet_exam_status_' + $ctrl.exam.state | lowercase | translate}}
                 </span>
                 <span ng-if="$ctrl.exam.state === 'GRADED_LOGGED'" class="status">
-                    {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+                    {{'sitnet_exam_status_' + $ctrl.exam.state | lowercase | translate}}
                 </span>
                 <span ng-if="$ctrl.exam.state === 'REJECTED'" class="status">
-                    {{'sitnet_exam_status_' + exam.state | lowercase | translate}}
+                    {{'sitnet_exam_status_' + $ctrl.exam.state | lowercase | translate}}
                 </span>
 
             </div>

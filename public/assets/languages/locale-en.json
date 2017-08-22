@@ -625,7 +625,7 @@
   "sitnet_ongoing_language_inspections_detail": "({0}",
   "sitnet_processed_language_inspections": "Evaluated maturity tests",
   "sitnet_processed_language_inspections_no_results": "No evaluated maturity tests",
-  "sitnet_processed_language_inspections_detail": "({0} exams in  {1},  max 20 shown",
+  "sitnet_processed_language_inspections_detail": "({0} exams in {1},  max 20 shown",
   "sitnet_arrived": "Received maturity test",
   "sitnet_finished": "Exam is completed",
   "sitnet_language_inspector": "Language evaluator",
@@ -838,5 +838,6 @@
   "sitnet_change_enrolment_info": "Change enrolment",
   "sitnet_error_score_input": "Points out of range",
   "sitnet_question_id": "Question id",
-  "sitnet_inspection_comment_info": "Write a message to the other evaluator (student can´t see)"
+  "sitnet_inspection_comment_info": "Write a message to the other evaluator (student can´t see)",
+  "sitnet_maturity_search_description": "Voit suodattaa tuloksia opintojakson koodin, tentin nimen, opiskelijan nimen tai tentaattorin nimen mukaan. EN"
 }
