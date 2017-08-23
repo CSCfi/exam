@@ -7,7 +7,13 @@ import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
-import models.*;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamExecutionType;
+import models.ExamRoom;
+import models.Language;
+import models.Reservation;
+import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
@@ -85,7 +91,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
 
         // Check that correct mail was sent
-        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
+        assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
@@ -127,7 +133,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
 
         // Check that correct mail was sent
-        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
+        assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
@@ -176,7 +182,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
 
         // Check that correct mail was sent
-        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
+        assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
@@ -270,7 +276,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         // Execute
         Result result = request(Helpers.DELETE, "/app/calendar/reservation/" + reservation.getId(), null);
         assertThat(result.status()).isEqualTo(200);
-        Thread.sleep(1500); // wait for emails to be sent
+        assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
 
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());

@@ -20,7 +20,7 @@ libraryDependencies ++= Seq(javaJdbc, cache , javaWs, evolutions, filters,
   "net.sf.biweekly" % "biweekly" % "0.4.3",
   "com.google.code.gson" % "gson" % "2.4",
   "com.jayway.jsonpath" % "json-path" % "2.0.0" % "test",
-  "com.icegreen" % "greenmail" % "1.4.1" % "test",
+  "com.icegreen" % "greenmail" % "1.5.5" % "test",
   "org.eclipse.jetty" % "jetty-server" % "9.2.13.v20150730" % "test",
   "org.eclipse.jetty" % "jetty-servlet" % "9.2.13.v20150730" % "test",
   "org.easytesting" % "fest-assert" % "1.4" % "test"

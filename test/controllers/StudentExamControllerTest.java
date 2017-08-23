@@ -207,7 +207,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
                     assertThat(r.status()).isEqualTo(200);
                     break;
                 case ClozeTestQuestion:
-                    ObjectNode content = (ObjectNode)Json.newObject().set("answer",
+                    ObjectNode content = (ObjectNode) Json.newObject().set("answer",
                             Json.newObject().put("1", "this is my answer for cloze 1")
                                     .put("2", "this is my answer for cloze 2"));
                     ClozeTestAnswer clozeAnswer = esq.getClozeTestAnswer();
@@ -257,7 +257,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
 
         // Check that correct mail was sent
-        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
+        assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
@@ -277,7 +277,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
 
         // Check that correct mail was sent
-        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
+        assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
