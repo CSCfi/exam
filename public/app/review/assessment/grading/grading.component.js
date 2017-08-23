@@ -50,8 +50,8 @@ angular.module('app.review')
                     // Do not add up if user exists in both groups
                     var owners = vm.exam.parent.examOwners.filter(function (owner) {
                         return vm.exam.examInspections.map(function (inspection) {
-                                return inspection.user.id;
-                            }).indexOf(owner.id) === -1;
+                            return inspection.user.id;
+                        }).indexOf(owner.id) === -1;
                     });
                     return vm.exam.examInspections.length + owners.length;
                 };
@@ -129,7 +129,8 @@ angular.module('app.review')
                         vm.creditTypes = types;
                         types.forEach(function (type) {
                             if (creditType.id === type.id) {
-                                vm.selections.type = type;
+                                // Reset also exam's credit type in case it was taken from its exam type. Confusing isn't it :)
+                                vm.exam.creditType = vm.selections.type = type;
                             }
                         });
                     });

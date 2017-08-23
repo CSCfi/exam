@@ -121,12 +121,11 @@ public class ExamAutoSaverActor extends UntypedActor {
                 content.setState(Exam.State.REVIEW);
                 try {
                     exam.serialize(content);
+                    Logger.info("{}: ... setting external exam {} state to REVIEW", getClass().getCanonicalName(), exam.getHash());
                 } catch (IOException e) {
                     Logger.error("failed to parse content out of an external exam");
-                    continue;
                 }
             }
-            Logger.info("{}: ... setting external exam {} state to REVIEW", getClass().getCanonicalName(), exam.getHash());
         }
     }
 

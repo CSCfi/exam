@@ -126,7 +126,6 @@
                     ng-change="$ctrl.setCreditType()"
                     ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()" required
                     ng-options="type.name for type in $ctrl.creditTypes">
-                <option value="">{{'sitnet_choose' | translate}}</option>
             </select>
         </div>
         <div class="col-md-3 general-info-title">
@@ -135,7 +134,6 @@
                     ng-model="$ctrl.selections.language"
                     ng-change="$ctrl.setLanguage()" required
                     ng-options="lang.name for lang in $ctrl.languages">
-                <option value="">{{'sitnet_choose' | translate}}</option>
             </select>
         </div>
         <div class="col-md-3 general-info-title">

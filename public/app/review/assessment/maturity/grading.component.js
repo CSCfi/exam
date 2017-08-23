@@ -149,7 +149,8 @@ angular.module('app.review')
                         vm.creditTypes = types;
                         types.forEach(function (type) {
                             if (creditType.id === type.id) {
-                                vm.selections.type = type;
+                                // Reset also exam's credit type in case it was taken from its exam type. Confusing isn't it :)
+                                vm.exam.creditType = vm.selections.type = type;
                             }
                         });
                     });
