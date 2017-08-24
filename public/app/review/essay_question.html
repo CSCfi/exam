@@ -84,6 +84,7 @@
                         <form name="foo">
                             <input id="score" name="score" type="number" class="form-control"
                                    ng-model="sectionQuestion.essayAnswer.evaluatedScore" step="1"
+                                   onclick="this.focus()"
                                    ui-blur="insertEssayScore(sectionQuestion)"
                                    ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
                                    min="0" max="{{sectionQuestion.maxScore}}" />
