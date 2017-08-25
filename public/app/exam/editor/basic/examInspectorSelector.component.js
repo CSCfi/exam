@@ -12,8 +12,10 @@ angular.module('app.exam.editor')
 
                 vm.$onInit = function () {
                     vm.newInspector = {
-                        "id": null,
-                        "name": null
+                        id: null,
+                        name: null,
+                        sendMessage: false,
+                        comment: ''
                     };
                     getInspectors();
                 };
@@ -41,13 +43,14 @@ angular.module('app.exam.editor')
                     if (vm.newInspector.id > 0) {
                         ExamRes.inspection.insert({
                             eid: vm.exam.id,
-                            uid: vm.newInspector.id
+                            uid: vm.newInspector.id,
+                            comment: vm.newInspector.comment || ''
                         }, function () {
                             // reload the list
                             getInspectors();
                             // clear input field
-                            delete vm.newInspector.name;
-                            delete vm.newInspector.id;
+                            delete vm.newInspector;
+
                         }, function (error) {
                             toastr.error(error.data);
                         });

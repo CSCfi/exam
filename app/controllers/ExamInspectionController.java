@@ -32,7 +32,6 @@ public class ExamInspectionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertInspection(Long eid, Long uid) {
-        ExamInspection inspection = bindForm(ExamInspection.class);
         User recipient = Ebean.find(User.class, uid);
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
@@ -45,19 +44,23 @@ public class ExamInspectionController extends BaseController {
         if (isInspectorOf(recipient, exam)) {
             return forbidden("already an inspector");
         }
-        Comment comment = inspection.getComment();
-        String msg = comment == null ? "" : comment.getComment();
+        ExamInspection ei = new ExamInspection();
+        String comment = request().body().asJson().get("comment").asText();
+        String msg = comment == null ? "" : comment;
         // Exam name required before adding inspectors that are to receive an email notification
         if ((exam.getName() == null || exam.getName().isEmpty()) && !msg.isEmpty()) {
             return badRequest("sitnet_exam_name_missing_or_too_short");
         }
+        ExamInspection inspection = new ExamInspection();
         inspection.setExam(exam);
         inspection.setUser(recipient);
         inspection.setAssignedBy(user);
         if (!msg.isEmpty()) {
-            AppUtil.setCreator(comment, user);
-            inspection.setComment(comment);
-            comment.save();
+            Comment c = new Comment();
+            AppUtil.setCreator(c, user);
+            c.setComment(msg);
+            inspection.setComment(c);
+            c.save();
             actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
                     () -> emailComposer.composeExamReviewRequest(recipient, user, exam, msg),
                     actor.dispatcher());
