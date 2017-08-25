@@ -151,47 +151,49 @@
                 </div>
 
                 <!-- Exam inspectors -->
-                <div ng-hide="newExam.executionType.type==='MATURITY'" class="row col-md-12 margin-20">
-                    <div class="col-md-3 exam-basic-title">{{'sitnet_exam_instructor' | translate}}
-                        <sup><img popover-placement="right" popover-trigger="mouseenter"
-                                  uib-popover="{{'sitnet_exam_instructor_description' | translate}}" src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
+                <div ng-hide="newExam.executionType.type==='MATURITY'">
+                    <div class="row col-md-12 margin-20">
+                        <div class="col-md-3 exam-basic-title">{{'sitnet_exam_instructor' | translate}}
+                            <sup><img popover-placement="right" popover-trigger="mouseenter"
+                                      uib-popover="{{'sitnet_exam_instructor_description' | translate}}" src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
+                                      onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control wdth-30 make-inline"
+                                   ng-model="newInspection.user.name"
+                                   uib-typeahead="t.name for t in examInspectors('name', $viewValue)"
+                                   typeahead-editable="false"
+                                   typeahead-min-length="2"
+                                   typeahead-on-select="setExamInspector($item, $model, $label)"
+                                   placeholder="{{'sitnet_name' | translate}}">
+                            <label>
+                                <input type="checkbox" ng-model="newInspection.sendMessage" ng-disabled="!newInspection.user.id">
+                                <span>{{'sitnet_write_message' | translate}}</span>
+                            </label>
+                        </div>
                     </div>
-                    <div class="col-md-9">
-                        <input type="text" class="form-control wdth-30 make-inline"
-                               ng-model="newInspection.user.name"
-                               uib-typeahead="t.name for t in examInspectors('name', $viewValue)"
-                               typeahead-editable="false"
-                               typeahead-min-length="2"
-                               typeahead-on-select="setExamInspector($item, $model, $label)"
-                               placeholder="{{'sitnet_name' | translate}}">
-                        <label>
-                            <input type="checkbox" ng-model="newInspection.sendMessage" ng-disabled="!newInspection.user.id">
-                            <span>{{'sitnet_write_message' | translate}}</span>
-                        </label>
+                    <div class="row col-md-12">
+                        <div class="col-md-3 exam-basic-title"></div>
+                        <div class="col-md-9">
+                            <textarea class="form-control wdth-30 make-inline mart10" placeholder="{{'sitnet_message' | translate}}"
+                            ng-model="newInspection.comment.comment" ng-disabled="!newInspection.sendMessage"></textarea>
+                            <span><button ng-click="saveInspector()" class="btn btn-primary green border-green vbottom marb5">{{'sitnet_add' | translate}}</button></span>
+                        </div>
                     </div>
-                </div>
-                <div class="row col-md-12">
-                    <div class="col-md-3 exam-basic-title"></div>
-                    <div class="col-md-9">
-                        <textarea class="form-control wdth-30 make-inline mart10" placeholder="{{'sitnet_message' | translate}}"
-                        ng-model="newInspection.comment.comment" ng-disabled="!newInspection.sendMessage"></textarea>
-                        <span><button ng-click="saveInspector()" class="btn btn-primary green border-green vbottom marb5">{{'sitnet_add' | translate}}</button></span>
-                    </div>
-                </div>
-                <div class="row col-md-12">
-                    <div class="col-md-3 exam-basic-title"></div>
-                    <div class="col-md-9">
-                        <ul class="list-inline mart10">
-                            <li ng-repeat="inspection in inspectors">{{inspection.user.firstName }} {{ inspection.user.lastName }}
-                                <button class="reviewer-remove"
-                                        ng-click="removeInspector(inspection.id)"
-                                        title="{{'sitnet_remove' | translate}}">
-                                    <img src="../../../assets/assets/images/icon_remove.svg" alt="exam"
-                                         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_remove.png'" />
-                                </button>
-                            </li>
-                        </ul>
+                    <div class="row col-md-12">
+                        <div class="col-md-3 exam-basic-title"></div>
+                        <div class="col-md-9">
+                            <ul class="list-inline mart10">
+                                <li ng-repeat="inspection in inspectors">{{inspection.user.firstName }} {{ inspection.user.lastName }}
+                                    <button class="reviewer-remove"
+                                            ng-click="removeInspector(inspection.id)"
+                                            title="{{'sitnet_remove' | translate}}">
+                                        <img src="../../../assets/assets/images/icon_remove.svg" alt="exam"
+                                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_remove.png'" />
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
