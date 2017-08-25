@@ -26,7 +26,7 @@
 
                     </div>
                     <div class="col-md-9">
-                        <input type="text" class="form-control ng-pristine ng-valid wdth-30"
+                        <input class="form-control ng-pristine ng-valid wdth-30"
                                ng-model="$ctrl.exam.name"
                                ui-change="$ctrl.updateExam()"/>
 
@@ -113,7 +113,8 @@
                 </div>
 
                 <!-- Exam inspectors -->
-                <exam-inspector-selector exam="$ctrl.exam"></exam-inspector-selector>
+                <exam-inspector-selector exam="$ctrl.exam" ng-if="$ctrl.exam.executionType.type!=='MATURITY'">
+                </exam-inspector-selector>
 
                 <!-- Space requirements and attachments -->
                 <software-selector exam="$ctrl.exam"></software-selector>
