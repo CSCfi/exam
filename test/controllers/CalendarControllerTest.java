@@ -14,7 +14,6 @@ import models.ExamRoom;
 import models.Language;
 import models.Reservation;
 import models.User;
-import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
@@ -23,6 +22,7 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
 import javax.mail.internet.MimeMessage;
