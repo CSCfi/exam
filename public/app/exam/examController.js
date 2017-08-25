@@ -502,6 +502,7 @@
                 };
 
                 $scope.newInspection = {
+                    "sendMessage": false,
                     "user": {
                         "id": null,
                         "name": null
@@ -547,6 +548,8 @@
                             // nullify input field
                             $scope.newInspection.user.name = null;
                             $scope.newInspection.user.id = null;
+                            $scope.newInspection.comment.comment = "";
+                            $scope.newInspection.sendMessage = false;
 
                         }, function (error) {
                             toastr.error(error.data);

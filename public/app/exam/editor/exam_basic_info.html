@@ -163,8 +163,20 @@
                                uib-typeahead="t.name for t in examInspectors('name', $viewValue)"
                                typeahead-editable="false"
                                typeahead-min-length="2"
-                               typeahead-on-select="setExamInspector($item, $model, $label)">
-                        <span><button ng-click="saveInspector()" class="btn btn-primary green border-green">{{'sitnet_add' | translate}}</button></span>
+                               typeahead-on-select="setExamInspector($item, $model, $label)"
+                               placeholder="{{'sitnet_name' | translate}}">
+                        <label>
+                            <input type="checkbox" ng-model="newInspection.sendMessage" ng-disabled="!newInspection.user.id">
+                            <span>{{'sitnet_write_message' | translate}}</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row col-md-12">
+                    <div class="col-md-3 exam-basic-title"></div>
+                    <div class="col-md-9">
+                        <textarea class="form-control wdth-30 make-inline mart10" placeholder="{{'sitnet_message' | translate}}"
+                        ng-model="newInspection.comment.comment" ng-disabled="!newInspection.sendMessage"></textarea>
+                        <span><button ng-click="saveInspector()" class="btn btn-primary green border-green vbottom marb5">{{'sitnet_add' | translate}}</button></span>
                     </div>
                 </div>
                 <div class="row col-md-12">
