@@ -1,9 +1,13 @@
 'use strict';
 angular.module('app.review')
-    .service('Maturity', ['$q', '$location', '$translate', 'dialogs', 'Assessment', 'Session', 'ExamRes', 'LanguageInspectionRes',
-        function ($q, $location, $translate, dialogs, Assessment, Session, ExamRes, LanguageInspectionRes) {
+    .service('Maturity', ['$q', '$resource', '$location', '$translate', 'dialogs', 'Assessment', 'Session', 'ExamRes',
+        function ($q, $resource, $location, $translate, dialogs, Assessment, Session, ExamRes) {
 
             var self = this;
+
+            var inspectionApi = $resource('/app/inspection', null, {'add': {method: 'POST'}});
+            var approvalApi = $resource('/app/inspection/:id/approval', {id: '@id'}, {'update': {method: 'PUT'}});
+            var statementApi = $resource('/app/inspection/:id/statement', {id: '@id'}, {'update': {method: 'PUT'}});
 
             var canFinalizeInspection = function (exam) {
                 return exam.languageInspection.statement && exam.languageInspection.statement.comment;
@@ -64,7 +68,7 @@ angular.module('app.review')
                     'comment': exam.languageInspection.statement.comment
                 };
                 // Update comment
-                LanguageInspectionRes.statement.update(statement,
+                statementApi.update(statement,
                     function (data) {
                         toastr.info($translate.instant('sitnet_statement_updated'));
                         deferred.resolve(data);
@@ -129,7 +133,7 @@ angular.module('app.review')
                     Assessment.saveFeedback(exam).then(function () {
                         var params = Assessment.getPayload(exam, 'GRADED');
                         ExamRes.review.update({id: exam.id}, params, function () {
-                            LanguageInspectionRes.inspection.add({examId: exam.id}, function () {
+                            inspectionApi.add({examId: exam.id}, function () {
                                 toastr.info($translate.instant('sitnet_sent_for_language_inspection'));
                                 $location.path(Assessment.getExitUrl(exam));
                             });
@@ -146,7 +150,7 @@ angular.module('app.review')
                 dialog.result.then(function () {
                     var approved = !reject;
                     self.saveInspectionStatement(exam).then(function () {
-                        LanguageInspectionRes.approval.update(
+                        approvalApi.update(
                             {id: exam.languageInspection.id, approved: approved},
                             function () {
                                 toastr.info($translate.instant('sitnet_language_inspection_finished'));

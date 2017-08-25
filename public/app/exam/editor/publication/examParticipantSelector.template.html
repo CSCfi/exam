@@ -8,11 +8,11 @@
     </div>
     <div class="col-md-9">
         <input type="text" class="form-control wdth-30 make-inline"
-               ng-model="$ctrl.newParticipant.user.name"
+               ng-model="$ctrl.newParticipant.name"
                uib-typeahead="s.name for s in $ctrl.allStudents('name', $viewValue)"
                typeahead-editable="false"
                typeahead-min-length="2"
-               typeahead-on-select="$ctrl.setNewParticipant($item, $model, $label)">
+               typeahead-on-select="$ctrl.setExamParticipant($item, $model, $label)">
         <button ng-disabled="!$ctrl.newParticipant.id" ng-click="$ctrl.addParticipant()"
                 class="btn btn-primary green border-green">{{'sitnet_add' | translate}}</button>
     </div>
@@ -26,17 +26,17 @@
                     {{enrolment.user.firstName }} {{ enrolment.user.lastName }}
                     <button class="reviewer-remove"
                             ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
-                            ng-click="ctrl.removeParticipant(enrolment.id)"
+                            ng-click="$ctrl.removeParticipant(enrolment.id)"
                             title="{{'sitnet_remove' | translate}}">
                         <img src="../../../assets/assets/images/icon_remove.svg" alt="exam"
                              onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_remove.png'" />
                     </button>
                 </li>
                 <!-- Students that have finished the exam -->
-                <li ng-repeat="participant in ctrl.exam.participants">
+                <li ng-repeat="participant in $ctrl.exam.participants">
                     {{ participant.user.firstName }} {{ participant.user.lastName }}
                     <button class="reviewer-remove"
-                            ng-disabled="newExam.state === 'PUBLISHED'">
+                            ng-disabled="$ctrl.exam.state === 'PUBLISHED'">
                         <img src="../../../assets/assets/images/icon_remove.svg" alt="exam"
                              onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_remove.png'" />
                     </button>

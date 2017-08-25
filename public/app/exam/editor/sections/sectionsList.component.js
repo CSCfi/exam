@@ -14,11 +14,21 @@ angular.module('app.exam.editor')
 
                 var vm = this;
 
-                vm.$onInit = function () {
+                var init = function () {
                     vm.exam.examSections.sort(function (a, b) {
                         return a.sequenceNumber - b.sequenceNumber;
                     });
                     updateSectionIndices();
+                };
+
+                vm.$onInit = function () {
+                    init();
+                };
+
+                vm.$onChanges = function (changes) {
+                    if (changes.exam) {
+                        init();
+                    }
                 };
 
                 vm.moveSection = function (section, from, to) {

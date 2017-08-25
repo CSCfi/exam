@@ -57,7 +57,7 @@ DELETE        /app/exam/:eid/owner/:uid                                  control
 GET           /app/exam/:id/inspections                                  controllers.ExamInspectionController.getExamInspections(id: Long)
 POST          /app/exams/:eid/inspector/:uid                             controllers.ExamInspectionController.insertInspection(eid: Long, uid: Long)
 DELETE        /app/exams/inspector/:id                                   controllers.ExamInspectionController.deleteInspection(id: Long)
-PUT           /app/exams/inspection/:id                                  controllers.ExamInspectionController.updateInspection(id: Long)
+PUT           /app/exams/inspection/:id                                  controllers.ExamInspectionController.setInspectionOutcome(id: Long)
 
 ############### Printout exam interface ###############
 POST          /app/exam/:id/examinationdate                              controllers.ExaminationDateController.insertExaminationDate(id: Long)
@@ -125,7 +125,7 @@ GET           /app/noshows/:eid                                          control
 PUT           /app/reviews/archive                                       controllers.ReviewController.archiveExams
 GET           /app/review/info/:eid                                      controllers.ReviewController.getExamStudentInfo(eid: Long)
 GET           /app/exams/:eid/reservation                                controllers.ReviewController.getReservationInformationForExam(eid: Long)
-GET           /app/reviewerexams/:eid                                    controllers.ReviewController.getExamReview(eid: Long)
+GET           /app/review/:eid                                           controllers.ReviewController.getExamReview(eid: Long)
 GET           /app/examenrolments/:eid                                   controllers.ReviewController.getEnrolmentsForExam(eid: Long)
 GET           /app/examparticipations/:eid/:uid                          controllers.ReviewController.getParticipationsForExamAndUser(eid: Long, uid: Long)
 POST          /app/email/inspection/:eid                                 controllers.ReviewController.sendInspectionMessage(eid: Long)

@@ -2,8 +2,8 @@
 angular.module('app.maturity')
     .component('languageInspections', {
         templateUrl: '/assets/app/maturity/languageInspections.template.html',
-        controller: ['$translate', '$uibModal', '$location', 'dialogs', 'EXAM_CONF', 'LanguageInspectionRes', 'Session',
-            function ($translate, $modal, $location, dialogs, EXAM_CONF, LanguageInspectionRes, Session) {
+        controller: ['$translate', 'LanguageInspections', 'Session', 'EXAM_CONF',
+            function ($translate, LanguageInspections, Session, EXAM_CONF) {
 
                 var vm = this;
 
@@ -49,60 +49,35 @@ angular.module('app.maturity')
                         params.end = Date.parse(vm.endDate);
                     }
                     var refreshAll = _.isEmpty(params);
-                    LanguageInspectionRes.inspections.query(refreshAll ? undefined : params, function (inspections) {
-                        inspections.forEach(function (i) {
-                            i.ownerAggregate = i.exam.parent.examOwners.map(function (o) {
-                                return o.firstName + ' ' + o.lastName;
-                            }).join(', ');
-                            i.studentName = i.exam.creator ? i.exam.creator.firstName + ' ' + i.exam.creator.lastName : '';
-                            i.studentNameAggregate = i.exam.creator ? i.exam.creator.lastName + ' ' + i.exam.creator.firstName : '';
-                            i.inspectorName = i.modifier ? i.modifier.firstName + ' ' + i.modifier.lastName : '';
-                            i.inspectorNameAggregate = i.modifier ? i.modifier.lastName + ' ' + i.modifier.firstName : '';
-                        });
-                        if (refreshAll) {
-                            vm.ongoingInspections = inspections.filter(function (i) {
-                                return !i.finishedAt;
+                    LanguageInspections.query(refreshAll ? undefined : params).then(
+                        function (inspections) {
+                            inspections.forEach(function (i) {
+                                i.ownerAggregate = i.exam.parent.examOwners.map(function (o) {
+                                    return o.firstName + ' ' + o.lastName;
+                                }).join(', ');
+                                i.studentName = i.exam.creator ? i.exam.creator.firstName + ' ' + i.exam.creator.lastName : '';
+                                i.studentNameAggregate = i.exam.creator ? i.exam.creator.lastName + ' ' + i.exam.creator.firstName : '';
+                                i.inspectorName = i.modifier ? i.modifier.firstName + ' ' + i.modifier.lastName : '';
+                                i.inspectorNameAggregate = i.modifier ? i.modifier.lastName + ' ' + i.modifier.firstName : '';
                             });
-                        }
-                        vm.processedInspections = inspections.filter(function (i) {
-                            return i.finishedAt;
+                            if (refreshAll) {
+                                vm.ongoingInspections = inspections.filter(function (i) {
+                                    return !i.finishedAt;
+                                });
+                            }
+                            vm.processedInspections = inspections.filter(function (i) {
+                                return i.finishedAt;
+                            });
                         });
-                    });
                 };
 
 
                 vm.assignInspection = function (inspection) {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
-                        $translate.instant('sitnet_confirm_assign_inspection'));
-                    dialog.result.then(function () {
-                        LanguageInspectionRes.assignment.update({id: inspection.id}, function () {
-                            $location.path('exams/review/' + inspection.exam.id);
-                        }, function (err) {
-                            toastr.error(err);
-                        });
-                    });
+                    LanguageInspections.assignInspection(inspection);
                 };
 
                 vm.showStatement = function (statement) {
-                    var modalController = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
-                        $scope.statement = statement.comment;
-                        $scope.ok = function () {
-                            $modalInstance.close('Accepted');
-                        };
-                    }];
-
-                    $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'maturity/show_inspection_statement.html',
-                        backdrop: 'static',
-                        keyboard: true,
-                        controller: modalController,
-                        resolve: {
-                            statement: function () {
-                                return statement.comment;
-                            }
-                        }
-                    });
-
+                    LanguageInspections.showStatement(statement);
                 };
 
                 vm.getOngoingInspectionsDetails = function () {

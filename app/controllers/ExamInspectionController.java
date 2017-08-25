@@ -94,7 +94,7 @@ public class ExamInspectionController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateInspection(Long id) {
+    public Result setInspectionOutcome(Long id) {
 
         boolean ready = Boolean.parseBoolean(formFactory.form().bindFromRequest().get("ready"));
         ExamInspection inspection = Ebean.find(ExamInspection.class, id);

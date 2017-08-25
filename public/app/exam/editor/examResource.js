@@ -99,7 +99,7 @@
                         "insert": {method: "POST", params: {code: "@code"}}
                     }),
                 reviewerExams: $resource("/app/reviewerexams"),
-                reviewerExam: $resource("/app/reviewerexams/:eid", {eid: "@eid"}),
+                reviewerExam: $resource("/app/review/:eid", {eid: "@eid"}),
                 draft: $resource("/app/exams", null, {"create": {method: "POST"}}),
                 review: $resource("/app/review/:id", {id: "@id"}, {"update": {method: "PUT"}}),
                 inspectionComment: $resource("/app/review/:id/inspection", {id: "@id"}, {"create": {method: "POST"}}),
