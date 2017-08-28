@@ -352,19 +352,27 @@
                 '</div>'
             };
         }])
-        .directive('sort', [function () {
+        .directive('sort', ['$timeout', function ($timeout) {
             return {
                 restrict: 'A',
                 template: '<span class="pointer"' +
-                'ng-click="predicate = by; reverse = !reverse">{{ text | translate }}&nbsp;' +
+                'ng-click="sort()"">{{ text | translate }}&nbsp;' +
                 '<i class="fa" ng-class="getSortClass()"></i>' +
                 '</span>',
                 scope: {
                     predicate: '=',
                     by: '@by',
                     text: '@text',
-                    reverse: '='
+                    reverse: '=',
+                    onSort: '&?'
                 }, link: function (scope, element, attrs) {
+                    scope.sort = function () {
+                        scope.predicate = scope.by;
+                        scope.reverse = !scope.reverse;
+                        if (scope.onSort) {
+                            $timeout(scope.onSort);
+                        }
+                    };
                     scope.getSortClass = function () {
                         return scope.predicate === scope.by ?
                             (scope.reverse ? 'fa-caret-down' : 'fa-caret-up') : 'fa-sort';

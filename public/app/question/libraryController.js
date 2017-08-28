@@ -25,10 +25,10 @@ angular.module('app.question')
             $scope.libCtrl.from = true;
 
             $scope.templates = {
-                newQuestion: EXAM_CONF.TEMPLATES_PATH + "question/editor/question.html",
-                dialogQuestion: EXAM_CONF.TEMPLATES_PATH + "question/editor/dialog_question.html",
-                librarySearch: EXAM_CONF.TEMPLATES_PATH + "question/library_search.html",
-                libraryResults: EXAM_CONF.TEMPLATES_PATH + "question/library_results.html"
+                newQuestion: EXAM_CONF.TEMPLATES_PATH + 'question/editor/question.html',
+                dialogQuestion: EXAM_CONF.TEMPLATES_PATH + 'question/editor/dialog_question.html',
+                librarySearch: EXAM_CONF.TEMPLATES_PATH + 'question/library_search.html',
+                libraryResults: EXAM_CONF.TEMPLATES_PATH + 'question/library_results.html'
             };
 
             $scope.session = Session;
@@ -49,14 +49,14 @@ angular.module('app.question')
                     $scope.baseQuestionId = null;
                 }
                 ;
-            }
+            };
 
             $scope.setBaseQuestionId = function (questionId) {
 
                 $scope.addEditQuestion.id = questionId;
                 $scope.baseQuestionId = questionId;
-                $scope.addEditQuestion.showForm = true
-            }
+                $scope.addEditQuestion.showForm = true;
+            };
 
 
             $scope.applyFreeSearchFilter = function () {
@@ -70,14 +70,15 @@ angular.module('app.question')
                         }
                         // match course code
                         return question.examSectionQuestions.filter(function (esq) {
-                                // Course can be empty in case of a copied exam
-                                return esq.examSection.exam.course && esq.examSection.exam.course.code.match(re);
-                            }).length > 0;
+                            // Course can be empty in case of a copied exam
+                            return esq.examSection.exam.course && esq.examSection.exam.course.code.match(re);
+                        }).length > 0;
                     });
                 } else {
                     $scope.filteredQuestions = $scope.questions;
                 }
                 limitQuestions();
+                saveFilters();
             };
 
 
@@ -85,10 +86,26 @@ angular.module('app.question')
                 if ($scope.filter.owner) {
                     $scope.filteredQuestions = $scope.questions.filter(function (question) {
                         var re = new RegExp($scope.filter.owner, 'i');
-                        var owner = question.creator.firstName + " " + question.creator.lastName;
+                        var owner = question.creator.firstName + ' ' + question.creator.lastName;
                         return owner.match(re);
                     });
                 }
+            };
+
+            $scope.onSort = function () {
+                saveFilters();
+            };
+
+            var saveFilters = function () {
+                var filters = {
+                    exams: $scope.exams,
+                    courses: $scope.courses,
+                    tags: $scope.tags,
+                    text: $scope.filter.text,
+                    predicate: $scope.questionsPredicate,
+                    reverse: $scope.reverse
+                };
+                questionService.storeFilters(filters);
             };
 
 
@@ -111,16 +128,16 @@ angular.module('app.question')
             };
 
             $scope.selectAll = function (selectAllCssClass, checkboxesCssClass) {
-                var isSelected = angular.element("." + selectAllCssClass).prop("checked");
-                angular.forEach(angular.element("." + checkboxesCssClass), function (input) {
-                    angular.element(input).prop("checked", isSelected);
+                var isSelected = angular.element('.' + selectAllCssClass).prop('checked');
+                angular.forEach(angular.element('.' + checkboxesCssClass), function (input) {
+                    angular.element(input).prop('checked', isSelected);
                 });
             };
 
             $scope.countSelections = function () {
                 $scope.total = 0;
-                angular.forEach(angular.element(".questionToUpdate"), function (input) {
-                    if (angular.element(input).prop("checked")) {
+                angular.forEach(angular.element('.questionToUpdate'), function (input) {
+                    if (angular.element(input).prop('checked')) {
                         $scope.total += 1;
                     }
 
@@ -137,11 +154,11 @@ angular.module('app.question')
 
                 // check that atleast one has been selected
                 var isEmpty = true,
-                    boxes = angular.element(".questionToUpdate"),
+                    boxes = angular.element('.questionToUpdate'),
                     ids = [];
 
                 angular.forEach(boxes, function (input) {
-                    if (angular.element(input).prop("checked")) {
+                    if (angular.element(input).prop('checked')) {
                         isEmpty = false;
                         ids.push(angular.element(input).val());
                     }
@@ -159,8 +176,8 @@ angular.module('app.question')
                 }
 
                 var data = {
-                    "uid": $scope.newTeacher.id,
-                    "questionIds": ids.toString()
+                    'uid': $scope.newTeacher.id,
+                    'questionIds': ids.toString()
                 };
 
                 QuestionRes.questionOwner.update(data,
@@ -186,7 +203,7 @@ angular.module('app.question')
                 return courses.concat(exams).concat(tags);
             };
 
-            $scope.teachers = UserRes.usersByRole.query({role: "TEACHER"});
+            $scope.teachers = UserRes.usersByRole.query({role: 'TEACHER'});
 
             var getCourseIds = function () {
                 return $scope.courses.filter(function (course) {
@@ -230,17 +247,17 @@ angular.module('app.question')
                 }, function (data) {
                     data.map(function (item) {
                         switch (item.type) {
-                            case "MultipleChoiceQuestion":
-                                item.icon = "fa-list-ul";
+                            case 'MultipleChoiceQuestion':
+                                item.icon = 'fa-list-ul';
                                 break;
-                            case "WeightedMultipleChoiceQuestion":
-                                item.icon = "fa-balance-scale";
+                            case 'WeightedMultipleChoiceQuestion':
+                                item.icon = 'fa-balance-scale';
                                 break;
-                            case "EssayQuestion":
-                                item.icon = "fa-edit";
+                            case 'EssayQuestion':
+                                item.icon = 'fa-edit';
                                 break;
-                            case "ClozeTestQuestion":
-                                item.icon = "fa-commenting-o";
+                            case 'ClozeTestQuestion':
+                                item.icon = 'fa-commenting-o';
                                 break;
                         }
                         return item;
@@ -248,11 +265,11 @@ angular.module('app.question')
                     $scope.questions = $scope.filteredQuestions = questionService.applyFilter(data);
 
                     $scope.questions.forEach(function (q) {
-                        if (q.defaultEvaluationType === "Points" || q.type === 'ClozeTestQuestion' || q.type === 'MultipleChoiceQuestion') {
+                        if (q.defaultEvaluationType === 'Points' || q.type === 'ClozeTestQuestion' || q.type === 'MultipleChoiceQuestion') {
                             q.displayedMaxScore = q.defaultMaxScore;
-                        } else if (q.defaultEvaluationType === "Selection") {
+                        } else if (q.defaultEvaluationType === 'Selection') {
                             q.displayedMaxScore = 'sitnet_evaluation_select';
-                        } else if (q.type === "WeightedMultipleChoiceQuestion") {
+                        } else if (q.type === 'WeightedMultipleChoiceQuestion') {
                             q.displayedMaxScore = $scope.calculateMaxPoints(q);
                         }
                         q.typeOrd = ['EssayQuestion',
@@ -261,16 +278,11 @@ angular.module('app.question')
                             'WeightedMultipleChoiceQuestion'].indexOf(q.type);
                         q.ownerAggregate = q.creator.lastName + q.creator.firstName;
                         q.allowedToRemove = q.examSectionQuestions.filter(function (esq) {
-                                var exam = esq.examSection.exam;
-                                return exam.state === 'PUBLISHED' && exam.examActiveEndDate > new Date().getTime();
-                            }).length === 0;
+                            var exam = esq.examSection.exam;
+                            return exam.state === 'PUBLISHED' && exam.examActiveEndDate > new Date().getTime();
+                        }).length === 0;
                     });
-                    var filters = {
-                        exams: $scope.exams,
-                        courses: $scope.courses,
-                        tags: $scope.tags
-                    };
-                    questionService.storeFilters(filters);
+                    saveFilters();
                     $scope.currentPage = 0;
                     limitQuestions();
                     deferred.resolve();
@@ -374,7 +386,7 @@ angular.module('app.question')
             };
 
             $scope.stripHtml = function (text) {
-                if (text && text.indexOf("math-tex") === -1) {
+                if (text && text.indexOf('math-tex') === -1) {
                     return String(text).replace(/<[^>]+>/gm, '');
                 }
                 return text;
@@ -382,14 +394,14 @@ angular.module('app.question')
 
             $scope.shortText = function (text) {
 
-                if (text && text.indexOf("math-tex") === -1) {
+                if (text && text.indexOf('math-tex') === -1) {
                     // remove HTML tags
                     var str = String(text).replace(/<[^>]+>/gm, '');
 
                     // shorten string
                     var maxLength = 40;
                     if (str.length > maxLength) {
-                        str = String(str).substr(0, maxLength) + "...";
+                        str = String(str).substr(0, maxLength) + '...';
                     }
                     return str;
                 }
@@ -408,7 +420,7 @@ angular.module('app.question')
             };
 
             $scope.createQuestion = function (type) {
-                $location.path("/questions/new/" + type);
+                $location.path('/questions/new/' + type);
             };
 
             $scope.deleteQuestion = function (question) {
@@ -431,14 +443,14 @@ angular.module('app.question')
                             $scope.setBaseQuestionId(copy.id);
                         }
                         else {
-                            $location.path("/questions/" + copy.id);
+                            $location.path('/questions/' + copy.id);
                         }
                     });
                 });
             };
 
             $scope.verticalText = function (textClass) {
-                var text = "Add all";
+                var text = 'Add all';
                 $scope.$watch(
                     function () {
                         text = $translate.instant('sitnet_add_all');
@@ -471,9 +483,16 @@ angular.module('app.question')
                 $scope.exams = storedData.filters.exams || [];
                 $scope.courses = storedData.filters.courses || [];
                 $scope.tags = storedData.filters.tags || [];
+                $scope.filter.text = storedData.filters.text;
+                $scope.questionsPredicate = storedData.filters.predicate;
+                $scope.reverse = storedData.filters.reverse;
                 $scope.currentPage = 0;
                 query().then(function () {
-                    limitQuestions();
+                    if ($scope.filter.text) {
+                        $scope.applyFreeSearchFilter();
+                    } else {
+                        limitQuestions();
+                    }
                 });
             } else {
                 query();
