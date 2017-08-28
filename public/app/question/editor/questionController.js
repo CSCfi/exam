@@ -266,18 +266,17 @@ angular.module('app.question')
             };
 
             $scope.removeOwner = function (user) {
-                if ($scope.newQuestion.questionOwners.length == 1) {
+                if ($scope.newQuestion.questionOwners.length === 1) {
                     // disallow clearing the owners
                     return;
                 }
                 var i = $scope.newQuestion.questionOwners.indexOf(user);
-                if (i > 0) {
+                if (i >= 0) {
                     $scope.newQuestion.questionOwners.splice(i, 1);
                 }
             };
 
             $scope.selectFile = function () {
-
                 var question = $scope.newQuestion;
 
                 var ctrl = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
