@@ -272,7 +272,7 @@
                         return;
                     }
                     var i = $scope.newQuestion.questionOwners.indexOf(user);
-                    if (i > 0) {
+                    if (i >= 0) {
                         $scope.newQuestion.questionOwners.splice(i, 1);
                     }
                 };
