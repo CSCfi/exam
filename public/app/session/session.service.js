@@ -125,35 +125,25 @@ angular.module('app.session')
             };
 
             self.openEulaModal = function (user) {
-                var ctrl = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
-                    $scope.ok = function () {
-                        // OK button
-                        userRes().updateAgreementAccepted.update(function () {
-                            user.userAgreementAccepted = true;
-                            self.setUser(user);
-                        }, function (error) {
-                            toastr.error(error.data);
-                        });
-                        $modalInstance.dismiss();
+                modal().open({
+                    backdrop: 'static',
+                    keyboard: true,
+                    component: 'eula'
+                }).result.then(function () {
+                    userRes().updateAgreementAccepted.update(function () {
+                        user.userAgreementAccepted = true;
+                        self.setUser(user);
                         if ($location.url() === '/login' || $location.url() === '/logout') {
                             $location.path('/');
                         } else {
                             route().reload();
                         }
-                    };
-                    $scope.cancel = function () {
-                        $modalInstance.dismiss('cancel');
-                        $location.path('/logout');
-                    };
-                }];
-                var m = modal().open({
-                    templateUrl: EXAM_CONF.TEMPLATES_PATH + 'session/templates/show_eula.html',
-                    backdrop: 'static',
-                    keyboard: false,
-                    controller: ctrl
-                });
-                m.result.then(function () {
-                    console.log('closed');
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+
+                }, function () {
+                    $location.path('/logout');
                 });
             };
 
