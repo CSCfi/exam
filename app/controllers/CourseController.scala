@@ -3,11 +3,11 @@ package controllers
 import javax.inject.Inject
 
 import com.avaje.ebean.Ebean
-import controllers.api.ExternalAPI
 import models.{Course, User}
 import play.api.cache.CacheApi
 import play.api.mvc.{Action, AnyContent, Controller, Result}
 import play.libs.Json
+import util.java.ExternalCourseHandler
 import util.scala.{Authenticator, JsonResponder}
 
 import scala.collection.JavaConverters._
@@ -16,7 +16,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 
-class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) extends Controller
+class CourseController @Inject()(externalApi: ExternalCourseHandler, cache: CacheApi) extends Controller
   with Authenticator with JsonResponder {
 
   override val sessionCache: CacheApi = cache
@@ -25,7 +25,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
   def listCourses(filterType: Option[String], criteria: Option[String], user: User): Future[Result] = {
     (filterType, criteria) match {
       case (Some("code"), Some(x)) =>
-        FutureConverters.toScala(externalApi.getCourseInfoByCode(user, x)).map(i => java2Response(i))
+        FutureConverters.toScala(externalApi.getCoursesByCode(user, x)).map(i => java2Response(i))
       case (Some("name"), Some(x)) if x.length >= CriteriaLengthLimiter =>
         Future {
           Ebean.find(classOf[Course]).where
@@ -102,6 +102,19 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
       }
     }.getOrElse {
       forbid()
+    }
+  }
+
+  def updateCourses(): Action[AnyContent] = Action.async {
+    request => request.headers.get(getAuthHeaderName).map { token =>
+      getAuthorizedUser(token, Seq("ADMIN")) match {
+        case _: Any =>
+          FutureConverters.toScala(externalApi.updateCourses()).map(_ => Ok)
+        case _ =>
+          Future.successful(forbid())
+      }
+    }.getOrElse {
+      Future.successful(forbid())
     }
   }
 

@@ -8,7 +8,6 @@ import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import controllers.api.ExternalAPI;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import models.*;
@@ -36,8 +35,6 @@ import java.util.stream.StreamSupport;
 @Restrict({@Group("STUDENT")})
 public class StudentExamController extends BaseController {
 
-    @Inject
-    protected ExternalAPI externalAPI;
     @Inject
     protected EmailComposer emailComposer;
     @Inject

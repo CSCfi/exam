@@ -5,7 +5,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
-import controllers.api.ExternalAPI;
 import controllers.base.BaseController;
 import controllers.iop.api.ExternalCalendarAPI;
 import models.Exam;
@@ -18,9 +17,10 @@ import play.Logger;
 import play.mvc.Result;
 import util.AppUtil;
 import util.java.EmailComposer;
+import util.java.ExternalCourseHandler;
 
 import javax.inject.Inject;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -35,7 +35,7 @@ public class EnrolmentController extends BaseController {
     protected EmailComposer emailComposer;
 
     @Inject
-    protected ExternalAPI externalAPI;
+    private ExternalCourseHandler externalCourseHandler;
 
     @Inject
     protected ExternalCalendarAPI externalCalendarAPI;
@@ -251,12 +251,12 @@ public class EnrolmentController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public CompletionStage<Result> createEnrolment(final String code, final Long id) throws MalformedURLException {
+    public CompletionStage<Result> createEnrolment(final String code, final Long id) throws IOException {
         User user = getLoggedUser();
         if (!PERM_CHECK_ACTIVE) {
             return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
         }
-        return externalAPI.getPermittedCourses(user)
+        return externalCourseHandler.getPermittedCourses(user)
                 .thenApplyAsync(codes -> checkPermission(id, codes, code, user))
                 .thenCompose(Function.identity())
                 .exceptionally(throwable -> internalServerError(throwable.getMessage()));

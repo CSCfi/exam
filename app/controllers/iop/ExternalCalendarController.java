@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
 import play.libs.Json;
@@ -82,16 +83,17 @@ public class ExternalCalendarController extends CalendarController implements Ex
                     .eq("user", user)
                     .gt("startAt", searchDate.toDate())
                     .findList();
+            DateTimeFormatter dtf = ISODateTimeFormat.dateTimeParser();
             Stream<JsonNode> stream = StreamSupport.stream(root.spliterator(), false);
             Map<Interval, Optional<Integer>> map = stream.collect(Collectors.toMap(n -> {
-                    DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("start").asText());
-                    DateTime end = ISODateTimeFormat.dateTimeParser().parseDateTime(n.get("end").asText());
-                    return new Interval(start, end);
-                }, n -> Optional.of(n.get("availableMachines").asInt()),
-                (u, v) -> {
-                    throw new IllegalStateException(String.format("Duplicate key %s", u));
-                },
-                LinkedHashMap::new));
+                        DateTime start = dtf.parseDateTime(n.get("start").asText());
+                        DateTime end = dtf.parseDateTime(n.get("end").asText());
+                        return new Interval(start, end);
+                    }, n -> Optional.of(n.get("availableMachines").asInt()),
+                    (u, v) -> {
+                        throw new IllegalStateException(String.format("Duplicate key %s", u));
+                    },
+                    LinkedHashMap::new));
             return handleReservations(map, reservations, exam, null, user);
         }
         return Collections.emptySet();

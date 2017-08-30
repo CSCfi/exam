@@ -8,7 +8,6 @@ import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import controllers.api.ExternalAPI;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import models.Exam;
@@ -22,9 +21,10 @@ import play.libs.Json;
 import play.mvc.Result;
 import security.interceptors.SensitiveDataPolicy;
 import util.AppUtil;
+import util.java.ExternalCourseHandler;
 
 import javax.inject.Inject;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +38,7 @@ public class StudentActionsController extends BaseController {
     private static final boolean PERM_CHECK_ACTIVE = AppUtil.isEnrolmentPermissionCheckActive();
 
     @Inject
-    private ExternalAPI externalAPI;
+    private ExternalCourseHandler externalCourseHandler;
 
 
     @ActionMethod
@@ -231,20 +231,18 @@ public class StudentActionsController extends BaseController {
     }
 
     @ActionMethod
-    public CompletionStage<Result> listAvailableExams(final Optional<String> filter) throws MalformedURLException {
+    public CompletionStage<Result> listAvailableExams(final Optional<String> filter) throws IOException {
         if (!PERM_CHECK_ACTIVE) {
             return wrapAsPromise(listExams(filter.orElse(null), Collections.emptyList()));
         }
-        return externalAPI.getPermittedCourses(getLoggedUser())
-                .thenApplyAsync(codes ->
-                        {
-                            if (codes.isEmpty()) {
-                                return ok(Json.toJson(Collections.<Exam>emptyList()));
-                            } else {
-                                return listExams(filter.orElse(null), codes);
-                            }
-                        }
-                ).exceptionally(throwable -> internalServerError(throwable.getMessage()));
+        return externalCourseHandler.getPermittedCourses(getLoggedUser())
+                .thenApplyAsync(codes -> {
+                    if (codes.isEmpty()) {
+                        return ok(Json.toJson(Collections.<Exam>emptyList()));
+                    } else {
+                        return listExams(filter.orElse(null), codes);
+                    }
+                }).exceptionally(throwable -> internalServerError(throwable.getMessage()));
     }
 
     private Result listExams(String filter, Collection<String> courseCodes) {
