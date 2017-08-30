@@ -59,33 +59,12 @@
             };
 
             $scope.onCourseSelect = function ($item, $model, $label, exam) {
-                // save new course if not exits, interface set id to 0
-                if($item.id === 0) {
-                    ExamRes.courses.insert({code: $item.code}, function (inserted_course) {
-
-                        $item = inserted_course;
-                        toastr.success($translate.instant('sitnet_course_added'));
-
-                        ExamRes.course.update({eid: exam.id, cid: $item.id}, function (course) {
-                            toastr.success($translate.instant('sitnet_exam_associated_with_course'));
-                            $scope.newExam.course = course;
-                        }, function (error) {
-                            toastr.error($translate.instant('sitnet_course_not_found'));
-                        });
-
-                    }, function (error) {
-                        toastr.error($translate.instant('sitnet_course_not_found'));
-                    });
-                } else {
-
-                    ExamRes.course.update({eid: exam.id, cid: $item.id}, function (course) {
-                        toastr.success($translate.instant('sitnet_exam_associated_with_course'));
-                        $scope.newExam.course = course;
-                    }, function (error) {
-                        toastr.error($translate.instant('sitnet_course_not_found'));
-                    });
-                }
-
+                ExamRes.course.update({eid: exam.id, cid: $item.id}, function (course) {
+                    toastr.success($translate.instant('sitnet_exam_associated_with_course'));
+                    $scope.newExam.course = course;
+                }, function (error) {
+                    toastr.error($translate.instant('sitnet_course_not_found'));
+                });
                 $scope.newExam.course = $item;
                 $scope.courseCodeSearch = $item;
                 $scope.courseNameSearch = $item;
