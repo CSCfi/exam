@@ -90,14 +90,6 @@
                         "update": {method: "PUT", params: {eid: "@eid", cid: "@cid"}},
                         "delete": {method: "DELETE", params: {eid: "@eid", cid: "@cid"}}
                     }),
-
-                courses: $resource("/app/courses/insert/:code",
-                    {
-                        code: "@code"
-                    },
-                    {
-                        "insert": {method: "POST", params: {code: "@code"}}
-                    }),
                 reviewerExams: $resource("/app/reviewerexams"),
                 reviewerExam: $resource("/app/review/:eid", {eid: "@eid"}),
                 draft: $resource("/app/exams", null, {"create": {method: "POST"}}),

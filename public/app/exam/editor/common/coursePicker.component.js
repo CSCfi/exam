@@ -28,7 +28,7 @@ angular.module('app.exam.editor')
                         function (courses) {
                             toggleLoadingIcon(filter, false);
 
-                            if (!courses || !courses.hasOwnProperty("length") || courses.length === 0) {
+                            if (!courses || !courses.hasOwnProperty('length') || courses.length === 0) {
                                 toastr.error($translate.instant('sitnet_course_not_found') + ' ( ' + tmp + ' )');
                             }
                             return courses;
@@ -43,35 +43,13 @@ angular.module('app.exam.editor')
                 };
 
                 vm.onCourseSelect = function ($item, $model, $label, exam) {
-                    // save new course if not exits, interface set id to 0
-                    if ($item.id === 0) {
-                        ExamRes.courses.insert({code: $item.code}, function (inserted_course) {
-
-                            $item = inserted_course;
-                            toastr.success($translate.instant('sitnet_course_added'));
-
-                            ExamRes.course.update({eid: exam.id, cid: $item.id}, function (course) {
-                                toastr.success($translate.instant('sitnet_exam_associated_with_course'));
-                                vm.exam.course = course;
-                                vm.onUpdate({course: course});
-                            }, function () {
-                                toastr.error($translate.instant('sitnet_course_not_found'));
-                            });
-
-                        }, function () {
-                            toastr.error($translate.instant('sitnet_course_not_found'));
-                        });
-                    } else {
-
-                        ExamRes.course.update({eid: exam.id, cid: $item.id}, function (course) {
-                            toastr.success($translate.instant('sitnet_exam_associated_with_course'));
-                            vm.exam.course = course;
-                            vm.onUpdate({course: course});
-                        }, function () {
-                            toastr.error($translate.instant('sitnet_course_not_found'));
-                        });
-                    }
-
+                    ExamRes.course.update({eid: exam.id, cid: $item.id}, function (course) {
+                        toastr.success($translate.instant('sitnet_exam_associated_with_course'));
+                        vm.exam.course = course;
+                        vm.onUpdate({course: course});
+                    }, function () {
+                        toastr.error($translate.instant('sitnet_course_not_found'));
+                    });
                     vm.exam.course = $item;
                 };
 
