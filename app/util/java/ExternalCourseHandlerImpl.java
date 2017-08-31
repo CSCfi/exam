@@ -1,7 +1,6 @@
 package util.java;
 
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
@@ -16,8 +15,6 @@ import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
-import play.mvc.Result;
-import play.mvc.Results;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -26,16 +23,11 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -75,9 +67,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         this.wsClient = wsClient;
     }
 
-    @Override
-    public CompletionStage<List<Course>> getCoursesByCode(User user, String code) throws MalformedURLException {
-        final List<Course> localMatches = Ebean.find(Course.class).where()
+    private Set<Course> getLocalCourses(String code) {
+        return Ebean.find(Course.class).where()
                 .ilike("code", code + "%")
                 .disjunction()
                 .isNull("endDate")
@@ -87,71 +78,24 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                 .isNull("startDate")
                 .lt("startDate", new Date())
                 .endJunction()
-                .orderBy("code").findList();
-        boolean exactMatchFound = localMatches.stream().map(Course::getCode).anyMatch(x -> x.equalsIgnoreCase(code));
-        if (!isCourseSearchActive() || exactMatchFound) {
-            // we either don't care about external resources or already have it locally
-            return CompletableFuture.supplyAsync(() -> localMatches);
-        }
-        // hit the remote end for a possible match
-        URL url = parseUrl(user.getOrganisation(), code);
-        return downloadCourses(url).thenApplyAsync(courses -> {
-            courses.forEach(Course::save);
-            return Stream.concat(localMatches.stream(), courses.stream()).collect(Collectors.toList());
-        });
-    }
-
-    private void update(Course local, Course external) {
-        BeanUtils.copyProperties(external, local, "id", "objectVersion");
-        local.update();
+                .orderBy("code")
+                .findSet();
     }
 
     @Override
-    @Transactional
-    public CompletionStage<Result> updateCourses() throws MalformedURLException {
-        List<Course> locals = Ebean.find(Course.class).where()
-                .disjunction()
-                .isNull("endDate")
-                .gt("endDate", new Date())
-                .endJunction()
-                .disjunction()
-                .isNull("startDate")
-                .lt("startDate", new Date())
-                .endJunction().findList();
-        List<CompletableFuture<List<Course>>> callbacks = new ArrayList<>();
-        for (Course local : locals) {
-            URL url = parseUrl(local.getOrganisation(), local.getCode());
-            callbacks.add(downloadCourses(url).thenApply(courses -> {
-                if (courses.isEmpty()) {
-                    Logger.warn("No match found for course " + local.getCode());
-                } else if (courses.size() > 1) {
-                    Logger.warn("Multiple matches found for course " + local.getCode());
-                } else {
-                    update(local, courses.get(0));
-                }
-                return null;
-            }));
+    public CompletionStage<Set<Course>> getCoursesByCode(User user, String code) throws MalformedURLException {
+        if (!isCourseSearchActive()) {
+            return CompletableFuture.supplyAsync(() -> getLocalCourses(code));
         }
-        return CompletableFuture.allOf(callbacks.toArray(new CompletableFuture[0]))
-                .thenApplyAsync(r -> Results.ok());
-    }
-
-    private CompletableFuture<List<Course>> downloadCourses(URL url) {
-        WSRequest request = wsClient.url(url.toString().split("\\?")[0]);
-        if (url.getQuery() != null) {
-            request = request.setQueryString(url.getQuery());
-        }
-        RemoteFunction<WSResponse, List<Course>> onSuccess = response -> {
-            int status = response.getStatus();
-            if (status == HttpServletResponse.SC_OK) {
-                return parseCourses(response.asJson());
-            }
-            Logger.info("Non-OK response received for URL: {}. Status: {}", url, status);
-            throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, response.getStatusText()));
-        };
-        return request.get()
-                .thenApplyAsync(onSuccess)
-                .toCompletableFuture();
+        // Hit the remote end for a possible match. Update local records with matching remote records.
+        // Finally return all matches (old & new)
+        URL url = parseUrl(user.getOrganisation(), code);
+        return downloadCourses(url).thenApplyAsync(courses -> {
+            courses.forEach(this::saveOrUpdate);
+            Supplier<TreeSet<Course>> supplier = () -> new TreeSet<>(Comparator.comparing(Course::getCode));
+            return Stream.concat(getLocalCourses(code).stream(), courses.stream())
+                    .collect(Collectors.toCollection(supplier));
+        });
     }
 
     @Override
@@ -183,6 +127,37 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         return request.get().thenApplyAsync(onSuccess);
     }
 
+    private void saveOrUpdate(Course external) {
+        Course local = Ebean.find(Course.class).where().eq("code", external.getCode()).findUnique();
+        if (local == null) {
+            // New course, add it
+            external.save();
+        } else {
+            // Existing course, update information
+            BeanUtils.copyProperties(external, local, "id", "objectVersion");
+            local.update();
+            external.setId(local.getId());
+        }
+    }
+
+    private CompletionStage<List<Course>> downloadCourses(URL url) {
+        WSRequest request = wsClient.url(url.toString().split("\\?")[0]);
+        if (url.getQuery() != null) {
+            request = request.setQueryString(url.getQuery());
+        }
+        RemoteFunction<WSResponse, List<Course>> onSuccess = response -> {
+            int status = response.getStatus();
+            if (status == HttpServletResponse.SC_OK) {
+                return parseCourses(response.asJson());
+            }
+            Logger.info("Non-OK response received for URL: {}. Status: {}", url, status);
+            throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, response.getStatusText()));
+        };
+        return request.get().thenApplyAsync(onSuccess).exceptionally(t -> {
+            Logger.error("Connection error occurred", t);
+            return Collections.emptyList();
+        });
+    }
 
     private static URL parseUrl(Organisation organisation, String courseCode) throws MalformedURLException {
         String urlConfigPrefix = "sitnet.integration.courseUnitInfo.url";

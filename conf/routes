@@ -153,7 +153,6 @@ GET           /app/enroll/room/:eid                                      control
 GET           /app/courses                                               controllers.CourseController.getCourses(filter: Option[String], q: Option[String])
 GET           /app/courses/user                                          controllers.CourseController.listUsersCourses(examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]])
 GET           /app/courses/:id                                           controllers.CourseController.getCourse(id: Long)
-PUT           /app/courses                                               controllers.CourseController.updateCourses
 
 ############### Question interface ###############
 
