@@ -17,6 +17,9 @@ trait JsonResponder {
   def java2Response[T <: Model](models: java.util.List[T]) =
     Ok(JavaJson.toJson(models).toString)
 
+  def java2Response[T <: Model](models: java.util.Set[T]) =
+    Ok(JavaJson.toJson(models).toString)
+
   def java2Response[T <: Model](model: T) =
     Ok(JavaJson.toJson(model).toString)
 

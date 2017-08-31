@@ -2,6 +2,8 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.base.GeneratedIdentityModel;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -217,6 +219,24 @@ public class Course extends GeneratedIdentityModel {
 
     public void setOrganisation(Organisation organisation) {
         this.organisation = organisation;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof Course)) return false;
+
+        Course course = (Course) o;
+
+        return new EqualsBuilder()
+                .append(code, course.code)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(code).toHashCode();
     }
 
     @Override
