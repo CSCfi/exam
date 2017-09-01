@@ -10,7 +10,6 @@ import models.Grade;
 import models.GradeScale;
 import models.Organisation;
 import models.User;
-import org.springframework.beans.BeanUtils;
 import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -134,8 +133,10 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             external.save();
         } else {
             // Existing course, update information
-            BeanUtils.copyProperties(external, local, "id", "objectVersion");
-            local.update();
+
+            // disabled for now.
+            // BeanUtils.copyProperties(external, local, "id", "objectVersion");
+            //local.update();
             external.setId(local.getId());
         }
     }
