@@ -1,7 +1,7 @@
 package system.actors;
 
-import akka.actor.UntypedActor;
-import com.avaje.ebean.Ebean;
+import akka.actor.AbstractActor;
+import io.ebean.Ebean;
 import models.Reservation;
 import org.joda.time.DateTime;
 import play.Logger;
@@ -10,7 +10,7 @@ import util.java.EmailComposer;
 
 import javax.inject.Inject;
 
-public class ReservationReminderActor extends UntypedActor {
+public class ReservationReminderActor extends AbstractActor {
 
     private EmailComposer emailComposer;
 
@@ -27,18 +27,20 @@ public class ReservationReminderActor extends UntypedActor {
     }
 
     @Override
-    public void onReceive(Object message) throws Exception {
-        Logger.debug("{}: Running reservation reminder task ...", getClass().getCanonicalName());
-        DateTime now = AppUtil.adjustDST(DateTime.now());
-        DateTime tomorrow = now.plusDays(1);
-        Ebean.find(Reservation.class)
-                .where()
-                .between("startAt", now, tomorrow)
-                .ne("reminderSent", true)
-                .findList()
-                .forEach(this::remind);
-        Logger.debug("{}: Reservation reminder task done", getClass().getCanonicalName());
+    public Receive createReceive() {
+        return receiveBuilder().match(String.class, s -> {
+            Logger.debug("{}: Running reservation reminder task ...", getClass().getCanonicalName());
+            DateTime now = AppUtil.adjustDST(DateTime.now());
+            DateTime tomorrow = now.plusDays(1);
+            Ebean.find(Reservation.class)
+                    .where()
+                    .between("startAt", now, tomorrow)
+                    .ne("reminderSent", true)
+                    .findList()
+                    .forEach(this::remind);
+            Logger.debug("{}: Reservation reminder task done", getClass().getCanonicalName());
 
+        }).build();
     }
 
 }

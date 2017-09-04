@@ -4,7 +4,7 @@ package system;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;

@@ -3,15 +3,14 @@ package controllers.iop;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.text.PathProperties;
+import io.ebean.Ebean;
+import io.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.CalendarController;
 import controllers.SettingsController;
-import controllers.iop.api.ExternalCalendarAPI;
 import exceptions.NotFoundException;
 import models.Exam;
 import models.ExamEnrolment;
@@ -48,7 +47,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 
-public class ExternalCalendarController extends CalendarController implements ExternalCalendarAPI {
+public class ExternalCalendarController extends CalendarController {
 
     @Inject
     private WSClient wsClient;
@@ -61,13 +60,10 @@ public class ExternalCalendarController extends CalendarController implements Ex
         return new URL(sb.toString());
     }
 
-    private static URL parseUrl(String orgRef, String facilityRef, String reservationRef)
+    private static URL parseUrl(String orgRef, String facilityRef)
             throws MalformedURLException {
         StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
         sb.append(String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
-        if (reservationRef != null) {
-            sb.append("/").append(reservationRef);
-        }
         return new URL(sb.toString());
     }
 
@@ -224,7 +220,7 @@ public class ExternalCalendarController extends CalendarController implements Ex
             return wrapAsPromise(error.get());
         }
         // Lets do this
-        URL url = parseUrl(orgRef, roomRef, null);
+        URL url = parseUrl(orgRef, roomRef);
         ObjectNode body = Json.newObject();
         body.put("requestingOrg", homeOrgRef);
         body.put("start", ISODateTimeFormat.dateTime().print(start));
@@ -245,47 +241,8 @@ public class ExternalCalendarController extends CalendarController implements Ex
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservationRemoval(String ref) throws MalformedURLException {
         User user = getLoggedUser();
-        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .fetch("reservation.machine")
-                .fetch("reservation.machine.room")
-                .where()
-                .eq("user.id", user.getId())
-                .eq("reservation.externalRef", ref)
-                .findUnique();
-        if (enrolment == null) {
-            return wrapAsPromise(notFound(String.format("No reservation with ref %s for current user.", ref)));
-        }
-        // Removal not permitted if reservation is in the past or ongoing
-        final Reservation reservation = enrolment.getReservation();
-        DateTime now = AppUtil.adjustDST(DateTime.now(), reservation.getExternalReservation());
-        if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
-        }
-        // good to go
-        ExternalReservation external = reservation.getExternalReservation();
-        URL url = parseUrl(external.getOrgRef(), external.getRoomRef(), ref);
-        WSRequest request = wsClient.url(url.toString());
-        Function<WSResponse, Result> onSuccess = response -> {
-            if (response.getStatus() != 200) {
-                JsonNode root = response.asJson();
-                return internalServerError(root.get("message").asText("Connection refused"));
-            }
-            enrolment.setReservation(null);
-            enrolment.setReservationCanceled(true);
-            Ebean.save(enrolment);
-            reservation.delete();
-
-            // send email asynchronously
-            boolean isStudentUser = user.equals(enrolment.getUser());
-            system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
-                Logger.info("Reservation cancellation confirmation email sent");
-            }, system.dispatcher());
-
-            return ok();
-        };
-        return request.delete().thenApplyAsync(onSuccess);
+        Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", ref).findUnique();
+        return externalReservationHandler.removeReservation(reservation, user);
     }
 
     @Restrict(@Group("STUDENT"))
@@ -478,18 +435,5 @@ public class ExternalCalendarController extends CalendarController implements Ex
                 .stream()
                 .anyMatch(r -> interval.overlaps(r.toInterval()));
     }
-
-    @Override
-    public CompletionStage<Result> removeReservation(Reservation reservation) {
-        if (reservation.getExternalReservation() == null) {
-            return wrapAsPromise(ok());
-        }
-        try {
-            return requestReservationRemoval(reservation.getExternalRef());
-        } catch (MalformedURLException e) {
-            return wrapAsPromise(internalServerError(e.getMessage()));
-        }
-    }
-
 
 }

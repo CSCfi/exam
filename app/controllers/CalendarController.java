@@ -3,11 +3,11 @@ package controllers;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
-import controllers.iop.api.ExternalCalendarAPI;
+import controllers.iop.api.ExternalReservationHandler;
 import exceptions.NotFoundException;
+import io.ebean.Ebean;
 import models.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -41,7 +41,7 @@ public class CalendarController extends BaseController {
     protected ActorSystem system;
 
     @Inject
-    private ExternalCalendarAPI externalCalendarAPI;
+    protected ExternalReservationHandler externalReservationHandler;
 
     private static final int LAST_HOUR = 23;
 
@@ -157,7 +157,7 @@ public class CalendarController extends BaseController {
         if (oldReservation != null) {
             String externalReference = oldReservation.getExternalRef();
             if (externalReference != null) {
-                return externalCalendarAPI.removeReservation(oldReservation)
+                return externalReservationHandler.removeReservation(oldReservation, user)
                         .thenCompose(result -> {
                             // Refetch enrolment, otherwise
                             ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());

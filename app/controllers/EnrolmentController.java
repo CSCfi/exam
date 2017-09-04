@@ -2,11 +2,11 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
-import controllers.iop.api.ExternalCalendarAPI;
+import controllers.iop.api.ExternalReservationHandler;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamExecutionType;
@@ -38,7 +38,7 @@ public class EnrolmentController extends BaseController {
     private ExternalCourseHandler externalCourseHandler;
 
     @Inject
-    private ExternalCalendarAPI externalCalendarAPI;
+    private ExternalReservationHandler externalReservationHandler;
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result enrollExamList(String code) {
@@ -230,7 +230,7 @@ public class EnrolmentController extends BaseController {
             } else if (reservation.toInterval().isAfterNow()) {
                 // reservation in the future, replace it
                 // pass this through externalAPI to see if there's something to remove externally also
-                return externalCalendarAPI.removeReservation(reservation).thenApplyAsync(result -> {
+                return externalReservationHandler.removeReservation(reservation, user).thenApplyAsync(result -> {
                     enrolment.delete();
                     ExamEnrolment newEnrolment = makeEnrolment(exam, user);
                     return ok(newEnrolment);

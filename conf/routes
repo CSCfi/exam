@@ -329,13 +329,12 @@ GET           /app/reports/reservations                                  control
 GET           /app/reports/responses                                     controllers.ReportController.getResponses(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 
 ########################################################
-GET           /assets/assets/images/nav/*file                            controllers.NavbarAssets.at(path="/public", file)
+GET           /assets/assets/images/nav/*file                            controllers.assets.NavbarAssets.at(path="/public", file)
 GET           /assets/*file                                              controllers.Assets.at(path="/public", file)
-GET           /webjars/*file                                             controllers.WebJarAssets.at(file)
 
 #######################################################
 GET           /attributes                                                controllers.SessionController.getAttributes
+->            /webjars                                                   webjars.Routes
 
 # reroute to front
 GET           /*path                                                     controllers.base.FrontendRouterController.routeToFront(path: String)
-

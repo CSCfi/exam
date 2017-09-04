@@ -1,10 +1,10 @@
 package models.questions;
 
-import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.annotation.EnumValue;
 import models.Attachment;
 import models.ExamSectionQuestion;
 import models.Tag;
@@ -32,14 +32,16 @@ import java.util.stream.StreamSupport;
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {
 
-    @EnumMapping(integerType = true, nameValuePairs = "MultipleChoiceQuestion=1, EssayQuestion=2, WeightedMultipleChoiceQuestion=3, ClozeTestQuestion=4")
     public enum Type {
-        MultipleChoiceQuestion, EssayQuestion, WeightedMultipleChoiceQuestion, ClozeTestQuestion
+        @EnumValue("1") MultipleChoiceQuestion,
+        @EnumValue("2") EssayQuestion,
+        @EnumValue("3") WeightedMultipleChoiceQuestion,
+        @EnumValue("4") ClozeTestQuestion
     }
 
-    @EnumMapping(integerType = true, nameValuePairs = "Points=1, Selection=2")
     public enum EvaluationType {
-        Points, Selection
+        @EnumValue("1") Points,
+        @EnumValue("2")Selection
     }
 
     @Column

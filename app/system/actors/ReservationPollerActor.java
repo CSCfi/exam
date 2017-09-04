@@ -1,7 +1,7 @@
 package system.actors;
 
-import akka.actor.UntypedActor;
-import com.avaje.ebean.Ebean;
+import akka.actor.AbstractActor;
+import io.ebean.Ebean;
 import models.Exam;
 import models.ExamEnrolment;
 import org.joda.time.DateTime;
@@ -12,7 +12,7 @@ import util.java.NoShowHandler;
 import javax.inject.Inject;
 import java.util.List;
 
-public class ReservationPollerActor extends UntypedActor {
+public class ReservationPollerActor extends AbstractActor {
 
     private NoShowHandler handler;
 
@@ -22,25 +22,27 @@ public class ReservationPollerActor extends UntypedActor {
     }
 
     @Override
-    public void onReceive(Object message) throws Exception {
-        Logger.debug("{}: Running no-show check ...", getClass().getCanonicalName());
-        DateTime now = AppUtil.adjustDST(DateTime.now());
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
-                .where()
-                .eq("reservation.noShow", false)
-                .lt("reservation.endAt", now.toDate())
-                .disjunction()
-                .eq("exam.state", Exam.State.PUBLISHED)
-                .isNull("externalExam.started")
-                .endJunction()
-                .findList();
+    public Receive createReceive() {
+        return receiveBuilder().match(String.class, s -> {
+            Logger.debug("{}: Running no-show check ...", getClass().getCanonicalName());
+            DateTime now = AppUtil.adjustDST(DateTime.now());
+            List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                    .fetch("exam")
+                    .where()
+                    .eq("reservation.noShow", false)
+                    .lt("reservation.endAt", now.toDate())
+                    .disjunction()
+                    .eq("exam.state", Exam.State.PUBLISHED)
+                    .isNull("externalExam.started")
+                    .endJunction()
+                    .findList();
 
-        if (enrolments.isEmpty()) {
-            Logger.debug("{}: ... none found.", getClass().getCanonicalName());
-        } else {
-            handler.handleNoShows(enrolments, getClass());
-        }
+            if (enrolments.isEmpty()) {
+                Logger.debug("{}: ... none found.", getClass().getCanonicalName());
+            } else {
+                handler.handleNoShows(enrolments, getClass());
+            }
+        }).build();
     }
 
 }

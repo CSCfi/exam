@@ -2,12 +2,12 @@ package controllers;
 
 import base.IntegrationTestCase;
 import base.RunAsStudent;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.text.json.EJson;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import helpers.RemoteServerHelper;
+import io.ebean.Ebean;
+import io.ebean.text.json.EJson;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamMachine;
@@ -90,7 +90,8 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         ee.setCreated(DateTime.now());
         ee.setCreator(user);
         ee.setContent(EJson.parseObject(
-                Files.toString(new File("test/resources/enrolment.json"), Charset.forName("UTF-8"))));
+                Files.asCharSource(new File("test/resources/enrolment.json"), Charset.forName("UTF-8")).read())
+        );
         ExamMachine machine = room.getExamMachines().get(0);
         machine.setIpAddress("127.0.0.1");
         machine.update();
@@ -108,7 +109,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         Result result = get("/app/enrolments/" + enrolment.getId());
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
-        ExamEnrolment data  = JsonDeserializer.deserialize(ExamEnrolment.class, node);
+        ExamEnrolment data = JsonDeserializer.deserialize(ExamEnrolment.class, node);
         assertThat(data.getExam()).isNotNull();
     }
 

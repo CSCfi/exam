@@ -2,11 +2,11 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.Model;
-import com.avaje.ebean.Query;
-import com.avaje.ebean.text.PathProperties;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.Model;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import controllers.base.BaseController;
@@ -391,7 +391,7 @@ public class QuestionController extends BaseController {
             return notFound();
         }
         final DynamicForm df = formFactory.form().bindFromRequest();
-        final String questionIds = df.data().get("questionIds");
+        final String questionIds = df.rawData().get("questionIds");
 
         if (questionIds == null || questionIds.isEmpty()) {
             return badRequest();

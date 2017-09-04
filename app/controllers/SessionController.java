@@ -3,13 +3,13 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectPresent;
-import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import controllers.iop.api.ExternalExamAPI;
 import exceptions.NotFoundException;
+import io.ebean.Ebean;
 import models.ExamEnrolment;
 import models.Language;
 import models.Organisation;
@@ -39,14 +39,18 @@ import java.util.concurrent.CompletionStage;
 
 public class SessionController extends BaseController {
 
-    @Inject
-    private Environment environment;
+    private final Environment environment;
+
+    private final ExternalExamAPI externalExamAPI;
+
+    private final HttpExecutionContext ec;
 
     @Inject
-    private ExternalExamAPI externalExamAPI;
-
-    @Inject
-    private HttpExecutionContext ec;
+    public SessionController(Environment environment, ExternalExamAPI externalExamAPI, HttpExecutionContext ec) {
+        this.environment = environment;
+        this.externalExamAPI = externalExamAPI;
+        this.ec = ec;
+    }
 
 
     @ActionMethod
@@ -66,7 +70,7 @@ public class SessionController extends BaseController {
     }
 
     private CompletionStage<Result> hakaLogin() {
-        Optional<String> id = parse(request().getHeader("eppn"));
+        Optional<String> id = parse(request().header("eppn").orElse("")); //TODO: check this shit out
         if (!id.isPresent()) {
             return wrapAsPromise(badRequest("No credentials!"));
         }
@@ -183,12 +187,12 @@ public class SessionController extends BaseController {
     }
 
     private Optional<String> parseDisplayName(Http.Request request) {
-        return parse(request.getHeader("displayName")).map(n ->
+        return parse(request.header("displayName").orElse("")).map(n ->
                 n.indexOf(" ") > 0 ? n.substring(0, n.lastIndexOf(" ")) : n);
     }
 
     private String parseGivenName(Http.Request request) {
-        return parse(request.getHeader("givenName"))
+        return parse(request.header("givenName").orElse(""))
                 .orElse(parseDisplayName(request)
                         .orElseThrow(IllegalArgumentException::new));
     }
@@ -198,24 +202,26 @@ public class SessionController extends BaseController {
     }
 
     private void updateUser(User user) throws AddressException {
-        user.setOrganisation(parse(request().getHeader("homeOrganisation"))
+        user.setOrganisation(parse(request().header("homeOrganisation").orElse(""))
                 .map(this::findOrganisation).orElse(null));
-        user.setUserIdentifier(parse(request().getHeader("schacPersonalUniqueCode"))
+        user.setUserIdentifier(parse(request().header("schacPersonalUniqueCode").orElse(""))
                 .map(this::parseUserIdentifier).orElse(null));
-        user.setEmail(parse(request().getHeader("mail"))
+        user.setEmail(parse(request().header("mail").orElse(""))
                 .flatMap(this::validateEmail).orElseThrow(AddressException::new));
 
-        user.setLastName(parse(request().getHeader("sn")).orElseThrow(IllegalArgumentException::new));
+        user.setLastName(parse(request().header("sn").orElse(""))
+                .orElseThrow(IllegalArgumentException::new));
         user.setFirstName(parseGivenName(request()));
-        user.setEmployeeNumber(parse(request().getHeader("employeeNumber")).orElse(null));
-        user.setLogoutUrl(parse(request().getHeader("logouturl")).orElse(null));
+        user.setEmployeeNumber(parse(request().header("employeeNumber").orElse("")).orElse(null));
+        user.setLogoutUrl(parse(request().header("logouturl").orElse("")).orElse(null));
     }
 
     private User createNewUser(String eppn, boolean ignoreRoleNotFound) throws NotFoundException, AddressException {
         User user = new User();
-        user.getRoles().addAll(parseRoles(parse(request().getHeader("unscoped-affiliation"))
+        user.getRoles().addAll(parseRoles(parse(request().header("unscoped-affiliation").orElse(""))
                 .orElseThrow(NotFoundException::new), ignoreRoleNotFound));
-        user.setLanguage(getLanguage(parse(request().getHeader("preferredLanguage")).orElse(null)));
+        user.setLanguage(getLanguage(parse(request().header("preferredLanguage").orElse(""))
+                .orElse(null)));
         user.setEppn(eppn);
         updateUser(user);
         return user;
@@ -250,11 +256,11 @@ public class SessionController extends BaseController {
 
     // prints HAKA attributes, used for debugging
     public Result getAttributes() {
-        Map<String, String[]> attributes = request().headers();
+        Http.Headers attributes = request().getHeaders();
         ObjectNode node = Json.newObject();
 
-        for (Map.Entry<String, String[]> entry : attributes.entrySet()) {
-            node.put(entry.getKey(), Arrays.toString(entry.getValue()));
+        for (Map.Entry<String, List<String>> entry : attributes.toMap().entrySet()) {
+            node.put(entry.getKey(), String.join(", ",entry.getValue()));
         }
 
         return ok(node);

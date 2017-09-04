@@ -1,9 +1,9 @@
 package system;
 
 
-import com.avaje.ebean.Ebean;
 import com.google.inject.Inject;
 import controllers.base.BaseController;
+import io.ebean.Ebean;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamMachine;
@@ -15,7 +15,7 @@ import org.joda.time.Minutes;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Environment;
 import play.Logger;
-import play.cache.CacheApi;
+import play.cache.SyncCacheApi;
 import play.http.ActionCreator;
 import play.mvc.Action;
 import play.mvc.Http;
@@ -36,18 +36,18 @@ public class SystemRequestHandler implements ActionCreator {
 
     private static final String SITNET_FAILURE_HEADER_KEY = "x-exam-token-failure";
 
-    protected CacheApi cache;
+    protected SyncCacheApi cache;
     protected Environment environment;
 
     @Inject
-    public SystemRequestHandler(CacheApi cache, Environment environment) {
+    public SystemRequestHandler(SyncCacheApi cache, Environment environment) {
         this.cache = cache;
         this.environment = environment;
     }
 
     @Override
     public Action createAction(Http.Request request, Method actionMethod) {
-        String token = BaseController.getToken(request);
+        String token = BaseController.getToken(request).orElse("");
         Session session = cache.get(BaseController.SITNET_CACHE_KEY + token);
         boolean temporalStudent = session != null && session.isTemporalStudent();
         User user = session == null ? null : Ebean.find(User.class, session.getUserId());

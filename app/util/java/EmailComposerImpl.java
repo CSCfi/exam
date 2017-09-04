@@ -5,7 +5,7 @@ import biweekly.ICalVersion;
 import biweekly.ICalendar;
 import biweekly.component.VEvent;
 import biweekly.property.Summary;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import com.typesafe.config.ConfigFactory;
 import models.*;
 import org.apache.commons.mail.EmailAttachment;

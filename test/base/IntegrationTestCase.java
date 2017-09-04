@@ -1,14 +1,14 @@
 package base;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.config.ServerConfig;
-import com.avaje.ebeaninternal.api.SpiEbeanServer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
+import io.ebean.config.ServerConfig;
+import io.ebeaninternal.api.SpiEbeanServer;
 import models.*;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
@@ -176,12 +176,12 @@ public class IntegrationTestCase {
     protected Result request(String method, String path, JsonNode body, Map<String, String> headers, boolean followRedirects) {
         Http.RequestBuilder request = fakeRequest(method, path);
         for (Map.Entry<String, String> header : headers.entrySet()) {
-            request.headers().put(header.getKey(), new String[]{header.getValue()});
+            request = request.header(header.getKey(), header.getValue());
         }
         if (body != null && !method.equals(Helpers.GET)) {
             request = request.bodyJson(body);
         }
-        Result result = Helpers.route(request);
+        Result result = Helpers.route(app, request);
         if (followRedirects && result.redirectLocation().isPresent()) {
             return request(method, result.redirectLocation().get(), body, headers, false);
         } else {
@@ -322,17 +322,18 @@ public class IntegrationTestCase {
     private void addTestData() throws Exception {
         int userCount;
         try {
-            userCount = Ebean.find(User.class).findRowCount();
+            userCount = Ebean.find(User.class).findCount();
         } catch (PersistenceException e) {
             // Tables are likely not there yet, skip this.
             return;
         }
         if (userCount == 0) {
+
             Yaml yaml = new Yaml(new JodaPropertyConstructor());
             InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
             Map<String, List<Object>> all = (Map<String, List<Object>>) yaml.load(is);
             is.close();
-            if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
+            if (Ebean.find(Language.class).findCount() == 0) { // Might already be inserted by evolution
                 Ebean.saveAll(all.get("languages"));
             }
             Ebean.saveAll(all.get("organisations"));
@@ -340,10 +341,10 @@ public class IntegrationTestCase {
 
             addTestUsers(all);
 
-            if (Ebean.find(GradeScale.class).findRowCount() == 0) { // Might already be inserted by evolution
+            if (Ebean.find(GradeScale.class).findCount() == 0) { // Might already be inserted by evolution
                 Ebean.saveAll(all.get("grade-scales"));
             }
-            if (Ebean.find(Grade.class).findRowCount() == 0) { // Might already be inserted by evolution
+            if (Ebean.find(Grade.class).findCount() == 0) { // Might already be inserted by evolution
                 Ebean.saveAll(all.get("grades"));
             }
             Ebean.saveAll(all.get("question-essay"));

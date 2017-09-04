@@ -1,7 +1,7 @@
 package models.json;
 
-import com.avaje.ebean.annotation.DbJsonB;
-import com.avaje.ebean.text.json.EJson;
+import io.ebean.annotation.DbJsonB;
+import io.ebean.text.json.EJson;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.Exam;

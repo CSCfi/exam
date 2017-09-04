@@ -2,7 +2,7 @@ package controllers;
 
 import base.IntegrationTestCase;
 import base.RunAsStudent;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;

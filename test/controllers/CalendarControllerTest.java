@@ -2,7 +2,7 @@ package controllers;
 
 import base.IntegrationTestCase;
 import base.RunAsStudent;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;

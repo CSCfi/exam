@@ -1,9 +1,9 @@
 package util.scala
 
-import com.avaje.ebean.Ebean
+import io.ebean.Ebean
 import com.typesafe.config.ConfigFactory
 import models.{Session, User}
-import play.api.cache.CacheApi
+import play.api.cache.SyncCacheApi
 import play.api.mvc.Results
 
 
@@ -13,7 +13,7 @@ trait Authenticator {
 
   val SITNET_CACHE_KEY = "user.session."
 
-  val sessionCache: CacheApi
+  val sessionCache: SyncCacheApi
 
   def getAuthHeaderName: String = LOGIN_TYPE match {
     case "HAKA" => "Shib-Session-Id"
@@ -21,7 +21,7 @@ trait Authenticator {
   }
 
   def getSession(token: String): Session = {
-    sessionCache.getOrElse[Session](SITNET_CACHE_KEY + token) {
+    sessionCache.getOrElseUpdate[Session](SITNET_CACHE_KEY + token) {
       null
     }
   }

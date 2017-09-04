@@ -1,7 +1,7 @@
 package models;
 
 
-import com.avaje.ebean.annotation.EnumMapping;
+import io.ebean.annotation.EnumValue;
 import models.base.GeneratedIdentityModel;
 
 import javax.persistence.Entity;
@@ -10,8 +10,8 @@ import javax.persistence.Transient;
 @Entity
 public class Permission extends GeneratedIdentityModel implements be.objectify.deadbolt.java.models.Permission {
 
-    @EnumMapping(integerType = true, nameValuePairs = "CAN_INSPECT_LANGUAGE=1")
     public enum Type {
+        @EnumValue("1")
         CAN_INSPECT_LANGUAGE
     }
 

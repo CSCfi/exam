@@ -1,8 +1,8 @@
 package util.java;
 
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import models.Comment;

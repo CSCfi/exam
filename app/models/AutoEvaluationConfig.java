@@ -1,13 +1,19 @@
 package models;
 
-import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import io.ebean.annotation.EnumValue;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -18,14 +24,12 @@ import java.util.stream.Collectors;
 @Entity
 public class AutoEvaluationConfig extends GeneratedIdentityModel {
 
-    @EnumMapping(integerType = true, nameValuePairs =
-            "IMMEDIATE=1, GIVEN_DATE=2, GIVEN_AMOUNT_DAYS=3, AFTER_EXAM_PERIOD=4, NEVER=5")
     public enum ReleaseType  {
-        IMMEDIATE,
-        GIVEN_DATE,
-        GIVEN_AMOUNT_DAYS,
-        AFTER_EXAM_PERIOD,
-        NEVER
+        @EnumValue("1") IMMEDIATE,
+        @EnumValue("2") GIVEN_DATE,
+        @EnumValue("3") GIVEN_AMOUNT_DAYS,
+        @EnumValue("4") AFTER_EXAM_PERIOD,
+        @EnumValue("5") NEVER
     }
 
     private ReleaseType releaseType;

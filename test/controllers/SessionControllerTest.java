@@ -1,7 +1,7 @@
 package controllers;
 
 import base.IntegrationTestCase;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import models.Role;
 import models.User;
 import org.junit.Test;

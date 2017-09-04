@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import io.ebean.Finder;
 import models.base.GeneratedIdentityModel;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
@@ -384,7 +385,6 @@ public class ExamRoom extends GeneratedIdentityModel {
         }
     }
 
-    public static final Find<Long, ExamRoom> find = new Find<Long, ExamRoom>() {
-    };
+    public static final Finder<Long, ExamRoom> find = new Finder<>(ExamRoom.class);
 
 }

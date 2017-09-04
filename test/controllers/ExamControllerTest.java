@@ -3,7 +3,7 @@ package controllers;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import models.Exam;
@@ -80,7 +80,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testCreateDraftExam() {
         // Setup
-        int originalRowCount = Ebean.find(Exam.class).findRowCount();
+        int originalRowCount = Ebean.find(Exam.class).findCount();
 
         // Execute
         Result result = request(Helpers.POST, "/app/exams", Json.newObject().put("executionType", "PUBLIC"));
@@ -103,7 +103,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(draft.getExamLanguages().get(0).getCode()).isEqualTo("fi");
         assertThat(draft.getExamType().getId()).isEqualTo(2);
         assertThat(draft.getExpanded()).isTrue();
-        int rowCount = Ebean.find(Exam.class).findRowCount();
+        int rowCount = Ebean.find(Exam.class).findCount();
         assertThat(rowCount).isEqualTo(originalRowCount + 1);
     }
 

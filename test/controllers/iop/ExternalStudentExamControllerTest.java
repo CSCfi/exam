@@ -2,8 +2,6 @@ package controllers.iop;
 
 import base.IntegrationTestCase;
 import base.RunAsStudent;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.text.json.EJson;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -11,6 +9,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.io.Files;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetup;
+import io.ebean.Ebean;
+import io.ebean.text.json.EJson;
 import models.*;
 import models.json.ExternalExam;
 import models.questions.ClozeTestAnswer;
@@ -56,7 +56,8 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         ee.setCreated(DateTime.now());
         ee.setCreator(user);
         ee.setContent(EJson.parseObject(
-                Files.toString(new File("test/resources/enrolment.json"), Charset.forName("UTF-8"))));
+                Files.asCharSource(new File("test/resources/enrolment.json"), Charset.forName("UTF-8")).read())
+        );
         ExamRoom room = Ebean.find(ExamRoom.class, 1L);
         machine = room.getExamMachines().get(0);
         machine.setIpAddress("127.0.0.1"); // so that the IP check won't fail

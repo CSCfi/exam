@@ -1,12 +1,12 @@
 package models;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.FetchConfig;
-import com.avaje.ebean.Query;
-import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.ebean.Ebean;
+import io.ebean.FetchConfig;
+import io.ebean.Query;
+import io.ebean.annotation.EnumValue;
 import models.api.AttachmentContainer;
 import models.base.OwnedModel;
 import models.questions.Question;
@@ -25,22 +25,20 @@ import java.util.*;
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentContainer {
 
-    @EnumMapping(integerType = true, nameValuePairs = "DRAFT=1, SAVED=2, PUBLISHED=3, STUDENT_STARTED=4, REVIEW=5, " +
-            "REVIEW_STARTED=6, GRADED=7, GRADED_LOGGED=8, ARCHIVED=9, ABORTED=10, DELETED=11, REJECTED=12")
     public enum State {
-        DRAFT,
-        SAVED,
-        PUBLISHED,       // EXAM PUBLISHED, VISIBLE TO STUDENTS AND READY FOR TAKING
-        STUDENT_STARTED, // EXAM STARTED BY STUDENT
-        REVIEW,          // EXAM RETURNED BY STUDENT AND READY FOR REVIEW
-        REVIEW_STARTED,  // REVIEW STARTED BY TEACHERS
-        GRADED,          // GRADE GIVEN
+        @EnumValue("1") DRAFT,
+        @EnumValue("2") SAVED,
+        @EnumValue("3") PUBLISHED,       // EXAM PUBLISHED, VISIBLE TO STUDENTS AND READY FOR TAKING
+        @EnumValue("4") STUDENT_STARTED, // EXAM STARTED BY STUDENT
+        @EnumValue("5") REVIEW,          // EXAM RETURNED BY STUDENT AND READY FOR REVIEW
+        @EnumValue("6") REVIEW_STARTED,  // REVIEW STARTED BY TEACHERS
+        @EnumValue("7") GRADED,          // GRADE GIVEN
         /* FINAL STATES */
-        GRADED_LOGGED,   // EXAM PROCESSED AND READY FOR REGISTRATION
-        ARCHIVED,        // EXAM ARCHIVED FOR CERTAIN PERIOD AFTER WHICH IT GETS DELETED
-        ABORTED,         // EXAM ABORTED BY STUDENT WHILST TAKING
-        DELETED,         // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
-        REJECTED         // EXAM NOT QUALIFIED FOR REGISTRATION
+        @EnumValue("8") GRADED_LOGGED,   // EXAM PROCESSED AND READY FOR REGISTRATION
+        @EnumValue("9") ARCHIVED,        // EXAM ARCHIVED FOR CERTAIN PERIOD AFTER WHICH IT GETS DELETED
+        @EnumValue("10") ABORTED,         // EXAM ABORTED BY STUDENT WHILST TAKING
+        @EnumValue("11") DELETED,         // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
+        @EnumValue("12") REJECTED         // EXAM NOT QUALIFIED FOR REGISTRATION
     }
 
     private String name;

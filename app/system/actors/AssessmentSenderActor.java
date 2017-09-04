@@ -1,11 +1,11 @@
 package system.actors;
 
-import akka.actor.UntypedActor;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.text.PathProperties;
+import akka.actor.AbstractActor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
+import io.ebean.text.PathProperties;
 import models.ExamEnrolment;
 import models.json.ExternalExam;
 import org.joda.time.DateTime;
@@ -21,7 +21,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.function.Function;
 
-public class AssessmentSenderActor extends UntypedActor {
+public class AssessmentSenderActor extends AbstractActor {
 
     private WSClient wsClient;
 
@@ -31,23 +31,25 @@ public class AssessmentSenderActor extends UntypedActor {
     }
 
     @Override
-    public void onReceive(Object message) throws Exception {
-        Logger.debug("{}: Running assessment sender ...", getClass().getCanonicalName());
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .where()
-                .isNotNull("externalExam")
-                .isNull("externalExam.sent")
-                .isNotNull("externalExam.started")
-                .isNotNull("externalExam.finished")
-                .isNotNull("reservation.externalRef")
-                .findList();
-        enrolments.forEach(e -> {
-            try {
-                send(e);
-            } catch (IOException ex) {
-                Logger.error("I/O failure while sending exam to XM");
-            }
-        });
+    public Receive createReceive() {
+        return receiveBuilder().match(String.class, s -> {
+            Logger.debug("{}: Running assessment sender ...", getClass().getCanonicalName());
+            List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                    .where()
+                    .isNotNull("externalExam")
+                    .isNull("externalExam.sent")
+                    .isNotNull("externalExam.started")
+                    .isNotNull("externalExam.finished")
+                    .isNotNull("reservation.externalRef")
+                    .findList();
+            enrolments.forEach(e -> {
+                try {
+                    send(e);
+                } catch (IOException ex) {
+                    Logger.error("I/O failure while sending exam to XM");
+                }
+            });
+        }).build();
     }
 
     private void send(ExamEnrolment enrolment) throws IOException {

@@ -1,7 +1,7 @@
 package util.java;
 
 
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import models.ExamRecord;
 import models.dto.ExamScore;
 import org.apache.poi.ss.usermodel.Row;

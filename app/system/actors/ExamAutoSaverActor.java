@@ -1,8 +1,8 @@
 package system.actors;
 
-import akka.actor.UntypedActor;
-import com.avaje.ebean.Ebean;
+import akka.actor.AbstractActor;
 import controllers.SettingsController;
+import io.ebean.Ebean;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamInspection;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ExamAutoSaverActor extends UntypedActor {
+public class ExamAutoSaverActor extends AbstractActor {
 
     private EmailComposer composer;
 
@@ -33,13 +33,15 @@ public class ExamAutoSaverActor extends UntypedActor {
     }
 
     @Override
-    public void onReceive(Object message) throws Exception {
-        Logger.debug("{}: Checking for ongoing exams ...", getClass().getCanonicalName());
-        checkLocalExams(message);
-        checkExternalExams();
+    public Receive createReceive() {
+        return receiveBuilder().match(String.class, s -> {
+            Logger.debug("{}: Checking for ongoing exams ...", getClass().getCanonicalName());
+            checkLocalExams();
+            checkExternalExams();
+        }).build();
     }
 
-    private void checkLocalExams(Object message) {
+    private void checkLocalExams() {
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
                 .fetch("reservation")

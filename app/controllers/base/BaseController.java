@@ -1,19 +1,19 @@
 package controllers.base;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.typesafe.config.ConfigFactory;
 import exceptions.MalformedDataException;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.text.PathProperties;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
 import models.Session;
 import models.User;
 import models.api.CountsAsTrial;
-import play.cache.CacheApi;
+import play.cache.SyncCacheApi;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -47,7 +48,7 @@ public class BaseController extends Controller {
     private static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
 
     @Inject
-    protected CacheApi cache;
+    protected SyncCacheApi cache;
     @Inject
     protected FormFactory formFactory;
     @Inject
@@ -111,61 +112,39 @@ public class BaseController extends Controller {
         return created(body).as("application/json");
     }
 
-    private String createToken() {
-        String token;
-        if (LOGIN_TYPE.equals("HAKA")) {
-            token = request().getHeader("Shib-Session-ID");
-        } else {
-            token = UUID.randomUUID().toString();
-        }
-        return token;
+    private Optional<String> createToken() {
+        return LOGIN_TYPE.equals("HAKA") ?
+                request().header("Shib-Session-ID") :
+                Optional.of(UUID.randomUUID().toString());
     }
 
-    private String getToken() {
-        String token;
-        if (LOGIN_TYPE.equals("HAKA")) {
-            token = request().getHeader("Shib-Session-ID");
-        } else {
-            token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
-        }
-        return token;
+    private Optional<String> getToken() {
+        return request().header(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
     }
 
-    public static String getToken(Http.RequestHeader request) {
-        String token;
-        if (LOGIN_TYPE.equals("HAKA")) {
-            token = request.getHeader("Shib-Session-ID");
-        } else {
-            token = request.getHeader(SITNET_TOKEN_HEADER_KEY);
-        }
-        return token;
+    public static Optional<String> getToken(Http.RequestHeader request) {
+        return request.header(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
     }
 
-    public static String getToken(Http.Context context) {
-        String token;
-        if (LOGIN_TYPE.equals("HAKA")) {
-            token = context.request().getHeader("Shib-Session-ID");
-        } else {
-            token = context.request().getHeader(SITNET_TOKEN_HEADER_KEY);
-        }
-        return token;
+    public static Optional<String> getToken(Http.Context context) {
+        return getToken(context.request());
     }
 
     protected User getLoggedUser() {
-        Session session = cache.get(SITNET_CACHE_KEY + getToken());
+        Session session = cache.get(SITNET_CACHE_KEY + getToken().orElse(""));
         return Ebean.find(User.class, session.getUserId());
     }
 
     protected Session getSession() {
-        return cache.get(SITNET_CACHE_KEY + getToken());
+        return cache.get(SITNET_CACHE_KEY + getToken().orElse(""));
     }
 
     protected void updateSession(Session session) {
-        cache.set(SITNET_CACHE_KEY + getToken(), session);
+        cache.set(SITNET_CACHE_KEY + getToken().orElse(""), session);
     }
 
     protected String createSession(Session session) {
-        String token = createToken();
+        String token = createToken().orElse("INVALID");
         cache.set(SITNET_CACHE_KEY + token, session);
         return token;
     }
@@ -237,7 +216,7 @@ public class BaseController extends Controller {
                 .eq("exam.id", examId)
                 .eq("exam.state", Exam.State.PUBLISHED)
                 .findList();
-        noShowHandler.handleNoShows(enrolments,  null);
+        noShowHandler.handleNoShows(enrolments, null);
     }
 
     protected boolean isAllowedToParticipate(Exam exam, User user, EmailComposer composer) {

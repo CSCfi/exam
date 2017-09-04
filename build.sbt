@@ -2,15 +2,15 @@ import scala.util.Properties
 
 name := "exam"
 
-version := "3.3.1-DEV"
+version := "3.3.2-DEV"
 
 lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 scalaVersion := "2.11.8"
 
-libraryDependencies ++= Seq(javaJdbc, cache , javaWs, evolutions, filters,
+libraryDependencies ++= Seq(javaJdbc, ehcache, ws, evolutions, filters, guice,
   "org.postgresql" % "postgresql" % "42.0.0",
-  "be.objectify" %% "deadbolt-java" % "2.5.0",
+  "be.objectify" %% "deadbolt-java" % "2.6.0",
   "org.apache.commons" % "commons-email" % "1.4",
   "org.apache.poi" % "poi" % "3.16",
   "org.apache.poi" % "poi-ooxml" % "3.16",
@@ -23,14 +23,15 @@ libraryDependencies ++= Seq(javaJdbc, cache , javaWs, evolutions, filters,
   "com.icegreen" % "greenmail" % "1.5.5" % "test",
   "org.eclipse.jetty" % "jetty-server" % "9.4.4.v20170414" % "test",
   "org.eclipse.jetty" % "jetty-servlet" % "9.4.4.v20170414" % "test",
-  "org.easytesting" % "fest-assert" % "1.4" % "test"
+  "org.easytesting" % "fest-assert" % "1.4" % "test",
+  "org.yaml" % "snakeyaml" % "1.17" % "test"
 )
 
 // Angular version. Remember to change locale location pattern in app.js when changing this!
 val ngVersion = "1.5.3"
 
 libraryDependencies ++= Seq(
-  "org.webjars" %% "webjars-play" % "2.5.0",
+  "org.webjars" %% "webjars-play" % "2.6.2",
   "org.webjars.bower" % "angular" % ngVersion,
   "org.webjars.bower" % "angular-animate" %  ngVersion,
   "org.webjars.bower" % "angular-cookies" %  ngVersion,

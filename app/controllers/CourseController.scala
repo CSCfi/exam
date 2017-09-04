@@ -2,10 +2,10 @@ package controllers
 
 import javax.inject.Inject
 
-import com.avaje.ebean.Ebean
+import io.ebean.Ebean
 import models.{Course, User}
-import play.api.cache.CacheApi
-import play.api.mvc.{Action, AnyContent, Controller, Result}
+import play.api.cache.SyncCacheApi
+import play.api.mvc.{Action, AnyContent, InjectedController, Result}
 import play.libs.Json
 import util.java.ExternalCourseHandler
 import util.scala.{Authenticator, JsonResponder}
@@ -16,10 +16,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 
-class CourseController @Inject()(externalApi: ExternalCourseHandler, cache: CacheApi) extends Controller
-  with Authenticator with JsonResponder {
+class CourseController @Inject()(externalApi: ExternalCourseHandler, cache: SyncCacheApi)
+  extends InjectedController with Authenticator with JsonResponder {
 
-  override val sessionCache: CacheApi = cache
+  override val sessionCache: SyncCacheApi = cache
   val CriteriaLengthLimiter = 2
 
   def listCourses(filterType: Option[String], criteria: Option[String], user: User): Future[Result] = {
