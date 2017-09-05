@@ -6,7 +6,7 @@ version := "3.3.2-DEV"
 
 lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.11"
 
 libraryDependencies ++= Seq(javaJdbc, ehcache, ws, evolutions, filters, guice,
   "org.postgresql" % "postgresql" % "42.0.0",

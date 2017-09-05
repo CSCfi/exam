@@ -1,6 +1,5 @@
 package controllers.base;
 
-import controllers.WebJarAssets;
 import org.webjars.play.WebJarsUtil;
 import play.Environment;
 import play.mvc.Controller;
@@ -10,11 +9,15 @@ import javax.inject.Inject;
 
 public class Index extends Controller {
 
-    @Inject
-    protected Environment environment;
+    private final Environment environment;
+
+    private final WebJarsUtil webJarsUtil;
 
     @Inject
-    WebJarsUtil webJarsUtil;
+    public Index(Environment environment, WebJarsUtil webJarsUtil) {
+        this.environment = environment;
+        this.webJarsUtil = webJarsUtil;
+    }
 
     public Result index() {
         return ok(views.html.index.render(webJarsUtil, environment.isProd()));
