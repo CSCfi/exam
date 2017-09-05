@@ -5,7 +5,7 @@
                 <span class="student-enroll-title marl20">{{'sitnet_monthly_language_inspection_report' | translate}}</span>
                 <span class="print-only compact-header-text">{{$ctrl.selection.month | date:'MM/yyyy'}}</span>
             </div>
-            <div class="review-attachment-button print-button pull-right marr20">
+            <div class="review-attachment-button print-button pull-right marr20 no-print">
                 <a ng-click="$ctrl.printReport()" class="pointer">
                     {{'sitnet_print' | translate}}&nbsp;&nbsp;
                 </a>
@@ -15,7 +15,7 @@
 
     <div class="tab-wrapper-exams">
         <!-- Datepicker -->
-        <div class="col-md-2">
+        <div class="col-md-2 no-print">
             <label for="month">{{'sitnet_month' | translate}}:</label>
 
             <p id="month" class="input-group">
@@ -55,7 +55,7 @@
                         <th>{{ 'sitnet_language_inspector' | translate }}</th>
                         <th>{{ 'sitnet_inspection_finished' | translate }}</th>
                         <th>{{ 'sitnet_language_inspections' | translate }}</th>
-                        <th>{{ 'sitnet_feedback' | translate }}</th>
+                        <th class="no-print">{{ 'sitnet_feedback' | translate }}</th>
                     </tr>
                     </thead>
 
@@ -64,9 +64,9 @@
                         <td>{{ inspection.exam.course.code }}</td>
                         <td>{{ inspection.exam.name }}</td>
                         <td>
-                                <span ng-repeat="owner in inspection.exam.parent.examOwners">
-                                    {{ owner.firstName }} {{ owner.lastName}} {{ $last ? '' : ', ' }}
-                                </span>
+                            <span ng-repeat="owner in inspection.exam.parent.examOwners">
+                                {{ owner.firstName }} {{ owner.lastName}} {{ $last ? '' : ', ' }}
+                            </span>
                         </td>
                         <td>{{ inspection.created | date:'dd.MM.yyyy' }}</td>
                         <td>
@@ -85,7 +85,7 @@
                         <td ng-class="inspection.approved ? 'text-success' : 'text-danger'">
                             <strong>{{ inspection.approved ? 'sitnet_approved' : 'sitnet_rejected' | translate
                                 }}</strong></td>
-                        <td><a class="pointer" ng-click="$ctrl.showStatement(inspection.statement)">{{ 'sitnet_view' |
+                        <td class="no-print"><a class="pointer" ng-click="$ctrl.showStatement(inspection.statement)">{{ 'sitnet_view' |
                             translate }}</a></td>
                     </tr>
                     </tbody>

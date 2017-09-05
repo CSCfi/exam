@@ -44,6 +44,10 @@ p {
   @media (max-width: $sitnet-mobile) {
     margin-left: 0;
   }
+
+  @media print {
+    overflow-x: visible;
+  }
 }
 
 .vmenu-on-admin {
@@ -54,6 +58,8 @@ p {
   @media (max-width: $sitnet-mobile) {
     margin-left: 0;
   }
+
+
 }
 
 .vmenu-off {
