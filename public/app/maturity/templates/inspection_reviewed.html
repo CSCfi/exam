@@ -1,9 +1,9 @@
 <div class="main-row">
     <div class="col-md-12">
         <div class="review-list-title">{{ 'sitnet_processed_language_inspections' | translate }}
-            <span>{{ $ctrl.getProcessedInspectionsDetails() }}<!--,&nbsp;-->
+            <span>{{ $ctrl.getProcessedInspectionsDetails() }}&nbsp;
                 <!-- DISABLED UNTIL REPORT VIEW FIXED -->
-                <!--a href="/inspections/reports">{{'sitnet_language_inspection_report_link' | translate}}</a-->
+                <a href="/inspections/reports">{{'sitnet_language_inspection_report_link' | translate}}</a>
             </span>
             <a ng-if="$ctrl.processedInspections.length > 0" ng-click="$ctrl.hideProcessed = !$ctrl.hideProcessed"
                class="pointer">

@@ -147,10 +147,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
         /* Language inspectors */
         $routeProvider.when('/inspections', {template: '<language-inspections></language-inspections>'});
-        $routeProvider.when('/inspections/reports', {
-            templateUrl: tmpl + 'maturity/monthly_report.html',
-            controller: 'LanguageInspectionCtrl'
-        });
+        $routeProvider.when('/inspections/reports', {template: '<maturity-reporting></maturity-reporting>'});
 
         $routeProvider.otherwise({redirectTo: '/'});
     }

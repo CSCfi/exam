@@ -676,6 +676,12 @@
     }
   }
 
+  @media screen {
+    .print-only {
+      display: none !important;
+    }
+  }
+
   @media print {
 
     a[href]:after {
