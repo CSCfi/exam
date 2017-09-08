@@ -160,7 +160,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
     @SubjectNotPresent
     public Result addNoShow(String ref) {
         ExamEnrolment enrolment = getPrototype(ref);
-        noShowHandler.handleNoShowAndNotify(enrolment);
+        noShowHandler.handleNoShowAndNotify(enrolment.getReservation());
         return ok();
     }
 

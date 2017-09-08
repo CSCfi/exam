@@ -2,8 +2,7 @@ package system.actors;
 
 import akka.actor.AbstractActor;
 import io.ebean.Ebean;
-import models.Exam;
-import models.ExamEnrolment;
+import models.Reservation;
 import org.joda.time.DateTime;
 import play.Logger;
 import util.AppUtil;
@@ -26,22 +25,22 @@ public class ReservationPollerActor extends AbstractActor {
         return receiveBuilder().match(String.class, s -> {
             Logger.debug("{}: Running no-show check ...", getClass().getCanonicalName());
             DateTime now = AppUtil.adjustDST(DateTime.now());
-            List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                    .fetch("exam")
+            List<Reservation> reservations = Ebean.find(Reservation.class)
+                    .fetch("enrolment")
+                    .fetch("enrolment.exam")
+                    .fetch("enrolment.externalExam")
                     .where()
-                    .eq("reservation.noShow", false)
-                    .lt("reservation.endAt", now.toDate())
-                    .disjunction()
-                    .eq("exam.state", Exam.State.PUBLISHED)
-                    .isNull("externalExam.started")
-                    .endJunction()
+                    .eq("noShow", false)
+                    .lt("endAt", now.toDate())
+                    .isNull("externalReservation")
                     .findList();
 
-            if (enrolments.isEmpty()) {
+            if (reservations.isEmpty()) {
                 Logger.debug("{}: ... none found.", getClass().getCanonicalName());
             } else {
-                handler.handleNoShows(enrolments, getClass());
+                handler.handleNoShows(reservations);
             }
+
         }).build();
     }
 

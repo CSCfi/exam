@@ -10,6 +10,7 @@ import io.ebean.text.PathProperties;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
+import models.Reservation;
 import models.Session;
 import models.User;
 import models.api.CountsAsTrial;
@@ -207,16 +208,19 @@ public class BaseController extends Controller {
     }
 
     private void handleNoShow(User user, Long examId, EmailComposer composer) {
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
+
+        List<Reservation> reservations = Ebean.find(Reservation.class)
+                .fetch("enrolment")
+                .fetch("enrolment.exam")
                 .where()
                 .eq("user", user)
-                .eq("reservation.noShow", false)
-                .lt("reservation.endAt", new Date())
-                .eq("exam.id", examId)
-                .eq("exam.state", Exam.State.PUBLISHED)
+                .eq("noShow", false)
+                .lt("endAt", new Date())
+                .eq("enrolment.exam.id", examId)
+                .eq("enrolment.exam.state", Exam.State.PUBLISHED)
+                .isNull("externalReservation")
                 .findList();
-        noShowHandler.handleNoShows(enrolments, null);
+        noShowHandler.handleNoShows(reservations);
     }
 
     protected boolean isAllowedToParticipate(Exam exam, User user, EmailComposer composer) {

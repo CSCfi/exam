@@ -13,6 +13,7 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
@@ -23,23 +24,29 @@ import java.util.stream.Collectors;
 
 public class NoShowHandlerUtil implements NoShowHandler {
 
-    @Inject
-    private EmailComposer composer;
+    private final EmailComposer composer;
 
-    @Inject
-    private WSClient wsClient;
+    private final WSClient wsClient;
 
     private static final String HOST = ConfigFactory.load().getString("sitnet.integration.iop.host");
+
+    @Inject
+    public NoShowHandlerUtil(EmailComposer composer, WSClient wsClient) {
+        this.composer = composer;
+        this.wsClient = wsClient;
+    }
+
 
     private void send(Reservation reservation) throws MalformedURLException {
         URL url = parseUrl(reservation.getExternalRef());
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, Void> onSuccess = response -> {
             if (response.getStatus() != 200) {
-                Logger.error("Failed in sending the exam to XM");
+                Logger.error("No success in sending assessment #{} to XM", reservation.getExternalRef());
             } else {
                 reservation.setNoShow(true);
                 reservation.update();
+                Logger.info("Successfully sent assessment #{} to XM", reservation.getExternalRef());
             }
             return null;
         };
@@ -51,38 +58,40 @@ public class NoShowHandlerUtil implements NoShowHandler {
     }
 
     @Override
-    public void handleNoShows(List<ExamEnrolment> noShows, Class<?> sender) {
-        for (ExamEnrolment enrolment : noShows) {
-            handleNoShow(enrolment);
-            if (sender != null) {
-                Logger.info("{}: ... marked reservation {} as no-show", sender.getCanonicalName(),
-                        enrolment.getReservation().getId());
-            }
-        }
-    }
+    public void handleNoShows(List<Reservation> noShows) {
+        List<Reservation> locals = noShows.stream().filter(ns ->
+                ns.getExternalRef() == null &&
+                        ns.getEnrolment() != null &&
+                        ns.getEnrolment().getExam() != null &&
+                        ns.getEnrolment().getExam().getState() == Exam.State.PUBLISHED).collect(Collectors.toList());
+        locals.forEach(this::handleNoShowAndNotify);
 
-    @Override
-    public void handleNoShow(ExamEnrolment enrolment) {
-        Reservation reservation = enrolment.getReservation();
-        if (reservation.getExternalRef() != null && reservation.getExternalReservation() == null) {
+        List<Reservation> externals = noShows.stream().filter(ns ->
+                ns.getExternalRef() != null && (
+                        ns.getUser() == null ||
+                                ns.getEnrolment() == null ||
+                                ns.getEnrolment().getExternalExam() == null ||
+                                ns.getEnrolment().getExternalExam().getStarted() == null)
+        ).collect(Collectors.toList());
+        externals.forEach(r -> {
             // Send to XM for further processing
             // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed
             // no-shows and sending them one by one over network would be inefficient. However, this is not very likely.
             try {
-                send(reservation);
-            } catch (MalformedURLException e) {
-                Logger.error("Failed to init sending no-show!", e);
+                send(r);
+            } catch (IOException e) {
+                Logger.error("Failed in sending assessment back", e);
             }
-        } else if (reservation.getExternalReservation() == null) {
-            handleNoShowAndNotify(enrolment);
-        }
+        });
     }
 
     @Override
-    public void handleNoShowAndNotify(ExamEnrolment enrolment) {
-        Reservation reservation = enrolment.getReservation();
+    public void handleNoShowAndNotify(Reservation reservation) {
         reservation.setNoShow(true);
         reservation.update();
+        Logger.info("Marked reservation {} as no-show",
+                reservation.getId());
+        ExamEnrolment enrolment = reservation.getEnrolment();
         Exam exam = enrolment.getExam();
         if (exam.isPrivate()) {
             // Notify teachers
