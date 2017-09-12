@@ -128,7 +128,7 @@
                         <li ng-repeat="room in rooms | filter:limitations.rooms" ng-hide="room.filtered"
                             role="presentation" ng-class="room.outOfService ? 'disabled' : ''"
                             ng-click="selectRoom(room)">
-                            <a role="menuitem" popover-trigger="mouseenter" uib-popover="{{getDescription(room)}}"
+                            <a role="menuitem" popover-trigger="'mouseenter'" uib-popover="{{getDescription(room)}}"
                                onclick="document.getElementById('calendarBlock').style.display = 'block';
                                         $('#calendar').css({ position: 'relative', visibility: 'visible', display: 'block' })
                                         .fullCalendar('render');">
@@ -156,7 +156,7 @@
 
             <div class="calendar-room-info" ng-show="exceptionHours.length > 0">
                <div class="calendar-room-info-title">{{'sitnet_exception_datetimes' | translate }}:</div><div class="calendar-room-info-content"><span ng-repeat="eh in exceptionHours" ng-class="eh.outOfService ? 'text-danger' : 'text-success'"
-                                                                   popover-trigger="mouseenter" uib-popover="{{eh.description | translate}}">
+                                                                   popover-trigger="'mouseenter'" uib-popover="{{eh.description | translate}}">
                     {{eh.start}} - {{eh.end}} {{ $last ? '' : '| ';}}
                     </span></div>
             </div>

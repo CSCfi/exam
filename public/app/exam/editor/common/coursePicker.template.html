@@ -8,7 +8,7 @@
 
 <div class="col-md-3">
     <div class="exam-basic-title">{{'sitnet_course' | translate}}
-        <sup><img popover-placement="right" popover-trigger="mouseenter"
+        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                   uib-popover="{{'sitnet_select_exam_course_description' | translate}}"
                   src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
                   onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'"/></sup>
@@ -29,7 +29,7 @@
                typeahead-loading="$ctrl.loadingCoursesByCode">
         <span class="input-group-addon">
                 <i ng-hide="$ctrl.loadingCoursesByCode" class="fa fa-question-circle fa-fw"
-                   popover-placement="left" popover-trigger="mouseenter"
+                   popover-placement="left" popover-trigger="'mouseenter'"
                    uib-popover="{{'sitnet_course_unique_code' | translate}}"></i>
                 <i ng-show="$ctrl.loadingCoursesByCode"
                    class="fa fa-spinner fa-spin horizontal-padding-05"></i>
@@ -50,7 +50,7 @@
                typeahead-loading="$ctrl.loadingCoursesByName">
         <span class="input-group-addon">
                <i ng-hide="$ctrl.loadingCoursesByName" class="fa fa-question-circle fa-fw"
-                  popover-placement="left" popover-trigger="mouseenter"
+                  popover-placement="left" popover-trigger="'mouseenter'"
                   uib-popover="{{'sitnet_course_name' | translate}}"></i>
                <i ng-show="$ctrl.loadingCoursesByName"
                   class="fa fa-spinner fa-spin horizontal-padding-05"></i>

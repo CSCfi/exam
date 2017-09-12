@@ -6,7 +6,7 @@
             {{owner.firstName}} {{owner.lastName}}{{$last ? '' : ', ';}}
         </span>
         <div class="review-attachment">
-            <sup class="make-inline"><img popover-placement="left" popover-trigger="mouseenter"
+            <sup class="make-inline"><img popover-placement="left" popover-trigger="'mouseenter'"
                       uib-popover="{{'sitnet_exam_review_attachment_description' | translate}}"
                       src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
                       onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
@@ -33,14 +33,14 @@
             <!-- aborted-->
             <a target="_self" class="pointer" ng-click="$ctrl.openAborted()">
                 {{'sitnet_aborted_exams' | translate}} ({{$ctrl.abortedExams.length}})</a>
-            <sup class="padl05"><img popover-placement="right" popover-trigger="mouseenter"
+            <sup class="padl05"><img popover-placement="right" popover-trigger="'mouseenter'"
                       uib-popover="{{'sitnet_aborted_description' | translate}}"
                       src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
                       onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
             <!-- tenttiin saapumattomat -->
             <a style="margin-left:100px;" target="_self" class="pointer" ng-click="$ctrl.openNoShows()">
             {{'sitnet_no_shows' | translate}} ({{$ctrl.noShows.length}})</a>
-                <sup class="padl05"><img popover-placement="right" popover-trigger="mouseenter"
+                <sup class="padl05"><img popover-placement="right" popover-trigger="'mouseenter'"
                      uib-popover="{{'sitnet_no_shows_description' | translate}}"
                      src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
                      onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>

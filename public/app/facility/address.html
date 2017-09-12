@@ -9,7 +9,7 @@
                            required ng-pattern="/^(?!\s*$).+/"
                            ui-change="showName = !showName; addressForm.street.$valid ? updateAddress(roomInstance.mailAddress) : false">
                         <span class="input-group-addon">
-                            <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter"
+                            <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'"
                                uib-popover="{{'sitnet_exam_room_address_street' | translate}}"></i>
                         </span>
                 </div>
@@ -24,7 +24,7 @@
                            ui-change="showName = !showName; addressForm.zip.$valid ? updateAddress(roomInstance.mailAddress) : false">
                             <span class="input-group-addon">
                                 <i class="fa fa-question-circle fa-fw" popover-placement="left"
-                                   popover-trigger="mouseenter"
+                                   popover-trigger="'mouseenter'"
                                    uib-popover="{{'sitnet_exam_room_address_zip' | translate}}"></i>
                             </span>
                 </div>
@@ -39,7 +39,7 @@
                            required ng-pattern="/^(?!\s*$).+/"
                            ui-change="showName = !showName; addressForm.city.$valid ? updateAddress(roomInstance.mailAddress) : false">
                         <span class="input-group-addon">
-                            <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter"
+                            <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'"
                                uib-popover="{{'sitnet_exam_room_address_city' | translate}}"></i>
                         </span>
                 </div>

@@ -40,7 +40,7 @@
                                     <a href id="simple-dropdown" uib-dropdown-toggle>
                                         <img class="arrow_icon" alt="{{'sitnet_change_enrolment_info' | translate}}"
                                              src="assets/assets/images/settings_dots.png"
-                                             popover-placement="left" popover-trigger="mouseenter"
+                                             popover-placement="left" popover-trigger="'mouseenter'"
                                              uib-popover="{{'sitnet_change_enrolment_info' | translate}}"
                                         >
                                     </a>
@@ -68,7 +68,7 @@
                                         <li>
                                             <span class="pointer" ng-hide="enrolment.exam.executionType.type === 'PRIVATE'">&nbsp;&nbsp;
                                             <a popover-placement="top"
-                                                popover-popup-delay="500" popover-trigger="mouseenter"
+                                                popover-popup-delay="500" popover-trigger="'mouseenter'"
                                                 uib-popover="{{ 'sitnet_remove' | translate }}" ng-click="$ctrl.removeEnrolment(enrolment, userEnrolments)">
                                                 {{ 'sitnet_student_remove_enrolment' | translate }}
                                             </a>

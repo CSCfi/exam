@@ -3,7 +3,7 @@
         <span ng-if="$ctrl.autoevaluation.enabled">({{'sitnet_in_use' | translate}})</span>
         <span ng-if="!$ctrl.autoevaluation.enabled">({{'sitnet_not_in_use' | translate}})</span>
         <a popover-placement="left" popover-popup-delay="1000"
-           popover-trigger="mouseenter" uib-popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
+           popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
            ng-click="$ctrl.autoevaluationDisplay.visible = !$ctrl.autoevaluationDisplay.visible">
             <img ng-show="!$ctrl.autoevaluationDisplay.visible" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />

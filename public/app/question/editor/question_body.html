@@ -75,7 +75,7 @@
     <div class="col-md-12 margin-20 padl0 padr0">
         <div class="col-md-3 exam-basic-title padl0">
             {{'sitnet_new_question_type' | translate}}
-            <sup><img popover-placement="right" popover-trigger="mouseenter"
+            <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                       uib-popover="{{'sitnet_question_type_description' | translate}}"
                       src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
                       onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
@@ -105,7 +105,7 @@
         <div class="col-md-12 mart40 padl0 padr0">
             <div class="col-md-3 exam-basic-title padl0">
                 {{'sitnet_question_text' | translate}}
-                <sup><img popover-placement="right" popover-trigger="mouseenter"
+                <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                           uib-popover="{{'sitnet_question_text_description' | translate}}"
                           src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
                           onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
@@ -179,7 +179,7 @@
         <!-- Exam owners -->
         <div class="col-md-12 margin-20 padl0 padr0">
             <div class="col-md-3 exam-basic-title padl0">{{'sitnet_question_owners' | translate}}
-                <sup><img popover-placement="right" popover-trigger="mouseenter"
+                <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                           uib-popover="{{'sitnet_question_owners_description' | translate}}"
                           src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
                           onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
@@ -225,7 +225,7 @@
 
             <div class="col-md-3 exam-basic-title padl0">
                 {{ 'sitnet_question_attachment' | translate}}
-                <sup><img popover-placement="right" popover-trigger="mouseenter"
+                <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                           uib-popover="{{'sitnet_attachment_description' | translate}}"
                           src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
                           onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
@@ -261,7 +261,7 @@
         <div class="col-md-12 margin-20 padl0 padr0">
             <div class="col-md-3 exam-basic-title padl0">
                 {{ 'sitnet_question_instruction' | translate}}
-                <sup><img popover-placement="right" popover-trigger="mouseenter"
+                <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                           uib-popover="{{'sitnet_question_instruction_description' | translate}}"
                           src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
                           onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
@@ -279,7 +279,7 @@
 
             <div class="col-md-3 exam-basic-title padl0">
                 {{ 'sitnet_exam_evaluation_criteria' | translate}}
-                <sup><img popover-placement="right" popover-trigger="mouseenter"
+                <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                           uib-popover="{{'sitnet_question_evaluation_criteria_description' | translate}}"
                           src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
                           onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
@@ -296,7 +296,7 @@
         <div class="col-md-12 margin-20 padl0 padr0" ng-show="!newQuestion.parent">
             <div class="col-md-3 exam-basic-title padl0">
                 {{ 'sitnet_tag_question' | translate}}
-                <sup><img popover-placement="right" popover-trigger="mouseenter"
+                <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                           uib-popover="{{'sitnet_question_tag_question_description' | translate}}"
                           src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
                           onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
@@ -313,7 +313,7 @@
                             <li ng-repeat="tag in newQuestion.tags">{{tag.name}}
                                 <button class="reviewer-remove"
                                         popover-placement="top" popover-popup-delay="500"
-                                        popover-trigger="mouseenter"
+                                        popover-trigger="'mouseenter'"
                                         uib-popover="{{ 'sitnet_remove' | translate }}"
                                         ng-click="removeTag(tag)"
                                         title="{{'sitnet_remove' | translate}}">

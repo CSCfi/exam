@@ -6,7 +6,7 @@
                 <th>
                     <input type="checkbox" name="select_all" class="selectAllQuestions"
                            ng-click="selectAll('selectAllQuestions', 'questionToUpdate'); countSelections();" popover-placement="top"
-                           popover-trigger="mouseenter" uib-popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
+                           popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
                 </th>
                 <th sort by="id" text="sitnet_question" predicate="questionsPredicate" reverse="reverse" on-sort="onSort()"></th>
                 <th sort by="modified" text="sitnet_modified" predicate="questionsPredicate" reverse="reverse" on-sort="onSort()"></th>
@@ -52,13 +52,13 @@
                 </td>
                 <td class="padl20">
                     <a ng-if="question.allowedToRemove" ng-click="deleteQuestion(question)" class="pointer">
-                        <i class="fa fa-trash-o fa-fw" popover-placement="left" popover-trigger="mouseenter"
+                        <i class="fa fa-trash-o fa-fw" popover-placement="left" popover-trigger="'mouseenter'"
                            uib-popover="{{'sitnet_exam_remove' | translate}}"></i>
                     </a>
                 </td>
                 <td class="padl20 padr10">
                     <a class="bold-button" ng-click="copyQuestion(question, true)">
-                        <i class="fa fa-clone fa-fw" popover-placement="left" popover-trigger="mouseenter"
+                        <i class="fa fa-clone fa-fw" popover-placement="left" popover-trigger="'mouseenter'"
                            uib-popover="{{'sitnet_copy' | translate}}"></i>
                     </a>
                 </td>

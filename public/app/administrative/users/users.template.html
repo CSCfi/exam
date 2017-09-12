@@ -22,7 +22,7 @@
                            ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
                            placeholder="{{'sitnet_search' | translate }}" popover-placement="top"
                            popover-popup-delay="500"
-                           popover-trigger="mouseenter"
+                           popover-trigger="'mouseenter'"
                            uib-popover="{{ 'sitnet_user_search_description' | translate }}">
                     <div class="input-group-addon">
                         <i class="fa fa-search fa-fw"></i>
@@ -124,7 +124,7 @@
                                     <i ng-if="user.removableRoles.length > 1" class="text-danger fa fa-minus"></i>
                                     <i ng-if="user.removableRoles.length <= 1" class="text-muted fa fa-minus"
                                        popover-placement="left" popover-popup-delay="500"
-                                       popover-trigger="mouseenter"
+                                       popover-trigger="'mouseenter'"
                                        uib-popover="{{ 'sitnet_at_least_one_role_required' | translate }}"></i>
                                 </a>
                                 <ul class="dropdown-menu pull-right" style="min-width: 17em"
