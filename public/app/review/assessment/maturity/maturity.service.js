@@ -54,7 +54,7 @@ angular.module('app.review')
             MATURITY_STATES.APPROVE_LANGUAGE.alternateState = MATURITY_STATES.REJECT_LANGUAGE;
 
             var isGraded = function (exam) {
-                return Assessment.isGraded(exam);
+                return exam.grade;
             };
 
             self.isMissingStatement = function (exam) {
