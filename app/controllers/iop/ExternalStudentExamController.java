@@ -1,5 +1,6 @@
 package controllers.iop;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
@@ -17,12 +18,16 @@ import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.Question;
 import org.joda.time.DateTime;
+import play.Environment;
 import play.data.DynamicForm;
 import play.mvc.Result;
 import play.mvc.Results;
 import system.interceptors.SensitiveDataPolicy;
 import util.AppUtil;
+import util.java.AutoEvaluationHandler;
+import util.java.EmailComposer;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +39,12 @@ import java.util.stream.StreamSupport;
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
 @Restrict({@Group("STUDENT")})
 public class ExternalStudentExamController extends StudentExamController {
+
+    @Inject
+    public ExternalStudentExamController(EmailComposer emailComposer, ActorSystem actor,
+                                         AutoEvaluationHandler autoEvaluationHandler, Environment environment) {
+        super(emailComposer, actor, autoEvaluationHandler, environment);
+    }
 
     @ActionMethod
     @Override

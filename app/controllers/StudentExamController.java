@@ -40,14 +40,19 @@ import java.util.stream.StreamSupport;
 @Restrict({@Group("STUDENT")})
 public class StudentExamController extends BaseController {
 
+    protected final EmailComposer emailComposer;
+    protected final ActorSystem actor;
+    private final AutoEvaluationHandler autoEvaluationHandler;
+    protected final Environment environment;
+
     @Inject
-    protected EmailComposer emailComposer;
-    @Inject
-    protected ActorSystem actor;
-    @Inject
-    private AutoEvaluationHandler autoEvaluationHandler;
-    @Inject
-    protected Environment environment;
+    public StudentExamController(EmailComposer emailComposer, ActorSystem actor,
+                                 AutoEvaluationHandler autoEvaluationHandler, Environment environment) {
+        this.emailComposer = emailComposer;
+        this.actor = actor;
+        this.autoEvaluationHandler = autoEvaluationHandler;
+        this.environment = environment;
+    }
 
 
     @ActionMethod

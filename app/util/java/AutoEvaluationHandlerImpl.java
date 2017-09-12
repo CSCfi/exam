@@ -5,6 +5,7 @@ import models.AutoEvaluationConfig;
 import models.Exam;
 import models.Grade;
 import models.GradeEvaluation;
+import models.GradeScale;
 import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
@@ -20,11 +21,15 @@ import java.util.concurrent.TimeUnit;
 
 public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
 
-    @Inject
-    private EmailComposer composer;
+    private final EmailComposer composer;
+
+    private final ActorSystem actor;
 
     @Inject
-    private ActorSystem actor;
+    public AutoEvaluationHandlerImpl(EmailComposer composer, ActorSystem actor) {
+        this.composer = composer;
+        this.actor = actor;
+    }
 
     @Override
     public void autoEvaluate(Exam exam) {
@@ -90,7 +95,8 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
             }
             prev = ge;
         }
-        if (!exam.getGradeScale().getGrades().contains(grade)) {
+        GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
+        if (!scale.getGrades().contains(grade)) {
             throw new RuntimeException("Grade in auto evaluation configuration not found in exam grade scale!");
         }
         return grade;

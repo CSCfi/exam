@@ -466,10 +466,11 @@ public class ExamController extends BaseController {
 
         Map<Integer, GradeEvaluation> gradeMap = config.asGradeMap();
         List<Integer> handledEvaluations = new ArrayList<>();
+        GradeScale gs = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
         // Handle proposed entries, persist new ones where necessary
         for (JsonNode evaluation : node.get("gradeEvaluations")) {
             Grade grade = Ebean.find(Grade.class, evaluation.get("grade").get("id").asInt());
-            if (grade != null && exam.getGradeScale().getGrades().contains(grade)) {
+            if (grade != null && gs.getGrades().contains(grade)) {
                 GradeEvaluation ge = gradeMap.get(grade.getId());
                 if (ge == null) {
                     ge = new GradeEvaluation();
