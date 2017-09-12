@@ -46,7 +46,7 @@ angular.module('app.maturity')
                         params.start = Date.parse(vm.startDate) + tzOffset;
                     }
                     if (vm.endDate) {
-                        params.end = Date.parse(vm.endDate);
+                        params.end = Date.parse(moment(vm.endDate).add(1, 'days'));
                     }
                     var refreshAll = _.isEmpty(params);
                     LanguageInspections.query(refreshAll ? undefined : params).then(
