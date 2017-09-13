@@ -1,4 +1,4 @@
-package controllers;
+package controllers.integration;
 
 
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
@@ -6,49 +6,21 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.PathProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import controllers.base.BaseController;
 import models.Exam;
-import models.ExamRecord;
 import models.ExamRoom;
 import models.Reservation;
-import models.dto.ExamScore;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
-import play.libs.Json;
 import play.mvc.Result;
-import play.mvc.Results;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class IntegrationController extends BaseController {
-
-    private static final ObjectMapper SORTED_MAPPER = new ObjectMapper();
-    static {
-        SORTED_MAPPER.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-    }
-
-    @SubjectNotPresent
-    public Result getNewRecords(String startDate) {
-        return ok(Json.toJson(getScores(startDate)));
-    }
-
-    // for testing purposes
-    @SubjectNotPresent
-    public Result getNewRecordsAlphabeticKeyOrder(String startDate) {
-        try {
-            return ok(convertNode(Json.toJson(getScores(startDate))));
-        } catch (JsonProcessingException e) {
-            return Results.internalServerError(e.getMessage());
-        }
-    }
+public class ReservationAPIController extends BaseController {
 
     @SubjectNotPresent
     public Result getReservations(Optional<String> start, Optional<String> end, Optional<Long> roomId) {
@@ -107,21 +79,6 @@ public class IntegrationController extends BaseController {
 
         }).collect(Collectors.toList()));
         return ok(room, pp);
-    }
-
-    private static List<ExamScore> getScores(String startDate) {
-        DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(startDate);
-        List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
-                .fetch("examScore")
-                .where()
-                .gt("timeStamp", start.toDate())
-                .findList();
-        return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
-    }
-
-    private static String convertNode(JsonNode node) throws JsonProcessingException {
-        Object obj = SORTED_MAPPER.treeToValue(node, Object.class);
-        return SORTED_MAPPER.writeValueAsString(obj);
     }
 
 }

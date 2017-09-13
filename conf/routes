@@ -247,13 +247,16 @@ GET           /app/attachment/exam/:id/statement                         control
 
 #### integration ####
 # records
-GET           /integration/record/:startDate                             controllers.IntegrationController.getNewRecords(startDate: String)
-GET           /integration/recordalphabetic/:startDate                   controllers.IntegrationController.getNewRecordsAlphabeticKeyOrder(startDate: String)
+GET           /integration/record/:startDate                             controllers.integration.ExamRecordAPIController.getNewRecords(startDate: String)
+GET           /integration/recordalphabetic/:startDate                   controllers.integration.ExamRecordAPIController.getNewRecordsAlphabeticKeyOrder(startDate: String)
+
+# exams
+GET           /integration/exams/active                                  controllers.integration.ExamAPIController.getActiveExams(date: java.util.Optional[String])
 
 # reservations
-GET           /integration/reservations                                  controllers.IntegrationController.getReservations(start: java.util.Optional[String], end: java.util.Optional[String], roomId: java.util.Optional[java.lang.Long])
-GET           /integration/rooms                                         controllers.IntegrationController.getRooms
-GET           /integration/rooms/:id/openinghours                        controllers.IntegrationController.getRoomOpeningHours(id: Long, date: java.util.Optional[String])
+GET           /integration/reservations                                  controllers.integration.ReservationAPIController.getReservations(start: java.util.Optional[String], end: java.util.Optional[String], roomId: java.util.Optional[java.lang.Long])
+GET           /integration/rooms                                         controllers.integration.ReservationAPIController.getRooms
+GET           /integration/rooms/:id/openinghours                        controllers.integration.ReservationAPIController.getRoomOpeningHours(id: Long, date: java.util.Optional[String])
 
 #iop
 PUT           /integration/iop/facilities/:id                            controllers.iop.FacilityController.updateFacility(id: Long)
