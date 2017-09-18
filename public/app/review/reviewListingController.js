@@ -141,7 +141,8 @@
 
                     fileService.download(url + $routeParams.id,
                         $translate.instant("sitnet_grading_info") + '_' + $filter('date')(Date.now(), "dd-MM-yyyy") + fileType,
-                        {'childIds': ids});
+                        {'childIds': ids}, true
+                    );
                 };
 
                 var send = function (review) {

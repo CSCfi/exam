@@ -71,8 +71,8 @@ GET           /app/exam/printouts                                        control
 POST          /app/exam/record                                           controllers.ExamRecordController.addExamRecord()
 POST          /app/exam/register                                         controllers.ExamRecordController.registerExamWithoutRecord()
 GET           /app/exam/record                                           controllers.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
-GET           /app/exam/record/export/:id                                controllers.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long)
-GET           /app/exam/record/export/report/:id                         controllers.ExamRecordController.exportSelectedExamRecordsAsExcel(id: Long)
+POST          /app/exam/record/export/:id                                controllers.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long)
+POST          /app/exam/record/export/report/:id                         controllers.ExamRecordController.exportSelectedExamRecordsAsExcel(id: Long)
 
 
 ############### Student exam execution interface ###############
