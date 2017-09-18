@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('app.reservation', ['ui.calendar', 'ui.select2']);
+angular.module('app.reservation', ['ui.select2']);

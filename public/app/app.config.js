@@ -31,16 +31,16 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
         var tmpl = EXAM_CONF.TEMPLATES_PATH;
 
+        /* main navigation */
+        $routeProvider.when('/', {template: '<dashboard></dashboard>'});
+        $routeProvider.when('/questions', {templateUrl: tmpl + 'question/questions.html', controller: 'LibraryCtrl'});
+        $routeProvider.when('/exams', {templateUrl: tmpl + 'exam/exams.html', controller: 'ExamListingController'});
+
         /* Enrolment */
         $routeProvider.when('/enroll/:code/exam/:id', {
             templateUrl: tmpl + 'enrolment/enrollExam.html',
             controller: 'EnrollController'
         });
-
-        /* main navigation */
-        $routeProvider.when('/', {template: '<dashboard></dashboard>'});
-        $routeProvider.when('/questions', {templateUrl: tmpl + 'question/questions.html', controller: 'LibraryCtrl'});
-        $routeProvider.when('/exams', {templateUrl: tmpl + 'exam/exams.html', controller: 'ExamListingController'});
 
         // edit question
         $routeProvider.when('/questions/:id', {templateUrl: tmpl + 'question/editor/question.html'});
@@ -54,11 +54,9 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         $routeProvider.when('/exams/new', {template: '<new-exam></new-exam>'});
         $routeProvider.when('/exams/:id/course', {template: '<course-selection></course-selection>'});
 
-        /* booking */
-        $routeProvider.when('/calendar/:id', {templateUrl: tmpl + 'reservation/calendar.html'});
-        $routeProvider.when('/iop/calendar/:id', {templateUrl: tmpl + 'reservation/iop/external_calendar.html'});
-
-        $routeProvider.when('/invalid_session', {templateUrl: tmpl + 'common/invalid_session.html'});
+        /* calendar */
+        $routeProvider.when('/calendar/:id', {template: '<calendar is-external="false"></calendar>'});
+        $routeProvider.when('/iop/calendar/:id', {template: '<calendar is-external="true"></calendar>'});
 
         /* extra */
         $routeProvider.when('/logout', {template: '<logout></logout>'});

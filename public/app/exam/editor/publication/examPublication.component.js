@@ -140,9 +140,8 @@ angular.module('app.exam.editor')
 
                 vm.saveAndPublishExam = function () {
 
-                    // update the exam for possible changes before saving
-                    vm.updateExam(true);
                     var err = readyForPublishing();
+
                     if (Object.getOwnPropertyNames(err) && Object.getOwnPropertyNames(err).length > 0) {
 
                         $modal.open({
