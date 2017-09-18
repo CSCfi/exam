@@ -143,6 +143,8 @@ angular.module('app.review')
                     var lang = Assessment.pickExamLanguage(vm.exam);
                     if (!vm.exam.answerLanguage) {
                         vm.exam.answerLanguage = lang;
+                    } else {
+                        vm.exam.answerLanguage = {code: vm.exam.answerLanguage};
                     }
                     Language.languages.query(function (languages) {
                         vm.languages = languages.map(function (language) {

@@ -191,7 +191,7 @@ angular.module('app.exam.editor')
 
                     fileService.download(url + vm.exam.id,
                         $translate.instant('sitnet_grading_info') + '_' + $filter('date')(Date.now(), 'dd-MM-yyyy') + fileType,
-                        {'childIds': ids}
+                        {'childIds': ids}, true
                     );
                 };
 

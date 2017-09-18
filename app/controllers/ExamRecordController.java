@@ -3,8 +3,9 @@ package controllers;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
+import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
+import io.ebean.Ebean;
 import models.*;
 import models.dto.ExamScore;
 import org.joda.time.DateTime;
@@ -22,7 +23,6 @@ import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 
 public class ExamRecordController extends BaseController {
@@ -116,14 +118,10 @@ public class ExamRecordController extends BaseController {
     }
 
     private static List<Long> getChildIds() {
-        String[] ids = request().queryString().get("childIds");
-        List<Long> childIds = new ArrayList<>();
-        if (ids != null) {
-            for (String s : ids) {
-                childIds.add(Long.parseLong(s));
-            }
-        }
-        return childIds;
+        JsonNode node = request().body().asJson().get("params").get("childIds");
+        return StreamSupport.stream(node.spliterator(), false)
+                .map(JsonNode::asLong)
+                .collect(Collectors.toList());
     }
 
     private Result sendFile(File file) {

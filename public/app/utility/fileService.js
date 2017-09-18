@@ -33,8 +33,9 @@ angular.module('app.utility')
                 }
             };
 
-            var download = function (url, filename, params) {
-                $http.get(url, {params: params}).success(function (data, status, headers) {
+            var download = function (url, filename, params, post) {
+                var res = post ? $http.post : $http.get;
+                res(url, {params: params}).success(function (data, status, headers) {
                     var contentType = headers()['content-type'].split(';')[0];
                     saveFile(data, filename, contentType);
                 }).error(function (error) {
