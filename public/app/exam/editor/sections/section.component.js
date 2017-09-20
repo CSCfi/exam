@@ -143,86 +143,17 @@ angular.module('app.exam.editor')
                         toastr.error($translate.instant('sitnet_error_drop_disabled_lottery_on'));
                         return;
                     }
-                    var examId = vm.examId;
-                    var sectionId = vm.section.id;
-
-                    var ctrl = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
-
-                        $scope.addQuestions = function () {
-
-                            // check that at least one has been selected
-                            var isEmpty = true,
-                                boxes = angular.element('.questionToUpdate'),
-                                ids = [];
-
-                            var insertQuestion = function (sectionId, questionIds, to, examId) {
-
-                                var sectionQuestions = questionIds.map(function (question) {
-                                    return question;
-                                }).join(',');
-
-                                ExamRes.sectionquestionsmultiple.insert({
-                                        eid: examId,
-                                        sid: sectionId,
-                                        seq: to,
-                                        questions: sectionQuestions
-                                    }, function (sec) {
-                                        toastr.info($translate.instant('sitnet_question_added'));
-                                        $modalInstance.close();
-                                    }, function (error) {
-                                        toastr.error(error.data);
-                                        // remove broken objects
-                                        vm.section.sectionQuestions = vm.section.sectionQuestions.filter(function (sq) {
-                                            return sq;
-                                        });
-                                    }
-                                );
-
-                            };
-
-                            // calculate the new order number for question sequence
-                            // always add question to last spot, because dragndrop
-                            // is not in use here
-                            var to = (parseInt(vm.section.sectionQuestions.length) + 1);
-
-                            angular.forEach(boxes, function (input) {
-                                if (angular.element(input).prop('checked')) {
-                                    isEmpty = false;
-                                    ids.push(angular.element(input).val());
-                                }
-                            });
-
-                            if (isEmpty) {
-                                toastr.warning($translate.instant('sitnet_choose_atleast_one'));
-                            }
-                            else {
-                                insertQuestion(sectionId, ids, to, examId);
-                                //  $modalInstance.dismiss("Saved");
-                            }
-                        };
-
-                        $scope.cancelEdit = function () {
-                            // Well this is nice now :)
-                            $modalInstance.dismiss('Cancelled');
-                        };
-
-                        // Close modal if user clicked the back button and no changes made
-                        $scope.$on('$routeChangeStart', function () {
-                            if (!window.onbeforeunload) {
-                                $modalInstance.dismiss();
-                            }
-                        });
-                    }];
-
-                    var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'question/library.html',
+                    $modal.open({
+                        component: 'questionSelector',
                         backdrop: 'static',
                         keyboard: true,
-                        controller: ctrl,
-                        windowClass: 'question-editor-modal'
-                    });
-
-                    modalInstance.result.then(function () {
+                        windowClass: 'question-editor-modal',
+                        resolve: {
+                            examId: vm.examId,
+                            sectionId: vm.section.id,
+                            questionCount: vm.section.sectionQuestions.length
+                        }
+                    }).result.then(function () {
                         // TODO: see if we could live without reloading the whole exam from back?
                         vm.onReloadRequired();
                     });
@@ -287,6 +218,7 @@ angular.module('app.exam.editor')
                     var ctrl = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
                         $scope.lotteryOn = vm.section.lotteryOn;
                         $scope.fromDialog = true;
+
                         $scope.addEditQuestion = {};
                         $scope.addEditQuestion.id = 0;
                         $scope.addEditQuestion.showForm = true;

@@ -33,7 +33,8 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
         /* main navigation */
         $routeProvider.when('/', {template: '<dashboard></dashboard>'});
-        $routeProvider.when('/questions', {templateUrl: tmpl + 'question/questions.html', controller: 'LibraryCtrl'});
+        $routeProvider.when('/questions', {template: '<library></library>'});
+
         $routeProvider.when('/exams', {templateUrl: tmpl + 'exam/exams.html', controller: 'ExamListingController'});
 
         /* Enrolment */
@@ -43,12 +44,15 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         });
 
         // edit question
-        $routeProvider.when('/questions/:id', {templateUrl: tmpl + 'question/editor/question.html'});
+        $routeProvider.when('/questions/:id', {
+            controller: 'QuestionCtrl',
+            templateUrl: tmpl + 'question/editor/question.html'
+        });
         // new question
-        $routeProvider.when('/questions/new/:type', {templateUrl: tmpl + 'question/editor/question.html'});
-        // new question, no type from here anymore
-        $routeProvider.when('/questions/newQuestion/:create', {templateUrl: tmpl + 'question/editor/question.html'});
-        $routeProvider.when('/questions/library', {templateUrl: tmpl + 'question/library.html'});
+        $routeProvider.when('/questions/newQuestion/:create', {
+            controller: 'QuestionCtrl',
+            templateUrl: tmpl + 'question/editor/question.html'
+        });
 
         /* exams */
         $routeProvider.when('/exams/new', {template: '<new-exam></new-exam>'});

@@ -1,0 +1,30 @@
+<div id="dashboard">
+
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-enroll-title-wrap">
+                <div class="student-enroll-title marl20 marr-20">{{'sitnet_library_new' | translate}}</div>
+            </div>
+            <div class="teacher-toolbar">
+                <div class="make-inline">
+                    <div class="review-attachment-button print-button">
+                        <a href="/questions/newQuestion/1" class="pointer">
+                            {{'sitnet_toolbar_new_question' | translate}}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reservation-border">
+
+        <library-search on-update="$ctrl.resultsUpdated(results)"></library-search>
+
+        <library-owner-selection selection-count="$ctrl.selectionCount" owner-updated="$ctrl.ownerUpdated()"></library-owner-selection>
+
+        <library-results questions="$ctrl.questions" allow-editing="true" on-selection="$ctrl.questionSelected(count)"></library-results>
+
+    </div>
+
+</div>

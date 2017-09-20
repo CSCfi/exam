@@ -280,23 +280,6 @@
     overflow: hidden;
   }
 
-  .library-main.affix {
-    position: fixed;
-    overflow-y: scroll;
-    height: 100%;
-  }
-
-  .library-main.affix-top {
-    overflow-y: visible;
-    height: 100%;
-  }
-
-  .library-main {
-    overflow-y: scroll;
-    top: 0;
-    height: 100%;
-  }
-
   .filter-menu {
     position: relative;
   }

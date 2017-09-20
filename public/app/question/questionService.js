@@ -158,16 +158,19 @@ angular.module('app.question')
                 });
             };
 
-            self.loadFilters = function () {
-                if ($sessionStorage.questionFilters) {
-                    return JSON.parse($sessionStorage.questionFilters);
+            self.loadFilters = function (category) {
+                if ($sessionStorage.questionFilters && $sessionStorage.questionFilters[category]) {
+                    return JSON.parse($sessionStorage.questionFilters[category]);
                 }
                 return {};
             };
 
-            self.storeFilters = function (filters) {
+            self.storeFilters = function (filters, category) {
                 var data = {filters: filters};
-                $sessionStorage.questionFilters = JSON.stringify(data);
+                if (!$sessionStorage.questionFilters) {
+                    $sessionStorage.questionFilters = {};
+                }
+                $sessionStorage.questionFilters[category] = JSON.stringify(data);
             };
 
             self.range = function (min, max, step) {

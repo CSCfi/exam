@@ -8,6 +8,7 @@ angular.module('app.question')
             $scope.examNames = [];
             $scope.isInPublishedExam = false;
             $scope.questionCorrectOption = '';
+            $scope.templates = {dialogQuestion: EXAM_CONF.TEMPLATES_PATH + "question/editor/dialog_question.html"};
 
             $scope.showWarning = function () {
                 return $scope.examNames.length > 1;
@@ -53,7 +54,7 @@ angular.module('app.question')
                 }
 
                 var hasCorrectAnswer = $scope.sectionQuestion.options.filter(function (o) {
-                        return o.id != selectedOption.id && (o.option.correctOption || o.option.defaultScore > 0);
+                        return o.id !== selectedOption.id && (o.option.correctOption || o.option.defaultScore > 0);
                     }).length > 0;
 
                 // Either not published exam or correct answer exists
@@ -174,14 +175,14 @@ angular.module('app.question')
                 QuestionRes.questions.get({id: $scope.sectionQuestion.question.id}, function (data) {
                     $scope.question = data;
                     var examNames = $scope.question.examSectionQuestions.map(function (esq) {
-                        if (esq.examSection.exam.state == 'PUBLISHED') {
+                        if (esq.examSection.exam.state === 'PUBLISHED') {
                             $scope.isInPublishedExam = true;
                         }
                         return esq.examSection.exam.name;
                     });
                     // remove duplicates
                     $scope.examNames = examNames.filter(function (n, pos) {
-                        return examNames.indexOf(n) == pos;
+                        return examNames.indexOf(n) === pos;
                     });
                     watchForChanges();
                 });

@@ -17,6 +17,7 @@ angular.module('app.question')
             var essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/essay_question.html";
             var multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_question.html";
 
+            $scope.templates = {newQuestion: EXAM_CONF.TEMPLATES_PATH + "question/editor/question.html"};
             $scope.questionTemplate = null;
             $scope.bodyTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/question_body.html";
             $scope.returnURL = null;
