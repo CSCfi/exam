@@ -25,7 +25,7 @@
                 };
 
                 $scope.showEvaluations = function (id) {
-                    if ($scope.showEval == id) {
+                    if ($scope.showEval === id) {
                         $scope.showEval = 0;
                     }
                     else {
