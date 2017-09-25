@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.question')
-    .controller('TagTypeaheadCtrl', ['$scope', 'limitToFilter', 'TagRes', '$translate',
-        function ($scope, limitToFilter, TagRes, $translate) {
+    .controller('TagTypeaheadCtrl', ['$scope', 'limitToFilter', 'TagRes',
+        function ($scope, limitToFilter, TagRes) {
 
             $scope.getTags = function (filter, question) {
                 return TagRes.tags.query({filter: filter}).$promise.then(
@@ -24,7 +24,7 @@ angular.module('app.question')
             };
 
             $scope.onTagSelect = function (tag, question) {
-                $scope.newQuestion.tags.push(tag);
-                delete $scope.newQuestion.newTag;
+                question.tags.push(tag);
+                delete question.newTag;
             }
         }]);

@@ -111,7 +111,7 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
             var createUid = function () {
                 return "$" + ("0000" + (Math.random() * Math.pow(36, 4) << 0).toString(36)).slice(-4)
             };
-            if (!element || element.getName() != 'span') {
+            if (!element || element.getName() !== 'span') {
                 element = editor.document.createElement('span');
                 element.setAttribute('id', createUid());
                 element.setAttribute('numeric', 'false');
@@ -134,6 +134,10 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
             this.commitContent(cloze);
             if (this.insertMode) {
                 editor.insertElement(cloze);
+                // Append a space so that we force focusing out of the element.
+                // Otherwise user might not be able to write anything beyond cloze element unless activating source mode
+                // and editing text there, maybe it's a bug with the editor?
+                editor.insertText(' ');
             }
         }
     };
