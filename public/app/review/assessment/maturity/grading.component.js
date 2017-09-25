@@ -9,8 +9,8 @@ angular.module('app.review')
             questionSummary: '<',
             onUpdate: '&'
         },
-        controller: ['$translate', '$scope', 'Assessment', 'examService', 'questionService', 'ExamRes', 'Attachment', 'Language',
-            function ($translate, $scope, Assessment, examService, questionService, ExamRes, Attachment, Language) {
+        controller: ['$translate', '$scope', 'Assessment', 'examService', 'ExamRes', 'Attachment', 'Language',
+            function ($translate, $scope, Assessment, examService, ExamRes, Attachment, Language) {
 
                 var vm = this;
 

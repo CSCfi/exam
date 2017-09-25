@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module('app.exam')
-        .service('examService', ['$translate', '$q', '$location', 'ExamRes', 'questionService', 'Session',
-            function ($translate, $q, $location, ExamRes, questionService, Session) {
+        .service('examService', ['$translate', '$q', '$location', 'ExamRes', 'Question', 'Session',
+            function ($translate, $q, $location, ExamRes, Question, Session) {
 
                 var self = this;
 
@@ -229,13 +229,13 @@
                     section.sectionQuestions.forEach(function (sq) {
                         switch (sq.question.type) {
                             case "MultipleChoiceQuestion":
-                                score += questionService.scoreMultipleChoiceAnswer(sq);
+                                score += Question.scoreMultipleChoiceAnswer(sq);
                                 break;
                             case "WeightedMultipleChoiceQuestion":
-                                score += questionService.scoreWeightedMultipleChoiceAnswer(sq);
+                                score += Question.scoreWeightedMultipleChoiceAnswer(sq);
                                 break;
                             case "ClozeTestQuestion":
-                                score += questionService.scoreClozeTestAnswer(sq);
+                                score += Question.scoreClozeTestAnswer(sq);
                                 break;
                             case "EssayQuestion":
                                 if (sq.essayAnswer && sq.essayAnswer.evaluatedScore && sq.evaluationType === 'Points') {
@@ -264,7 +264,7 @@
                                 score += sq.maxScore;
                                 break;
                             case "WeightedMultipleChoiceQuestion":
-                                score += questionService.calculateMaxPoints(sq);
+                                score += Question.calculateMaxPoints(sq);
                                 break;
                             case "EssayQuestion":
                                 if (sq.evaluationType === 'Points') {

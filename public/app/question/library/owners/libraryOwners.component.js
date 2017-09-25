@@ -6,8 +6,8 @@ angular.module('app.question')
             selectionCount: '<',
             ownerUpdated: '&'
         },
-        controller: ['$translate', 'QuestionRes', 'UserRes',
-            function ($translate, QuestionRes, UserRes) {
+        controller: ['$translate', 'Question', 'UserRes',
+            function ($translate, Question, UserRes) {
 
                 var vm = this;
 
@@ -44,7 +44,7 @@ angular.module('app.question')
                         'questionIds': ids.toString()
                     };
 
-                    QuestionRes.questionOwner.update(data,
+                    Question.questionOwnerApi.update(data,
                         function () {
                             toastr.info($translate.instant('sitnet_question_owner_added'));
                             vm.ownerUpdated();

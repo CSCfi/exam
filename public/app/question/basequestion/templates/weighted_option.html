@@ -3,7 +3,7 @@
     <div class="col-md-7">
         <input id="optionText" type="text" focus-on="opt{{option.id}}" class="question-option-input"
            ng-model="option.option"
-           ng-click="selectIfDefault(option.option, $event)"
+           ng-click="$ctrl.selectIfDefault(option.option, $event)"
            required="true"/>
     </div>
 
@@ -12,9 +12,9 @@
            type="number" step="1"
            ng-model="option.defaultScore"
            required="true"
-           ng-disabled="lotteryOn"/>
+           ng-disabled="$ctrl.lotteryOn"/>
 
-            <span ng-hide="lotteryOn" ng-click="removeOption(option,false)" class="question-option-trash pointer">
+            <span ng-hide="$ctrl.lotteryOn" ng-click="$ctrl.removeOption(option)" class="question-option-trash pointer">
                 <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
             </span>
 

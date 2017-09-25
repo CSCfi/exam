@@ -3,8 +3,8 @@
 angular.module('app.review')
     .component('assessment', {
         templateUrl: '/assets/app/review/assessment/assessment.template.html',
-        controller: ['$routeParams', 'Assessment', 'ExamRes', 'questionService', 'Session', 'examService',
-            function ($routeParams, Assessment, ExamRes, questionService, Session, examService) {
+        controller: ['$routeParams', 'Assessment', 'ExamRes', 'Question', 'Session', 'examService',
+            function ($routeParams, Assessment, ExamRes, Question, Session, examService) {
 
                 var vm = this;
 
@@ -19,7 +19,7 @@ angular.module('app.review')
                                 });
                             });
 
-                            vm.questionSummary = questionService.getQuestionAmounts(exam);
+                            vm.questionSummary = Question.getQuestionAmounts(exam);
                             vm.exam = exam;
                             vm.user = Session.getUser();
                         });
@@ -37,7 +37,7 @@ angular.module('app.review')
                 };
 
                 vm.scoreSet = function () {
-                    angular.extend(vm.questionSummary, questionService.getQuestionAmounts(vm.exam));
+                    angular.extend(vm.questionSummary, Question.getQuestionAmounts(vm.exam));
                     startReview();
                 };
 

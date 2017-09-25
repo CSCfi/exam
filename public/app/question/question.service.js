@@ -1,11 +1,47 @@
 'use strict';
 angular.module('app.question')
-    .service('questionService', ['$q', '$translate', '$location', '$sessionStorage', 'QuestionRes',
-        'ExamSectionQuestionRes', 'Session', 'fileService', 'AttachmentRes',
-        function ($q, $translate, $location, $sessionStorage, QuestionRes, ExamSectionQuestionRes, Session,
+    .service('Question', ['$q', '$resource', '$translate', '$location', '$sessionStorage',
+        'ExamQuestion', 'Session', 'fileService', 'AttachmentRes',
+        function ($q, $resource, $translate, $location, $sessionStorage, ExamQuestion, Session,
                   fileService, AttachmentRes) {
 
             var self = this;
+
+            self.questionsApi = $resource('/app/questions/:id',
+                {
+                    id: '@id'
+                },
+                {
+                    'update': {method: 'PUT'},
+                    'delete': {method: 'DELETE', params: {id: '@id'}},
+                    'create': {method: 'POST'}
+
+                });
+
+            self.questionOwnerApi = $resource('/app/questions/owner/:uid',
+                {
+                    uid: '@uid'
+                },
+                {
+                    'update': {method: 'POST'}
+                });
+
+            self.essayScoreApi = $resource('/app/review/examquestion/:id/score',
+                {
+                    id: '@id'
+                },
+                {
+                    'update': {method: 'PUT', params: {id: '@id'}}
+                });
+
+            self.questionCopyApi = $resource('/app/question/:id',
+                {
+                    id: '@id'
+                },
+                {
+                    'copy': {method: 'POST'}
+                });
+
 
             self.getQuestionDraft = function (type) {
                 var questionType;
@@ -38,8 +74,8 @@ angular.module('app.question')
                 angular.forEach(exam.examSections, function (section) {
                     angular.forEach(section.sectionQuestions, function (sectionQuestion) {
                         var question = sectionQuestion.question;
-                        if (question.type === "EssayQuestion") {
-                            if (sectionQuestion.evaluationType === "Selection" && sectionQuestion.essayAnswer) {
+                        if (question.type === 'EssayQuestion') {
+                            if (sectionQuestion.evaluationType === 'Selection' && sectionQuestion.essayAnswer) {
                                 if (parseInt(sectionQuestion.essayAnswer.evaluatedScore) === 1) {
                                     data.accepted++;
                                 } else if (parseInt(sectionQuestion.essayAnswer.evaluatedScore) === 0) {
@@ -97,8 +133,8 @@ angular.module('app.question')
                 if (selected.length === 0) {
                     return 0;
                 }
-                if (selected.length != 1) {
-                    console.error("multiple options selected for a MultiChoice answer!");
+                if (selected.length !== 1) {
+                    console.error('multiple options selected for a MultiChoice answer!');
                 }
                 if (selected[0].option.correctOption === true) {
                     return sectionQuestion.maxScore;
@@ -107,41 +143,41 @@ angular.module('app.question')
             };
 
             self.decodeHtml = function (html) {
-                var txt = document.createElement("textarea");
+                var txt = document.createElement('textarea');
                 txt.innerHTML = html;
                 return txt.value;
             };
 
             self.longTextIfNotMath = function (text) {
-                if (text && text.length > 0 && text.indexOf("math-tex") === -1) {
+                if (text && text.length > 0 && text.indexOf('math-tex') === -1) {
                     // remove HTML tags
                     var str = String(text).replace(/<[^>]+>/gm, '');
                     // shorten string
                     return self.decodeHtml(str);
                 }
-                return "";
+                return '';
             };
 
             self.shortText = function (text, maxLength) {
 
-                if (text && text.length > 0 && text.indexOf("math-tex") === -1) {
+                if (text && text.length > 0 && text.indexOf('math-tex') === -1) {
                     // remove HTML tags
                     var str = String(text).replace(/<[^>]+>/gm, '');
                     // shorten string
                     str = self.decodeHtml(str);
-                    return str.length + 3 > maxLength ? str.substr(0, maxLength) + "..." : str;
+                    return str.length + 3 > maxLength ? str.substr(0, maxLength) + '...' : str;
                 }
-                return text ? self.decodeHtml(text) : "";
+                return text ? self.decodeHtml(text) : '';
             };
 
             var _filter;
 
             self.setFilter = function (filter) {
                 switch (filter) {
-                    case "MultipleChoiceQuestion":
-                    case "WeightedMultipleChoiceQuestion":
-                    case "EssayQuestion":
-                    case "ClozeTestQuestion":
+                    case 'MultipleChoiceQuestion':
+                    case 'WeightedMultipleChoiceQuestion':
+                    case 'EssayQuestion':
+                    case 'ClozeTestQuestion':
                         _filter = filter;
                         break;
                     default:
@@ -184,15 +220,15 @@ angular.module('app.question')
 
             var getQuestionData = function (question) {
                 var questionToUpdate = {
-                    "type": question.type,
-                    "defaultMaxScore": question.defaultMaxScore,
-                    "question": question.question,
-                    "shared": question.shared,
-                    "defaultAnswerInstructions": question.defaultAnswerInstructions,
-                    "defaultEvaluationCriteria": question.defaultEvaluationCriteria,
-                    "questionOwners": question.questionOwners,
-                    "tags": question.tags,
-                    "options": question.options
+                    'type': question.type,
+                    'defaultMaxScore': question.defaultMaxScore,
+                    'question': question.question,
+                    'shared': question.shared,
+                    'defaultAnswerInstructions': question.defaultAnswerInstructions,
+                    'defaultEvaluationCriteria': question.defaultEvaluationCriteria,
+                    'questionOwners': question.questionOwners,
+                    'tags': question.tags,
+                    'options': question.options
                 };
                 if (question.id) {
                     questionToUpdate.id = question.id;
@@ -216,11 +252,11 @@ angular.module('app.question')
                 var body = getQuestionData(question);
                 var deferred = $q.defer();
 
-                QuestionRes.questions.create(body,
+                self.questionsApi.create(body,
                     function (response) {
                         toastr.info($translate.instant('sitnet_question_added'));
                         if (question.attachment && question.attachment.modified) {
-                            fileService.upload("/app/attachment/question", question.attachment,
+                            fileService.upload('/app/attachment/question', question.attachment,
                                 {questionId: response.id}, question, null, function () {
                                     deferred.resolve(response);
                                 });
@@ -237,11 +273,11 @@ angular.module('app.question')
             self.updateQuestion = function (question, displayErrors) {
                 var body = getQuestionData(question);
                 var deferred = $q.defer();
-                QuestionRes.questions.update(body,
+                self.questionsApi.update(body,
                     function (response) {
-                        toastr.info($translate.instant("sitnet_question_saved"));
+                        toastr.info($translate.instant('sitnet_question_saved'));
                         if (question.attachment && question.attachment.modified) {
-                            fileService.upload("/app/attachment/question", question.attachment,
+                            fileService.upload('/app/attachment/question', question.attachment,
                                 {questionId: question.id}, question, null, function () {
                                     deferred.resolve();
                                 });
@@ -265,12 +301,12 @@ angular.module('app.question')
 
             self.updateDistributedExamQuestion = function (question, sectionQuestion) {
                 var data = {
-                    "id": sectionQuestion.id,
-                    "maxScore": sectionQuestion.maxScore,
-                    "answerInstructions": sectionQuestion.answerInstructions,
-                    "evaluationCriteria": sectionQuestion.evaluationCriteria,
-                    "options": sectionQuestion.options,
-                    "question": question
+                    'id': sectionQuestion.id,
+                    'maxScore': sectionQuestion.maxScore,
+                    'answerInstructions': sectionQuestion.answerInstructions,
+                    'evaluationCriteria': sectionQuestion.evaluationCriteria,
+                    'options': sectionQuestion.options,
+                    'question': question
                 };
 
                 // update question specific attributes
@@ -281,10 +317,10 @@ angular.module('app.question')
                         break;
                 }
                 var deferred = $q.defer();
-                ExamSectionQuestionRes.distributed.update({id: sectionQuestion.id}, data,
+                ExamQuestion.distributionApi.update({id: sectionQuestion.id}, data,
                     function (esq) {
                         if (question.attachment && question.attachment.modified) {
-                            fileService.upload("/app/attachment/question", question.attachment,
+                            fileService.upload('/app/attachment/question', question.attachment,
                                 {questionId: question.id}, question);
                         }
                         if (question.attachment && question.attachment.removed) {
@@ -304,7 +340,7 @@ angular.module('app.question')
                 angular.forEach(options, function (o) {
                     o.correctOption = o === option;
                 });
-            }
+            };
 
         }]);
 

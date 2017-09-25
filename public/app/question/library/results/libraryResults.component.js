@@ -8,8 +8,8 @@ angular.module('app.question')
             allowEditing: '<',
             tableClass: '@?'
         },
-        controller: ['$location', 'dialogs', 'QuestionRes', 'questionService', 'Attachment',
-            function ($location, dialogs, QuestionRes, questionService, Attachment) {
+        controller: ['$location', 'dialogs', 'Question', 'Library', 'Attachment',
+            function ($location, dialogs, Question, Library, Attachment) {
 
                 var vm = this;
 
@@ -17,7 +17,7 @@ angular.module('app.question')
                     vm.pageSize = 25;
                     vm.currentPage = 0;
                     vm.tableClass = vm.tableClass || 'exams-table';
-                    var storedData = questionService.loadFilters('sorting');
+                    var storedData = Library.loadFilters('sorting');
                     if (storedData.filters) {
                         vm.questionsPredicate = storedData.filters.predicate;
                         vm.reverse = storedData.filters.reverse;
@@ -40,7 +40,7 @@ angular.module('app.question')
                         predicate: vm.questionsPredicate,
                         reverse: vm.reverse
                     };
-                    questionService.storeFilters(filters, 'sorting');
+                    Library.storeFilters(filters, 'sorting');
                 };
 
                 vm.selectAll = function (selectAllCssClass, checkboxesCssClass) {
@@ -71,7 +71,7 @@ angular.module('app.question')
                 vm.deleteQuestion = function (question) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_question_from_library_only'));
                     dialog.result.then(function (btn) {
-                        QuestionRes.questions.delete({id: question.id}, function () {
+                        Question.questionsApi.delete({id: question.id}, function () {
                             vm.questions.splice(vm.questions.indexOf(question), 1);
                             vm.applyFreeSearchFilter();
                             toastr.info($translate.instant('sitnet_question_removed'));
@@ -82,9 +82,8 @@ angular.module('app.question')
                 vm.copyQuestion = function (question) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_copy_question'));
                     dialog.result.then(function (btn) {
-                        QuestionRes.question.copy({id: question.id}, function (copy) {
+                        Question.questionCopyApi.copy({id: question.id}, function (copy) {
                             toastr.info($translate.instant('sitnet_question_copied'));
-                            // CHECK THIS WITH THE MODAL USAGE
                             $location.path('/questions/' + copy.id);
                         });
                     });

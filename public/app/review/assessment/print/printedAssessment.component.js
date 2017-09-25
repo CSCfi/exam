@@ -6,8 +6,8 @@ angular.module('app.review')
         bindings: {
             exam: '<'
         },
-        controller: ['$routeParams', '$document', '$sce', 'ExamRes', 'questionService', 'examService', 'Assessment', 'EXAM_CONF', 'Session',
-            function ($routeParams, $document, $sce, ExamRes, questionService, examService, Assessment, EXAM_CONF, Session) {
+        controller: ['$routeParams', '$document', '$sce', 'ExamRes', 'Question', 'examService', 'Assessment', 'EXAM_CONF', 'Session',
+            function ($routeParams, $document, $sce, ExamRes, Question, examService, Assessment, EXAM_CONF, Session) {
 
                 var vm = this;
 
@@ -31,7 +31,7 @@ angular.module('app.review')
                                 });
                             });
 
-                            vm.questionSummary = questionService.getQuestionAmounts(exam);
+                            vm.questionSummary = Question.getQuestionAmounts(exam);
                             vm.exam = exam;
                             vm.user = Session.getUser();
 
@@ -127,18 +127,18 @@ angular.module('app.review')
                     if (sq.question.type !== 'WeightedMultipleChoiceQuestion') {
                         return 0;
                     }
-                    return questionService.scoreWeightedMultipleChoiceAnswer(sq);
+                    return Question.scoreWeightedMultipleChoiceAnswer(sq);
                 };
 
                 vm.scoreMultipleChoiceAnswer = function (sq) {
                     if (sq.question.type !== 'MultipleChoiceQuestion') {
                         return 0;
                     }
-                    return questionService.scoreMultipleChoiceAnswer(sq);
+                    return Question.scoreMultipleChoiceAnswer(sq);
                 };
 
                 vm.calculateMaxPoints = function (sq) {
-                    return questionService.calculateMaxPoints(sq);
+                    return Question.calculateMaxPoints(sq);
                 };
 
             }

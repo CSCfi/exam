@@ -44,15 +44,9 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         });
 
         // edit question
-        $routeProvider.when('/questions/:id', {
-            controller: 'QuestionCtrl',
-            templateUrl: tmpl + 'question/editor/question.html'
-        });
+        $routeProvider.when('/questions/:id', {template: '<question></question>'});
         // new question
-        $routeProvider.when('/questions/newQuestion/:create', {
-            controller: 'QuestionCtrl',
-            templateUrl: tmpl + 'question/editor/question.html'
-        });
+        $routeProvider.when('/questions/newQuestion/:create', {template: '<question new-question="true"></question>'});
 
         /* exams */
         $routeProvider.when('/exams/new', {template: '<new-exam></new-exam>'});

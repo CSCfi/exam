@@ -45,10 +45,7 @@ angular.module('app.question')
                             vm.close();
                         }, function (error) {
                             toastr.error(error.data);
-                            // remove broken objects
-                            vm.section.sectionQuestions = vm.section.sectionQuestions.filter(function (sq) {
-                                return sq;
-                            });
+                            vm.close({error: error});
                         }
                     );
 

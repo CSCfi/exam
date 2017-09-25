@@ -9,8 +9,8 @@ angular.module('app.review')
             isScorable: '<',
             onScore: '&'
         },
-        controller: ['$sce', '$translate', 'Assessment', 'Attachment', 'QuestionRes',
-            function ($sce, $translate, Assessment, Attachment, QuestionRes) {
+        controller: ['$sce', '$translate', 'Assessment', 'Attachment', 'Question',
+            function ($sce, $translate, Assessment, Attachment, Question) {
 
                 var vm = this;
 
@@ -32,7 +32,7 @@ angular.module('app.review')
                         return;
                     }
 
-                    QuestionRes.score.update({
+                    Question.essayScoreApi.update({
                         id: vm.sectionQuestion.id,
                         evaluatedScore: answer.evaluatedScore
                     }, function () {

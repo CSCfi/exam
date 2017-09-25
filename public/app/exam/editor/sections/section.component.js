@@ -9,8 +9,8 @@ angular.module('app.exam.editor')
             onDelete: '&',
             onReloadRequired: '&' // TODO: try to live without this callback?
         },
-        controller: ['$translate', '$uibModal', 'dialogs', 'ExamRes', 'examService', 'questionService', 'EXAM_CONF',
-            function ($translate, $modal, dialogs, ExamRes, examService, questionService, EXAM_CONF) {
+        controller: ['$translate', '$uibModal', 'dialogs', 'ExamRes', 'Question',
+            function ($translate, $modal, dialogs, ExamRes, Question) {
 
                 var vm = this;
 
@@ -153,7 +153,7 @@ angular.module('app.exam.editor')
                             sectionId: vm.section.id,
                             questionCount: vm.section.sectionQuestions.length
                         }
-                    }).result.then(function () {
+                    }).result.then(function (data) {
                         // TODO: see if we could live without reloading the whole exam from back?
                         vm.onReloadRequired();
                     });
@@ -182,7 +182,7 @@ angular.module('app.exam.editor')
                         return question.maxScore;
                     }
                     if (type === 'WeightedMultipleChoiceQuestion') {
-                        return questionService.calculateMaxPoints(question);
+                        return Question.calculateMaxPoints(question);
                     }
                     return null;
                 }
@@ -198,14 +198,13 @@ angular.module('app.exam.editor')
                     };
                 };
 
-                var insertExamQuestion = function (examId, sectionId, questionId, sequenceNumber, modal) {
+                var insertExamQuestion = function (examId, sectionId, questionId, sequenceNumber) {
                     ExamRes.sectionquestions.insert({
                             eid: examId,
                             sid: sectionId,
                             seq: sequenceNumber,
                             qid: questionId
                         }, function () {
-                            modal.dismiss('done');
                             vm.onReloadRequired(); // TODO: see if we could live without reloading the whole exam from back?
                         }, function (error) {
                             toastr.error(error.data);
@@ -215,57 +214,16 @@ angular.module('app.exam.editor')
 
 
                 var openBaseQuestionEditor = function () {
-                    var ctrl = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
-                        $scope.lotteryOn = vm.section.lotteryOn;
-                        $scope.fromDialog = true;
 
-                        $scope.addEditQuestion = {};
-                        $scope.addEditQuestion.id = 0;
-                        $scope.addEditQuestion.showForm = true;
-
-                        var saveQuestion = function (baseQuestion) {
-                            var errFn = function (error) {
-                                toastr.error(error.data);
-                            };
-                            // Create new base question
-                            questionService.createQuestion(baseQuestion).then(function (newQuestion) {
-                                // Now that new base question was created we make an exam section question out of it
-                                insertExamQuestion(vm.examId, vm.section.id, newQuestion.id,
-                                    vm.section.sectionQuestions.length, $modalInstance, true);
-                            }, errFn);
-                        };
-
-                        $scope.submit = function (baseQuestion) {
-                            saveQuestion(baseQuestion);
-                            $scope.addEditQuestion.id = null;
-                        };
-
-                        $scope.cancelEdit = function () {
-                            // Well this is nice now :)
-                            $scope.addEditQuestion.id = null;
-                            $modalInstance.dismiss('Cancelled');
-                        };
-
-                        // Close modal if user clicked the back button and no changes made
-                        $scope.$on('$routeChangeStart', function () {
-                            if (!window.onbeforeunload) {
-                                $modalInstance.dismiss();
-                            }
-                        });
-
-                    }];
-
-                    var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'question/editor/dialog_new_question.html',
+                    $modal.open({
+                        component: 'baseQuestionEditor',
                         backdrop: 'static',
                         keyboard: true,
-                        controller: ctrl,
-                        windowClass: 'question-editor-modal'
-                    });
-
-                    modalInstance.result.then(function () {
-                        // OK button
-                        modalInstance.dismiss();
+                        windowClass: 'question-editor-modal',
+                        resolve: {newQuestion: true}
+                    }).result.then(function (data) {
+                        // Now that new base question was created we make an exam section question out of it
+                        insertExamQuestion(vm.examId, vm.section.id, data.question.id, vm.section.sectionQuestions.length);
                     });
                 };
 

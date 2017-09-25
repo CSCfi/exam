@@ -6,8 +6,8 @@ angular.module('app.review')
         bindings: {
             sectionQuestion: '<'
         },
-        controller: ['$sce', 'Attachment', 'questionService', 'EXAM_CONF',
-            function ($sce, Attachment, questionService, EXAM_CONF) {
+        controller: ['$sce', 'Attachment', 'Question', 'EXAM_CONF',
+            function ($sce, Attachment, Question, EXAM_CONF) {
 
                 var vm = this;
 
@@ -23,18 +23,18 @@ angular.module('app.review')
                     if (vm.sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
                         return 0;
                     }
-                    return questionService.scoreWeightedMultipleChoiceAnswer(vm.sectionQuestion);
+                    return Question.scoreWeightedMultipleChoiceAnswer(vm.sectionQuestion);
                 };
 
                 vm.scoreMultipleChoiceAnswer = function () {
                     if (vm.sectionQuestion.question.type !== 'MultipleChoiceQuestion') {
                         return 0;
                     }
-                    return questionService.scoreMultipleChoiceAnswer(vm.sectionQuestion);
+                    return Question.scoreMultipleChoiceAnswer(vm.sectionQuestion);
                 };
 
                 vm.calculateMaxPoints = function () {
-                    return questionService.calculateMaxPoints(vm.sectionQuestion);
+                    return Question.calculateMaxPoints(vm.sectionQuestion);
                 };
 
                 vm.displayQuestionText = function () {

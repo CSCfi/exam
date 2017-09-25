@@ -5,8 +5,8 @@ angular.module('app.question')
         bindings: {
             onUpdate: '&'
         },
-        controller: ['$q', 'Session', 'QuestionRes', 'questionService', 'ExamRes', 'CourseRes', 'TagRes',
-            function ($q, Session, QuestionRes, questionService, ExamRes, CourseRes, TagRes) {
+        controller: ['$q', 'Library', 'Session',
+            function ($q, Library, Session) {
 
                 var vm = this;
 
@@ -15,7 +15,7 @@ angular.module('app.question')
                     vm.filter = {};
                     vm.user = Session.getUser();
 
-                    var storedData = questionService.loadFilters('search');
+                    var storedData = Library.loadFilters('search');
                     if (storedData.filters) {
                         vm.exams = storedData.filters.exams || [];
                         vm.courses = storedData.filters.courses || [];
@@ -38,45 +38,15 @@ angular.module('app.question')
                     }
                 };
 
-
-                var htmlDecode = function (text) {
-                    return $('<div/>').html(text).text();
-                };
-
                 vm.applyFreeSearchFilter = function () {
-                    if (vm.filter.text) {
-                        var filtered = vm.questions.filter(function (question) {
-                            var re = new RegExp(vm.filter.text, 'i');
-
-                            var isMatch = question.question && htmlDecode(question.question).match(re);
-                            if (isMatch) {
-                                return true;
-                            }
-                            // match course code
-                            return question.examSectionQuestions.filter(function (esq) {
-                                // Course can be empty in case of a copied exam
-                                return esq.examSection.exam.course && esq.examSection.exam.course.code.match(re);
-                            }).length > 0;
-                        });
-                        vm.onUpdate({results: filtered});
-                    } else {
-                        vm.onUpdate({results: vm.questions});
-                    }
+                    var results = Library.applyFreeSearchFilter(vm.filter.text, vm.questions);
+                    vm.onUpdate({results: results});
                     saveFilters();
-
                 };
 
                 vm.applyOwnerSearchFilter = function () {
-                    if (vm.filter.owner) {
-                        var filtered = vm.questions.filter(function (question) {
-                            var re = new RegExp(vm.filter.owner, 'i');
-                            var owner = question.creator.firstName + ' ' + question.creator.lastName;
-                            return owner.match(re);
-                        });
-                        vm.onUpdate({results: filtered});
-                    } else {
-                        vm.onUpdate({results: vm.questions});
-                    }
+                    var results = Library.applyOwnerSearchFilter(vm.filter.owner, vm.questions);
+                    vm.onUpdate({results: results});
                 };
 
                 var saveFilters = function () {
@@ -86,7 +56,7 @@ angular.module('app.question')
                         tags: vm.tags,
                         text: vm.filter.text
                     };
-                    questionService.storeFilters(filters, 'search');
+                    Library.storeFilters(filters, 'search');
                 };
 
                 var getCourseIds = function () {
@@ -123,55 +93,17 @@ angular.module('app.question')
 
                 var query = function () {
                     var deferred = $q.defer();
-                    QuestionRes.questionlist.query({
-                        exam: getExamIds(),
-                        course: getCourseIds(),
-                        tag: getTagIds(),
-                        section: getSectionIds()
-                    }, function (data) {
-                        data.map(function (item) {
-                            switch (item.type) {
-                                case 'MultipleChoiceQuestion':
-                                    item.icon = 'fa-list-ul';
-                                    break;
-                                case 'WeightedMultipleChoiceQuestion':
-                                    item.icon = 'fa-balance-scale';
-                                    break;
-                                case 'EssayQuestion':
-                                    item.icon = 'fa-edit';
-                                    break;
-                                case 'ClozeTestQuestion':
-                                    item.icon = 'fa-commenting-o';
-                                    break;
+                    Library.search(getExamIds(), getCourseIds(), getTagIds(), getSectionIds())
+                        .then(
+                            function (questions) {
+                                vm.questions = questions;
+                                saveFilters();
+                                deferred.resolve();
                             }
-                            return item;
-                        });
-                        vm.questions = questionService.applyFilter(data);
-
-                        vm.questions.forEach(function (q) {
-                            if (q.defaultEvaluationType === 'Points' || q.type === 'ClozeTestQuestion' || q.type === 'MultipleChoiceQuestion') {
-                                q.displayedMaxScore = q.defaultMaxScore;
-                            } else if (q.defaultEvaluationType === 'Selection') {
-                                q.displayedMaxScore = 'sitnet_evaluation_select';
-                            } else if (q.type === 'WeightedMultipleChoiceQuestion') {
-                                q.displayedMaxScore = calculateMaxPoints(q);
-                            }
-                            q.typeOrd = ['EssayQuestion',
-                                'ClozeTestQuestion',
-                                'MultipleChoiceQuestion',
-                                'WeightedMultipleChoiceQuestion'].indexOf(q.type);
-                            q.ownerAggregate = q.creator.lastName + q.creator.firstName;
-                            q.allowedToRemove = q.examSectionQuestions.filter(function (esq) {
-                                var exam = esq.examSection.exam;
-                                return exam.state === 'PUBLISHED' && exam.examActiveEndDate > new Date().getTime();
-                            }).length === 0;
-                        });
-                        saveFilters();
-
-                        deferred.resolve();
-                    });
+                        );
                     return deferred.promise;
                 };
+
 
                 var union = function (filtered, tags) {
                     var filteredIds = filtered.map(function (tag) {
@@ -187,7 +119,7 @@ angular.module('app.question')
                         return course.filtered;
                     });
                     var deferred = $q.defer();
-                    CourseRes.userCourses.query({
+                    Library.courseApi.query({
                         examIds: getExamIds(),
                         tagIds: getTagIds(),
                         sectionIds: getSectionIds()
@@ -203,7 +135,7 @@ angular.module('app.question')
                         return exam.filtered;
                     });
                     var deferred = $q.defer();
-                    ExamRes.examsearch.query({
+                    Library.examApi.query({
                         courseIds: getCourseIds(),
                         sectionIds: getSectionIds(),
                         tagIds: getTagIds()
@@ -215,10 +147,9 @@ angular.module('app.question')
                 };
 
                 var doListTags = function (sections) {
-                    var deferred = $q.defer();
                     var examIds = getExamIds();
                     var courseIds = getCourseIds();
-                    TagRes.tags.query({
+                    Library.tagApi.query({
                         examIds: examIds,
                         courseIds: courseIds,
                         sectionIds: getSectionIds()
@@ -238,9 +169,7 @@ angular.module('app.question')
                             }));
                         });
                         vm.tags = vm.tags.concat(union(sections, examSections));
-                        deferred.resolve();
                     });
-                    return deferred.promise;
                 };
 
                 vm.listTags = function () {
@@ -277,10 +206,6 @@ angular.module('app.question')
                     query().then(function () {
                         vm.applyFreeSearchFilter();
                     });
-                };
-
-                var calculateMaxPoints = function (question) {
-                    return questionService.calculateDefaultMaxPoints(question);
                 };
 
             }
