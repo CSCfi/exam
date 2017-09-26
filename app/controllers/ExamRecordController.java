@@ -264,6 +264,8 @@ public class ExamRecordController extends BaseController {
             score.setGradeScale(scale.getDescription());
         }
         score.setStudentGrade(exam.getGrade().getName());
+        Organisation organisation = exam.getCourse().getOrganisation();
+        score.setInstitutionName(organisation == null ? null : organisation.getName());
         return score;
     }
 
