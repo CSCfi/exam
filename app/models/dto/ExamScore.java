@@ -38,6 +38,7 @@ public class ExamScore extends GeneratedIdentityModel {
     private String courseImplementation;
     private String additionalInfo;
     private String lecturerEmployeeNumber;
+    private String institutionName;
 
     public ExamRecord getExamRecord() {
         return examRecord;
@@ -196,11 +197,19 @@ public class ExamScore extends GeneratedIdentityModel {
         this.lecturerEmployeeNumber = lecturerEmployeeNumber;
     }
 
+    public String getInstitutionName() {
+        return institutionName;
+    }
+
+    public void setInstitutionName(String institutionName) {
+        this.institutionName = institutionName;
+    }
+
     @Transient
     public static String[] getHeaders() {
         return new String[]{"id",
                 "student", "studentFirstName", "studentLastName", "studentEmail", "studentId", "identifier",
-                "courseUnitCode", "courseUnitName", "courseImplementation", "courseUnitLevel",
+                "courseUnitCode", "courseUnitName", "courseImplementation", "courseUnitLevel", "institutionName",
                 "examDate", "creditType", "credits", "creditLanguage", "studentGrade", "gradeScale", "examScore",
                 "lecturer", "lecturerFirstName", "lecturerLastName", "lecturerId", "lecturerEmployeeNumber",
                 "date", "additionalInfo"};
@@ -210,7 +219,7 @@ public class ExamScore extends GeneratedIdentityModel {
     public String[] asArray(User student, User teacher, Exam exam) {
         return new String[]{Long.toString(getId()),
                 this.student, student.getFirstName(), student.getLastName(), student.getEmail(), studentId, identifier,
-                courseUnitCode, exam.getCourse().getName(), courseImplementation, courseUnitLevel,
+                courseUnitCode, exam.getCourse().getName(), courseImplementation, courseUnitLevel, institutionName,
                 examDate, creditType, credits, creditLanguage, studentGrade, gradeScale, examScore,
                 lecturer, teacher.getFirstName(), teacher.getLastName(), lecturerId, lecturerEmployeeNumber,
                 registrationDate, additionalInfo};
