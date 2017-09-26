@@ -16,7 +16,7 @@ angular.module('app.question')
                 vm.$onInit = function () {
                     vm.pageSize = 25;
                     vm.currentPage = 0;
-                    vm.tableClass = vm.tableClass || 'exams-table';
+                    vm.tableClass = vm.tableClass || 'exams-table';
                     var storedData = Library.loadFilters('sorting');
                     if (storedData.filters) {
                         vm.questionsPredicate = storedData.filters.predicate;
@@ -92,6 +92,46 @@ angular.module('app.question')
                 vm.downloadQuestionAttachment = function (question) {
                     Attachment.downloadQuestionAttachment(question);
                 };
+
+                vm.printOwners = function (question) {
+                    return question.questionOwners.map(function (o) {
+                        return o.firstName + ' ' + o.lastName;
+                    }).join(', ');
+                };
+
+                vm.printTags = function (question) {
+                    return question.tags.map (function (t) {
+                        return t.name.toUpperCase();
+                    }).join(', ');
+                };
+
+                vm.getQuestionTypeIcon = function (question) {
+                    switch (question.type) {
+                        case 'EssayQuestion':
+                            return 'fa-edit';
+                        case 'MultipleChoiceQuestion':
+                            return 'fa-list-ul';
+                        case 'WeightedMultipleChoiceQuestion':
+                            return 'fa-balance-scale';
+                        case 'ClozeTestQuestion':
+                            return 'fa-terminal';
+                    }
+                    return '';
+                };
+
+                vm.getQuestionTypeText = function (question) {
+                    switch (question.type) {
+                        case 'EssayQuestion':
+                            return 'sitnet_essay';
+                        case 'MultipleChoiceQuestion':
+                            return 'sitnet_question_mc';
+                        case 'WeightedMultipleChoiceQuestion':
+                            return 'sitnet_question_weighted_mc';
+                        case 'ClozeTestQuestion':
+                            return 'sitnet_toolbar_cloze_test_question';
+                    }
+                    return '';
+                }
 
 
             }

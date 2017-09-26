@@ -41,8 +41,8 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds) {
         User user = getLoggedUser();
-        PathProperties pp = PathProperties.parse("*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
-                "attachment(id, fileName), options(defaultScore), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))");
+        PathProperties pp = PathProperties.parse("*, modifier(firstName, lastName) questionOwners(id, firstName, lastName, userIdentifier, email), " +
+                "attachment(id, fileName), options(defaultScore), tags(name), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))");
         Query<Question> query = Ebean.find(Question.class);
         pp.apply(query);
         ExpressionList<Question> el = query
