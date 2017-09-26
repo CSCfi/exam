@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.reservation')
     .component('reservations', {
-        templateUrl: '/assets/app/reservation/reservations.template.html',
+        template: '<div ng-include="$ctrl.templateUrl"></div>',
         bindings: {
             'userRole': '@'
         },
@@ -10,8 +10,15 @@ angular.module('app.reservation')
             function (ExamRes, $location, $http, EXAM_CONF, ReservationResource, reservationService, examService,
                       $timeout, $routeParams, $translate, $filter) {
 
+                var select2options = {
+                    placeholder: '-',
+                    data: [],
+                    allowClear: true,
+                    dropdownAutoWidth: true
+                };
 
                 var ctrl = this;
+                var examId = $routeParams.eid ? parseInt($routeParams.eid) : undefined;
 
                 ctrl.$onInit = function () {
                     ctrl.startDate = ctrl.endDate = new Date();
@@ -20,47 +27,59 @@ angular.module('app.reservation')
                     } else if (ctrl.userRole === 'teacher') {
                         ctrl.templateUrl = EXAM_CONF.TEMPLATES_PATH + 'reservation/teacher/teacherReservations.template.html';
                     }
-                };
-
-
-                var examId = $routeParams.eid ? parseInt($routeParams.eid) : undefined;
-
-                ctrl.selection = {examId: examId};
-
-                var select2options = {
-                    placeholder: '-',
-                    data: [],
-                    allowClear: true,
-                    dropdownAutoWidth: true
-                };
-
-                ctrl.machineOptions = angular.copy(select2options);
-
-                ctrl.roomOptions = angular.copy(select2options);
-
-                ctrl.examOptions = angular.copy(select2options);
-                ctrl.examOptions.initSelection = function (element, callback) {
-                    if (examId) {
-                        var selected = ctrl.examOptions.data.filter(function (d) {
-                            return d.id === examId;
-                        });
-                        if (selected.length > 0) {
-                            callback(selected[0]);
-                            // this reset is dumb but necessary because for some reason this callback is executed
-                            // each time selection changes. Might be a problem with the (deprecated) ui-select2
-                            // directive or not
-                            examId = null;
-                        }
+                    ctrl.examStates = [
+                        'REVIEW',
+                        'REVIEW_STARTED',
+                        'GRADED',
+                        'GRADED_LOGGED',
+                        'REJECTED',
+                        'ARCHIVED',
+                        'STUDENT_STARTED',
+                        'PUBLISHED',
+                        'ABORTED',
+                        'NO_SHOW'
+                    ];
+                    if (ctrl.userRole === 'admin') {
+                        ctrl.examStates.push('EXTERNAL');
                     }
+
+                    ctrl.selection = {examId: examId};
+
+                    ctrl.machineOptions = angular.copy(select2options);
+
+                    ctrl.roomOptions = angular.copy(select2options);
+
+                    ctrl.examOptions = angular.copy(select2options);
+                    ctrl.examOptions.initSelection = function (element, callback) {
+                        if (examId) {
+                            var selected = ctrl.examOptions.data.filter(function (d) {
+                                return d.id === examId;
+                            });
+                            if (selected.length > 0) {
+                                callback(selected[0]);
+                                // this reset is dumb but necessary because for some reason this callback is executed
+                                // each time selection changes. Might be a problem with the (deprecated) ui-select2
+                                // directive or not
+                                examId = null;
+                            }
+                        }
+                    };
+
+                    ctrl.studentOptions = angular.copy(select2options);
+
+                    ctrl.stateOptions = angular.copy(select2options);
+
+                    ctrl.teacherOptions = angular.copy(select2options);
+
+                    ctrl.reservationDetails = EXAM_CONF.TEMPLATES_PATH + 'reservation/reservation_details.html';
+
+                    ctrl.examStates.forEach(function (state) {
+                        ctrl.stateOptions.data.push({
+                            id: state,
+                            text: $translate.instant('sitnet_exam_status_' + state.toLowerCase())
+                        });
+                    });
                 };
-
-                ctrl.studentOptions = angular.copy(select2options);
-
-                ctrl.stateOptions = angular.copy(select2options);
-
-                ctrl.teacherOptions = angular.copy(select2options);
-
-                ctrl.reservationDetails = EXAM_CONF.TEMPLATES_PATH + 'reservation/reservation_details.html';
 
 
                 ctrl.isAdminView = function () {
@@ -128,36 +147,14 @@ angular.module('app.reservation')
                     );
                 }
 
-                ctrl.examStates = [
-                    'REVIEW',
-                    'REVIEW_STARTED',
-                    'GRADED',
-                    'GRADED_LOGGED',
-                    'REJECTED',
-                    'ARCHIVED',
-                    'STUDENT_STARTED',
-                    'PUBLISHED',
-                    'ABORTED',
-                    'NO_SHOW'
-                ];
-
-                ctrl.examStates.forEach(function (state) {
-                    ctrl.stateOptions.data.push({
-                        id: state,
-                        text: $translate.instant('sitnet_exam_status_' + state.toLowerCase())
-                    });
-                });
-
-                ctrl.stateclass = '';
-                ctrl.printExamState = function (enrolment) {
-                    return enrolment.reservation.noShow ? 'NO_SHOW' : enrolment.exam.state;
+                ctrl.printExamState = function (reservation) {
+                    return reservation.noShow ? 'NO_SHOW' : reservation.enrolment.exam.state;
                 };
 
 
-                ctrl.getStateclass = function (enrolment) {
-                    return enrolment.reservation.noShow ? 'no_show' : enrolment.exam.state.toLowerCase();
+                ctrl.getStateclass = function (reservation) {
+                    return reservation.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase();
                 };
-
 
                 ctrl.roomChanged = function () {
                     if (typeof ctrl.selection.roomId !== 'object') {
@@ -220,27 +217,32 @@ angular.module('app.reservation')
                         }
 
                         ReservationResource.reservations.query(params,
-                            function (enrolments) {
-                                enrolments.forEach(function (e) {
-                                    e.userAggregate = e.user.lastName + e.user.firstName;
-                                    var exam = e.exam.parent || e.exam;
-                                    e.teacherAggregate = exam.examOwners.map(function (o) {
+                            function (reservations) {
+                                reservations.forEach(function (r) {
+                                    r.userAggregate = r.user ? r.user.lastName + r.user.firstName : r.externalUserRef;
+                                    if (!r.enrolment || r.enrolment.externalExam) {
+                                        r.enrolment = r.enrolment || {};
+                                        r.enrolment.exam = {external: true, examOwners: [], state: 'EXTERNAL'};
+                                    }
+                                    var exam = r.enrolment.exam.parent || r.enrolment.exam;
+                                    r.enrolment.teacherAggregate = exam.examOwners.map(function (o) {
                                         return o.lastName + o.firstName;
                                     }).join();
-                                    var state = ctrl.printExamState(e);
-                                    e.stateOrd = ['PUBLISHED', 'NO_SHOW', 'STUDENT_STARTED', 'ABORTED', 'REVIEW',
-                                        'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'REJECTED', 'ARCHIVED'].indexOf(state);
+                                    var state = ctrl.printExamState(r);
+                                    r.stateOrd = ['PUBLISHED', 'NO_SHOW', 'STUDENT_STARTED', 'ABORTED', 'REVIEW',
+                                            'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'REJECTED', 'ARCHIVED',
+                                            'EXTERNAL'].indexOf(state);
                                 });
-                                ctrl.enrolments = enrolments;
+                                ctrl.reservations = reservations;
                             }, function (error) {
                                 toastr.error(error.data);
                             });
                     }
                 };
 
-                ctrl.removeReservation = function (enrolment) {
-                    reservationService.cancelReservation(enrolment.reservation).then(function () {
-                        ctrl.enrolments.splice(ctrl.enrolments.indexOf(enrolment), 1);
+                ctrl.removeReservation = function (reservation) {
+                    reservationService.cancelReservation(reservation).then(function () {
+                        ctrl.reservations.splice(ctrl.reservations.indexOf(reservation), 1);
                         toastr.info($translate.instant('sitnet_reservation_removed'));
                     });
                 };

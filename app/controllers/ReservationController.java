@@ -231,48 +231,56 @@ public class ReservationController extends BaseController {
     public Result getReservations(Optional<String> state, Optional<Long> ownerId, Optional<Long> studentId,
                                   Optional<Long> roomId, Optional<Long> machineId, Optional<Long> examId,
                                   Optional<String> start, Optional<String> end) {
-        ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
+        ExpressionList<Reservation> query = Ebean.find(Reservation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
-                .fetch("exam", "id, name, state, trialCount")
-                .fetch("exam.course", "code")
-                .fetch("exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
-                .fetch("exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
-                .fetch("exam.examInspections.user", "id, firstName, lastName")
-                .fetch("reservation", "startAt, endAt, noShow, retrialPermitted")
-                .fetch("reservation.machine", "id, name, ipAddress, otherIdentifier")
-                .fetch("reservation.machine.room", "id, name, roomCode")
+                .fetch("enrolment.exam", "id, name, state, trialCount")
+                .fetch("enrolment.externalExam", "id, externalRef")
+                .fetch("enrolment.exam.course", "code")
+                .fetch("enrolment.exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
+                .fetch("enrolment.exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
+                .fetch("enrolment.exam.examInspections.user", "id, firstName, lastName")
+                .fetch("machine", "id, name, ipAddress, otherIdentifier")
+                .fetch("machine.room", "id, name, roomCode")
                 .where()
-                .isNotNull("reservation")
-                .ne("exam.state", Exam.State.DELETED);
+                .disjunction()
+                .ne("enrolment.exam.state", Exam.State.DELETED) // Local reservation
+                .isNotNull("externalRef") // External reservation
+                .endJunction();
 
         User user = getLoggedUser();
         if (user.hasRole("TEACHER", getSession())) {
             query = query.disjunction()
-                    .eq("exam.parent.examOwners", user)
-                    .eq("exam.examOwners", user)
+                    .eq("enrolment.exam.parent.examOwners", user)
+                    .eq("enrolment.exam.examOwners", user)
                     .endJunction();
         }
 
         if (start.isPresent()) {
             DateTime startDate = AppUtil.withTimeAtStartOfDayConsideringTz(
                     DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser()));
-            query = query.ge("reservation.startAt", startDate.toDate());
+            query = query.ge("startAt", startDate.toDate());
         }
 
         if (end.isPresent()) {
             DateTime endDate = AppUtil.withTimeAtEndOfDayConsideringTz(
                     DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser()));
-            query = query.lt("reservation.endAt", endDate.toDate());
+            query = query.lt("endAt", endDate.toDate());
         }
 
         if (state.isPresent()) {
-            if (!state.get().equals("NO_SHOW")) {
-                query = query.eq("exam.state", Exam.State.valueOf(state.get()));
-                if (state.get().equals(Exam.State.PUBLISHED.toString())) {
-                    query = query.eq("reservation.noShow", false);
-                }
-            } else {
-                query = query.eq("reservation.noShow", true);
+            switch (state.get()) {
+                case "NO_SHOW":
+                    query = query.eq("noShow", true);
+                    break;
+                case "EXTERNAL":
+                    query = query.isNotNull("externalRef");
+                    break;
+                default:
+                    query = query.eq("enrolment.exam.state", Exam.State.valueOf(state.get()));
+                    if (state.get().equals(Exam.State.PUBLISHED.toString())) {
+                        query = query.eq("noShow", false);
+                    }
+                    break;
             }
         }
 
@@ -280,20 +288,28 @@ public class ReservationController extends BaseController {
             query = query.eq("user.id", studentId.get());
         }
         if (roomId.isPresent()) {
-            query = query.eq("reservation.machine.room.id", roomId.get());
+            query = query.eq("machine.room.id", roomId.get());
         }
         if (machineId.isPresent()) {
-            query = query.eq("reservation.machine.id", machineId.get());
+            query = query.eq("machine.id", machineId.get());
         }
         if (examId.isPresent()) {
-            query = query.disjunction().eq("exam.parent.id", examId.get()).eq("exam.id", examId.get()).endJunction();
+            query = query
+                    .disjunction()
+                    .eq("enrolment.exam.parent.id", examId.get())
+                    .eq("enrolment.exam.id", examId.get())
+                    .endJunction();
         }
 
         if (ownerId.isPresent() && user.hasRole("ADMIN", getSession())) {
             Long userId = ownerId.get();
-            query = query.disjunction().eq("exam.examOwners.id", userId).eq("exam.parent.examOwners.id", userId).endJunction();
+            query = query
+                    .disjunction()
+                    .eq("enrolment.exam.examOwners.id", userId)
+                    .eq("enrolment.exam.parent.examOwners.id", userId)
+                    .endJunction();
         }
-        Set<ExamEnrolment> enrolments = query.orderBy("reservation.startAt").findSet();
-        return ok(enrolments);
+        Set<Reservation> reservations = query.orderBy("startAt").findSet();
+        return ok(reservations);
     }
 }

@@ -842,5 +842,6 @@
   "sitnet_inspection_comment_info": "Skriv ett meddelande åt en annan bedömare (inte synlig för studenten)",
   "sitnet_maturity_search_description": "Voit suodattaa tuloksia opintojakson koodin, tentin nimen, opiskelijan nimen tai tentaattorin nimen mukaan. SV",
   "sitnet_internal_exam_reference": "Sisäinen viite SV",
-  "sitnet_categories": "Avainsanat SV"
+  "sitnet_categories": "Avainsanat SV",
+  "sitnet_exam_status_external": "Ulkopuolinen varaus SV"
 }

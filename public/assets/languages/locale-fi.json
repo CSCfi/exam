@@ -842,5 +842,5 @@
   "sitnet_inspection_comment_info": "Kirjoita viesti tai kommentti toiselle arvioijalle (ei näy opiskelijalle)",
   "sitnet_maturity_search_description": "Voit suodattaa tuloksia opintojakson koodin, tentin nimen, opiskelijan nimen tai tentaattorin nimen mukaan.",
   "sitnet_internal_exam_reference": "Sisäinen viite",
-  "sitnet_categories": "Avainsanat"
+  "sitnet_exam_status_external": "Ulkopuolinen varaus"
 }
