@@ -9,8 +9,8 @@
 
                 var setMaturityInstructions = function (exam) {
                     var deferred = $q.defer();
-                    if (exam.examLanguages.length != 1) {
-                        console.warn("Exam has no exam languages or it has several!");
+                    if (exam.examLanguages.length !== 1) {
+                        console.warn('Exam has no exam languages or it has several!');
                     }
                     var lang = exam.examLanguages.length > 0 ? exam.examLanguages[0].code : 'fi';
                     SettingsResource.maturityInstructions.get({lang: lang}, function (data) {
@@ -53,13 +53,18 @@
 
                 self.enrollStudent = function (exam, student) {
                     var deferred = $q.defer();
-                    EnrollRes.enrollStudent.create({eid: exam.id, uid: student.id},
+                    var data = {eid: exam.id};
+                    if (student.id) {
+                        data.uid = student.id;
+                    } else {
+                        data.email = student.email;
+                    }
+                    EnrollRes.enrollStudent.create(data,
                         function (enrolment) {
                             toastr.success($translate.instant('sitnet_student_enrolled_to_exam'));
                             deferred.resolve(enrolment);
                         },
                         function (error) {
-                            toastr.error(error.data);
                             deferred.reject(error);
                         });
                     return deferred.promise;
@@ -77,10 +82,10 @@
                                 });
                                 setMaturityInstructions(exam).then(function (data) {
                                     exam = data;
-                                    EnrollRes.check.get({id: exam.id}, function (enrollit) {
+                                    EnrollRes.check.get({id: exam.id}, function (enrolments) {
                                         exam.alreadyEnrolled = true;
-                                        enrollit.forEach(function (enrolli) {
-                                            if(enrolli.reservation) {
+                                        enrolments.forEach(function (enrolment) {
+                                            if (enrolment.reservation) {
                                                 exam.reservationMade = true;
                                             }
                                         });
@@ -103,7 +108,6 @@
                                 toastr.error(error.data);
                             });
                     }
-                    // else {
                     EnrollRes.list.get({code: code},
                         function (exams) {
                             scope.exams = exams.map(function (exam) {
@@ -114,11 +118,11 @@
                             });
 
                             // remove duplicate exam, which is already shown at the detailed info section.
-                            if(id) {
-                                angular.forEach(scope.exams, function(value, key) {
-                                  if(value.id == id) {
-                                    scope.exams.splice(scope.exams.indexOf(value),1);
-                                  }
+                            if (id) {
+                                angular.forEach(scope.exams, function (value, key) {
+                                    if (value.id == id) {
+                                        scope.exams.splice(scope.exams.indexOf(value), 1);
+                                    }
                                 });
                             }
 
@@ -128,27 +132,21 @@
                         function (error) {
                             toastr.error(error.data);
                         });
-
-
-                    //}
                 };
 
                 var checkEnrolment = function (exams) {
 
                     exams.forEach(function (exam) {
 
-                        EnrollRes.check.get({id: exam.id}, function (enrollit) {
-
-                            // check if student has reserved aquarium
-                            enrollit.forEach(function (enrolli) {
-                                if(enrolli.reservation) {
-                                    exam.reservationMade = true;
-                                }
-                            });
-
-                            // enrolled to exam
-                            exam.enrolled = true;
-
+                        EnrollRes.check.get({id: exam.id}, function (enrolments) {
+                                // check if student has reserved aquarium
+                                enrolments.forEach(function (enrolment) {
+                                    if (enrolment.reservation) {
+                                        exam.reservationMade = true;
+                                    }
+                                });
+                                // enrolled to exam
+                                exam.enrolled = true;
                             }, function (err) {
                                 // not enrolled or made reservations
                                 exam.enrolled = false;
@@ -158,7 +156,7 @@
 
                     });
 
-                }
+                };
 
                 self.removeEnrolment = function (enrolment, enrolments) {
                     if (enrolment.reservation) {
@@ -179,10 +177,10 @@
                 };
 
                 self.addEnrolmentInformation = function (enrolment) {
-                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                    var modalController = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
                         $scope.enrolment = angular.copy(enrolment);
                         $scope.ok = function () {
-                            $modalInstance.close("Accepted");
+                            $modalInstance.close('Accepted');
                             enrolment.information = $scope.enrolment.information;
                             StudentExamRes.enrolment.update({
                                 eid: enrolment.id,
@@ -193,7 +191,7 @@
                         };
 
                         $scope.cancel = function () {
-                            $modalInstance.close("Canceled");
+                            $modalInstance.close('Canceled');
                         };
                     }];
 
@@ -210,16 +208,16 @@
                     });
 
                     modalInstance.result.then(function () {
-                        console.log("closed");
+                        console.log('closed');
                     });
                 };
 
                 self.showInstructions = function (enrolment) {
-                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                    var modalController = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
                         $scope.title = 'sitnet_instruction';
                         $scope.instructions = enrolment.exam.enrollInstruction;
                         $scope.ok = function () {
-                            $modalInstance.close("Accepted");
+                            $modalInstance.close('Accepted');
                         };
                     }];
 
@@ -236,14 +234,14 @@
                     });
 
                     modalInstance.result.then(function () {
-                        console.log("closed");
+                        console.log('closed');
                     });
                 };
 
                 self.showMaturityInstructions = function (enrolment) {
-                    var modalController = ["$scope", "$uibModalInstance", "SettingsResource", function ($scope, $modalInstance, SettingsResource) {
+                    var modalController = ['$scope', '$uibModalInstance', 'SettingsResource', function ($scope, $modalInstance, SettingsResource) {
                         if (enrolment.exam.examLanguages.length !== 1) {
-                            console.warn("Exam has no exam languages or it has several!");
+                            console.warn('Exam has no exam languages or it has several!');
                         }
                         var lang = enrolment.exam.examLanguages && enrolment.exam.examLanguages.length > 0
                             ? enrolment.exam.examLanguages[0].code : 'fi';
@@ -252,7 +250,7 @@
                             $scope.instructions = data.value;
                         });
                         $scope.ok = function () {
-                            $modalInstance.close("Accepted");
+                            $modalInstance.close('Accepted');
                         };
                     }];
 
@@ -269,7 +267,7 @@
                     });
 
                     modalInstance.result.then(function () {
-                        console.log("closed");
+                        console.log('closed');
                     });
                 };
 

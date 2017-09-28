@@ -62,5 +62,9 @@ angular.module('app.exam.editor')
                     });
                 };
 
+                vm.isActualEnrolment = function (enrolment) {
+                    return !enrolment.preEnrolledUserEmail;
+                }
+
             }]
     });

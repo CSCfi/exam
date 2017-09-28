@@ -63,7 +63,8 @@ public class NoShowHandlerUtil implements NoShowHandler {
                 ns.getExternalRef() == null &&
                         ns.getEnrolment() != null &&
                         ns.getEnrolment().getExam() != null &&
-                        ns.getEnrolment().getExam().getState() == Exam.State.PUBLISHED).collect(Collectors.toList());
+                        ns.getEnrolment().getExam().getState() == Exam.State.PUBLISHED
+        ).collect(Collectors.toList());
         locals.forEach(this::handleNoShowAndNotify);
 
         List<Reservation> externals = noShows.stream().filter(ns ->

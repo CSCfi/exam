@@ -14,6 +14,7 @@ import models.Reservation;
 import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
+import play.data.validation.Constraints;
 import play.mvc.Result;
 import util.AppUtil;
 import util.java.EmailComposer;
@@ -104,7 +105,11 @@ public class EnrolmentController extends BaseController {
     private static ExamEnrolment makeEnrolment(Exam exam, User user) {
         ExamEnrolment enrolment = new ExamEnrolment();
         enrolment.setEnrolledOn(DateTime.now());
-        enrolment.setUser(user);
+        if (user.getId() == null) {
+            enrolment.setPreEnrolledUserEmail(user.getEmail());
+        } else {
+            enrolment.setUser(user);
+        }
         enrolment.setExam(exam);
         enrolment.save();
         return enrolment;
@@ -200,7 +205,17 @@ public class EnrolmentController extends BaseController {
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
                 .where()
+                // Either user's id matches or email matches
+                .or()
+                .and()
+                .isNotNull("user.id")
                 .eq("user.id", user.getId())
+                .endAnd()
+                .and()
+                .isNull("user.id")
+                .eq("user.email", user.getEmail())
+                .endAnd()
+                .endOr()
                 // either exam ID matches OR (exam parent ID matches AND exam is started by student)
                 .disjunction()
                 .eq("exam.id", exam.getId())
@@ -263,13 +278,44 @@ public class EnrolmentController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public CompletionStage<Result> createStudentEnrolment(Long eid, Long uid) {
+    public CompletionStage<Result> createStudentEnrolment(Long eid) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
-        User user = Ebean.find(User.class, uid);
-        return doCreateEnrolment(eid, ExamExecutionType.Type.valueOf(exam.getExecutionType().getType()), user);
+        ExamExecutionType.Type executionType = ExamExecutionType.Type.valueOf(exam.getExecutionType().getType());
+        JsonNode body = request().body().asJson();
+
+        User user;
+        if (body.has("uid")) {
+            Long uid = body.get("uid").asLong();
+            user = Ebean.find(User.class, uid);
+        } else if (body.has("email")) {
+            String email = body.get("email").asText();
+            user = Ebean.find(User.class).where().eq("email", email).findOne();
+            if (user == null) {
+                // Pre-enrolment
+                Constraints.EmailValidator validator = new Constraints.EmailValidator();
+                if (validator.isValid(email)) {
+                    // Check that we will not create duplicate enrolments for same email address
+                    ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
+                            .eq("exam.id", eid )
+                            .eq("preEnrolledUserEmail", email)
+                            .findOne();
+                    if (enrolment == null) {
+                        user = new User();
+                        user.setEmail(email);
+                    } else {
+                        wrapAsPromise(badRequest("already pre-enrolled"));
+                    }
+                } else {
+                    wrapAsPromise(badRequest("invalid email format"));
+                }
+            }
+        } else {
+            return wrapAsPromise(badRequest());
+        }
+        return doCreateEnrolment(eid, executionType, user);
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})

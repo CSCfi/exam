@@ -5,8 +5,8 @@ import biweekly.ICalVersion;
 import biweekly.ICalendar;
 import biweekly.component.VEvent;
 import biweekly.property.Summary;
-import io.ebean.Ebean;
 import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
 import models.*;
 import org.apache.commons.mail.EmailAttachment;
 import org.joda.time.DateTime;
@@ -585,12 +585,11 @@ class EmailComposerImpl implements EmailComposer {
     }
 
     private static <K, V extends Comparable<? super V>> SortedSet<Map.Entry<K, V>> sortByValue(Map<K, V> map) {
-        SortedSet<Map.Entry<K, V>> set = new TreeSet<>(
-                (e1, e2) -> {
+        SortedSet<Map.Entry<K, V>> set =
+                new TreeSet<>((e1, e2) -> {
                     int res = e1.getValue().compareTo(e2.getValue());
                     return res != 0 ? res : 1;
-                }
-        );
+                });
         set.addAll(map.entrySet());
         return set;
     }
@@ -623,7 +622,8 @@ class EmailComposerImpl implements EmailComposer {
     }
 
     private static Lang getLang(User user) {
-        return Lang.forCode(user.getLanguage().getCode());
+        Language userLang = user.getLanguage();
+        return Lang.forCode(userLang == null ? "en" : userLang.getCode());
     }
 
     private static DateTime adjustDST(DateTime date, DateTimeZone dtz) {

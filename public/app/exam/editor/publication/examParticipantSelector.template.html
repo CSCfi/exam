@@ -8,6 +8,7 @@
     </div>
     <div class="col-md-9">
         <input type="text" class="form-control wdth-30 make-inline"
+               placeholder="{{'sitnet_write_participant_name' | translate}}"
                ng-model="$ctrl.newParticipant.name"
                uib-typeahead="s.name for s in $ctrl.allStudents('name', $viewValue)"
                typeahead-editable="false"
@@ -22,7 +23,7 @@
         <div class="col-md-9">
             <ul class="list-inline mart10">
                 <!-- Students not having finished the exam -->
-                <li ng-repeat="enrolment in $ctrl.exam.examEnrolments">
+                <li class="marl10" ng-repeat="enrolment in $ctrl.exam.examEnrolments | filter:$ctrl.isActualEnrolment">
                     {{enrolment.user.firstName }} {{ enrolment.user.lastName }}
                     <button class="reviewer-remove"
                             ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
@@ -33,7 +34,7 @@
                     </button>
                 </li>
                 <!-- Students that have finished the exam -->
-                <li ng-repeat="participant in $ctrl.exam.participants">
+                <li class="marl10" ng-repeat="participant in $ctrl.exam.participants">
                     {{ participant.user.firstName }} {{ participant.user.lastName }}
                     <button class="reviewer-remove"
                             ng-disabled="$ctrl.exam.state === 'PUBLISHED'">

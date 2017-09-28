@@ -148,7 +148,7 @@ GET           /app/enroll/reservation/:id                                control
 GET           /app/enroll/:code/exam/:id                                 controllers.EnrolmentController.enrollExamInfo(code: String, id: Long)
 POST          /app/enroll/:code/exam/:id                                 controllers.EnrolmentController.createEnrolment(code: String, id: Long)
 GET           /app/enroll/exam/:id                                       controllers.EnrolmentController.checkIfEnrolled(id: Long)
-POST          /app/enroll/student/:eid/:uid                              controllers.EnrolmentController.createStudentEnrolment(eid: Long, uid: Long)
+POST          /app/enroll/student/:eid                                   controllers.EnrolmentController.createStudentEnrolment(eid: Long)
 DELETE        /app/enroll/:id                                            controllers.EnrolmentController.removeEnrolment(id: Long)
 DELETE        /app/enroll/student/:id                                    controllers.EnrolmentController.removeStudentEnrolment(id: Long)
 PUT           /app/enrolments/:eid                                       controllers.EnrolmentController.updateEnrolment(eid: Long)

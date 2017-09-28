@@ -34,7 +34,13 @@ import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 public class SessionController extends BaseController {
@@ -81,8 +87,9 @@ public class SessionController extends BaseController {
                 .where()
                 .eq("eppn", eppn)
                 .findUnique();
+        boolean newUser = user == null;
         try {
-            if (user == null) {
+            if (newUser) {
                 user = createNewUser(eppn, isTemporaryVisitor);
             } else {
                 updateUser(user);
@@ -92,6 +99,9 @@ public class SessionController extends BaseController {
         }
         user.setLastLogin(new Date());
         user.save();
+        if (newUser) {
+            associateWithPreEnrolments(user);
+        }
         return handleExternalReservationAndCreateSession(user, externalReservation);
     }
 
@@ -130,6 +140,18 @@ public class SessionController extends BaseController {
         } else {
             return wrapAsPromise(createSession(user, false));
         }
+    }
+
+    private void associateWithPreEnrolments(User user) {
+        // Associate pre-enrolment with a real user now that he/she is logged in
+        Ebean.find(ExamEnrolment.class)
+                .where()
+                .eq("preEnrolledUserEmail", user.getEmail())
+                .findEach(e -> {
+                    e.setPreEnrolledUserEmail(null);
+                    e.setUser(user);
+                    e.update();
+                });
     }
 
     private Reservation getUpcomingExternalReservation(String eppn) {
@@ -260,7 +282,7 @@ public class SessionController extends BaseController {
         ObjectNode node = Json.newObject();
 
         for (Map.Entry<String, List<String>> entry : attributes.toMap().entrySet()) {
-            node.put(entry.getKey(), String.join(", ",entry.getValue()));
+            node.put(entry.getKey(), String.join(", ", entry.getValue()));
         }
 
         return ok(node);

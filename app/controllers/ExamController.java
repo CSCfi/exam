@@ -3,14 +3,14 @@ package controllers;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import controllers.base.BaseController;
 import models.*;
 import models.questions.ClozeTestAnswer;
 import models.questions.Question;
@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class ExamController extends BaseController {
@@ -264,9 +265,21 @@ public class ExamController extends BaseController {
 
     private void notifyParticipantsAboutPrivateExamPublication(Exam exam) {
         User sender = getLoggedUser();
-        Set<User> participants = exam.getExamEnrolments().stream().map(ExamEnrolment::getUser).collect(Collectors.toSet());
+        Set<User> enrolments = exam.getExamEnrolments().stream()
+                .map(ExamEnrolment::getUser)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Set<User> preEnrolments = exam.getExamEnrolments().stream()
+                .map(ExamEnrolment::getPreEnrolledUserEmail)
+                .filter(Objects::nonNull)
+                .map(email -> {
+                    User user = new User();
+                    user.setEmail(email);
+                    return user;
+                }).collect(Collectors.toSet());
+        Set<User> receivers = Stream.concat(enrolments.stream(), preEnrolments.stream()).collect(Collectors.toSet());
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            for (User u : participants) {
+            for (User u : receivers) {
                 emailComposer.composePrivateExamParticipantNotification(u, sender, exam);
                 Logger.info("Exam participation notification email sent to {}", u.getEmail());
             }
@@ -790,6 +803,7 @@ public class ExamController extends BaseController {
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")
+                .fetch("examEnrolments", "preEnrolledUserEmail")
                 .fetch("examEnrolments.user")
                 .fetch("examEnrolments.reservation", "endAt")
                 .fetch("children", "id")

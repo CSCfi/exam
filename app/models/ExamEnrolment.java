@@ -39,6 +39,8 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
 
     private boolean reservationCanceled;
 
+    private String preEnrolledUserEmail;
+
     public User getUser() {
         return user;
     }
@@ -93,6 +95,14 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
 
     public void setReservationCanceled(boolean reservationCanceled) {
         this.reservationCanceled = reservationCanceled;
+    }
+
+    public String getPreEnrolledUserEmail() {
+        return preEnrolledUserEmail;
+    }
+
+    public void setPreEnrolledUserEmail(String preEnrolledUserEmail) {
+        this.preEnrolledUserEmail = preEnrolledUserEmail;
     }
 
     @Override

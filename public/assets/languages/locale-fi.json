@@ -842,5 +842,9 @@
   "sitnet_inspection_comment_info": "Kirjoita viesti tai kommentti toiselle arvioijalle (ei näy opiskelijalle)",
   "sitnet_maturity_search_description": "Voit suodattaa tuloksia opintojakson koodin, tentin nimen, opiskelijan nimen tai tentaattorin nimen mukaan.",
   "sitnet_internal_exam_reference": "Sisäinen viite",
-  "sitnet_exam_status_external": "Ulkopuolinen varaus"
+  "sitnet_exam_status_external": "Ulkopuolinen varaus",
+  "sitnet_exam_pre_participants": "Tiedota palveluun kirjautumattomia osallistujia",
+  "sitnet_exam_pre_participants_description": "Voit ilmoittaa tentistä palveluun kirjautumattomille opiskelijoille. Heille lähetetään tieto sähköpostitse, kun tentti julkaistaan. Tämän jälkeen he voivat kirjautua palveluun ja pääsevät tekemään tenttiajanvarausta.",
+  "sitnet_write_participant_name": "Osallistujan nimi",
+  "sitnet_write_pre_participant_email": "Osallistujan sähköpostiosoite"
 }
