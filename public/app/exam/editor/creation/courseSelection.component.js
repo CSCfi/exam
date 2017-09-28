@@ -37,7 +37,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.continueToExam = function () {
-                    $location.path("/exams/examTabs/" + vm.exam.id + "/1");
+                    $location.path("/exams/" + vm.exam.id + "/1");
                 };
 
             }

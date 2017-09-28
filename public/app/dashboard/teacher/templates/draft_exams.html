@@ -41,9 +41,9 @@
                 </thead>
                 <tbody>
                 <tr ng-repeat="exam in $ctrl.filteredDraft | orderBy:$ctrl.draftsPredicate:$ctrl.reverse">
-                    <td ng-if="exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
+                    <td ng-if="exam.name" class="table-column-examname"><a href="/exams/{{exam.id}}/1">
                         {{ exam.name }}</a></td>
-                    <td ng-if="!exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
+                    <td ng-if="!exam.name" class="table-column-examname"><a href="/exams/{{exam.id}}/1">
                         {{'sitnet_no_name' | translate}}</a>
                     </td>
                     <td><span class="exam-code">{{ exam.course.code }}</span></td>

@@ -27,7 +27,7 @@
 
                 <tbody>
                 <tr ng-repeat="exam in $ctrl.filteredArchived | orderBy:$ctrl.archivedPredicate:$ctrl.reverse">
-                    <td ng-if="exam.name" class="table-column-examname"><a href="/exams/examTabs/{{exam.id}}/1">
+                    <td ng-if="exam.name" class="table-column-examname"><a href="/exams/{{exam.id}}/1">
                         {{ exam.name }}</a>
                     </td>
                     <td ng-if="!exam.name" class="table-column-examname">
@@ -42,7 +42,7 @@
                     </td>
                     <td class="table-column-enroll-participation">
                         <span class="exam-count">
-                            <a ng-if="exam.executionType.type !== 'PRINTOUT'" href="/exams/examTabs/{{exam.id}}/4">{{exam.assessedCount}}</a>
+                            <a ng-if="exam.executionType.type !== 'PRINTOUT'" href="/exams/{{exam.id}}/4">{{exam.assessedCount}}</a>
                             <div ng-if="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
                         </span>
                     </td>

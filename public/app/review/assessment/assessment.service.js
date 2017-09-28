@@ -121,7 +121,7 @@ angular.module('app.review')
 
             self.getExitUrl = function (exam) {
                 var user = Session.getUser || {isAdmin: false};
-                return user.isAdmin ? '/' : '/exams/examTabs/' + exam.parent.id + '/4';
+                return user.isAdmin ? '/' : '/exams/' + exam.parent.id + '/4';
             };
 
             self.createExamRecord = function (exam, needsConfirmation, followUpUrl) {
@@ -161,7 +161,7 @@ angular.module('app.review')
                         // Just save feedback and leave
                         saveFeedback(exam).then(function () {
                             toastr.info($translate.instant('sitnet_saved'));
-                            $location.path('exams/examTabs/' + exam.parent.id + '/4');
+                            $location.path('exams/' + exam.parent.id + '/4');
                         });
                     }
                 }

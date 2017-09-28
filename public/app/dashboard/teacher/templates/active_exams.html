@@ -41,7 +41,7 @@
                 <tr ng-repeat="exam in $ctrl.filteredActive | orderBy:$ctrl.activePredicate:$ctrl.reverse">
 
                     <td ng-if="exam.name" class="table-column-examname">
-                        <a ng-if="$ctrl.isOwner(exam)" href="/exams/examTabs/{{exam.id}}/1">{{ exam.name }}</a>
+                        <a ng-if="$ctrl.isOwner(exam)" href="/exams/{{exam.id}}/1">{{ exam.name }}</a>
                         <span ng-if="!$ctrl.isOwner(exam)">{{ exam.name }}</span>
                     </td>
                     <td ng-if="!exam.name" class="table-column-examname">
@@ -57,13 +57,13 @@
                         {{ exam.examActiveEndDate | date:'dd.MM.yyyy' }}
                     </td>
                     <td class="table-column-enroll-participation">
-                        <a ng-if="exam.executionType.type !== 'PRINTOUT'" href="/exams/examTabs/{{exam.id}}/4">{{exam.unassessedCount}}</a>
+                        <a ng-if="exam.executionType.type !== 'PRINTOUT'" href="/exams/{{exam.id}}/4">{{exam.unassessedCount}}</a>
                         <div ng-if="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
                     </td>
                     <td class="table-column-enroll-participation">
                         <span class="exam-count">
                             <a ng-if="$ctrl.isOwner && exam.executionType.type !== 'PRINTOUT'"
-                               href="/exams/examTabs/{{exam.id}}/4">{{exam.unfinishedCount}}</a>
+                               href="/exams/{{exam.id}}/4">{{exam.unfinishedCount}}</a>
                             <span ng-if="!$ctrl.isOwner && exam.executionType.type !== 'PRINTOUT'"
                                   class="exam-count-not-active">{{exam.unfinishedCount}}</span>
                         </span>

@@ -106,7 +106,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         $routeProvider.when('/reservations', {template: '<reservations user-role="teacher"></reservations>'});
         $routeProvider.when('/reservations/:eid', {template: '<reservations user-role="teacher"></reservations>'});
 
-        $routeProvider.when('/exams/examTabs/:id/:tab', {template: '<exam-tabs></exam-tabs>'});
+        $routeProvider.when('/exams/:id/:tab', {template: '<exam-tabs></exam-tabs>'});
 
         /* Admin */
         $routeProvider.when('/rooms', {templateUrl: tmpl + 'facility/rooms.html', controller: 'RoomCtrl'});

@@ -110,9 +110,9 @@
                         <td>{{exam.course.code}}</td>
                         <td>
                             <a ng-if="exam.name" class="exams-info-title bold-button"
-                               href="/exams/examTabs/{{exam.id}}/1">{{exam.name}}</a>
+                               href="/exams/{{exam.id}}/1">{{exam.name}}</a>
                             <a ng-if="!exam.name" class="exams-info-title bold-button text-danger"
-                               href="/exams/examTabs/{{exam.id}}/1">{{'sitnet_no_name' | translate}}
+                               href="/exams/{{exam.id}}/1">{{'sitnet_no_name' | translate}}
                             </a>
                         </td>
                         <td>{{ getExecutionTypeTranslation(exam) | translate | uppercase

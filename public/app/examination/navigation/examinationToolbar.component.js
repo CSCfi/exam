@@ -106,7 +106,7 @@ angular.module('app.examination')
                 };
 
                 vm.exitPreview = function () {
-                    $location.path('/exams/examTabs/' + $routeParams.id + '/' + $routeParams.tab);
+                    $location.path('/exams/' + $routeParams.id + '/' + $routeParams.tab);
                 };
 
             }
