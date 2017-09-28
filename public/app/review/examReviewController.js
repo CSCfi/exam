@@ -446,8 +446,9 @@
                     };
                     // Update comment
                     LanguageInspectionRes.statement.update(statement,
-                        function () {
+                        function (data) {
                             toastr.info($translate.instant("sitnet_statement_updated"));
+                            angular.extend($scope.exam.languageInspection.statement, data);
                             deferred.resolve();
                         }, function (error) {
                             toastr.error(error.data);

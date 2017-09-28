@@ -183,7 +183,7 @@ public class LanguageInspectionController extends BaseController {
         statement.update();
         AppUtil.setModifier(inspection, user);
         inspection.update();
-        return ok();
+        return ok(statement);
     }
 
 }
