@@ -393,7 +393,8 @@ public class StudentExamController extends BaseController {
             }
             prev = ge;
         }
-        if (!exam.getGradeScale().getGrades().contains(grade)) {
+        GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
+        if (!scale.getGrades().contains(grade)) {
             throw new RuntimeException("Grade in auto evaluation configuration not found in exam grade scale!");
         }
         return grade;
