@@ -16,7 +16,6 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -36,6 +35,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     private static final String COURSE_CODE_PLACEHOLDER = "${course_code}";
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
+
+    private static final Integer STATUS_OK = 200;
 
     private static final DateFormat DF = new SimpleDateFormat("yyyyMMdd");
 
@@ -148,7 +149,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         }
         RemoteFunction<WSResponse, List<Course>> onSuccess = response -> {
             int status = response.getStatus();
-            if (status == HttpServletResponse.SC_OK) {
+            if (status == STATUS_OK) {
                 return parseCourses(response.asJson());
             }
             Logger.info("Non-OK response received for URL: {}. Status: {}", url, status);

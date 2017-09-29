@@ -109,4 +109,17 @@ class CourseController @Inject()(externalApi: ExternalCourseHandler, cache: Cach
       }
   }
 
+  def updateCourses(): Action[AnyContent] = Action.async {
+    request => request.headers.get(getAuthHeaderName).map { token =>
+      getAuthorizedUser(token, Seq("ADMIN")) match {
+        case _: Any =>
+          FutureConverters.toScala(externalApi.updateCourses()).map(_ => Ok)
+        case _ =>
+          Future.successful(forbid())
+      }
+    }.getOrElse {
+      Future.successful(forbid())
+    }
+  }
+
 }

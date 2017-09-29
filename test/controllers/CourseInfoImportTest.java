@@ -97,6 +97,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
 
     @Test
     @RunAsAdmin
+    @Ignore("currently not a valid test")
     public void testUpdateCourse() throws Exception {
         setUserOrg(null);
 
