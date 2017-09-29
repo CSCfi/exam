@@ -676,6 +676,12 @@
     }
   }
 
+  @media screen {
+    .print-only {
+      display: none !important;
+    }
+  }
+  
   @media print {
 
     a[href]:after {
@@ -768,6 +774,11 @@
       padding-bottom: 30px;
       margin-top:25px;
       border-radius: 4px;
+    }
+
+    @media print {
+      margin-left: 0;
+      margin-right: 0;
     }
 
   }
@@ -1687,5 +1698,6 @@
     }
 
   }
+
 }
 

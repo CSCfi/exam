@@ -1,12 +1,13 @@
 <div class="main-row">
     <div class="col-md-12">
-        <div class="review-list-title" >{{ 'sitnet_ongoing_language_inspections' | translate }}
-            <span ng-show="hidefornow">{{ getOngoingInspectionsDetails() }}</span>
-            <a ng-click="toggleUnreviewed()" class="pointer">
-                <img ng-show="!toggleUnderReviews" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
-                <img ng-show="toggleUnderReviews" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+        <div class="review-list-title">{{ 'sitnet_ongoing_language_inspections' | translate }}
+            <span>{{ getOngoingInspectionsDetails() }}</span>
+            <a ng-if="ongoingInspections.length > 0" ng-click="hideOngoing = !hideOngoing"
+               class="pointer">
+                <img ng-show="hideOngoing" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png';"/>
+                <img ng-hide="hideOngoing" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png';"/>
             </a>
         </div>
     </div>
@@ -16,19 +17,20 @@
 <div ng-show="ongoingInspections.length === 0">
     <div class="review-no-results">
         <i class="fa fa-exclamation-circle padl20 grayish"></i>
-        {{ 'sitnet_ongoing_language_inspections_no_results' | translate }}</div>
+        {{ 'sitnet_ongoing_language_inspections_no_results' | translate }}
+    </div>
 </div>
 
 
-<div ng-show="toggleUnderReviews && ongoingInspections.length > 0">
+<div ng-show="!hideOngoing && ongoingInspections.length > 0">
 
     <div class="col-md-12">
         <div class="form-group input-group search tab-search review-list-search padl0 marl10">
-            <input ng-model="filtertext"
-                   ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
+            <input ng-model="filters.ongoing"
+                   ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
                    class="form-control search"
                    placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
-                   popover-trigger="mouseenter" uib-popover="{{ 'sitnet_exam_search_description' | translate }}">
+                   popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_maturity_search_description' | translate }}">
             <div class="input-group-addon search">
                 <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
             </div>
@@ -36,22 +38,31 @@
     </div>
 
     <table class="table table-striped exams-table">
-        <thead ng-init="inspectionPredicate='arrived'; reverse=true">
+        <thead ng-init="sorting.ongoing.predicate='arrived'; reverse=true">
         <tr>
-            <th class="with-top" sort by="exam.course.code" text="sitnet_course_code" predicate="inspectionPredicate"
-                reverse="reverse"></th>
-            <th class="with-top" sort by="exam.name" text="sitnet_exam_name" predicate="inspectionPredicate"
-                reverse="reverse"></th>
-            <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers" predicate="inspectionPredicate" reverse="reverse2" ></th>
-            <th class="with-top" sort by="arrived" text="sitnet_arrived" predicate="inspectionPredicate"
-                reverse="reverse"></th>
-            <th class="with-top" >{{ 'sitnet_student' | translate }}</th>
-            <th class="with-top" >{{ 'sitnet_finished' | translate }}</th>
-            <th class="with-top" >{{ 'sitnet_language_inspector' | translate }}</th>
-            <th class="with-top" >{{ 'sitnet_language_inspections' | translate }}</th>
+            <th class="with-top" sort by="exam.course.code" text="sitnet_course_code"
+                predicate="sorting.ongoing.predicate"
+                reverse="sorting.ongoing.reverse"></th>
+            <th class="with-top" sort by="exam.name" text="sitnet_exam_name" predicate="sorting.ongoing.predicate"
+                reverse="sorting.ongoing.reverse"></th>
+            <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers"
+                predicate="sorting.ongoing.predicate"
+                reverse="sorting.ongoing.reverse"></th>
+            <th class="with-top" sort by="arrived" text="sitnet_arrived" predicate="sorting.ongoing.predicate"
+                reverse="sorting.ongoing.reverse"></th>
+            <th class="with-top" sort by="studentNameAggregate" text="sitnet_student" predicate="sorting.ongoing.predicate"
+                reverse="sorting.ongoing.reverse"></th>
+            <th class="with-top" sort by="exam.created" text="sitnet_finished"
+                predicate="sorting.ongoing.predicate"
+                reverse="sorting.ongoing.reverse"></th>
+            <th class="with-top" sort by="inspectorNameAggregate" text="sitnet_language_inspector" predicate="sorting.ongoing.predicate"
+                reverse="sorting.ongoing.reverse"></th>
+            <th class="with-top">{{ 'sitnet_language_inspections' | translate }}</th>
         </tr>
         <tbody>
-        <tr ng-repeat="inspection in ongoingInspections | orderBy:inspectionPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize | filter:filtertext as res">
+        <tr ng-repeat="inspection in ongoingInspections
+            | orderBy:sorting.ongoing.predicate:sorting.ongoing.reverse
+            | filter:filters.ongoing as rs">
             <td>
                 {{ inspection.exam.course.code }}
             </td>
@@ -67,14 +78,14 @@
             </td>
             <td>{{ inspection.created | date:'dd.MM.yyyy' }}
             </td>
-            <td><span>{{ inspection.exam.creator.firstName }} {{ inspection.exam.creator.lastName }}</span>
+            <td><span>{{ inspection.studentName }}</span>
                 <span ng-if="inspection.exam.creator.userIdentifier">&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
-                <span><br /><a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{ inspection.exam.creator.email }}</a></span>
+                <span><br/><a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{ inspection.exam.creator.email }}</a></span>
             </td>
             <td>{{ inspection.exam.created | date:'dd.MM.yyyy' }}
             <td ng-if="inspection.modifier">
-                <span>{{ inspection.modifier.firstName }} {{ inspection.modifier.lastName }} </span>
-                <span><br /><a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{ inspection.modifier.email }}</a></span>
+                <span>{{ inspection.inspectorName }} </span>
+                <span><br/><a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{ inspection.modifier.email }}</a></span>
             </td>
             <td ng-if="!inspection.modifier">
                 <span class="text-danger">{{'sitnet_undefined' | translate }}</span>
@@ -83,35 +94,17 @@
                 <a class="pointer" href="/exams/review/{{inspection.exam.id}}">{{ 'sitnet_view' | translate }}</a>
             </td>
             <td ng-if="!inspection.modifier && !user.isAdmin">
-                <a class="pointer" ng-click="assignInspection(inspection)">{{ 'sitnet_assign_to_me' | translate }}</a>
+                <a class="pointer" ng-click="assignInspection(inspection)">{{ 'sitnet_assign_to_me' | translate
+                    }}</a>
             </td>
             <td ng-if="!inspection.modifier && user.isAdmin">
                 <span class="text-muted">{{ 'sitnet_assign_to_me' | translate }}</span>
             </td>
         </tr>
-
-
-        </tr>
-        <tr ng-if="res.length == 0"><td colspan="6">{{'sitnet_review_no_result' | translate}}</td></tr>
-        <!--Fill if page not full-->
-        <tr ng-repeat="r in [] | pagefill: examReviews.length:currentPage:pageSize">
-            <td class="table-column-examname">&nbsp;</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+        <tr ng-if="rs.length == 0">
+            <td colspan="6">{{'sitnet_review_no_result' | translate}}</td>
         </tr>
         </tbody>
     </table>
 
 </div>
-
-<div class="detail-row" ng-show="toggleReviews">
-    <div col-md-12 ng-show="examReviews.length > pageSize">
-        <paginator items="examReviews" page-size="pageSize" current-page="currentPage"/>
-    </div>
-</div>
-

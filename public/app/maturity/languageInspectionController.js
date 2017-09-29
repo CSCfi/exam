@@ -57,6 +57,10 @@
                             i.ownerAggregate = i.exam.parent.examOwners.map(function (o) {
                                 return o.firstName + ' ' + o.lastName;
                             }).join(', ');
+                            i.studentName = i.exam.creator ? i.exam.creator.firstName + ' ' + i.exam.creator.lastName : '';
+                            i.studentNameAggregate = i.exam.creator ? i.exam.creator.lastName + ' ' + i.exam.creator.firstName : '';
+                            i.inspectorName = i.modifier ? i.modifier.firstName + ' ' + i.modifier.lastName : '';
+                            i.inspectorNameAggregate = i.modifier ? i.modifier.lastName + ' ' + i.modifier.firstName : '';
                         });
                         $scope.ongoingInspections = inspections.filter(function (i) {
                             return !i.finishedAt;
