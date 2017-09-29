@@ -1,5 +1,5 @@
 # --- !Ups
-ALTER TABLE exam_score ADD institution_name VARCHAR(255) NULL;
+ALTER TABLE exam_enrolment ADD pre_enrolled_user_email VARCHAR(255) NULL;
 
 # --- !Downs
-ALTER TABLE exam_score DROP institution_name;
+ALTER TABLE exam_enrolment DROP pre_enrolled_user_email;

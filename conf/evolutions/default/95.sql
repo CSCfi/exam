@@ -1,5 +1,5 @@
 # --- !Ups
-ALTER TABLE reservation ADD reminder_sent BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE exam_score ADD institution_name VARCHAR(255) NULL;
 
 # --- !Downs
-ALTER TABLE reservation DROP reminder_sent;
+ALTER TABLE exam_score DROP institution_name;
