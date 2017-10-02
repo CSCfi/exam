@@ -139,7 +139,7 @@ public class ReservationController extends BaseController {
         DynamicForm df = formFactory.form().bindFromRequest();
         String msg = df.get("msg");
 
-        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
                 .eq("reservation.id", id)
                 .findUnique();
@@ -165,9 +165,8 @@ public class ReservationController extends BaseController {
         }
 
         enrolment.setReservation(null);
-        Ebean.save(enrolment);
-        Ebean.delete(Reservation.class, id);
-        Ebean.delete(enrolment);
+        enrolment.update();
+        reservation.delete();
         return ok("removed");
     }
 
