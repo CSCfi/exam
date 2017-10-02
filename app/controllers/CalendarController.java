@@ -433,14 +433,21 @@ public class CalendarController extends BaseController {
         return results;
     }
 
+    private boolean isReservedByUser(Reservation reservation, User user) {
+        boolean externallyReserved = reservation.getExternalUserRef() != null
+                && reservation.getExternalRef().equals(user.getEppn());
+        return externallyReserved ||
+                (reservation.getUser() != null && reservation.getUser().equals(user));
+    }
+
     private boolean isReservedByOthersDuring(ExamMachine machine, Interval interval, User user) {
         return machine.getReservations()
                 .stream()
-                .filter(r -> !r.getUser().equals(user))
+                .filter(r -> !isReservedByUser(r, user))
                 .anyMatch(r -> interval.overlaps(r.toInterval()));
     }
 
-    protected static List<Reservation> getReservationsDuring(Collection<Reservation> reservations, Interval interval) {
+    private static List<Reservation> getReservationsDuring(Collection<Reservation> reservations, Interval interval) {
         return reservations.stream().filter(r -> interval.overlaps(r.toInterval())).collect(Collectors.toList());
     }
 
