@@ -24,7 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class AppUtil {
+public final class AppUtil {
+
+    private AppUtil() {}
 
     public static String getHostName() {
         return ConfigFactory.load().getString("sitnet.application.hostname");

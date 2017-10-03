@@ -8,7 +8,7 @@ angular.module('app.session')
         '            <div class="student-enroll-title">{{\'sitnet_accept_useragreement\' | translate}}</div>\n' +
         '        </div>\n' +
         '        <div class="modal-body">\n' +
-        '            <div ng-bind-html="$ctrl.eula.value">\n' +
+        '            <div ng-bind-html="$ctrl.settings.eula.value">\n' +
         '            </div>\n' +
         '        </div>\n' +
         '        <div class="student-message-dialog-footer">\n' +
