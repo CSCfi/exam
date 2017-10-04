@@ -60,7 +60,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.autoEvaluationConfigChanged = function (config) {
-                   angular.extend(vm.exam.autoEvaluationConfig, config);
+                    angular.extend(vm.exam.autoEvaluationConfig, config);
                 };
 
                 vm.updateExam = function (silent, overrides) {
@@ -160,42 +160,46 @@ angular.module('app.exam.editor')
                                 }
                             }
                         });
-
-                        return;
-                    }
-
-                    var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'exam/editor/publication/publication_dialog.html',
-                        backdrop: 'static',
-                        keyboard: true,
-                        controller: 'ModalInstanceCtrl'
-                    });
-
-                    modalInstance.result.then(function () {
-
-                        // OK button clicked
-                        vm.updateExam(true, {'state': 'PUBLISHED'}).then(function () {
-                            toastr.success($translate.instant('sitnet_exam_saved_and_published'));
-                            $location.path('/');
+                    } else {
+                        $modal.open({
+                            templateUrl: EXAM_CONF.TEMPLATES_PATH + 'exam/editor/publication/publication_dialog.html',
+                            backdrop: 'static',
+                            keyboard: true,
+                            controller: function ($scope, $uibModalInstance) {
+                                $scope.ok = function () {
+                                    $uibModalInstance.close();
+                                };
+                                $scope.cancel = function () {
+                                    $uibModalInstance.dismiss();
+                                };
+                            }
+                        }).result.then(function () {
+                            // OK button clicked
+                            vm.updateExam(true, {'state': 'PUBLISHED'}).then(function () {
+                                toastr.success($translate.instant('sitnet_exam_saved_and_published'));
+                                $location.path('/');
+                            });
                         });
-                    }, function (error) {
-                        // Cancel button clicked
-                    });
-
+                    }
                 };
 
 
                 // TODO: how should this work when it comes to private exams?
                 vm.unpublishExam = function () {
                     if (isAllowedToUnpublishOrRemove()) {
-                        var modalInstance = $modal.open({
+                        $modal.open({
                             templateUrl: EXAM_CONF.TEMPLATES_PATH + 'exam/editor/publication/publication_revoke_dialog.html',
                             backdrop: 'static',
                             keyboard: true,
-                            controller: 'ModalInstanceCtrl'
-                        });
-
-                        modalInstance.result.then(function () {
+                            controller: function ($scope, $uibModalInstance) {
+                                $scope.ok = function () {
+                                    $uibModalInstance.close();
+                                };
+                                $scope.cancel = function () {
+                                    $uibModalInstance.dismiss();
+                                };
+                            }
+                        }).result.then(function () {
                             vm.updateExam(true, {'state': 'SAVED'}).then(function () {
                                 toastr.success($translate.instant('sitnet_exam_unpublished'));
                                 vm.exam.state = 'SAVED';

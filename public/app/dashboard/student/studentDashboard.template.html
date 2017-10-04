@@ -35,7 +35,7 @@
                             </div>
 
                             <!-- settings menu -->
-                            <div ng-controller="DropdownCtrl" class="student-exam-settings">
+                            <div ng-show="!enrolment.reservation || enrolment.exam.executionType.type === 'PUBLIC'" class="student-exam-settings">
                                 <span uib-dropdown on-toggle="toggled(open)">
                                     <a href id="simple-dropdown" uib-dropdown-toggle>
                                         <img class="arrow_icon" alt="{{'sitnet_change_enrolment_info' | translate}}"
@@ -66,7 +66,7 @@
                                             </span>
                                         </li>
                                         <li>
-                                            <span class="pointer" ng-hide="enrolment.exam.executionType.type === 'PRIVATE'">&nbsp;&nbsp;
+                                            <span class="pointer" ng-hide="enrolment.exam.executionType.type !== 'PUBLIC'">&nbsp;&nbsp;
                                             <a popover-placement="top"
                                                 popover-popup-delay="500" popover-trigger="'mouseenter'"
                                                 uib-popover="{{ 'sitnet_remove' | translate }}" ng-click="$ctrl.removeEnrolment(enrolment, userEnrolments)">
@@ -75,7 +75,7 @@
                                             </span>
                                         </li>
                                         <li ng-if="!enrolment.reservation">
-                                            <span class="pointer" ng-hide="enrolment.exam.executionType.type === 'PRIVATE'">&nbsp;&nbsp;
+                                            <span class="pointer" ng-hide="enrolment.exam.executionType.type !== 'PUBLIC'">&nbsp;&nbsp;
                                             <a ng-if="!enrolment.reservation" class="text-info"
                                                href="/calendar/{{enrolment.exam.id}}">{{'sitnet_student_new_reservation'
                                             | translate}}</a>
