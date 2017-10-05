@@ -1,6 +1,6 @@
 {
   "name": "exam",
-  "version": "3.3.2-DEV",
+  "version": "3.3.3-DEV",
   "description": "EXAM – electronic exam software for higher education",
   "repository": {
     "type": "git",
@@ -8,10 +8,12 @@
   },
   "license": "UNLICENSED",
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-contrib-concat": "^0.5.1",
-    "grunt-contrib-uglify": "^0.9.1",
-    "grunt-ng-annotate": "^0.10.0",
+    "grunt": "^1.0.1",
+    "grunt-contrib-concat": "^1.0.0",
+    "grunt-contrib-uglify": "^3.1.0",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-ng-annotate": "^3.0.0",
     "jasmine-core": "^2.4.1",
     "jasmine-jquery": "^2.1.1",
     "jshint": "^2.9.1",
@@ -21,9 +23,9 @@
     "karma-junit-reporter": "^0.4.1",
     "karma-phantomjs-launcher": "^1.0.0",
     "phantomjs-prebuilt": "^2.1.7",
-    "protractor": "^4",
+    "protractor": "^5.1.2",
     "protractor-browser-logs": "^1.0",
-    "protractor-jasmine2-screenshot-reporter": "^0.3",
+    "protractor-jasmine2-screenshot-reporter": "^0.4.1",
     "sql-fixtures": "^1",
     "pg": "^6",
     "merge-json": "0.1.0-b.3"

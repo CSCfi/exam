@@ -10,9 +10,9 @@ angular.module('app.examination')
             onPageSelect: '&'
         },
         controller: ['$http', '$location', '$routeParams', '$translate', 'dialogs', 'Session', 'Examination',
-            'Attachment', 'enrolmentService',
+            'Attachment', 'Enrolment',
             function ($http, $location, $routeParams, $translate, dialogs, Session, Examination, Attachment,
-                      enrolmentService) {
+                      Enrolment) {
 
                 var vm = this;
 
@@ -102,7 +102,7 @@ angular.module('app.examination')
                 };
 
                 vm.showMaturityInstructions = function () {
-                    enrolmentService.showMaturityInstructions({exam: vm.exam});
+                    Enrolment.showMaturityInstructions({exam: vm.exam});
                 };
 
                 vm.exitPreview = function () {

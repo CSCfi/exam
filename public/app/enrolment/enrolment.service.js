@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module('app.enrolment')
-        .service('enrolmentService', ['$translate', '$q', '$location', '$uibModal', 'dialogs', 'EnrollRes', 'SettingsResource',
+        .service('Enrolment', ['$translate', '$q', '$http', '$location', '$uibModal', 'dialogs', 'EnrollRes', 'SettingsResource',
             'StudentExamRes', 'EXAM_CONF',
-            function ($translate, $q, $location, $modal, dialogs, EnrollRes, SettingsResource, StudentExamRes, EXAM_CONF) {
+            function ($translate, $q, $http, $location, $modal, dialogs, EnrollRes, SettingsResource, StudentExamRes, EXAM_CONF) {
 
                 var self = this;
 
@@ -70,110 +70,100 @@
                     return deferred.promise;
                 };
 
-                self.listEnrolments = function (scope, code, id) {
-
-                    // JSa 29.8. Removed ..else -> need both exam and exams for the new view
-
-                    if (id) {
-                        EnrollRes.enroll.get({code: code, id: id},
-                            function (exam) {
-                                exam.languages = exam.examLanguages.map(function (lang) {
-                                    return getLanguageNativeName(lang.code);
-                                });
-                                setMaturityInstructions(exam).then(function (data) {
-                                    exam = data;
-                                    EnrollRes.check.get({id: exam.id}, function (enrolments) {
-                                        exam.alreadyEnrolled = true;
-                                        enrolments.forEach(function (enrolment) {
-                                            if (enrolment.reservation) {
-                                                exam.reservationMade = true;
-                                            }
-                                        });
-
-                                        scope.exam = exam;
-                                    }, function (err) {
-                                        exam.alreadyEnrolled = err.status !== 404;
-                                        if (err.status === 403) {
-                                            exam.noTrialsLeft = true;
-                                        }
-
-                                        exam.reservationMade = false;
-                                        scope.exam = exam;
-
-
+                self.getExamEnrolment = function (code, id) {
+                    var deferred = $q.defer();
+                    EnrollRes.enroll.get({code: code, id: id},
+                        function (exam) {
+                            exam.languages = exam.examLanguages.map(function (lang) {
+                                return getLanguageNativeName(lang.code);
+                            });
+                            setMaturityInstructions(exam).then(function (data) {
+                                exam = data;
+                                EnrollRes.check.get({id: exam.id}, function (enrolments) {
+                                    exam.alreadyEnrolled = true;
+                                    exam.reservationMade = enrolments.some(function (e) {
+                                        return e.reservation;
                                     });
+                                    deferred.resolve(exam);
+                                }, function (err) {
+                                    exam.alreadyEnrolled = err.status !== 404;
+                                    if (err.status === 403) {
+                                        exam.noTrialsLeft = true;
+                                    }
+                                    exam.reservationMade = false;
+                                    deferred.resolve(exam);
                                 });
-                            },
-                            function (error) {
-                                toastr.error(error.data);
                             });
-                    }
+                        },
+                        function (error) {
+                            deferred.reject(error);
+                        });
+                    return deferred.promise;
+                };
+
+                self.listEnrolments = function (code, id) {
+                    var deferred = $q.defer();
                     EnrollRes.list.get({code: code},
-                        function (exams) {
-                            scope.exams = exams.map(function (exam) {
-                                exam.languages = exam.examLanguages.map(function (lang) {
+                        function (data) {
+                            // remove duplicate exam, already shown at the detailed info section.
+                            var exams = data.filter(function (e) {
+                                return e.id !== parseInt(id);
+                            });
+                            exams.forEach(function (e) {
+                                e.languages = e.examLanguages.map(function (lang) {
                                     return getLanguageNativeName(lang.code);
                                 });
-                                return exam;
+                                return e;
                             });
-
-                            // remove duplicate exam, which is already shown at the detailed info section.
-                            if (id) {
-                                angular.forEach(scope.exams, function (value, key) {
-                                    if (value.id == id) {
-                                        scope.exams.splice(scope.exams.indexOf(value), 1);
-                                    }
-                                });
-                            }
-
-                            checkEnrolment(scope.exams);
-
+                            checkEnrolments(exams).then(function (data) {
+                                deferred.resolve(data);
+                            });
                         },
                         function (error) {
                             toastr.error(error.data);
+                            deferred.reject();
                         });
+                    return deferred.promise;
                 };
 
-                var checkEnrolment = function (exams) {
-
-                    exams.forEach(function (exam) {
-
-                        EnrollRes.check.get({id: exam.id}, function (enrolments) {
-                                // check if student has reserved aquarium
-                                enrolments.forEach(function (enrolment) {
-                                    if (enrolment.reservation) {
-                                        exam.reservationMade = true;
-                                    }
-                                });
-                                // enrolled to exam
-                                exam.enrolled = true;
-                            }, function (err) {
-                                // not enrolled or made reservations
-                                exam.enrolled = false;
-                                exam.reservationMade = false;
-                            }
-                        );
-
-                    });
-
-                };
-
-                self.removeEnrolment = function (enrolment, enrolments) {
-                    if (enrolment.reservation) {
-                        toastr.error($translate.instant('sitnet_cancel_reservation_first'));
-                    } else {
-                        dialogs.confirm($translate.instant('sitnet_confirm'),
-                            $translate.instant('sitnet_are_you_sure')).result
-                            .then(function () {
-                                EnrollRes.enrolment.remove({id: enrolment.id}, function () {
-                                    enrolments.splice(enrolments.indexOf(enrolment), 1);
-                                });
+                var check = function (exam) {
+                    var deferred = $q.defer();
+                    EnrollRes.check.get({id: exam.id}, function (enrolments) {
+                            // check if student has reserved aquarium
+                            enrolments.forEach(function (enrolment) {
+                                if (enrolment.reservation) {
+                                    exam.reservationMade = true;
+                                }
                             });
-                    }
+                            // enrolled to exam
+                            exam.enrolled = true;
+                            deferred.resolve(exam);
+                        }, function (err) {
+                            // not enrolled or made reservations
+                            exam.enrolled = false;
+                            exam.reservationMade = false;
+                            deferred.resolve(exam);
+                        }
+                    );
+                    return deferred.promise;
                 };
 
-                self.gotoList = function (code) {
-                    $location.path('enroll/' + code);
+                var checkEnrolments = function (exams) {
+                    var deferred = $q.defer();
+                    var promises = [];
+                    exams.forEach(function (exam) {
+                        promises.push(check(exam).then(function (data) {
+                            angular.extend(exam, data);
+                        }));
+                    });
+                    $q.all(promises).then(function () {
+                        deferred.resolve(exams);
+                    });
+                    return deferred.promise;
+                };
+
+                self.removeEnrolment = function (enrolment) {
+                    return EnrollRes.enrolment.remove({id: enrolment.id}).$promise;
                 };
 
                 self.addEnrolmentInformation = function (enrolment) {
@@ -211,6 +201,11 @@
                         console.log('closed');
                     });
                 };
+
+                self.getRoomInstructions = function (hash) {
+                    return $http.get('/app/enroll/room/' + hash);
+                };
+
 
                 self.showInstructions = function (enrolment) {
                     var modalController = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {

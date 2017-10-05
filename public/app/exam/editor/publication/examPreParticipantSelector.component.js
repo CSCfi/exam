@@ -5,8 +5,8 @@ angular.module('app.exam.editor')
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'enrolmentService', 'EnrollRes',
-            function ($translate, enrolmentService, EnrollRes) {
+        controller: ['$translate', 'Enrolment', 'EnrollRes',
+            function ($translate, Enrolment, EnrollRes) {
 
                 var vm = this;
 
@@ -21,7 +21,7 @@ angular.module('app.exam.editor')
                         return e.preEnrolledUserEmail;
                     }).indexOf(vm.newPreParticipant.email) > -1;
                     if (!exists) {
-                        enrolmentService.enrollStudent(vm.exam, vm.newPreParticipant).then(
+                        Enrolment.enrollStudent(vm.exam, vm.newPreParticipant).then(
                             function (enrolment) {
                                 vm.exam.examEnrolments.push(enrolment);
                                 delete vm.newPreParticipant.email;

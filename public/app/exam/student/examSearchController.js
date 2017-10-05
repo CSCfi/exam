@@ -2,9 +2,9 @@
     'use strict';
     angular.module('app.exam')
         .controller('ExamSearchCtrl', ['$scope', '$timeout', '$translate', 'StudentExamRes', 'EnrollRes',
-                    'SettingsResource', 'examService', 'enrolmentService', 'EXAM_CONF', '$location',
+                    'SettingsResource', 'examService', 'Enrolment', 'EXAM_CONF', '$location',
             function ($scope, $timeout, $translate, StudentExamRes, EnrollRes, SettingsResource,
-                      examService, enrolmentService, EXAM_CONF, $location) {
+                      examService, Enrolment, EXAM_CONF, $location) {
 
                 $scope.filter = {};
                 $scope.permissionCheck = {};
@@ -62,7 +62,7 @@
                 };
 
                 $scope.enrollExam = function (exam) {
-                    enrolmentService.checkAndEnroll(exam);
+                    Enrolment.checkAndEnroll(exam);
                 };
 
                 var checkEnrolment = function () {

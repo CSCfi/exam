@@ -38,13 +38,10 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         $routeProvider.when('/exams', {templateUrl: tmpl + 'exam/exams.html', controller: 'ExamListingController'});
 
         /* Enrolment */
-        $routeProvider.when('/enroll/:code/exam/:id', {
-            templateUrl: tmpl + 'enrolment/enrollExam.html',
-            controller: 'EnrollController'
-        });
+        $routeProvider.when('/enroll/:code/exam/:id', {template: '<exam-enrolments></exam-enrolments>'});
 
         // edit question
-        $routeProvider.when('/questions/:id', {template: '<question></question>'});
+        $routeProvider.when('/questions/:id', {template: '<question new-question="false"></question>'});
         // new question
         $routeProvider.when('/questions/newQuestion/:create', {template: '<question new-question="true"></question>'});
 

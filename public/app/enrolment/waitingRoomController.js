@@ -2,9 +2,9 @@
     'use strict';
     angular.module('app.enrolment')
         .controller('WaitingRoomCtrl', ['$scope', '$http', '$timeout', '$translate', '$location', 'Session',
-            'StudentExamRes', 'waitingRoomService', 'dateService', 'enrolmentService',
+            'StudentExamRes', 'waitingRoomService', 'dateService', 'Enrolment',
             function ($scope, $http, $timeout, $translate, $location, Session, StudentExamRes, waitingRoomService,
-                      dateService, enrolmentService) {
+                      dateService, Enrolment) {
 
                 var user = Session.getUser();
 
@@ -82,7 +82,7 @@
                 };
 
                 $scope.showInstructions = function (enrolment) {
-                    enrolmentService.showInstructions(enrolment);
+                    Enrolment.showInstructions(enrolment);
                 };
 
                 // This is just to get page refresh to route us back here

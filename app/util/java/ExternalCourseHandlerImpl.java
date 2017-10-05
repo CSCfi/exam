@@ -254,6 +254,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                                 false;
                         g.setMarksRejection(marksRejection);
                         g.save();
+                        gs.getGrades().add(g);
                     }
                     scales.add(gs);
                 } else {

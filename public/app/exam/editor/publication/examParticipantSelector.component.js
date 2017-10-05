@@ -5,8 +5,8 @@ angular.module('app.exam.editor')
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'limitToFilter', 'UserRes', 'enrolmentService', 'EnrollRes',
-            function ($translate, limitToFilter, UserRes, enrolmentService, EnrollRes) {
+        controller: ['$translate', 'limitToFilter', 'UserRes', 'Enrolment', 'EnrollRes',
+            function ($translate, limitToFilter, UserRes, Enrolment, EnrollRes) {
 
                 var vm = this;
 
@@ -34,7 +34,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.addParticipant = function () {
-                    enrolmentService.enrollStudent(vm.exam, vm.newParticipant).then(
+                    Enrolment.enrollStudent(vm.exam, vm.newParticipant).then(
                         function (enrolment) {
 
                             // push to the list

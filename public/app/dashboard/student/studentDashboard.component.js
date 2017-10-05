@@ -1,11 +1,9 @@
 'use strict';
-angular.module("app.dashboard.student")
+angular.module('app.dashboard.student')
     .component('studentDashboard', {
         templateUrl: '/assets/app/dashboard/student/studentDashboard.template.html',
-        controller: ['StudentDashboard', 'reservationService', 'dateService', 'enrolmentService', 'Session',
-            '$translate', '$http',
-            function (StudentDashboard, reservationService, dateService, enrolmentService, Session, $translate,
-                      $http) {
+        controller: ['StudentDashboard', 'reservationService', 'dateService', 'Enrolment', 'Session', '$translate', '$http',
+            function (StudentDashboard, reservationService, dateService, Enrolment, Session, $translate, $http) {
 
                 var ctrl = this;
 
@@ -14,7 +12,7 @@ angular.module("app.dashboard.student")
                     ctrl.showGuide = 0;
                     StudentDashboard.listEnrolments().then(function (data) {
                         ctrl.userEnrolments = data.result;
-                    })
+                    });
                 };
 
                 ctrl.printExamDuration = function (exam) {
@@ -43,51 +41,25 @@ angular.module("app.dashboard.student")
                 };
 
                 ctrl.showMaturityInstructions = function (enrolment) {
-                    enrolmentService.showMaturityInstructions(enrolment);
+                    Enrolment.showMaturityInstructions(enrolment);
                 };
 
                 ctrl.addEnrolmentInformation = function (enrolment) {
-                    enrolmentService.addEnrolmentInformation(enrolment);
+                    Enrolment.addEnrolmentInformation(enrolment);
                 };
 
                 ctrl.getUsername = function () {
                     return Session.getUserName();
                 };
 
-                ctrl.removeEnrolment = function (enrolment, enrolments) {
-                    enrolmentService.removeEnrolment(enrolment, enrolments);
+                ctrl.enrolmentRemoved = function (data) {
+                    ctrl.userEnrolments.splice(ctrl.userEnrolments.indexOf(data), 1);
                 };
 
-                function currentLanguage() {
-                    var tmp = "";
+                ctrl.removeEnrolment = function (enrolment, enrolments) {
+                    Enrolment.removeEnrolment(enrolment, enrolments);
+                };
 
-                    if (ctrl.info &&
-                        ctrl.info.reservation &&
-                        ctrl.info.reservation.machine &&
-                        ctrl.info.reservation.machine.room) {
-
-                        switch ($translate.use()) {
-                            case "fi":
-                                if (ctrl.info.reservation.machine.room.roomInstruction) {
-                                    tmp = ctrl.info.reservation.machine.room.roomInstruction;
-                                }
-                                break;
-                            case "sv":
-                                if (ctrl.info.reservation.machine.room.roomInstructionSV) {
-                                    tmp = ctrl.info.reservation.machine.room.roomInstructionSV;
-                                }
-                                break;
-                            case "en":
-                            /* falls through */
-                            default:
-                                if (ctrl.info.reservation.machine.room.roomInstructionEN) {
-                                    tmp = ctrl.info.reservation.machine.room.roomInstructionEN;
-                                }
-                                break;
-                        }
-                    }
-                    return tmp;
-                }
 
             }]
     });
