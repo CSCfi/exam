@@ -1,8 +1,10 @@
 angular.module('app.dashboard.student')
-    .service('StudentDashboard', ['$q', 'StudentExamRes',
-        function ($q, StudentExamRes) {
+    .service('StudentDashboard', ['$q', '$resource',
+        function ($q, $resource) {
 
             var self = this;
+
+            var enrolmentApi = $resource('/app/enrolments');
 
             var setOccasion = function (reservation) {
                 var machine = reservation.machine;
@@ -17,27 +19,15 @@ angular.module('app.dashboard.student')
                     end.add(-1, 'hour');
                 }
                 reservation.occasion = {
-                    startAt: start.format("HH:mm"),
-                    endAt: end.format("HH:mm")
+                    startAt: start.format('HH:mm'),
+                    endAt: end.format('HH:mm')
                 };
-            };
-
-            self.searchParticipations = function (filter) {
-                var deferred = $q.defer();
-                StudentExamRes.finishedExams.query({filter: filter},
-                    function (participations) {
-                        deferred.resolve({participations: participations});
-                    },
-                    function (error) {
-                        deferred.reject(error);
-                    });
-                return deferred.promise;
             };
 
             self.listEnrolments = function () {
                 var deferred = $q.defer();
 
-                StudentExamRes.enrolments.query(function (enrolments) {
+                enrolmentApi.query(function (enrolments) {
                         enrolments.forEach(function (e) {
                             if (e.reservation) {
                                 setOccasion(e.reservation);
