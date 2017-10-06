@@ -7,14 +7,14 @@ angular.module('app.exam.editor')
             exam: '<',
             onUpdate: '&'
         },
-        controller: ['examService',
-            function (examService) {
+        controller: ['Exam',
+            function (Exam) {
 
                 var vm = this;
 
                 vm.displayGradeScale = function () {
                     return !vm.exam.course || !vm.exam.course.gradeScale ? null :
-                        examService.getScaleDisplayName(vm.exam.course.gradeScale);
+                        Exam.getScaleDisplayName(vm.exam.course.gradeScale);
                 };
 
                 vm.setCourse = function (course) {

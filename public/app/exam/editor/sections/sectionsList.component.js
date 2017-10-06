@@ -9,8 +9,8 @@ angular.module('app.exam.editor')
             onPreviousTabSelected: '&',
             onNewLibraryQuestion: '&'
         },
-        controller: ['$q', '$translate', '$location', 'dialogs', 'ExamRes', 'examService',
-            function ($q, $translate, $location, dialogs, ExamRes, examService) {
+        controller: ['$q', '$translate', '$location', 'dialogs', 'ExamRes', 'Exam',
+            function ($q, $translate, $location, dialogs, ExamRes, Exam) {
 
                 var vm = this;
 
@@ -61,7 +61,7 @@ angular.module('app.exam.editor')
 
                 vm.updateExam = function (silent) {
                     var deferred = $q.defer();
-                    examService.updateExam(vm.exam).then(function () {
+                    Exam.updateExam(vm.exam).then(function () {
                         if (!silent){
                             toastr.info($translate.instant('sitnet_exam_saved'));
                         }
@@ -112,7 +112,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.calculateExamMaxScore = function () {
-                    return examService.getMaxScore(vm.exam);
+                    return Exam.getMaxScore(vm.exam);
                 };
 
                 vm.nextTab = function () {

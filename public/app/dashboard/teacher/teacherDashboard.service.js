@@ -1,6 +1,6 @@
 angular.module('app.dashboard.teacher')
-    .service('TeacherDashboard', ['$q', 'examService', 'reservationService', 'ExamRes',
-        function ($q, examService, reservationService, ExamRes) {
+    .service('TeacherDashboard', ['$q', 'Exam', 'reservationService', 'ExamRes',
+        function ($q, Exam, reservationService, ExamRes) {
 
             var self = this;
 
@@ -28,11 +28,11 @@ angular.module('app.dashboard.teacher')
             self.populate = function (scope) {
                 var deferred = $q.defer();
 
-                examService.listExecutionTypes().then(function (types) {
+                Exam.listExecutionTypes().then(function (types) {
                     scope.executionTypes = types;
                     ExamRes.reviewerExams.query(function (reviewerExams) {
                         scope.draftExams = reviewerExams.filter(function (review) {
-                            return (review.state === 'DRAFT' || review.state === 'SAVED') && examService.isOwner(review);
+                            return (review.state === 'DRAFT' || review.state === 'SAVED') && Exam.isOwner(review);
                         });
                         scope.draftExams.forEach(function (de) {
                             de.ownerAggregate = de.examOwners.map(function (o) {
@@ -53,8 +53,8 @@ angular.module('app.dashboard.teacher')
                             if (ae.executionType.type === 'PRINTOUT') {
                                 createFakeActivityPeriod(ae);
                             }
-                            ae.unassessedCount = examService.getReviewablesCount(ae);
-                            ae.unfinishedCount = examService.getGradedCount(ae);
+                            ae.unassessedCount = Exam.getReviewablesCount(ae);
+                            ae.unfinishedCount = Exam.getGradedCount(ae);
                             ae.reservationCount = reservationService.getReservationCount(ae);
                             ae.ownerAggregate = ae.examOwners.map(function (o) {
                                 return o.firstName + " " + o.lastName;
@@ -74,8 +74,8 @@ angular.module('app.dashboard.teacher')
                             ee.ownerAggregate = ee.examOwners.map(function (o) {
                                 return o.firstName + " " + o.lastName;
                             }).join();
-                            var unassessedCount = examService.getReviewablesCount(ee);
-                            var unfinishedCount = examService.getGradedCount(ee);
+                            var unassessedCount = Exam.getReviewablesCount(ee);
+                            var unfinishedCount = Exam.getGradedCount(ee);
                             if (unassessedCount + unfinishedCount > 0 && ee.executionType.type !== 'PRINTOUT') {
                                 ee.unassessedCount = unassessedCount;
                                 ee.unfinishedCount = unfinishedCount;
@@ -84,7 +84,7 @@ angular.module('app.dashboard.teacher')
                                 if (ee.executionType.type === 'PRINTOUT') {
                                     createFakeActivityPeriod(ee);
                                 }
-                                ee.assessedCount = examService.getProcessedCount(ee);
+                                ee.assessedCount = Exam.getProcessedCount(ee);
                                 scope.archivedExams.push(ee);
                             }
                         });

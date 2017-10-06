@@ -2,8 +2,8 @@
 angular.module('app.dashboard.student')
     .component('studentDashboard', {
         templateUrl: '/assets/app/dashboard/student/studentDashboard.template.html',
-        controller: ['StudentDashboard', 'reservationService', 'dateService', 'Enrolment', 'Session', '$translate', '$http',
-            function (StudentDashboard, reservationService, dateService, Enrolment, Session, $translate, $http) {
+        controller: ['StudentDashboard', 'reservationService', 'DateTime', 'Enrolment', 'Session', '$translate', '$http',
+            function (StudentDashboard, reservationService, DateTime, Enrolment, Session, $translate, $http) {
 
                 var ctrl = this;
 
@@ -16,7 +16,7 @@ angular.module('app.dashboard.student')
                 };
 
                 ctrl.printExamDuration = function (exam) {
-                    return dateService.printExamDuration(exam);
+                    return DateTime.printExamDuration(exam);
                 };
 
                 ctrl.removeReservation = function (enrolment) {

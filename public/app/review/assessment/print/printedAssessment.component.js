@@ -6,8 +6,8 @@ angular.module('app.review')
         bindings: {
             exam: '<'
         },
-        controller: ['$routeParams', '$document', '$sce', 'ExamRes', 'Question', 'examService', 'Assessment', 'EXAM_CONF', 'Session',
-            function ($routeParams, $document, $sce, ExamRes, Question, examService, Assessment, EXAM_CONF, Session) {
+        controller: ['$routeParams', '$document', '$sce', 'ExamRes', 'Question', 'Exam', 'Assessment', 'EXAM_CONF', 'Session',
+            function ($routeParams, $document, $sce, ExamRes, Question, Exam, Assessment, EXAM_CONF, Session) {
 
                 var vm = this;
 
@@ -72,15 +72,15 @@ angular.module('app.review')
                 };
 
                 vm.translateGrade = function (participation) {
-                    return !participation.exam.grade ? 'N/A' : examService.getExamGradeDisplayName(participation.exam.grade.name);
+                    return !participation.exam.grade ? 'N/A' : Exam.getExamGradeDisplayName(participation.exam.grade.name);
                 };
 
                 vm.getGrade = function () {
-                    return !vm.exam.grade ? 'N/A' : examService.getExamGradeDisplayName(vm.exam.grade.name);
+                    return !vm.exam.grade ? 'N/A' : Exam.getExamGradeDisplayName(vm.exam.grade.name);
                 };
 
                 vm.getCreditType = function () {
-                    return !vm.exam ? 'N/A' : examService.getExamTypeDisplayName(vm.exam.examType.type);
+                    return !vm.exam ? 'N/A' : Exam.getExamTypeDisplayName(vm.exam.examType.type);
                 };
 
                 vm.getLanguage = function () {
@@ -88,11 +88,11 @@ angular.module('app.review')
                 };
 
                 vm.getExamMaxPossibleScore = function () {
-                    return examService.getMaxScore(vm.exam);
+                    return Exam.getMaxScore(vm.exam);
                 };
 
                 vm.getExamTotalScore = function () {
-                    return examService.getTotalScore(vm.exam);
+                    return Exam.getTotalScore(vm.exam);
                 };
 
                 vm.getTeacherCount = function () {

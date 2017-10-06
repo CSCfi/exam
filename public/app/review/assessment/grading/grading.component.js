@@ -9,8 +9,8 @@ angular.module('app.review')
             questionSummary: '<',
             onUpdate: '&'
         },
-        controller: ['$translate', '$scope', 'Assessment', 'examService', 'ExamRes', 'Attachment', 'Language',
-            function ($translate, $scope, Assessment, examService, ExamRes, Attachment, Language) {
+        controller: ['$translate', '$scope', 'Assessment', 'Exam', 'ExamRes', 'Attachment', 'Language',
+            function ($translate, $scope, Assessment, Exam, ExamRes, Attachment, Language) {
 
                 var vm = this;
 
@@ -23,11 +23,11 @@ angular.module('app.review')
                 };
 
                 vm.getExamMaxPossibleScore = function () {
-                    return examService.getMaxScore(vm.exam);
+                    return Exam.getMaxScore(vm.exam);
                 };
 
                 vm.getExamTotalScore = function () {
-                    return examService.getTotalScore(vm.exam);
+                    return Exam.getTotalScore(vm.exam);
                 };
 
                 vm.inspectionDone = function () {
@@ -35,7 +35,7 @@ angular.module('app.review')
                 };
 
                 vm.isOwnerOrAdmin = function () {
-                    return examService.isOwnerOrAdmin(vm.exam);
+                    return Exam.isOwnerOrAdmin(vm.exam);
                 };
 
                 vm.isReadOnly = function () {
@@ -107,7 +107,7 @@ angular.module('app.review')
                     scale.grades = scale.grades || [];
                     vm.grades = scale.grades.map(function (grade) {
                         grade.type = grade.name;
-                        grade.name = examService.getExamGradeDisplayName(grade.name);
+                        grade.name = Exam.getExamGradeDisplayName(grade.name);
 
                         if (vm.exam.grade && vm.exam.grade.id === grade.id) {
                             vm.exam.grade.type = grade.type;
@@ -116,7 +116,7 @@ angular.module('app.review')
                         return grade;
                     });
                     // The "no grade" option
-                    var noGrade = {type: 'NONE', name: examService.getExamGradeDisplayName('NONE')};
+                    var noGrade = {type: 'NONE', name: Exam.getExamGradeDisplayName('NONE')};
                     if (vm.exam.gradeless && !vm.selections.grade) {
                         vm.selections.grade = noGrade;
                     }
@@ -124,7 +124,7 @@ angular.module('app.review')
                 };
 
                 var initCreditTypes = function () {
-                    examService.refreshExamTypes().then(function (types) {
+                    Exam.refreshExamTypes().then(function (types) {
                         var creditType = vm.exam.creditType || vm.exam.examType;
                         vm.creditTypes = types;
                         types.forEach(function (type) {
@@ -160,7 +160,7 @@ angular.module('app.review')
                 $scope.$on('$localeChangeSuccess', function () {
                     initCreditTypes();
                     vm.grades.forEach(function (eg) {
-                        eg.name = examService.getExamGradeDisplayName(eg.type);
+                        eg.name = Exam.getExamGradeDisplayName(eg.type);
                     });
                 });
 

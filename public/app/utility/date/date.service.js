@@ -1,6 +1,6 @@
 'use strict';
 angular.module('app.utility')
-    .factory('dateService', ['$translate', function ($translate) {
+    .factory('DateTime', ['$translate', function ($translate) {
 
         var printExamDuration = function (exam) {
 
@@ -17,17 +17,6 @@ angular.module('app.utility')
             } else {
                 return "";
             }
-        };
-
-        var checkDST = function (stamp) {
-            var date = moment(stamp, 'DD.MM.YYYY HH:mmZZ');
-            var now = moment();
-            if (date.isDST() && !now.isDST()) {
-                date = date.add(-1, 'hours');
-            } else if (!date.isDST() && now.isDST()) {
-                date = date.add(1, 'hours');
-            }
-            return date;
         };
 
         var getDateForWeekday = function (ordinal) {
@@ -53,7 +42,6 @@ angular.module('app.utility')
 
         return {
             printExamDuration: printExamDuration,
-            checkDST: checkDST,
             getDateForWeekday: getDateForWeekday,
             getWeekdayNames: getWeekdayNames
         };

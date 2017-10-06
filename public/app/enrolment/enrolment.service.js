@@ -186,7 +186,7 @@
                     }];
 
                     var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'enrolment/add_enrolment_information.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'enrolment/active/dialogs/add_enrolment_information.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: modalController,

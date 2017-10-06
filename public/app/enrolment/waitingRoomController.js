@@ -2,9 +2,9 @@
     'use strict';
     angular.module('app.enrolment')
         .controller('WaitingRoomCtrl', ['$scope', '$http', '$timeout', '$translate', '$location', 'Session',
-            'StudentExamRes', 'waitingRoomService', 'dateService', 'Enrolment',
+            'StudentExamRes', 'waitingRoomService', 'DateTime', 'Enrolment',
             function ($scope, $http, $timeout, $translate, $location, Session, StudentExamRes, waitingRoomService,
-                      dateService, Enrolment) {
+                      DateTime, Enrolment) {
 
                 var user = Session.getUser();
 
@@ -74,7 +74,7 @@
                 });
 
                 $scope.printExamDuration = function (exam) {
-                    return dateService.printExamDuration(exam);
+                    return DateTime.printExamDuration(exam);
                 };
 
                 $scope.getUsername = function () {

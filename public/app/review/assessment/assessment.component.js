@@ -3,8 +3,8 @@
 angular.module('app.review')
     .component('assessment', {
         templateUrl: '/assets/app/review/assessment/assessment.template.html',
-        controller: ['$routeParams', 'Assessment', 'ExamRes', 'Question', 'Session', 'examService',
-            function ($routeParams, Assessment, ExamRes, Question, Session, examService) {
+        controller: ['$routeParams', 'Assessment', 'ExamRes', 'Question', 'Session', 'Exam',
+            function ($routeParams, Assessment, ExamRes, Question, Session, Exam) {
 
                 var vm = this;
 
@@ -46,7 +46,7 @@ angular.module('app.review')
                 };
 
                 vm.isOwnerOrAdmin = function () {
-                    return examService.isOwnerOrAdmin(vm.exam);
+                    return Exam.isOwnerOrAdmin(vm.exam);
                 };
 
                 vm.isReadOnly = function () {

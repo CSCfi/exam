@@ -104,24 +104,22 @@
 
                 <!-- utility -->
             <script src="@routes.Assets.at("app/utility/utility.module.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/utility/dateService.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/utility/dragdrop.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/utility/fileService.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/utility/attachmentResource.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/utility/datePicker.component.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/utility/attachmentController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/utility/attachment.service.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/utility/dialogs/attachmentSelector.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/utility/date/date.service.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/utility/dragndrop/dragndrop.directive.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/utility/file/file.service.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/utility/date/datePicker.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/utility/attachment/attachment.service.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/utility/attachment/dialogs/attachmentSelector.component.js")" type="text/javascript"></script>
 
                 <!-- app general -->
             <script src="@routes.Assets.at("app/app.module.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/app.constant.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/app.config.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/app.run.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/directives.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/filters.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/httpInterceptor.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/app.directive.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/app.filter.js")" type="text/javascript"></script>
 
+            <!-- session -->
             <script src="@routes.Assets.at("app/session/session.module.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/session/session.service.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/session/session.component.js")" type="text/javascript"></script>
@@ -174,6 +172,11 @@
             <script src="@routes.Assets.at("app/enrolment/exams/examEnrolments.component.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/enrolment/exams/examEnrolmentDetails.component.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/enrolment/exams/examEnrolmentCandidate.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/enrolment/finished/examParticipations.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/enrolment/finished/examParticipation.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/enrolment/finished/examFeedback.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/enrolment/search/examSearch.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/enrolment/search/examSearchResult.component.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/enrolment/waitingRoomController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/enrolment/wrongMachineController.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/enrolment/enrolment.service.js")" type="text/javascript"></script>
@@ -182,12 +185,13 @@
             <script src="@routes.Assets.at("app/exam/exam.module.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/editor/examResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/student/studentExamResource.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/exam/editor/courseResource.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/editor/editor.module.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/editor/creation/newExam.component.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/editor/creation/courseSelection.component.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/editor/common/coursePicker.component.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/exam/editor/common/coursePicker.service.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/editor/basic/basicExamInfo.component.js")" type="text/javascript"></script>
+
             <script src="@routes.Assets.at("app/exam/editor/basic/examCourse.component.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/editor/basic/examInspectorSelector.component.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/editor/basic/examOwnerSelector.component.js")" type="text/javascript"></script>
@@ -205,10 +209,8 @@
             <script src="@routes.Assets.at("app/exam/editor/publication/examPreParticipantSelector.component.js")" type="text/javascript"></script>
 
             <script src="@routes.Assets.at("app/exam/examListingController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/exam/student/examSearchController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/exam/examService.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("app/exam/exam.service.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/exam/printout/printoutController.js")" type="text/javascript"></script>
-            <script src="@routes.Assets.at("app/exam/student/examFeedbackController.js")" type="text/javascript"></script>
 
                 <!-- examination -->
             <script src="@routes.Assets.at("app/examination/examination.module.js")" type="text/javascript"></script>
@@ -314,7 +316,6 @@
                 <!-- iop -->
             <script src="@routes.Assets.at("app/iop/iop.module.js")" type="text/javascript"></script>
             <script src="@routes.Assets.at("app/iop/interoperabilityResource.js")" type="text/javascript"></script>
-
 
         }
     </head>

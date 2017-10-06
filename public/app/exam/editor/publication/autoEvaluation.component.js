@@ -9,8 +9,8 @@ angular.module('app.exam.editor')
             onDisabled: '&',
             onUpdate: '&'
         },
-        controller: ['examService',
-            function (examService) {
+        controller: ['Exam',
+            function (Exam) {
 
                 var vm = this;
 
@@ -59,11 +59,11 @@ angular.module('app.exam.editor')
                 };
 
                 vm.calculateExamMaxScore = function () {
-                    return examService.getMaxScore(vm.exam);
+                    return Exam.getMaxScore(vm.exam);
                 };
 
                 vm.getGradeDisplayName = function (grade) {
-                    return examService.getExamGradeDisplayName(grade.name);
+                    return Exam.getExamGradeDisplayName(grade.name);
                 };
 
                 vm.calculatePointLimit = function (evaluation) {

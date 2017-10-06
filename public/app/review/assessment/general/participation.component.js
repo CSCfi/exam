@@ -6,8 +6,8 @@ angular.module('app.review')
         bindings: {
             participation: '<'
         },
-        controller: ['examService',
-            function (examService) {
+        controller: ['Exam',
+            function (Exam) {
 
                 var vm = this;
 
@@ -19,7 +19,7 @@ angular.module('app.review')
                     if (!vm.participation.exam.grade) {
                         return;
                     }
-                    return examService.getExamGradeDisplayName(vm.participation.exam.grade.name);
+                    return Exam.getExamGradeDisplayName(vm.participation.exam.grade.name);
                 };
 
             }

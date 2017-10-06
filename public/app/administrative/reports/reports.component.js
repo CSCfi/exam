@@ -3,8 +3,8 @@
 angular.module('app.administrative.reports')
     .component('reports', {
         templateUrl: '/assets/app/administrative/reports/reports.template.html',
-        controller: ['$translate', 'EXAM_CONF', 'Reports', 'RoomResource', 'dateService', '$filter', 'UserRes', 'fileService',
-            function ($translate, EXAM_CONF, Reports, RoomResource, dateService, $filter, UserRes, fileService) {
+        controller: ['$translate', 'EXAM_CONF', 'Reports', 'RoomResource', 'DateTime', '$filter', 'UserRes', 'Files',
+            function ($translate, EXAM_CONF, Reports, RoomResource, DateTime, $filter, UserRes, Files) {
 
                 var ctrl = this;
 
@@ -41,7 +41,7 @@ angular.module('app.administrative.reports')
 
                 ctrl.getExamEnrollments = function (exam) {
                     if (exam) {
-                        fileService.download('/app/statistics/examenrollments/' + exam.id, 'exam_enrolments.xlsx');
+                        Files.download('/app/statistics/examenrollments/' + exam.id, 'exam_enrolments.xlsx');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_exam'));
                     }
@@ -51,7 +51,7 @@ angular.module('app.administrative.reports')
                     if (student) {
                         var f = $filter('date')(ctrl.studentStartDate || new Date(), 'dd.MM.yyyy');
                         var t = $filter('date')(ctrl.studentEndDate || new Date(), 'dd.MM.yyyy');
-                        fileService.download('/app/statistics/student/' + student.id + '/' + f + '/' + t, 'student_activity.xlsx');
+                        Files.download('/app/statistics/student/' + student.id + '/' + f + '/' + t, 'student_activity.xlsx');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_student'));
                     }
@@ -60,12 +60,12 @@ angular.module('app.administrative.reports')
                 ctrl.getExamAnswerReport = function () {
                     var f = $filter('date')(ctrl.answerStartDate || new Date(), 'dd.MM.yyyy');
                     var t = $filter('date')(ctrl.answerEndDate || new Date(), 'dd.MM.yyyy');
-                    fileService.download('/app/statistics/allexams/' + f + '/' + t, 'exam_answers_' + f + '_' + t + '.xlsx');
+                    Files.download('/app/statistics/allexams/' + f + '/' + t, 'exam_answers_' + f + '_' + t + '.xlsx');
                 };
 
                 ctrl.getExamsXlsx = function (exam) {
                     if (exam) {
-                        fileService.download('/app/statistics/examnames/' + exam.id + '/xlsx', 'exams.xlsx');
+                        Files.download('/app/statistics/examnames/' + exam.id + '/xlsx', 'exams.xlsx');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_exam'));
                     }
@@ -73,7 +73,7 @@ angular.module('app.administrative.reports')
 
                 ctrl.getExamsJson = function (exam) {
                     if (exam) {
-                        fileService.download('/app/statistics/examnames/' + exam.id + '/json', 'exams.json');
+                        Files.download('/app/statistics/examnames/' + exam.id + '/json', 'exams.json');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_exam'));
                     }
@@ -82,14 +82,14 @@ angular.module('app.administrative.reports')
                 ctrl.getReviewsByDate = function () {
                     var f = $filter('date')(ctrl.reviewStartDate || new Date(), 'dd.MM.yyyy');
                     var t = $filter('date')(ctrl.reviewEndDate || new Date(), 'dd.MM.yyyy');
-                    fileService.download('/app/statistics/reviewsbydate/' + f + '/' + t, 'reviews_' + f + '_' + t + '.xlsx');
+                    Files.download('/app/statistics/reviewsbydate/' + f + '/' + t, 'reviews_' + f + '_' + t + '.xlsx');
                 };
 
                 ctrl.getTeacherExamsByDate = function (teacher) {
                     var f = $filter('date')(ctrl.teacherStartDate || new Date(), 'dd.MM.yyyy');
                     var t = $filter('date')(ctrl.teacherEndDate || new Date(), 'dd.MM.yyyy');
                     if (teacher) {
-                        fileService.download('/app/statistics/teacherexamsbydate/' + teacher.id + '/' + f + '/' + t,
+                        Files.download('/app/statistics/teacherexamsbydate/' + teacher.id + '/' + f + '/' + t,
                             'teacherexams_' + f + '_' + t + '.xlsx');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_teacher'));
@@ -100,7 +100,7 @@ angular.module('app.administrative.reports')
                     var f = $filter('date')(ctrl.reservationStartDate || new Date(), 'dd.MM.yyyy');
                     var t = $filter('date')(ctrl.reservationEndDate || new Date(), 'dd.MM.yyyy');
                     if (rid > 0) {
-                        fileService.download('/app/statistics/resbydate/' + rid + '/' + f + '/' + t, 'reservations_' + f + '_' + t + '.xlsx');
+                        Files.download('/app/statistics/resbydate/' + rid + '/' + f + '/' + t, 'reservations_' + f + '_' + t + '.xlsx');
                     } else {
                         toastr.error($translate.instant('sitnet_choose_room'));
                     }
@@ -111,7 +111,7 @@ angular.module('app.administrative.reports')
                     var end = ctrl.recordCsvEndDate
                         ? new Date(ctrl.recordCsvEndDate).getTime().setHours(23, 59, 59, 999)
                         : new Date().getTime().setHours(23, 59, 59, 999);
-                    fileService.download('/app/exam/record', 'examrecords.csv', {'startDate': start, 'endDate': end});
+                    Files.download('/app/exam/record', 'examrecords.csv', {'startDate': start, 'endDate': end});
                 };
 
                 ctrl.answerStartDateChanged = function (date) {

@@ -146,7 +146,7 @@ angular.module('app.navigation')
                             icon_png: "icon_exams.png"
                         },
                         {
-                            href: "/student/finishedexams",
+                            href: "/student/participations",
                             visible: (student && !ctrl.wrongMachine && !ctrl.upcomingExam),
                             class: "fa-search",
                             name: "sitnet_exam_responses",

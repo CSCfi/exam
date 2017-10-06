@@ -3,8 +3,8 @@
 angular.module('app.exam.editor')
     .component('courseSelection', {
         templateUrl: '/assets/app/exam/editor/creation/courseSelection.template.html',
-        controller: ['$translate', '$q', '$location', '$routeParams', 'ExamRes', 'examService',
-            function ($translate, $q, $location, $routeParams, ExamRes, examService) {
+        controller: ['$translate', '$q', '$location', '$routeParams', 'ExamRes', 'Exam',
+            function ($translate, $q, $location, $routeParams, ExamRes, Exam) {
 
                 var vm = this;
 
@@ -15,11 +15,11 @@ angular.module('app.exam.editor')
                 };
 
                 vm.getExecutionTypeTranslation = function () {
-                    return !vm.exam || examService.getExecutionTypeTranslation(vm.exam.executionType.type);
+                    return !vm.exam || Exam.getExecutionTypeTranslation(vm.exam.executionType.type);
                 };
 
                 vm.updateExamName = function () {
-                    examService.updateExam(vm.exam).then(function () {
+                    Exam.updateExam(vm.exam).then(function () {
                         toastr.info($translate.instant("sitnet_exam_saved"));
                     }, function (error) {
                         if (error.data) {

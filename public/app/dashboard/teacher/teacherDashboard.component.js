@@ -2,9 +2,9 @@
 angular.module('app.dashboard.teacher')
     .component('teacherDashboard', {
         templateUrl: '/assets/app/dashboard/teacher/teacherDashboard.template.html',
-        controller: ['TeacherDashboard', 'examService', 'dateService', 'Session', 'EXAM_CONF', 'ExamRes',
+        controller: ['TeacherDashboard', 'Exam', 'DateTime', 'Session', 'EXAM_CONF', 'ExamRes',
             'dialogs', '$translate', '$location', '$filter',
-            function (TeacherDashboard, examService, dateService, Session, EXAM_CONF, ExamRes, dialogs,
+            function (TeacherDashboard, Exam, DateTime, Session, EXAM_CONF, ExamRes, dialogs,
                       $translate, $location, $filter) {
 
                 var ctrl = this;
@@ -32,7 +32,7 @@ angular.module('app.dashboard.teacher')
                 };
 
                 ctrl.printExamDuration = function (exam) {
-                    return dateService.printExamDuration(exam);
+                    return DateTime.printExamDuration(exam);
                 };
 
                 ctrl.getUsername = function () {
@@ -40,7 +40,7 @@ angular.module('app.dashboard.teacher')
                 };
 
                 ctrl.getExecutionTypeTranslation = function (exam) {
-                    return examService.getExecutionTypeTranslation(exam.executionType.type);
+                    return Exam.getExecutionTypeTranslation(exam.executionType.type);
                 };
 
                 ctrl.checkOwner = function (isOwner) {

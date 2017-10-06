@@ -2,10 +2,10 @@
 angular.module('app.review')
     .component('speedReview', {
         templateUrl: '/assets/app/review/listing/speedReview.template.html',
-        controller: ['dialogs', '$q', '$route', '$routeParams', '$translate', 'ExamRes', 'examService',
-            'Review', 'fileService', '$uibModal', 'EXAM_CONF',
+        controller: ['dialogs', '$q', '$route', '$routeParams', '$translate', 'ExamRes', 'Exam',
+            'Review', 'Files', '$uibModal', 'EXAM_CONF',
             function (dialogs, $q, $route, $routeParams, $translate, ExamRes,
-                      examService, Review, fileService, $modal, EXAM_CONF) {
+                      Exam, Review, Files, $modal, EXAM_CONF) {
 
                 var vm = this;
 
@@ -53,7 +53,7 @@ angular.module('app.review')
                 };
 
                 vm.isAllowedToGrade = function (exam) {
-                    return examService.isOwnerOrAdmin(exam);
+                    return Exam.isOwnerOrAdmin(exam);
                 };
 
                 var getErrors = function (exam) {
@@ -158,12 +158,12 @@ angular.module('app.review')
 
                 vm.importGrades = function () {
                     var modalvm = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
-                        fileService.getMaxFilesize().then(function (data) {
+                        Files.getMaxFilesize().then(function (data) {
                             $scope.maxFileSize = data.filesize;
                         });
                         $scope.title = 'sitnet_import_grades_from_csv';
                         $scope.submit = function () {
-                            fileService.upload('/app/gradeimport', $scope.attachmentFile, {}, null, $modalInstance,
+                            Files.upload('/app/gradeimport', $scope.attachmentFile, {}, null, $modalInstance,
                                 $route.reload);
                         };
                         $scope.cancel = function () {

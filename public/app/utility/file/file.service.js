@@ -1,6 +1,6 @@
 'use strict';
 angular.module('app.utility')
-    .factory('fileService', ['$q', '$http', '$translate', '$timeout', 'SettingsResource',
+    .factory('Files', ['$q', '$http', '$translate', '$timeout', 'SettingsResource',
         function ($q, $http, $translate, $timeout, SettingsResource) {
             var _supportsBlobUrls;
             var _maxFileSize;

@@ -1,4 +1,4 @@
-(function () {
+(function () { /* TBD: refactor away */
     'use strict';
     angular.module('app.exam')
         .factory("ExamRes", ['$resource', function ($resource) {

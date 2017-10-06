@@ -6,8 +6,8 @@ angular.module('app.reservation')
             'userRole': '@'
         },
         controller: ['ExamRes', '$location', '$http', 'EXAM_CONF',
-            'ReservationResource', 'reservationService', 'examService', '$timeout', '$routeParams', '$translate', '$filter',
-            function (ExamRes, $location, $http, EXAM_CONF, ReservationResource, reservationService, examService,
+            'ReservationResource', 'reservationService', 'Exam', '$timeout', '$routeParams', '$translate', '$filter',
+            function (ExamRes, $location, $http, EXAM_CONF, ReservationResource, reservationService, Exam,
                       $timeout, $routeParams, $translate, $filter) {
 
                 var select2options = {

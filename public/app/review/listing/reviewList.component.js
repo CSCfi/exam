@@ -5,10 +5,10 @@ angular.module('app.exam.editor')
         bindings: {
             exam: '<'
         },
-        controller: ['$filter', '$q', '$translate', '$uibModal', 'dialogs', 'ExamRes', 'dateService', 'examService',
-            'ReviewList', 'fileService', 'EXAM_CONF',
-            function ($filter, $q, $translate, $modal, dialogs, ExamRes, dateService, examService, Review,
-                      fileService, EXAM_CONF) {
+        controller: ['$filter', '$q', '$translate', '$uibModal', 'dialogs', 'ExamRes', 'DateTime', 'Exam',
+            'ReviewList', 'Files', 'EXAM_CONF',
+            function ($filter, $q, $translate, $modal, dialogs, ExamRes, DateTime, Exam, Review,
+                      Files, EXAM_CONF) {
 
                 var vm = this;
 
@@ -106,7 +106,7 @@ angular.module('app.exam.editor')
 
                 vm.translateGrade = function (exam) {
                     var grade = exam.grade ? exam.grade.name : 'NONE';
-                    return examService.getExamGradeDisplayName(grade);
+                    return Exam.getExamGradeDisplayName(grade);
                 };
 
                 vm.selectAll = function (name, items) {
@@ -189,7 +189,7 @@ angular.module('app.exam.editor')
                         return r.exam.id;
                     });
 
-                    fileService.download(url + vm.exam.id,
+                    Files.download(url + vm.exam.id,
                         $translate.instant('sitnet_grading_info') + '_' + $filter('date')(Date.now(), 'dd-MM-yyyy') + fileType,
                         {'childIds': ids}, true
                     );
@@ -268,7 +268,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.printExamDuration = function (exam) {
-                    return dateService.printExamDuration(exam);
+                    return DateTime.printExamDuration(exam);
                 };
 
                 vm.getAnswerAttachments = function () {
@@ -278,7 +278,7 @@ angular.module('app.exam.editor')
                         animation: true,
                         component: 'archiveDownload'
                     }).result.then(function (params) {
-                        fileService.download(
+                        Files.download(
                             '/app/exam/' + vm.exam.id + '/attachments', vm.exam.id + '.tar.gz', params);
                     });
                 };

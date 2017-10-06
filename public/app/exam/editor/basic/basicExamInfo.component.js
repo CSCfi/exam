@@ -8,8 +8,8 @@ angular.module('app.exam.editor')
             onUpdate: '&',
             onNextTabSelected: '&'
         },
-        controller: ['$location', '$scope', '$translate', '$uibModal', 'dialogs', 'examService', 'ExamRes', 'SettingsResource', 'Attachment', 'fileService',
-            function ($location, $scope, $translate, $modal, dialogs, examService, ExamRes, SettingsResource, Attachment, fileService) {
+        controller: ['$location', '$scope', '$translate', '$uibModal', 'dialogs', 'Exam', 'ExamRes', 'SettingsResource', 'Attachment', 'Files',
+            function ($location, $scope, $translate, $modal, dialogs, Exam, ExamRes, SettingsResource, Attachment, Files) {
 
                 var vm = this;
 
@@ -28,7 +28,7 @@ angular.module('app.exam.editor')
                 });
 
                 vm.updateExam = function (resetAutoEvaluationConfig) {
-                    examService.updateExam(vm.exam).then(function () {
+                    Exam.updateExam(vm.exam).then(function () {
                         toastr.info($translate.instant('sitnet_exam_saved'));
                         if (resetAutoEvaluationConfig) {
                             delete vm.exam.autoEvaluationConfig;
@@ -49,7 +49,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.getExecutionTypeTranslation = function () {
-                    return !vm.exam || examService.getExecutionTypeTranslation(vm.exam.executionType.type);
+                    return !vm.exam || Exam.getExecutionTypeTranslation(vm.exam.executionType.type);
                 };
 
                 vm.checkExamType = function (type) {
@@ -102,7 +102,7 @@ angular.module('app.exam.editor')
                             }
                         }
                     }).result.then(function (data) {
-                        fileService.upload('/app/attachment/exam',
+                        Files.upload('/app/attachment/exam',
                             data.attachmentFile, {examId: vm.exam.id}, vm.exam);
                     });
                 };
@@ -148,7 +148,7 @@ angular.module('app.exam.editor')
                 };
 
                 var refreshExamTypes = function () {
-                    examService.refreshExamTypes().then(function (types) {
+                    Exam.refreshExamTypes().then(function (types) {
                         // Maturity can only have a FINAL type
                         if (vm.exam.executionType.type === 'MATURITY') {
                             types = types.filter(function (t) {
@@ -160,7 +160,7 @@ angular.module('app.exam.editor')
                 };
 
                 var refreshGradeScales = function () {
-                    examService.refreshGradeScales().then(function (scales) {
+                    Exam.refreshGradeScales().then(function (scales) {
                         vm.gradeScales = scales;
                     });
                 };

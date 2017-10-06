@@ -7,14 +7,14 @@ angular.module('app.utility')
             dismiss: '&',
             resolve: '<'
         },
-        controller: ['$scope', 'fileService', function ($scope, fileService) {
+        controller: ['$scope', 'Files', function ($scope, Files) {
 
             var vm = this;
 
             vm.$onInit = function () {
                 vm.title = vm.resolve.title;
                 vm.isTeacherModal = vm.resolve.isTeacherModal;
-                fileService.getMaxFilesize().then(function (data) {
+                Files.getMaxFilesize().then(function (data) {
                     vm.maxFileSize = data.filesize;
                 });
             };

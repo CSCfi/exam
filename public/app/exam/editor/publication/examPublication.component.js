@@ -8,8 +8,8 @@ angular.module('app.exam.editor')
             onPreviousTabSelected: '&',
             onNextTabSelected: '&?'
         },
-        controller: ['$q', '$translate', '$location', '$uibModal', 'Session', 'examService', 'ExamRes', 'SettingsResource', 'EXAM_CONF',
-            function ($q, $translate, $location, $modal, Session, examService, ExamRes, SettingsResource, EXAM_CONF) {
+        controller: ['$q', '$translate', '$location', '$uibModal', 'Session', 'Exam', 'ExamRes', 'SettingsResource', 'EXAM_CONF',
+            function ($q, $translate, $location, $modal, Session, Exam, ExamRes, SettingsResource, EXAM_CONF) {
 
                 var vm = this;
 
@@ -74,7 +74,7 @@ angular.module('app.exam.editor')
                         } : null
                     };
                     angular.extend(config, overrides);
-                    examService.updateExam(vm.exam, config).then(function () {
+                    Exam.updateExam(vm.exam, config).then(function () {
                         if (!silent) {
                             toastr.info($translate.instant('sitnet_exam_saved'));
                         }
@@ -117,7 +117,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.canBeAutoEvaluated = function () {
-                    return examService.hasQuestions(vm.exam) && !examService.hasEssayQuestions(vm.exam) &&
+                    return Exam.hasQuestions(vm.exam) && !Exam.hasEssayQuestions(vm.exam) &&
                         vm.exam.gradeScale && vm.exam.executionType.type !== 'MATURITY';
                 };
 

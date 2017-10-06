@@ -1,7 +1,50 @@
 'use strict';
 angular.module('app.utility')
-    .service('Attachment', ['$uibModal', 'dialogs', '$translate', 'AttachmentRes', 'fileService',
-        function ($modal, dialogs, $translate, AttachmentRes, fileService) {
+    .service('Attachment', ['$resource', '$uibModal', 'dialogs', '$translate', 'Files',
+        function ($resource, $modal, dialogs, $translate, Files) {
+
+            var questionAttachmentApi = $resource(
+                '/app/attachment/question/:id',
+                {
+                    id: '@id'
+                },
+                {
+                    'remove': {method: 'DELETE', params: {id: '@id'}}
+                });
+            var questionAnswerAttachmentApi = $resource(
+                '/app/attachment/question/:qid/answer/:hash',
+                {
+                    qid: '@qid',
+                    hash: '@hash'
+                },
+                {
+                    'remove': {method: 'DELETE', params: {qid: '@qid', hash: '@hash'}}
+                });
+            var examAttachmentApi = $resource(
+                '/app/attachment/exam/:id',
+                {
+                    id: '@id'
+                },
+                {
+                    'remove': {method: 'DELETE', params: {id: '@id'}}
+                });
+            var feedbackAttachmentApi = $resource(
+                '/app/attachment/exam/:id/feedback',
+                {
+                    id: '@id'
+                },
+                {
+                    'remove': {method: 'DELETE', params: {eid: '@id'}}
+                });
+            var statementAttachmentApi = $resource(
+                '/app/attachment/exam/:id/statement',
+                {
+                    id: '@id'
+                },
+                {
+                    'remove': {method: 'DELETE', params: {eid: '@id'}}
+                });
+
 
             var self = this;
 
@@ -9,11 +52,15 @@ angular.module('app.utility')
                 question.attachment.removed = true;
             };
 
+            self.eraseQuestionAttachment = function (question) {
+               return questionAttachmentApi.remove({id: question.id}).$promise;
+            };
+
             self.removeQuestionAnswerAttachment = function (question, hash) {
 
                 var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                 dialog.result.then(function (btn) {
-                    AttachmentRes.questionAnswerAttachment.remove({qid: question.id, hash: hash},
+                    questionAnswerAttachmentApi.remove({qid: question.id, hash: hash},
                         function (answer) {
                             toastr.info($translate.instant('sitnet_attachment_removed'));
                             question.essayAnswer.objectVersion = answer.objectVersion;
@@ -28,8 +75,7 @@ angular.module('app.utility')
 
                 var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                 dialog.result.then(function (btn) {
-                    AttachmentRes.examAttachment.remove({id: exam.id},
-
+                    examAttachmentApi.remove({id: exam.id},
                         function () {
                             toastr.info($translate.instant('sitnet_attachment_removed'));
                             exam.attachment = null;
@@ -43,8 +89,7 @@ angular.module('app.utility')
 
                 var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                 dialog.result.then(function (btn) {
-                    AttachmentRes.feedbackAttachment.remove({id: exam.id},
-
+                    feedbackAttachmentApi.remove({id: exam.id},
                         function () {
                             toastr.info($translate.instant('sitnet_attachment_removed'));
                             exam.examFeedback.attachment = null;
@@ -58,7 +103,7 @@ angular.module('app.utility')
 
                 var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                 dialog.result.then(function (btn) {
-                    AttachmentRes.statementAttachment.remove({id: exam.id},
+                    statementAttachmentApi.remove({id: exam.id},
                         function () {
                             toastr.info($translate.instant('sitnet_attachment_removed'));
                             delete exam.languageInspection.statement.attachment;
@@ -70,25 +115,25 @@ angular.module('app.utility')
 
             self.downloadQuestionAttachment = function (question) {
                 if (question.attachment.id) {
-                    fileService.download('/app/attachment/question/' + question.id, question.attachment.fileName);
+                    Files.download('/app/attachment/question/' + question.id, question.attachment.fileName);
                 }
             };
 
             self.downloadQuestionAnswerAttachment = function (question, hash) {
-                fileService.download('/app/attachment/question/' + question.id + '/answer/' + hash,
+                Files.download('/app/attachment/question/' + question.id + '/answer/' + hash,
                     question.essayAnswer.attachment.fileName);
             };
 
             self.downloadExamAttachment = function (exam) {
-                fileService.download('/app/attachment/exam/' + exam.id, exam.attachment.fileName);
+                Files.download('/app/attachment/exam/' + exam.id, exam.attachment.fileName);
             };
 
             self.downloadFeedbackAttachment = function (exam) {
-                fileService.download('/app/attachment/exam/' + exam.id + '/feedback', exam.examFeedback.attachment.fileName);
+                Files.download('/app/attachment/exam/' + exam.id + '/feedback', exam.examFeedback.attachment.fileName);
             };
 
             self.downloadStatementAttachment = function (exam) {
-                fileService.download('/app/attachment/exam/' + exam.id + '/statement', exam.languageInspection.statement.attachment.fileName);
+                Files.download('/app/attachment/exam/' + exam.id + '/statement', exam.languageInspection.statement.attachment.fileName);
             };
 
             self.getFileSize = function (attachment) {

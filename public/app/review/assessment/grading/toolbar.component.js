@@ -7,13 +7,13 @@ angular.module('app.review')
             exam: '<',
             valid: '<'
         },
-        controller: ['$translate', 'Assessment', 'examService',
-            function ($translate, Assessment, examService) {
+        controller: ['$translate', 'Assessment', 'Exam',
+            function ($translate, Assessment, Exam) {
 
                 var vm = this;
 
                 vm.isOwnerOrAdmin = function () {
-                    return examService.isOwnerOrAdmin(vm.exam);
+                    return Exam.isOwnerOrAdmin(vm.exam);
                 };
 
                 vm.isReadOnly = function () {

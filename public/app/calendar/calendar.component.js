@@ -4,10 +4,10 @@ angular.module('app.calendar')
         templateUrl: '/assets/app/calendar/calendar.template.html',
         bindings: {
             'isExternal': '<'
-        }, controller: ['$http', '$scope', '$location', '$translate', '$routeParams', 'dateService',
+        }, controller: ['$http', '$scope', '$location', '$translate', '$routeParams', 'DateTime',
             'StudentExamRes', 'Calendar', 'SettingsResource', 'InteroperabilityResource',
             'uiCalendarConfig',
-            function ($http, $scope, $location, $translate, $routeParams, dateService, StudentExamRes,
+            function ($http, $scope, $location, $translate, $routeParams, DateTime, StudentExamRes,
                       Calendar, SettingsResource, InteroperabilityResource, uiCalendarConfig) {
 
                 var vm = this;
@@ -253,7 +253,7 @@ angular.module('app.calendar')
                 };
 
                 vm.printExamDuration = function (exam) {
-                    return dateService.printExamDuration(exam);
+                    return DateTime.printExamDuration(exam);
                 };
 
                 vm.selectRoom = function (room) {

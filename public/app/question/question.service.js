@@ -1,9 +1,9 @@
 'use strict';
 angular.module('app.question')
     .service('Question', ['$q', '$resource', '$translate', '$location', '$sessionStorage',
-        'ExamQuestion', 'Session', 'fileService', 'AttachmentRes',
+        'ExamQuestion', 'Session', 'Files', 'Attachment',
         function ($q, $resource, $translate, $location, $sessionStorage, ExamQuestion, Session,
-                  fileService, AttachmentRes) {
+                  Files, Attachment) {
 
             var self = this;
 
@@ -256,7 +256,7 @@ angular.module('app.question')
                     function (response) {
                         toastr.info($translate.instant('sitnet_question_added'));
                         if (question.attachment && question.attachment.modified) {
-                            fileService.upload('/app/attachment/question', question.attachment,
+                            Files.upload('/app/attachment/question', question.attachment,
                                 {questionId: response.id}, question, null, function () {
                                     deferred.resolve(response);
                                 });
@@ -277,13 +277,13 @@ angular.module('app.question')
                     function (response) {
                         toastr.info($translate.instant('sitnet_question_saved'));
                         if (question.attachment && question.attachment.modified) {
-                            fileService.upload('/app/attachment/question', question.attachment,
+                            Files.upload('/app/attachment/question', question.attachment,
                                 {questionId: question.id}, question, null, function () {
                                     deferred.resolve();
                                 });
                         }
                         else if (question.attachment && question.attachment.removed) {
-                            AttachmentRes.questionAttachment.remove({id: question.id}, function () {
+                            Attachment.eraseQuestionAttachment(question).then(function () {
                                 deferred.resolve(response);
                             });
                         } else {
@@ -320,11 +320,11 @@ angular.module('app.question')
                 ExamQuestion.distributionApi.update({id: sectionQuestion.id}, data,
                     function (esq) {
                         if (question.attachment && question.attachment.modified) {
-                            fileService.upload('/app/attachment/question', question.attachment,
+                            Files.upload('/app/attachment/question', question.attachment,
                                 {questionId: question.id}, question);
                         }
                         if (question.attachment && question.attachment.removed) {
-                            AttachmentRes.questionAttachment.remove({id: question.id});
+                            Attachment.eraseQuestionAttachment(question);
                         }
                         deferred.resolve(esq);
                     }, function (error) {

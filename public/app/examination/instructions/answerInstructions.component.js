@@ -38,13 +38,13 @@ angular.module('app.examination')
         bindings: {
             exam: '<'
         },
-        controller: ['dateService',
-            function (dateService) {
+        controller: ['DateTime',
+            function (DateTime) {
 
                 var vm = this;
 
                 vm.printExamDuration = function () {
-                    return dateService.printExamDuration(vm.exam);
+                    return DateTime.printExamDuration(vm.exam);
                 };
             }
         ]

@@ -5,8 +5,8 @@ angular.module('app.enrolment')
         bindings: {
             exam: '<'
         },
-        controller: ['examService', 'Enrolment', 'dateService',
-            function (examService, Enrolment, dateService) {
+        controller: ['Exam', 'Enrolment', 'DateTime',
+            function (Exam, Enrolment, DateTime) {
 
                 var vm = this;
 
@@ -15,15 +15,15 @@ angular.module('app.enrolment')
                 };
 
                 vm.translateExamType = function () {
-                    return examService.getExamTypeDisplayName(vm.exam.examType.type);
+                    return Exam.getExamTypeDisplayName(vm.exam.examType.type);
                 };
 
                 vm.translateGradeScale = function () {
-                    return examService.getScaleDisplayName(vm.exam.gradeScale || vm.exam.course.gradeScale);
+                    return Exam.getScaleDisplayName(vm.exam.gradeScale || vm.exam.course.gradeScale);
                 };
 
                 vm.printExamDuration = function () {
-                    return dateService.printExamDuration(vm.exam);
+                    return DateTime.printExamDuration(vm.exam);
                 };
 
             }

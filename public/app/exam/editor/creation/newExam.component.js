@@ -3,20 +3,20 @@
 angular.module('app.exam.editor')
     .component('newExam', {
         templateUrl: '/assets/app/exam/editor/creation/newExam.template.html',
-        controller: ['examService',
-            function (examService) {
+        controller: ['Exam',
+            function (Exam) {
 
                 var vm = this;
 
                 vm.$onInit = function  () {
-                    examService.listExecutionTypes().then(function (types) {
+                    Exam.listExecutionTypes().then(function (types) {
                         vm.executionTypes = types;
                     });
                 };
 
                 vm.createExam = function () {
                     if (vm.type) {
-                        examService.createExam(vm.type.type);
+                        Exam.createExam(vm.type.type);
                     }
                 }
             }

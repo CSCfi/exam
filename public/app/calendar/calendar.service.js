@@ -1,8 +1,8 @@
 'use strict';
 angular.module('app.calendar')
     .service('Calendar', ['$resource', '$uibModal', '$http', '$routeParams', '$translate', '$location',
-        'dateService', 'Session', 'InteroperabilityResource',
-        function ($resource, $modal, $http, $routeParams, $translate, $location, dateService, Session, InteroperabilityResource) {
+        'DateTime', 'Session', 'InteroperabilityResource',
+        function ($resource, $modal, $http, $routeParams, $translate, $location, DateTime, Session, InteroperabilityResource) {
 
             var self = this;
 
@@ -74,7 +74,7 @@ angular.module('app.calendar')
                 var lang = Session.getUser().lang;
                 var locale = lang.toLowerCase() + '-' + lang.toUpperCase();
                 var options = {weekday: 'short'};
-                var weekday = dateService.getDateForWeekday;
+                var weekday = DateTime.getDateForWeekday;
                 return {
                     SUNDAY: {ord: 7, name: weekday(0).toLocaleDateString(locale, options)},
                     MONDAY: {ord: 1, name: weekday(1).toLocaleDateString(locale, options)},

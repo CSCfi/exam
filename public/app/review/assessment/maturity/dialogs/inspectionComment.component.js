@@ -6,7 +6,7 @@ angular.module('app.review')
             close: '&',
             dismiss: '&'
         },
-        controller: ['$scope', 'fileService', function ($scope, fileService) {
+        controller: ['$scope', 'Files', function ($scope, Files) {
 
             var vm = this;
 

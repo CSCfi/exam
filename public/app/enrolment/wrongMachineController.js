@@ -1,8 +1,8 @@
 (function() {
     'use strict';
     angular.module('app.enrolment')
-        .controller('WrongMachineCtrl', ['$scope', '$rootScope', '$translate', '$http', '$location', 'Session', 'StudentExamRes', 'waitingRoomService', 'dateService',
-            function($scope, $rootScope, $translate, $http, $location, Session, StudentExamRes, waitingRoomService, dateService) {
+        .controller('WrongMachineCtrl', ['$scope', '$rootScope', '$translate', '$http', '$location', 'Session', 'StudentExamRes', 'waitingRoomService', 'DateTime',
+            function($scope, $rootScope, $translate, $http, $location, Session, StudentExamRes, waitingRoomService, DateTime) {
 
                 var user = Session.getUser();
 
@@ -47,7 +47,7 @@
                 });
 
                 $scope.printExamDuration = function(exam) {
-                    return dateService.printExamDuration(exam);
+                    return DateTime.printExamDuration(exam);
                 };
 
                 $scope.getUsername = function() {

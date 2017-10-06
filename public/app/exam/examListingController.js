@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("app.exam")
-        .controller('ExamListingController', ['dialogs', '$scope', 'Session', 'examService',
+        .controller('ExamListingController', ['dialogs', '$scope', 'Session', 'Exam',
             '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes',
-            function (dialogs, $scope, Session, examService,
+            function (dialogs, $scope, Session, Exam,
                       $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes) {
 
                 $scope.filter = {};
@@ -13,7 +13,7 @@
 
                 $scope.user = Session.getUser();
 
-                examService.listExecutionTypes().then(function (types) {
+                Exam.listExecutionTypes().then(function (types) {
                     $scope.executionTypes = types;
                 });
 
@@ -44,7 +44,7 @@
 
                 // Called when create exam button is clicked
                 $scope.createExam = function (executionType) {
-                    examService.createExam(executionType);
+                    Exam.createExam(executionType);
                 };
 
                 $scope.copyExam = function (exam, type) {
@@ -72,7 +72,7 @@
                 };
 
                 $scope.getExecutionTypeTranslation = function (exam) {
-                    return examService.getExecutionTypeTranslation(exam.executionType.type);
+                    return Exam.getExecutionTypeTranslation(exam.executionType.type);
                 };
 
                 if ($scope.user.isTeacher) {

@@ -2,13 +2,13 @@
     'use strict';
     angular.module('app.facility')
         .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'Session', '$location', '$uibModal', '$http',
-            'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'EXAM_CONF', 'dateService', '$translate', '$route',
+            'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'EXAM_CONF', 'DateTime', '$translate', '$route',
             'SettingsResource', 'InteroperabilityResource',
             function (dialogs, $scope, $routeParams, Session, $location, $modal, $http, SoftwareResource,
-                      RoomResource, ExamMachineResource, EXAM_CONF, dateService, $translate, $route, SettingsRes,
+                      RoomResource, ExamMachineResource, EXAM_CONF, DateTime, $translate, $route, SettingsRes,
                       InteroperabilityRes) {
 
-                $scope.dateService = dateService;
+                $scope.DateTime = DateTime;
 
                 $scope.machineTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/machine.html";
                 $scope.addressTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/address.html";
@@ -23,9 +23,9 @@
                     $scope.accessibilities = data;
                 });
 
-                $scope.weekdayNames = dateService.getWeekdayNames();
+                $scope.weekdayNames = DateTime.getWeekdayNames();
                 $scope.$on('$localeChangeSuccess', function () {
-                    $scope.weekdayNames = dateService.getWeekdayNames();
+                    $scope.weekdayNames = DateTime.getWeekdayNames();
                 });
 
                 // initialize the timeslots

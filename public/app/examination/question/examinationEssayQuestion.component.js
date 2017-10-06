@@ -8,8 +8,8 @@ angular.module('app.examination')
             examHash: '<',
             isPreview: '<'
         },
-        controller: ['Examination', 'Attachment', 'fileService',
-            function (Examination, Attachment, fileService) {
+        controller: ['Examination', 'Attachment', 'Files',
+            function (Examination, Attachment, Files) {
 
                 var vm = this;
 
@@ -30,7 +30,7 @@ angular.module('app.examination')
                         return;
                     }
                     Attachment.selectFile(false).then(function (data) {
-                        fileService.uploadAnswerAttachment('/app/attachment/question/answer', data.attachmentFile,
+                        Files.uploadAnswerAttachment('/app/attachment/question/answer', data.attachmentFile,
                             {questionId: vm.sq.id, answerId: vm.sq.essayAnswer.id}, vm.sq.essayAnswer);
                     });
                 };

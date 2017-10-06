@@ -6,8 +6,8 @@ angular.module('app.review')
         bindings: {
             exam: '<'
         },
-        controller: ['$uibModal', 'Assessment', 'Attachment', 'fileService',
-            function ($modal, Assessment, Attachment, fileService) {
+        controller: ['$uibModal', 'Assessment', 'Attachment', 'Files',
+            function ($modal, Assessment, Attachment, Files) {
 
                 var vm = this;
 
@@ -45,7 +45,7 @@ angular.module('app.review')
                             }
                         }
                     }).result.then(function (data) {
-                        fileService.upload('/app/attachment/exam/' + vm.exam.id + '/feedback',
+                        Files.upload('/app/attachment/exam/' + vm.exam.id + '/feedback',
                             data.attachmentFile, {examId: vm.exam.id}, vm.exam.examFeedback);
                     });
                 };

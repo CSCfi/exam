@@ -6,8 +6,8 @@ angular.module('app.exam.editor')
             exam: '<',
             onUpdate: '&'
         },
-        controller: ['$http', '$translate', 'CourseRes', 'ExamRes',
-            function ($http, $translate, CourseRes, ExamRes) {
+        controller: ['$http', '$translate', 'Course', 'ExamRes',
+            function ($http, $translate, Course, ExamRes) {
 
                 var vm = this;
 
@@ -24,7 +24,7 @@ angular.module('app.exam.editor')
                             setInputValue(filter, tmp);
                         });
                     }
-                    return CourseRes.courses.query({filter: filter, q: criteria}).$promise.then(
+                    return Course.courseApi.query({filter: filter, q: criteria}).$promise.then(
                         function (courses) {
                             toggleLoadingIcon(filter, false);
 
