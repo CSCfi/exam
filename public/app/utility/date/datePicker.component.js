@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.utility')
     .component('datePicker', {
-        templateUrl: '/assets/app/utility/datePicker.template.html',
+        templateUrl: '/assets/app/utility/date/datePicker.template.html',
         bindings: {
             onUpdate: '&',
             initialDate: '<?',

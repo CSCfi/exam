@@ -146,12 +146,12 @@ angular.module('app.review')
                     } else {
                         vm.exam.answerLanguage = {code: vm.exam.answerLanguage};
                     }
-                    Language.languages.query(function (languages) {
+                    Language.languageApi.query(function (languages) {
                         vm.languages = languages.map(function (language) {
                             if (lang && lang.code === language.code) {
                                 vm.selections.language = language;
                             }
-                            language.name = getLanguageNativeName(language.code);
+                            language.name = Language.getLanguageNativeName(language.code);
                             return language;
                         });
                     });

@@ -1,9 +1,10 @@
 (function () {
     'use strict';
     angular.module('app.enrolment')
-        .service('Enrolment', ['$translate', '$q', '$http', '$location', '$uibModal', 'dialogs', 'EnrollRes', 'SettingsResource',
-            'StudentExamRes', 'EXAM_CONF',
-            function ($translate, $q, $http, $location, $modal, dialogs, EnrollRes, SettingsResource, StudentExamRes, EXAM_CONF) {
+        .service('Enrolment', ['$translate', '$q', '$http', '$location', '$uibModal', 'dialogs', 'Language',
+            'EnrollRes', 'SettingsResource', 'StudentExamRes', 'EXAM_CONF',
+            function ($translate, $q, $http, $location, $modal, dialogs, Language, EnrollRes, SettingsResource,
+                      StudentExamRes, EXAM_CONF) {
 
                 var self = this;
 
@@ -75,7 +76,7 @@
                     EnrollRes.enroll.get({code: code, id: id},
                         function (exam) {
                             exam.languages = exam.examLanguages.map(function (lang) {
-                                return getLanguageNativeName(lang.code);
+                                return Language.getLanguageNativeName(lang.code);
                             });
                             setMaturityInstructions(exam).then(function (data) {
                                 exam = data;
@@ -111,7 +112,7 @@
                             });
                             exams.forEach(function (e) {
                                 e.languages = e.examLanguages.map(function (lang) {
-                                    return getLanguageNativeName(lang.code);
+                                    return Language.getLanguageNativeName(lang.code);
                                 });
                                 return e;
                             });

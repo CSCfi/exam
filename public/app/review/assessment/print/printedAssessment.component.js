@@ -6,8 +6,9 @@ angular.module('app.review')
         bindings: {
             exam: '<'
         },
-        controller: ['$routeParams', '$document', '$sce', 'ExamRes', 'Question', 'Exam', 'Assessment', 'EXAM_CONF', 'Session',
-            function ($routeParams, $document, $sce, ExamRes, Question, Exam, Assessment, EXAM_CONF, Session) {
+        controller: ['$routeParams', '$document', '$sce', 'ExamRes', 'Question', 'Exam', 'Assessment', 'EXAM_CONF',
+            'Session', 'Language',
+            function ($routeParams, $document, $sce, ExamRes, Question, Exam, Assessment, EXAM_CONF, Session, Language) {
 
                 var vm = this;
 
@@ -84,7 +85,7 @@ angular.module('app.review')
                 };
 
                 vm.getLanguage = function () {
-                    return !vm.exam ? 'N/A' : getLanguageNativeName(Assessment.pickExamLanguage(vm.exam).code);
+                    return !vm.exam ? 'N/A' : Language.getLanguageNativeName(Assessment.pickExamLanguage(vm.exam).code);
                 };
 
                 vm.getExamMaxPossibleScore = function () {

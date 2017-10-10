@@ -2,8 +2,8 @@
 angular.module('app.enrolment')
     .component('examSearch', {
         templateUrl: '/assets/app/enrolment/search/examSearch.template.html',
-        controller: ['StudentExamRes', 'EnrollRes', 'SettingsResource',
-            function (StudentExamRes, EnrollRes, SettingsResource) {
+        controller: ['StudentExamRes', 'EnrollRes', 'SettingsResource', 'Language',
+            function (StudentExamRes, EnrollRes, SettingsResource, Language) {
 
                 var vm = this;
 
@@ -38,7 +38,7 @@ angular.module('app.enrolment')
                                 exam.examLanguages = [];
                             }
                             exam.languages = exam.examLanguages.map(function (lang) {
-                                return getLanguageNativeName(lang.code);
+                                return Language.getLanguageNativeName(lang.code);
                             });
 
                         });

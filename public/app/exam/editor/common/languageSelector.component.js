@@ -11,9 +11,9 @@ angular.module('app.exam.editor')
                 var vm = this;
 
                 vm.$onInit = function () {
-                    Language.languages.query(function (languages) {
+                    Language.languageApi.query(function (languages) {
                         vm.examLanguages = languages.map(function (language) {
-                            language.name = getLanguageNativeName(language.code);
+                            language.name = Language.getLanguageNativeName(language.code);
                             return language;
                         });
                     });
@@ -22,7 +22,7 @@ angular.module('app.exam.editor')
                 vm.selectedLanguages = function () {
                     return vm.exam.examLanguages.length === 0 ? $translate.instant('sitnet_select') :
                         vm.exam.examLanguages.map(function (language) {
-                            return getLanguageNativeName(language.code);
+                            return Language.getLanguageNativeName(language.code);
                         }).join(", ");
                 };
 
