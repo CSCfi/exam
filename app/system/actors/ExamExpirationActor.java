@@ -22,6 +22,7 @@ public class ExamExpirationActor extends AbstractActor {
                     .eq("state", Exam.State.GRADED_LOGGED)
                     .eq("state", Exam.State.ARCHIVED)
                     .eq("state", Exam.State.ABORTED)
+                    .eq("state", Exam.State.REJECTED)
                     .endJunction()
                     .findList();
 
