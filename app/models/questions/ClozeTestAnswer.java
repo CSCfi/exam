@@ -152,7 +152,10 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         }
         // Get rid of excess whitespace
         answer = answer.trim().replaceAll(" +", " ");
-        String correctAnswer = blank.text().trim().replaceAll(" +", " ");
+        String correctAnswer = blank.text().trim()
+                .replaceAll(" +", " ")
+                .replaceAll(" \\|", "|")
+                .replaceAll("\\| ", "|");
         // Generate the regex pattern. Replace '*' with '.*' and put the whole
         // thing in braces if there's a '|'.
         // For escaped '\*' and '\|' we have to first replace occurrences with special
