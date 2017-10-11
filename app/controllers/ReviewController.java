@@ -91,6 +91,23 @@ public class ReviewController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result listNoShowsForExamAndUser(Long eid, Long uid) {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation", "startAt, endAt")
+                .where()
+                .eq("user.id", uid)
+                .eq("exam.id", eid)
+                .eq("reservation.noShow", true)
+                .orderBy("reservation.endAt")
+                .findList();
+        if (enrolments == null) {
+            return notFound();
+        } else {
+            return ok(enrolments);
+        }
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getReservationInformationForExam(Long eid) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")

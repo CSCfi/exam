@@ -1,9 +1,19 @@
 'use strict';
 angular.module('app.review')
-    .service('Assessment', ['$q', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session',
-        function ($q, $translate, $location, $timeout, dialogs, ExamRes, Session) {
+    .service('Assessment', ['$q', '$resource', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session',
+        function ($q, $resource, $translate, $location, $timeout, dialogs, ExamRes, Session) {
 
             var self = this;
+
+            self.noShowApi = $resource('/app/noshows/:eid/:uid', {
+                eid: '@eid',
+                uid: '@uid'
+            });
+
+            self.participationsApi = $resource('/app/examparticipations/:eid/:uid', {
+                eid: '@eid',
+                uid: '@uid'
+            });
 
             self.saveFeedback = function (exam, silent) {
                 var deferred = $q.defer();

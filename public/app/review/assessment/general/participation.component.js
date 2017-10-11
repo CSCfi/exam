@@ -16,7 +16,7 @@ angular.module('app.review')
                 };
 
                 vm.translateGrade = function () {
-                    if (!vm.participation.exam.grade) {
+                    if (vm.participation.noShow ||!vm.participation.exam.grade) {
                         return;
                     }
                     return Exam.getExamGradeDisplayName(vm.participation.exam.grade.name);

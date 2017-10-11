@@ -46,27 +46,34 @@ angular.module('app.review')
                             vm.student = vm.participation.user;
                             vm.enrolment = vm.exam.examEnrolments[0];
                             vm.reservation = vm.enrolment.reservation;
-                            ExamRes.examParticipationsOfUser.query({
+                            Assessment.participationsApi.query({
                                 eid: vm.exam.parent.id,
                                 uid: vm.student.id
                             }, function (data) {
                                 // Filter out the participation we are looking into
-                                vm.previousParticipations = data.filter(function (p) {
+                                var previousParticipations = data.filter(function (p) {
                                     return p.id !== vm.participation.id;
                                 });
+                                Assessment.noShowApi.query({
+                                    eid: vm.exam.parent.id,
+                                    uid: vm.student.id
+                                }, function (data) {
+                                    var noShows = data.map(function (d) {
+                                        return {noShow: true, started: d.reservation.startAt, exam: {state: 'no_show'}};
+                                    });
+                                    vm.previousParticipations = previousParticipations.concat(noShows);
+                                    $document.ready(function () {
+                                        $('#vmenu').hide();
+                                        var mainView = $('#mainView');
+                                        mainView.css('margin', '0 15px');
+                                        mainView.css('max-width', '1000px');
 
-                                $document.ready(function () {
-                                    $('#vmenu').hide();
-                                    var mainView = $('#mainView');
-                                    mainView.css('margin', '0 15px');
-                                    mainView.css('max-width', '1000px');
-
-                                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-                                    setTimeout(function () {
-                                        window.print();
-                                    }, 2000);
+                                        MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
+                                        setTimeout(function () {
+                                            window.print();
+                                        }, 2000);
+                                    });
                                 });
-
                             });
 
                         });
@@ -100,8 +107,8 @@ angular.module('app.review')
                     // Do not add up if user exists in both groups
                     var owners = vm.exam.parent.examOwners.filter(function (owner) {
                         return vm.exam.examInspections.map(function (inspection) {
-                                return inspection.user.id;
-                            }).indexOf(owner.id) === -1;
+                            return inspection.user.id;
+                        }).indexOf(owner.id) === -1;
                     });
                     return vm.exam.examInspections.length + owners.length;
                 };

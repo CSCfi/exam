@@ -128,6 +128,7 @@ GET           /app/exams/:eid/reservation                                control
 GET           /app/review/:eid                                           controllers.ReviewController.getExamReview(eid: Long)
 GET           /app/examenrolments/:eid                                   controllers.ReviewController.getEnrolmentsForExam(eid: Long)
 GET           /app/examparticipations/:eid/:uid                          controllers.ReviewController.getParticipationsForExamAndUser(eid: Long, uid: Long)
+GET           /app/noshows/:eid/:uid                                     controllers.ReviewController.listNoShowsForExamAndUser(eid: Long, uid: Long)
 POST          /app/email/inspection/:eid                                 controllers.ReviewController.sendInspectionMessage(eid: Long)
 POST          /app/review/:id/inspection                                 controllers.ReviewController.addInspectionComment(id: Long)
 POST          /app/gradeimport                                           controllers.ReviewController.importGrades

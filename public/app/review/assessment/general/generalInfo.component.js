@@ -6,8 +6,8 @@ angular.module('app.review')
         bindings: {
             exam: '<'
         },
-        controller: ['ExamRes', 'Attachment',
-            function (ExamRes, Attachment) {
+        controller: ['ExamRes', 'Attachment', 'Assessment',
+            function (ExamRes, Attachment, Assessment) {
 
                 var vm = this;
 
@@ -22,20 +22,28 @@ angular.module('app.review')
                     vm.student = vm.participation.user;
                     vm.enrolment = vm.exam.examEnrolments[0];
                     vm.reservation = vm.enrolment.reservation;
-                    ExamRes.examParticipationsOfUser.query({
-                            eid: vm.exam.parent.id,
-                            uid: vm.student.id
-                        }, function (data) {
-                            // Filter out the participation we are looking into
-                            vm.previousParticipations = data.filter(function (p) {
-                                return p.id !== vm.participation.id;
-                            });
+                    Assessment.participationsApi.query({
+                        eid: vm.exam.parent.id,
+                        uid: vm.student.id
+                    }, function (data) {
+                        // Filter out the participation we are looking into
+                        var previousParticipations = data.filter(function (p) {
+                            return p.id !== vm.participation.id;
                         });
+                        Assessment.noShowApi.query({eid: vm.exam.parent.id, uid: vm.student.id}, function (data) {
+                            var noShows = data.map(function (d) {
+                                return {noShow: true, started: d.reservation.startAt, exam: {state: 'no_show'}};
+                            });
+                            vm.previousParticipations = previousParticipations.concat(noShows);
+
+                        });
+                    });
+
                 };
 
                 vm.downloadExamAttachment = function () {
-                    Attachment.downloadExamAttachment(vm.exam)
-                }
+                    Attachment.downloadExamAttachment(vm.exam);
+                };
 
             }
         ]
