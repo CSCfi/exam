@@ -244,7 +244,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
         assertThat(mails[0].getSubject()).isEqualTo("Personal exam has been returned");
         String body = GreenMailUtil.getBody(mails[0]);
-        String reviewLink = String.format("%s/exams/review/%d",
+        String reviewLink = String.format("%s/assessments/%d",
                 ConfigFactory.load().getString("sitnet.application.hostname"), studentExam.getId());
         String reviewLinkElement = String.format("<a href=\"%s\">%s</a>", reviewLink, "Link to evaluation");
         assertThat(body).contains(reviewLinkElement);
