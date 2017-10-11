@@ -49,7 +49,7 @@
         <tbody>
         <tr ng-repeat="review in $ctrl.reviewsInLanguageInspection | orderBy:$ctrl.inspectionPredicate:$ctrl.reverse | offset: $ctrl.currentPageInspected*$ctrl.pageSize | limitTo: $ctrl.pageSize | filter : $ctrl.filterInspection as resInspect">
             <td class="table-column-13 table-column-bold">
-                <a class="pointer" href="/exams/review/{{review.exam.id}}">
+                <a class="pointer" href="/assessments/{{review.exam.id}}">
                     {{review.user.firstName}} {{review.user.lastName}}
                     <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
                 </a>

@@ -85,8 +85,8 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
 
         /* review */
-        $routeProvider.when('/exams/review/:id', {template: '<assessment></assessment>'});
-        $routeProvider.when('/exams/reviews/:id/speedreview', {template: '<speed-review></speed-review>'});
+        $routeProvider.when('/assessments/:id', {template: '<assessment></assessment>'});
+        $routeProvider.when('/speedreview/:id', {template: '<speed-review></speed-review>'});
         $routeProvider.when('/print/exam/:id', {template: '<printed-assessment></printed-assessment>'});
 
         /* reservations */

@@ -91,7 +91,7 @@
                 <span class="text-danger">{{'sitnet_undefined' | translate }}</span>
             </td>
             <td ng-if="inspection.modifier">
-                <a class="pointer" href="/exams/review/{{inspection.exam.id}}">{{ 'sitnet_view' | translate }}</a>
+                <a class="pointer" href="/assessments/{{inspection.exam.id}}">{{ 'sitnet_view' | translate }}</a>
             </td>
             <td ng-if="!inspection.modifier && !$ctrl.user.isAdmin">
                 <a class="pointer" ng-click="$ctrl.assignInspection(inspection)">{{ 'sitnet_assign_to_me' | translate

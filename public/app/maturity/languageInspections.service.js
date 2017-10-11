@@ -38,7 +38,7 @@ angular.module('app.review')
                     $translate.instant('sitnet_confirm_assign_inspection'));
                 dialog.result.then(function () {
                     assignmentApi.update({id: inspection.id}, function () {
-                        $location.path('exams/review/' + inspection.exam.id);
+                        $location.path('assessments/' + inspection.exam.id);
                     }, function (err) {
                         toastr.error(err);
                     });

@@ -12,7 +12,7 @@ angular.module('app.review')
                 var vm = this;
 
                 vm.viewAnswers = function () {
-                    window.open('/exams/review/' + vm.participation.exam.id, '_blank');
+                    window.open('/assessments/' + vm.participation.exam.id, '_blank');
                 };
 
                 vm.translateGrade = function () {
