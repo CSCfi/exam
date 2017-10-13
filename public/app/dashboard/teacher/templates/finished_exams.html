@@ -47,13 +47,13 @@
                     <td class="table-column-enroll-participation"><span class="exam-count"><a href="/exams/{{exam.id}}/4">{{exam.unassessedCount}}</a></span></td>
                     <td class="table-column-enroll-participation">
                         <span class="exam-count">
-                            <a ng-if="isOwner" href="/exams/{{exam.id}}/4">{{exam.unfinishedCount}}</a>
-                            <span ng-if="!isOwner" class="exam-count-not-active">{{exam.unfinishedCount}}</span>
+                            <a ng-if="$ctrl.isOwner(exam)" href="/exams/{{exam.id}}/4">{{exam.unfinishedCount}}</a>
+                            <span ng-if="!$ctrl.isOwner(exam)" class="exam-count-not-active">{{exam.unfinishedCount}}</span>
                         </span>
                     </td>
                     <td class="table-column-teachers"><teacher-list exam="exam" /></td>
                     <td class="text-center">
-                        <a ng-if="isOwner" ng-click="$ctrl.deleteExam(exam, 'finished')" class="pointer">
+                        <a ng-if="$ctrl.isOwner(exam)" ng-click="$ctrl.deleteExam(exam, 'finished')" class="pointer">
                             <img src="../../../assets/assets/images/icon_trashcan.svg" alt="exam"
                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_trashcan.png'"
                                  popover-placement="left" popover-trigger="'mouseenter'"
@@ -62,7 +62,7 @@
                         </a>
                     </td>
                     <td class="text-center">
-                        <span ng-if="isOwner" class="dropdown pointer" uib-dropdown>
+                        <span ng-if="$ctrl.isOwner(exam)" class="dropdown pointer" uib-dropdown>
                             <a href class="dropdown-toggle" uib-dropdown-toggle>
                                 <img src="../../../assets/assets/images/icon_copy.svg" alt="exam"
                                      onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_copy.png'"
@@ -72,7 +72,7 @@
                             </a>
                             <ul class="dropdown-menu pull-right" style="min-width: 17em">
                                 <li class="dropdown-header">{{'sitnet_choose_execution_type' | translate}}</li>
-                                <li ng-repeat="type in $ctrl.34executionTypes">
+                                <li ng-repeat="type in $ctrl.executionTypes">
                                     <a role="menuitem" ng-click="$ctrl.copyExam(exam, type.type)">
                                         {{type.name | translate}}
                                     </a>

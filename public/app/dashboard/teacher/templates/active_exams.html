@@ -62,9 +62,9 @@
                     </td>
                     <td class="table-column-enroll-participation">
                         <span class="exam-count">
-                            <a ng-if="$ctrl.isOwner && exam.executionType.type !== 'PRINTOUT'"
+                            <a ng-if="$ctrl.isOwner(exam) && exam.executionType.type !== 'PRINTOUT'"
                                href="/exams/{{exam.id}}/4">{{exam.unfinishedCount}}</a>
-                            <span ng-if="!$ctrl.isOwner && exam.executionType.type !== 'PRINTOUT'"
+                            <span ng-if="!$ctrl.isOwner(exam) && exam.executionType.type !== 'PRINTOUT'"
                                   class="exam-count-not-active">{{exam.unfinishedCount}}</span>
                         </span>
                         <div ng-if="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
@@ -78,7 +78,7 @@
                         <teacher-list exam="exam"/>
                     </td>
                     <td class="text-center">
-                        <a ng-if="isOwner" ng-click="deleteExam(exam, 'active')" class="pointer">
+                        <a ng-if="$ctrl.isOwner(exam)" ng-click="deleteExam(exam, 'active')" class="pointer">
                             <img src="../../../assets/assets/images/icon_trashcan.svg" alt="exam"
                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_trashcan.png'"
                                  popover-placement="left" popover-trigger="'mouseenter'"
@@ -87,7 +87,7 @@
                         </a>
                     </td>
                     <td class="text-center">
-                        <span ng-if="$ctrl.isOwner" class="dropdown pointer" uib-dropdown>
+                        <span ng-if="$ctrl.isOwner(exam)" class="dropdown pointer" uib-dropdown>
                             <a href class="dropdown-toggle" uib-dropdown-toggle>
                                 <img src="../../../assets/assets/images/icon_copy.svg" alt="exam"
                                      onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_copy.png'"
