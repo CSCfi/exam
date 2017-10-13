@@ -476,6 +476,20 @@ class EmailComposerImpl implements EmailComposer {
     }
 
     @Override
+    public void composeNoShowMessage(User student, Exam exam) {
+        String templatePath = getTemplatesRoot() + "noShow.html";
+        String template = readFile(templatePath, ENCODING);
+        Lang lang = getLang(student);
+        String subject = messaging.get(lang, "email.template.noshow.student.subject");
+        String message = messaging.get(lang, "email.template.noshow.student.message",
+                exam.getName(), exam.getCourse().getCode());
+        Map<String, String> stringValues = new HashMap<>();
+        stringValues.put("message", message);
+        String content = replaceAll(template, stringValues);
+        emailSender.send(student.getEmail(), SYSTEM_ACCOUNT, subject, content);
+    }
+
+    @Override
     public void composeLanguageInspectionFinishedMessage(User toUser, User inspector, LanguageInspection inspection) {
         String templatePath = getTemplatesRoot() + "languageInspectionReady.html";
         String template = readFile(templatePath, ENCODING);

@@ -5,7 +5,6 @@ import models.Exam;
 import models.ExamEnrolment;
 import models.ExamInspection;
 import models.Reservation;
-import models.User;
 import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
@@ -16,11 +15,10 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class NoShowHandlerUtil implements NoShowHandler {
 
@@ -94,17 +92,17 @@ public class NoShowHandlerUtil implements NoShowHandler {
                 reservation.getId());
         ExamEnrolment enrolment = reservation.getEnrolment();
         Exam exam = enrolment.getExam();
+        // Notify student
+        composer.composeNoShowMessage(reservation.getUser(), exam);
         if (exam.isPrivate()) {
             // Notify teachers
-            Set<User> recipients = new HashSet<>();
-            recipients.addAll(exam.getExamOwners());
-            recipients.addAll(exam.getExamInspections().stream().map(
-                    ExamInspection::getUser).collect(Collectors.toSet()));
-            for (User r : recipients) {
-                composer.composeNoShowMessage(r, enrolment.getUser(), exam);
-                Logger.info("Email sent to {}", r.getEmail());
-            }
+            Stream.concat(
+                    exam.getExamOwners().stream(),
+                    exam.getExamInspections().stream().map(ExamInspection::getUser)
+            ).forEach(teacher -> {
+                composer.composeNoShowMessage(teacher, enrolment.getUser(), exam);
+                Logger.info("Email sent to {}", teacher.getEmail());
+            });
         }
-
     }
 }

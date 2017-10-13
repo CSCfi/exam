@@ -72,3 +72,5 @@ email.template.maturity.exam.aborted.message=Opiskelija {0} on päättänyt kesk
 email.template.maturity.exam.returned.subject=Kypsyysnäyte on palautettu
 email.template.maturity.exam.returned.message=Opiskelija {0} on suorittanut kypsyysnäytteen {1}
 email.template.maturity.noshow.subject=Opiskelija ei saapunut kypsyysnäytetenttiin
+email.template.noshow.student.subject=Et saapunut varaamaasi EXAM-tenttiin
+email.template.noshow.student.message=Et saapunut tenttiin {0} ({1}) tenttivarauksen aikana.

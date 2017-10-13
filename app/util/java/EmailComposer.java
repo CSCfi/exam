@@ -59,6 +59,11 @@ public interface EmailComposer {
     void composeNoShowMessage(User toUser, User student, Exam exam);
 
     /**
+     * Message sent to student when he did not show up for exam.
+     */
+    void composeNoShowMessage(User student, Exam exam);
+
+    /**
      * Message sent to teacher when language inspection is finished.
      */
     void composeLanguageInspectionFinishedMessage(User toUser, User inspector, LanguageInspection inspection);

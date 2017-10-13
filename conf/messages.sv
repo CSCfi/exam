@@ -72,3 +72,5 @@ email.template.maturity.exam.aborted.message=Studerande {0} har valt att avbryta
 email.template.maturity.exam.returned.subject=Mognadsprovet har inlämnats
 email.template.maturity.exam.returned.message=Studerande {0} har utfört mognadsprov {1}
 email.template.maturity.noshow.subject=Studerande kom inte till mognadsprovet (no show)
+email.template.noshow.student.subject=Et saapunut varaamaasi EXAM-tenttiin SV
+email.template.noshow.student.message=Et saapunut tenttiin {0} ({1}) tenttivarauksen aikana. SV

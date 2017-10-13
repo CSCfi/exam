@@ -72,3 +72,5 @@ email.template.maturity.exam.aborted.message=Student {0} has decided to abort th
 email.template.maturity.exam.returned.subject=The maturity test has been returned
 email.template.maturity.exam.returned.message=Student {0} has completed the maturity test.
 email.template.maturity.noshow.subject=A Student did not show up to maturity test.
+email.template.noshow.student.subject=Et saapunut varaamaasi EXAM-tenttiin EN
+email.template.noshow.student.message=Et saapunut tenttiin {0} ({1}) tenttivarauksen aikana. EN
