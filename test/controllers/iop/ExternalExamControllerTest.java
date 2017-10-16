@@ -1,11 +1,11 @@
 package controllers.iop;
 
 import base.IntegrationTestCase;
-import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetup;
+import io.ebean.Ebean;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamRoom;
@@ -83,6 +83,11 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         assertThat(attainment).isNotNull();
         // Auto-evaluation expected to occur so state should be GRADED
         assertThat(attainment.getState()).isEqualTo(Exam.State.GRADED);
+
+        // Check that we can review it
+        loginAsAdmin();
+        result = get("/app/review/" + attainment.getId());
+        assertThat(result.status()).isEqualTo(200);
     }
 
     @Test
