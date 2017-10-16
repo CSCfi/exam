@@ -380,7 +380,6 @@ class EmailComposerImpl implements EmailComposer {
     @Override
     public void composeReservationCancellationNotification(User student, Reservation reservation, String message,
                                                            Boolean isStudentUser, ExamEnrolment enrolment) {
-
         String templatePath;
         if (isStudentUser) {
             templatePath = getTemplatesRoot() + "reservationCanceledByStudent.html";

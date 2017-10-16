@@ -2,7 +2,7 @@
     <div class="detail-row marb20">
         <div class="col-md-2 general-info-title">{{'sitnet_name' | translate}}:</div>
         <div class="col-md-4 general-info-content">{{$ctrl.student.firstName}} {{$ctrl.student.lastName}}
-            <span ng-if="userInfo.user.userIdentifier">&nbsp;({{$ctrl.student.userIdentifier}})</span>
+            <span ng-if="$ctrl.student.userIdentifier">&nbsp;({{$ctrl.student.userIdentifier}})</span>
         </div>
         <div class="col-md-2 general-info-title">{{'sitnet_email' | translate}}:</div>
         <div class="col-md-4 general-info-link">

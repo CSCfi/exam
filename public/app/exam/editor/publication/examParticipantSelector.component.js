@@ -15,6 +15,12 @@ angular.module('app.exam.editor')
                         "id": null,
                         "name": null
                     };
+                    // go through child exams and read in the enrolments
+                    var x = [];
+                    vm.exam.children.forEach(function (c) {
+                        x = x.concat(c.examEnrolments);
+                    });
+                    vm.exam.participants = x;
                 };
 
                 vm.allStudents = function (filter, criteria) {
