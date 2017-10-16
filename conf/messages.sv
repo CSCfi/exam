@@ -74,3 +74,9 @@ email.template.maturity.exam.returned.message=Studerande {0} har utfört mognads
 email.template.maturity.noshow.subject=Studerande kom inte till mognadsprovet (no show)
 email.template.noshow.student.subject=Et saapunut varaamaasi EXAM-tenttiin SV
 email.template.noshow.student.message=Et saapunut tenttiin {0} ({1}) tenttivarauksen aikana. SV
+email.template.reservation.change.subject=Tenttikone vaihdettu: "{0}" SV
+email.template.reservation.change.message=Hei, tenttikoneesi on vaihdettu ylläpidon toimesta. SV
+email.template.reservation.change.previous=Edellinen kone SV
+email.template.reservation.change.current=Uusi kone SV
+email.template.reservation.exam.info=Tentin tiedot SV
+

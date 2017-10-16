@@ -335,7 +335,46 @@ class EmailComposerImpl implements EmailComposer {
     @Override
     public void composeReservationChangeNotification(User student, ExamMachine previous,
                                                      ExamMachine current, ExamEnrolment enrolment) {
+        String template = readFile(getTemplatesRoot() + "reservationChanged.html", ENCODING);
+        Lang lang = getLang(student);
+        Exam exam = enrolment.getExam();
 
+        String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getCode());
+        String teacherName;
+
+        if (!exam.getExamOwners().isEmpty()) {
+            teacherName = getTeachers(exam);
+        } else {
+            teacherName = String.format("%s %s", exam.getCreator().getFirstName(), exam.getCreator().getLastName());
+        }
+
+        DateTime startDate = adjustDST(enrolment.getReservation().getStartAt(), TZ);
+        DateTime endDate = adjustDST(enrolment.getReservation().getEndAt(), TZ);
+        String reservationDate = DTF.print(startDate) + " - " + DTF.print(endDate);
+
+        Map<String, String> values = new HashMap<>();
+        String subject = messaging.get(lang, "email.template.reservation.change.subject", enrolment.getExam().getName());
+
+        values.put("message", messaging.get(lang, "email.template.reservation.change.message"));
+        values.put("previousMachine", messaging.get(lang, "email.template.reservation.change.previous"));
+        values.put("previousMachineName", messaging.get(lang, "email.template.reservation.machine", previous.getName()));
+        values.put("previousRoom", messaging.get(lang, "email.template.reservation.room", previous.getRoom().getName()));
+        values.put("previousBuilding", messaging.get(lang, "email.template.reservation.building", previous.getRoom().getBuildingName()));
+        values.put("currentMachine", messaging.get(lang, "email.template.reservation.change.current"));
+        values.put("currentMachineName", messaging.get(lang, "email.template.reservation.machine", current.getName()));
+        values.put("currentRoom", messaging.get(lang, "email.template.reservation.room", current.getRoom().getName()));
+        values.put("currentBuilding", messaging.get(lang, "email.template.reservation.building", current.getRoom().getBuildingName()));
+        values.put("examinationInfo", messaging.get(lang, "email.template.reservation.exam.info"));
+        values.put("examInfo", messaging.get(lang, "email.template.reservation.exam", examInfo));
+        values.put("teachers", messaging.get(lang, "email.template.reservation.teacher", teacherName));
+        values.put("reservationTime", messaging.get(lang, "email.template.reservation.date", reservationDate));
+        values.put("cancellationInfo", messaging.get(lang, "email.template.reservation.cancel.info"));
+        values.put("cancellationLink", HOSTNAME);
+        values.put("cancellationLinkText", messaging.get(lang, "email.template.reservation.cancel.link.text"));
+
+
+        String content = replaceAll(template, values);
+        emailSender.send(student.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
     @Override

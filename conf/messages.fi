@@ -74,3 +74,13 @@ email.template.maturity.exam.returned.message=Opiskelija {0} on suorittanut kyps
 email.template.maturity.noshow.subject=Opiskelija ei saapunut kypsyysnäytetenttiin
 email.template.noshow.student.subject=Et saapunut varaamaasi EXAM-tenttiin
 email.template.noshow.student.message=Et saapunut tenttiin {0} ({1}) tenttivarauksen aikana.
+email.template.reservation.change.subject=Tenttikone vaihdettu: "{0}"
+email.template.reservation.change.message=Hei, tenttikoneesi on vaihdettu ylläpidon toimesta.
+email.template.reservation.change.previous=Edellinen kone
+email.template.reservation.change.current=Uusi kone
+email.template.reservation.exam.info=Tentin tiedot
+
+
+
+
+
