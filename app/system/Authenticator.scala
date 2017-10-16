@@ -1,15 +1,15 @@
-package util.scala
+package system
 
-import io.ebean.Ebean
 import com.typesafe.config.ConfigFactory
+import io.ebean.Ebean
 import models.{Session, User}
 import play.api.cache.SyncCacheApi
-import play.api.mvc.Results
+import play.api.mvc.{Result, Results}
 
 
 trait Authenticator {
 
-  val LOGIN_TYPE = ConfigFactory.load.getString("sitnet.login")
+  val LOGIN_TYPE: String = ConfigFactory.load.getString("sitnet.login")
 
   val SITNET_CACHE_KEY = "user.session."
 
@@ -26,7 +26,7 @@ trait Authenticator {
     }
   }
 
-  def forbid() = {
+  def forbid(): Result = {
     Results.Unauthorized("Unauthorized")
   }
 

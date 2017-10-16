@@ -1,4 +1,4 @@
-package util.java;
+package impl;
 
 import biweekly.Biweekly;
 import biweekly.ICalVersion;
@@ -330,6 +330,12 @@ class EmailComposerImpl implements EmailComposer {
         return exam.getExamOwners().stream()
                 .map(eo -> String.format("%s %s", eo.getFirstName(), eo.getLastName()))
                 .collect(Collectors.joining(", "));
+    }
+
+    @Override
+    public void composeReservationChangeNotification(User student, ExamMachine previous,
+                                                     ExamMachine current, ExamEnrolment enrolment) {
+
     }
 
     @Override

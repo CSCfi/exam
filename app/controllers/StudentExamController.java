@@ -23,8 +23,8 @@ import scala.concurrent.duration.Duration;
 import system.interceptors.ExamActionRouter;
 import system.interceptors.SensitiveDataPolicy;
 import util.AppUtil;
-import util.java.AutoEvaluationHandler;
-import util.java.EmailComposer;
+import impl.AutoEvaluationHandler;
+import impl.EmailComposer;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -316,7 +316,7 @@ public class StudentExamController extends BaseController {
     public static PathProperties getPath(boolean includeEnrolment) {
         String path = "(id, name, state, instruction, hash, duration, cloned, external, course(id, code, name), executionType(id, type), " + // (
                 "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
-                "examInspections(user(firstName, lastName))" +
+                "examInspections(user(id, firstName, lastName))" +
                 "examSections(id, name, sequenceNumber, description, " + // ((
                 "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
                 "question(id, type, question, attachment(id, fileName))" +

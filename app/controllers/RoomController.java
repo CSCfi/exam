@@ -29,7 +29,7 @@ import play.libs.Json;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
-import util.java.DateTimeUtils;
+import util.DateTimeUtils;
 
 import javax.inject.Inject;
 import java.net.MalformedURLException;

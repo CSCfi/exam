@@ -22,7 +22,7 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import util.java.JsonDeserializer;
+import util.JsonDeserializer;
 
 import java.io.File;
 import java.io.IOException;

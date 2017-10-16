@@ -1,4 +1,4 @@
-package util.java;
+package impl;
 
 import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;

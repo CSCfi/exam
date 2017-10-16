@@ -1,4 +1,4 @@
-package util.java;
+package impl;
 
 import com.typesafe.config.ConfigFactory;
 import models.Exam;
@@ -20,7 +20,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class NoShowHandlerUtil implements NoShowHandler {
+public class NoShowHandlerImpl implements NoShowHandler {
 
     private final EmailComposer composer;
 
@@ -29,7 +29,7 @@ public class NoShowHandlerUtil implements NoShowHandler {
     private static final String HOST = ConfigFactory.load().getString("sitnet.integration.iop.host");
 
     @Inject
-    public NoShowHandlerUtil(EmailComposer composer, WSClient wsClient) {
+    public NoShowHandlerImpl(EmailComposer composer, WSClient wsClient) {
         this.composer = composer;
         this.wsClient = wsClient;
     }

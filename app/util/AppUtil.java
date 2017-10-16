@@ -12,7 +12,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import play.Logger;
-import util.java.EmailComposer;
+import impl.EmailComposer;
 
 import java.io.File;
 import java.io.IOException;

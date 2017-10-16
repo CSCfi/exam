@@ -6,8 +6,8 @@ angular.module('app.reservation')
             'userRole': '@'
         },
         controller: ['ExamRes', '$location', '$http', 'EXAM_CONF',
-            'ReservationResource', 'reservationService', 'Exam', '$timeout', '$routeParams', '$translate', '$filter',
-            function (ExamRes, $location, $http, EXAM_CONF, ReservationResource, reservationService, Exam,
+            'ReservationResource', 'Reservation', 'Exam', '$timeout', '$routeParams', '$translate', '$filter',
+            function (ExamRes, $location, $http, EXAM_CONF, ReservationResource, Reservation, Exam,
                       $timeout, $routeParams, $translate, $filter) {
 
                 var select2options = {
@@ -241,14 +241,14 @@ angular.module('app.reservation')
                 };
 
                 ctrl.removeReservation = function (reservation) {
-                    reservationService.cancelReservation(reservation).then(function () {
+                    Reservation.cancelReservation(reservation).then(function () {
                         ctrl.reservations.splice(ctrl.reservations.indexOf(reservation), 1);
                         toastr.info($translate.instant('sitnet_reservation_removed'));
                     });
                 };
 
                 ctrl.changeReservationMachine = function (reservation) {
-                    reservationService.changeMachine(reservation);
+                    Reservation.changeMachine(reservation);
                 };
 
                 ctrl.permitRetrial = function (reservation) {

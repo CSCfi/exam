@@ -1,4 +1,4 @@
-package util.java;
+package impl;
 
 import com.typesafe.config.ConfigFactory;
 import org.apache.commons.mail.DefaultAuthenticator;

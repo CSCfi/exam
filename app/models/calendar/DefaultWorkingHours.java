@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import models.ExamRoom;
 import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
-import util.java.DateTimeAdapter;
+import util.DateTimeAdapter;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;

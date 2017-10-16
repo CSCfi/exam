@@ -3,7 +3,7 @@ package models.base;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import models.User;
 import org.joda.time.DateTime;
-import util.java.DateTimeAdapter;
+import util.DateTimeAdapter;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;

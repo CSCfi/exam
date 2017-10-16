@@ -26,7 +26,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import util.java.JsonDeserializer;
+import util.JsonDeserializer;
 
 import javax.persistence.PersistenceException;
 import java.io.File;

@@ -7,7 +7,7 @@ import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
-import util.java.DateTimeAdapter;
+import util.DateTimeAdapter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;

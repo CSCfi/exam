@@ -1158,13 +1158,7 @@
     "additionalInfo": null,
     "answerLanguage": null,
     "examEnrolments": [],
-    "examInspections": [
-      {
-        "id": null,
-        "ready": false,
-        "objectVersion": 0
-      }
-    ],
+    "examInspections": [{"user":{"id": 4, "lastName":"Penaali","firstName":"Arvon"}}],
     "examinationDates": [],
     "enrollInstruction": null,
     "examActiveEndDate": null,

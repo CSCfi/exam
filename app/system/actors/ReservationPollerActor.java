@@ -6,7 +6,7 @@ import models.Reservation;
 import org.joda.time.DateTime;
 import play.Logger;
 import util.AppUtil;
-import util.java.NoShowHandler;
+import impl.NoShowHandler;
 
 import javax.inject.Inject;
 import java.util.List;

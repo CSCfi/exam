@@ -2,13 +2,14 @@ package controllers
 
 import javax.inject.Inject
 
+import impl.ExternalCourseHandler
 import io.ebean.Ebean
 import models.{Course, User}
 import play.api.cache.SyncCacheApi
 import play.api.mvc.{Action, AnyContent, InjectedController, Result}
 import play.libs.Json
-import util.java.ExternalCourseHandler
-import util.scala.{Authenticator, JsonResponder}
+import system.Authenticator
+import util.scala.JsonResponder
 
 import scala.collection.JavaConverters._
 import scala.compat.java8.FutureConverters

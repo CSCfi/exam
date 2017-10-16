@@ -25,7 +25,7 @@ import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
-import util.java.EmailComposer;
+import impl.EmailComposer;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -202,6 +202,7 @@ public class ReservationController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result updateMachine(Long reservationId) {
         Reservation reservation = Ebean.find(Reservation.class, reservationId);
+
         if (reservation == null) {
             return notFound();
         }
@@ -210,6 +211,7 @@ public class ReservationController extends BaseController {
         PathProperties props = PathProperties.parse("(id, name, room(id, name))");
         Query<ExamMachine> query = Ebean.createQuery(ExamMachine.class);
         props.apply(query);
+        ExamMachine previous = reservation.getMachine();
         ExamMachine machine = query.where().idEq(machineId).findUnique();
         if (machine == null) {
             return notFound();
@@ -223,6 +225,7 @@ public class ReservationController extends BaseController {
         }
         reservation.setMachine(machine);
         reservation.update();
+        emailComposer.composeReservationChangeNotification(reservation.getUser(), previous, machine, reservation.getEnrolment());
         return ok(machine, props);
     }
 

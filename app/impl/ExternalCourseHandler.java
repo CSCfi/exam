@@ -1,4 +1,4 @@
-package util.java;
+package impl;
 
 import com.google.inject.ImplementedBy;
 import models.Course;

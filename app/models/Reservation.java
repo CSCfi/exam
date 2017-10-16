@@ -8,7 +8,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import util.java.DateTimeAdapter;
+import util.DateTimeAdapter;
 
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;

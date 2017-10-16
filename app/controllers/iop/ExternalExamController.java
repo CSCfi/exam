@@ -23,9 +23,9 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import util.AppUtil;
-import util.java.AutoEvaluationHandler;
-import util.java.JsonDeserializer;
-import util.java.NoShowHandler;
+import impl.AutoEvaluationHandler;
+import util.JsonDeserializer;
+import impl.NoShowHandler;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -136,7 +136,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         String path = "(id, name, state, instruction, hash, duration, cloned, course(id, code, name), executionType(id, type), " + // (
                 "autoEvaluationConfig(releaseType, releaseDate, amountDays, gradeEvaluations(percentage, grade(id, gradeScale(id)))), " +
                 "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
-                "examInspections(user(firstName, lastName)), " +
+                "examInspections(user(id, firstName, lastName)), " +
                 "examType(id, type), creditType(id, type), gradeScale(id, displayName, grades(id, name)), " +
                 "examSections(id, name, sequenceNumber, description, " + // ((
                 "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((

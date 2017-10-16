@@ -29,8 +29,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
-import util.java.CsvBuilder;
-import util.java.EmailComposer;
+import util.CsvBuilder;
+import impl.EmailComposer;
 
 import javax.inject.Inject;
 import java.io.BufferedOutputStream;

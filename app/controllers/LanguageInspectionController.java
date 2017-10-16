@@ -18,7 +18,7 @@ import play.data.DynamicForm;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
-import util.java.EmailComposer;
+import impl.EmailComposer;
 
 import javax.inject.Inject;
 import java.util.Date;

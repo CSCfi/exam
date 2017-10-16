@@ -1,4 +1,4 @@
-package util.java;
+package util;
 
 import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;

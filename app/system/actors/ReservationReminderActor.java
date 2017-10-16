@@ -6,7 +6,7 @@ import models.Reservation;
 import org.joda.time.DateTime;
 import play.Logger;
 import util.AppUtil;
-import util.java.EmailComposer;
+import impl.EmailComposer;
 
 import javax.inject.Inject;
 

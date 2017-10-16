@@ -91,6 +91,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         reservation.setExternalRef(RESERVATION_REF);
         reservation.setStartAt(DateTime.now().minusHours(3));
         reservation.setEndAt(DateTime.now().minusHours(2));
+        reservation.setUser(Ebean.find(User.class).where().eq("firstName", "Sauli").findOne());
         //reservation.setMachine(room.getExamMachines().get(0));
         ExternalReservation er = new ExternalReservation();
         er.setOrgRef("org1");

@@ -21,8 +21,8 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import util.java.EmailComposer;
-import util.java.NoShowHandler;
+import impl.EmailComposer;
+import impl.NoShowHandler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

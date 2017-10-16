@@ -1,6 +1,6 @@
 'use strict';
 angular.module('app.reservation')
-    .service('reservationService', ['$q', '$uibModal', '$http', '$translate', 'dialogs',
+    .service('Reservation', ['$q', '$uibModal', '$http', '$translate', 'dialogs',
         'ReservationResource', 'EXAM_CONF', 'InteroperabilityResource',
         function ($q, $modal, $http, $translate, dialogs,
                   ReservationRes, EXAM_CONF, InteroperabilityRes) {

@@ -1,8 +1,9 @@
-package util.java;
+package impl;
 
 import com.google.inject.ImplementedBy;
 import models.Exam;
 import models.ExamEnrolment;
+import models.ExamMachine;
 import models.LanguageInspection;
 import models.Reservation;
 import models.User;
@@ -42,6 +43,12 @@ public interface EmailComposer {
      */
     void composeReservationCancellationNotification(User student, Reservation reservation, String message,
                                                     Boolean isStudentUser, ExamEnrolment enrolment);
+
+    /**
+     * Message sent to student when reservation has been changed.
+     */
+    void composeReservationChangeNotification(User student, ExamMachine previous, ExamMachine current,
+                                              ExamEnrolment enrolment);
 
     /**
      * Message sent to student when he/she has been enrolled to a private exam.

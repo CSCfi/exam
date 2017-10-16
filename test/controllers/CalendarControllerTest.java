@@ -2,11 +2,11 @@ package controllers;
 
 import base.IntegrationTestCase;
 import base.RunAsStudent;
-import io.ebean.Ebean;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamExecutionType;
@@ -22,10 +22,11 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
 
 import javax.mail.internet.MimeMessage;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
 
 public class CalendarControllerTest extends IntegrationTestCase {
 
@@ -153,6 +154,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         reservation.setStartAt(DateTime.now().minusMinutes(30));
         reservation.setEndAt(DateTime.now().minusMinutes(5));
         reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setNoShow(true);
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();

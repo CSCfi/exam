@@ -6,13 +6,13 @@ angular.module('app.enrolment')
             enrolment: '<',
             onRemoval: '&'
         },
-        controller: ['$translate', 'dialogs', 'Enrolment', 'reservationService',
-            function ($translate, dialogs, Enrolment, reservationService) {
+        controller: ['$translate', 'dialogs', 'Enrolment', 'Reservation',
+            function ($translate, dialogs, Enrolment, Reservation) {
 
                 var vm = this;
 
                 vm.removeReservation = function () {
-                    reservationService.removeReservation(vm.enrolment);
+                    Reservation.removeReservation(vm.enrolment);
                 };
 
                 vm.removeEnrolment = function () {

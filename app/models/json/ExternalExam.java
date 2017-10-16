@@ -8,7 +8,7 @@ import models.Exam;
 import models.User;
 import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
-import util.java.JsonDeserializer;
+import util.JsonDeserializer;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

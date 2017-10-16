@@ -17,8 +17,8 @@ import play.Logger;
 import play.data.validation.Constraints;
 import play.mvc.Result;
 import util.AppUtil;
-import util.java.EmailComposer;
-import util.java.ExternalCourseHandler;
+import impl.EmailComposer;
+import impl.ExternalCourseHandler;
 
 import javax.inject.Inject;
 import java.io.IOException;

@@ -1,6 +1,6 @@
 angular.module('app.dashboard.teacher')
-    .service('TeacherDashboard', ['$q', 'Exam', 'reservationService', 'ExamRes',
-        function ($q, Exam, reservationService, ExamRes) {
+    .service('TeacherDashboard', ['$q', 'Exam', 'Reservation', 'ExamRes',
+        function ($q, Exam, Reservation, ExamRes) {
 
             var self = this;
 
@@ -55,7 +55,7 @@ angular.module('app.dashboard.teacher')
                             }
                             ae.unassessedCount = Exam.getReviewablesCount(ae);
                             ae.unfinishedCount = Exam.getGradedCount(ae);
-                            ae.reservationCount = reservationService.getReservationCount(ae);
+                            ae.reservationCount = Reservation.getReservationCount(ae);
                             ae.ownerAggregate = ae.examOwners.map(function (o) {
                                 return o.firstName + " " + o.lastName;
                             }).join();

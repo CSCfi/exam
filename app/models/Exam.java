@@ -15,7 +15,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import util.AppUtil;
-import util.java.DateTimeAdapter;
+import util.DateTimeAdapter;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;

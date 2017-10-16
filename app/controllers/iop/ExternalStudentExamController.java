@@ -24,8 +24,8 @@ import play.mvc.Result;
 import play.mvc.Results;
 import system.interceptors.SensitiveDataPolicy;
 import util.AppUtil;
-import util.java.AutoEvaluationHandler;
-import util.java.EmailComposer;
+import impl.AutoEvaluationHandler;
+import impl.EmailComposer;
 
 import javax.inject.Inject;
 import java.io.IOException;

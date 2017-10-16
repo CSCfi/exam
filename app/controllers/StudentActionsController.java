@@ -21,7 +21,7 @@ import play.libs.Json;
 import play.mvc.Result;
 import system.interceptors.SensitiveDataPolicy;
 import util.AppUtil;
-import util.java.ExternalCourseHandler;
+import impl.ExternalCourseHandler;
 
 import javax.inject.Inject;
 import java.io.IOException;

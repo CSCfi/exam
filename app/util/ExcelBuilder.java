@@ -1,4 +1,4 @@
-package util.java;
+package util;
 
 
 import io.ebean.Ebean;

@@ -15,7 +15,7 @@ import play.inject.ApplicationLifecycle;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
 import util.AppUtil;
-import util.java.EmailComposer;
+import impl.EmailComposer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
