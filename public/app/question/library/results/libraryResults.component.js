@@ -8,12 +8,13 @@ angular.module('app.question')
             allowEditing: '<',
             tableClass: '@?'
         },
-        controller: ['$location', 'dialogs', 'Question', 'Library', 'Attachment',
-            function ($location, dialogs, Question, Library, Attachment) {
+        controller: ['$location', 'dialogs', 'Question', 'Library', 'Attachment', 'Session',
+            function ($location, dialogs, Question, Library, Attachment, Session) {
 
                 var vm = this;
 
                 vm.$onInit = function () {
+                    vm.user = Session.getUser();
                     vm.pageSize = 25;
                     vm.currentPage = 0;
                     vm.tableClass = vm.tableClass || 'exams-table';
@@ -95,8 +96,16 @@ angular.module('app.question')
 
                 vm.printOwners = function (question) {
                     return question.questionOwners.map(function (o) {
-                        return o.firstName + ' ' + o.lastName;
+                        return vm.printOwner(o, false);
                     }).join(', ');
+                };
+
+                vm.printOwner = function (owner, showId) {
+                    var s = owner.firstName + ' ' + owner.lastName;
+                    if (showId && owner.userIdentifier) {
+                        s += " (" + owner.userIdentifier + ")";
+                    }
+                    return s;
                 };
 
                 vm.printTags = function (question) {

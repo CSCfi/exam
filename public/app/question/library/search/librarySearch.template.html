@@ -20,8 +20,7 @@
             </div>
         </div>
         <div class="form-group input-group search question-search padl20" ng-if="$ctrl.user.isAdmin">
-            <strong>{{'sitnet_search_by_owner' | translate}}</strong>
-            <input class="form-control searcht"
+            <input class="form-control searcht hgt40 wdt400"
                    ng-change="$ctrl.applyOwnerSearchFilter()"
                    ng-model="$ctrl.filter.owner"
                    placeholder="{{'sitnet_search_by_owner' | translate }}">

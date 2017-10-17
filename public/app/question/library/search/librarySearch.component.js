@@ -47,6 +47,7 @@ angular.module('app.question')
                 vm.applyOwnerSearchFilter = function () {
                     var results = Library.applyOwnerSearchFilter(vm.filter.owner, vm.questions);
                     vm.onUpdate({results: results});
+                    saveFilters();
                 };
 
                 var saveFilters = function () {

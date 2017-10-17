@@ -45,10 +45,10 @@ angular.module('app.question')
                 }
             };
 
-            self.applyOwnerSearchFilter = function (owner, questions) {
-                if (owner) {
+            self.applyOwnerSearchFilter = function (text, questions) {
+                if (text) {
                     return questions.filter(function (question) {
-                        var re = new RegExp(vm.filter.owner, 'i');
+                        var re = new RegExp(text, 'i');
                         var owner = question.creator.firstName + ' ' + question.creator.lastName;
                         return owner.match(re);
                     });
@@ -95,7 +95,12 @@ angular.module('app.question')
                             'ClozeTestQuestion',
                             'MultipleChoiceQuestion',
                             'WeightedMultipleChoiceQuestion'].indexOf(q.type);
-                        q.ownerAggregate = q.creator.lastName + q.creator.firstName;
+                        q.ownerAggregate = "";
+                        if (q.questionOwners) {
+                            q.ownerAggregate = q.questionOwners.reduce(function (s, owner) {
+                                return s + owner.lastName + owner.firstName;
+                            }, "");
+                        }
                         q.allowedToRemove = q.examSectionQuestions.filter(function (esq) {
                             var exam = esq.examSection.exam;
                             return exam.state === 'PUBLISHED' && exam.examActiveEndDate > new Date().getTime();

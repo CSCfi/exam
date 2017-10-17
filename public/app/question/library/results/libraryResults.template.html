@@ -72,10 +72,12 @@
                     </a>
                 </td>
                 <td>{{ $ctrl.printTags(question) }}</td>
-                <td ng-if="$ctrl.user.isAdmin">
-                    <span>{{question.creator.firstName}} {{question.creator.lastName}}</span>
-                    <span ng-if="question.creator.userIdentifier">&nbsp;({{question.creator.userIdentifier}})</span>
-                    <span><br/><a href="mailto:{{question.creator.email}}">{{question.creator.email}}</a></span>
+                <td ng-if="$ctrl.user.isAdmin" class="question-table-name">
+                    <span ng-repeat="owner in question.questionOwners">
+                        <a href="mailto:{{owner.email}}">
+                            {{$ctrl.printOwner(owner, true)}}{{$last ? "" : ", "}}
+                        </a>
+                    </span>
                 </td>
                 <td class="padl20" ng-if="$ctrl.allowEditing">
                     <a ng-if="question.allowedToRemove" ng-click="$ctrl.deleteQuestion(question)"
