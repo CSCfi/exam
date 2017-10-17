@@ -2,16 +2,17 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.FetchConfig;
-import io.ebean.Query;
-import io.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import exceptions.NotFoundException;
+import impl.EmailComposer;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.FetchConfig;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamMachine;
@@ -25,7 +26,6 @@ import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
-import impl.EmailComposer;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -236,7 +236,7 @@ public class ReservationController extends BaseController {
         ExpressionList<Reservation> query = Ebean.find(Reservation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("enrolment.exam", "id, name, state, trialCount")
-                .fetch("enrolment.externalExam", "id, externalRef")
+                .fetch("enrolment.externalExam", "id, externalRef, finished")
                 .fetch("enrolment.exam.course", "code")
                 .fetch("enrolment.exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
                 .fetch("enrolment.exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
@@ -245,13 +245,15 @@ public class ReservationController extends BaseController {
                 .fetch("machine.room", "id, name, roomCode")
                 .where()
                 .disjunction()
-                .ne("enrolment.exam.state", Exam.State.DELETED) // Local reservation
-                .isNotNull("externalRef") // External reservation
+                .ne("enrolment.exam.state", Exam.State.DELETED) // Local student reservation
+                .isNotNull("externalUserRef") // External student reservation
                 .endJunction();
 
         User user = getLoggedUser();
         if (user.hasRole("TEACHER", getSession())) {
-            query = query.disjunction()
+            query = query
+                    .isNull("enrolment.externalExam") // Hide reservations of external students (just to be sure)
+                    .disjunction()
                     .eq("enrolment.exam.parent.examOwners", user)
                     .eq("enrolment.exam.examOwners", user)
                     .endJunction();
@@ -274,8 +276,11 @@ public class ReservationController extends BaseController {
                 case "NO_SHOW":
                     query = query.eq("noShow", true);
                     break;
-                case "EXTERNAL":
-                    query = query.isNotNull("externalRef");
+                case "EXTERNAL_UNFINISHED":
+                    query = query.isNotNull("externalUserRef").isNull("enrolment.externalExam.finished");
+                    break;
+                case "EXTERNAL_FINISHED":
+                    query = query.isNotNull("externalUserRef").isNotNull("enrolment.externalExam.finished");
                     break;
                 default:
                     query = query.eq("enrolment.exam.state", Exam.State.valueOf(state.get()));

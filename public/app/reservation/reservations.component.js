@@ -40,7 +40,8 @@ angular.module('app.reservation')
                         'NO_SHOW'
                     ];
                     if (ctrl.userRole === 'admin') {
-                        ctrl.examStates.push('EXTERNAL');
+                        ctrl.examStates.push('EXTERNAL_UNFINISHED');
+                        ctrl.examStates.push('EXTERNAL_FINISHED');
                     }
 
                     ctrl.selection = {examId: examId};
@@ -222,7 +223,9 @@ angular.module('app.reservation')
                                     r.userAggregate = r.user ? r.user.lastName + r.user.firstName : r.externalUserRef;
                                     if (!r.enrolment || r.enrolment.externalExam) {
                                         r.enrolment = r.enrolment || {};
-                                        r.enrolment.exam = {external: true, examOwners: [], state: 'EXTERNAL'};
+                                        var externalState = r.enrolment.finished ? 'EXTERNAL_FINISHED' :
+                                            'EXTERNAL_UNFINISHED';
+                                        r.enrolment.exam = {external: true, examOwners: [], state: externalState};
                                     }
                                     var exam = r.enrolment.exam.parent || r.enrolment.exam;
                                     r.enrolment.teacherAggregate = exam.examOwners.map(function (o) {
@@ -230,8 +233,8 @@ angular.module('app.reservation')
                                     }).join();
                                     var state = ctrl.printExamState(r);
                                     r.stateOrd = ['PUBLISHED', 'NO_SHOW', 'STUDENT_STARTED', 'ABORTED', 'REVIEW',
-                                            'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'REJECTED', 'ARCHIVED',
-                                            'EXTERNAL'].indexOf(state);
+                                        'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'REJECTED', 'ARCHIVED',
+                                        'EXTERNAL_UNFINISHED', 'EXTERNAL_FINISHED'].indexOf(state);
                                 });
                                 ctrl.reservations = reservations;
                             }, function (error) {

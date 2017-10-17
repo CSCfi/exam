@@ -847,5 +847,7 @@
   "sitnet_exam_pre_participants": "Tiedota palveluun kirjautumattomia osallistujia",
   "sitnet_exam_pre_participants_description": "Voit ilmoittaa tentistä palveluun kirjautumattomille opiskelijoille. Heille lähetetään tieto sähköpostitse, kun tentti julkaistaan. Tämän jälkeen he voivat kirjautua palveluun ja pääsevät tekemään tenttiajanvarausta.",
   "sitnet_write_participant_name": "Osallistujan nimi",
-  "sitnet_write_pre_participant_email": "Osallistujan sähköpostiosoite"
+  "sitnet_write_pre_participant_email": "Osallistujan sähköpostiosoite",
+  "sitnet_exam_status_external_unfinished": "Ulkopuolinen varaus - ei käytetty",
+  "sitnet_exam_status_external_finished": "Ulkopuolinen varaus - käytetty"
 }
