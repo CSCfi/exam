@@ -11,16 +11,16 @@
                 <div class="student-enrolment-exam">
                     <a href="/enroll/{{ $ctrl.enrolment.exam.course.code }}/exam/{{ $ctrl.enrolment.exam.id }}">
                         {{ $ctrl.enrolment.exam.name }}</a><br/>
-                    <span ng-if="$ctrl.enrolment.exam.state ==='PUBLISHED' && enrolment.reservation"
+                    <span ng-if="$ctrl.enrolment.exam.state ==='PUBLISHED' && $ctrl.enrolment.reservation"
                           class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
-                    <span ng-if="$ctrl.enrolment.exam.state ==='PUBLISHED' && !enrolment.reservation"
+                    <span ng-if="$ctrl.enrolment.exam.state ==='PUBLISHED' && !$ctrl.enrolment.reservation"
                           class="exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
                     <span ng-if="$ctrl.enrolment.exam.state === 'STUDENT_STARTED'"
                           class="exam-ready">{{'sitnet_state_started' | translate}}</span>
                 </div>
 
                 <!-- settings menu -->
-                <div ng-show="!$ctrl.enrolment.reservation || $ctrl.enrolment.exam.executionType.type === 'PUBLIC'"
+                <div ng-if="$ctrl.enrolment.reservation || $ctrl.enrolment.exam.executionType.type === 'PUBLIC'"
                      class="student-exam-settings">
                     <span uib-dropdown>
                         <a href id="simple-dropdown" uib-dropdown-toggle>
@@ -152,10 +152,8 @@
                 </div>
             </div>
             <div class="col-md-12" ng-if="!$ctrl.enrolment.reservation">
-                <div class="row">
-                    <div ng-if="$ctrl.enrolment.reservationCanceled">
-                        {{ 'sitnet_canceled' | translate }}
-                    </div>
+                <div class="text-danger" ng-if="$ctrl.enrolment.reservationCanceled">
+                    {{ 'sitnet_canceled' | translate }}
                 </div>
             </div>
         </div>

@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.utility')
     .component('attachmentSelector', {
-        templateUrl: '/assets/app/utility/dialogs/attachmentSelector.template.html',
+        templateUrl: '/assets/app/utility/attachment/dialogs/attachmentSelector.template.html',
         bindings: {
             close: '&',
             dismiss: '&',

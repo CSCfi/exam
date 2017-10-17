@@ -219,12 +219,14 @@ angular.module('app.calendar')
                 };
 
                 vm.confirmReservation = function () {
-                    Calendar.reserve(
-                        vm.reservation.start,
-                        vm.reservation.end,
-                        vm.selectedRoom(),
-                        vm.accessibilities,
-                        vm.selectedOrganisation);
+                    if (vm.reservation) {
+                        Calendar.reserve(
+                            vm.reservation.start,
+                            vm.reservation.end,
+                            vm.selectedRoom(),
+                            vm.accessibilities,
+                            vm.selectedOrganisation);
+                    }
                 };
 
                 vm.setOrganisation = function (org) {
