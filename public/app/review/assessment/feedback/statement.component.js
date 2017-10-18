@@ -50,9 +50,12 @@ angular.module('app.review')
                                 return true;
                             }
                         }
-                    }).result.then(function (data) {
-                        Files.upload('/app/attachment/exam/' + vm.exam.id + '/statement',
-                            data.attachmentFile, {examId: vm.exam.id}, vm.exam.languageInspection.statement);
+                    }).result.then(function (fileData) {
+                        Maturity.saveInspectionStatement(vm.exam).then(function (data) {
+                            angular.extend(vm.exam.languageInspection.statement, data);
+                            Files.upload('/app/attachment/exam/' + vm.exam.id + '/statement',
+                                fileData.attachmentFile, {examId: vm.exam.id}, vm.exam.languageInspection.statement);
+                        });
                     });
                 };
 

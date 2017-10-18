@@ -45,12 +45,12 @@ angular.module('app.review')
                             }
                         }
                     }).result.then(function (data) {
-                        Files.upload('/app/attachment/exam/' + vm.exam.id + '/feedback',
-                            data.attachmentFile, {examId: vm.exam.id}, vm.exam.examFeedback);
+                        Assessment.saveFeedback(vm.exam).then(function () {
+                            Files.upload('/app/attachment/exam/' + vm.exam.id + '/feedback',
+                                data.attachmentFile, {examId: vm.exam.id}, vm.exam.examFeedback);
+                        })
                     });
                 };
-
-
             }
 
         ]
