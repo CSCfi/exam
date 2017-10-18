@@ -62,7 +62,7 @@ angular.module('app.exam.editor')
                 vm.updateExam = function (silent) {
                     var deferred = $q.defer();
                     Exam.updateExam(vm.exam).then(function () {
-                        if (!silent){
+                        if (!silent) {
                             toastr.info($translate.instant('sitnet_exam_saved'));
                         }
                         deferred.resolve();
@@ -77,12 +77,8 @@ angular.module('app.exam.editor')
                 };
 
                 vm.previewExam = function (fromTab) {
-                    //First save the exam
-                    // TODO: Is this really necessary anymore?
-                    vm.updateExam(true).then(function () {
-                        var resource = vm.exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
-                        $location.path('/exams/' + resource + '/' + vm.exam.id + '/' + fromTab);
-                    });
+                    var resource = vm.exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
+                    $location.path('/exams/' + vm.exam.id + '/view/' + resource + '/' + fromTab);
                 };
 
                 vm.removeExam = function () {
@@ -101,7 +97,7 @@ angular.module('app.exam.editor')
                     }
                 };
 
-                vm.removeSection = function(section) {
+                vm.removeSection = function (section) {
                     ExamRes.sections.remove({eid: vm.exam.id, sid: section.id}, function (id) {
                         toastr.info($translate.instant('sitnet_section_removed'));
                         vm.exam.examSections.splice(vm.exam.examSections.indexOf(section), 1);

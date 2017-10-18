@@ -25,9 +25,9 @@
                         <div ng-if="$ctrl.showWarning()">
 
                             <div class="col-md-12">
-                                <div class="col-md-1"><img src="../../../assets/assets/images/icon_warning.png"
+                                <div class="col-md-1"><img src="/assets/assets/images/icon_warning.png"
                                                            alt="exam"
-                                                           onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_warning.svg';"/>
+                                                           onerror="this.onerror=null;this.src='/assets/assets/images/icon_warning.svg';"/>
                                 </div>
                                 <div class="col-md-11 warning-text">
                                     {{'sitnet_exam_question_edit_instructions' | translate}}
@@ -47,9 +47,9 @@
                         <div ng-if="!$ctrl.showWarning()">
 
                             <div class="col-md-12">
-                                <div class="col-md-1"><img src="../../../assets/assets/images/icon_warning.png"
+                                <div class="col-md-1"><img src="/assets/assets/images/icon_warning.png"
                                                            alt="exam"
-                                                           onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_warning.svg';"/>
+                                                           onerror="this.onerror=null;this.src='/assets/assets/images/icon_warning.svg';"/>
                                 </div>
                                 {{'sitnet_added_to_exams' | translate}}
                                 <div class="col-md-11 warning-text">
@@ -90,8 +90,8 @@
                         {{'sitnet_new_question_type' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_question_type_description' | translate}}"
-                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png';"/></sup>
+                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
                     </div>
                     <div class="col-md-9 padr0">
                         <span ng-if="$ctrl.question.type == 'EssayQuestion'">{{'sitnet_toolbar_essay_question'
@@ -109,8 +109,8 @@
                         {{'sitnet_question_text' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_question_text_description' | translate}}"
-                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png';"/></sup>
+                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
                     </div>
                     <div class="col-md-9 padr0" ng-show="question.type">
                         <textarea id="editor" name="editor" ck-editor
@@ -268,8 +268,8 @@
                     <div class="col-md-3 exam-basic-title padl0">{{'sitnet_question_owners' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_question_owners_description' | translate}}"
-                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png';"/></sup>
+                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
                     </div>
                     <div class="col-md-9">
                         <ul class="list-inline mart10 padl10">
@@ -286,8 +286,8 @@
                         {{ 'sitnet_question_attachment' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_attachment_description' | translate}}"
-                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png';"/></sup>
+                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
                     </div>
 
                     <div class="col-md-9" id="attachment">
@@ -305,9 +305,9 @@
                         <i class="fa fa-paperclip fa-fw"></i> {{$ctrl.question.attachment.name}} <small>
                         ({{ $ctrl.getFileSize() }})</small></span>
                             <span class="pointer remove-attachment" ng-click="$ctrl.removeQuestionAttachment()">
-                        <img src="../../../assets/assets/images/icon_remove.svg"
+                        <img src="/assets/assets/images/icon_remove.svg"
                              alt="{{'sitnet_remove_attachment' | translate }}"
-                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_remove.png';"/>
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png';"/>
                     </span>
                         </div>
                         <div class="mart10" ng-if="$ctrl.showWarning()">
@@ -324,8 +324,8 @@
                         {{ 'sitnet_question_instruction' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_question_instruction_description' | translate}}"
-                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png';"/></sup>
+                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
                     </div>
                     <div class="col-md-9 padr0">
                         <textarea id="instruction" class="form-control" rows="3"
@@ -342,8 +342,8 @@
                         {{ 'sitnet_exam_evaluation_criteria' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_question_evaluation_criteria_description' | translate}}"
-                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png';"/></sup>
+                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
                     </div>
                     <div class="col-md-9 padr0">
                         <textarea id="evaluationCriteria" class="form-control" rows="3"
@@ -360,8 +360,8 @@
                         {{ 'sitnet_added_to_categories' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_question_tag_question_description' | translate}}"
-                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png';"/></sup>
+                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
                     </div>
                     <div class="col-md-9 padr0">
                         <ul class="list-inline mart10">

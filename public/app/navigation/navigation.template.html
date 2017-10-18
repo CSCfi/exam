@@ -3,15 +3,15 @@
         <div class="nav-header">
             <div class="logo">
                 <div class="hidden-mobile">
-                    <img src="../../../assets/assets/images/exam-logo-new.svg" alt="exam" onerror="this.onerror = null;
+                    <img src="/assets/assets/images/exam-logo-new.svg" alt="exam" onerror="this.onerror = null;
                             this.src = '../../../assets/assets/images/exam-logo-new.png'"/>
                 </div>
                 <div class="visible-mobile">
                     <div class="mobile-menu" ng-click="$ctrl.openMenu();" ng-hide="!$ctrl.user">
-                        <img src="../../../assets/assets/images/icon_menu_mobile.svg" alt="exam" onerror="this.onerror = null;
+                        <img src="/assets/assets/images/icon_menu_mobile.svg" alt="exam" onerror="this.onerror = null;
                                 this.src = '../../../assets/assets/images/icon_menu_mobile.png'"/>
                     </div>
-                    <img src="../../../assets/assets/images/exam-logo-mobile.svg" alt="exam" onerror="this.onerror = null;
+                    <img src="/assets/assets/images/exam-logo-mobile.svg" alt="exam" onerror="this.onerror = null;
                             this.src = '../../../assets/assets/images/exam-logo-mobile.png'"/>
                 </div>
             </div>
@@ -28,7 +28,7 @@
                 <li ng-class="{selected: $ctrl.isActive(link)}" ng-repeat="link in $ctrl.links"
                     ng-show="{{link.visible}}">
                     <a class="menu_item_link" href="{{link.href}}">
-                        <img width="18" src="../../../assets/assets/images/nav/{{link.icon_png}}"
+                        <img width="18" src="/assets/assets/images/nav/{{link.icon_png}}"
                              alt="{{ link.name | translate }}"/>
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>
@@ -39,7 +39,7 @@
             <ul class="links">
                 <li ng-class="{selected: $ctrl.isActive(link)}" ng-repeat="link in $ctrl.links" ng-show="{{link.visible}}">
                     <a class="menu_item_link" href="{{link.href}}">
-                        <img width="18" src="../../../assets/assets/images/nav/{{link.icon_png}}"
+                        <img width="18" src="/assets/assets/images/nav/{{link.icon_png}}"
                              alt="{{ link.name | translate }}"/>
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>
@@ -50,7 +50,7 @@
         <div class="nav-user" ng-hide="!$ctrl.user">
             <div class="user">
                 <div class="user-name">
-                    <div class="user-logo"><img src="../../../assets/assets/images/icon_menu_user.png"
+                    <div class="user-logo"><img src="/assets/assets/images/icon_menu_user.png"
                                                 alt="{{$ctrl.user.firstName}}&nbsp;{{$ctrl.user.lastName}}"/></div>
                     <div class="user-data">
                         {{$ctrl.user.firstName}}&nbsp;{{$ctrl.user.lastName}}<br/>
@@ -82,10 +82,10 @@
             <div class="nav-header">
                 <div class="logo">
                     <div ng-hide="$ctrl.minimizeNavigation">
-                        <img src="../../../assets/assets/images/exam-logo-black-small.png" alt="exam"/>
+                        <img src="/assets/assets/images/exam-logo-black-small.png" alt="exam"/>
                     </div>
                     <div ng-hide="!$ctrl.minimizeNavigation">
-                        <img width="50" height="90" src="../../../assets/assets/images/exam-logo-black-small-v.png"
+                        <img width="50" height="90" src="/assets/assets/images/exam-logo-black-small-v.png"
                              alt="exam"/>
                     </div>
                 </div>

@@ -6,7 +6,7 @@ angular.module('app.question')
         '            {{ \'sitnet_tag_question\' | translate}}\n' +
         '            <sup><img popover-placement="right" popover-trigger="\'mouseenter\'"\n' +
         '                      uib-popover="{{\'sitnet_question_tag_question_description\' | translate}}"\n' +
-        '                      src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"\n' +
+        '                      src="/assets/assets/images/icon_tooltip.svg" alt="exam"\n' +
         '                      onerror="this.onerror=null;this.src=\'../../../assets/assets/images/icon_tooltip.png\';"/></sup>\n' +
         '        </div>\n' +
         '        <div class="col-md-9 padr0">\n' +
@@ -24,7 +24,7 @@ angular.module('app.question')
         '                            uib-popover="{{ \'sitnet_remove\' | translate }}"\n' +
         '                            ng-click="$ctrl.removeTag(tag)"\n' +
         '                            title="{{\'sitnet_remove\' | translate}}">\n' +
-        '                        <img src="../../../assets/assets/images/icon_remove.svg" alt="exam"\n' +
+        '                        <img src="/assets/assets/images/icon_remove.svg" alt="exam"\n' +
         '                             onerror="this.onerror=null;this.src=\'../../../assets/assets/images/icon_remove.png\';"/>\n' +
         '                    </button>\n' +
         '                </li>\n' +

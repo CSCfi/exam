@@ -7,11 +7,11 @@ angular.module('app.examination')
         '    <span class="col-md-12">' +
         '        <!-- PREVIOUS SECTION BUTTON -->' +
         '        <a class="green_button previous" ng-show="$ctrl.prev.valid" ng-click="$ctrl.previousPage()">' +
-        '            <img class="arrow_icon" src="../../../assets/assets/images/icon_left_white.png"> {{ $ctrl.prev.text | translate }}' +
+        '            <img class="arrow_icon" src="/assets/assets/images/icon_left_white.png"> {{ $ctrl.prev.text | translate }}' +
         '        </a>' +
         '        <!-- NEXT SECTION BUTTON -->' +
         '        <a class="green_button" ng-show="$ctrl.next.valid" ng-click="$ctrl.nextPage()">{{ $ctrl.next.text | translate }}' +
-        '            <img class="arrow_icon" src="../../../assets/assets/images/icon_right_white.png">' +
+        '            <img class="arrow_icon" src="/assets/assets/images/icon_right_white.png">' +
         '        </a>' +
         '    </span>' +
         '</div>',

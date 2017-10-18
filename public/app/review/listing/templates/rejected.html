@@ -2,12 +2,12 @@
     <div class="col-md-12">
         <div class="review-list-title">{{ 'sitnet_exam_rejected' | translate }}
             <a ng-click="$ctrl.toggleRejectedReviews = !$ctrl.toggleRejectedReviews" class="pointer">
-                <img ng-show="!$ctrl.toggleRejectedReviews" src="../../../assets/assets/images/icon_list_show_right.svg"
+                <img ng-show="!$ctrl.toggleRejectedReviews" src="/assets/assets/images/icon_list_show_right.svg"
                      alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png';"/>
-                <img ng-show="$ctrl.toggleRejectedReviews" src="../../../assets/assets/images/icon_list_show_down.svg"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"/>
+                <img ng-show="$ctrl.toggleRejectedReviews" src="/assets/assets/images/icon_list_show_down.svg"
                      alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png';"/>
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"/>
             </a>
         </div>
     </div>
@@ -29,7 +29,7 @@
                placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
                popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_exam_search_description' | translate }}">
         <div class="input-group-addon search">
-            <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+            <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
         </div>
     </div>
 

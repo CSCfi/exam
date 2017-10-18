@@ -4,10 +4,10 @@
             <span>{{ $ctrl.getOngoingInspectionsDetails() }}</span>
             <a ng-if="$ctrl.ongoingInspections.length > 0" ng-click="$ctrl.hideOngoing = !$ctrl.hideOngoing"
                class="pointer">
-                <img ng-show="$ctrl.hideOngoing" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png';"/>
-                <img ng-hide="$ctrl.hideOngoing" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png';"/>
+                <img ng-show="$ctrl.hideOngoing" src="/assets/assets/images/icon_list_show_right.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"/>
+                <img ng-hide="$ctrl.hideOngoing" src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"/>
             </a>
         </div>
     </div>
@@ -32,7 +32,7 @@
                    placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
                    popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_maturity_search_description' | translate }}">
             <div class="input-group-addon search">
-                <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+                <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
             </div>
         </div>
     </div>

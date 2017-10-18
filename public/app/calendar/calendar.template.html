@@ -12,7 +12,7 @@
 
     <div class="top-row">
         <div class="student-details-title-wrap">
-            <a href="/"><img class="arrow_icon" src="../../../assets/assets/images/icon_history.png"></a>
+            <a href="/"><img class="arrow_icon" src="/assets/assets/images/icon_history.png"></a>
             <div class="student-exam-details-title">{{'sitnet_calendar' | translate}}</div>
         </div>
     </div>
@@ -21,7 +21,7 @@
     <div class="student-enrolment-wrapper details-view">
         <div class="student-exam-header-row">
             <span class="calendar-phase-title">1. {{ 'sitnet_calendar_phase_1' | translate }}</span>
-            <div class="calendar-phase-icon"><img class="arrow_icon" src="../../../assets/assets/images/icon-phase.png">
+            <div class="calendar-phase-icon"><img class="arrow_icon" src="/assets/assets/images/icon-phase.png">
             </div>
         </div>
         <div class="student-exam-header-row">
@@ -72,7 +72,7 @@
         </div>
         <div class="student-exam-row">
             <span ng-if="$ctrl.showReservationWindowInfo()" class="text-info">
-                <img class="arrow_icon" src="../../../assets/assets/images/icon_info.png">
+                <img class="arrow_icon" src="/assets/assets/images/icon_info.png">
                 {{ $ctrl.getReservationWindowDescription() }}</span>
         </div>
     </div>
@@ -87,7 +87,7 @@
                         </button>
                     </small>
                 </span>
-            <div class="calendar-phase-icon" ng-show="$ctrl.selectedOrganisation"><img class="arrow_icon" src="../../../assets/assets/images/icon-phase.png"></div>
+            <div class="calendar-phase-icon" ng-show="$ctrl.selectedOrganisation"><img class="arrow_icon" src="/assets/assets/images/icon-phase.png"></div>
         </div>
 
         <div class="student-exam-row">
@@ -141,14 +141,14 @@
                 </small>
             </span>
             <div class="calendar-phase-icon" ng-show="$ctrl.selectedRoom()">
-                <img class="arrow_icon" src="../../../assets/assets/images/icon-phase.png">
+                <img class="arrow_icon" src="/assets/assets/images/icon-phase.png">
             </div>
         </div>
         <div class="student-exam-header-row" ng-hide="$ctrl.isExternal">
             <div class="calendar-accessibility-link"><a ng-click="$ctrl.showAccs = !$ctrl.showAccs">
                 {{'sitnet_calendar_room_accessibility_info' | translate}}</a>
-                <img class="arrow_icon" ng-show="!$ctrl.showAccs" src="../../../assets/assets/images/arrow_right.png">
-                <img class="arrow_icon" ng-show="$ctrl.showAccs" src="../../../assets/assets/images/arrow_down.png">
+                <img class="arrow_icon" ng-show="!$ctrl.showAccs" src="/assets/assets/images/arrow_right.png">
+                <img class="arrow_icon" ng-show="$ctrl.showAccs" src="/assets/assets/images/arrow_down.png">
             </div>
             <div class="student-exam-row-infobox" ng-show="$ctrl.showAccs">
                 <div class="calendar-accs-title">Tenttitilan esteettömyysvaatimukset</div>
@@ -269,7 +269,7 @@
                 <span ng-if="!$ctrl.isExternal" class="calendar-phase-title">3. {{ 'sitnet_calendar_phase_3' | translate }}</span>
                 <span ng-if="$ctrl.isExternal" class="calendar-phase-title">4. {{ 'sitnet_calendar_phase_3' | translate }}</span>
                 <div class="calendar-phase-icon" ng-show="$ctrl.reservation">
-                    <img class="arrow_icon" src="../../../assets/assets/images/icon-phase.png">
+                    <img class="arrow_icon" src="/assets/assets/images/icon-phase.png">
                 </div>
             </div>
             <div class="student-exam-header-row">

@@ -40,26 +40,13 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         $routeProvider.when('/questions/newQuestion/:create', {template: '<question new-question="true"></question>'});
 
         /* exams */
-        $routeProvider.when('/exams/:id/:tab', {template: '<exam-tabs></exam-tabs>'});
         $routeProvider.when('/exams/new', {template: '<new-exam></new-exam>'});
-        $routeProvider.when('/exams/:id/course', {template: '<course-selection></course-selection>'});
-        $routeProvider.when('/exams/preview/:id', {template: '<examination is-preview="true"><examination>'});
-        $routeProvider.when('/exams/preview/:id/:tab', {template: '<examination is-preview="true"><examination>'}); //TODO: Can these be combined with :tab? ?
-        $routeProvider.when('/exams/printout/:id', {
-            templateUrl: tmpl + 'exam/printout/printout.html',
-            controller: 'PrintoutController',
-            controllerAs: 'ctrl'
-        });
-        $routeProvider.when('/exams/printout/:id/:tab', {
-            templateUrl: tmpl + 'exam/printout/printout.html',
-            controller: 'PrintoutController',
-            controllerAs: 'ctrl'
-        });
-        $routeProvider.when('/printouts', {
-            templateUrl: tmpl + 'exam/printout/printouts.html',
-            controller: 'PrintoutController',
-            controllerAs: 'ctrl'
-        });
+
+        $routeProvider.when('/exams/:id/:tab', {template: '<exam-tabs></exam-tabs>'});
+        $routeProvider.when('/exams/:id/select/course', {template: '<course-selection></course-selection>'});
+        $routeProvider.when('/exams/:id/view/preview/:tab?', {template: '<examination is-preview="true"><examination>'});
+        $routeProvider.when('/exams/:id/view/printout/:tab?', {template: '<printout></printout>'});
+        $routeProvider.when('/printouts', {template: '<printout-listing></printout-listing>'});
 
         /* calendar */
         $routeProvider.when('/calendar/:id', {template: '<calendar is-external="false"></calendar>'});

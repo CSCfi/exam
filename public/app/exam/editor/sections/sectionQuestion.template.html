@@ -20,10 +20,10 @@
              mathjax></div>
         <a ng-click="$ctrl.sectionQuestion.expanded = !$ctrl.sectionQuestion.expanded" class="pointer-hand"
            ng-show="$ctrl.sectionQuestion.answerInstructions || $ctrl.sectionQuestion.options.length > 0">
-            <img ng-show="!$ctrl.sectionQuestion.expanded" src="../../../assets/assets/images/icon_list_show_right.svg"
-                 alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'"/>
-            <img ng-show="$ctrl.sectionQuestion.expanded" src="../../../assets/assets/images/icon_list_show_down.svg"
-                 alt="exam" onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'"/>
+            <img ng-show="!$ctrl.sectionQuestion.expanded" src="/assets/assets/images/icon_list_show_right.svg"
+                 alt="exam" onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"/>
+            <img ng-show="$ctrl.sectionQuestion.expanded" src="/assets/assets/images/icon_list_show_down.svg"
+                 alt="exam" onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"/>
         </a>
     </div>
     <!-- Cog icon -->
@@ -31,8 +31,8 @@
     <div class="pull-right dropdown pointer-hand single-question-icon" uib-dropdown>
         <a href class="pull-right dropdown-toggle exam-settings-link" uib-dropdown-toggle>
             <span class="exam-section-question-settings">{{'sitnet_settings' | translate}}</span> <img
-                src="../../../assets/assets/images/icon_settings.png" alt="exam"
-                onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_settings.png'"/>
+                src="/assets/assets/images/icon_settings.png" alt="exam"
+                onerror="this.onerror=null;this.src='/assets/assets/images/icon_settings.png'"/>
         </a>
         <ul class="dropdown-menu">
             <li><a ng-click="$ctrl.editQuestion()">
@@ -45,30 +45,30 @@
 
 
     <div class="col-md-12" ng-show="$ctrl.sectionQuestion.expanded">
-        <img ng-if="$ctrl.sectionQuestion.answerInstructions.length > 0" src="../../../assets/assets/images/icon_info.png"
+        <img ng-if="$ctrl.sectionQuestion.answerInstructions.length > 0" src="/assets/assets/images/icon_info.png"
              alt="exam"
-             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'"/>
+             onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'"/>
         <span ng-if="$ctrl.sectionQuestion.answerInstructions.length > 0" class="padl10">
             {{$ctrl.sectionQuestion.answerInstructions}}</span>
         <ul class="exam-section-question-options">
             <li ng-show="$ctrl.sectionQuestion.question.type === 'MultipleChoiceQuestion'"
                 ng-repeat="option in $ctrl.sectionQuestion.options">
                 <img ng-show="{{option.option.correctOption}}"
-                     src="../../../assets/assets/images/icon_correct_answer.png" alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_correct_answer.png'"/>
+                     src="/assets/assets/images/icon_correct_answer.png" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer.png'"/>
                 <img ng-show="{{!option.option.correctOption}}"
-                     src="../../../assets/assets/images/icon_wrong_answer.png" alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_wrong_answer.png'"/>
+                     src="/assets/assets/images/icon_wrong_answer.png" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.png'"/>
                 <span class="exam-question-option-text">{{option.option.option}}</span>
             </li>
             <li ng-show="$ctrl.sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
                 ng-repeat="option in $ctrl.sectionQuestion.options">
-                <img ng-show="{{option.score >= 0}}" src="../../../assets/assets/images/icon_correct_answer_checkbox.png"
+                <img ng-show="{{option.score >= 0}}" src="/assets/assets/images/icon_correct_answer_checkbox.png"
                      alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_correct_answer_checkbox.png'"/>
-                <img ng-show="{{option.score < 0}}" src="../../../assets/assets/images/icon_wrong_answer_checkbox.png"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer_checkbox.png'"/>
+                <img ng-show="{{option.score < 0}}" src="/assets/assets/images/icon_wrong_answer_checkbox.png"
                      alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_wrong_answer_checkbox.png'"/>
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer_checkbox.png'"/>
                 <span class="exam-question-option-text">{{option.option.option}}</span>
                 <span class="exam-question-option-text pull-right">{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
             </li>

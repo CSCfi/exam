@@ -1,12 +1,13 @@
-(function () {
-    'use strict';
-    angular.module('app.exam')
-        .controller('PrintoutController', ['$http', '$routeParams', '$location', '$sce', 'Files',
+'use strict';
+angular.module('app.exam')
+    .component('printout', {
+        templateUrl: '/assets/app/exam/printout/printout.template.html',
+        controller: ['$http', '$routeParams', '$location', '$sce', 'Files',
             function ($http, $routeParams, $location, $sce, Files) {
 
-                var ctrl = this;
+                var vm = this;
 
-                ctrl.viewPrintout = function () {
+                vm.$onInit = function () {
                     $http.get('/app/exampreview/' + $routeParams.id).success(function (data) {
                         data.examSections.sort(function (a, b) {
                             return a.sequenceNumber - b.sequenceNumber;
@@ -19,19 +20,20 @@
                             });
                         });
                         data.examLanguages.forEach(function (l) {
-                            l.ord = ['fi', 'sv', 'en', 'de'].indexOf(l.code);
+                            l.ord = ['fi', 'sv', 'en', 'de'].indexOf(l.code); // TODO: fixed languages?
                         });
                         // set sections and question numbering
                         angular.forEach(data.examSections, function (section, index) {
                             section.index = index + 1;
                         });
 
-                        ctrl.exam = data;
+                        vm.exam = data;
 
                     });
                 };
 
-                ctrl.getLanguageName = function (lang) {
+
+                vm.getLanguageName = function (lang) { // TODO: fixed languages?
                     var name;
                     switch (lang.code) {
                         case 'fi':
@@ -50,7 +52,7 @@
                     return name;
                 };
 
-                ctrl.getQuestionTypeName = function (esq) {
+                vm.getQuestionTypeName = function (esq) {
                     var name;
                     switch (esq.question.type) {
                         case 'WeightedMultipleChoiceQuestion':
@@ -69,37 +71,24 @@
                     return name;
                 };
 
-                ctrl.exitPreview = function () {
-                    var path = $routeParams.tab ? "/exams/" + $routeParams.id + "/" +$routeParams.tab : "/printouts";
+                vm.exitPreview = function () {
+                    var path = $routeParams.tab ? '/exams/' + $routeParams.id + '/' + $routeParams.tab : '/printouts';
                     $location.path(path);
                 };
 
-                ctrl.print = function () {
+                vm.print = function () {
                     window.print();
                 };
 
-                ctrl.printAttachment = function () {
-                    Files.download('/app/attachment/exam/' + $routeParams.id, ctrl.exam.attachment.fileName);
+                vm.printAttachment = function () {
+                    Files.download('/app/attachment/exam/' + $routeParams.id, vm.exam.attachment.fileName);
                 };
 
-                ctrl.trustAsHtml = function (content) {
+                vm.trustAsHtml = function (content) {
                     return $sce.trustAsHtml(content);
                 };
 
-                ctrl.listPrintouts = function () {
-                    $http.get('/app/exam/printouts').success(function (printouts) {
-                        printouts.forEach(function (printout) {
-                            var dates = printout.examinationDates.map(function (ed) {
-                                return ed.date;
-                            });
-                            dates.sort(function (a, b) {return a - b;});
-                            printout.examinationDatesAggregate = dates.map(function (d) {
-                                return moment(d).format("DD.MM.YYYY");
-                            }).join(", ");
-                        });
-                        ctrl.printouts = printouts;
-                    });
-                }
 
-            }]);
-}());
+            }]
+    });
+

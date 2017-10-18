@@ -4,8 +4,8 @@
 
         <!-- USERNAME -->
         <div class="info-column bot-border">
-            <img src="../../../assets/assets/images/icon_user.svg" alt="exam"
-                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_user.png';"/><span
+            <img src="/assets/assets/images/icon_user.svg" alt="exam"
+                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_user.png';"/><span
                 class="user-span">{{ $ctrl.displayUser() }}</span>
         </div>
 
@@ -20,8 +20,8 @@
         <div class="button-separator" ng-hide="$ctrl.isPreview">
             <div class="pointer" ng-click="$ctrl.abortExam()">
                 <a class="grey-button abort-and-exit">
-                    <img src="../../../assets/assets/images/icon_exit.svg" alt="exam"
-                         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_exit.png';"/><span
+                    <img src="/assets/assets/images/icon_exit.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_exit.png';"/><span
                         class="abort-and-exit">{{'sitnet_abort_exam' | translate}}</span>
                 </a>
             </div>
@@ -39,8 +39,8 @@
         <div class="row pointer attachment-button" ng-click="$ctrl.downloadExamAttachment()">
             <a class="green_button left-floater">
                 {{'sitnet_exam_attachment' | translate}} <img
-                    src="../../../assets/assets/images/icon_attachment.svg" alt="exam"
-                    onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_attachment.png';"/>
+                    src="/assets/assets/images/icon_attachment.svg" alt="exam"
+                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_attachment.png';"/>
             </a>
         </div>
         <div class="attachment-name">{{$ctrl.exam.attachment.fileName | uppercase}}</div>
@@ -69,15 +69,15 @@
                 <div class="pull-left marr10">
                     <div class="question-type-img-wrap"
                          ng-if="$ctrl.getQuestionAmount(section, 'answered') === $ctrl.getQuestionAmount(section, 'total')">
-                        <img src="../../../assets/assets/images/icon_question_type_ready_grey.png"
+                        <img src="/assets/assets/images/icon_question_type_ready_grey.png"
                              alt="exam"
-                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_ready_grey.png';"/>
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_question_type_ready_grey.png';"/>
                     </div>
                     <div class="question-type-img-wrap"
                          ng-if="$ctrl.getQuestionAmount(section, 'answered') !== getQuestionAmount(section, 'total')">
-                        <img src="../../../assets/assets/images/icon_question_type_waiting.svg"
+                        <img src="/assets/assets/images/icon_question_type_waiting.svg"
                              alt="exam"
-                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_question_type_waiting.png';"/>
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_question_type_waiting.png';"/>
                     </div>
                 </div>
 
@@ -98,8 +98,8 @@
             <div class="row pointer" popover-placement="left" popover-trigger="'mouseenter'"
                  uib-popover="{{ $ctrl.displayRoomInstructions() }}">
                 <a class="col-md-1" style="margin-top: 7px;">
-                    <img src="../../../assets/assets/images/icon_info.svg" alt="exam"
-                         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png';"/>
+                    <img src="/assets/assets/images/icon_info.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"/>
                 </a>
                 <div class="col-md-10 question-text question-type-text info">
                     {{'sitnet_room_guidance' | translate}}
@@ -112,8 +112,8 @@
              ng-show="$ctrl.exam.executionType.type==='MATURITY'">
             <div class="row pointer">
                 <a class="col-md-1" style="margin-top: 7px;">
-                    <img src="../../../assets/assets/images/icon_info.svg" alt="exam"
-                         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png';"/>
+                    <img src="/assets/assets/images/icon_info.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"/>
                 </a>
                 <div class="col-md-10 question-text question-type-text info">
                     {{'sitnet_maturity_instructions' | translate}}

@@ -3,8 +3,8 @@
     <div class="col-md-3 exam-basic-title">{{'sitnet_exam_pre_participants' | translate}}
         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                   uib-popover="{{'sitnet_exam_pre_participants_description' | translate}}"
-                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
+                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
     </div>
     <div class="col-md-9">
         <form name="myForm">
@@ -27,8 +27,8 @@
                             ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
                             ng-click="$ctrl.removeParticipant(enrolment.id)"
                             title="{{'sitnet_remove' | translate}}">
-                        <img src="../../../assets/assets/images/icon_remove.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_remove.png'" />
+                        <img src="/assets/assets/images/icon_remove.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'" />
                     </button>
                 </li>
             </ul>

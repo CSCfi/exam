@@ -2,7 +2,7 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-details-title-wrap">
-                <a href="/"><img class="arrow_icon" src="../../../assets/assets/images/icon_history.png"></a>
+                <a href="/"><img class="arrow_icon" src="/assets/assets/images/icon_history.png"></a>
                 <div class="student-enroll-title-wrap">
                     <div class="student-enroll-title">{{'sitnet_toolbar_new_exam' | translate}}</div>
                 </div>
@@ -25,8 +25,8 @@
                         {{'sitnet_new_exam_type' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_new_exam_type_description' | translate}}"
-                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'"/></sup>
+                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"/></sup>
                     </div>
                     <div class="col-md-9">
                         {{ $ctrl.getExecutionTypeTranslation() | translate }}
@@ -78,8 +78,8 @@
                     <div class="col-md-3 exam-basic-title">{{'sitnet_exam_name' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_exam_title_description' | translate}}"
-                                  src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'"/></sup>
+                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"/></sup>
 
                     </div>
                     <div class="col-md-9">
@@ -90,7 +90,7 @@
                     </div>
                 </div>
 
-                <language-selector exam="$ctrl.exam"></language-selector>
+                <language-selector ng-if="$ctrl.exam" exam="$ctrl.exam"></language-selector>
 
                 <!-- buttons -->
                 <div class="row col-md-12 padr0 mart40">

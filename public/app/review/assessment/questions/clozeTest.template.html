@@ -5,10 +5,10 @@
             <div>
                 <div class="pull-right">
                     <a class="pull-right" ng-click="$ctrl.sectionQuestion.reviewExpanded = !$ctrl.sectionQuestion.reviewExpanded">
-                        <img ng-show="!$ctrl.sectionQuestion.reviewExpanded" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
-                        <img ng-show="$ctrl.sectionQuestion.reviewExpanded" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+                        <img ng-show="!$ctrl.sectionQuestion.reviewExpanded" src="/assets/assets/images/icon_list_show_right.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'" />
+                        <img ng-show="$ctrl.sectionQuestion.reviewExpanded" src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'" />
                     </a>
                     <!-- grade -->
                     <div class="review-points">
@@ -39,8 +39,8 @@
             <!-- question instructions -->
             <div ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.sectionQuestion.answerInstructions"
                  class="padl0 mart20 marb20 notice-text">
-                <img src="../../../assets/assets/images/icon_info.svg" alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_info.png'" />
+                <img src="/assets/assets/images/icon_info.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'" />
                 <span class="padl10">{{ 'sitnet_instructions' | translate}}:</span>
                 <span ng-bind-html="$ctrl.sectionQuestion.answerInstructions"/>
             </div>

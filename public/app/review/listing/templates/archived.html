@@ -2,10 +2,10 @@
     <div class="col-md-12">
         <div class="review-list-title" >{{ 'sitnet_archived_exams' | translate }}
             <a ng-click="$ctrl.toggleArchivedReviews = !$ctrl.toggleArchivedReviews" class="pointer">
-                <img ng-show="!$ctrl.toggleArchivedReviews" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
-                <img ng-show="$ctrl.toggleArchivedReviews" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
-                     onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+                <img ng-show="!$ctrl.toggleArchivedReviews" src="/assets/assets/images/icon_list_show_right.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'" />
+                <img ng-show="$ctrl.toggleArchivedReviews" src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'" />
             </a>
         </div>
     </div>
@@ -28,7 +28,7 @@
                placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
                popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_exam_search_description' | translate }}">
         <div class="input-group-addon search">
-            <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+            <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
         </div>
     </div>
 

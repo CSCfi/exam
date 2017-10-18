@@ -16,7 +16,7 @@
                    ng-model="$ctrl.filter.text"
                    placeholder="{{'sitnet_search_by_question_text' | translate }}">
             <div class="input-group-addon search">
-                <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+                <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
             </div>
         </div>
         <div class="form-group input-group search question-search padl20" ng-if="$ctrl.user.isAdmin">
@@ -25,7 +25,7 @@
                    ng-model="$ctrl.filter.owner"
                    placeholder="{{'sitnet_search_by_owner' | translate }}">
             <div class="input-group-addon search">
-                <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+                <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
             </div>
         </div>
     </div>
@@ -116,8 +116,8 @@
                 <button class="reviewer-remove"
                         ng-click="$ctrl.applyFilter(tag)"
                         title="{{'sitnet_remove' | translate}}">
-                    <img src="../../../assets/assets/images/icon_remove.svg" alt="exam"
-                         onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_remove.png';"/>
+                    <img src="/assets/assets/images/icon_remove.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png';"/>
                 </button>
             </li>
         </ul>

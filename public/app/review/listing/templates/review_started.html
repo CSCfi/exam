@@ -2,15 +2,15 @@
     <div class="col-md-12">
         <div class="review-list-title" >{{ 'sitnet_exam_in_review' | translate }}
         <a ng-click="$ctrl.toggleReviews = !$ctrl.toggleReviews" class="pointer">
-            <img ng-show="!$ctrl.toggleReviews" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
-                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
-            <img ng-show="$ctrl.toggleReviews" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
-                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+            <img ng-show="!$ctrl.toggleReviews" src="/assets/assets/images/icon_list_show_right.svg" alt="exam"
+                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'" />
+            <img ng-show="$ctrl.toggleReviews" src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
+                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'" />
         </a>
         <sup class="padl05"><img popover-placement="right" popover-trigger="'mouseenter'"
                                  uib-popover="{{'sitnet_review_started_description' | translate}}"
-                                 src="../../../assets/assets/images/icon_tooltip.svg" alt="exam"
-                                 onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_tooltip.png'" /></sup>
+                                 src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
         </div>
     </div>
 </div>
@@ -33,7 +33,7 @@
                    placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
                    popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_exam_search_description' | translate }}">
             <div class="input-group-addon search">
-                <img class="nopad" src="../../../assets/assets/images/icon_search.png" width="49" height="40">
+                <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
             </div>
         </div>
         <div ng-hide="$ctrl.exam.executionType.type==='MATURITY'" class="review-attachment-button review-list-speed-button marr20">

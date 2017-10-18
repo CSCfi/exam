@@ -4,7 +4,7 @@
         <div class="col-md-12" >
             <div class="student-details-title-wrap">
                 <a href="/exams/{{$ctrl.exam.parent.id}}/4">
-                    <img class="arrow_icon" src="../../../assets/assets/images/icon_history.png"></a>
+                    <img class="arrow_icon" src="/assets/assets/images/icon_history.png"></a>
                     <div class="student-exam-details-title">{{'sitnet_exam_review' | translate}}</div>
             </div>
 
@@ -41,10 +41,10 @@
             <div class="padt50 padl30 padr30">
                 <div class="review-list-title">{{$ctrl.exam.course.code}} - {{$ctrl.exam.name}}, {{$ctrl.exam.course.credits}} op
                     <a class="pointer" ng-click="$ctrl.hideGeneralInfo = !$ctrl.hideGeneralInfo">
-                        <img ng-show="hideGeneralInfo" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
-                        <img ng-show="!hideGeneralInfo" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+                        <img ng-show="hideGeneralInfo" src="/assets/assets/images/icon_list_show_right.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'" />
+                        <img ng-show="!hideGeneralInfo" src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'" />
                     </a>
                 </div>
             </div>
@@ -69,10 +69,10 @@
 
                     <span class="review-question-title">{{ 'sitnet_grading_info' | translate }}</span>
                     <a ng-click="$ctrl.hideGradeInfo = !$ctrl.hideGradeInfo">
-                        <img ng-show="$ctrl.hideGradeInfo" src="../../../assets/assets/images/icon_list_show_right.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_right.png'" />
-                        <img ng-hide="$ctrl.hideGradeInfo" src="../../../assets/assets/images/icon_list_show_down.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='../../../assets/assets/images/icon_list_show_down.png'" />
+                        <img ng-show="$ctrl.hideGradeInfo" src="/assets/assets/images/icon_list_show_right.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'" />
+                        <img ng-hide="$ctrl.hideGradeInfo" src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'" />
                     </a>
                 </div>
             </div>

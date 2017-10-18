@@ -1005,8 +1005,11 @@
     padding-left: 60px;
     margin-bottom:30px;
 
-    &.fixedheight{
+    &.fixed-height{
       height: 1350px;
+    }
+    &.printout-height {
+      height: 1400px;
     }
   }
 
