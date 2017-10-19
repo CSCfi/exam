@@ -13,6 +13,12 @@ angular.module('app.session')
                     Session.setLoginEnv(ctrl);
                 };
 
+                $rootScope.$on('devLogout', function () {
+                    ctrl.user = Session.getUser();
+                    ctrl.credentials = {};
+                    Session.setLoginEnv(ctrl);
+                });
+
                 $rootScope.$on('examStarted', function () {
                     ctrl.hideNavBar = true;
                 });

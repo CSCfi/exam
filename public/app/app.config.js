@@ -27,6 +27,8 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
         $locationProvider.html5Mode({enabled: true, requireBase: false});
 
+        toastr.options.preventDuplicates = true;
+
         // ROUTING -->
 
         var tmpl = EXAM_CONF.TEMPLATES_PATH;
@@ -57,11 +59,10 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
         /* Student */
         $routeProvider.when('/student/exam/:hash', {template: '<examination is-preview="false"><examination>'});
-        $routeProvider.when('/student/waitingroom/:id?', {template: '<waiting-room></waiting-room>'});
-        $routeProvider.when('/student/wrongmachine', {
-            templateUrl: tmpl + 'enrolment/wrong_machine.html',
-            controller: 'WrongMachineCtrl'
-        });
+        $routeProvider.when('/student/waiting-room/:id?', {template: '<waiting-room></waiting-room>'});
+        $routeProvider.when('/student/wrong-room/:eid/:mid', {template: '<wrong-location cause="room"></wrong-location>'});
+        $routeProvider.when('/student/wrong-machine/:eid/:mid', {template: '<wrong-location cause="machine"></wrong-location>'});
+
         $routeProvider.when('/student/exams', {template: '<exam-search></exam-search>'});
         $routeProvider.when('/student/participations', {template: '<exam-participations></exam-participations>'});
         $routeProvider.when('/student/logout/:reason?', {template: '<examination-logout></examination-logout>'});
@@ -113,9 +114,8 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
 
         // HTTP INTERCEPTOR
-        $httpProvider.interceptors.push(['$q', '$cookies', 'Session', '$rootScope', '$location', '$translate',
-            'wrongRoomService', 'waitingRoomService',
-            function ($q, $cookies, Session, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {
+        $httpProvider.interceptors.push(['$q', '$cookies', '$rootScope', '$location', '$translate', 'WrongLocation',
+            function ($q, $cookies, $rootScope, $location, $translate, WrongLocation) {
                 return {
                     'request': function (request) {
                         if (request.method !== 'GET') {
@@ -139,27 +139,22 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
                         var parts;
                         if (unknownMachine) {
                             var location = b64_to_utf8(unknownMachine).split(':::');
-                            wrongRoomService.display(location);
+                            WrongLocation.display(location); // Show warning notice on screen
                         }
                         else if (wrongRoom) {
                             parts = b64_to_utf8(wrongRoom).split(':::');
-                            waitingRoomService.setEnrolmentId(parts[0]);
-                            waitingRoomService.setActualRoom(parts[1] + ' (' + parts[2] + ')');
-                            waitingRoomService.setActualMachine(parts[3]);
-                            $location.path('/student/wrongmachine');
-                            $rootScope.$broadcast('wrongMachine');
+                            $location.path('/student/wrong-room/' + parts[0] + '/' + parts[1]);
+                            $rootScope.$broadcast('wrongLocation');
                         }
                         else if (wrongMachine) {
                             parts = b64_to_utf8(wrongMachine).split(':::');
-                            waitingRoomService.setEnrolmentId(parts[0]);
-                            waitingRoomService.setActualMachine(parts[1]);
-                            $location.path('/student/wrongmachine');
-                            $rootScope.$broadcast('wrongMachine');
+                            $location.path('/student/wrong-machine/' + parts[0] + '/' + parts[1]);
+                            $rootScope.$broadcast('wrongLocation');
                         }
                         else if (enrolmentId) { // Go to waiting room
                             var id = enrolmentId === 'none' ? '' : enrolmentId;
                             $location.path(enrolmentId === 'none' ?
-                                '/student/waitingroom' : '/student/waitingroom/' + id);
+                                '/student/waiting-room' : '/student/waiting-room/' + id);
                             $rootScope.$broadcast('upcomingExam');
                         }
                         else if (hash) { // Start/continue exam

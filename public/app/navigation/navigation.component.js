@@ -1,8 +1,8 @@
 angular.module('app.navigation')
     .component("navigation", {
         templateUrl: '/assets/app/navigation/navigation.template.html',
-        controller: ['$rootScope', '$location', 'Session', 'waitingRoomService', 'Navigation',
-            function ($rootScope, $location, Session, waitingRoomService, Navigation) {
+        controller: ['$rootScope', '$location', 'Session', 'Navigation',
+            function ($rootScope, $location, Session, Navigation) {
 
                 var ctrl = this;
 
@@ -39,7 +39,7 @@ angular.module('app.navigation')
                     }
 
                     // Do not show if waiting for exam to begin
-                    var hideDashboard = /\/student\/waitingroom|wrongmachine/.test($location.path());
+                    var hideDashboard = /\/student\/waiting-room|wrong-machine|wrong-room/.test($location.path());
 
                     // Change the menu item title if student
                     var nameForDashboard = "sitnet_dashboard";
@@ -182,7 +182,7 @@ angular.module('app.navigation')
                     ctrl.links = links();
                 });
 
-                $rootScope.$on('wrongMachine', function () {
+                $rootScope.$on('wrongLocation', function () {
                     ctrl.links = links();
                 });
 

@@ -179,12 +179,11 @@ public class SystemRequestHandler implements ActionCreator {
             } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                 // Right room, wrong machine
                 header = "x-exam-wrong-machine";
-                message = enrolment.getId() + ":::" + lookedUp.getName();
+                message = enrolment.getId() + ":::" + lookedUp.getId();
             } else {
                 // Wrong room
                 header = "x-exam-wrong-room";
-                message = enrolment.getId() + ":::" + lookedUp.getRoom() + ":::" +
-                        lookedUp.getRoom().getRoomCode() + ":::" + lookedUp.getName();
+                message = enrolment.getId() + ":::" + lookedUp.getId();
             }
             headers.put(header, DatatypeConverter.printBase64Binary(message.getBytes()));
             Logger.debug("room and machine not ok. " + message);

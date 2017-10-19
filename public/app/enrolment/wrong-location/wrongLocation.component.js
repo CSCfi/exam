@@ -1,27 +1,31 @@
 'use strict';
 angular.module('app.enrolment')
-    .component('waitingRoom', {
-        templateUrl: '/assets/app/enrolment/waitingroom/waitingRoom.template.html',
-        controller: ['$http', '$routeParams', '$timeout', '$translate', '$location', 'StudentExamRes',
-            function ($http, $routeParams, $timeout, $translate, $location, StudentExamRes) {
+    .component('wrongLocation', {
+        templateUrl: '/assets/app/enrolment/wrong-location/wrongLocation.template.html',
+        bindings: {
+            cause: '@'
+        },
+        controller: ['$http', '$routeParams', '$translate', 'Enrolment', 'StudentExamRes', 'DateTime',
+            function ($http, $routeParams, $translate, Enrolment, StudentExamRes, DateTime) {
 
                 var vm = this;
 
                 vm.$onInit = function () {
-                    if ($routeParams.id) {
+                    if ($routeParams.eid) {
                         vm.upcoming = true;
-                        StudentExamRes.enrolment.get({eid: $routeParams.id},
+                        StudentExamRes.enrolment.get({eid: $routeParams.eid},
                             function (enrolment) {
                                 setOccasion(enrolment.reservation);
                                 vm.enrolment = enrolment;
-                                var offset = calculateOffset();
-                                vm.timeout = $timeout(function () {
-                                    $location.path('/student/exam/' + vm.enrolment.exam.hash);
-                                }, offset);
-
                                 var room = vm.enrolment.reservation.machine.room;
                                 var code = $translate.use().toUpperCase();
                                 vm.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
+                                $http.get('/app/machines/' + $routeParams.mid).success(function (machine) {
+                                    vm.currentMachine = machine;
+                                });
+                                vm.printExamDuration = function () {
+                                    return DateTime.printExamDuration(vm.enrolment.exam);
+                                };
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -30,20 +34,6 @@ angular.module('app.enrolment')
                     }
                 };
 
-                vm.$onDestroy = function () {
-                    if (vm.timeout) {
-                        $timeout.cancel(vm.timeout);
-                    }
-                };
-
-                var calculateOffset = function () {
-                    var startsAt = moment(vm.enrolment.reservation.startAt);
-                    var now = moment();
-                    if (now.isDST()) {
-                        startsAt.add(-1, 'hour');
-                    }
-                    return Date.parse(startsAt.format()) - new Date().getTime();
-                };
 
                 var setOccasion = function (reservation) {
                     var tz = reservation.machine.room.localTimezone;
@@ -60,6 +50,12 @@ angular.module('app.enrolment')
                         endAt: end.format('HH:mm')
                     };
                 };
+
+                vm.showInstructions = function() {
+                    Enrolment.showInstructions(vm.enrolment);
+                };
+
+
 
             }]
     });

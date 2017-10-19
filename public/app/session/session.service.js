@@ -100,7 +100,7 @@ angular.module('app.session')
                 } else {
                     // DEV logout
                     $location.path('/');
-                    http().get('/app/checkSession');
+                    $rootScope.$broadcast('devLogout');
                 }
                 $timeout(toastr.clear, 300);
             };

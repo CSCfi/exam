@@ -1,30 +1,14 @@
 'use strict';
 angular.module('app.enrolment')
-    .factory('wrongRoomService', ['$timeout', '$translate', function ($timeout, $translate) {
+    .service('WrongLocation', ['$timeout', '$translate', function ($timeout, $translate) {
 
-        var time = 1000 * 10;
+        var self = this;
 
-        var show = false;
+        self.display = function (data) {
 
-        var display = function (data) {
-            if (show) {
-                return;
-            }
-
-            $timeout(function () {
-                show = false;
-            }, time);
-
-            show = true;
-
-            var opts = toastr.options;
-            toastr.options = {
-                'showDuration': '0',
-                'hideDuration': '0',
-                'timeOut': time,
-                'extendedTimeOut': '0'
+            var opts = {
+                timeOut: 10000
             };
-
             var startsAt = moment(data[4]);
             var now = moment();
             if (now.isDST()) {
@@ -37,19 +21,17 @@ angular.module('app.enrolment')
                     toastr.warning(t.sitnet_your_exam_will_start_at + ' ' + startsAt.format('HH:mm') + ' ' +
                         t.sitnet_at_location + ': ' + data[0] + ', ' + data[1] + ' ' +
                         t.sitnet_at_room + ' ' + data[2] + ' ' +
-                        t.sitnet_at_machine + ' ' + data[3]);
+                        t.sitnet_at_machine + ' ' + data[3], opts);
                 });
             } else {
                 parts = ['sitnet_you_have_ongoing_exam_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
                 $translate(parts).then(function (t) {
                     toastr.error(t.sitnet_you_have_ongoing_exam_at_location + ': ' + data[0] + ', ' + data[1] + ' ' +
                         t.sitnet_at_room + ' ' + data[2] + ' ' +
-                        t.sitnet_at_machine + ' ' + data[3]);
+                        t.sitnet_at_machine + ' ' + data[3], opts);
                 });
             }
-            toastr.options = opts;
         };
 
-        return {display: display};
     }]);
 

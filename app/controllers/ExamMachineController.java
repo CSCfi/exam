@@ -2,10 +2,16 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
-import models.*;
+import io.ebean.Ebean;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
+import models.Exam;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.Reservation;
+import models.Software;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.mvc.Result;
@@ -25,11 +31,13 @@ public class ExamMachineController extends BaseController {
         return ok(Json.toJson(machines));
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result getExamMachine(Long id) {
-        ExamMachine machine = Ebean.find(ExamMachine.class, id);
-
-        return ok(Json.toJson(machine));
+        PathProperties pp = PathProperties.parse("(*, room(name, buildingName))");
+        Query<ExamMachine> query = Ebean.find(ExamMachine.class);
+        pp.apply(query);
+        ExamMachine machine = query.where().idEq(id).findOne();
+        return ok(machine, pp);
     }
 
     @Restrict({@Group("ADMIN")})
