@@ -142,7 +142,10 @@ public class SystemRequestHandler implements ActionCreator {
     }
 
     private boolean isOnExamMachine(Http.RequestHeader request) {
-        return Ebean.find(ExamMachine.class).where().eq("ipAddress", request.remoteAddress()).findUnique() != null;
+        return Ebean.find(ExamMachine.class).where()
+                .eq("ipAddress", request.remoteAddress())
+                .findOneOrEmpty()
+                .isPresent();
     }
 
     private boolean isMachineOk(ExamEnrolment enrolment, Http.RequestHeader request, Map<String,

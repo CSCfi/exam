@@ -39,7 +39,7 @@ angular.module('app.navigation')
                     }
 
                     // Do not show if waiting for exam to begin
-                    var hideDashboard = waitingRoomService.getEnrolmentId() && student;
+                    var hideDashboard = /\/student\/waitingroom|wrongmachine/.test($location.path());
 
                     // Change the menu item title if student
                     var nameForDashboard = "sitnet_dashboard";
@@ -138,7 +138,7 @@ angular.module('app.navigation')
                         },
                         {
                             href: "/student/exams",
-                            visible: (student && !ctrl.wrongMachine && !ctrl.upcomingExam),
+                            visible: (student && !hideDashboard),
                             class: "fa-search",
                             name: "sitnet_exams",
                             sub: [],
@@ -147,7 +147,7 @@ angular.module('app.navigation')
                         },
                         {
                             href: "/student/participations",
-                            visible: (student && !ctrl.wrongMachine && !ctrl.upcomingExam),
+                            visible: (student && !hideDashboard),
                             class: "fa-search",
                             name: "sitnet_exam_responses",
                             sub: [],
@@ -179,12 +179,10 @@ angular.module('app.navigation')
                 });
 
                 $rootScope.$on('upcomingExam', function () {
-                    ctrl.upcomingExam = true;
                     ctrl.links = links();
                 });
 
                 $rootScope.$on('wrongMachine', function () {
-                    ctrl.wrongMachine = true;
                     ctrl.links = links();
                 });
 

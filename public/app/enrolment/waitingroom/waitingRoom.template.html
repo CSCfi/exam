@@ -1,0 +1,91 @@
+<div class="top-row">
+    <div class="student-enroll-title-wrap waitingroom">
+        <div ng-show="$ctrl.upcoming" class="student-enroll-title">{{'sitnet_exam_is_about_to_begin' | translate}}</div>
+        <div ng-hide="$ctrl.upcoming" class="student-enroll-title">{{'sitnet_you_dont_have_exams_today' | translate}}</div>
+    </div>
+</div>
+<div class="waitingroom-info">
+    <div class="text-info" ng-show="$ctrl.upcoming">
+        <img class="arrow_icon" src="/assets/assets/images/icon_info.png"> {{ 'sitnet_redirect_to_exam_notice' | translate }}
+    </div>
+</div>
+
+<div id="dashboard" ng-show="$ctrl.upcoming">
+    <div class="student-enrolment-wrapper waitingroom">
+        <div class="col-md-12">
+
+            <div class="student-exam-header-row">
+                <div>
+                    <!-- calendar box -->
+                    <div class="student-enrolment-date-box">
+                        {{ $ctrl.enrolment.reservation.startAt | date:'dd' }}
+                        <span class="month-name">{{ $ctrl.enrolment.reservation.startAt | date:'MMM' | limitTo:3 | uppercase }}</span>
+                    </div>
+                    <!-- exam title n stuff -->
+                    <div class="student-enrolment-exam">
+                        {{$ctrl.enrolment.exam.name}}<br/>
+                        <span class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_course_name' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            <span class="exam-code">{{$ctrl.enrolment.exam.course.code}}</span>
+                            {{ $ctrl.enrolment.exam.course.name }}
+                        </div>
+                        <div class="clearfix visible-xs"></div>
+                        <div class="clearfix visible-sm"></div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_teachers' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                            <div><teacher-list exam="$ctrl.enrolment.exam"/></div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-12" style="padding-top:10px;">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_exam_room' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ $ctrl.enrolment.reservation.machine.name}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+                            {{$ctrl.enrolment.reservation.machine.room.name}} ({{$ctrl.enrolment.reservation.machine.room.roomCode}})
+                        </div>
+                        <div class="clearfix visible-xs"></div>
+                        <div class="clearfix visible-sm"></div>
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                            {{ 'sitnet_reservation' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                            {{$ctrl.enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}}
+                            {{$ctrl.enrolment.reservation.occasion.startAt}} -
+                            {{$ctrl.enrolment.reservation.occasion.endAt}}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="student-exam-row">
+                <div class="student-exam-row-infolink"><b>{{ 'sitnet_room_guidance' |
+                        translate}}</b>
+                </div>
+                <div class="student-exam-row-infobox">{{ $ctrl.roomInstructions }}</div>
+            </div>
+
+            <div class="student-exam-row">
+                <div class="student-exam-row-infolink"><b>{{ 'sitnet_view_instructions' | translate}}</b>
+                </div>
+                <div class="student-exam-row-infobox">{{$ctrl.enrolment.exam.enrollInstruction}}</div>
+            </div>
+        </div>
+    </div>
+</div>

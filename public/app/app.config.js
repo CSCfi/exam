@@ -57,10 +57,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
         /* Student */
         $routeProvider.when('/student/exam/:hash', {template: '<examination is-preview="false"><examination>'});
-        $routeProvider.when('/student/waitingroom', {
-            templateUrl: tmpl + 'enrolment/waitingroom.html',
-            controller: 'WaitingRoomCtrl'
-        });
+        $routeProvider.when('/student/waitingroom/:id?', {template: '<waiting-room></waiting-room>'});
         $routeProvider.when('/student/wrongmachine', {
             templateUrl: tmpl + 'enrolment/wrong_machine.html',
             controller: 'WrongMachineCtrl'
@@ -159,22 +156,16 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
                             $location.path('/student/wrongmachine');
                             $rootScope.$broadcast('wrongMachine');
                         }
-                        else if (hash) {
-                            if (enrolmentId) {
-                                waitingRoomService.setEnrolmentId(enrolmentId);
-                                $location.path('/student/waitingroom');
-                                $rootScope.$broadcast('upcomingExam');
-                            } else {
-                                $location.path('/student/exam/' + hash);
-                                $rootScope.$broadcast('examStarted');
-                            }
-                        } else if (enrolmentId) {
-                            // no exams for today
-                            waitingRoomService.setEnrolmentId(null);
-                            $location.path('/student/waitingroom');
+                        else if (enrolmentId) { // Go to waiting room
+                            var id = enrolmentId === 'none' ? '' : enrolmentId;
+                            $location.path(enrolmentId === 'none' ?
+                                '/student/waitingroom' : '/student/waitingroom/' + id);
                             $rootScope.$broadcast('upcomingExam');
                         }
-
+                        else if (hash) { // Start/continue exam
+                            $location.path('/student/exam/' + hash);
+                            $rootScope.$broadcast('examStarted');
+                        }
                         return response;
                     },
                     'responseError': function (response) {

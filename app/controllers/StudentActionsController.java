@@ -147,7 +147,7 @@ public class StudentActionsController extends BaseController {
                 .fetch("user", "id")
                 .fetch("reservation", "startAt, endAt")
                 .fetch("reservation.machine", "name")
-                .fetch("reservation.machine.room", "name, roomCode, localTimezone")
+                .fetch("reservation.machine.room", "name, roomCode, localTimezone, roomInstruction, roomInstructionEN, roomInstructionSV")
                 .where()
                 .idEq(eid)
                 .eq("user", getLoggedUser())
@@ -157,7 +157,8 @@ public class StudentActionsController extends BaseController {
         }
         PathProperties pp = PathProperties.parse(
                 "(*, exam(*, course(name, code), examOwners(firstName, lastName), examInspections(user(firstName, lastName))), " +
-                        "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone))))"
+                        "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone, " +
+                        "roomInstruction, roomInstructionEN, roomInstructionSV))))"
         );
 
         if (enrolment.getExternalExam() == null) {
