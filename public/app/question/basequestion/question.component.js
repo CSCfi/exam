@@ -17,7 +17,8 @@ angular.module('app.question')
         '        <!-- Question body //-->\n' +
         '        <div class="col-md-12 question-border padl40 padr40">\n' +
         '            <form role="form" class="form-horizontal" name="questionForm" novalidate>\n' +
-        '                <question-body ng-if="$ctrl.question" question="$ctrl.question" lottery-on="$ctrl.lotteryOn"></question-body>\n' +
+        '                <question-body ng-if="$ctrl.question" question="$ctrl.question" ' +
+        '                       current-owners="$ctrl.currentOwners" lottery-on="$ctrl.lotteryOn"></question-body>\n' +
         '            </form>\n' +
         '            <!-- buttons -->\n' +
         '            <div class="mart20">\n' +
@@ -39,8 +40,8 @@ angular.module('app.question')
             newQuestion: '<',
             questionId: '<',
             lotteryOn: '<',
-            onSave: '&',
-            onCancel: '&'
+            onSave: '&?',
+            onCancel: '&?'
         },
         controller: ['$routeParams', '$scope', '$location', '$translate', 'dialogs', 'Question',
             function ($routeParams, $scope, $location, $translate, dialogs, Question) {
@@ -54,6 +55,7 @@ angular.module('app.question')
                         Question.questionsApi.get({id: vm.questionId || $routeParams.id},
                             function (question) {
                                 vm.question = question;
+                                vm.currentOwners = angular.copy(vm.question.questionOwners);
                                 window.onbeforeunload = function () {
                                     return $translate.instant('sitnet_unsaved_data_may_be_lost');
                                 };
@@ -66,6 +68,7 @@ angular.module('app.question')
                 };
 
                 vm.saveQuestion = function () {
+                    vm.question.questionOwners = vm.currentOwners;
                     if (vm.newQuestion) {
                         Question.createQuestion(vm.question).then(
                             function (question) {

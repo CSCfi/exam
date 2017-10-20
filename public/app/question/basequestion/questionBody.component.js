@@ -4,6 +4,7 @@ angular.module('app.question')
         templateUrl: '/assets/app/question/basequestion/questionBody.template.html',
         bindings: {
             question: '<',
+            currentOwners: '<',
             lotteryOn: '<'
         },
         controller: ['$scope', 'Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question', 'EXAM_CONF',
@@ -89,7 +90,7 @@ angular.module('app.question')
                         function (names) {
                             return limitToFilter(
                                 names.filter(function (n) {
-                                    return vm.question.questionOwners.map(function (qo) {
+                                    return vm.currentOwners.map(function (qo) {
                                         return qo.id;
                                     }).indexOf(n.id) === -1;
                                 }), 15);
@@ -108,7 +109,7 @@ angular.module('app.question')
 
                 vm.addQuestionOwner = function () {
                     if (vm.newOwnerTemplate && vm.newOwnerTemplate.id) {
-                        vm.question.questionOwners.push(vm.newOwnerTemplate);
+                        vm.currentOwners.push(vm.newOwnerTemplate);
 
                         // nullify input field and template
                         vm.newOwner.name = null;
@@ -117,13 +118,13 @@ angular.module('app.question')
                 };
 
                 vm.removeOwner = function (user) {
-                    if (vm.question.questionOwners.length === 1) {
+                    if (vm.currentOwners.length === 1) {
                         // disallow clearing the owners
                         return;
                     }
-                    var i = vm.question.questionOwners.indexOf(user);
+                    var i = vm.currentOwners.indexOf(user);
                     if (i >= 0) {
-                        vm.question.questionOwners.splice(i, 1);
+                        vm.currentOwners.splice(i, 1);
                     }
                 };
 

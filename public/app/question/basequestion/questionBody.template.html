@@ -182,10 +182,10 @@
         <div class="col-md-3 exam-basic-title"></div>
         <div class="col-md-9" ng-if="$ctrl.isUserAllowedToModifyOwners()">
             <ul class="list-inline mart10 padl10">
-                <li ng-repeat="user in $ctrl.question.questionOwners track by $index">{{user.firstName }} {{
+                <li ng-repeat="user in $ctrl.currentOwners track by $index">{{user.firstName }} {{
                     user.lastName }}
                     <button class="reviewer-remove"
-                            ng-disabled="$ctrl.question.questionOwners.length == 1" ng-click="$ctrl.removeOwner(user)"
+                            ng-disabled="$ctrl.currentOwners.length == 1" ng-click="$ctrl.removeOwner(user)"
                             title="{{'sitnet_remove' | translate}}">
                         <img src="/assets/assets/images/icon_remove.svg" alt="exam"
                              onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png';"/>
