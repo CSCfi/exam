@@ -1,10 +1,6 @@
 package controllers.iop;
 
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
-import io.ebean.Ebean;
-import io.ebean.Query;
-import io.ebean.text.PathProperties;
-import io.ebean.text.json.EJson;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typesafe.config.ConfigFactory;
@@ -12,6 +8,12 @@ import controllers.SettingsController;
 import controllers.StudentExamController;
 import controllers.base.BaseController;
 import controllers.iop.api.ExternalExamAPI;
+import impl.AutoEvaluationHandler;
+import impl.NoShowHandler;
+import io.ebean.Ebean;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
+import io.ebean.text.json.EJson;
 import models.*;
 import models.json.ExternalExam;
 import models.questions.Question;
@@ -23,9 +25,7 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import util.AppUtil;
-import impl.AutoEvaluationHandler;
 import util.JsonDeserializer;
-import impl.NoShowHandler;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -136,7 +136,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         String path = "(id, name, state, instruction, hash, duration, cloned, course(id, code, name), executionType(id, type), " + // (
                 "autoEvaluationConfig(releaseType, releaseDate, amountDays, gradeEvaluations(percentage, grade(id, gradeScale(id)))), " +
                 "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
-                "examInspections(user(id, firstName, lastName)), " +
+                "examInspections(*, user(id, firstName, lastName)), " +
                 "examType(id, type), creditType(id, type), gradeScale(id, displayName, grades(id, name)), " +
                 "examSections(id, name, sequenceNumber, description, " + // ((
                 "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((

@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -17,12 +18,11 @@ public class ExamInspection extends GeneratedIdentityModel {
 	private Exam exam;
 
 	@ManyToOne
-	@JsonBackReference
+    @JsonManagedReference
 	private User user;
 
     @OneToOne
-	@JsonBackReference
-	private User assignedBy;
+    private User assignedBy;
 
     @OneToOne
     @JsonBackReference

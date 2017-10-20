@@ -426,9 +426,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
         String mailBody = GreenMailUtil.getBody(mails[0]);
         assertThat(mailBody).contains("You have booked an exam time");
-        assertThat(mailBody).contains("information in English here");
         assertThat(mailBody).contains("Room 1");
-        assertThat(GreenMailUtil.hasNonTextAttachments(mails[0])).isTrue();
     }
 
     @Test
