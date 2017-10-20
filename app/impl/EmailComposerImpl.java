@@ -8,6 +8,7 @@ import biweekly.property.Summary;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import models.*;
+import models.iop.ExternalReservation;
 import org.apache.commons.mail.EmailAttachment;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -220,11 +221,11 @@ class EmailComposerImpl implements EmailComposer {
                 exam.getDuration() % MINUTES_IN_HOUR);
 
         ExamMachine machine = reservation.getMachine();
-        String machineName = forceNotNull(machine.getName());
-        ExamRoom room = machine.getRoom();
-        String buildingInfo = forceNotNull(room.getBuildingName());
-        String roomInstructions = forceNotNull(getRoomInstruction(room, lang));
-        String roomName = forceNotNull(room.getName());
+        ExternalReservation er = reservation.getExternalReservation();
+        String machineName = forceNotNull(er == null ? machine.getName() : er.getMachineName());
+        String buildingInfo = forceNotNull(er == null ? machine.getRoom().getBuildingName() : "N/A");
+        String roomInstructions = forceNotNull(er == null ? getRoomInstruction(machine.getRoom(), lang) : "N/A");
+        String roomName = forceNotNull(er == null ? machine.getRoom().getName() : er.getRoomName());
 
         String title = messaging.get(lang, "email.template.reservation.new");
 
@@ -243,25 +244,29 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("cancellation_link_text", messaging.get(lang, "email.template.reservation.cancel.link.text"));
         String content = replaceAll(template, stringValues);
 
-        // Export as iCal format
-        MailAddress address = room.getMailAddress();
-        String addressString = address == null ? null :
-                String.format("%s, %s  %s", address.getStreet(), address.getZip(), address.getCity());
-        ICalendar iCal = createReservationEvent(lang, startDate, endDate, addressString, buildingInfo, roomName, machineName);
-        File file;
-        try {
-            file = File.createTempFile(exam.getName().replace(" ", "-"), ".ics");
-            Biweekly.write(iCal).go(file);
-        } catch (IOException e) {
-            Logger.error("Failed to create a temporary iCal file on disk!");
-            throw new RuntimeException(e);
+        // Export as iCal format (local reservations only)
+        if (er == null) {
+            MailAddress address = machine.getRoom().getMailAddress();
+            String addressString = address == null ? null :
+                    String.format("%s, %s  %s", address.getStreet(), address.getZip(), address.getCity());
+            ICalendar iCal = createReservationEvent(lang, startDate, endDate, addressString, buildingInfo, roomName, machineName);
+            File file;
+            try {
+                file = File.createTempFile(exam.getName().replace(" ", "-"), ".ics");
+                Biweekly.write(iCal).go(file);
+            } catch (IOException e) {
+                Logger.error("Failed to create a temporary iCal file on disk!");
+                throw new RuntimeException(e);
+            }
+            EmailAttachment attachment = new EmailAttachment();
+            attachment.setPath(file.getAbsolutePath());
+            attachment.setDisposition(EmailAttachment.ATTACHMENT);
+            attachment.setName(messaging.get(lang, "ical.reservation.filename", ".ics"));
+            emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content, attachment);
+        } else {
+            emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content);
         }
-        EmailAttachment attachment = new EmailAttachment();
-        attachment.setPath(file.getAbsolutePath());
-        attachment.setDisposition(EmailAttachment.ATTACHMENT);
-        attachment.setName(messaging.get(lang, "ical.reservation.filename", ".ics"));
 
-        emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content, attachment);
     }
 
     private ICalendar createReservationEvent(Lang lang, DateTime start, DateTime end, String address, String... placeInfo) {

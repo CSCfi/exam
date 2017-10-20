@@ -54,17 +54,16 @@ public class ExternalCalendarController extends CalendarController {
 
     private static URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration)
             throws MalformedURLException {
-        StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
-        sb.append(String.format("/api/organisations/%s/facilities/%s/slots", orgRef, facilityRef));
-        sb.append(String.format("?date=%s&startAt=%s&endAt=%s&duration=%d", date, start, end, duration));
-        return new URL(sb.toString());
+        String url = ConfigFactory.load().getString("sitnet.integration.iop.host") +
+                String.format("/api/organisations/%s/facilities/%s/slots", orgRef, facilityRef) +
+                String.format("?date=%s&startAt=%s&endAt=%s&duration=%d", date, start, end, duration);
+        return new URL(url);
     }
 
     private static URL parseUrl(String orgRef, String facilityRef)
             throws MalformedURLException {
-        StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
-        sb.append(String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
-        return new URL(sb.toString());
+        return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host")
+                + String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
     }
 
     private Set<TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user) {
