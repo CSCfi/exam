@@ -33,7 +33,7 @@ public class ExamMachineController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result getExamMachine(Long id) {
-        PathProperties pp = PathProperties.parse("(*, room(name, buildingName))");
+        PathProperties pp = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))");
         Query<ExamMachine> query = Ebean.find(ExamMachine.class);
         pp.apply(query);
         ExamMachine machine = query.where().idEq(id).findOne();
@@ -84,8 +84,9 @@ public class ExamMachineController extends BaseController {
         dest.setOutOfService(src.getOutOfService());
 
         dest.update();
+        PathProperties pp = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))");
 
-        return ok(Json.toJson(dest));
+        return ok(dest, pp);
     }
 
     @Restrict({@Group("ADMIN")})
@@ -97,8 +98,9 @@ public class ExamMachineController extends BaseController {
 
         machine.getSoftwareInfo().clear();
         machine.update();
+        PathProperties pp = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))");
 
-        return ok(Json.toJson(machine));
+        return ok(machine, pp);
     }
 
     @Restrict({@Group("ADMIN")})

@@ -53,9 +53,9 @@ angular.module('app.facility.machines')
                         });
                 };
 
-                ctrl.updateMachine = function (machine) {
+                ctrl.updateMachine = function () {
                     var deferred = $q.defer();
-                    Machines.machine.update({id: machine.id}, machine,
+                    Machines.machine.update(ctrl.machine,
                         function () {
                             toastr.info($translate.instant('sitnet_machine_updated'));
                             deferred.resolve();
@@ -68,8 +68,8 @@ angular.module('app.facility.machines')
                     return deferred.promise;
                 };
 
-                ctrl.updateMachineAndExit = function (machine) {
-                    ctrl.updateMachine(machine).then(function () {
+                ctrl.updateMachineAndExit = function () {
+                    ctrl.updateMachine(ctrl.machine).then(function () {
                         $location.path("/rooms/");
                     });
                 };
