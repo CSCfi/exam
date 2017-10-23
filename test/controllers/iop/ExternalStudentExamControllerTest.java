@@ -211,7 +211,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         Result result = get("/app/student/exam/" + enrolment.getExternalExam().getHash(), true);
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
-        studentExam.getExamSections().stream().flatMap(es -> es.getSectionQuestions().stream()).forEach(esq -> {
+        studentExam.getExamSections().stream().flatMap(es -> es.getSectionQuestions().parallelStream()).forEach(esq -> {
             Question question = esq.getQuestion();
             Result r;
             switch (question.getType()) {

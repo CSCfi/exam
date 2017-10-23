@@ -3,12 +3,14 @@ package controllers.iop;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import controllers.StudentExamController;
 import controllers.base.ActionMethod;
+import impl.AutoEvaluationHandler;
+import impl.EmailComposer;
+import io.ebean.Ebean;
+import io.ebean.text.PathProperties;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamSectionQuestion;
@@ -24,8 +26,6 @@ import play.mvc.Result;
 import play.mvc.Results;
 import system.interceptors.SensitiveDataPolicy;
 import util.AppUtil;
-import impl.AutoEvaluationHandler;
-import impl.EmailComposer;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -50,7 +50,7 @@ public class ExternalStudentExamController extends StudentExamController {
     @Override
     public Result startExam(String hash) throws IOException {
         User user = getLoggedUser();
-        Optional<ExternalExam> optional = getExternalExam(hash);
+        Optional<ExternalExam> optional = getExternalExam(hash, user);
         if (!optional.isPresent()) {
             return forbidden();
         }
@@ -114,8 +114,9 @@ public class ExternalStudentExamController extends StudentExamController {
     @ActionMethod
     @Override
     public Result answerMultiChoice(String hash, Long qid) {
-        return getEnrolmentError(hash).orElseGet(() -> {
-            Optional<ExternalExam> optional = getExternalExam(hash);
+        User user = getLoggedUser();
+        return getEnrolmentError(hash, user).orElseGet(() -> {
+            Optional<ExternalExam> optional = getExternalExam(hash, user);
             if (!optional.isPresent()) {
                 return forbidden();
             }
@@ -141,8 +142,9 @@ public class ExternalStudentExamController extends StudentExamController {
     @ActionMethod
     @Override
     public Result answerEssay(String hash, Long qid) {
-        return getEnrolmentError(hash).orElseGet(() -> {
-            Optional<ExternalExam> optional = getExternalExam(hash);
+        User user = getLoggedUser();
+        return getEnrolmentError(hash, user).orElseGet(() -> {
+            Optional<ExternalExam> optional = getExternalExam(hash, user);
             if (!optional.isPresent()) {
                 return forbidden();
             }
@@ -187,8 +189,9 @@ public class ExternalStudentExamController extends StudentExamController {
     @ActionMethod
     @Override
     public Result answerClozeTest(String hash, Long qid) {
-        return getEnrolmentError(hash).orElseGet(() -> {
-            Optional<ExternalExam> optional = getExternalExam(hash);
+        User user = getLoggedUser();
+        return getEnrolmentError(hash, user).orElseGet(() -> {
+            Optional<ExternalExam> optional = getExternalExam(hash, user);
             if (!optional.isPresent()) {
                 return forbidden();
             }
@@ -221,6 +224,7 @@ public class ExternalStudentExamController extends StudentExamController {
             answer.setAnswer(node.get("answer").toString());
             try {
                 ee.serialize(content);
+
             } catch (IOException e) {
                 return internalServerError();
             }
@@ -245,8 +249,12 @@ public class ExternalStudentExamController extends StudentExamController {
         return ok();
     }
 
-    private Optional<ExternalExam> getExternalExam(String hash) {
-        return Optional.ofNullable(Ebean.find(ExternalExam.class).where().eq("hash", hash).findUnique());
+    private Optional<ExternalExam> getExternalExam(String hash, User user) {
+        return Ebean.find(ExternalExam.class).where()
+                .eq("hash", hash)
+                .eq("creator", user)
+                .forUpdate()
+                .findOneOrEmpty();
     }
 
     private Optional<ExamEnrolment> getEnrolment(User user, ExternalExam prototype) {
@@ -265,10 +273,10 @@ public class ExternalStudentExamController extends StudentExamController {
         return Optional.ofNullable(enrolment);
     }
 
-    private Optional<Result> getEnrolmentError(String hash) {
+    private Optional<Result> getEnrolmentError(String hash, User user) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .eq("externalExam.hash", hash)
-                .eq("externalExam.creator", getLoggedUser())
+                .eq("externalExam.creator", user)
                 .jsonEqualTo("externalExam.content", "state", Exam.State.STUDENT_STARTED.toString())
                 .findUnique();
         return getEnrolmentError(enrolment);

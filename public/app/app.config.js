@@ -119,8 +119,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
                 return {
                     'request': function (request) {
                         if (request.method !== 'GET') {
-                            var csrfToken = $cookies.get('csrfToken');
-                            request.url += '?csrfToken=' + csrfToken;
+                            request.headers['Csrf-Token'] = $cookies.get('csrfToken');
                         }
                         return request;
                     },
