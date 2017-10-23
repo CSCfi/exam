@@ -63,7 +63,8 @@ libraryDependencies ++= Seq(
   "org.webjars" % "toastr" % "2.1.1",
   "org.webjars" % "angular-ui-bootstrap" % "2.2.0",
   "org.webjars" % "ui-select2" % "0.0.5-1",
-  "org.webjars" % "underscorejs" % "1.8.3"
+  "org.webjars" % "underscorejs" % "1.8.3",
+  "org.webjars.npm" % "async" % "2.5.0"
 )
 
 dependencyOverrides += "org.webjars.bower" % "angular" %  ngVersion

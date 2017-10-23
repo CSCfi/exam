@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.examination')
-    .service('Examination', ['$q', '$location', '$http', '$translate',
-        function ($q, $location, $http, $translate) {
+    .service('Examination', ['$q', '$location', '$http', '$translate', '$window',
+        function ($q, $location, $http, $translate, $window) {
 
             var self = this;
             var _external;
@@ -69,21 +69,25 @@ angular.module('app.examination')
 
             self.saveAllTextualAnswersOfSection = function (section, hash, autosave, canFail) {
                 var deferred = $q.defer();
-                var promises = [];
-                section.sectionQuestions.filter(function (esq) {
+
+                var questions = section.sectionQuestions.filter(function (esq) {
                     return isTextualAnswer(esq);
-                }).forEach(function (esq) {
-                    promises.push(self.saveTextualAnswer(esq, hash, autosave));
                 });
-                if (canFail) {
-                    $q.allSettled(promises).then(function () {
-                        deferred.resolve();
+                var save = function (question, cb) {
+                    self.saveTextualAnswer(question, hash, autosave).then(function () {
+                        cb(null);
+                    }, function (err) {
+                        cb(err);
                     });
-                } else {
-                    $q.all(promises).then(function () {
+                };
+                // Run this in an async loop to make sure we don't get version conflicts
+                $window.async.eachSeries(questions, save, function (err) {
+                    if (err && canFail) {
+                        deferred.reject();
+                    } else {
                         deferred.resolve();
-                    });
-                }
+                    }
+                });
                 return deferred.promise;
             };
 
@@ -104,13 +108,13 @@ angular.module('app.examination')
                         break;
                     case 'MultipleChoiceQuestion':
                         isAnswered = angular.isDefined(sq.selectedOption) || sq.options.filter(function (o) {
-                                return o.answered;
-                            }).length > 0;
+                            return o.answered;
+                        }).length > 0;
                         break;
                     case 'WeightedMultipleChoiceQuestion':
                         isAnswered = sq.options.filter(function (o) {
-                                return o.answered;
-                            }).length > 0;
+                            return o.answered;
+                        }).length > 0;
                         break;
                     case 'ClozeTestQuestion':
                         var clozeTestAnswer = sq.clozeTestAnswer;
