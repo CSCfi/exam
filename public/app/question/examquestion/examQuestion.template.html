@@ -157,7 +157,7 @@
 
                 <div class="col-md-12 mart20 marb10"
                      ng-if="$ctrl.question.type === 'WeightedMultipleChoiceQuestion'">
-                    <div class="col-md-7 padl0">
+                    <div class="col-md-6 padl0">
                         <span class="question-option-title">{{'sitnet_option' | translate}}</span>
                         <br/>
                         <span ng-if="showWarning()">
@@ -165,33 +165,40 @@
                                 <small>{{'sitnet_shared_question_property_info' | translate}}</small>
                             </span>
                     </div>
-                    <div class="col-md-5 question-option-title">
+                    <div class="col-md-2 question-option-title">
                         {{'sitnet_word_points' | translate | uppercase}}
                     </div>
                 </div>
 
                 <!-- Type specific content - weighted option -->
-                <div ng-if="$ctrl.question.type === 'WeightedMultipleChoiceQuestion'"
-                     ng-repeat="option in $ctrl.examQuestion.options">
-                    <div class="col-md-12 form-horizontal question-editor-option">
+                <div ng-if="$ctrl.question.type === 'WeightedMultipleChoiceQuestion'">
+                    <div class="col-md-12 form-horizontal question-editor-option"
+                         ng-repeat="option in $ctrl.examQuestion.options">
 
-                        <div class="col-md-7">
+                        <div class="col-md-6 question-option-empty" ng-class="option.score > 0 ? 'question-correct-option' : ''">
                             <input id="weightedOptionText" type="text" focus-on="opt{{option.id}}"
                                    class="question-option-input"
                                    ng-model="option.option.option"
                                    ng-click="$ctrl.selectIfDefault(option.option, $event)"
                                    required="true"/>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-2 question-option-empty-radio" ng-class="option.score > 0 ? 'question-correct-option-radio' : ''">
                             <input id="optionScore" name="maxScore" class="question-option-input points"
                                    type="number" step="1"
                                    ng-model="option.score"
                                    required="true"
                                    ng-disabled="$ctrl.lotteryOn"/>
-                            <span ng-hide="$ctrl.lotteryOn" ng-click="$ctrl.removeOption(option)"
-                                  class="question-option-trash">
-                                <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
-                            </span>
+                        </div>
+                        <div class="col-md-1 question-option-trash pointer" ng-hide="$ctrl.lotteryOn"
+                             ng-click="$ctrl.removeOption(option)">
+                            <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-6">&nbsp;</div>
+                        <div class="col-md-2 question-option-title">{{'sitnet_max_score' | translate | uppercase}}:
+                            {{$ctrl.calculateMaxPoints()}}
                         </div>
                     </div>
                 </div>
@@ -222,6 +229,14 @@
                         <div class="col-md-3">
                         </div>
                     </div>
+                </div>
+
+                <div class="col-md-12 mart20 padl30"
+                     ng-if="$ctrl.question.type === 'MultipleChoiceQuestion' || $ctrl.question.type === 'WeightedMultipleChoiceQuestion'">
+                    <a ng-click="$ctrl.addNewOption()" class="attachment-link pointer">
+                        <i class="fa fa-plus"></i>
+                        {{'sitnet_question_add_new_option'|translate}}
+                    </a>
                 </div>
 
 

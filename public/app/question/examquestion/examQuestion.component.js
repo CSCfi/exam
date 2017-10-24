@@ -48,7 +48,7 @@ angular.module('app.question')
                 };
 
                 vm.estimateCharacters = function () {
-                    return vm.sectionQuestion.expectedWordCount * 8;
+                    return vm.examQuestion.expectedWordCount * 8;
                 };
 
                 vm.selectIfDefault = function (value, $event) {
@@ -64,33 +64,41 @@ angular.module('app.question')
                         return;
                     }
 
-                    var hasCorrectAnswer = vm.sectionQuestion.options.filter(function (o) {
+                    var hasCorrectAnswer = vm.examQuestion.options.filter(function (o) {
                         return o.id !== selectedOption.id && (o.option.correctOption || o.option.defaultScore > 0);
                     }).length > 0;
 
                     // Either not published exam or correct answer exists
                     if (!vm.isInPublishedExam || hasCorrectAnswer) {
-                        vm.sectionQuestion.options.splice(vm.sectionQuestion.options.indexOf(selectedOption), 1);
+                        vm.examQuestion.options.splice(vm.examQuestion.options.indexOf(selectedOption), 1);
                     } else {
                         toastr.error($translate.instant('sitnet_action_disabled_minimum_options'));
                     }
                 };
 
+                vm.addNewOption = function () {
+                    if (vm.lotteryOn) {
+                        toastr.error($translate.instant('sitnet_action_disabled_lottery_on'));
+                        return;
+                    }
+                    vm.examQuestion.options.push({option: {correctOption: false}});
+                };
+
                 vm.correctAnswerToggled = function (option) {
                     Question.toggleCorrectOption(option.option,
-                        vm.sectionQuestion.options.map(function (o) {
+                        vm.examQuestion.options.map(function (o) {
                                 return o.option;
                             }
                         ));
                 };
 
                 vm.optionDisabled = function (option) {
-                    return angular.isUndefined(option.option.id) || option.option.correctOption;
+                    return option.option.correctOption;
                 };
 
                 vm.updateEvaluationType = function () {
-                    if (vm.sectionQuestion.evaluationType && vm.sectionQuestion.evaluationType === 'Selection') {
-                        delete vm.sectionQuestion.maxScore;
+                    if (vm.examQuestion.evaluationType && vm.examQuestion.evaluationType === 'Selection') {
+                        delete vm.examQuestion.maxScore;
                     }
                 };
 
@@ -121,6 +129,10 @@ angular.module('app.question')
                 vm.cancel = function () {
                     clearListeners();
                     vm.onCancel();
+                };
+
+                vm.calculateMaxPoints = function () {
+                    return Question.calculateMaxPoints(vm.examQuestion);
                 };
 
                 var routingWatcher = $scope.$on('$locationChangeStart', function (event, newUrl) {
