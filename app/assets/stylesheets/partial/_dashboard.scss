@@ -1402,6 +1402,10 @@
     padding-left: 10px;
     margin-right: 30px;
 
+    &.ng-invalid {
+      border: 1px solid red;
+    }
+
     &.radiobut {
       width: 100%;
     }

@@ -6,6 +6,7 @@ angular.module('app.question')
             onSelection: '&',
             questions: '<',
             allowEditing: '<',
+            disableLinks: '<',
             tableClass: '@?'
         },
         controller: ['$location', 'dialogs', 'Question', 'Library', 'Attachment', 'Session',

@@ -43,7 +43,8 @@
                     </span>
                     <div>
                         <span>
-                            <a href="/questions/{{question.id}}">{{question.id}}</a>
+                            <a ng-if="!$ctrl.disableLinks" href="/questions/{{question.id}}">{{question.id}}</a>
+                            <span ng-if="$ctrl.disableLinks">#{{question.id}}</span>
                             <i ng-if="question.questionOwners.length > 1" class="fa fa-group text-primary"
                                popover-placement="right" popover-trigger="'mouseenter'"
                                uib-popover="{{'sitnet_question_owners' | translate}}: {{$ctrl.printOwners(question)}}"></i>
