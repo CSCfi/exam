@@ -88,6 +88,7 @@ angular.module('app.exam.editor')
                                 toastr.info($translate.instant('sitnet_question_saved'));
                                 // apply changes back to scope
                                 angular.extend(vm.sectionQuestion, data.examQuestion);
+                                angular.extend(vm.sectionQuestion.question, data.question);
                             });
 
                     });
