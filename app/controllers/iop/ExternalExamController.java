@@ -31,10 +31,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -183,6 +180,19 @@ public class ExternalExamController extends BaseController implements ExternalEx
             String externalRef = document.getHash();
             String ref = UUID.randomUUID().toString();
             document.setHash(ref);
+
+            // Shuffle multi-choice options
+            document.getExamSections().stream().flatMap(es -> es.getSectionQuestions().stream()).forEach(esq ->{
+                List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
+                Collections.shuffle(shuffled);
+                esq.setOptions(new HashSet<>(shuffled));
+            });
+
+            // Shuffle section questions if lottery on
+            document.getExamSections().stream()
+                    .filter(ExamSection::getLotteryOn)
+                    .forEach(ExamSection::shuffleQuestions);
+
             Map<String, Object> content;
             try {
                 ObjectMapper om = new ObjectMapper();
