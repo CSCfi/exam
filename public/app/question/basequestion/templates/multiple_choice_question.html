@@ -1,13 +1,17 @@
 <div class="col-md-12 mart20 marb10" ng-show="$ctrl.question.type == 'WeightedMultipleChoiceQuestion'">
-    <div class="col-md-7 padl0">
+    <div class="col-md-6 padl0">
         <span class="question-option-title">{{'sitnet_option' | translate}}</span>
         <br/><span>
             <i ng-if="$ctrl.showWarning()" class="fa fa-exclamation-circle reddish"></i>
             <small ng-if="$ctrl.showWarning()">{{'sitnet_shared_question_property_info' | translate}}</small>
             </span>
     </div>
-    <div class="col-md-5 question-option-title">
+    <div class="col-md-2 question-option-title">
         {{'sitnet_word_points' | translate | uppercase}}
+    </div>
+    <div class="col-md-1">
+    </div>
+    <div class="col-md-3">
     </div>
 </div>
 
@@ -36,10 +40,10 @@
 
     <div class="row" ng-repeat="option in $ctrl.question.options" ng-include="$ctrl.newOptionTemplate"></div>
 
-    <div class="row" ng-show="$ctrl.question.type == 'WeightedMultipleChoiceQuestion'"
-         class="col-md-12 form-horizontal question-editor-option">
-        <div class="col-md-7">&nbsp;</div>
-        <div class="col-md-5 question-option-title">{{'sitnet_max_score' | translate | uppercase}}:
+    <div ng-show="$ctrl.question.type == 'WeightedMultipleChoiceQuestion'"
+         class="row">
+        <div class="col-md-6">&nbsp;</div>
+        <div class="col-md-2 question-option-title">{{'sitnet_max_score' | translate | uppercase}}:
             {{$ctrl.calculateDefaultMaxPoints()}}
         </div>
     </div>

@@ -49,8 +49,10 @@ angular.module('app.question')
                 var vm = this;
 
                 vm.$onInit = function () {
+                    vm.currentOwners = [];
                     if (vm.newQuestion) {
-                        vm.question = {examSectionQuestions: [], tags: []};
+                        vm.question = Question.getQuestionDraft();
+                        vm.currentOwners = angular.copy(vm.question.questionOwners);
                     } else {
                         Question.questionsApi.get({id: vm.questionId || $routeParams.id},
                             function (question) {

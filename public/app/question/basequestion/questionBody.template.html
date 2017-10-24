@@ -66,7 +66,7 @@
                 name="newQuestion"
                 class="form-control wdtin"
                 ng-model="$ctrl.newType"
-                ng-change="$ctrl.createQuestion()"
+                ng-change="$ctrl.setQuestionType()"
                 ng-options="type.name | translate for type in $ctrl.questionTypes">
             <option value="">{{'sitnet_choose' | translate}}</option>
         </select>
@@ -185,7 +185,7 @@
                 <li ng-repeat="user in $ctrl.currentOwners track by $index">{{user.firstName }} {{
                     user.lastName }}
                     <button class="reviewer-remove"
-                            ng-disabled="$ctrl.currentOwners.length == 1" ng-click="$ctrl.removeOwner(user)"
+                            ng-disabled="$ctrl.removeOwnerDisabled(user)" ng-click="$ctrl.removeOwner(user)"
                             title="{{'sitnet_remove' | translate}}">
                         <img src="/assets/assets/images/icon_remove.svg" alt="exam"
                              onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png';"/>

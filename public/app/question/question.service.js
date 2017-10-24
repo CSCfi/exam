@@ -43,7 +43,7 @@ angular.module('app.question')
                 });
 
 
-            self.getQuestionDraft = function (type) {
+            self.getQuestionType = function(type) {
                 var questionType;
                 switch (type) {
                     case 'essay':
@@ -59,13 +59,16 @@ angular.module('app.question')
                         questionType = 'ClozeTestQuestion';
                         break;
                 }
+                return questionType;
+            };
+
+            self.getQuestionDraft = function () {
                 return {
                     examSectionQuestions: [],
                     options: [],
                     questionOwners: [Session.getUser()],
                     state: 'NEW',
-                    tags: [],
-                    type: questionType
+                    tags: []
                 };
             };
 

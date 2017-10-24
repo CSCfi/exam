@@ -7,8 +7,8 @@ angular.module('app.question')
             currentOwners: '<',
             lotteryOn: '<'
         },
-        controller: ['$scope', 'Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question', 'EXAM_CONF',
-            function ($scope, Session, Attachment, UserRes, limitToFilter, Question, EXAM_CONF) {
+        controller: ['$scope', '$translate', 'Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question', 'EXAM_CONF',
+            function ($scope, $translate, Session, Attachment, UserRes, limitToFilter, Question, EXAM_CONF) {
 
                 var essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/essay_question.html';
                 var multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/multiple_choice_question.html';
@@ -43,10 +43,20 @@ angular.module('app.question')
 
                     vm.newOwner = {id: null, name: null};
                     vm.newType = {};
+                    setQuestionTemplates();
                 };
 
-                // TODO: move to sub components
-                var setQuestionType = function () {
+                vm.$onInit = function () {
+                    vm.questionTypes = [
+                        {'type': 'essay', 'name': 'sitnet_toolbar_essay_question'},
+                        {'type': 'cloze', 'name': 'sitnet_toolbar_cloze_test_question'},
+                        {'type': 'multichoice', 'name': 'sitnet_toolbar_multiplechoice_question'},
+                        {'type': 'weighted', 'name': 'sitnet_toolbar_weighted_multiplechoice_question'}];
+
+                    init();
+                };
+
+                function setQuestionTemplates() {
                     switch (vm.question.type) {
                         case 'EssayQuestion':
                             vm.questionTemplate = essayQuestionTemplate;
@@ -64,17 +74,11 @@ angular.module('app.question')
                             vm.newOptionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/weighted_option.html';
                             break;
                     }
-                };
+                }
 
-                vm.$onInit = function () {
-                    vm.questionTypes = [
-                        {'type': 'essay', 'name': 'sitnet_toolbar_essay_question'},
-                        {'type': 'cloze', 'name': 'sitnet_toolbar_cloze_test_question'},
-                        {'type': 'multichoice', 'name': 'sitnet_toolbar_multiplechoice_question'},
-                        {'type': 'weighted', 'name': 'sitnet_toolbar_weighted_multiplechoice_question'}];
-
+                vm.setQuestionType = function () {
+                    vm.question.type = Question.getQuestionType(vm.newType.type);
                     init();
-                    setQuestionType();
                 };
 
                 vm.showWarning = function () {
@@ -117,9 +121,16 @@ angular.module('app.question')
                     }
                 };
 
-                vm.removeOwner = function (user) {
+                vm.removeOwnerDisabled = function (user) {
                     if (vm.currentOwners.length === 1) {
                         // disallow clearing the owners
+                        return true;
+                    }
+                    return vm.question.state === 'NEW' && Session.getUser().id === user.id;
+                };
+
+                vm.removeOwner = function (user) {
+                    if (vm.removeOwnerDisabled(user)) {
                         return;
                     }
                     var i = vm.currentOwners.indexOf(user);
@@ -164,13 +175,6 @@ angular.module('app.question')
                             return o.id;
                         }).indexOf(user.id) > -1
                     );
-                };
-
-                vm.createQuestion = function () {
-                    var questionText = vm.question.question;
-                    angular.extend(vm.question, Question.getQuestionDraft(vm.newType.type));
-                    init();
-                    vm.question.question = questionText;
                 };
 
                 vm.estimateCharacters = function () {
