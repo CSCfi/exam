@@ -127,7 +127,8 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
     }
 
     private Map<String, String> asMap(Gson gson) {
-        Type mapType = new TypeToken<Map<String, String>>(){}.getType();
+        Type mapType = new TypeToken<Map<String, String>>() {
+        }.getType();
         Map<String, String> map = gson.fromJson(answer, mapType);
         return map == null ? Collections.emptyMap() : map;
     }
@@ -157,15 +158,11 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         if (isNumeric(blank)) {
             return isCorrectNumericAnswer(blank, answers);
         }
-        String answer;
-        String attr = blank.attr("id");
-        if (answers.containsKey(attr)) {
-            answer = answers.get(blank.attr("id"));
-        } else {
-            answer = "";
-        }
         // Get rid of excess whitespace
-        answer = answer.trim().replaceAll(" +", " ");
+        String answer = answers
+                .getOrDefault(blank.attr("id"), "")
+                .trim()
+                .replaceAll(" +", " ");
         String correctAnswer = blank.text().trim()
                 .replaceAll(" +", " ")
                 .replaceAll(" \\|", "|")
@@ -198,6 +195,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         public int getCorrectAnswers() {
             return correctAnswers;
         }
+
         public int getIncorrectAnswers() {
             return incorrectAnswers;
         }

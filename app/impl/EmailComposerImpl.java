@@ -515,7 +515,7 @@ class EmailComposerImpl implements EmailComposer {
         boolean isMaturity = exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString());
         String templatePrefix = String.format("email.template%s.", isMaturity ? ".maturity" : "");
         String subject = messaging.get(lang, templatePrefix + "noshow.subject");
-        String message = messaging.get(lang, templatePrefix + "noshow.message", String.format("%s %s <%s>",
+        String message = messaging.get(lang, "email.template.noshow.message", String.format("%s %s <%s>",
                 student.getFirstName(), student.getLastName(), student.getEmail()),
                 String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         Map<String, String> stringValues = new HashMap<>();
