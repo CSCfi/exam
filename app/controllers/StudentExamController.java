@@ -317,7 +317,7 @@ public class StudentExamController extends BaseController {
         String path = "(id, name, state, instruction, hash, duration, cloned, external, course(id, code, name), executionType(id, type), " + // (
                 "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
                 "examInspections(*, user(id, firstName, lastName))" +
-                "examSections(id, name, sequenceNumber, description, " + // ((
+                "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
                 "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
                 "question(id, type, question, attachment(id, fileName))" +
                 "options(id, answered, option(id, option))" +

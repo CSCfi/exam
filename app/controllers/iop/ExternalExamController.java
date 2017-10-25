@@ -135,7 +135,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
                 "examInspections(*, user(id, firstName, lastName)), " +
                 "examType(id, type), creditType(id, type), gradeScale(id, displayName, grades(id, name)), " +
-                "examSections(id, name, sequenceNumber, description, " + // ((
+                "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
                 "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
                 "question(id, type, question, attachment(id, fileName), options(id, option, correctOption, defaultScore)), " +
                 "options(id, answered, score, option(id, option)), " +
