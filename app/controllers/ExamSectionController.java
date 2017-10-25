@@ -21,6 +21,7 @@ import play.data.DynamicForm;
 import play.db.ebean.Transactional;
 import play.libs.Json;
 import play.mvc.Result;
+import sanitizers.SanitizingHelper;
 import util.AppUtil;
 
 import java.util.*;
@@ -224,11 +225,15 @@ public class ExamSectionController extends QuestionController {
     }
 
     private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body) {
-        sectionQuestion.setMaxScore(round(parse("maxScore", body, Double.class)));
-        sectionQuestion.setAnswerInstructions(parse("answerInstructions", body, String.class));
-        sectionQuestion.setEvaluationCriteria(parse("evaluationCriteria", body, String.class));
-        sectionQuestion.setEvaluationType(parseEnum("evaluationType", body, Question.EvaluationType.class));
-        sectionQuestion.setExpectedWordCount(parse("expectedWordCount", body, Integer.class));
+        sectionQuestion.setMaxScore(round(SanitizingHelper.parse("maxScore", body, Double.class).orElse(null)));
+        sectionQuestion.setAnswerInstructions(
+                SanitizingHelper.parse("answerInstructions", body, String.class).orElse(null));
+        sectionQuestion.setEvaluationCriteria(
+                SanitizingHelper.parse("evaluationCriteria", body, String.class).orElse(null));
+        sectionQuestion.setEvaluationType(
+                SanitizingHelper.parseEnum("evaluationType", body, Question.EvaluationType.class).orElse(null));
+        sectionQuestion.setExpectedWordCount(
+                SanitizingHelper.parse("expectedWordCount", body, Integer.class).orElse(null));
     }
 
     private Optional<Result> insertQuestion(Exam exam, ExamSection section, Question question, User user, Integer seq) {
@@ -407,15 +412,15 @@ public class ExamSectionController extends QuestionController {
                 .collect(Collectors.toSet());
         Set<Long> providedIds = StreamSupport.stream(node.spliterator(), false)
                 .map(n -> n.get("option"))
-                .filter(n -> parse("id", n, Long.class) != null)
-                .map(n -> parse("id", n, Long.class))
+                .filter(n -> SanitizingHelper.parse("id", n, Long.class).isPresent())
+                .map(n -> SanitizingHelper.parse("id", n, Long.class).get())
                 .collect(Collectors.toSet());
         // Updates
         StreamSupport.stream(node.spliterator(), false)
                 .map(n -> n.get("option"))
                 .filter(o -> {
-                    Long id = parse("id", o, Long.class);
-                    return id != null && persistedIds.contains(id);
+                    Optional<Long> id = SanitizingHelper.parse("id", o, Long.class);
+                    return id.isPresent() && persistedIds.contains(id.get());
                 }).forEach(o -> updateOption(o, true));
         // Removals
         question.getOptions().stream()
@@ -423,18 +428,18 @@ public class ExamSectionController extends QuestionController {
                 .forEach(this::deleteOption);
         // Additions
         StreamSupport.stream(node.spliterator(), false)
-                .filter(o -> parse("id", o, Long.class) == null)
+                .filter(o -> SanitizingHelper.parse("id", o, Long.class) == null)
                 .forEach(o -> createOptionBasedOnExamQuestion(question, esq, o));
         // Finally update own option scores:
         for (JsonNode option : node) {
-            Long id = parse("id", option, Long.class);
-            if (id != null) {
+            SanitizingHelper.parse("id", option, Long.class).ifPresent(id -> {
                 ExamSectionQuestionOption esqo = Ebean.find(ExamSectionQuestionOption.class, id);
                 if (esqo != null) {
-                    esqo.setScore(round(parse("score", option, Double.class)));
+                    esqo.setScore(round(
+                            SanitizingHelper.parse("score", option, Double.class).orElse(null)));
                     esqo.update();
                 }
-            }
+            });
         }
     }
 
@@ -471,7 +476,7 @@ public class ExamSectionController extends QuestionController {
         }
         // Update question: text
         JsonNode questionNode = body.get("question");
-        question.setQuestion(parse("question", questionNode, String.class));
+        question.setQuestion(SanitizingHelper.parse("question", questionNode, String.class).orElse(null));
         question.update();
         updateExamQuestion(examSectionQuestion, body);
         examSectionQuestion.update();

@@ -3,10 +3,10 @@ package controllers;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
 import controllers.iop.api.ExternalReservationHandler;
 import exceptions.NotFoundException;
+import impl.EmailComposer;
 import io.ebean.Ebean;
 import models.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -20,9 +20,11 @@ import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
+import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.CalendarReservationSanitizer;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
-import impl.EmailComposer;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -98,24 +100,14 @@ public class CalendarController extends BaseController {
         return Optional.empty();
     }
 
+    @With(CalendarReservationSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public CompletionStage<Result> createReservation() {
-        // Parse request body
-        JsonNode json = request().body().asJson();
-        Long roomId = json.get("roomId").asLong();
-        Long examId = json.get("examId").asLong();
-        Collection<Integer> aids = new HashSet<>();
-        if (json.has("aids")) {
-            Iterator<JsonNode> it = json.get("aids").elements();
-            while (it.hasNext()) {
-                aids.add(it.next().asInt());
-            }
-        }
-        DateTime start = DateTime.parse(json.get("start").asText(), ISODateTimeFormat.dateTimeParser());
-        DateTime end = DateTime.parse(json.get("end").asText(), ISODateTimeFormat.dateTimeParser());
-        if (start.isBeforeNow() || end.isBefore(start)) {
-            return wrapAsPromise(badRequest("invalid dates"));
-        }
+        Long roomId = request().attrs().get(Attrs.ROOM_ID);
+        Long examId = request().attrs().get(Attrs.EXAM_ID);
+        DateTime start = request().attrs().get(Attrs.START_DATE);
+        DateTime end = request().attrs().get(Attrs.END_DATE);
+        Collection<Integer> aids = request().attrs().get(Attrs.ACCESSABILITES);
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
         DateTime now = AppUtil.adjustDST(DateTime.now(), room);

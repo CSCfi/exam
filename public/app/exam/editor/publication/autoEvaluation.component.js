@@ -45,6 +45,7 @@ angular.module('app.exam.editor')
                     if (!vm.exam.autoEvaluationConfig && vm.exam.gradeScale) {
                         vm.exam.autoEvaluationConfig = {
                             releaseType: vm.selectedReleaseType().name || vm.autoevaluation.releaseTypes[0].name,
+                            releaseDate: null,
                             gradeEvaluations: vm.exam.gradeScale.grades.map(function (g) {
                                 return {grade: angular.copy(g), percentage: 0};
                             })

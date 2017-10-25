@@ -2,9 +2,10 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
 import controllers.iop.api.ExternalReservationHandler;
+import impl.EmailComposer;
+import impl.ExternalCourseHandler;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Exam;
@@ -14,17 +15,19 @@ import models.Reservation;
 import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
-import play.data.validation.Constraints;
 import play.mvc.Result;
+import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.EnrolmentInformationSanitizer;
+import sanitizers.StudentEnrolmentSanitizer;
 import util.AppUtil;
-import impl.EmailComposer;
-import impl.ExternalCourseHandler;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -170,8 +173,10 @@ public class EnrolmentController extends BaseController {
         return ok();
     }
 
+    @With(EnrolmentInformationSanitizer.class)
     @Restrict({@Group("STUDENT")})
     public Result updateEnrolment(Long id) {
+        String info = request().attrs().getOptional(Attrs.ENROLMENT_INFORMATION).orElse(null);
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .idEq(id)
                 .eq("user", getLoggedUser())
@@ -179,8 +184,6 @@ public class EnrolmentController extends BaseController {
         if (enrolment == null) {
             return notFound("enrolment not found");
         }
-        JsonNode json = request().body().asJson();
-        String info = json.get("information").asText();
         enrolment.setInformation(info);
         enrolment.update();
         return ok();
@@ -277,39 +280,34 @@ public class EnrolmentController extends BaseController {
                 .exceptionally(throwable -> internalServerError(throwable.getMessage()));
     }
 
+    @With(StudentEnrolmentSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public CompletionStage<Result> createStudentEnrolment(Long eid) {
+        Optional<Long> uid = request().attrs().getOptional(Attrs.USER_ID);
+        Optional<String> email = request().attrs().getOptional(Attrs.EMAIL);
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
         ExamExecutionType.Type executionType = ExamExecutionType.Type.valueOf(exam.getExecutionType().getType());
-        JsonNode body = request().body().asJson();
 
         User user;
-        if (body.has("uid")) {
-            Long uid = body.get("uid").asLong();
-            user = Ebean.find(User.class, uid);
-        } else if (body.has("email")) {
-            String email = body.get("email").asText();
-            user = Ebean.find(User.class).where().eq("email", email).findOne();
+        if (uid.isPresent()) {
+            user = Ebean.find(User.class, uid.get());
+        } else if (email.isPresent()) {
+            user = Ebean.find(User.class).where().eq("email", email.get()).findOne();
             if (user == null) {
                 // Pre-enrolment
-                Constraints.EmailValidator validator = new Constraints.EmailValidator();
-                if (validator.isValid(email)) {
-                    // Check that we will not create duplicate enrolments for same email address
-                    ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
-                            .eq("exam.id", eid )
-                            .eq("preEnrolledUserEmail", email)
-                            .findOne();
-                    if (enrolment == null) {
-                        user = new User();
-                        user.setEmail(email);
-                    } else {
-                        wrapAsPromise(badRequest("already pre-enrolled"));
-                    }
+                // Check that we will not create duplicate enrolments for same email address
+                ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
+                        .eq("exam.id", eid )
+                        .eq("preEnrolledUserEmail", email.get())
+                        .findOne();
+                if (enrolment == null) {
+                    user = new User();
+                    user.setEmail(email.get());
                 } else {
-                    wrapAsPromise(badRequest("invalid email format"));
+                    wrapAsPromise(badRequest("already pre-enrolled"));
                 }
             }
         } else {

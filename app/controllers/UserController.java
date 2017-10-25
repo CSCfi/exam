@@ -2,13 +2,13 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.Query;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.Query;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamInspection;
@@ -20,6 +20,9 @@ import models.questions.Question;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
+import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.UserLanguageSanitizer;
 
 import java.util.HashSet;
 import java.util.List;
@@ -242,10 +245,11 @@ public class UserController extends BaseController {
         return result;
     }
 
+    @With(UserLanguageSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
     public Result updateLanguage() {
         User user = getLoggedUser();
-        String lang = request().body().asJson().get("lang").asText();
+        String lang = request().attrs().get(Attrs.LANG);
         Language language = Ebean.find(Language.class, lang);
         if (language == null) {
             return badRequest("Unsupported language code");
