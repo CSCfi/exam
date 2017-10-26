@@ -3,9 +3,10 @@ package controllers;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import controllers.base.BaseController;
+import impl.EmailComposer;
 import io.ebean.Ebean;
 import io.ebean.Model;
-import controllers.base.BaseController;
 import models.Comment;
 import models.Exam;
 import models.ExamInspection;
@@ -13,11 +14,14 @@ import models.Role;
 import models.User;
 import play.libs.Json;
 import play.mvc.Result;
+import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.CommentSanitizer;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
-import impl.EmailComposer;
 
 import javax.inject.Inject;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +34,7 @@ public class ExamInspectionController extends BaseController {
     @Inject
     protected ActorSystem actor;
 
+    @With(CommentSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertInspection(Long eid, Long uid) {
         User recipient = Ebean.find(User.class, uid);
@@ -44,25 +49,23 @@ public class ExamInspectionController extends BaseController {
         if (isInspectorOf(recipient, exam)) {
             return forbidden("already an inspector");
         }
-        ExamInspection ei = new ExamInspection();
-        String comment = request().body().asJson().get("comment").asText();
-        String msg = comment == null ? "" : comment;
+        Optional<String> comment = request().attrs().getOptional(Attrs.COMMENT);
         // Exam name required before adding inspectors that are to receive an email notification
-        if ((exam.getName() == null || exam.getName().isEmpty()) && !msg.isEmpty()) {
+        if ((exam.getName() == null || exam.getName().isEmpty()) && comment.isPresent()) {
             return badRequest("sitnet_exam_name_missing_or_too_short");
         }
         ExamInspection inspection = new ExamInspection();
         inspection.setExam(exam);
         inspection.setUser(recipient);
         inspection.setAssignedBy(user);
-        if (!msg.isEmpty()) {
+        if (comment.isPresent()) {
             Comment c = new Comment();
             AppUtil.setCreator(c, user);
-            c.setComment(msg);
+            c.setComment(comment.get());
             inspection.setComment(c);
             c.save();
             actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
-                    () -> emailComposer.composeExamReviewRequest(recipient, user, exam, msg),
+                    () -> emailComposer.composeExamReviewRequest(recipient, user, exam, comment.get()),
                     actor.dispatcher());
         }
         inspection.save();

@@ -1,10 +1,10 @@
 package util;
 
 
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import models.Comment;
 import models.Exam;
 import models.ExamRecord;
@@ -14,12 +14,12 @@ import models.User;
 import models.dto.ExamScore;
 import org.joda.time.DateTime;
 import play.Logger;
-import util.AppUtil;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class CsvBuilder {
         return file;
     }
 
-    public static File build(Long examId, List<Long> childIds) throws IOException {
+    public static File build(Long examId, Collection<Long> childIds) throws IOException {
 
         List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
                 .fetch("examScore")

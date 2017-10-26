@@ -3,13 +3,14 @@ package controllers;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
+import controllers.base.BaseController;
+import impl.EmailComposer;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
-import com.fasterxml.jackson.databind.JsonNode;
-import controllers.base.BaseController;
 import models.*;
 import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
@@ -27,10 +28,12 @@ import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.CommaJoinedListSanitizer;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
 import util.CsvBuilder;
-import impl.EmailComposer;
 
 import javax.inject.Inject;
 import java.io.BufferedOutputStream;
@@ -426,14 +429,23 @@ public class ReviewController extends BaseController {
         return ok(ic, PathProperties.parse("(creator(firstName, lastName, email), created, comment)"));
     }
 
+    private List<String> parseArrayFieldFromBody(String field) {
+        DynamicForm df = formFactory.form().bindFromRequest();
+        String args = df.get(field);
+        String[] array;
+        if (args == null || args.isEmpty()) {
+            array = new String[]{};
+        } else {
+            array = args.split(",");
+        }
+        return Arrays.asList(array);
+    }
 
 
+    @With(CommaJoinedListSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result archiveExams() {
-        List<String> ids = parseArrayFieldFromBody("ids");
-        if (ids.isEmpty()) {
-            return badRequest();
-        }
+        Collection<Long> ids = request().attrs().get(Attrs.ID_COLLECTION);
         List<Exam> exams = Ebean.find(Exam.class).where()
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .idIn(ids)

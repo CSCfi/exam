@@ -11,12 +11,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
 
 public class ExcelBuilder {
 
-    public static ByteArrayOutputStream build(Long examId, List<Long> childIds) throws IOException {
+    public static ByteArrayOutputStream build(Long examId, Collection<Long> childIds) throws IOException {
 
         List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
                 .fetch("examScore")

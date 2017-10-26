@@ -11,8 +11,6 @@ public final class SanitizingHelper {
     private SanitizingHelper() {
     }
 
-    ;
-
     public static <E extends Enum<E>> Optional<E> parseEnum(String fieldName, JsonNode node, Class<E> type) {
         JsonNode field = node.get(fieldName);
         if (field != null && field.isTextual()) {

@@ -3,6 +3,7 @@ package sanitizers;
 import models.AutoEvaluationConfig;
 import models.Exam;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import play.libs.typedmap.TypedKey;
 
 import java.util.Collection;
@@ -16,6 +17,8 @@ public enum Attrs {
     public static final TypedKey<Long> EXAM_ID = TypedKey.create("examId");
     public static final TypedKey<Integer> GRADE_ID = TypedKey.create("gradeId");
     public static final TypedKey<Collection<Integer>> ACCESSABILITES = TypedKey.create("accessabilities");
+    public static final TypedKey<Collection<Long>> ID_COLLECTION = TypedKey.create("idCollection");
+    public static final TypedKey<LocalDate> DATE = TypedKey.create("date");
     public static final TypedKey<DateTime> START_DATE = TypedKey.create("startDate");
     public static final TypedKey<DateTime> END_DATE = TypedKey.create("endDate");
     public static final TypedKey<Long> USER_ID = TypedKey.create("userId");
@@ -30,4 +33,5 @@ public enum Attrs {
     public static final TypedKey<Integer> TRIAL_COUNT = TypedKey.create("trialCount");
     public static final TypedKey<Boolean> LANG_INSPECTION_REQUIRED = TypedKey.create("langInspectionRequired");
     public static final TypedKey<AutoEvaluationConfig> AUTO_EVALUATION_CONFIG = TypedKey.create("autoEvaluationConfig");
+    public static final TypedKey<String> COMMENT = TypedKey.create("comment");
 }

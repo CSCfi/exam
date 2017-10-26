@@ -16,7 +16,6 @@ import models.Session;
 import models.User;
 import models.api.CountsAsTrial;
 import play.cache.SyncCacheApi;
-import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
@@ -29,7 +28,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -112,18 +110,6 @@ public class BaseController extends Controller {
         String token = createToken().orElse("INVALID");
         cache.set(SITNET_CACHE_KEY + token, session);
         return token;
-    }
-
-    protected List<String> parseArrayFieldFromBody(String field) {
-        DynamicForm df = formFactory.form().bindFromRequest();
-        String args = df.get(field);
-        String[] array;
-        if (args == null || args.isEmpty()) {
-            array = new String[]{};
-        } else {
-            array = args.split(",");
-        }
-        return Arrays.asList(array);
     }
 
     protected <T> ExpressionList<T> applyUserFilter(String prefix, ExpressionList<T> query, String filter) {
@@ -221,7 +207,7 @@ public class BaseController extends Controller {
         return true;
     }
 
-    protected CompletionStage<Result> wrapAsPromise(final Result result) {
+    protected CompletionStage<Result> wrapAsPromise(Result result) {
         return CompletableFuture.supplyAsync(() -> result);
     }
 
