@@ -228,6 +228,8 @@
                     for (var i = 0; i < inputs.length; ++i) {
                         var input = inputs[i];
                         var id = input.attributes.id.value;
+                        var answer = scope.results ? scope.results(input.id) : null;
+                        input.setAttribute('size', answer.length);
                         input.setAttribute('ng-model', 'results.' + id);
                         if (!editable) {
                             input.setAttribute('ng-disabled', 'true');
