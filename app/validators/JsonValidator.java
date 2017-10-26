@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 @With(JsonSchemaValidator.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.CLASS)
 public @interface JsonValidator {
     String schema();
 }

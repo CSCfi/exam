@@ -26,10 +26,12 @@ import java.util.stream.StreamSupport;
 class JsonSchemaValidator extends Action<JsonValidator> {
 
     private Environment env;
+    private JsonSchema schema;
 
     @Inject
-    JsonSchemaValidator(Environment env) {
+    JsonSchemaValidator(Environment env) throws Exception {
         this.env = env;
+        this.schema = getSchema();
     }
 
     private String readFile(String path) throws IOException {
@@ -45,7 +47,6 @@ class JsonSchemaValidator extends Action<JsonValidator> {
     }
 
     private boolean isValid(JsonNode input) throws Exception {
-        JsonSchema schema = getSchema();
         ProcessingReport report = schema.validate(input);
         if (!report.isSuccess()) {
             StreamSupport.stream(report.spliterator(), false).forEach(m -> {
