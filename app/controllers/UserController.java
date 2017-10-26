@@ -23,6 +23,7 @@ import play.mvc.Result;
 import play.mvc.With;
 import sanitizers.Attrs;
 import sanitizers.UserLanguageSanitizer;
+import validators.JsonValidator;
 
 import java.util.HashSet;
 import java.util.List;
@@ -245,6 +246,7 @@ public class UserController extends BaseController {
         return result;
     }
 
+    @JsonValidator(schema = "userLang")
     @With(UserLanguageSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
     public Result updateLanguage() {
