@@ -33,6 +33,9 @@ angular.module('app.enrolment')
                                 exam.grade.displayName = Exam.getExamGradeDisplayName(exam.grade.name);
                             }
                             Exam.setCredit(exam);
+                            if (exam.creditType) {
+                                exam.creditType.displayName = Exam.getExamTypeDisplayName(exam.creditType.type);
+                            }
                             vm.participation.reviewedExam = exam;
                             StudentExamRes.scores.get({eid: vm.participation.exam.id},
                                 function (data) {

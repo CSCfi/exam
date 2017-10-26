@@ -47,6 +47,7 @@ public class StudentActionsController extends BaseController {
                 .fetch("creator", "firstName, lastName, email")
                 .fetch("course", "code, name, credits")
                 .fetch("grade")
+                .fetch("creditType", "id, type, deprecated")
                 .fetch("gradeScale")
                 .fetch("executionType")
                 .fetch("examFeedback")

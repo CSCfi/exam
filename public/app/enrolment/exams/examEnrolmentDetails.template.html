@@ -9,21 +9,27 @@
 </div>
 
 <div class="student-enrolment-wrapper details-view marr20">
-    <div class="student-exam-header-row">
-        <div class="student-message-dialog-button-save" ng-if="!$ctrl.exam.alreadyEnrolled && !$ctrl.exam.noTrialsLeft">
-            <button class="btn btn-success" ng-click="$ctrl.enrollForExam()">{{'sitnet_enroll_to_exam' | translate}}
-            </button>
-        </div>
-        <div class="student-details-indicator" ng-if="$ctrl.exam.alreadyEnrolled && $ctrl.exam.reservationMade">
-            {{'sitnet_enrolled_to_exam' | translate}}
-        </div>
-        <div class="student-details-title">{{$ctrl.exam.name}}</div>
-        <div class="student-details-subtitle">
+    <div class="student-exam-header-row row">
+        <div class="student-details-title col-md-9 col-xs-6">
+            <span>{{$ctrl.exam.name}}</span>
+            <div class="student-details-subtitle">
                 <span ng-if="!$ctrl.exam.reservationMade && $ctrl.exam.alreadyEnrolled && !$ctrl.exam.noTrialsLeft"
-                      class="exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
-            <span ng-if="$ctrl.exam.reservationMade"
-                  class="exam-ready">{{'sitnet_state_ready' | translate}}
+                      class="exam-needs-reservation">
+                    {{'sitnet_state_needs_reservation_title' | translate}}
                 </span>
+                <span ng-if="$ctrl.exam.reservationMade" class="exam-ready">
+                    {{'sitnet_state_ready' | translate}}
+                </span>
+            </div>
+        </div>
+        <div class="col-md-3 col-xs-6" ng-if="!$ctrl.exam.alreadyEnrolled && !$ctrl.exam.noTrialsLeft">
+            <div class="student-message-dialog-button-save">
+                <button class="btn btn-success" ng-click="$ctrl.enrollForExam()">{{'sitnet_enroll_to_exam' | translate}}
+                </button>
+            </div>
+        </div>
+        <div class="student-details-indicator col-md-3 col-xs-6" ng-if="$ctrl.exam.alreadyEnrolled && $ctrl.exam.reservationMade">
+            {{'sitnet_enrolled_to_exam' | translate}}
         </div>
     </div>
     <div>

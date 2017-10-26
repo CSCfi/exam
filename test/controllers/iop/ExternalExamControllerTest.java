@@ -13,6 +13,7 @@ import models.iop.ExternalReservation;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -72,6 +73,11 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
                         EnrolmentServlet.class, String.format("/api/enrolments/%s", RESERVATION_REF)
                 )
         );
+    }
+
+    @AfterClass
+    public static void shutdownServer() throws Exception {
+        RemoteServerHelper.shutdownServer(server);
     }
 
     @Override
