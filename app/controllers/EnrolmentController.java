@@ -21,6 +21,7 @@ import sanitizers.Attrs;
 import sanitizers.EnrolmentInformationSanitizer;
 import sanitizers.StudentEnrolmentSanitizer;
 import util.AppUtil;
+import validators.JsonValidator;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -173,6 +174,7 @@ public class EnrolmentController extends BaseController {
         return ok();
     }
 
+    @JsonValidator(schema = "enrolmentInfo")
     @With(EnrolmentInformationSanitizer.class)
     @Restrict({@Group("STUDENT")})
     public Result updateEnrolment(Long id) {

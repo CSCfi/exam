@@ -14,7 +14,6 @@ public class EnrolmentInformationSanitizer extends play.mvc.Action.Simple {
     }
 
     private Http.Request sanitize(Http.Context ctx, JsonNode body) {
-        return SanitizingHelper.sanitizeOptional("information", body, String.class,
-                Attrs.ENROLMENT_INFORMATION, ctx.request());
+        return ctx.request().addAttr(Attrs.ENROLMENT_INFORMATION, body.get("information").asText());
     }
 }
