@@ -33,10 +33,10 @@
                      heading="{{ 'sitnet_exam_responses' | translate }}">
                 <review-list exam="$ctrl.exam"></review-list>
             </uib-tab>
-            <uib-tab ng-if="$ctrl.exam && !$ctrl.user.isAdmin && $ctrl.exam.executionType.type !== 'PRINTOUT'" index="5"
+            <!--uib-tab ng-if="$ctrl.exam && !$ctrl.user.isAdmin && $ctrl.exam.executionType.type !== 'PRINTOUT'" index="5"
                      heading="{{ 'sitnet_question_based_review' | translate }}">
                 <question-review exam="$ctrl.exam"></question-review>
-            </uib-tab>
+            </uib-tab-->
         </uib-tabset>
     </div>
 </div>
