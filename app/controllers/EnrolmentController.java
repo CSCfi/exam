@@ -36,14 +36,19 @@ public class EnrolmentController extends BaseController {
 
     private static final boolean PERM_CHECK_ACTIVE = AppUtil.isEnrolmentPermissionCheckActive();
 
-    @Inject
-    protected EmailComposer emailComposer;
+    protected final EmailComposer emailComposer;
+
+    private final ExternalCourseHandler externalCourseHandler;
+
+    private final ExternalReservationHandler externalReservationHandler;
 
     @Inject
-    private ExternalCourseHandler externalCourseHandler;
-
-    @Inject
-    private ExternalReservationHandler externalReservationHandler;
+    public EnrolmentController(EmailComposer emailComposer, ExternalCourseHandler externalCourseHandler,
+                               ExternalReservationHandler externalReservationHandler) {
+        this.emailComposer = emailComposer;
+        this.externalCourseHandler = externalCourseHandler;
+        this.externalReservationHandler = externalReservationHandler;
+    }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result enrollExamList(String code) {

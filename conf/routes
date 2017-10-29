@@ -64,6 +64,9 @@ POST          /app/exam/:id/examinationdate                              control
 DELETE        /app/exam/:id/examinationdate/:edid                        controllers.ExaminationDateController.removeExaminationDate(id: Long, edid: Long)
 GET           /app/exam/printouts                                        controllers.ExamController.listPrintouts
 
+############### Question review interface ###############
+GET           /app/exam/:id/questions                                    controllers.QuestionReviewController.getEssays(id: Long)
+
 
 ############### Exam record interface ###############
 POST          /app/exam/record                                           controllers.ExamRecordController.addExamRecord()
