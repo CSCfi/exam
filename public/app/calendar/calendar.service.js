@@ -20,7 +20,7 @@ angular.module('app.calendar')
                 var slot = {};
                 slot.start = adjustBack(start, tz);
                 slot.end = adjustBack(end, tz);
-                slot.examId = $routeParams.id;
+                slot.examId = parseInt($routeParams.id);
                 if (org) { // External reservation request
                     slot.roomId = room._id;
                     slot.orgId = org ? org._id : undefined;
