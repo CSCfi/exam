@@ -35,7 +35,6 @@ libraryDependencies ++= Seq(
   "org.webjars" %% "webjars-play" % "2.6.2",
   "org.webjars.bower" % "angular" % ngVersion,
   "org.webjars.bower" % "angular-animate" %  ngVersion,
-  "org.webjars.bower" % "angular-cookies" %  ngVersion,
   "org.webjars.bower" % "angular-i18n" %  ngVersion,
   "org.webjars.bower" % "angular-resource" %  ngVersion,
   "org.webjars.bower" % "angular-route" %  ngVersion,

@@ -114,15 +114,9 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
 
         // HTTP INTERCEPTOR
-        $httpProvider.interceptors.push(['$q', '$cookies', '$rootScope', '$location', '$translate', 'WrongLocation',
-            function ($q, $cookies, $rootScope, $location, $translate, WrongLocation) {
+        $httpProvider.interceptors.push(['$q', '$rootScope', '$location', '$translate', 'WrongLocation',
+            function ($q, $rootScope, $location, $translate, WrongLocation) {
                 return {
-                    'request': function (request) {
-                        if (request.method !== 'GET') {
-                            request.headers['Csrf-Token'] = $cookies.get('csrfToken');
-                        }
-                        return request;
-                    },
                     'response': function (response) {
 
                         var b64_to_utf8 = function (data) {

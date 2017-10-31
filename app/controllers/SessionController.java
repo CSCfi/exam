@@ -51,6 +51,8 @@ public class SessionController extends BaseController {
 
     private final HttpExecutionContext ec;
 
+    private static final String CSRF_COOKIE = ConfigFactory.load().getString("play.filters.csrf.cookie.name");
+
     @Inject
     public SessionController(Environment environment, ExternalExamAPI externalExamAPI, HttpExecutionContext ec) {
         this.environment = environment;
@@ -331,7 +333,8 @@ public class SessionController extends BaseController {
                 result = ok(Json.toJson(node));
             }
         }
-        response().discardCookie("csrfToken");
+
+        response().discardCookie(CSRF_COOKIE);
         session().clear();
         return result;
     }

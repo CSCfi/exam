@@ -1,7 +1,6 @@
 'use strict';
 
 angular.module('app', [
-    'ngCookies',
     'ngResource',
     'ngRoute',
     'ngStorage',
