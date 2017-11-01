@@ -2,10 +2,10 @@
     'use strict';
     angular.module('app.facility')
         .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'Session', '$location', '$uibModal', '$http',
-            'RoomResource', 'ExamMachineResource', 'EXAM_CONF', 'DateTime', '$translate', '$route',
+            'RoomResource', 'Machines', 'EXAM_CONF', 'DateTime', '$translate', '$route',
             'SettingsResource', 'InteroperabilityResource',
             function (dialogs, $scope, $routeParams, Session, $location, $modal, $http,
-                      RoomResource, ExamMachineResource, EXAM_CONF, DateTime, $translate, $route, SettingsRes,
+                      RoomResource, Machines, EXAM_CONF, DateTime, $translate, $route, SettingsRes,
                       InteroperabilityRes) {
 
                 $scope.DateTime = DateTime;
@@ -401,7 +401,7 @@
                 };
 
                 $scope.updateMachine = function (machine) {
-                    ExamMachineResource.update({id: machine.id}, machine,
+                    Machines.machine.update({id: machine.id}, machine,
                         function (updated_machine) {
                             machine = updated_machine;
                             toastr.info('<i class="fa fa-save"></i>');
@@ -442,7 +442,7 @@
                 $scope.addNewMachine = function (room) {
                     var newMachine = {};
 
-                    ExamMachineResource.insert({id: room.id}, newMachine, function (machine) {
+                    Machines.machine.insert({id: room.id}, newMachine, function (machine) {
                         toastr.info($translate.instant("sitnet_machine_added"));
                         room.examMachines.push(machine);
                     }, function (error) {
