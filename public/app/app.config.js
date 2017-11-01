@@ -87,19 +87,9 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
             controller: 'RoomCtrl'
         });
 
-        $routeProvider.when('/softwares', {templateUrl: tmpl + 'facility/software.html', controller: 'RoomCtrl'});
+        $routeProvider.when('/softwares', {template: '<software></software>'});
         $routeProvider.when('/accessibility', {template: '<accessibility></accessibility>'});
         $routeProvider.when('/machines/:id', {template: '<machine></machine>'});
-        $routeProvider.when('/softwares/update/:id/:name', {
-            templateUrl: tmpl + 'facility/software.html',
-            controller: 'RoomCtrl'
-        });
-        $routeProvider.when('/softwares/:id', {templateUrl: tmpl + 'facility/software.html', controller: 'RoomCtrl'});
-        $routeProvider.when('/softwares/add/:name', {
-            templateUrl: tmpl + 'facility/software.html',
-            controller: 'RoomCtrl'
-        });
-
 
         $routeProvider.when('/reports', {template: '<reports></reports>'});
         $routeProvider.when('/statistics', {template: '<statistics></statistics>'});

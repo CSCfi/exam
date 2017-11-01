@@ -3,24 +3,18 @@
         <span class="header-text">{{'sitnet_softwares' | translate}}</span>
     </div>
     <div class="col-md-2 header-wrapper">
-        <!--<a class="btn header-button pull-right">{{'sitnet_create_new' | translate}}<i class="sitnet-white pull-right fa fa-angle-down fa-lg"></i></a>-->
     </div>
-    <div class="col-md-2 ">
-        <!--<span class="header-clock pull-right">
-            <span class="col-md-12  weekday">24. lauantai</span>
-            <span class="col-md-12  date">Toukokuuta 2014</span>
-            <span class="col-md-12  clock"></span>
-        </span>-->
+    <div class="col-md-2">
     </div>
 </div>
-<div id="room">
+<div>
     <span class="sitnet-horizontal-line col-md-12"></span>
-    <div class="vertical-padding-2">
+    <div class="vertical-padding-2"></div>
     <div class="col-md-3">
         <form class="form-inline" role="form">
             <div class="sitnet-info-text">{{'sitnet_software_name' | translate}}</div>
             <div class="pull-left col-md-8 row"><input type="text" class="form-control col-md-12" ng-model="software.name"/></div>
-            <div class="pull-right col-md-4"><button ng-click="addSoftware(software.name)" class="btn btn-primary pull-left">{{'sitnet_create_new' | translate}}</button></div>
+            <div class="pull-right col-md-4"><button ng-click="$ctrl.addSoftware(software.name)" class="btn btn-primary pull-left">{{'sitnet_create_new' | translate}}</button></div>
         </form>
     </div>
     <div class="col-md-6">
@@ -37,8 +31,8 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="software in softwares" ng-init="checkExams(software)">
-                        <td>
+                    <tr ng-repeat="software in $ctrl.softwares">
+                        <td class="text-center">
                             <div ng-hide="showName">
                             <span class="editable" ng-click="showName = !showName">
                                 {{ software.name }}
@@ -52,7 +46,7 @@
                                             <input type="text" class="form-control input-sm" ng-model="software.name" autofocus>
                                         </label>
                                     </div>
-                                    <button class="btn btn-primary btn-sm" ng-click="showName = !showName; updateSoftware(software);">
+                                    <button class="btn btn-primary btn-sm" ng-click="showName = !showName; $ctrl.updateSoftware(software);">
                                         <i class="fa fa-check"></i>
                                     </button>
                                 </form>
@@ -65,7 +59,7 @@
                             </a>
                         </td>
                         <td class="col-md-1 text-center">
-                            <a class="fa-stack fa-lg" ng-click="removeSoftware(software)"
+                            <a class="fa-stack fa-lg" ng-click="$ctrl.removeSoftware(software)"
                                popover-placement="top" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_remove_software' | translate}}">
                                 <!--<i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>-->
                                 <i class="sitnet-red fa fa-times fa-stack-1x"></i>

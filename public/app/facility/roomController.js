@@ -2,9 +2,9 @@
     'use strict';
     angular.module('app.facility')
         .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'Session', '$location', '$uibModal', '$http',
-            'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'EXAM_CONF', 'DateTime', '$translate', '$route',
+            'RoomResource', 'ExamMachineResource', 'EXAM_CONF', 'DateTime', '$translate', '$route',
             'SettingsResource', 'InteroperabilityResource',
-            function (dialogs, $scope, $routeParams, Session, $location, $modal, $http, SoftwareResource,
+            function (dialogs, $scope, $routeParams, Session, $location, $modal, $http,
                       RoomResource, ExamMachineResource, EXAM_CONF, DateTime, $translate, $route, SettingsRes,
                       InteroperabilityRes) {
 
@@ -293,10 +293,6 @@
                     );
                 };
 
-                $scope.manageSoftwares = function () {
-                    $location.path("/softwares");
-                };
-
                 $scope.editMultipleRooms = function () {
                     $location.path("/rooms_edit/edit_multiple");
                 };
@@ -443,8 +439,6 @@
                         });
                 };
 
-                $scope.softwares = SoftwareResource.softwares.query();
-
                 $scope.addNewMachine = function (room) {
                     var newMachine = {};
 
@@ -459,43 +453,6 @@
                 $scope.updateMachineSoftware = function (machine) {
                     $scope.updateMachine(machine);
                     $scope.selectedSoftwares(machine);
-                };
-
-                $scope.updateSoftware = function (software) {
-                    SoftwareResource.update.update({id: software.id}, software,
-                        function (updated_software) {
-                            software = updated_software;
-                            toastr.info($translate.instant('sitnet_software_updated'));
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
-                };
-
-                $scope.addSoftware = function (name) {
-                    SoftwareResource.add.insert({name: name}, function (software) {
-                            toastr.info($translate.instant('sitnet_software_added'));
-                            $scope.softwares.push(software);
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
-                };
-
-                $scope.removeSoftware = function (software) {
-                    SoftwareResource.software.remove({id: software.id},
-                        function () {
-                            toastr.info($translate.instant('sitnet_software_removed'));
-                            if ($scope.softwares.indexOf(software) > -1) {
-                                $scope.softwares.splice($scope.softwares.indexOf(software), 1);
-                            }
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
                 };
 
                 $scope.disableRoom = function (room) {

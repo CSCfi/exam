@@ -1,7 +1,7 @@
 (function () {
     'use strict';
-    angular.module('app.facility')
-        .factory("SoftwareResource", ['$resource', function ($resource) {
+    angular.module('app.software')
+        .factory('SoftwareRes', ['$resource', function ($resource) {
             return {
                 machines: $resource("/app/software_machine/:mid",
                     {

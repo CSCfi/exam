@@ -9,6 +9,7 @@ angular.module('app', [
     'app.navigation',
     'app.enrolment',
     'app.dashboard',
-    'app.administrative'
+    'app.administrative',
+    'app.software'
 ]);
 
