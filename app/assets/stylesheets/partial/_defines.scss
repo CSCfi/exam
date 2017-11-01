@@ -1,7 +1,6 @@
 // This overrides the bundled bootstrap glyphicon font path.
 // There's some problem with the original path so we (still) have to serve those from separate location :(
-$icon-font-path:            "../../assets/assets/fonts/bootstrap/" !default;
-
+$icon-font-path: "../../assets/assets/fonts/bootstrap/" !default;
 
 // responsive
 $sitnet-mobile: 767px;
@@ -11,6 +10,7 @@ $sitnet-mobile: 767px;
     display: none;
   }
 }
+
 .visible-mobile {
   display: none;
   @media (max-width: $sitnet-mobile) {
@@ -25,8 +25,8 @@ $sitnet-blue: #27b9ca;
 $sitnet-dark-blue: #3FA9F5;
 $sitnet-grey: #c0c0c0;
 $sitnet-light-grey: #e6e6e6;
-$sitnet-light-grey_new: rgb(33,33,33);
-$sitnet-light-green_new: rgb(50,149,61);
+$sitnet-light-grey_new: rgb(33, 33, 33);
+$sitnet-light-green_new: rgb(50, 149, 61);
 $sitnet-green-new: #3CA34F;
 $sitnet-dark-grey: #4c4c4c;
 $sitnet-dark: #3e3e3e;
@@ -87,48 +87,166 @@ $sitnet-common-medium: rgba(0, 0, 0, 0.30);
 $sitnet-common-light: rgba(0, 0, 0, 0.10);
 $sitnet-background: #ffffff;
 
-.sitnet-common-light { background-color: $sitnet-common-light; }
-.sitnet-common-medium { background-color: $sitnet-common-medium; }
-.sitnet-common-dark { background-color: $sitnet-common-dark; }
-.sitnet-common-theme { background-color: $sitnet-theme; }
+.sitnet-common-light {
+  background-color: $sitnet-common-light;
+}
 
-.sitnet-text-light { color: $sitnet-common-light; }
-.sitnet-text-medium { color: $sitnet-common-medium; }
-.sitnet-text-dark { color: $sitnet-common-dark; }
-.sitnet-text-theme { color: $sitnet-theme; }
-.sitnet-text-notice { color: $sitnet-notice; }
-.sitnet-text-ready { color: $sitnet-ready; }
-.sitnet-text-alarm { color: $sitnet-alarm; }
-.sitnet-text-aborted { color: $sitnet-aborted; }
-.sitnet-text { color: $sitnet-text; }
+.sitnet-common-medium {
+  background-color: $sitnet-common-medium;
+}
 
-.sitnet-dark-green {color: $sitnet-dark-green;}
-.sitnet-green {color: $sitnet-green;}
-.sitnet-dark-blue {color: $sitnet-dark-blue;}
-.sitnet-blue {color: $sitnet-blue;}
-.sitnet-grey {color: $sitnet-grey;}
-.sitnet-light-grey {color: $sitnet-light-grey;}
-.sitnet-dark-grey {color: $sitnet-dark-grey;}
-.sitnet-dark {color: $sitnet-dark;}
-.sitnet-beige {color: $sitnet-beige;}
-.sitnet-white {color: $sitnet-white;}
-.sitnet-black {color: $sitnet-black;}
-.sitnet-student-lightgreen {color: $sitnet-student-lightgreen;}
-.sitnet-student-darkgreen {color: $sitnet-student-darkgreen;}
-.sitnet-student-inactive-green {color: $sitnet-student-inactive-green;}
-.sitnet-student-turquoise {color: $sitnet-student-turquoise;}
-.sitnet-student-inactive-turquoise {color: $sitnet-student-inactive-turquoise;}
-.sitnet-student-orange {color: $sitnet-student-orange;}
-.sitnet-student-inactive-gray {color: $sitnet-student-inactive-gray;}
-.sitnet-red {color: $sitnet-red;}
-.sitnet-teacher-turquoise-dark-active {color: $sitnet-teacher-turquoise-dark-active;}
-.sitnet-teacher-turquoise-dark-inactive {color: $sitnet-teacher-turquoise-dark-inactive;}
-.sitnet-teacher-turquoise-light-active {color: $sitnet-teacher-turquoise-light-active;}
-.sitnet-teacher-turquoise-light-inactive {color: $sitnet-teacher-turquoise-light-inactive;}
-.sitnet-teacher-blue-light {color: $sitnet-teacher-blue-light;}
-.sitnet-teacher-green-dark {color: $sitnet-teacher-green-dark;}
-.sitnet-teacher-green-light {color: $sitnet-teacher-green-light;}
-.text-danger { color: #F35D6D !important;}
+.sitnet-common-dark {
+  background-color: $sitnet-common-dark;
+}
+
+.sitnet-common-theme {
+  background-color: $sitnet-theme;
+}
+
+.sitnet-text-light {
+  color: $sitnet-common-light;
+}
+
+.sitnet-text-medium {
+  color: $sitnet-common-medium;
+}
+
+.sitnet-text-dark {
+  color: $sitnet-common-dark;
+}
+
+.sitnet-text-theme {
+  color: $sitnet-theme;
+}
+
+.sitnet-text-notice {
+  color: $sitnet-notice;
+}
+
+.sitnet-text-ready {
+  color: $sitnet-ready;
+}
+
+.sitnet-text-alarm {
+  color: $sitnet-alarm;
+}
+
+.sitnet-text-aborted {
+  color: $sitnet-aborted;
+}
+
+.sitnet-text {
+  color: $sitnet-text;
+}
+
+.sitnet-dark-green {
+  color: $sitnet-dark-green;
+}
+
+.sitnet-green {
+  color: $sitnet-green;
+}
+
+.sitnet-dark-blue {
+  color: $sitnet-dark-blue;
+}
+
+.sitnet-blue {
+  color: $sitnet-blue;
+}
+
+.sitnet-grey {
+  color: $sitnet-grey;
+}
+
+.sitnet-light-grey {
+  color: $sitnet-light-grey;
+}
+
+.sitnet-dark-grey {
+  color: $sitnet-dark-grey;
+}
+
+.sitnet-dark {
+  color: $sitnet-dark;
+}
+
+.sitnet-beige {
+  color: $sitnet-beige;
+}
+
+.sitnet-white {
+  color: $sitnet-white;
+}
+
+.sitnet-black {
+  color: $sitnet-black;
+}
+
+.sitnet-student-lightgreen {
+  color: $sitnet-student-lightgreen;
+}
+
+.sitnet-student-darkgreen {
+  color: $sitnet-student-darkgreen;
+}
+
+.sitnet-student-inactive-green {
+  color: $sitnet-student-inactive-green;
+}
+
+.sitnet-student-turquoise {
+  color: $sitnet-student-turquoise;
+}
+
+.sitnet-student-inactive-turquoise {
+  color: $sitnet-student-inactive-turquoise;
+}
+
+.sitnet-student-orange {
+  color: $sitnet-student-orange;
+}
+
+.sitnet-student-inactive-gray {
+  color: $sitnet-student-inactive-gray;
+}
+
+.sitnet-red {
+  color: $sitnet-red;
+}
+
+.sitnet-teacher-turquoise-dark-active {
+  color: $sitnet-teacher-turquoise-dark-active;
+}
+
+.sitnet-teacher-turquoise-dark-inactive {
+  color: $sitnet-teacher-turquoise-dark-inactive;
+}
+
+.sitnet-teacher-turquoise-light-active {
+  color: $sitnet-teacher-turquoise-light-active;
+}
+
+.sitnet-teacher-turquoise-light-inactive {
+  color: $sitnet-teacher-turquoise-light-inactive;
+}
+
+.sitnet-teacher-blue-light {
+  color: $sitnet-teacher-blue-light;
+}
+
+.sitnet-teacher-green-dark {
+  color: $sitnet-teacher-green-dark;
+}
+
+.sitnet-teacher-green-light {
+  color: $sitnet-teacher-green-light;
+}
+
+.text-danger {
+  color: #F35D6D !important;
+}
+
 // #### muuta defined ##############################################
 .greenHover:hover {
   color: $sitnet-ready;
@@ -136,7 +254,7 @@ $sitnet-background: #ffffff;
 
 .sitnet-horizontal-line {
   background-color: $sitnet-common-light;
-  height:0.15em;
+  height: 0.15em;
 }
 
 .italic {
@@ -144,14 +262,16 @@ $sitnet-background: #ffffff;
 }
 
 .nospace {
-//  padding:0;
-//  margin:0;
+  //  padding:0;
+  //  margin:0;
 }
+
 .popover {
   font-size: 11px;
   color: $sitnet-text;
-  width:300px;
+  width: 300px;
 }
+
 .base {
   background-color: $sitnet-background;
   padding: 1em;
@@ -168,7 +288,7 @@ $sitnet-icon-size: 32px;
   height: $sitnet-icon-size;
   max-height: $sitnet-icon-size;
   display: block;
-  text-align:center;
+  text-align: center;
 }
 
 @mixin border-radius($radius) {
@@ -182,28 +302,33 @@ $sitnet-icon-size: 32px;
   font-weight: normal;
   letter-spacing: 1px;
   font-size: 0.9em;
-  padding:0.2em 0.5em;
+  padding: 0.2em 0.5em;
   color: $sitnet-white;
   @include border-radius(5px);
 }
+
 .status_red {
   background-color: $sitnet-alarm;
 }
+
 .status_green {
   background-color: $sitnet-student-darkgreen;
 }
+
 .status_orange {
   background-color: $sitnet-student-orange;
 }
+
 .status_theme {
   background-color: $sitnet-theme;
 }
+
 .status_comment {
-  padding:0.5em;
+  padding: 0.5em;
   font-size: 0.9em;
   color: $sitnet-common-medium;
   font-style: italic;
-  font-weight:bold;
+  font-weight: bold;
   font-family: $sitnet-family-georgia;
 }
 
@@ -231,18 +356,21 @@ $sitnet-icon-size: 32px;
 .icon-notice {
   color: $sitnet-student-orange;
 }
+
 .header-top {
-  height:4em;
+  height: 4em;
   padding: 0.5em;
 }
+
 .header-top-icon {
-  margin-top:0.4em;
+  margin-top: 0.4em;
 }
+
 .header-top-link {
-  margin:0 0.8em;
+  margin: 0 0.8em;
   color: $sitnet-text;
   font-size: 0.9em;
-  line-height:4em;
+  line-height: 4em;
   font-weight: bold;
   cursor: pointer;
 }
@@ -252,7 +380,7 @@ $sitnet-icon-size: 32px;
 }
 
 .top-padding-2 {
-  padding-top:2em;
+  padding-top: 2em;
 }
 
 .bottom-padding-1 {
@@ -260,128 +388,140 @@ $sitnet-icon-size: 32px;
 }
 
 .bottom-padding-2 {
-  padding-bottom:2em;
+  padding-bottom: 2em;
 }
 
 .horizontal-padding-1 {
-  padding:0 1em;
+  padding: 0 1em;
 }
 
 .horizontal-padding-05 {
-  padding:0 0.5em;
+  padding: 0 0.5em;
 }
 
 .vertical-padding-2 {
-  padding:2em 0;
+  padding: 2em 0;
 }
 
 .info {
-  padding-left:0;
-  margin-left:0;
-  margin-bottom:1em;
+  padding-left: 0;
+  margin-left: 0;
+  margin-bottom: 1em;
 }
 
 .info-row {
-  padding-left:0;
-  margin-left:0;
+  padding-left: 0;
+  margin-left: 0;
 }
+
 .info-row-space {
-  padding:0;
-  margin:0;
+  padding: 0;
+  margin: 0;
 }
 
 .info-column {
-  padding-right:1em;
+  padding-right: 1em;
   font-size: 1em;
   font-family: os-regular, Helvetica, Arial, sans-serif;
-  padding-left:0;
-  margin-left:0;
+  padding-left: 0;
+  margin-left: 0;
 
   .header {
-    padding-right:0.5em;
-    float:left;
+    padding-right: 0.5em;
+    float: left;
     color: $sitnet-common-medium;
-    padding-left:0;
-    margin-left:0;
+    padding-left: 0;
+    margin-left: 0;
   }
   .text {
-    padding-left:0;
-    margin-left:0;
-    font-weight:bold;
-    float:left;
+    padding-left: 0;
+    margin-left: 0;
+    font-weight: bold;
+    float: left;
     display: inline;
     color: $sitnet-text;
   }
   .light-text {
-    padding-left:0;
-    margin-left:0;
-    font-weight:normal;
-    float:left;
+    padding-left: 0;
+    margin-left: 0;
+    font-weight: normal;
+    float: left;
     display: inline;
   }
   .link-text {
-    padding-left:0;
-    margin-left:0;
-    font-weight:normal;
-    float:left;
+    padding-left: 0;
+    margin-left: 0;
+    font-weight: normal;
+    float: left;
     display: inline;
     color: $sitnet-theme;
   }
 }
+
 .info-column-large-icon {
 
 }
+
 .info-header-bolditalic {
   font-size: 1.1em;
   font-weight: bold;
   font-style: italic;
 }
+
 .info-header-bold {
   font-size: 1.1em;
   font-weight: bold;
 }
+
 .info-header-normal {
   font-size: 1.1em;
   font-weight: normal;
 }
+
 .icon_fix {
-  margin-left:1em;
-  line-height:1.8em;
+  margin-left: 1em;
+  line-height: 1.8em;
 }
+
 .light-table {
-  border:0;
+  border: 0;
   font-size: 0.9em;
   border-spacing: 1em;
   border-collapse: separate;
 
   td {
     padding: 0.5em;
-    border:0;
-    border-right:0.15em solid $sitnet-common-light;
+    border: 0;
+    border-right: 0.15em solid $sitnet-common-light;
   }
 }
+
 .sitnet-badge {
-  padding:0.25em 0.6em 0.1em;
+  padding: 0.25em 0.6em 0.1em;
   font-size: 0.9em;
   background-color: $sitnet-theme;
-  color:$sitnet-white;
-  margin:0.1em;
+  color: $sitnet-white;
+  margin: 0.1em;
   text-align: center;
 
 }
+
 .width15 {
   width: 15%;
-  max-width:15%;
+  max-width: 15%;
 }
+
 .wrap {
   white-space: pre-wrap;
 }
+
 .removeListLeftSpace {
   ul {
-    padding-left:0;
-    margin-left:0;
+    padding-left: 0;
+    margin-left: 0;
   }
 }
+
 .inline {
   display: inline;
 }
@@ -416,14 +556,13 @@ $sitnet-icon-size: 32px;
   cursor: pointer;
 }
 
-
 .mar60 {
   margin-top: 60px !important;
 }
 
 .pad30 {
-  padding-top:30px !important;
-  padding-bottom:30px !important;
+  padding-top: 30px !important;
+  padding-bottom: 30px !important;
 }
 
 .padt20 {
@@ -442,55 +581,55 @@ $sitnet-icon-size: 32px;
   padding-left: 5px !important;
 }
 
-.padl10{
+.padl10 {
   padding-left: 10px !important;
 }
 
-.padl15{
+.padl15 {
   padding-left: 15px !important;
 }
 
-.padl20{
+.padl20 {
   padding-left: 20px !important;
 }
 
-.padl30{
+.padl30 {
   padding-left: 30px !important;
 }
 
-.padl40{
+.padl40 {
   padding-left: 40px !important;
 }
 
-.padr0{
+.padr0 {
   padding-right: 0px !important;
 }
 
-.padr10{
+.padr10 {
   padding-right: 10px !important;
 }
 
-.padr15{
+.padr15 {
   padding-right: 15px !important;
 }
 
-.padr20{
+.padr20 {
   padding-right: 20px !important;
 }
 
-.padr30{
+.padr30 {
   padding-right: 30px !important;
 }
 
-.padr40{
+.padr40 {
   padding-right: 40px !important;
 }
 
-.padl60{
+.padl60 {
   padding-left: 60px !important;
 }
 
-.padl80{
+.padl80 {
   padding-left: 80px !important;
 }
 
@@ -498,92 +637,92 @@ $sitnet-icon-size: 32px;
   padding-right: 60px !important;
 }
 
-.padb30{
+.padb30 {
   padding-bottom: 30px !important;
 }
 
 .mar0 {
-  margin:0px !important;
+  margin: 0px !important;
 }
 
 .mart05 {
-  margin:5px !important;
+  margin: 5px !important;
 }
 
 .mart0 {
-  margin-top:0px !important;
+  margin-top: 0px !important;
 }
 
 .mart10 {
-  margin-top:10px !important;
+  margin-top: 10px !important;
 }
 
 .mart20 {
-  margin-top:20px !important;
+  margin-top: 20px !important;
 }
 
 .mart30 {
-  margin-top:30px !important;
+  margin-top: 30px !important;
 }
 
 .mart40 {
-  margin-top:40px !important;
+  margin-top: 40px !important;
 }
 
 .marl0 {
-  margin-left:0px !important;
+  margin-left: 0px !important;
 }
 
 .marl10 {
-  margin-left:10px !important;
+  margin-left: 10px !important;
 }
 
 .marl15 {
-  margin-left:15px !important;
+  margin-left: 15px !important;
 }
 
 .marl20 {
-  margin-left:20px !important;
+  margin-left: 20px !important;
 }
 
 .marl30 {
-  margin-left:30px !important;
+  margin-left: 30px !important;
 }
 
 .marl50 {
-  margin-left:50px !important;
+  margin-left: 50px !important;
 }
 
 .marr-20 {
-  margin-right:-20px !important;
+  margin-right: -20px !important;
 }
 
 .marr0 {
-  margin-right:0px !important;
+  margin-right: 0px !important;
 }
 
 .marr10 {
-  margin-right:10px !important;
+  margin-right: 10px !important;
 }
 
 .marr15 {
-  margin-right:15px !important;
+  margin-right: 15px !important;
 }
 
 .marr20 {
-  margin-right:20px !important;
+  margin-right: 20px !important;
 }
 
 .marr30 {
-  margin-right:30px !important;
+  margin-right: 30px !important;
 }
 
 .marr50 {
-  margin-right:50px !important;
+  margin-right: 50px !important;
 }
 
 .marr110 {
-  margin-right:110px !important;
+  margin-right: 110px !important;
 }
 
 .marb5 {
@@ -619,7 +758,7 @@ $sitnet-icon-size: 32px;
 }
 
 .wdtin {
-  width:initial !important;
+  width: initial !important;
 }
 
 .make-inline {

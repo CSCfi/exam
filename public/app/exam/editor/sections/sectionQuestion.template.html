@@ -53,20 +53,20 @@
         <ul class="exam-section-question-options">
             <li ng-show="$ctrl.sectionQuestion.question.type === 'MultipleChoiceQuestion'"
                 ng-repeat="option in $ctrl.sectionQuestion.options">
-                <img ng-show="{{option.option.correctOption}}"
+                <img ng-show="option.option.correctOption"
                      src="/assets/assets/images/icon_correct_answer.png" alt="exam"
                      onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer.png'"/>
-                <img ng-show="{{!option.option.correctOption}}"
+                <img ng-show="!option.option.correctOption"
                      src="/assets/assets/images/icon_wrong_answer.png" alt="exam"
                      onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.png'"/>
                 <span class="exam-question-option-text">{{option.option.option}}</span>
             </li>
             <li ng-show="$ctrl.sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
                 ng-repeat="option in $ctrl.sectionQuestion.options">
-                <img ng-show="{{option.score >= 0}}" src="/assets/assets/images/icon_correct_answer_checkbox.png"
+                <img ng-show="option.score >= 0" src="/assets/assets/images/icon_correct_answer_checkbox.png"
                      alt="exam"
                      onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer_checkbox.png'"/>
-                <img ng-show="{{option.score < 0}}" src="/assets/assets/images/icon_wrong_answer_checkbox.png"
+                <img ng-show="option.score < 0" src="/assets/assets/images/icon_wrong_answer_checkbox.png"
                      alt="exam"
                      onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer_checkbox.png'"/>
                 <span class="exam-question-option-text">{{option.option.option}}</span>

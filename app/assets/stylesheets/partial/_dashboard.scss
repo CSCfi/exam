@@ -7,7 +7,7 @@
   // Basic bootstrap grid rows with different kind of padding
 
   .message-to-teacher {
-    padding-left:0px;
+    padding-left: 0;
   }
 
   .detail-row {
@@ -42,6 +42,12 @@
       padding: 20px;
     }
 
+    &.essay-review {
+      margin-top: 10px;
+      margin-right: 0;
+      padding: 20px;
+    }
+
     &.notactive {
       border-left: #B1B1B1 4px solid;
     }
@@ -53,12 +59,17 @@
     }
 
     &.waitingroom {
-      margin-left:2.4em;
+      margin-left: 2.4em;
       margin-right: 2.4em;
     }
 
     &.exam-view-warning {
       border-left: #ED4459 4px solid;
+      margin-left: 0px;
+      margin-right: 0px;
+    }
+
+    &.review-question-info {
       margin-left: 0px;
       margin-right: 0px;
     }
@@ -77,6 +88,33 @@
 
   }
 
+  .question-review-info {
+    @extend .row;
+    margin-left: 1.4em;
+    margin-right: 1.4em;
+    margin-bottom: 10px;
+
+    img {
+      float: left;
+      padding-right: 2em;
+    }
+  }
+
+  .question-review-title-wrapper {
+    border-top: 1px solid lightgrey;
+    padding-left: 15px;
+  }
+  .question-review-title {
+    font-family: $sitnet-family-helvetica;
+    font-size: 22px;
+    font-weight: normal;
+    color: #2C2C2C;
+  }
+
+  .question-review-toolbar-text {
+    line-height: 2.2;
+  }
+
   .student-enrolment-date-box {
     display: inline-block;
     border: 2px solid #EDEDED;
@@ -86,56 +124,56 @@
     font-weight: bold;
     font-family: $sitnet-family-helvetica;
     font-size: 20px;
-    width:46px;
+    width: 46px;
     line-height: 16px;
     margin-right: 15px;
 
     .month-name {
-      font-size:14px;
+      font-size: 14px;
     }
   }
 
   .student-enrolment-exam {
-     display: inline-block;
+    display: inline-block;
 
-     font-size: 16px;
-     font-family: $sitnet-family-helvetica;
-     color: #266B99;
-     font-weight: bold;
+    font-size: 16px;
+    font-family: $sitnet-family-helvetica;
+    color: #266B99;
+    font-weight: bold;
 
-     a {
-       font-size: 16px;
-       font-family: $sitnet-family-helvetica;
-       color: #266B99;
-       font-weight: bold;
-       text-decoration: none;
-     }
+    a {
+      font-size: 16px;
+      font-family: $sitnet-family-helvetica;
+      color: #266B99;
+      font-weight: bold;
+      text-decoration: none;
+    }
 
     .exam-in-progress {
       color: black;
-      font-size:13px;
+      font-size: 13px;
     }
 
-     .exam-code {
-       color: #555555;
-       font-size: 13px;
-       padding-left: 19px;
-     }
+    .exam-code {
+      color: #555555;
+      font-size: 13px;
+      padding-left: 19px;
+    }
   }
 
   .exam-ready {
-    color:#3CA34F;
-    font-size:13px;
+    color: #3CA34F;
+    font-size: 13px;
   }
 
   .exam-needs-reservation {
     color: #ED4459;
-    font-size:13px;
+    font-size: 13px;
   }
 
   .student-exam-needs-reservation {
     color: #ED4459;
-    font-size:13px;
+    font-size: 13px;
   }
 
   .student-exam-header-row {
@@ -163,7 +201,6 @@
 
     }
 
-
   }
 
   .student-exam-row-title-blue {
@@ -173,10 +210,9 @@
     font-weight: bold;
   }
 
-
   .student-exam-row {
 
-    clear:both;
+    clear: both;
     padding-top: 10px;
     color: #555555;
 
@@ -206,9 +242,9 @@
 
   .student-exam-row-infolink {
 
-    padding-top:1em;
+    padding-top: 1em;
     display: inline-block;
-    width:100%;
+    width: 100%;
 
     &.infotitle {
       color: #2C2C2C;
@@ -224,8 +260,8 @@
     }
 
     .infolink {
-      color:#266B99;
-      font-family:$sitnet-family-helvetica;
+      color: #266B99;
+      font-family: $sitnet-family-helvetica;
       font-weight: bold;
       font-size: 14px;
       text-decoration: none;
@@ -233,13 +269,13 @@
 
     .arrow_icon {
       vertical-align: baseline;
-      padding-left:3px;
+      padding-left: 3px;
     }
 
   }
 
   .student-exam-row-infobox {
-    padding-top:1em;
+    padding-top: 1em;
   }
 
   .student-exam-all-required {
@@ -253,7 +289,7 @@
     display: inline-block;
     margin-left: 20px;
     vertical-align: top;
-    color:#555555;
+    color: #555555;
     font-size: 14px;
     padding-top: 12px;
 
@@ -323,7 +359,7 @@
   }
 
   .middle-row {
-    padding-top:25px;
+    padding-top: 25px;
   }
 
   .main-row {
@@ -407,7 +443,6 @@
         width: 11px;
       }
 
-
     }
 
     td {
@@ -427,7 +462,6 @@
         }
       }
 
-
       &.reservation-search {
         a {
           font-size: 14px !important;
@@ -437,11 +471,11 @@
         }
 
         &.no_show {
-          color:#ED4459 !important;
+          color: #ED4459 !important;
         }
 
         &.review {
-          color:#3CA34F !important;
+          color: #3CA34F !important;
         }
 
       }
@@ -698,11 +732,11 @@
   }
 
   .margin-10 {
-    margin-top:10px;
+    margin-top: 10px;
   }
 
   .margin-20 {
-    margin-top:20px;
+    margin-top: 20px;
   }
 
   .pad-right-15 {
@@ -758,7 +792,7 @@
     margin-right: 3.4em;
 
     &.review {
-      margin-top:0px;
+      margin-top: 0px;
     }
 
     .review-border-titles {
@@ -771,7 +805,7 @@
     .review-border {
       border: 1px solid #ddd;
       padding-bottom: 30px;
-      margin-top:25px;
+      margin-top: 25px;
       border-radius: 4px;
     }
 
@@ -782,20 +816,23 @@
 
   }
 
-
   .nav-tabs {
 
     font-family: $sitnet-family-helvetica;
     font-size: 16px;
 
     li {
-      width:15em;
       text-align: center;
     }
 
-    li.active { font-weight: bold; }
+    li.active {
+      font-weight: bold;
+    }
 
-    a { color: #555555; }
+    a {
+      color: #555555;
+      padding: 1em 2em 1em 2em;
+    }
   }
 
   .tab-search {
@@ -811,8 +848,8 @@
     font-size: 22px;
     font-weight: normal;
     color: #2C2C2C;
-    padding-bottom:5px;
-    border-bottom:1px solid #B1B1B1;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #B1B1B1;
 
     &.section-title {
       font-size: 20px;
@@ -850,7 +887,9 @@
   }
 
   .review-attachment {
-    display: inline-block; float:right; margin-right:30px;
+    display: inline-block;
+    float: right;
+    margin-right: 30px;
   }
 
   .review-attachment-button {
@@ -872,8 +911,8 @@
 
       &.notinuse {
         background-color: #7F7F7F;
-        color:#ffffff;
-        border:1px solid black;
+        color: #ffffff;
+        border: 1px solid black;
       }
 
       &.preview {
@@ -898,10 +937,9 @@
     }
     button:disabled {
       background-color: #7F7F7F;
-      color:#ffffff;
-      border:1px solid black;
+      color: #ffffff;
+      border: 1px solid black;
     }
-
 
     a:hover, button:active, button:focus, button:active:focus {
       background-color: #358F45;
@@ -910,8 +948,8 @@
 
       &.notinuse {
         background-color: #7F7F7F;
-        color:#ffffff;
-        border:1px solid black;
+        color: #ffffff;
+        border: 1px solid black;
       }
 
       &.preview {
@@ -932,7 +970,6 @@
         border-color: #6B6B6B !important;;
       }
 
-
     }
 
     &.print-button {
@@ -943,7 +980,7 @@
     &.autoeval-button {
       width: 170px;
       margin-top: 25px;
-      margin-bottom:30px;
+      margin-bottom: 30px;
     }
   }
 
@@ -1003,9 +1040,9 @@
     border-right: 1px solid #ddd;
     padding-bottom: 50px;
     padding-left: 60px;
-    margin-bottom:30px;
+    margin-bottom: 30px;
 
-    &.fixed-height{
+    &.fixed-height {
       height: 1350px;
     }
     &.printout-height {
@@ -1047,7 +1084,6 @@
     margin-bottom: 5px;
     margin-left: 20px;
   }
-
 
   .btn-review {
     color: #2C2C2C;
@@ -1109,7 +1145,7 @@
       border: #358F45;
     }
     &.whitetext {
-      color:#ffffff;
+      color: #ffffff;
     }
   }
 
@@ -1124,7 +1160,7 @@
 
   .status-floater {
 
-    float:right;
+    float: right;
     margin-top: 10px;
     margin-right: 30px;
 
@@ -1150,20 +1186,20 @@
   }
 
   .general-info-title {
-    color:#555555;
+    color: #555555;
   }
   .general-info-content {
-    color:#2C2C2C;
+    color: #2C2C2C;
 
     pre {
       white-space: inherit;
     }
   }
   .general-info-link {
-    color:#266B99;
+    color: #266B99;
   }
   .general-info-link-bold {
-    color:#266B99;
+    color: #266B99;
     font-weight: bold;
   }
 
@@ -1204,7 +1240,7 @@
     font-family: $sitnet-family-helvetica;
     font-size: 16px;
     color: #2C2C2C;
-    padding-right:15px;
+    padding-right: 15px;
     letter-spacing: 0.3px;
 
     p {
@@ -1213,7 +1249,9 @@
   }
 
   .teacher-toolbar {
-    display: inline-block; float:right; margin-right: 30px;
+    display: inline-block;
+    float: right;
+    margin-right: 30px;
   }
 
   .toolbar-menu {
@@ -1289,7 +1327,6 @@
     margin-bottom: 20px;
   }
 
-
   .question-search {
     padding-top: 30px;
     padding-left: 30px;
@@ -1297,7 +1334,7 @@
 
   .question-table-name {
     p {
-      margin:0px;
+      margin: 0px;
     }
     a {
       font-size: 14px !important;
@@ -1310,10 +1347,14 @@
   }
 
   .questions-table {
-      th { padding-left:10px !important;}
-      td { padding-left:10px !important;}
-      border-left: 0px;
-      border-top: 0px;
+    th {
+      padding-left: 10px !important;
+    }
+    td {
+      padding-left: 10px !important;
+    }
+    border-left: 0px;
+    border-top: 0px;
   }
 
   .warning-text {
@@ -1334,7 +1375,7 @@
   }
 
   .reddish {
-    color:#ED4459;
+    color: #ED4459;
   }
 
   .grayish {
@@ -1346,22 +1387,22 @@
   .question-border {
     border: 1px solid #ddd;
     padding-bottom: 30px;
-    margin-top:25px;
+    margin-top: 25px;
     border-radius: 4px;
   }
 
   .wdt100 {
-    width:100px;
+    width: 100px;
     border-bottom-right-radius: 4px;
     border-top-right-radius: 4px;
 
   }
 
   .wdt120 {
-    width:120px;
+    width: 120px;
   }
   .wdt240 {
-    width:240px;
+    width: 240px;
   }
 
   .attachment-link {
@@ -1390,7 +1431,7 @@
   .question-option-radio {
     font-size: 20px;
     margin-right: 30px;
-    margin-left:15px;
+    margin-left: 15px;
     margin-top: 12px;
   }
 
@@ -1438,7 +1479,6 @@
     height: 62px;
   }
 
-
   .question-correct-option {
     border-top: 1px solid #3CA34F !important;
     border-left: 1px solid #3CA34F;
@@ -1461,7 +1501,6 @@
     height: 62px;
   }
 
-
   .question-option-trash {
     font-size: 20px;
     color: #979797;
@@ -1470,15 +1509,15 @@
   }
 
   .question-editor-option {
-    margin:0px;
-    padding:0px;
+    margin: 0px;
+    padding: 0px;
     padding-bottom: 0.5em;
     margin-bottom: 1em;
   }
 
   .question-option-title {
     color: #777777;
-    font-size:12px;
+    font-size: 12px;
   }
 
   .exam-section-settings {
@@ -1488,7 +1527,7 @@
   }
 
   .exam-section-question-settings {
-    color:#2C2C2C;
+    color: #2C2C2C;
     font-size: 12px;
     padding-right: 10px;
   }
@@ -1511,14 +1550,14 @@
   .exam-new-border {
     border: 1px solid #ddd;
     padding-bottom: 30px;
-    margin-top:25px;
+    margin-top: 25px;
     border-radius: 4px;
 
   }
 
   .middle-column {
-    width:70%;
-    margin-left:20px;
+    width: 70%;
+    margin-left: 20px;
     margin-top: 4px;
     margin-bottom: 4px;
   }
@@ -1531,7 +1570,7 @@
   }
 
   .points-title {
-    color:#777777;
+    color: #777777;
   }
 
   .grading-title {
@@ -1569,8 +1608,8 @@
     font-size: 22px;
     font-weight: normal;
     color: #2C2C2C;
-    padding-bottom:5px;
-    padding-right:10px;
+    padding-bottom: 5px;
+    padding-right: 10px;
   }
 
   .speed-review-subtitle {
@@ -1585,20 +1624,20 @@
     font-size: 16px;
     font-weight: bold;
     margin-left: 30px;
-    color:#266B99;
+    color: #266B99;
   }
 
   .approved {
-    color:$sitnet-approved;
+    color: $sitnet-approved;
   }
 
   .rejected {
-    color:$sitnet-rejected;
+    color: $sitnet-rejected;
   }
 
   .inspection-button {
     font-size: 16px;
-    font-family: Helvetica-Neue,Helvetica;
+    font-family: Helvetica-Neue, Helvetica;
     background-color: #3CA34F;
     border: 1px solid #358F45;
     padding-left: 20px;
@@ -1645,15 +1684,15 @@
     padding: 8px;
     padding-left: 20px;
     padding-right: 20px;
-    color:white;
-    font-weight:200;
+    color: white;
+    font-weight: 200;
 
     :hover, :active, :focus, :active:focus {
       background-color: #358F45;
     }
 
     &.left-floater {
-      float:left;
+      float: left;
       width: 167px;
       padding: 5px;
       padding-left: 20px;
@@ -1664,7 +1703,7 @@
     }
 
     &.left-floater-for-section {
-      float:left;
+      float: left;
       padding: 5px;
       padding-left: 20px;
       display: inline-block;
@@ -1676,13 +1715,13 @@
     }
 
     &.previous {
-      float:left;
+      float: left;
       padding-right: 40px;
     }
 
     &.attachment {
-      float:left;
-      margin-left:0px;
+      float: left;
+      margin-left: 0px;
     }
   }
 
@@ -1694,9 +1733,9 @@
 
   .attachment-name {
     display: inline-block;
-    font-family:$sitnet-family-helvetica;
-    font-size:12px;
-    color:#555555;
+    font-family: $sitnet-family-helvetica;
+    font-size: 12px;
+    color: #555555;
     margin-top: 10px;
 
     @media (max-width: 1050px) {

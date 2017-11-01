@@ -849,5 +849,10 @@
   "sitnet_write_participant_name": "Osallistujan nimi EN",
   "sitnet_write_pre_participant_email": "Osallistujan sähköpostiosoite EN",
   "sitnet_exam_status_external_unfinished": "Ulkopuolinen käyttämätön varaus EN",
-  "sitnet_exam_status_external_finished": "Ulkopuolinen käytetty varaus EN"
+  "sitnet_exam_status_external_finished": "Ulkopuolinen käytetty varaus EN",
+  "sitnet_question_review": "Suoritukset kysymyksittäin EN",
+  "sitnet_question_review_info": "Näkymästä valitaan arvioitavat kysymykset. EN",
+  "sitnet_question_review_info_detailed": "Kysymykset näytetään tentin sen hetkisen kysymysjärjestyksen mukaan. Poistetut kysymykset ovat listan lopussa. Huomioitavaa on, että kysymyskohtaiseen arviointiin voi valita vain esseekysymyksiä. EN",
+  "sitnet_review_selected": "Arvioi valitut EN",
+  "sitnet_select_question_reviews": "Valitse kysymykset EN"
 }
