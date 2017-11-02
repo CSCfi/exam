@@ -115,6 +115,79 @@
     line-height: 2.2;
   }
 
+  .essay-question-review-wrapper {
+    margin-right: -15px;
+    padding-bottom: 30px;
+  }
+
+  .essay-review-status {
+    line-height: 2.2;
+    font-size: 20px;
+  }
+
+  .essay-answer-instructions-box {
+    border-top: 1px solid lightgrey;
+    border-bottom: 1px solid lightgrey;
+    padding-top: 1em;
+    padding-bottom: 1em;
+  }
+
+  .question-flow-title {
+    font-family: $sitnet-family-helvetica;
+    font-size: 22px;
+    font-weight: normal;
+    color: #2C2C2C;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+    padding-top: 5px;
+    border-bottom: 1px solid #B1B1B1;
+  }
+
+  .question-flow-category-title-wrapper {
+    border-bottom: 1px solid lightgrey;
+    border-top: 1px solid lightgrey;
+    margin-right: -15px;
+  }
+
+  .question-flow-category-questions {
+    margin-bottom: 40px;
+  }
+
+  .question-flow-category-question-wrapper {
+    border-bottom: 1px solid lightgrey;
+    margin-right: -15px;
+  }
+
+  .question-flow-badge {
+    background-color: #ed4459;
+  }
+
+  .triangle-line {
+    border-top:2px solid lightgrey;
+    position:relative;
+    background: white;
+    margin-top: 10px;
+    transform: rotate(180deg);
+    margin-right: -15px;
+  }
+  .triangle-line:before, .triangle-line:after {
+    content:'';
+    position:absolute;
+    right: 70px;
+    top: -19px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 20px 20px 20px;
+    border-color: transparent transparent white transparent;
+  }
+  .triangle-line:before {
+    right: 68px;
+    top: -22px;
+    border-width: 0 22px 22px 22px;
+    border-bottom-color: lightgrey;
+  }
+
   .student-enrolment-date-box {
     display: inline-block;
     border: 2px solid #EDEDED;

@@ -65,7 +65,7 @@ DELETE        /app/exam/:id/examinationdate/:edid                        control
 GET           /app/exam/printouts                                        controllers.ExamController.listPrintouts
 
 ############### Question review interface ###############
-GET           /app/exam/:id/questions                                    controllers.QuestionReviewController.getEssays(id: Long)
+GET           /app/exam/:id/questions                                    controllers.QuestionReviewController.getEssays(id: Long, ids: java.util.Optional[LongList])
 
 
 ############### Exam record interface ###############

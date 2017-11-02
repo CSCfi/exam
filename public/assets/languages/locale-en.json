@@ -854,5 +854,8 @@
   "sitnet_question_review_info": "Näkymästä valitaan arvioitavat kysymykset. EN",
   "sitnet_question_review_info_detailed": "Kysymykset näytetään tentin sen hetkisen kysymysjärjestyksen mukaan. Poistetut kysymykset ovat listan lopussa. Huomioitavaa on, että kysymyskohtaiseen arviointiin voi valita vain esseekysymyksiä. EN",
   "sitnet_review_selected": "Arvioi valitut EN",
-  "sitnet_select_question_reviews": "Valitse kysymykset EN"
+  "sitnet_select_question_reviews": "Valitse kysymykset EN",
+  "sitnet_question_based_review": "Kysymyskohtainen arviointi EN",
+  "sitnet_all_finished": "Valmiit EN",
+  "sitnet_question_flow": "Kysymysvirta EN"
 }

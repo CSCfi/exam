@@ -1,0 +1,69 @@
+<div class="col-md-12 exam-border">
+
+    <div class="col-md-12">
+        <div class="question-review-info mart40">
+            <div class="row">
+                <div class="col-md-11">
+                    <img src="/assets/assets/images/icon_info.png" alt="info"/>
+                    <strong>{{'sitnet_question_review_info' | translate}}</strong>
+                    {{'sitnet_question_review_info_detailed' | translate}}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div ng-if="$ctrl.reviews.length === 0">
+        <div class="col-md-12 mart20">
+            <h3>Ei arvioitavia kysymyksiä</h3>
+        </div>
+    </div>
+    <div ng-if="$ctrl.reviews.length > 0">
+        <div class="col-md-12 mart20">
+            <div class="row">
+                <div class="col-md-2 col-md-offset-8">
+                    <strong class="question-review-toolbar-text">{{$ctrl.selectedReviews.length}}
+                        {{'sitnet_questions_selected' | translate }}</strong>
+                </div>
+                <div class="col-md-2">
+                    <button ng-disabled="$ctrl.selectedReviews.length === 0" class="btn btn-success pull-right"
+                            ng-click="$ctrl.startReview()">
+                        {{'sitnet_review_selected' | translate}} ({{$ctrl.selectedReviews.length}})
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <span class="col-md-12 mart20 marb10">
+            <span class="question-review-title">{{ 'sitnet_select_question_reviews' | translate }}</span>
+            <span class="form-group pull-right" style="margin-bottom: 0;">
+                <label for="select-all">{{'sitnet_check_uncheck_all' | translate}}</label>
+                <input id="select-all" type="checkbox" ng-click="$ctrl.selectAll()" ng-model="$ctrl.selectionToggle"/>
+            </span>
+        </span>
+        <div class="col-md-12">
+            <question-review ng-repeat="review in $ctrl.reviews" review="review"
+                             on-selection="$ctrl.onReviewSelection(id, selected)">
+            </question-review>
+        </div>
+
+        <div class="col-md-12 mart20">
+            <!-- Might make sense to make this a separate component as it is used twice here-->
+            <div class="row">
+                <div class="col-md-2 col-md-offset-8">
+                    <strong class="question-review-toolbar-text">{{$ctrl.selectedReviews.length}}
+                        {{'sitnet_questions_selected' | translate }}</strong>
+                </div>
+                <div class="col-md-2">
+                    <button ng-disabled="$ctrl.selectedReviews.length === 0" class="btn btn-success pull-right"
+                            ng-click="$ctrl.startReview()">
+                        {{'sitnet_review_selected' | translate}} ({{$ctrl.selectedReviews.length}})
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>

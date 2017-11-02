@@ -1,21 +1,19 @@
 'use strict';
 
 angular.module('app.exam.editor')
-    .component('essayReview', {
-        templateUrl: '/assets/app/exam/editor/review/essayReview.template.html',
+    .component('questionReview', {
+        templateUrl: '/assets/app/review/questions/listing/questionReview.template.html',
         bindings: {
             review: '<',
             onSelection: '&'
         },
-        controller: ['$sce',
-            function ($sce) {
+        controller: ['$sce', 'QuestionReview',
+            function ($sce, QuestionReview) {
 
                 var vm = this;
 
                 vm.getAssessedAnswerCount = function () {
-                    return vm.review.answers.filter(function (a) {
-                        return a.essayAnswer && a.essayAnswer.evaluatedScore >= 0;
-                    }).length;
+                    return QuestionReview.getAssessedAnswerCount(vm.review);
                 };
 
                 vm.sanitizeQuestion = function () {

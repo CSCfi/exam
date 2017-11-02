@@ -1,0 +1,104 @@
+<div id="dashboard">
+    <div class="row">
+        <div class="col-md-8" style="border-right: 1px solid lightgrey">
+            <div class="essay-question-review-wrapper">
+                <div class="top-row">
+                    <div class="col-md-8">
+                        <div class="student-details-title-wrap">
+                            <a href="/exams/{{$ctrl.exam.parent.id}}/4">
+                                <img class="arrow_icon" src="/assets/assets/images/icon_history.png"></a>
+                            <div class="student-exam-details-title">{{'sitnet_question_based_review' | translate}}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="essay-review-status">
+                            <!-- Arvioinnin tila kesken / valmis -->
+                            <span class="inspection-title">{{'sitnet_inspection_status' | translate}}:</span>
+                            <span ng-if="$ctrl.isFinalized($ctrl.selectedReview)"
+                                  class="text-success">{{ 'sitnet_exam_status_graded' | translate | lowercase }}
+                        </span>
+                            <span ng-if="!$ctrl.isFinalized($ctrl.selectedReview)"
+                                  class="text-danger">{{ 'sitnet_in_progress' | translate | lowercase }}
+                        </span>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="top-row">
+                    <div class="col-md-11 col-md-offset-1">
+                        {{$ctrl.getAssessedAnswerCount()}} /
+                        {{$ctrl.selectedReview.answers.length}} {{'sitnet_graded' | translate | lowercase}}
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div ng-class="$ctrl.selectedReview.question.defaultAnswerInstructions ? 'col-md-10' : 'col-md-11'"
+                         class="col-md-offset-1">
+                        <div class="review-question-title" ng-bind-html="$ctrl.sanitizeQuestion()" mathjax></div>
+                    </div>
+                    <div ng-if="$ctrl.selectedReview.question.defaultAnswerInstructions" class="col-md-1">
+                        <a ng-click="$ctrl.selectedReview.expanded = !$ctrl.selectedReview.expanded"
+                           class="pointer-hand">
+                            <img ng-show="!$ctrl.selectedReview.expanded"
+                                 src="/assets/assets/images/icon_list_show_right.svg"
+                                 alt="exam"
+                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"/>
+                            <img ng-show="$ctrl.selectedReview.expanded"
+                                 src="/assets/assets/images/icon_list_show_down.svg"
+                                 alt="exam"
+                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"/>
+                        </a>
+                    </div>
+                </div>
+                <div class="main-row" ng-show="$ctrl.selectedReview.expanded">
+                    <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box">
+                        <img src="/assets/assets/images/icon_info.png"
+                             alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"/>
+                        <span class="padl10">{{$ctrl.selectedReview.question.defaultAnswerInstructions}}</span>
+                    </div>
+                </div>
+                <div class="main-row" ng-if="$ctrl.selectedReview.question.attachment">
+                    <div class="col-md-10 col-md-offset-1">
+                    <span><i class="fa fa-lg fa-paperclip text-primary"></i>&nbsp;
+                        <a class="pointer" ng-click="$ctrl.downloadQuestionAttachment()">
+                        {{$ctrl.selectedReview.question.attachment.fileName}}</a>
+                    </span>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="triangle-line"></div>
+            </div>
+            <div class="top-row">
+                <div class="col-md-12">
+                    <uib-tabset>
+                        <uib-tab index="1">
+                            <uib-tab-heading>{{'Arvioimattomat' | translate}}
+                                <span class="badge question-flow-badge">{{$ctrl.getUnassessedAnswerCount()}}</span>
+                            </uib-tab-heading>
+                        </uib-tab>
+                        <uib-tab index="2">
+                            <uib-tab-heading>{{'Arvioidut' | translate}}
+                                <span class="badge question-flow-badge">{{$ctrl.getAssessedAnswerCount()}}</span>
+                            </uib-tab-heading>
+                        </uib-tab>
+                        <uib-tab index="3">
+                            <uib-tab-heading>{{'Lukitut' | translate}}
+                                <span class="badge question-flow-badge">{{$ctrl.getLockedAnswerCount()}}</span>
+                            </uib-tab-heading>
+                        </uib-tab>
+                    </uib-tabset>
+                </div>
+            </div>
+            <div style="height: 100vh">
+                <p>&nbsp;</p>
+            </div>
+
+        </div> <!-- END OF RIGHT COL -->
+
+        <div class="col-md-4">
+            <question-flow ng-if="$ctrl.reviews" reviews="$ctrl.reviews" on-selection="$ctrl.questionSelected(index)"></question-flow>
+        </div>
+    </div>
+
+</div>

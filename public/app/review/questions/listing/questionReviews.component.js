@@ -1,18 +1,18 @@
 'use strict';
 
 angular.module('app.exam.editor')
-    .component('questionReview', {
-        templateUrl: '/assets/app/exam/editor/review/questionReview.template.html',
+    .component('questionReviews', {
+        templateUrl: '/assets/app/review/questions/listing/questionReviews.template.html',
         bindings: {
-            exam: '<'
+            examId: '<'
         },
-        controller: ['QuestionReview',
-            function (QuestionReview) {
+        controller: ['$location', 'QuestionReview',
+            function ($location, QuestionReview) {
 
                 var vm = this;
 
                 vm.$onInit = function () {
-                    vm.reviews = QuestionReview.questionsApi.query({id: vm.exam.id});
+                    vm.reviews = QuestionReview.questionsApi.query({id: vm.examId});
                     vm.selectedReviews = [];
                     vm.selectionToggle = false;
                 };
@@ -45,6 +45,10 @@ angular.module('app.exam.editor')
                 vm.selectAll = function () {
                     vm.selectionToggle ? addSelections() : removeSelections();
                 };
+
+                vm.startReview = function () {
+                    $location.path('/assessments/' + vm.examId + '/questions').search('q', vm.selectedReviews);
+                }
 
             }
         ]
