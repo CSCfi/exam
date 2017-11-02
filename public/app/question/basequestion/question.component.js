@@ -76,7 +76,7 @@ angular.module('app.question')
                             function (question) {
                                 clearListeners();
                                 if (vm.onSave) {
-                                    vm.onSave({question: vm.question})
+                                    vm.onSave({question: question});
                                 } else {
                                     $location.path('/questions');
                                 }
