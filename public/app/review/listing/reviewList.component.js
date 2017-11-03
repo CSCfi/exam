@@ -1,5 +1,5 @@
 'use strict';
-angular.module('app.exam.editor')
+angular.module('app.review')
     .component('reviewList', {
         templateUrl: '/assets/app/review/listing/reviewList.template.html',
         bindings: {

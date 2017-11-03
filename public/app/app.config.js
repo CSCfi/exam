@@ -74,7 +74,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         $routeProvider.when('/speedreview/:id', {template: '<speed-review></speed-review>'});
         $routeProvider.when('/print/exam/:id', {template: '<printed-assessment></printed-assessment>'});
 
-        $routeProvider.when('/assessments/:id/questions', {template: '<essay-answers></essay-answers>'});
+        $routeProvider.when('/assessments/:id/questions', {template: '<question-assessment></question-assessment>'});
 
 
         /* reservations */

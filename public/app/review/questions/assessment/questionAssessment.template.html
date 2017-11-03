@@ -1,6 +1,6 @@
 <div id="dashboard">
     <div class="row">
-        <div class="col-md-8" style="border-right: 1px solid lightgrey">
+        <div class="col-md-8 essay-question-review-column">
             <div class="essay-question-review-wrapper">
                 <div class="top-row">
                     <div class="col-md-8">
@@ -73,31 +73,40 @@
                 <div class="col-md-12">
                     <uib-tabset>
                         <uib-tab index="1">
-                            <uib-tab-heading>{{'Arvioimattomat' | translate}}
+                            <uib-tab-heading>{{'sitnet_unassessed_exams' | translate}}
                                 <span class="badge question-flow-badge">{{$ctrl.getUnassessedAnswerCount()}}</span>
                             </uib-tab-heading>
+                            <essay-answers answers="$ctrl.unassessedAnswers" editable="true"
+                                           action-text="sitnet_move_to_assessed"
+                                           on-assessed="$ctrl.saveAssessments(answers)"></essay-answers>
                         </uib-tab>
                         <uib-tab index="2">
-                            <uib-tab-heading>{{'Arvioidut' | translate}}
+                            <uib-tab-heading>{{'sitnet_assessed_exams' | translate}}
                                 <span class="badge question-flow-badge">{{$ctrl.getAssessedAnswerCount()}}</span>
                             </uib-tab-heading>
+                            <essay-answers answers="$ctrl.assessedAnswers" editable="true"
+                                           action-text="sitnet_grade_exams"
+                                           on-assessed="$ctrl.saveAssessments(answers)"></essay-answers>
                         </uib-tab>
                         <uib-tab index="3">
-                            <uib-tab-heading>{{'Lukitut' | translate}}
+                            <uib-tab-heading>{{'sitnet_graded_logged_exams' | translate}}
                                 <span class="badge question-flow-badge">{{$ctrl.getLockedAnswerCount()}}</span>
                             </uib-tab-heading>
+                            <essay-answers answers="$ctrl.lockedAnswers" action-text="sitnet_grade_exams"
+                                           editable="false">
+                            </essay-answers>
                         </uib-tab>
                     </uib-tabset>
                 </div>
             </div>
-            <div style="height: 100vh">
-                <p>&nbsp;</p>
-            </div>
+            <div class="ballast"></div>
 
         </div> <!-- END OF RIGHT COL -->
 
         <div class="col-md-4">
-            <question-flow ng-if="$ctrl.reviews" reviews="$ctrl.reviews" on-selection="$ctrl.questionSelected(index)"></question-flow>
+            <question-flow ng-if="$ctrl.reviews" reviews="$ctrl.reviews"
+                           on-selection="$ctrl.questionSelected(index)">
+            </question-flow>
         </div>
     </div>
 

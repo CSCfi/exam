@@ -13,6 +13,10 @@ angular.module('app.exam.editor')
                 return !review ? false : review.answers.length === self.getAssessedAnswerCount(review);
             };
 
+            self.isAssessed = function (answer) {
+                return answer.selected && answer.essayAnswer && parseFloat(answer.essayAnswer.evaluatedScore) >= 0;
+            };
+
             self.getAssessedAnswerCount = function (review) {
                 if (!review) {
                     return 0;

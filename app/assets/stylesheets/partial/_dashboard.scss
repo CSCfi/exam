@@ -115,6 +115,10 @@
     line-height: 2.2;
   }
 
+  .essay-question-review-column {
+    border-right: 1px solid lightgrey;
+  }
+
   .essay-question-review-wrapper {
     margin-right: -15px;
     padding-bottom: 30px;
@@ -163,16 +167,16 @@
   }
 
   .triangle-line {
-    border-top:2px solid lightgrey;
-    position:relative;
+    border-top: 2px solid lightgrey;
+    position: relative;
     background: white;
     margin-top: 10px;
     transform: rotate(180deg);
     margin-right: -15px;
   }
   .triangle-line:before, .triangle-line:after {
-    content:'';
-    position:absolute;
+    content: '';
+    position: absolute;
     right: 70px;
     top: -19px;
     width: 0;
@@ -186,6 +190,22 @@
     top: -22px;
     border-width: 0 22px 22px 22px;
     border-bottom-color: lightgrey;
+  }
+
+  .essay-answer-wrapper {
+    border: 1px solid lightgrey;
+    border-left: 4px solid #5BC26E;
+    margin-bottom: 15px
+  }
+
+  .essay-answer-item {
+    border-bottom: 1px solid lightgrey;
+    padding-bottom: 10px;
+  }
+
+  .essay-answer-checkbox-item {
+    border-bottom: 1px solid lightgrey;
+    padding-bottom: 14px;
   }
 
   .student-enrolment-date-box {

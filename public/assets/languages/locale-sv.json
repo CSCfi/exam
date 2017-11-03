@@ -857,5 +857,8 @@
   "sitnet_select_question_reviews": "Valitse kysymykset SV",
   "sitnet_question_based_review": "Kysymyskohtainen arviointi SV",
   "sitnet_all_finished": "Valmiit SV",
-  "sitnet_question_flow": "Kysymysvirta SV"
+  "sitnet_question_flow": "Kysymysvirta SV",
+  "sitnet_graded_logged_exams": "Lukitut SV",
+  "sitnet_move_to_assessed": "Siirä arvioituihin SV",
+  "sitnet_assessee_information": "Vastaajan tiedot SV"
 }

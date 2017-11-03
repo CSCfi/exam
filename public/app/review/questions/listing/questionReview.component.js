@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('app.exam.editor')
+angular.module('app.review')
     .component('questionReview', {
         templateUrl: '/assets/app/review/questions/listing/questionReview.template.html',
         bindings: {
