@@ -267,20 +267,6 @@
                     return week[day][time].type;
                 };
 
-                $scope.countMachineAlerts = function (room) {
-                    if (!room) return 0;
-                    return room.examMachines.filter(function (m) {
-                        return m.outOfService;
-                    }).length;
-                };
-
-                $scope.countMachineNotices = function (room) {
-                    if (!room) return 0;
-                    return room.examMachines.filter(function (m) {
-                        return !m.outOfService && m.statusComment;
-                    }).length;
-                };
-
                 // Called when create exam button is clicked
                 $scope.createExamRoom = function () {
                     RoomResource.draft.get(
@@ -295,10 +281,6 @@
 
                 $scope.editMultipleRooms = function () {
                     $location.path("/rooms_edit/edit_multiple");
-                };
-
-                $scope.modifyMachine = function (machine) {
-                    $location.path("/machines/" + machine.id);
                 };
 
                 $scope.updateRoom = function (room) {
@@ -437,17 +419,6 @@
                         .success(function () {
                             toastr.info($translate.instant("sitnet_room_updated"));
                         });
-                };
-
-                $scope.addNewMachine = function (room) {
-                    var newMachine = {};
-
-                    Machines.machine.insert({id: room.id}, newMachine, function (machine) {
-                        toastr.info($translate.instant("sitnet_machine_added"));
-                        room.examMachines.push(machine);
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
                 };
 
                 $scope.updateMachineSoftware = function (machine) {
