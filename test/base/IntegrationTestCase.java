@@ -19,6 +19,7 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.yaml.snakeyaml.Yaml;
 import play.Application;
+import play.api.test.CSRFTokenHelper;
 import play.db.Database;
 import play.db.Databases;
 import play.db.evolutions.Evolutions;
@@ -69,6 +70,7 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("employeeNumber", "12345");
         HAKA_HEADERS.put("schacPersonalUniqueCode", "12345");
         HAKA_HEADERS.put("homeOrganisation", "oulu.fi");
+        HAKA_HEADERS.put("Csrf-Token", "nocheck");
         try {
             HAKA_HEADERS.put("logouturl", URLEncoder.encode("https://logout.foo.bar.com?returnUrl=" +
                     URLEncoder.encode("http://foo.bar.com", "UTF-8"), "UTF-8"));
