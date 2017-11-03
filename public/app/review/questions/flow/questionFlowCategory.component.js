@@ -13,10 +13,6 @@ angular.module('app.review')
 
                 var vm = this;
 
-                vm.$onInit = function () {
-                    console.log(vm.reviews.length);
-                };
-
                 vm.displayQuestionText = function (review) {
                     var truncate = function (content, offset) {
                         return $filter('truncate')(content, offset);
@@ -34,9 +30,9 @@ angular.module('app.review')
                     return QuestionReview.getAssessedAnswerCount(review);
                 };
 
-                vm.selectQuestion = function(review) {
+                vm.selectQuestion = function (review) {
                     vm.onSelection({review: review});
-                }
+                };
 
 
             }
