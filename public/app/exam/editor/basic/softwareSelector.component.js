@@ -5,13 +5,13 @@ angular.module('app.exam.editor')
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'SoftwareResource', 'ExamRes',
-            function ($translate, SoftwareResource, ExamRes) {
+        controller: ['$translate', 'SoftwareRes', 'ExamRes',
+            function ($translate, SoftwareRes, ExamRes) {
 
                 var vm = this;
 
                 vm.$onInit = function () {
-                    vm.software = SoftwareResource.softwares.query();
+                    vm.software = SoftwareRes.softwares.query();
                 };
 
                 vm.selectedSoftware = function () {
