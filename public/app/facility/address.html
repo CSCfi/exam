@@ -1,13 +1,13 @@
 <div class="machine-header" ng-class="machine.expanded ? 'machine-header-active' : 'machine-header-inactive'">
-    <form role="form" name="addressForm" novalidate id="room">
+    <form role="form" name="addressForm" novalidate id="roomAddress">
         <div class="row">
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_exam_room_address_street' | translate}}</div>
                 <div class="input-group">
                     <input type="text" name="street" class="form-control ng-pristine ng-valid"
-                           ng-model="roomInstance.mailAddress.street"
+                           ng-model="$ctrl.room.mailAddress.street"
                            required ng-pattern="/^(?!\s*$).+/"
-                           ui-change="showName = !showName; addressForm.street.$valid ? updateAddress(roomInstance.mailAddress) : false">
+                           ui-change="$ctrl.showName = !$ctrl.showName; addressForm.street.$valid ? $ctrl.updateAddress($ctrl.room.mailAddress) : false">
                         <span class="input-group-addon">
                             <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'"
                                uib-popover="{{'sitnet_exam_room_address_street' | translate}}"></i>
@@ -19,9 +19,9 @@
                 <div class="sitnet-info-text">{{'sitnet_exam_room_address_zip' | translate}}</div>
                 <div class="input-group">
                     <input type="text" name="zip" class="form-control ng-pristine ng-valid"
-                           ng-model="roomInstance.mailAddress.zip"
+                           ng-model="$ctrl.room.mailAddress.zip"
                            required ng-pattern="/^\d*(\.\d+)?$/"
-                           ui-change="showName = !showName; addressForm.zip.$valid ? updateAddress(roomInstance.mailAddress) : false">
+                           ui-change="$ctrl.showName = !$ctrl.showName; addressForm.zip.$valid ? $ctrl.updateAddress($ctrl.room.mailAddress) : false">
                             <span class="input-group-addon">
                                 <i class="fa fa-question-circle fa-fw" popover-placement="left"
                                    popover-trigger="'mouseenter'"
@@ -35,9 +35,9 @@
                 <div class="sitnet-info-text">{{'sitnet_exam_room_address_city' | translate}}</div>
                 <div class="input-group">
                     <input type="text" name="city" class="form-control ng-pristine ng-valid"
-                           ng-model="roomInstance.mailAddress.city"
+                           ng-model="$ctrl.room.mailAddress.city"
                            required ng-pattern="/^(?!\s*$).+/"
-                           ui-change="showName = !showName; addressForm.city.$valid ? updateAddress(roomInstance.mailAddress) : false">
+                           ui-change="$ctrl.showName = !$ctrl.showName; addressForm.city.$valid ? $ctrl.updateAddress($ctrl.room.mailAddress) : false">
                         <span class="input-group-addon">
                             <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'"
                                uib-popover="{{'sitnet_exam_room_address_city' | translate}}"></i>

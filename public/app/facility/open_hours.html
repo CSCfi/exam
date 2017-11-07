@@ -2,7 +2,7 @@
 
     <table style="display:inline-block">
         <thead>
-            <tr ng-repeat="time in times">
+            <tr ng-repeat="time in $ctrl.times">
                 <th style="vertical-align: bottom;" ng-class="{ 'light' : $odd }">{{time}}</th>
             </tr>
         </thead>
@@ -11,15 +11,15 @@
     <table style="display:inline-block">
         <thead>
             <tr>
-                <th ng-repeat="weekday in weekdayNames">{{weekday}}</th>
+                <th ng-repeat="weekday in $ctrl.weekdayNames">{{weekday}}</th>
            </tr>
         </thead>
 
         <tbody>
-           <tr ng-repeat="slot in timerange()">
-                <td ng-repeat="day in getWeekdays()" class='selectable {{ getType(day, slot) }}' ng-click='select(day, slot)'>
+           <tr ng-repeat="slot in $ctrl.timerange()">
+                <td ng-repeat="day in $ctrl.getWeekdays()" class='selectable {{ $ctrl.getType(day, slot) }}' ng-click='$ctrl.select(day, slot)'>
                     <div class="fullsize" tooltip-placement="right" tooltip-animation="false" tooltip-popup-delay="50"
-                         uib-tooltip="{{calculateTime(slot)}}"></div>
+                         uib-tooltip="{{$ctrl.calculateTime(slot)}}"></div>
                 </td>
             </tr>
         </tbody>

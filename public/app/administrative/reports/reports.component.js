@@ -3,8 +3,8 @@
 angular.module('app.administrative.reports')
     .component('reports', {
         templateUrl: '/assets/app/administrative/reports/reports.template.html',
-        controller: ['$translate', 'EXAM_CONF', 'Reports', 'RoomResource', 'DateTime', '$filter', 'UserRes', 'Files',
-            function ($translate, EXAM_CONF, Reports, RoomResource, DateTime, $filter, UserRes, Files) {
+        controller: ['$translate', 'EXAM_CONF', 'Reports', 'Room', 'DateTime', '$filter', 'UserRes', 'Files',
+            function ($translate, EXAM_CONF, Reports, Room, DateTime, $filter, UserRes, Files) {
 
                 var ctrl = this;
 
@@ -26,7 +26,7 @@ angular.module('app.administrative.reports')
                         room: {name: $translate.instant('sitnet_choose')}
                     };
 
-                    ctrl.rooms = RoomResource.rooms.query();
+                    ctrl.rooms = Room.rooms.query();
                     ctrl.examNames = Reports.examNames.query();
 
                     ctrl.teachers = UserRes.usersByRole.query({role: 'TEACHER'});
