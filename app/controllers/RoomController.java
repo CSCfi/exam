@@ -3,13 +3,13 @@ package controllers;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.base.BaseController;
 import controllers.iop.api.ExternalFacilityAPI;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.text.PathProperties;
 import models.Accessibility;
 import models.ExamMachine;
 import models.ExamRoom;
@@ -24,7 +24,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.BeanUtils;
 import play.Logger;
-import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
@@ -38,6 +37,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class RoomController extends BaseController {
 
@@ -264,26 +265,22 @@ public class RoomController extends BaseController {
     @Restrict(@Group({"ADMIN"}))
     public Result addRoomExceptionHour() {
 
-        final JsonNode root = request().body().asJson();
+        final JsonNode exception = request().body().asJson().get("exception");
+        final JsonNode ids = request().body().asJson().get("roomIds");
 
-        if (!root.has("startDate") || !root.has("endDate")) {
+        if (!exception.has("startDate") || !exception.has("endDate")) {
             return badRequest("either start or end date missing");
         }
-        DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(root.get("startDate").asText());
-        DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(root.get("endDate").asText());
+        DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(exception.get("startDate").asText());
+        DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(exception.get("endDate").asText());
 
-        DynamicForm df = formFactory.form().bindFromRequest();
-        String args = df.get("roomIds");
-        String[] examRoomIds;
-        if (args == null || args.isEmpty()) {
-            examRoomIds = new String[]{};
-        } else {
-            examRoomIds = args.split(",");
-        }
+        List<Long> roomIds = StreamSupport.stream(ids.spliterator(), false)
+                .map(JsonNode::asLong)
+                .collect(Collectors.toList());
 
         ExceptionWorkingHours hours = null;
 
-        for (String id : examRoomIds) {
+        for (Long id : roomIds) {
             ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
             if (examRoom == null) {
                 return notFound();
@@ -295,9 +292,8 @@ public class RoomController extends BaseController {
             hours.setEndDate(endDate.toDate());
             hours.setEndDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(endDate));
             hours.setRoom(examRoom);
-            hours.setOutOfService(root.get("outOfService").asBoolean(true));
-
-            if (examRoomIds.length > 1) {
+            hours.setOutOfService(exception.get("outOfService").asBoolean(true));
+            if (roomIds.size() > 1) {
                 hours.setMassEdited(true);
             }
             hours.save();
@@ -322,7 +318,6 @@ public class RoomController extends BaseController {
 
         if (!ids.isEmpty()) {
             for (String aid : ids) {
-                System.out.println(aid);
                 int accessibilityId;
                 try {
                     accessibilityId = Integer.parseInt(aid.trim());

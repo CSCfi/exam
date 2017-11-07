@@ -64,7 +64,7 @@ public class ReportController extends BaseController {
                 .fetch("exam", "id, created")
                 .where()
                 .ne("exam.state", Exam.State.PUBLISHED)
-                .isNotNull("reservation")
+                .isNotNull("reservation.machine")
                 .ne("reservation.noShow", true);
         query = applyFilters(query, "exam.course", "exam.created", dept.orElse(null), start.orElse(null), end.orElse(null));
         Map<String, List<ExamEnrolment>> roomMap = new HashMap<>();

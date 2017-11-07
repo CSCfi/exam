@@ -574,12 +574,12 @@
                         if ($scope.editingMultipleRooms()) {
                             roomIds = $scope.rooms.map(function (s) {
                                 return s.id;
-                            }).join();
+                            });
                         } else {
                             roomIds = [$scope.roomInstance.id];
                         }
 
-                        RoomResource.exceptions.update({roomIds: roomIds}, exception,
+                        RoomResource.exceptions.update({roomIds: roomIds, exception: exception},
                             function (data) {
                                 toastr.info($translate.instant('sitnet_exception_time_added'));
                                 if ($scope.editingMultipleRooms()) {

@@ -207,7 +207,11 @@ angular.module('app.session')
                 self.restartSessionCheck();
                 $rootScope.$broadcast('userUpdated');
                 var welcome = function () {
+                    toastr.options.positionClass = 'toast-top-center';
                     toastr.success($translate.instant('sitnet_welcome') + ' ' + _user.firstName + ' ' + _user.lastName);
+                    $timeout(function () {
+                        toastr.options.positionClass = 'toast-top-right';
+                    }, 2500)
                 };
                 $timeout(welcome, 2000);
                 if (!_user.loginRole) {

@@ -103,15 +103,6 @@ angular.module('app')
                         }
                     }
 
-                    function createFuncAttr(innerAttr, funcArgs, dateTimeAttrOpt) {
-                        var dateTimeAttr = angular.isDefined(dateTimeAttrOpt) ? dateTimeAttrOpt : innerAttr;
-                        if (attrs[dateTimeAttr]) {
-                            return dashCase(innerAttr) + '="' + dateTimeAttr + '({' + funcArgs + '})" ';
-                        } else {
-                            return '';
-                        }
-                    }
-
                     function createEvalAttr(innerAttr, dateTimeAttrOpt) {
                         var dateTimeAttr = angular.isDefined(dateTimeAttrOpt) ? dateTimeAttrOpt : innerAttr;
                         if (attrs[dateTimeAttr]) {
@@ -131,7 +122,7 @@ angular.module('app')
                         'current-text="{{\'sitnet_today\' | translate}}" date-validator />\n' +
                         '</div>\n' +
                         '<div id="datetimepicker" class="datetimepicker-wrapper" ng-model="time" ng-change="timeChange()" style="display:inline-block">\n' +
-                        '<uib-timepicker ' + [
+                        '<div uib-timepicker ' + [
                             ['hourStep'],
                             ['minuteStep'],
                             ['showMeridian'],
@@ -139,7 +130,7 @@ angular.module('app')
                             ['mousewheel']
                         ].reduce(createAttrConcat, '') +
                         createEvalAttr('readonlyInput', 'readonlyTime') +
-                        '></uib-timepicker>\n' +
+                        '></div>\n' +
                         '</div>';
                     return tmpl;
                 },

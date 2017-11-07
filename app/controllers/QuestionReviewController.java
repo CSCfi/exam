@@ -36,6 +36,7 @@ public class QuestionReviewController extends BaseController {
             return badRequest();
         }
         List<Long> questionIds = ids.orElse(Collections.emptyList());
+        // This is the ordering of essay questions in current exam
         List<Question> questionSequence = exam.getExamSections().stream().sorted()
                 .flatMap(es -> es.getSectionQuestions().stream().sorted())
                 .filter(esq -> esq.getQuestion().getType() == Question.Type.EssayQuestion)
@@ -43,13 +44,13 @@ public class QuestionReviewController extends BaseController {
                 .map(ExamSectionQuestion::getQuestion)
                 .collect(Collectors.toList());
 
-        // This is the ordering of essay questions in current exam
-        List<Long> questionIdSequence = questionSequence.stream().map(GeneratedIdentityModel::getId)
-                .collect(Collectors.toList());
 
         // Ordered map of questions to answers (might need to separately check indices that are -1)
         Map<Question, List<ExamSectionQuestion>> questionMap = new TreeMap<>(
-                Comparator.comparingInt(o -> questionIdSequence.indexOf(o.getId())));
+                Comparator.comparingInt(o -> questionSequence.stream()
+                        .map(GeneratedIdentityModel::getId).collect(Collectors.toList())
+                        .indexOf(o.getId()))
+        );
 
         // All the answers for questions in this exam
         List<ExamSectionQuestion> answers = exam.getChildren().stream()
