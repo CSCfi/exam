@@ -2,9 +2,9 @@
 angular.module('app.facility.rooms')
     .component('room', {
         templateUrl: '/assets/app/facility/rooms/room.template.html',
-        controller: ['$translate', '$route', '$location', '$uibModal', '$routeParams', '$http',
+        controller: ['$translate', '$scope', '$route', '$location', '$uibModal', '$routeParams', '$http',
             'dialogs', 'Room', 'SettingsResource', 'InteroperabilityResource', 'DateTime', 'EXAM_CONF',
-            function ($translate, $route, $location, $modal, $routeParams, $http, dialogs, Room, SettingsRes,
+            function ($translate, $scope, $route, $location, $modal, $routeParams, $http, dialogs, Room, SettingsRes,
                       InteroperabilityRes, DateTime, EXAM_CONF) {
 
                 var vm = this;
@@ -62,9 +62,9 @@ angular.module('app.facility.rooms')
                     );
                 };
 
-                // vm.$on('$localeChangeSuccess', function () {
-                //     vm.weekdayNames = DateTime.getWeekdayNames();
-                // });
+                $scope.$on('$localeChangeSuccess', function () {
+                    vm.weekdayNames = DateTime.getWeekdayNames();
+                });
 
                 vm.disableRoom = function () {
                     Room.disableRoom(vm.room);
