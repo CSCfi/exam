@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.review')
-    .service('Assessment', ['$q', '$resource', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session',
-        function ($q, $resource, $translate, $location, $timeout, dialogs, ExamRes, Session) {
+    .service('Assessment', ['$q', '$resource', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Question',
+        function ($q, $resource, $translate, $location, $timeout, dialogs, ExamRes, Session, Question) {
 
             var self = this;
 
@@ -163,6 +163,17 @@ angular.module('app.review')
                         register(exam, res, followUpUrl);
                     }
                 }
+            };
+
+            self.saveEssayScore = function (question) {
+                if (!question.essayAnswer || isNaN(question.essayAnswer.evaluatedScore)) {
+                    return $q.reject();
+                }
+
+                return Question.essayScoreApi.update({
+                    id: question.id,
+                    evaluatedScore: question.essayAnswer.evaluatedScore
+                }).$promise;
             };
 
             self.saveAssessment = function (exam, modifiable) {

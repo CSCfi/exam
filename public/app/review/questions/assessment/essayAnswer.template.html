@@ -64,7 +64,7 @@
                     <div ng-if="$ctrl.answer.evaluationType === 'Points'">
                         <form name="essayPoints">
                             <input id="score" name="score" type="number" class="form-control"
-                                   ng-model="$ctrl.answer.essayAnswer.evaluatedScore" step="1"
+                                   ng-model="$ctrl.answer.essayAnswer.score" step="1"
                                    size="5"
                                    onclick="this.focus()"
                                    ng-disabled="!$ctrl.editable"
@@ -77,10 +77,10 @@
                     <div ng-if="$ctrl.answer.evaluationType === 'Selection'">
                         <select class="form-control" ng-model="$ctrl.answer.essayAnswer.evaluatedScore"
                                 ng-disabled="!$ctrl.editable">
-                            <option value="1" ng-selected="$ctrl.answer.essayAnswer.evaluatedScore === 1">
+                            <option value="1" ng-selected="$ctrl.answer.essayAnswer.score === 1">
                                 {{ 'sitnet_approved' | translate }}
                             </option>
-                            <option value="0" ng-selected="$ctrl.answer.essayAnswer.evaluatedScore === 0">
+                            <option value="0" ng-selected="$ctrl.answer.essayAnswer.score === 0">
                                 {{ 'sitnet_rejected' | translate }}
                             </option>
                         </select>
@@ -95,7 +95,7 @@
                     <input type="checkbox" ng-model="$ctrl.answer.selected" ng-disabled="!$ctrl.editable || !$ctrl.isAssessed()">
                     {{$ctrl.action | translate }}
                 </label>
-                <i ng-if="$ctrl.editable && $ctrl.isAssessed() && $ctrl.answer.selected" class="marl10 fa fa-lg fa-share text-success"
+                <i ng-if="$ctrl.editable && $ctrl.isAssessed() && $ctrl.answer.selected" class="marl10 pointer fa fa-lg fa-share text-success"
                    ng-click="$ctrl.saveScore()"></i>
             </span>
         </div>

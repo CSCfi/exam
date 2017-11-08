@@ -860,5 +860,6 @@
   "sitnet_question_flow": "Kysymysvirta SV",
   "sitnet_graded_logged_exams": "Lukitut SV",
   "sitnet_move_to_assessed": "Siirä arvioituihin SV",
-  "sitnet_assessee_information": "Vastaajan tiedot SV"
+  "sitnet_assessee_information": "Vastaajan tiedot SV",
+  "sitnet_no_answers_to_assess": "Ei arvioitavia tai arvioituja vastauksia SV"
 }

@@ -14,6 +14,7 @@ angular.module('app.session')
                 };
 
                 $rootScope.$on('devLogout', function () {
+                    $location.url($location.path());
                     ctrl.user = Session.getUser();
                     ctrl.credentials = {};
                     Session.setLoginEnv(ctrl);

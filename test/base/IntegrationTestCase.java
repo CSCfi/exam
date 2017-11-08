@@ -19,7 +19,6 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.yaml.snakeyaml.Yaml;
 import play.Application;
-import play.api.test.CSRFTokenHelper;
 import play.db.Database;
 import play.db.Databases;
 import play.db.evolutions.Evolutions;

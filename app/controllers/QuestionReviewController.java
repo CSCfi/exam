@@ -44,13 +44,20 @@ public class QuestionReviewController extends BaseController {
                 .map(ExamSectionQuestion::getQuestion)
                 .collect(Collectors.toList());
 
+        // Comparator for ordering questions, have to take to account that answer's question is no longer found
+        Comparator<Question> comparator = (o1, o2) -> {
+            List<Long> l = questionSequence.stream().map(GeneratedIdentityModel::getId).collect(Collectors.toList());
+            if (l.indexOf(o1.getId()) == -1) {
+                return 1;
+            }
+            if (l.indexOf(o2.getId()) == -1) {
+                return -1;
+            }
+            return l.indexOf(o1.getId()) - l.indexOf(o2.getId());
+        };
 
-        // Ordered map of questions to answers (might need to separately check indices that are -1)
-        Map<Question, List<ExamSectionQuestion>> questionMap = new TreeMap<>(
-                Comparator.comparingInt(o -> questionSequence.stream()
-                        .map(GeneratedIdentityModel::getId).collect(Collectors.toList())
-                        .indexOf(o.getId()))
-        );
+        // Ordered map of questions to answers
+        Map<Question, List<ExamSectionQuestion>> questionMap = new TreeMap<>(comparator);
 
         // All the answers for questions in this exam
         List<ExamSectionQuestion> answers = exam.getChildren().stream()

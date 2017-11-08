@@ -1,5 +1,4 @@
 'use strict';
-
 angular.module('app.review')
     .component('essayAnswer', {
         templateUrl: '/assets/app/review/questions/assessment/essayAnswer.template.html',
@@ -16,28 +15,24 @@ angular.module('app.review')
 
                 vm.$onInit = function () {
                     vm.answer.expanded = true;
+                    vm.answer.essayAnswer = vm.answer.essayAnswer || {};
+                    vm.answer.essayAnswer.score = vm.answer.essayAnswer.evaluatedScore;
                 };
 
                 vm.getWordCount = function() {
-                    if (!vm.answer.essayAnswer) {
-                        return 0;
-                    }
                     return Assessment.countWords(vm.answer.essayAnswer.answer);
                 };
 
                 vm.getCharacterCount = function () {
-                    if (!vm.answer.essayAnswer) {
-                        return 0;
-                    }
                     return Assessment.countCharacters(vm.answer.essayAnswer.answer);
                 };
 
                 vm.saveScore = function () {
-                    vm.onSelection({id: vm.answer});
+                    vm.onSelection({answer: vm.answer});
                 };
 
                 vm.isAssessed = function () {
-                    return vm.answer.essayAnswer && parseFloat(vm.answer.essayAnswer.evaluatedScore) >= 0;
+                    return vm.answer.essayAnswer && parseFloat(vm.answer.essayAnswer.score) >= 0;
                 }
 
             }

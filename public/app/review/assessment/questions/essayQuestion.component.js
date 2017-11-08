@@ -27,20 +27,13 @@ angular.module('app.review')
                 };
 
                 vm.insertEssayScore = function () {
-                    var answer = vm.sectionQuestion.essayAnswer;
-                    if (!answer || isNaN(answer.evaluatedScore)) {
-                        return;
-                    }
-
-                    Question.essayScoreApi.update({
-                        id: vm.sectionQuestion.id,
-                        evaluatedScore: answer.evaluatedScore
-                    }, function () {
-                        toastr.info($translate.instant('sitnet_graded'));
-                        vm.onScore();
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
+                    Assessment.saveEssayScore(vm.sectionQuestion)
+                        .then(function () {
+                            toastr.info($translate.instant('sitnet_graded'));
+                            vm.onScore();
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
                 };
 
                 vm.getWordCount = function () {

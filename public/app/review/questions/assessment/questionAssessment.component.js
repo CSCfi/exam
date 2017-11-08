@@ -3,8 +3,8 @@
 angular.module('app.review')
     .component('questionAssessment', {
         templateUrl: '/assets/app/review/questions/assessment/questionAssessment.template.html',
-        controller: ['$routeParams', '$sce', 'QuestionReview', 'Session', 'Attachment',
-            function ($routeParams, $sce, QuestionReview, Session, Attachment) {
+        controller: ['$routeParams', '$sce', '$translate', 'QuestionReview', 'Assessment', 'Session', 'Attachment',
+            function ($routeParams, $sce, $translate, QuestionReview, Assessment, Session, Attachment) {
 
                 var vm = this;
 
@@ -63,16 +63,30 @@ angular.module('app.review')
                     setSelectedReview(vm.reviews[index]);
                 };
 
-                vm.saveAssessments = function (answers) {
-                    // Tallenna bäkkäriin
+                var saveEvaluation = function (answer) {
+                    answer.essayAnswer.evaluatedScore = answer.essayAnswer.score;
+                    Assessment.saveEssayScore(answer).then(function () {
+                        toastr.info($translate.instant('sitnet_graded'));
+                        if (vm.assessedAnswers.indexOf(answer) === -1) {
+                            vm.unassessedAnswers.splice(vm.unassessedAnswers.indexOf(answer), 1);
+                            vm.assessedAnswers.push(answer);
+                        }
+                    }, function (err) {
+                        // Roll back
+                        answer.essayAnswer.evaluatedScore = answer.essayAnswer.score;
+                        toastr.error(err.data);
+                    });
+                };
 
-                    // Siirrä vastaukset arvioitujen listaan
+                vm.saveAssessments = function (answers) {
+                    answers.forEach(function (a) {
+                        saveEvaluation(a);
+                    });
                 };
 
                 vm.isFinalized = function (review) {
                     return QuestionReview.isFinalized(review);
                 };
-
 
                 vm.downloadQuestionAttachment = function () {
                     Attachment.downloadQuestionAttachment(vm.selectedReview.question);
