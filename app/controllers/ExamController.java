@@ -426,7 +426,7 @@ public class ExamController extends BaseController {
         examType.ifPresent(type -> {
             ExamType eType = Ebean.find(ExamType.class)
                     .where()
-                    .eq("type", examType)
+                    .eq("type", type)
                     .findUnique();
 
             if (eType != null) {

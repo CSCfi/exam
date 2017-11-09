@@ -70,7 +70,10 @@ public class ExamUpdateSanitizer extends play.mvc.Action.Simple {
         request = SanitizingHelper.sanitizeOptional("expanded", body, Boolean.class, Attrs.EXPANDED, request);
         request = SanitizingHelper.sanitizeOptional("subjectToLanguageInspection", body, Boolean.class, Attrs.LANG_INSPECTION_REQUIRED, request);
         request = SanitizingHelper.sanitizeOptional("internalRef", body, String.class, Attrs.REFERENCE, request);
-        request = SanitizingHelper.sanitizeOptional("examType", body, String.class, Attrs.TYPE, request);
+        if (body.has("examType")) {
+            final JsonNode examTypeNode = body.get("examType");
+            request = SanitizingHelper.sanitizeOptional("type", examTypeNode, String.class, Attrs.TYPE, request);
+        }
 
         // AUTO-EVALUATION
         if (body.has("evaluationConfig")) {
