@@ -861,5 +861,7 @@
   "sitnet_graded_logged_exams": "Lukitut SV",
   "sitnet_move_to_assessed": "Siirä arvioituihin SV",
   "sitnet_assessee_information": "Vastaajan tiedot SV",
-  "sitnet_no_answers_to_assess": "Ei arvioitavia tai arvioituja vastauksia SV"
+  "sitnet_no_answers_to_assess": "Ei arvioitavia tai arvioituja vastauksia SV",
+  "sitnet_additional_info_for_student": "Arvioinnin lisätiedot opiskelijalle SV",
+  "sitnet_additional_info_for_student_description": "Tiedota opiskelijaa arviointiin liittyen SV"
 }

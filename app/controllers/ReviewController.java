@@ -244,6 +244,26 @@ public class ReviewController extends BaseController {
         return ok(Json.toJson(essayQuestion));
     }
 
+    @Restrict({@Group("TEACHER")})
+    public Result updateAssessmentInfo(Long id) {
+        String info = request().body().asJson().get("assessmentInfo").asText();
+        Optional<Exam>  option = Ebean.find(Exam.class).fetch("parent.creator")
+                .where()
+                .idEq(id)
+                .eq("state", Exam.State.GRADED_LOGGED)
+                .findOneOrEmpty();
+        if (!option.isPresent()) {
+            return notFound("sitnet_exam_not_found");
+        }
+        Exam exam = option.get();
+        if (exam.getState() != Exam.State.GRADED_LOGGED || !isAllowedToModify(exam, getLoggedUser(), exam.getState())) {
+            return forbidden("You are not allowed to modify this object");
+        }
+        exam.setAssessmentInfo(info);
+        exam.update();
+        return ok();
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result reviewExam(Long id) {
         DynamicForm df = formFactory.form().bindFromRequest();

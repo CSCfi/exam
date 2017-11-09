@@ -182,6 +182,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     // Optional internal reference to this exam
     private String internalRef;
 
+    private String assessmentInfo;
+
     public User getGradedByUser() {
         return gradedByUser;
     }
@@ -510,6 +512,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setLanguageInspection(LanguageInspection languageInspection) {
         this.languageInspection = languageInspection;
+    }
+
+    public String getAssessmentInfo() {
+        return assessmentInfo;
+    }
+
+    public void setAssessmentInfo(String assessmentInfo) {
+        this.assessmentInfo = assessmentInfo;
     }
 
     private Exam createCopy(User user, boolean produceStudentExam) {

@@ -72,6 +72,10 @@ angular.module('app.review')
                     });
                 };
 
+                vm.saveAssessmentInfo = function () {
+                    Assessment.saveAssessmentInfo(vm.exam);
+                };
+
                 vm.downloadFeedbackAttachment = function () {
                     Attachment.downloadFeedbackAttachment(vm.exam);
                 };
@@ -96,7 +100,7 @@ angular.module('app.review')
                 };
 
                 vm.setLanguage = function () {
-                    vm.exam.answerLanguage = vm.selections.language ? vm.selections.language.name : undefined;
+                    vm.exam.answerLanguage = vm.selections.language ? {code: vm.selections.language.code} : undefined;
                 };
 
                 var initGrade = function () {

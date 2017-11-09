@@ -58,12 +58,30 @@
                   onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
     </div>
     <div class="col-md-10 general-info-content">
-        <textarea id="infoForRegistry"
-                  class="form-control"
+        <textarea class="form-control"
                   ng-model="$ctrl.exam.additionalInfo"
                   rows="3"
                   ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()">
         </textarea>
+    </div>
+</div>
+<div class="review-grade-row" ng-hide="!$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()"">
+    <div class="col-md-2 general-info-title">{{ 'sitnet_additional_info_for_student' | translate }}:
+        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
+                  uib-popover="{{'sitnet_additional_info_for_student_description' | translate}}"
+                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
+    </div>
+    <div class="col-md-8 general-info-content">
+        <textarea class="form-control"
+                  ng-model="$ctrl.exam.assessmentInfo"
+                  rows="3">
+        </textarea>
+    </div>
+    <div class="cold-md-2 general-info-content">
+        <button class="btn btn-success" ng-disabled="!$ctrl.exam.assessmentInfo" ng-click="$ctrl.saveAssessmentInfo()">
+            {{'sitnet_save' | translate}}
+        </button>
     </div>
 </div>
 <div class="marb10">&nbsp;</div>

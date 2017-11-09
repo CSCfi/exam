@@ -15,6 +15,12 @@ angular.module('app.review')
                 uid: '@uid'
             });
 
+            self.examAssessmentApi = $resource('/app/review/:id/info', {
+                id: '@id'
+            }, {
+                update: {method: 'PUT'}
+            });
+
             self.saveFeedback = function (exam, silent) {
                 var deferred = $q.defer();
                 var examFeedback = {
@@ -174,6 +180,14 @@ angular.module('app.review')
                     id: question.id,
                     evaluatedScore: question.essayAnswer.evaluatedScore
                 }).$promise;
+            };
+
+            self.saveAssessmentInfo = function (exam) {
+                if (exam.state === 'GRADED_LOGGED') {
+                    self.examAssessmentApi.update({id: exam.id, assessmentInfo: exam.assessmentInfo}, function () {
+                        toastr.info($translate.instant('sitnet_saved'));
+                    });
+                }
             };
 
             self.saveAssessment = function (exam, modifiable) {

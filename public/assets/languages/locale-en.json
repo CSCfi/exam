@@ -541,7 +541,7 @@
   "sitnet_admin": "Admin",
   "sitnet_last_login": "Last login",
   "sitnet_at_least_one_role_required": "You cannot remove the role. At least one role has to be admitted.",
-  "sitnet_copy": "Copy question",
+  "sitnet_copy": "Copy",
   "sitnet_copy_question": "Do you want to make a copy of this question?",
   "sitnet_get_answer_attachments": "Upload attachments from the submitted but not graded exams.",
   "sitnet_load_answer_attachments": "Upload exam answers",
@@ -861,5 +861,7 @@
   "sitnet_graded_logged_exams": "Lukitut EN",
   "sitnet_move_to_assessed": "Siirä arvioituihin EN",
   "sitnet_assessee_information": "Vastaajan tiedot EN",
-  "sitnet_no_answers_to_assess": "Ei arvioitavia tai arvioituja vastauksia EN"
+  "sitnet_no_answers_to_assess": "Ei arvioitavia tai arvioituja vastauksia EN",
+  "sitnet_additional_info_for_student": "Arvioinnin lisätiedot opiskelijalle EN",
+  "sitnet_additional_info_for_student_description": "Tiedota opiskelijaa arviointiin liittyen EN"
 }

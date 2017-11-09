@@ -121,6 +121,7 @@ GET           /app/exams/question/:id/distribution                       control
 ############### Review interface ###############
 GET           /app/reviews/:id                                           controllers.ReviewController.getExamReviews(id: Long)
 PUT           /app/review/:id                                            controllers.ReviewController.reviewExam(id: Long)
+PUT           /app/review/:id/info                                       controllers.ReviewController.updateAssessmentInfo(id: Long)
 PUT           /app/review/examquestion/:id/score                         controllers.ReviewController.scoreExamQuestion(id: Long)
 POST          /app/review/:eid/comment/:cid                              controllers.ReviewController.insertComment(eid: Long, cid: Long)
 PUT           /app/review/:eid/comment/:cid                              controllers.ReviewController.updateComment(eid: Long, cid: Long)
@@ -136,7 +137,6 @@ POST          /app/email/inspection/:eid                                 control
 POST          /app/review/:id/inspection                                 controllers.ReviewController.addInspectionComment(id: Long)
 POST          /app/gradeimport                                           controllers.ReviewController.importGrades
 GET           /app/exam/:eid/attachments                                 controllers.ReviewController.getArchivedAttachments(eid: Long, start: java.util.Optional[String], end: java.util.Optional[String])
-
 
 ############### Language inspection interface ###############
 GET           /app/inspections                                           controllers.LanguageInspectionController.listInspections(month: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
