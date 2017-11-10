@@ -30,8 +30,9 @@ angular.module('app.review')
 
                 vm.$onInit = function () {
                     vm.user = Session.getUser();
+                    vm.examId = $routeParams.id;
                     var ids = $routeParams.q || [];
-                    QuestionReview.questionsApi.query({id: $routeParams.id, ids: ids}, function (data) {
+                    QuestionReview.questionsApi.query({id: vm.examId, ids: ids}, function (data) {
                         data.forEach(function (r, i) {
                             r.selected = i === 0; // select the first in the list
                         });
