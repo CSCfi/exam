@@ -66,7 +66,10 @@
                      assessment="$ctrl.participation.reviewedExam" scores="$ctrl.participation.scores">
                 </exam-feedback>
             </div>
-            <div class="student-exam-row" ng-if="!$ctrl.participation.reviewedExam" class="text-muted">
+            <div class="student-exam-row" ng-if="$ctrl.participation.reservation.noShow">
+                <div class="student-exam-row-infolink text-danger">NO-SHOW</div>
+            </div>
+            <div class="student-exam-row" ng-if="!$ctrl.participation.reservation.noShow && !$ctrl.participation.reviewedExam" class="text-muted">
                 <div class="student-exam-row-infolink">{{'sitnet_no_comments' | translate}}</div>
             </div>
 

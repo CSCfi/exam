@@ -16,6 +16,12 @@ angular.module('app.enrolment')
                 vm.search = function () {
                     StudentExamRes.finishedExams.query({filter: vm.filter.text},
                         function (data) {
+                            data.filter(function (t) {
+                                return !t.ended;
+                            }).forEach(function (t) {
+                                // no-shows, end time to reflect reservations end time
+                                t.ended = t.reservation.endAt;
+                            });
                             vm.participations = data;
                         },
                         function (error) {
