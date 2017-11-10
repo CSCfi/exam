@@ -27,8 +27,7 @@
         <input ng-model="$ctrl.filterLogged"
                ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
                class="form-control search"
-               placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
-               popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_exam_search_description' | translate }}">
+               placeholder="{{'sitnet_search' | translate }}">
         <div class="input-group-addon search">
             <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
         </div>
@@ -66,7 +65,8 @@
     </thead>
 
     <tbody>
-    <tr ng-repeat="review in $ctrl.gradedLoggedReviews | orderBy:$ctrl.gradedLoggedPredicate:$ctrl.reverse | offset: $ctrl.currentPageGradedLogged*$ctrl.pageSize | limitTo:$ctrl. pageSize | filter: $ctrl.filterLogged as resLogged">
+    <tr ng-repeat="review in $ctrl.gradedLoggedReviews | orderBy:$ctrl.gradedLoggedPredicate:$ctrl.reverse
+        | offset: $ctrl.currentPageGradedLogged*$ctrl.pageSize | limitTo:$ctrl. pageSize | filter: $ctrl.loggedFilter as resLogged">
         <td class="table-column-checkbox">
             <input type="checkbox" ng-model="review.selected" class="gradedLoggedBox" value="{{review.exam.id}}"/>
         </td>

@@ -103,6 +103,29 @@ angular.module('app.review')
                     });
                 };
 
+                vm.reviewFilter = function (review) {
+                    return Review.filterReview(vm.filtertext, review);
+                };
+
+                vm.gradedFilter = function (review) {
+                    return Review.filterReview(vm.filtergraded, review);
+                };
+
+                vm.inspectionFilter = function (review) {
+                    return Review.filterReview(vm.filterInspection, review);
+                };
+
+                vm.loggedFilter = function (review) {
+                    return Review.filterReview(vm.filterLogged, review);
+                };
+
+                vm.rejectedFilter = function (review) {
+                    return Review.filterReview(vm.filterRejected, review);
+                };
+
+                vm.archivedFilter = function (review) {
+                    return Review.filterReview(vm.filterArchived, review);
+                };
 
                 vm.translateGrade = function (exam) {
                     var grade = exam.grade ? exam.grade.name : 'NONE';

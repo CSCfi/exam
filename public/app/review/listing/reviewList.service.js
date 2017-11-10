@@ -30,5 +30,15 @@ angular.module('app.review')
                 exam.selectableGrades.push(noGrade);
             };
 
+            self.filterReview = function (filter, review) {
+                if (!filter) {
+                    return true;
+                }
+                var s = filter.toLowerCase();
+                var name = _.get(review, "user.firstName", "") + " " + _.get(review, "user.lastName", "");
+                return name.toLowerCase().indexOf(s) > -1
+                    || _.get(review, "user.email", "").toLowerCase().indexOf(s) > -1;
+            }
+
         }]);
 

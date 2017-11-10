@@ -30,8 +30,7 @@
             <input ng-model="$ctrl.filtertext"
                    ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" type="text"
                    class="form-control search"
-                   placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
-                   popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_exam_search_description' | translate }}">
+                   placeholder="{{'sitnet_search' | translate }}">
             <div class="input-group-addon search">
                 <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
             </div>
@@ -57,7 +56,8 @@
             </thead>
 
             <tbody>
-            <tr ng-repeat="review in $ctrl.examReviews | orderBy:$ctrl.reviewPredicate:$ctrl.reverse | offset: $ctrl.currentPage*$ctrl.pageSize | limitTo: $ctrl.pageSize | filter: $ctrl.filtertext as res">
+            <tr ng-repeat="review in $ctrl.examReviews | orderBy:$ctrl.reviewPredicate:$ctrl.reverse
+                | offset: $ctrl.currentPage*$ctrl.pageSize | limitTo: $ctrl.pageSize | filter: $ctrl.reviewFilter as res">
                 <td class="table-column-15 table-column-bold">
                     <a class="pointer" href="/assessments/{{review.exam.id}}">
                         {{review.user.firstName}} {{review.user.lastName}}
