@@ -863,5 +863,6 @@
   "sitnet_assessee_information": "Vastaajan tiedot",
   "sitnet_no_answers_to_assess": "Ei näytettäviä vastauksia",
   "sitnet_additional_info_for_student": "Arvioinnin lisätiedot opiskelijalle",
-  "sitnet_additional_info_for_student_description": "Tiedota opiskelijaa arviointiin liittyen"
+  "sitnet_additional_info_for_student_description": "Tiedota opiskelijaa arviointiin liittyen",
+  "sitnet_no_show": "Ei arvioida. Käyttämätön varaus."
 }
