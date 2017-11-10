@@ -58,12 +58,12 @@ libraryDependencies ++= Seq(
   "org.webjars.bower" % "font-awesome" % "4.6.1",
   "org.webjars.bower" % "fullcalendar" % "2.4.0",
   "org.webjars.bower" % "jquery" % "2.1.4",
+  "org.webjars.bower" % "lodash" % "4.17.4",
   "org.webjars" % "jquery-ui" % "1.11.4",
   "org.webjars" % "jquery-ui-touch-punch" % "0.2.3-2",
   "org.webjars" % "toastr" % "2.1.1",
   "org.webjars" % "angular-ui-bootstrap" % "2.2.0",
   "org.webjars" % "ui-select2" % "0.0.5-1",
-  "org.webjars" % "underscorejs" % "1.8.3",
   "org.webjars.npm" % "async" % "2.5.0"
 )
 
