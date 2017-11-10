@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.review')
-    .service('ReviewList', ['Exam',
-        function (Exam) {
+    .service('ReviewList', ['Exam', '_',
+        function (Exam, _) {
 
             var self = this;
 

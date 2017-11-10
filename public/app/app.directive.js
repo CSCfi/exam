@@ -164,7 +164,7 @@ angular.module('app')
         }])
 
 
-    .directive('ckEditor', ['$rootScope', function ($rootScope) {
+    .directive('ckEditor', ['$rootScope', '_', function ($rootScope, _) {
         return {
             require: 'ngModel',
             scope: {

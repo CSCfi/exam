@@ -7,7 +7,6 @@ module.exports = function (config) {
             'target/web/web-modules/main/webjars/lib/angular-translate/angular-translate.js',
             'target/web/web-modules/main/webjars/lib/angular-resource/angular-resource.js',
             'target/web/web-modules/main/webjars/lib/angular-animate/angular-animate.js',
-            'target/web/web-modules/main/webjars/lib/angular-cookies/angular-cookies.js',
             'target/web/web-modules/main/webjars/lib/angular-route/angular-route.js',
             'target/web/web-modules/main/webjars/lib/angular-sanitize/angular-sanitize.js',
             'target/web/web-modules/main/webjars/lib/ngstorage/ngStorage.js',

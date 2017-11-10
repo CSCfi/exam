@@ -2,8 +2,8 @@
 angular.module('app.maturity')
     .component('languageInspections', {
         templateUrl: '/assets/app/maturity/languageInspections.template.html',
-        controller: ['$translate', 'LanguageInspections', 'Session', 'EXAM_CONF',
-            function ($translate, LanguageInspections, Session, EXAM_CONF) {
+        controller: ['$translate', 'LanguageInspections', 'Session', 'EXAM_CONF', '_',
+            function ($translate, LanguageInspections, Session, EXAM_CONF, _) {
 
                 var vm = this;
 

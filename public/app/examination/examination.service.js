@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.examination')
-    .service('Examination', ['$q', '$location', '$http', '$translate', '$window',
-        function ($q, $location, $http, $translate, $window) {
+    .service('Examination', ['$q', '$location', '$http', '$translate', '$window', '_',
+        function ($q, $location, $http, $translate, $window, _) {
 
             var self = this;
             var _external;
