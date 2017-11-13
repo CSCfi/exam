@@ -43,6 +43,7 @@ public class BaseController extends Controller {
     protected static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
 
     private static final int KB = 1024;
+    private static final double HUNDRED = 100d;
     private static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
 
     @Inject
@@ -212,8 +213,7 @@ public class BaseController extends Controller {
     }
 
     protected Double round(Double src) {
-        final Double C = 100d;
-        return src == null ? null : Math.round(src * C) / C;
+        return src == null ? null : Math.round(src * HUNDRED) / HUNDRED;
     }
 
 }

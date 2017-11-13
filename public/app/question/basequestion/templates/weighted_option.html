@@ -11,6 +11,7 @@
         <input id="optionScore" name="maxScore" class="question-option-input points"
            type="number" step="1"
            ng-model="option.defaultScore"
+           ng-pattern="/^-?[0-9]+(\.[0-9]{1,2})?$/"
            required="true"
            ng-disabled="$ctrl.lotteryOn"/>
     </div>

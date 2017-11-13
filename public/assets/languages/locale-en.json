@@ -623,7 +623,7 @@
   "sitnet_language_inspections": "Language evaluation",
   "sitnet_ongoing_language_inspections": "Maturity tests to be  evaluated",
   "sitnet_ongoing_language_inspections_no_results": "No maturity tests to be evaluated",
-  "sitnet_ongoing_language_inspections_detail": "({0}",
+  "sitnet_ongoing_language_inspections_detail": "({0})",
   "sitnet_processed_language_inspections": "Evaluated maturity tests",
   "sitnet_processed_language_inspections_no_results": "No evaluated maturity tests",
   "sitnet_processed_language_inspections_detail": "({0} exams in {1},  max 20 shown",
