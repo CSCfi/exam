@@ -8,23 +8,28 @@ angular.module('app.review')
 
                 var vm = this;
 
+                var isLocked = function (answer) {
+                    var states = ['REVIEW', 'REVIEW_STARTED'];
+                    var exam = answer.examSection.exam;
+                    var isInspector = exam.examInspections.map(function(ei) {
+                        return ei.user.id;
+                    }).indexOf(vm.user.id) > -1;
+                    if (!isInspector) {
+                        states.push('GRADED');
+                    }
+                    return states.indexOf(exam.state) === -1;
+                };
+
                 var setSelectedReview = function (review) {
                     vm.selectedReview = review;
                     vm.assessedAnswers = vm.selectedReview.answers.filter(function (a) {
-                        return a.essayAnswer && parseFloat(a.essayAnswer.evaluatedScore) >= 0;
+                        return a.essayAnswer && parseFloat(a.essayAnswer.evaluatedScore) >= 0 && !isLocked(a);
                     });
                     vm.unassessedAnswers = vm.selectedReview.answers.filter(function (a) {
-                        return !a.essayAnswer || a.essayAnswer.evaluatedScore === null;
+                        return !a.essayAnswer || a.essayAnswer.evaluatedScore === null && !isLocked(a);
                     });
                     vm.lockedAnswers = vm.selectedReview.answers.filter(function (a){
-                        var states = ['REVIEW', 'REVIEW_STARTED'];
-                        var isInspector = a.examSection.exam.examInspections.map(function(ei) {
-                            return ei.user.id;
-                        }).indexOf(vm.user.id) > -1;
-                        if (!isInspector) {
-                            states.push('GRADED');
-                        }
-                        return states.indexOf(a.examSection.exam.state) === -1;
+                        return isLocked(a);
                     });
                 };
 
