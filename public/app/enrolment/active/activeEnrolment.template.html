@@ -175,8 +175,7 @@
 
         <div class="student-exam-row" ng-if="$ctrl.enrolment.reservation">
             <div class="student-exam-row-infolink">
-                <a class="infolink pointer" ng-click="$ctrl.showGuide = !$ctrl.showGuide;
-                        $ctrl.showRoomGuide($ctrl.enrolment.exam.hash)">
+                <a class="infolink pointer" ng-click="$ctrl.showGuide = !$ctrl.showGuide">
                     {{ 'sitnet_room_guidance' | translate}}
                     <img class="arrow_icon" ng-hide="$ctrl.showGuide"
                          src="assets/assets/images/arrow_right.png">
@@ -185,7 +184,7 @@
 
             </div>
             <div class="student-exam-row-infobox" ng-show="$ctrl.showGuide">
-                {{ $ctrl.roomInstructions }}
+                {{ $ctrl.getRoomInstruction() }}
             </div>
         </div>
 

@@ -35,13 +35,9 @@ angular.module('app.enrolment')
                     Enrolment.addEnrolmentInformation(vm.enrolment);
                 };
 
-                vm.showRoomGuide = function (hash) {
-                    if (!vm.roomInstructions) {
-                        Enrolment.getRoomInstructions(hash).success(function (room) {
-                            var code = $translate.use();
-                            vm.roomInstructions = room['roomInstruction' + code.toUpperCase()] || room.roomInstruction;
-                        });
-                    }
+                vm.getRoomInstruction = function () {
+                    var room = vm.enrolment.reservation.machine.room;
+                    return room['roomInstruction' + $translate.use().toUpperCase()] || room.roomInstruction;
                 };
 
                 vm.showMaturityInstructions = function () {

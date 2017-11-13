@@ -221,7 +221,8 @@ public class StudentActionsController extends BaseController {
                 .fetch("reservation", "startAt, endAt, externalRef")
                 .fetch("reservation.externalReservation")
                 .fetch("reservation.machine", "name")
-                .fetch("reservation.machine.room", "name, roomCode, localTimezone")
+                .fetch("reservation.machine.room", "name, roomCode, localTimezone, " +
+                        "roomInstruction, roomInstructionEN, roomInstructionSV")
                 .where()
                 .eq("user", user)
                 .gt("exam.examActiveEndDate", now.toDate())

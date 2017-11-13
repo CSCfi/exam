@@ -2,8 +2,8 @@
 angular.module('app.dashboard.student')
     .component('studentDashboard', {
         templateUrl: '/assets/app/dashboard/student/studentDashboard.template.html',
-        controller: ['StudentDashboard', 'Reservation', 'DateTime', 'Enrolment', 'Session', '$translate', '$http',
-            function (StudentDashboard, Reservation, DateTime, Enrolment, Session, $translate, $http) {
+        controller: ['StudentDashboard', 'Reservation', 'Room', 'DateTime', 'Enrolment', 'Session',
+            function (StudentDashboard, Reservation, Room, DateTime, Enrolment, Session) {
 
                 var ctrl = this;
 
@@ -25,19 +25,6 @@ angular.module('app.dashboard.student')
 
                 ctrl.showInstructions = function (id) {
                     ctrl.showInst = ctrl.showInst === id ? 0 : id;
-                };
-
-                ctrl.showRoomGuide = function (hash) {
-
-                    // fetch room instructions
-                    if (!ctrl.currentLanguageText) {
-                        $http.get('/app/enroll/room/' + hash)
-                            .success(function (data) {
-                                ctrl.info = data;
-                                ctrl.currentLanguageText = currentLanguage();
-                            });
-                    }
-                    ctrl.showGuide = ctrl.showGuide === hash ? 0 : hash;
                 };
 
                 ctrl.showMaturityInstructions = function (enrolment) {
