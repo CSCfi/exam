@@ -160,13 +160,14 @@ angular.module('app.review')
                         dialogNote = self.getRecordReviewConfirmationDialogContent(exam.examFeedback.comment);
                         res = ExamRes.saveRecord.add;
                     }
+                    var payload = getPayload(exam, 'GRADED');
                     if (needsConfirmation) {
                         var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), dialogNote);
                         dialog.result.then(function () {
-                            register(exam, res, followUpUrl);
+                            register(exam, res, payload, followUpUrl);
                         });
                     } else {
-                        register(exam, res, followUpUrl);
+                        sendToRegistry(payload, res, exam, followUpUrl);
                     }
                 }
             };
@@ -323,9 +324,8 @@ angular.module('app.review')
                 };
             };
 
-            var register = function (exam, res, followUpUrl) {
+            var register = function (exam, res, payload, followUpUrl) {
                 saveFeedback(exam).then(function () {
-                    var payload = getPayload(exam, 'GRADED');
                     ExamRes.review.update(payload, function () {
                         if (exam.state !== 'GRADED') {
                             toastr.info($translate.instant('sitnet_review_graded'));
