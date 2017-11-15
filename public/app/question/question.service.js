@@ -322,6 +322,7 @@ angular.module('app.question')
                 var deferred = $q.defer();
                 ExamQuestion.distributionApi.update({id: sectionQuestion.id}, data,
                     function (esq) {
+                        angular.extend(esq.question, question);
                         if (question.attachment && question.attachment.modified) {
                             Files.upload('/app/attachment/question', question.attachment,
                                 {questionId: question.id}, question, null, function () {
@@ -329,11 +330,13 @@ angular.module('app.question')
                                 deferred.resolve(esq);
                             });
                         }
-                        if (question.attachment && question.attachment.removed) {
+                        else if (question.attachment && question.attachment.removed) {
                             Attachment.eraseQuestionAttachment(question).then(function () {
                                 esq.question.attachment = null;
                                 deferred.resolve(esq);
                             });
+                        } else {
+                            deferred.resolve(esq);
                         }
                     }, function (error) {
                         toastr.error(error.data);
