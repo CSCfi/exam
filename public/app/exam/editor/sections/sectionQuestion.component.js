@@ -8,8 +8,8 @@ angular.module('app.exam.editor')
             lotteryOn: '<',
             onDelete: '&'
         },
-        controller: ['$sce', '$q', '$uibModal', '$translate', 'dialogs', 'Question', 'ExamQuestion', 'ExamRes',
-            function ($sce, $q, $modal, $translate, dialogs, Question, ExamQuestion, ExamRes) {
+        controller: ['$sce', '$q', '$uibModal', '$translate', 'dialogs', 'Question', 'ExamQuestion', 'ExamRes', 'Attachment',
+            function ($sce, $q, $modal, $translate, dialogs, Question, ExamQuestion, ExamRes, Attachment) {
 
                 var vm = this;
 
@@ -23,6 +23,10 @@ angular.module('app.exam.editor')
 
                 vm.editQuestion = function () {
                     openExamQuestionEditor();
+                };
+
+                vm.downloadQuestionAttachment = function () {
+                    Attachment.downloadQuestionAttachment(vm.sectionQuestion.question);
                 };
 
                 vm.removeQuestion = function () {
@@ -87,8 +91,7 @@ angular.module('app.exam.editor')
                             function (esq) {
                                 toastr.info($translate.instant('sitnet_question_saved'));
                                 // apply changes back to scope
-                                angular.extend(vm.sectionQuestion, data.examQuestion);
-                                angular.extend(vm.sectionQuestion.question, data.question);
+                                angular.extend(vm.sectionQuestion, esq);
                             });
 
                     });

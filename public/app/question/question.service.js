@@ -324,12 +324,17 @@ angular.module('app.question')
                     function (esq) {
                         if (question.attachment && question.attachment.modified) {
                             Files.upload('/app/attachment/question', question.attachment,
-                                {questionId: question.id}, question);
+                                {questionId: question.id}, question, null, function () {
+                                esq.question.attachment = question.attachment;
+                                deferred.resolve(esq);
+                            });
                         }
                         if (question.attachment && question.attachment.removed) {
-                            Attachment.eraseQuestionAttachment(question);
+                            Attachment.eraseQuestionAttachment(question).then(function () {
+                                esq.question.attachment = null;
+                                deferred.resolve(esq);
+                            });
                         }
-                        deferred.resolve(esq);
                     }, function (error) {
                         toastr.error(error.data);
                         deferred.reject();

@@ -1,6 +1,13 @@
 <div class="student-enrolment-wrapper review-view">
 
-    <div class="review-points-exam"><strong>#{{$ctrl.sectionQuestion.question.id}}</strong></div>
+    <div class="review-points-exam">
+        <strong>#{{$ctrl.sectionQuestion.question.id}}</strong>
+        <a ng-if="$ctrl.sectionQuestion.question.attachment.id" class="pointer attachment-link pull-right"
+           popover-placement="left" popover-trigger="'mouseenter'" uib-popover="{{$ctrl.sectionQuestion.question.attachment.fileName}}"
+           ng-click="$ctrl.downloadQuestionAttachment()">
+            <i class="fa fa-paperclip fa-fw"></i>
+        </a>
+    </div>
     <!-- question points -->
     <div class="review-points-exam" ng-if="$ctrl.sectionQuestion.evaluationType === 'Points'
                  || $ctrl.sectionQuestion.question.type === 'ClozeTestQuestion'
