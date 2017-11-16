@@ -68,7 +68,9 @@
                 reverse="$ctrl.data.graded.reverse"></th>
             <th class="with-top" sort by="user.email" text="sitnet_email" predicate="$ctrl.data.graded.predicate"
                 reverse="$ctrl.data.graded.reverse"></th>
-            <th class="with-top" sort by="started" text="sitnet_exam_duration" predicate="$ctrl.data.graded.predicate"
+            <th class="with-top" sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.graded.predicate"
+                reverse="$ctrl.data.graded.reverse"></th>
+            <th class="with-top" sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.graded.predicate"
                 reverse="$ctrl.data.graded.reverse"></th>
             <th class="with-top with-space" sort by="deadline" text="sitnet_review_deadline"
                 predicate="$ctrl.data.graded.predicate" reverse="$ctrl.data.graded.reverse"></th>
@@ -97,11 +99,11 @@
             </td>
             <td class="table-column-15"><a class="pointer smaller" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
             </td>
-            <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+            <td class="table-column-10">{{review.duration + " min"}}</td>
+            <td class="table-column-10">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
                 {{'sitnet_clock_short' |
                 translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
                 {{review.ended | adjustdst | date: 'HH:mm'}}
-                ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
             </td>
             <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                     ng-bind-html="review.deadline | diffInDaysToNow"></span>)
@@ -112,11 +114,11 @@
                                 <br/>{{'sitnet_rejected' | translate }}: {{ review.exam.rejectedAnswerCount }}
                             </span>
             </td>
-            <td class="table-column-15">{{review.displayedGrade}}</td>
+            <td class="table-column-10">{{review.displayedGrade}}</td>
             <td class="table-column-10">
                 {{ review.displayedCredit }}
             </td>
-            <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+            <td class="table-column-10">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
         </tr>
         <tr ng-if=" $ctrl.data.graded.filtered.length === 0">
             <td colspan="9">{{'sitnet_review_no_result' | translate}}</td>

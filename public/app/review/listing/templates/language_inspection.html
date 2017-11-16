@@ -37,7 +37,8 @@
         <tr>
             <th sort by="user.lastName" text="sitnet_student" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
             <th sort by="user.email" text="sitnet_email" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
-            <th sort by="started" text="sitnet_exam_duration" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
+            <th sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
+            <th sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
             <th sort by="deadline" text="sitnet_review_deadline" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
             <th sort by="displayedGrade" text="sitnet_grade" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
             <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="$ctrl.data.inspected.predicate"
@@ -56,11 +57,11 @@
             </td>
             <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
             </td>
-            <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+            <td class="table-column-10">{{review.duration + " min"}}</td>
+            <td class="table-column-10">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
                 {{'sitnet_clock_short' |
                 translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
                 {{review.ended | adjustdst | date: 'HH:mm'}}
-                ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
             </td>
             <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                     ng-bind-html="review.deadline | diffInDaysToNow"></span>)

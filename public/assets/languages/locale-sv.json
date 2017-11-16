@@ -864,5 +864,6 @@
   "sitnet_no_answers_to_assess": "Ei arvioitavia tai arvioituja vastauksia SV",
   "sitnet_additional_info_for_student": "Arvioinnin lisätiedot opiskelijalle SV",
   "sitnet_additional_info_for_student_description": "Tiedota opiskelijaa arviointiin liittyen SV",
-  "sitnet_no_show": "Ei arvioida. Käyttämätön varaus. SV"
+  "sitnet_no_show": "Ei arvioida. Käyttämätön varaus. SV",
+  "sitnet_exam_time": "Tenttiaika SV"
 }

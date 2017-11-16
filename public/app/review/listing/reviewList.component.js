@@ -6,9 +6,9 @@ angular.module('app.review')
             exam: '<'
         },
         controller: ['$filter', '$q', '$translate', '$uibModal', 'dialogs', 'ExamRes', 'DateTime', 'Exam',
-            'ReviewList', 'Files', 'EXAM_CONF',
+            'ReviewList', 'Files', 'EXAM_CONF', 'diffInMinutesToFilter',
             function ($filter, $q, $translate, $modal, dialogs, ExamRes, DateTime, Exam, Review,
-                      Files, EXAM_CONF) {
+                      Files, EXAM_CONF, diffInMinutesToFilter) {
 
                 var vm = this;
 
@@ -57,7 +57,7 @@ angular.module('app.review')
                     ExamRes.examReviews.query({eid: vm.exam.id},
                         function (reviews) {
                             reviews.forEach(function (r) {
-                                r.duration = moment.utc(Date.parse(r.duration)).format('HH:mm');
+                                r.duration = diffInMinutesToFilter(r.started, r.ended);
                                 if (r.exam.languageInspection && !r.exam.languageInspection.finishedAt) {
                                     r.isUnderLanguageInspection = true;
                                 }

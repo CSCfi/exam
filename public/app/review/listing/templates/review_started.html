@@ -48,7 +48,8 @@
             <tr>
                 <th class="with-top" sort by="user.lastName" text="sitnet_student" predicate="$ctrl.data.started.predicate" reverse="$ctrl.data.started.reverse"></th>
                 <th class="with-top" sort by="user.email" text="sitnet_email" predicate="$ctrl.data.started.predicate" reverse="$ctrl.data.started.reverse"></th>
-                <th class="with-top" sort by="started" text="sitnet_exam_duration" predicate="$ctrl.data.started.predicate" reverse="$ctrl.data.started.reverse"></th>
+                <th class="with-top" sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.started.predicate" reverse="$ctrl.data.started.reverse"></th>
+                <th class="with-top" sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.started.predicate" reverse="$ctrl.data.started.reverse"></th>
                 <th class="with-space with-top" sort by="deadline" text="sitnet_review_deadline" predicate="$ctrl.data.started.predicate" reverse="$ctrl.data.started.reverse"></th>
                 <th class="with-space with-top">{{'sitnet_inspection_status' | translate}}</th>
                 <th class="with-space with-top">{{'sitnet_exam_state' | translate}}</th>
@@ -67,10 +68,13 @@
                 <td class="table-column-15"><a class="pointer smaller"
                                                href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                 </td>
-                <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                <td class="table-column-10">
+                    {{review.duration + " min"}}
+                </td>
+                <td class="table-column-10">
+                    {{review.started | adjustdst | date: 'dd.MM.yyyy'}}
                     {{'sitnet_clock_short' | translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
                     {{review.ended | adjustdst | date: 'HH:mm'}}
-                    ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
                 </td>
                 <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                         ng-bind-html="review.deadline | diffInDaysToNow"></span>)
