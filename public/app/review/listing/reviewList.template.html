@@ -52,7 +52,7 @@
         <div ng-include="$ctrl.templates.reviewStartedPath" />
     </div>
 
-    <div class="review-border" ng-if="$ctrl.reviewsInLanguageInspection.length > 0">
+    <div class="review-border" ng-if="$ctrl.data.inspected.items.length > 0">
         <!-- Under language inspection -->
         <div ng-include="$ctrl.templates.languageInspectionPath" />
     </div>
@@ -67,12 +67,12 @@
         <div ng-include="$ctrl.templates.gradedLoggedPath" />
     </div>
 
-    <div class="review-border" ng-if="$ctrl.rejectedReviews.length > 0">
+    <div class="review-border" ng-if="$ctrl.data.rejected.items.length > 0">
         <!-- Rejected -->
         <div ng-include="$ctrl.templates.rejectedPath" />
     </div>
 
-    <div class="review-border" ng-if="$ctrl.archivedReviews.length > 0">
+    <div class="review-border" ng-if="$ctrl.data.archived.items.length > 0">
         <!-- Archived -->
         <div ng-include="$ctrl.templates.archivedPath" />
     </div>

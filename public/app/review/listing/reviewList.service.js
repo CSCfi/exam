@@ -35,9 +35,18 @@ angular.module('app.review')
                     return true;
                 }
                 var s = filter.toLowerCase();
-                var name = _.get(review, "user.firstName", "") + " " + _.get(review, "user.lastName", "");
+                var name = _.get(review, 'user.firstName', '') + ' ' + _.get(review, 'user.lastName', '');
                 return name.toLowerCase().indexOf(s) > -1
-                    || _.get(review, "user.email", "").toLowerCase().indexOf(s) > -1;
+                    || _.get(review, 'user.email', '').toLowerCase().indexOf(s) > -1;
+            };
+
+            self.applyFilter = function (filter, items) {
+                if (!filter) {
+                    return items;
+                }
+                return items.filter(function (i) {
+                    return self.filterReview(filter, i);
+                });
             }
 
         }]);

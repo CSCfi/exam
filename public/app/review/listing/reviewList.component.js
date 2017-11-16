@@ -12,7 +12,35 @@ angular.module('app.review')
 
                 var vm = this;
 
+                vm.applyFreeSearchFilter = function (key) {
+                    var text = vm.data[key].filter;
+                    var target = vm.data[key].items;
+                    vm.data[key].filtered = Review.applyFilter(text, target);
+                };
+
+                var prepareView = function (items, view, setup) {
+                    items.forEach(setup);
+                    vm.data[view].items = items;
+                    vm.data[view].filtered = items;//angular.copy(items);
+                    vm.data[view].toggle = vm.data[view].filtered.length > 0;
+                };
+
+                var filterByState = function (reviews, states) {
+                    return reviews.filter(function (r) {
+                        return states.indexOf(r.exam.state) > -1;
+                    });
+                };
+
+                var filterGraded = function (reviews, matchInspections) {
+                    return reviews.filter(function (r) {
+                        return r.exam.state === 'GRADED' && matchInspections
+                        (!r.exam.languageInspection || r.exam.languageInspection.finishedAt);
+                    });
+                };
+
+
                 vm.$onInit = function () {
+                    vm.pageSize = 30;
 
                     vm.templates = {
                         reviewStartedPath: EXAM_CONF.TEMPLATES_PATH + 'review/listing/templates/review_started.html',
@@ -25,7 +53,15 @@ angular.module('app.review')
                     };
 
                     vm.selections = {graded: {all: false, page: false}, gradedLogged: {all: false, page: false}};
-                    vm.pageSize = 30;
+
+                    vm.data = {
+                        started: {predicate: 'deadline'},
+                        graded: {predicate: 'deadline'},
+                        finished: {predicate: 'displayedGradingTime'},
+                        inspected: {predicate: 'deadline'},
+                        rejected: {predicate: 'displayedGradingTime'},
+                        archived: {predicate: 'displayedGradingTime'}
+                    };
 
                     ExamRes.examReviews.query({eid: vm.exam.id},
                         function (reviews) {
@@ -35,62 +71,30 @@ angular.module('app.review')
                                     r.isUnderLanguageInspection = true;
                                 }
                             });
-                            vm.abortedExams = reviews.filter(function (r) {
-                                return r.exam.state === 'ABORTED';
-                            });
-                            vm.examReviews = reviews.filter(function (r) {
-                                return r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED';
-                            });
-                            vm.examReviews.forEach(handleOngoingReviews);
-                            vm.toggleReviews = vm.examReviews.length > 0;
 
-                            vm.gradedReviews = reviews.filter(function (r) {
-                                return r.exam.state === 'GRADED' && (!r.exam.languageInspection || r.exam.languageInspection.finishedAt);
+                            // ABORTED
+                            vm.abortedExams = filterByState(reviews, ['ABORTED']);
+                            // REVIEW STARTED
+                            prepareView(filterByState(reviews, ['REVIEW', 'REVIEW_STARTED']), 'started', handleOngoingReviews);
+                            // FINISHED
+                            prepareView(filterByState(reviews, ['GRADED_LOGGED']), 'finished', handleGradedReviews);
+                            // REJECTED
+                            prepareView(filterByState(reviews, ['REJECTED']), 'rejected', handleGradedReviews);
+                            // ARCHIVED
+                            prepareView(filterByState(reviews, ['ARCHIVED']), 'archived', handleGradedReviews);
+                            // GRADED
+                            var gradedReviews = reviews.filter(function (r) {
+                                return r.exam.state === 'GRADED' &&
+                                    (!r.exam.languageInspection || r.exam.languageInspection.finishedAt);
                             });
-                            vm.gradedReviews.forEach(function (r) {
-                                r.displayedGrade = vm.translateGrade(r.exam);
-                                r.displayedCredit = vm.printExamCredit(r.exam.course.credits, r.exam.customCredit);
+                            prepareView(gradedReviews, 'graded', handleGradedReviews);
+                            // IN LANGUAGE INSPECTION
+                            var inspections = reviews.filter(function (r) {
+                                return r.exam.state === 'GRADED' && r.exam.languageInspection &&
+                                    !r.exam.languageInspection.finishedAt;
                             });
-                            vm.toggleGradedReviews = vm.gradedReviews.length > 0;
+                            prepareView(inspections, 'inspected', handleGradedReviews);
 
-                            vm.reviewsInLanguageInspection = reviews.filter(function (r) {
-                                return r.exam.state === 'GRADED' && r.exam.languageInspection && !r.exam.languageInspection.finishedAt;
-                            });
-                            vm.reviewsInLanguageInspection.forEach(function (r) {
-                                r.displayedGrade = vm.translateGrade(r.exam);
-                                r.displayedCredit = vm.printExamCredit(r.exam.course.credits, r.exam.customCredit);
-                            });
-                            vm.toggleReviewsInLanguageInspection = vm.reviewsInLanguageInspection.length > 0;
-
-                            vm.gradedLoggedReviews = reviews.filter(function (r) {
-                                return r.exam.state === 'GRADED_LOGGED';
-                            });
-                            vm.gradedLoggedReviews.forEach(function (r) {
-                                r.displayedGradingTime = r.exam.languageInspection ?
-                                    r.exam.languageInspection.finishedAt : r.exam.gradedTime;
-                                r.displayedGrade = vm.translateGrade(r.exam);
-                            });
-                            vm.toggleLoggedReviews = vm.gradedLoggedReviews.length > 0;
-
-                            vm.rejectedReviews = reviews.filter(function (r) {
-                                return r.exam.state === 'REJECTED';
-                            });
-                            vm.rejectedReviews.forEach(function (r) {
-                                r.displayedGradingTime = r.exam.languageInspection ?
-                                    r.exam.languageInspection.finishedAt : r.exam.gradedTime;
-                            });
-                            vm.toggleRejectedReviews = vm.rejectedReviews.length > 0;
-
-                            vm.archivedReviews = reviews.filter(function (r) {
-                                return r.exam.state === 'ARCHIVED';
-                            });
-                            vm.archivedReviews.forEach(function (r) {
-                                r.displayedGradingTime = r.exam.languageInspection ?
-                                    r.exam.languageInspection.finishedAt : r.exam.gradedTime;
-                                r.displayedGrade = vm.translateGrade(r.exam);
-                                r.displayedCredit = vm.printExamCredit(r.exam.course.credits, r.exam.customCredit);
-                            });
-                            vm.toggleArchivedReviews = vm.archivedReviews.length > 0;
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -101,30 +105,6 @@ angular.module('app.review')
                     ExamRes.noShows.query({eid: vm.exam.id}, function (noShows) {
                         vm.noShows = noShows;
                     });
-                };
-
-                vm.reviewFilter = function (review) {
-                    return Review.filterReview(vm.filtertext, review);
-                };
-
-                vm.gradedFilter = function (review) {
-                    return Review.filterReview(vm.filtergraded, review);
-                };
-
-                vm.inspectionFilter = function (review) {
-                    return Review.filterReview(vm.filterInspection, review);
-                };
-
-                vm.loggedFilter = function (review) {
-                    return Review.filterReview(vm.filterLogged, review);
-                };
-
-                vm.rejectedFilter = function (review) {
-                    return Review.filterReview(vm.filterRejected, review);
-                };
-
-                vm.archivedFilter = function (review) {
-                    return Review.filterReview(vm.filterArchived, review);
                 };
 
                 vm.translateGrade = function (exam) {
@@ -161,7 +141,7 @@ angular.module('app.review')
                 };
 
                 vm.archiveSelected = function () {
-                    var selection = getSelectedReviews(vm.gradedLoggedReviews);
+                    var selection = getSelectedReviews(vm.data.finished.filtered);
                     if (!selection) {
                         return;
                     }
@@ -169,19 +149,21 @@ angular.module('app.review')
                         return r.exam.id;
                     });
                     ExamRes.archive.update({ids: ids.join()}, function () {
-                        vm.gradedLoggedReviews = vm.gradedLoggedReviews.filter(function (r) {
+                        vm.data.finished.items = vm.data.finished.items.filter(function (r) {
                             if (ids.indexOf(r.exam.id) > -1) {
-                                vm.archivedReviews.push(r);
+                                vm.data.archived.items.push(r);
                                 return false;
                             }
                             return true;
                         });
+                        vm.applyFreeSearchFilter('archived');
+                        vm.applyFreeSearchFilter('finished');
                         toastr.info($translate.instant('sitnet_exams_archived'));
                     });
                 };
 
                 vm.sendSelectedToRegistry = function () {
-                    var selection = getSelectedReviews(vm.gradedReviews);
+                    var selection = getSelectedReviews(vm.data.graded.filtered);
                     if (!selection) {
                         return;
                     }
@@ -199,7 +181,7 @@ angular.module('app.review')
                 };
 
                 vm.printSelected = function (asReport) {
-                    var selection = getSelectedReviews(vm.gradedLoggedReviews);
+                    var selection = getSelectedReviews(vm.data.finished.filtered);
                     if (!selection) {
                         return;
                     }
@@ -268,8 +250,10 @@ angular.module('app.review')
                             review.selected = false;
                             review.displayedGradingTime = review.exam.languageInspection ?
                                 review.exam.languageInspection.finishedAt : review.exam.gradedTime;
-                            vm.gradedReviews.splice(vm.gradedReviews.indexOf(review), 1);
-                            vm.gradedLoggedReviews.push(review);
+                            vm.data.graded.items.splice(vm.data.graded.items.indexOf(review), 1);
+                            vm.data.finished.items.push(review);
+                            vm.applyFreeSearchFilter('graded');
+                            vm.applyFreeSearchFilter('finished');
                             deferred.resolve();
                         });
                     } else {
@@ -284,6 +268,13 @@ angular.module('app.review')
                     ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
                         review.inspections = inspections;
                     });
+                };
+
+                var handleGradedReviews = function (r) {
+                    r.displayedGradingTime = r.exam.languageInspection ?
+                        r.exam.languageInspection.finishedAt : r.exam.gradedTime;
+                    r.displayedGrade = vm.translateGrade(r.exam);
+                    r.displayedCredit = vm.printExamCredit(r.exam.course.credits, r.exam.customCredit);
                 };
 
                 vm.printExamCredit = function (courseCredit, customCredit) {
