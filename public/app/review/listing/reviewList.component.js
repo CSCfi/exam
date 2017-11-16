@@ -20,9 +20,8 @@ angular.module('app.review')
 
                 var prepareView = function (items, view, setup) {
                     items.forEach(setup);
-                    vm.data[view].items = items;
-                    vm.data[view].filtered = items;//angular.copy(items);
-                    vm.data[view].toggle = vm.data[view].filtered.length > 0;
+                    vm.data[view].items = vm.data[view].filtered = items;
+                    vm.data[view].toggle = items.length > 0;
                 };
 
                 var filterByState = function (reviews, states) {
@@ -30,14 +29,6 @@ angular.module('app.review')
                         return states.indexOf(r.exam.state) > -1;
                     });
                 };
-
-                var filterGraded = function (reviews, matchInspections) {
-                    return reviews.filter(function (r) {
-                        return r.exam.state === 'GRADED' && matchInspections
-                        (!r.exam.languageInspection || r.exam.languageInspection.finishedAt);
-                    });
-                };
-
 
                 vm.$onInit = function () {
                     vm.pageSize = 30;
