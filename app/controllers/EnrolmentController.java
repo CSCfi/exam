@@ -1,5 +1,6 @@
 package controllers;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
@@ -15,11 +16,13 @@ import models.Reservation;
 import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import sanitizers.Attrs;
 import sanitizers.EnrolmentInformationSanitizer;
 import sanitizers.StudentEnrolmentSanitizer;
+import scala.concurrent.duration.Duration;
 import util.AppUtil;
 import validators.JsonValidator;
 
@@ -30,6 +33,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public class EnrolmentController extends BaseController {
@@ -42,12 +46,16 @@ public class EnrolmentController extends BaseController {
 
     private final ExternalReservationHandler externalReservationHandler;
 
+    private final ActorSystem actor;
+
     @Inject
     public EnrolmentController(EmailComposer emailComposer, ExternalCourseHandler externalCourseHandler,
-                               ExternalReservationHandler externalReservationHandler) {
+                               ExternalReservationHandler externalReservationHandler,
+                               ActorSystem actor) {
         this.emailComposer = emailComposer;
         this.externalCourseHandler = externalCourseHandler;
         this.externalReservationHandler = externalReservationHandler;
+        this.actor = actor;
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
@@ -320,7 +328,25 @@ public class EnrolmentController extends BaseController {
         } else {
             return wrapAsPromise(badRequest());
         }
-        return doCreateEnrolment(eid, executionType, user);
+
+        final User receiver = user;
+        final User sender = getLoggedUser();
+        return doCreateEnrolment(eid, executionType, user).thenApplyAsync(result -> {
+            if (receiver == null) {
+                return result;
+            }
+            if (exam.getState() != Exam.State.PUBLISHED) {
+                return result;
+            }
+            if (result.status() != Http.Status.OK) {
+                return result;
+            }
+            actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+                emailComposer.composePrivateExamParticipantNotification(receiver, sender, exam);
+                Logger.info("Exam participation notification email sent to {}", receiver.getEmail());
+            }, actor.dispatcher());
+            return result;
+        });
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
