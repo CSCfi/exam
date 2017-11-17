@@ -1,8 +1,8 @@
 <div class="row col-md-12 margin-20">
     <div class="col-md-6">
-        <div ng-if="$ctrl.selectionCount > 0" class="padl30 questions-selections-box">
+        <div ng-if="$ctrl.selections.length > 0" class="padl30 questions-selections-box">
             <div class="make-inline">
-                <span class="padr10">{{$ctrl.selectionCount}} {{'sitnet_questions_selected' | translate}}</span> -
+                <span class="padr10">{{$ctrl.selections.length}} {{'sitnet_questions_selected' | translate}}</span> -
             </div>
             <div class="make-inline">
                 <div class="question-add-owners-box">

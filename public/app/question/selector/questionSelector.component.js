@@ -19,27 +19,23 @@ angular.module('app.question')
                 vm.questions = results;
             };
 
-            vm.questionSelected = function (count) {
-                vm.selectionCount = count;
+            vm.questionSelected = function (selections) {
+                vm.selections = selections;
             };
 
             vm.addQuestions = function () {
                 // check that at least one has been selected
-                var isEmpty = true,
-                    boxes = angular.element('.questionToUpdate'),
-                    ids = [];
-
-                var insertQuestion = function (sectionId, questionIds, to, examId) {
-
-                    var sectionQuestions = questionIds.map(function (question) {
-                        return question;
-                    }).join(',');
+                if (vm.selections.length === 0) {
+                    toastr.warning($translate.instant('sitnet_choose_atleast_one'));
+                    return;
+                }
+                var insertQuestion = function (sectionId, to, examId) {
 
                     ExamRes.sectionquestionsmultiple.insert({
                             eid: examId,
                             sid: sectionId,
                             seq: to,
-                            questions: sectionQuestions
+                            questions: vm.selections.join()
                         }, function (sec) {
                             toastr.info($translate.instant('sitnet_question_added'));
                             vm.close();
@@ -55,20 +51,7 @@ angular.module('app.question')
                 // always add question to last spot, because dragndrop
                 // is not in use here
                 var to = parseInt(vm.resolve.questionCount) + 1;
-
-                angular.forEach(boxes, function (input) {
-                    if (angular.element(input).prop('checked')) {
-                        isEmpty = false;
-                        ids.push(angular.element(input).val());
-                    }
-                });
-
-                if (isEmpty) {
-                    toastr.warning($translate.instant('sitnet_choose_atleast_one'));
-                }
-                else {
-                    insertQuestion(vm.resolve.sectionId, ids, to, vm.resolve.examId);
-                }
+                insertQuestion(vm.resolve.sectionId, to, vm.resolve.examId);
             };
 
             vm.cancel = function () {

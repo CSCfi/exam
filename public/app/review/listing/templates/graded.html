@@ -133,8 +133,9 @@
 </div>
 
 <div class="detail-row" ng-show="$ctrl.data.graded.toggle">
-    <div col-md-12 ng-show="$ctrl.data.graded.filtered.length > pageSize">
+    <div class="col-md-12" ng-show="$ctrl.data.graded.filtered.length > $ctrl.pageSize">
         <paginator items="$ctrl.data.graded.filtered" page-size="$ctrl.pageSize"
-                   current-page="$ctrl.data.graded.page"/>
+                   current-page="$ctrl.data.graded.page">
+        </paginator>
     </div>
 </div>

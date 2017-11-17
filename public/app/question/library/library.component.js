@@ -14,8 +14,8 @@ angular.module('app.question')
                 vm.questions = results;
             };
 
-            vm.questionSelected = function (count) {
-                vm.selectionCount = count;
+            vm.questionSelected = function (selections) {
+                vm.selections = selections;
             };
 
         }]

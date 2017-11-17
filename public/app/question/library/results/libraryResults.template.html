@@ -4,8 +4,8 @@
             <thead>
             <tr>
                 <th>
-                    <input type="checkbox" name="select_all" class="selectAllQuestions"
-                           ng-click="$ctrl.selectAll('selectAllQuestions', 'questionToUpdate'); $ctrl.questionSelected();"
+                    <input type="checkbox" name="select_all" ng-model="$ctrl.allSelected"
+                           ng-click="$ctrl.selectAll()"
                            popover-placement="top"
                            popover-trigger="'mouseenter'"
                            uib-popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
@@ -31,7 +31,7 @@
             <tr ng-repeat="question in $ctrl.questions | orderBy: $ctrl.questionsPredicate:$ctrl.reverse
                         | offset: $ctrl.currentPage*$ctrl.pageSize | limitTo: $ctrl.pageSize">
                 <td class="question-table-checkbox">
-                    <input type="checkbox" ng-click="$ctrl.questionSelected()" class="questionToUpdate"
+                    <input type="checkbox" ng-model="question.selected" ng-click="$ctrl.questionSelected()" class="questionToUpdate"
                            value="{{question.id}}"/>
                 </td>
                 <td class="question-table-name">

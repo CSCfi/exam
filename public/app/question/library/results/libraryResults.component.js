@@ -16,6 +16,7 @@ angular.module('app.question')
 
                 vm.$onInit = function () {
                     vm.user = Session.getUser();
+                    vm.allSelected = false;
                     vm.pageSize = 25;
                     vm.currentPage = 0;
                     vm.tableClass = vm.tableClass || 'exams-table';
@@ -45,29 +46,27 @@ angular.module('app.question')
                     Library.storeFilters(filters, 'sorting');
                 };
 
-                vm.selectAll = function (selectAllCssClass, checkboxesCssClass) {
-                    var isSelected = angular.element('.' + selectAllCssClass).prop('checked');
-                    angular.forEach(angular.element('.' + checkboxesCssClass), function (input) {
-                        angular.element(input).prop('checked', isSelected);
+                vm.selectAll = function () {
+                    vm.questions.forEach(function (q) {
+                        q.selected = vm.allSelected;
                     });
+                    vm.questionSelected();
                 };
 
                 var resetSelections = function () {
-                    angular.forEach(angular.element('.questionToUpdate'), function (input) {
-                        angular.element(input).attr('checked', false);
+                    vm.questions.forEach(function (q) {
+                        q.selected = false;
                     });
-                    vm.onSelection({count: 0});
+                    vm.questionSelected();
                 };
 
                 vm.questionSelected = function () {
-                    var selectionCount = 0;
-                    angular.forEach(angular.element('.questionToUpdate'), function (input) {
-                        if (angular.element(input).prop('checked')) {
-                            selectionCount++;
-                        }
-
+                    var selections = vm.questions.filter(function (q) {
+                        return q.selected;
+                    }).map(function (q) {
+                        return q.id;
                     });
-                    vm.onSelection({count: selectionCount});
+                    vm.onSelection({selections: selections});
                 };
 
                 vm.deleteQuestion = function (question) {

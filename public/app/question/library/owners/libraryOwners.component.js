@@ -3,7 +3,7 @@ angular.module('app.question')
     .component('libraryOwnerSelection', {
         templateUrl: '/assets/app/question/library/owners/libraryOwners.template.html',
         bindings: {
-            selectionCount: '<',
+            selections: '<',
             ownerUpdated: '&'
         },
         controller: ['$translate', 'Question', 'UserRes',
@@ -21,16 +21,7 @@ angular.module('app.question')
 
                 vm.addOwnerForSelected = function () {
                     // check that atleast one has been selected
-                    var boxes = angular.element('.questionToUpdate')
-                    var ids = [];
-
-                    angular.forEach(boxes, function (input) {
-                        if (angular.element(input).prop('checked')) {
-                            ids.push(angular.element(input).val());
-                        }
-                    });
-
-                    if (ids.length === 0) {
+                    if (vm.selections.length === 0) {
                         toastr.warning($translate.instant('sitnet_choose_atleast_one'));
                         return;
                     }
@@ -41,7 +32,7 @@ angular.module('app.question')
 
                     var data = {
                         'uid': vm.newTeacher.id,
-                        'questionIds': ids.toString()
+                        'questionIds': vm.selections.join()
                     };
 
                     Question.questionOwnerApi.update(data,
