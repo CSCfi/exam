@@ -2,6 +2,6 @@
 
 angular.module('app')
     // Lodash factory
-    .factory('_', ['$window', function ($window) {
+    .factory('lodash', ['$window', function ($window) {
         return $window._;
     }]);

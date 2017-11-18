@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.review')
-    .service('ReviewList', ['Exam', '_',
-        function (Exam, _) {
+    .service('ReviewList', ['Exam', 'lodash',
+        function (Exam, lodash) {
 
             var self = this;
 
@@ -35,9 +35,9 @@ angular.module('app.review')
                     return true;
                 }
                 var s = filter.toLowerCase();
-                var name = _.get(review, 'user.firstName', '') + ' ' + _.get(review, 'user.lastName', '');
+                var name = lodash.get(review, 'user.firstName', '') + ' ' + lodash.get(review, 'user.lastName', '');
                 return name.toLowerCase().indexOf(s) > -1
-                    || _.get(review, 'user.email', '').toLowerCase().indexOf(s) > -1;
+                    || lodash.get(review, 'user.email', '').toLowerCase().indexOf(s) > -1;
             };
 
             self.applyFilter = function (filter, items) {

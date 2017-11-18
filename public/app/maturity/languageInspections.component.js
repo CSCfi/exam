@@ -2,8 +2,8 @@
 angular.module('app.maturity')
     .component('languageInspections', {
         templateUrl: '/assets/app/maturity/languageInspections.template.html',
-        controller: ['$translate', 'LanguageInspections', 'Session', 'EXAM_CONF', '_',
-            function ($translate, LanguageInspections, Session, EXAM_CONF, _) {
+        controller: ['$translate', 'LanguageInspections', 'Session', 'EXAM_CONF', 'lodash',
+            function ($translate, LanguageInspections, Session, EXAM_CONF, lodash) {
 
                 var vm = this;
 
@@ -48,7 +48,7 @@ angular.module('app.maturity')
                     if (vm.endDate) {
                         params.end = Date.parse(moment(vm.endDate).add(1, 'days'));
                     }
-                    var refreshAll = _.isEmpty(params);
+                    var refreshAll = lodash.isEmpty(params);
                     LanguageInspections.query(refreshAll ? undefined : params).then(
                         function (inspections) {
                             inspections.forEach(function (i) {

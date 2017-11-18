@@ -164,7 +164,7 @@ angular.module('app')
         }])
 
 
-    .directive('ckEditor', ['$rootScope', '_', function ($rootScope, _) {
+    .directive('ckEditor', ['$rootScope', 'lodash', function ($rootScope, lodash) {
         return {
             require: 'ngModel',
             scope: {
@@ -198,14 +198,14 @@ angular.module('app')
                 });
 
                 function updateModel() {
-                    _.defer(function () {
+                    lodash.defer(function () {
                         scope.$apply(function () {
                             ngModel.$setViewValue(ck.getData());
                         });
                     });
                 }
 
-                ck.on('change', _.debounce(updateModel, 100)); // This can bring down the UI if not scaled down
+                ck.on('change', lodash.debounce(updateModel, 100)); // This can bring down the UI if not scaled down
                 ck.on('dataReady', updateModel);
                 ck.on('mode', updateModel); // Editing mode change
 

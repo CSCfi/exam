@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.examination')
-    .service('Examination', ['$q', '$location', '$http', '$translate', '$window', '_',
-        function ($q, $location, $http, $translate, $window, _) {
+    .service('Examination', ['$q', '$location', '$http', '$translate', '$window', 'lodash',
+        function ($q, $location, $http, $translate, $window, lodash) {
 
             var self = this;
             var _external;
@@ -61,7 +61,7 @@ angular.module('app.examination')
                     case 'EssayQuestion':
                         return esq.essayAnswer && esq.essayAnswer.answer.length > 0;
                     case 'ClozeTestQuestion':
-                        return esq.clozeTestAnswer && !_.isEmpty(esq.clozeTestAnswer.answer);
+                        return esq.clozeTestAnswer && !lodash.isEmpty(esq.clozeTestAnswer.answer);
                     default:
                         return false;
                 }
@@ -118,7 +118,7 @@ angular.module('app.examination')
                         break;
                     case 'ClozeTestQuestion':
                         var clozeTestAnswer = sq.clozeTestAnswer;
-                        isAnswered = clozeTestAnswer && !_.isEmpty(clozeTestAnswer.answer);
+                        isAnswered = clozeTestAnswer && !lodash.isEmpty(clozeTestAnswer.answer);
                         break;
                     default:
                         isAnswered = false;

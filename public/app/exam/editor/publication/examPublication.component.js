@@ -8,8 +8,8 @@ angular.module('app.exam.editor')
             onPreviousTabSelected: '&',
             onNextTabSelected: '&?'
         },
-        controller: ['$q', '$translate', '$location', '$uibModal', 'Session', 'Exam', 'ExamRes', 'SettingsResource', 'EXAM_CONF', '_',
-            function ($q, $translate, $location, $modal, Session, Exam, ExamRes, SettingsResource, EXAM_CONF, _) {
+        controller: ['$q', '$translate', '$location', '$uibModal', 'Session', 'Exam', 'ExamRes', 'SettingsResource', 'EXAM_CONF', 'lodash',
+            function ($q, $translate, $location, $modal, Session, Exam, ExamRes, SettingsResource, EXAM_CONF, lodash) {
 
                 var vm = this;
 
@@ -298,7 +298,7 @@ angular.module('app.exam.editor')
                     if (['PRIVATE', 'MATURITY'].indexOf(vm.exam.executionType.type) > -1 && vm.exam.examEnrolments.length < 1) {
                         errors.participants = $translate.instant('sitnet_no_participants');
                     }
-                    if (vm.exam.executionType.type === 'MATURITY' && !_.isBoolean(vm.exam.subjectToLanguageInspection)) {
+                    if (vm.exam.executionType.type === 'MATURITY' && !lodash.isBoolean(vm.exam.subjectToLanguageInspection)) {
                         errors.languageInspection = $translate.instant('sitnet_language_inspection_setting_not_chosen');
                     }
 
