@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.utility')
-    .factory('Files', ['$q', '$http', '$translate', '$timeout', 'SettingsResource',
-        function ($q, $http, $translate, $timeout, SettingsResource) {
+    .factory('Files', ['$q', '$http', '$translate', '$timeout', 'SettingsResource', 'toast',
+        function ($q, $http, $translate, $timeout, SettingsResource, toast) {
             var _supportsBlobUrls;
             var _maxFileSize;
 
@@ -39,7 +39,7 @@ angular.module('app.utility')
                     var contentType = headers()['content-type'].split(';')[0];
                     saveFile(data, filename, contentType);
                 }).error(function (error) {
-                    toastr.error(error.data || error);
+                    toast.error(error.data || error);
                 });
             };
 
@@ -49,7 +49,7 @@ angular.module('app.utility')
                     var contentType = headers()['content-type'].split(';')[0];
                     return deferred.resolve({url: 'data:' + contentType + ';base64, ' + data});
                 }).error(function (error) {
-                    toastr.error(error.data || error);
+                    toast.error(error.data || error);
                     return deferred.reject();
                 });
                 return deferred.promise;
@@ -83,7 +83,7 @@ angular.module('app.utility')
 
             var isFileTooBig = function (file) {
                 if (file.size > _maxFileSize) {
-                    toastr.error($translate.instant('sitnet_file_too_large'));
+                    toast.error($translate.instant('sitnet_file_too_large'));
                     return true;
                 }
                 return false;
@@ -110,7 +110,7 @@ angular.module('app.utility')
                         if (modal) {
                             modal.dismiss();
                         }
-                        toastr.error(error);
+                        toast.error(error);
                     });
             };
 

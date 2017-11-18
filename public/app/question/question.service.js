@@ -1,9 +1,9 @@
 'use strict';
 angular.module('app.question')
     .service('Question', ['$q', '$resource', '$translate', '$location', '$sessionStorage',
-        'ExamQuestion', 'Session', 'Files', 'Attachment',
+        'ExamQuestion', 'Session', 'Files', 'Attachment', 'toast',
         function ($q, $resource, $translate, $location, $sessionStorage, ExamQuestion, Session,
-                  Files, Attachment) {
+                  Files, Attachment, toast) {
 
             var self = this;
 
@@ -257,7 +257,7 @@ angular.module('app.question')
 
                 self.questionsApi.create(body,
                     function (response) {
-                        toastr.info($translate.instant('sitnet_question_added'));
+                        toast.info($translate.instant('sitnet_question_added'));
                         if (question.attachment && question.attachment.modified) {
                             Files.upload('/app/attachment/question', question.attachment,
                                 {questionId: response.id}, question, null, function () {
@@ -278,7 +278,7 @@ angular.module('app.question')
                 var deferred = $q.defer();
                 self.questionsApi.update(body,
                     function (response) {
-                        toastr.info($translate.instant('sitnet_question_saved'));
+                        toast.info($translate.instant('sitnet_question_saved'));
                         if (question.attachment && question.attachment.modified) {
                             Files.upload('/app/attachment/question', question.attachment,
                                 {questionId: question.id}, question, null, function () {
@@ -294,7 +294,7 @@ angular.module('app.question')
                         }
                     }, function (error) {
                         if (displayErrors) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                         deferred.reject();
                     }
@@ -339,7 +339,7 @@ angular.module('app.question')
                             deferred.resolve(esq);
                         }
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                         deferred.reject();
                     }
                 );

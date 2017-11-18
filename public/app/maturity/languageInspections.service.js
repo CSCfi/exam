@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.review')
-    .service('LanguageInspections', ['$resource', '$location', '$uibModal', '$translate', 'dialogs', 'EXAM_CONF',
-        function ($resource, $location, $modal, $translate, dialogs, EXAM_CONF) {
+    .service('LanguageInspections', ['$resource', '$location', '$uibModal', '$translate', 'dialogs', 'EXAM_CONF', 'toast',
+        function ($resource, $location, $modal, $translate, dialogs, EXAM_CONF, toast) {
 
             var self = this;
 
@@ -40,7 +40,7 @@ angular.module('app.review')
                     assignmentApi.update({id: inspection.id}, function () {
                         $location.path('assessments/' + inspection.exam.id);
                     }, function (err) {
-                        toastr.error(err);
+                        toast.error(err);
                     });
                 });
             };

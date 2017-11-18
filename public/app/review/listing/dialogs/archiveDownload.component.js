@@ -6,7 +6,7 @@ angular.module('app.review')
             close: '&',
             dismiss: '&'
         },
-        controller: ['$translate', function ($translate) {
+        controller: ['$translate', 'toast', function ($translate, toast) {
 
             var vm = this;
 
@@ -31,7 +31,7 @@ angular.module('app.review')
                     end = moment(vm.params.endDate);
                 }
                 if (start && end && end < start) {
-                    toastr.error($translate.instant('sitnet_endtime_before_starttime'));
+                    toast.error($translate.instant('sitnet_endtime_before_starttime'));
                 } else {
                     vm.close({
                         $value: {

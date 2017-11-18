@@ -8,8 +8,8 @@ angular.module('app.exam.editor')
             lotteryOn: '<',
             onDelete: '&'
         },
-        controller: ['$sce', '$q', '$uibModal', '$translate', 'dialogs', 'Question', 'ExamQuestion', 'ExamRes', 'Attachment',
-            function ($sce, $q, $modal, $translate, dialogs, Question, ExamQuestion, ExamRes, Attachment) {
+        controller: ['$sce', '$q', '$uibModal', '$translate', 'dialogs', 'Question', 'ExamQuestion', 'ExamRes', 'Attachment', 'toast',
+            function ($sce, $q, $modal, $translate, dialogs, Question, ExamQuestion, ExamRes, Attachment, toast) {
 
                 var vm = this;
 
@@ -41,7 +41,7 @@ angular.module('app.exam.editor')
                     ExamRes.questionDistribution.get({id: vm.sectionQuestion.id}, function (data) {
                         deferred.resolve({distributed: data.distributed});
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                         deferred.reject();
                     });
                     return deferred.promise;
@@ -71,7 +71,7 @@ angular.module('app.exam.editor')
                             function (esq) {
                                 angular.extend(vm.sectionQuestion, esq);
                             }, function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             });
                     });
                 };
@@ -89,7 +89,7 @@ angular.module('app.exam.editor')
                     }).result.then(function (data) {
                         Question.updateDistributedExamQuestion(data.question, data.examQuestion).then(
                             function (esq) {
-                                toastr.info($translate.instant('sitnet_question_saved'));
+                                toast.info($translate.instant('sitnet_question_saved'));
                                 // apply changes back to scope
                                 angular.extend(vm.sectionQuestion, esq);
                             });

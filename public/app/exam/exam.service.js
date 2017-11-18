@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.exam')
-    .service('Exam', ['$translate', '$q', '$location', 'ExamRes', 'Question', 'Session',
-        function ($translate, $q, $location, ExamRes, Question, Session) {
+    .service('Exam', ['$translate', '$q', '$location', 'ExamRes', 'Question', 'Session', 'toast',
+        function ($translate, $q, $location, ExamRes, Question, Session, toast) {
 
             var self = this;
 
@@ -26,11 +26,11 @@ angular.module('app.exam')
             self.createExam = function (executionType) {
                 ExamRes.draft.create({executionType: executionType},
                     function (response) {
-                        toastr.info($translate.instant('sitnet_exam_added'));
+                        toast.info($translate.instant('sitnet_exam_added'));
                         //return response.id;
                         $location.path('/exams/' + response.id + '/select/course');
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
             };
 

@@ -2,7 +2,7 @@
 angular.module('app.facility.accessibility')
     .component('accessibility', {
         templateUrl: '/assets/app/facility/accessibility/accessibility.template.html',
-        controller: ['$translate', '$http', function ($translate, $http) {
+        controller: ['$translate', '$http', 'toast', function ($translate, $http, toast) {
 
             var ctrl = this;
 
@@ -16,20 +16,20 @@ angular.module('app.facility.accessibility')
             ctrl.add = function (item) {
                 $http.post('/app/accessibility', item).success(function (data) {
                     ctrl.accessibilities.push(data);
-                    toastr.info($translate.instant("sitnet_accessibility_added"));
+                    toast.info($translate.instant("sitnet_accessibility_added"));
                 });
             };
 
             ctrl.update = function (accessibility) {
                 $http.put('/app/accessibility', accessibility).success(function () {
-                    toastr.info($translate.instant("sitnet_accessibility_updated"));
+                    toast.info($translate.instant("sitnet_accessibility_updated"));
                 });
             };
 
             ctrl.remove = function (accessibility) {
                 $http.delete('/app/accessibility/' + accessibility.id).success(function () {
                     ctrl.accessibilities.splice(ctrl.accessibilities.indexOf(accessibility), 1);
-                    toastr.info($translate.instant("sitnet_accessibility_removed"));
+                    toast.info($translate.instant("sitnet_accessibility_removed"));
                 });
             };
         }]

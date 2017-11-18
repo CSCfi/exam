@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.utility')
-    .service('Attachment', ['$resource', '$uibModal', 'dialogs', '$translate', 'Files',
-        function ($resource, $modal, dialogs, $translate, Files) {
+    .service('Attachment', ['$resource', '$uibModal', 'dialogs', '$translate', 'Files', 'toast',
+        function ($resource, $modal, dialogs, $translate, Files, toast) {
 
             var questionAttachmentApi = $resource(
                 '/app/attachment/question/:id',
@@ -62,11 +62,11 @@ angular.module('app.utility')
                 dialog.result.then(function (btn) {
                     questionAnswerAttachmentApi.remove({qid: question.id, hash: hash},
                         function (answer) {
-                            toastr.info($translate.instant('sitnet_attachment_removed'));
+                            toast.info($translate.instant('sitnet_attachment_removed'));
                             question.essayAnswer.objectVersion = answer.objectVersion;
                             delete question.essayAnswer.attachment;
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 });
             };
@@ -77,10 +77,10 @@ angular.module('app.utility')
                 dialog.result.then(function (btn) {
                     examAttachmentApi.remove({id: exam.id},
                         function () {
-                            toastr.info($translate.instant('sitnet_attachment_removed'));
+                            toast.info($translate.instant('sitnet_attachment_removed'));
                             exam.attachment = null;
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 });
             };
@@ -91,10 +91,10 @@ angular.module('app.utility')
                 dialog.result.then(function (btn) {
                     feedbackAttachmentApi.remove({id: exam.id},
                         function () {
-                            toastr.info($translate.instant('sitnet_attachment_removed'));
+                            toast.info($translate.instant('sitnet_attachment_removed'));
                             exam.examFeedback.attachment = null;
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 });
             };
@@ -105,10 +105,10 @@ angular.module('app.utility')
                 dialog.result.then(function (btn) {
                     statementAttachmentApi.remove({id: exam.id},
                         function () {
-                            toastr.info($translate.instant('sitnet_attachment_removed'));
+                            toast.info($translate.instant('sitnet_attachment_removed'));
                             delete exam.languageInspection.statement.attachment;
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 });
             };

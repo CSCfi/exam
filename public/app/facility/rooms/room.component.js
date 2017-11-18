@@ -3,9 +3,9 @@ angular.module('app.facility.rooms')
     .component('room', {
         templateUrl: '/assets/app/facility/rooms/room.template.html',
         controller: ['$translate', '$scope', '$route', '$location', '$uibModal', '$routeParams', '$http',
-            'dialogs', 'Room', 'SettingsResource', 'InteroperabilityResource', 'DateTime', 'EXAM_CONF',
+            'dialogs', 'Room', 'SettingsResource', 'InteroperabilityResource', 'DateTime', 'EXAM_CONF', 'toast',
             function ($translate, $scope, $route, $location, $modal, $routeParams, $http, dialogs, Room, SettingsRes,
-                      InteroperabilityRes, DateTime, EXAM_CONF) {
+                      InteroperabilityRes, DateTime, EXAM_CONF, toast) {
 
                 var vm = this;
 
@@ -37,7 +37,7 @@ angular.module('app.facility.rooms')
                             });
                             vm.room = room;
                             if (!Room.isAnyExamMachines(vm.room)) {
-                                toastr.warning($translate.instant('sitnet_room_has_no_machines_yet'));
+                                toast.warning($translate.instant('sitnet_room_has_no_machines_yet'));
                             }
                             if (vm.room.examStartingHours.length > 0) {
                                 var startingHours = vm.room.examStartingHours.map(function (hours) {
@@ -57,7 +57,7 @@ angular.module('app.facility.rooms')
                             });
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
@@ -77,30 +77,30 @@ angular.module('app.facility.rooms')
                 vm.updateRoom = function () {
                     Room.rooms.update(vm.room,
                         function () {
-                            toastr.info($translate.instant('sitnet_room_updated'));
+                            toast.info($translate.instant('sitnet_room_updated'));
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
 
                 vm.saveRoom = function () {
                     if (!Room.isSomethingSelected(vm.week)) {
-                        toastr.error($translate.instant('sitnet_room_must_have_default_opening_hours'));
+                        toast.error($translate.instant('sitnet_room_must_have_default_opening_hours'));
                         return;
                     }
 
                     if (!Room.isAnyExamMachines(vm.room))
-                        toastr.error($translate.instant("sitnet_dont_forget_to_add_machines") + " " + vm.room.name);
+                        toast.error($translate.instant("sitnet_dont_forget_to_add_machines") + " " + vm.room.name);
 
                     Room.rooms.update(vm.room,
                         function () {
-                            toastr.info($translate.instant("sitnet_room_saved"));
+                            toast.info($translate.instant("sitnet_room_saved"));
                             $location.path("/rooms/");
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
@@ -223,10 +223,10 @@ angular.module('app.facility.rooms')
 
                     Room.examStartingHours.update(data,
                         function () {
-                            toastr.info($translate.instant('sitnet_exam_starting_hours_updated'));
+                            toast.info($translate.instant('sitnet_exam_starting_hours_updated'));
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
@@ -256,7 +256,7 @@ angular.module('app.facility.rooms')
                             var start = moment($scope.exception.startDate);
                             var end = moment($scope.exception.endDate);
                             if (end <= start) {
-                                toastr.error($translate.instant('sitnet_endtime_before_starttime'));
+                                toast.error($translate.instant('sitnet_endtime_before_starttime'));
                             } else {
                                 $modalInstance.close({
                                     "startDate": start,
@@ -291,7 +291,7 @@ angular.module('app.facility.rooms')
 
                         Room.exceptions.update({roomIds: roomIds, exception: exception},
                             function (data) {
-                                toastr.info($translate.instant('sitnet_exception_time_added'));
+                                toast.info($translate.instant('sitnet_exception_time_added'));
                                 if (vm.editingMultipleRooms) {
                                     vm.getMassEditedRooms();
                                 } else {
@@ -300,7 +300,7 @@ angular.module('app.facility.rooms')
                                 }
                             },
                             function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             }
                         );
                     });
@@ -313,7 +313,7 @@ angular.module('app.facility.rooms')
 
                     $http.post('/app/room/' + room.id + '/accessibility', {ids: ids})
                         .success(function () {
-                            toastr.info($translate.instant("sitnet_room_updated"));
+                            toast.info($translate.instant("sitnet_room_updated"));
                         });
                 };
 
@@ -323,7 +323,7 @@ angular.module('app.facility.rooms')
                             vm.rooms = rooms;
                             vm.times = Room.getTimes();
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
@@ -346,10 +346,10 @@ angular.module('app.facility.rooms')
                             } else {
                                 remove(vm.room.calendarExceptionEvents, exception);
                             }
-                            toastr.info($translate.instant('sitnet_exception_time_removed'));
+                            toast.info($translate.instant('sitnet_exception_time_removed'));
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
@@ -364,10 +364,10 @@ angular.module('app.facility.rooms')
                 vm.updateAddress = function (address) {
                     Room.addresses.update(address,
                         function () {
-                            toastr.info($translate.instant("sitnet_room_address_updated"));
+                            toast.info($translate.instant("sitnet_room_address_updated"));
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
@@ -437,10 +437,10 @@ angular.module('app.facility.rooms')
                     data.roomIds = roomIds;
                     Room.workingHours.update(data,
                         function () {
-                            toastr.info($translate.instant('sitnet_default_opening_hours_updated'));
+                            toast.info($translate.instant('sitnet_default_opening_hours_updated'));
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 }

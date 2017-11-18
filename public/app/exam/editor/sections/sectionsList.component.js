@@ -9,8 +9,8 @@ angular.module('app.exam.editor')
             onPreviousTabSelected: '&',
             onNewLibraryQuestion: '&'
         },
-        controller: ['$q', '$translate', '$location', 'dialogs', 'ExamRes', 'Exam',
-            function ($q, $translate, $location, dialogs, ExamRes, Exam) {
+        controller: ['$q', '$translate', '$location', 'dialogs', 'ExamRes', 'Exam', 'toast',
+            function ($q, $translate, $location, dialogs, ExamRes, Exam, toast) {
 
                 var vm = this;
 
@@ -39,7 +39,7 @@ angular.module('app.exam.editor')
                             to: to
                         }, function () {
                             updateSectionIndices();
-                            toastr.info($translate.instant('sitnet_sections_reordered'));
+                            toast.info($translate.instant('sitnet_sections_reordered'));
                         });
                     }
                 };
@@ -51,11 +51,11 @@ angular.module('app.exam.editor')
                     };
 
                     ExamRes.sections.insert({eid: vm.exam.id}, newSection, function (section) {
-                        toastr.success($translate.instant('sitnet_section_added'));
+                        toast.success($translate.instant('sitnet_section_added'));
                         vm.exam.examSections.push(section);
                         updateSectionIndices();
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 };
 
@@ -63,13 +63,13 @@ angular.module('app.exam.editor')
                     var deferred = $q.defer();
                     Exam.updateExam(vm.exam).then(function () {
                         if (!silent) {
-                            toastr.info($translate.instant('sitnet_exam_saved'));
+                            toast.info($translate.instant('sitnet_exam_saved'));
                         }
                         deferred.resolve();
                     }, function (error) {
                         if (error.data) {
                             var msg = error.data.message || error.data;
-                            toastr.error($translate.instant(msg));
+                            toast.error($translate.instant(msg));
                         }
                         deferred.reject();
                     });
@@ -86,24 +86,24 @@ angular.module('app.exam.editor')
                         var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                         dialog.result.then(function () {
                             ExamRes.exams.remove({id: vm.exam.id}, function () {
-                                toastr.success($translate.instant('sitnet_exam_removed'));
+                                toast.success($translate.instant('sitnet_exam_removed'));
                                 $location.path('/');
                             }, function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             });
                         });
                     } else {
-                        toastr.warning($translate.instant('sitnet_exam_removal_not_possible'));
+                        toast.warning($translate.instant('sitnet_exam_removal_not_possible'));
                     }
                 };
 
                 vm.removeSection = function (section) {
                     ExamRes.sections.remove({eid: vm.exam.id, sid: section.id}, function (id) {
-                        toastr.info($translate.instant('sitnet_section_removed'));
+                        toast.info($translate.instant('sitnet_section_removed'));
                         vm.exam.examSections.splice(vm.exam.examSections.indexOf(section), 1);
                         updateSectionIndices();
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 };
 

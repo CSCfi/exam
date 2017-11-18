@@ -6,7 +6,7 @@ angular.module('app.review')
             dismiss: '&',
             resolve: '<'
         },
-        controller: ['$translate', '$scope', 'ExamRes', function ($translate, $scope, ExamRes) {
+        controller: ['$translate', '$scope', 'ExamRes', 'toast', function ($translate, $scope, ExamRes, toast) {
 
             var vm = this;
 
@@ -17,7 +17,7 @@ angular.module('app.review')
             vm.permitRetrial = function (reservation) {
                 ExamRes.reservation.update({id: reservation.id}, function () {
                     reservation.retrialPermitted = true;
-                    toastr.info($translate.instant('sitnet_retrial_permitted'));
+                    toast.info($translate.instant('sitnet_retrial_permitted'));
                 });
             };
 

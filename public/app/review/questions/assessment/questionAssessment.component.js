@@ -3,8 +3,8 @@
 angular.module('app.review')
     .component('questionAssessment', {
         templateUrl: '/assets/app/review/questions/assessment/questionAssessment.template.html',
-        controller: ['$routeParams', '$sce', '$translate', 'QuestionReview', 'Assessment', 'Session', 'Attachment',
-            function ($routeParams, $sce, $translate, QuestionReview, Assessment, Session, Attachment) {
+        controller: ['$routeParams', '$sce', '$translate', 'QuestionReview', 'Assessment', 'Session', 'Attachment', 'toast',
+            function ($routeParams, $sce, $translate, QuestionReview, Assessment, Session, Attachment, toast) {
 
                 var vm = this;
 
@@ -72,7 +72,7 @@ angular.module('app.review')
                 var saveEvaluation = function (answer) {
                     answer.essayAnswer.evaluatedScore = answer.essayAnswer.score;
                     Assessment.saveEssayScore(answer).then(function () {
-                        toastr.info($translate.instant('sitnet_graded'));
+                        toast.info($translate.instant('sitnet_graded'));
                         if (vm.assessedAnswers.indexOf(answer) === -1) {
                             vm.unassessedAnswers.splice(vm.unassessedAnswers.indexOf(answer), 1);
                             vm.assessedAnswers.push(answer);
@@ -80,7 +80,7 @@ angular.module('app.review')
                     }, function (err) {
                         // Roll back
                         answer.essayAnswer.evaluatedScore = answer.essayAnswer.score;
-                        toastr.error(err.data);
+                        toast.error(err.data);
                     });
                 };
 

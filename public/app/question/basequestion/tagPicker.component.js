@@ -33,8 +33,8 @@ angular.module('app.question')
         '    </div>',
         bindings: {
             question: '<'
-        }, controller: ['$resource', 'limitToFilter',
-            function ($resource, limitToFilter) {
+        }, controller: ['$resource', 'limitToFilter', 'toast',
+            function ($resource, limitToFilter, toast) {
 
                 var vm = this;
 
@@ -53,7 +53,7 @@ angular.module('app.question')
                             return limitToFilter(filtered, 15);
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };

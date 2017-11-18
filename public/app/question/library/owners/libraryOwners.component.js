@@ -6,8 +6,8 @@ angular.module('app.question')
             selections: '<',
             ownerUpdated: '&'
         },
-        controller: ['$translate', 'Question', 'UserRes',
-            function ($translate, Question, UserRes) {
+        controller: ['$translate', 'Question', 'UserRes', 'toast',
+            function ($translate, Question, UserRes, toast) {
 
                 var vm = this;
 
@@ -22,11 +22,11 @@ angular.module('app.question')
                 vm.addOwnerForSelected = function () {
                     // check that atleast one has been selected
                     if (vm.selections.length === 0) {
-                        toastr.warning($translate.instant('sitnet_choose_atleast_one'));
+                        toast.warning($translate.instant('sitnet_choose_atleast_one'));
                         return;
                     }
                     if (!vm.newTeacher) {
-                        toastr.warning($translate.instant('sitnet_add_question_owner'));
+                        toast.warning($translate.instant('sitnet_add_question_owner'));
                         return;
                     }
 
@@ -37,10 +37,10 @@ angular.module('app.question')
 
                     Question.questionOwnerApi.update(data,
                         function () {
-                            toastr.info($translate.instant('sitnet_question_owner_added'));
+                            toast.info($translate.instant('sitnet_question_owner_added'));
                             vm.ownerUpdated();
                         }, function () {
-                            toastr.info($translate.instant('sitnet_update_failed'));
+                            toast.info($translate.instant('sitnet_update_failed'));
                         });
                 };
 

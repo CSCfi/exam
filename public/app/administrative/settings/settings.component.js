@@ -3,8 +3,8 @@
 angular.module('app.administrative.settings')
     .component('settings', {
         templateUrl: '/assets/app/administrative/settings/settings.template.html',
-        controller: ['$translate', '$http', 'Settings',
-            function ($translate, $http, Settings) {
+        controller: ['$translate', '$http', 'Settings', 'toast',
+            function ($translate, $http, Settings, toast) {
 
                 var ctrl = this;
 
@@ -24,27 +24,27 @@ angular.module('app.administrative.settings')
                 ctrl.updateAgreement = function () {
                     Settings.agreement.update(ctrl.settings.eula,
                         function () {
-                            toastr.info($translate.instant("sitnet_user_agreement") + " " + $translate.instant("sitnet_updated"));
+                            toast.info($translate.instant("sitnet_user_agreement") + " " + $translate.instant("sitnet_updated"));
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 };
 
                 ctrl.updateDeadline = function () {
                     Settings.deadline.update(ctrl.settings.deadline,
                         function () {
-                            toastr.info($translate.instant("sitnet_settings") + " " + $translate.instant("sitnet_updated"));
+                            toast.info($translate.instant("sitnet_settings") + " " + $translate.instant("sitnet_updated"));
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 };
 
                 ctrl.updateReservationWindow = function () {
                     Settings.reservationWindow.update(ctrl.settings.reservationWindow,
                         function () {
-                            toastr.info($translate.instant("sitnet_settings") + " " + $translate.instant("sitnet_updated"));
+                            toast.info($translate.instant("sitnet_settings") + " " + $translate.instant("sitnet_updated"));
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 };
 

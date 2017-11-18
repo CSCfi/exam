@@ -35,7 +35,7 @@ angular.module('app.utility')
         };
     }])
 
-    .directive('droppable', ['$translate', '$parse', function ($translate, $parse) {
+    .directive('droppable', ['$translate', '$parse', 'toast', function ($translate, $parse, toast) {
         return {
             scope: {
                 objects: '=',
@@ -60,11 +60,11 @@ angular.module('app.utility')
                                 return;
                             }
                             if (dropDisabled) {
-                                toastr.error($translate.instant('sitnet_error_drop_disabled_lottery_on'));
+                                toast.error($translate.instant('sitnet_error_drop_disabled_lottery_on'));
                                 event.revert = true;
                             }
                             if (!ui.draggable.hasClass('draggable') && !ui.draggable.hasClass('sortable-' + scope.identifier)) {
-                                toastr.warning($translate.instant('sitnet_move_between_sections_disabled'));
+                                toast.warning($translate.instant('sitnet_move_between_sections_disabled'));
                                 event.revert = true;
                             }
                         }

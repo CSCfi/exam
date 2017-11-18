@@ -7,7 +7,7 @@ angular.module('app.question')
             dismiss: '&',
             resolve: '<'
         },
-        controller: ['$translate', 'ExamRes', function ($translate, ExamRes) {
+        controller: ['$translate', 'ExamRes', 'toast', function ($translate, ExamRes, toast) {
 
             var vm = this;
 
@@ -26,7 +26,7 @@ angular.module('app.question')
             vm.addQuestions = function () {
                 // check that at least one has been selected
                 if (vm.selections.length === 0) {
-                    toastr.warning($translate.instant('sitnet_choose_atleast_one'));
+                    toast.warning($translate.instant('sitnet_choose_atleast_one'));
                     return;
                 }
                 var insertQuestion = function (sectionId, to, examId) {
@@ -37,10 +37,10 @@ angular.module('app.question')
                             seq: to,
                             questions: vm.selections.join()
                         }, function (sec) {
-                            toastr.info($translate.instant('sitnet_question_added'));
+                            toast.info($translate.instant('sitnet_question_added'));
                             vm.close();
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                             vm.close({error: error});
                         }
                     );

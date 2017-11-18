@@ -9,8 +9,8 @@ angular.module('app.question')
             disableLinks: '<',
             tableClass: '@?'
         },
-        controller: ['$location', 'dialogs', 'Question', 'Library', 'Attachment', 'Session',
-            function ($location, dialogs, Question, Library, Attachment, Session) {
+        controller: ['$location', 'dialogs', 'Question', 'Library', 'Attachment', 'Session', 'toast',
+            function ($location, dialogs, Question, Library, Attachment, Session, toast) {
 
                 var vm = this;
 
@@ -75,7 +75,7 @@ angular.module('app.question')
                         Question.questionsApi.delete({id: question.id}, function () {
                             vm.questions.splice(vm.questions.indexOf(question), 1);
                             vm.applyFreeSearchFilter();
-                            toastr.info($translate.instant('sitnet_question_removed'));
+                            toast.info($translate.instant('sitnet_question_removed'));
                         });
                     });
                 };
@@ -84,7 +84,7 @@ angular.module('app.question')
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_copy_question'));
                     dialog.result.then(function (btn) {
                         Question.questionCopyApi.copy({id: question.id}, function (copy) {
-                            toastr.info($translate.instant('sitnet_question_copied'));
+                            toast.info($translate.instant('sitnet_question_copied'));
                             $location.path('/questions/' + copy.id);
                         });
                     });

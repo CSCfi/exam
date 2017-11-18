@@ -5,8 +5,8 @@ angular.module('app.exam.editor')
         bindings: {
             exam: '<'
         },
-        controller: ['$q', '$translate', 'Language', 'ExamRes',
-            function ($q, $translate, Language, ExamRes) {
+        controller: ['$q', '$translate', 'Language', 'ExamRes', 'toast',
+            function ($q, $translate, Language, ExamRes, toast) {
 
                 var vm = this;
 
@@ -42,9 +42,9 @@ angular.module('app.exam.editor')
                         } else {
                             vm.exam.examLanguages.push(lang);
                         }
-                        toastr.info($translate.instant('sitnet_exam_language_updated'));
+                        toast.info($translate.instant('sitnet_exam_language_updated'));
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 }
 

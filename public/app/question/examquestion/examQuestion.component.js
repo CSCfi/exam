@@ -8,8 +8,8 @@ angular.module('app.question')
             onSave: '&',
             onCancel: '&'
         },
-        controller: ['$scope', '$translate', 'Attachment', 'Question',
-            function ($scope, $translate, Attachment, Question) {
+        controller: ['$scope', '$translate', 'Attachment', 'Question', 'toast',
+            function ($scope, $translate, Attachment, Question, toast) {
                 // This component depicts a distributed exam question
 
                 var vm = this;
@@ -60,7 +60,7 @@ angular.module('app.question')
                 vm.removeOption = function (selectedOption) {
 
                     if (vm.lotteryOn) {
-                        toastr.error($translate.instant('sitnet_action_disabled_lottery_on'));
+                        toast.error($translate.instant('sitnet_action_disabled_lottery_on'));
                         return;
                     }
 
@@ -72,13 +72,13 @@ angular.module('app.question')
                     if (!vm.isInPublishedExam || hasCorrectAnswer) {
                         vm.examQuestion.options.splice(vm.examQuestion.options.indexOf(selectedOption), 1);
                     } else {
-                        toastr.error($translate.instant('sitnet_action_disabled_minimum_options'));
+                        toast.error($translate.instant('sitnet_action_disabled_minimum_options'));
                     }
                 };
 
                 vm.addNewOption = function () {
                     if (vm.lotteryOn) {
-                        toastr.error($translate.instant('sitnet_action_disabled_lottery_on'));
+                        toast.error($translate.instant('sitnet_action_disabled_lottery_on'));
                         return;
                     }
                     vm.examQuestion.options.push({option: {correctOption: false}});

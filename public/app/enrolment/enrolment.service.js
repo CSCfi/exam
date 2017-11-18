@@ -2,9 +2,9 @@
     'use strict';
     angular.module('app.enrolment')
         .service('Enrolment', ['$translate', '$q', '$http', '$location', '$uibModal', 'dialogs', 'Language',
-            'EnrollRes', 'SettingsResource', 'StudentExamRes', 'EXAM_CONF',
+            'EnrollRes', 'SettingsResource', 'StudentExamRes', 'EXAM_CONF', 'toast',
             function ($translate, $q, $http, $location, $modal, dialogs, Language, EnrollRes, SettingsResource,
-                      StudentExamRes, EXAM_CONF) {
+                      StudentExamRes, EXAM_CONF, toast) {
 
                 var self = this;
 
@@ -25,13 +25,13 @@
                     var deferred = $q.defer();
                     EnrollRes.enroll.create({code: exam.course.code, id: exam.id},
                         function () {
-                            toastr.success($translate.instant('sitnet_you_have_enrolled_to_exam') + '<br/>' +
+                            toast.success($translate.instant('sitnet_you_have_enrolled_to_exam') + '<br/>' +
                                 $translate.instant('sitnet_remember_exam_machine_reservation'));
                             $location.path('/calendar/' + exam.id);
                             deferred.resolve();
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                             deferred.reject(error);
                         });
                     return deferred.promise;
@@ -40,10 +40,10 @@
                 self.checkAndEnroll = function (exam) {
                     EnrollRes.check.get({id: exam.id}, function () {
                             // already enrolled
-                            toastr.error($translate.instant('sitnet_already_enrolled'));
+                            toast.error($translate.instant('sitnet_already_enrolled'));
                         }, function (err) {
                             if (err.status === 403) {
-                                toastr.error(err.data);
+                                toast.error(err.data);
                             }
                             if (err.status === 404) {
                                 self.enroll(exam);
@@ -62,7 +62,7 @@
                     }
                     EnrollRes.enrollStudent.create(data,
                         function (enrolment) {
-                            toastr.success($translate.instant('sitnet_student_enrolled_to_exam'));
+                            toast.success($translate.instant('sitnet_student_enrolled_to_exam'));
                             deferred.resolve(enrolment);
                         },
                         function (error) {
@@ -121,7 +121,7 @@
                             });
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                             deferred.reject();
                         });
                     return deferred.promise;
@@ -177,7 +177,7 @@
                                 eid: enrolment.id,
                                 information: $scope.enrolment.information
                             }, function () {
-                                toastr.success($translate.instant('sitnet_saved'));
+                                toast.success($translate.instant('sitnet_saved'));
                             });
                         };
 

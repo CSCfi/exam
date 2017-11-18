@@ -5,8 +5,8 @@ angular.module('app.exam.editor')
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'limitToFilter', 'ExamRes', 'UserRes',
-            function ($translate, limitToFilter, ExamRes, UserRes) {
+        controller: ['$translate', 'limitToFilter', 'ExamRes', 'UserRes', 'toast',
+            function ($translate, limitToFilter, ExamRes, UserRes, toast) {
 
                 var vm = this;
 
@@ -29,7 +29,7 @@ angular.module('app.exam.editor')
                             return limitToFilter(names, 15);
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
@@ -49,10 +49,10 @@ angular.module('app.exam.editor')
                             delete vm.newOwner.name;
                             delete vm.newOwner.id;
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                     } else {
-                        toastr.error($translate.instant('sitnet_teacher_not_found'));
+                        toast.error($translate.instant('sitnet_teacher_not_found'));
                     }
                 };
 
@@ -62,7 +62,7 @@ angular.module('app.exam.editor')
                             getExamOwners();
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 };
 
@@ -72,7 +72,7 @@ angular.module('app.exam.editor')
                             vm.examOwners = examOwners;
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
 
                 }

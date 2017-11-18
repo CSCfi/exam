@@ -9,8 +9,8 @@ angular.module('app.review')
             questionSummary: '<',
             onUpdate: '&'
         },
-        controller: ['$translate', '$scope', 'Assessment', 'Exam', 'ExamRes', 'Attachment', 'Language',
-            function ($translate, $scope, Assessment, Exam, ExamRes, Attachment, Language) {
+        controller: ['$translate', '$scope', 'Assessment', 'Exam', 'ExamRes', 'Attachment', 'Language', 'toast',
+            function ($translate, $scope, Assessment, Exam, ExamRes, Attachment, Language, toast) {
 
                 var vm = this;
 
@@ -58,17 +58,17 @@ angular.module('app.review')
 
                 vm.sendEmailMessage = function () {
                     if (!vm.message.text) {
-                        toastr.error($translate.instant('sitnet_email_empty'));
+                        toast.error($translate.instant('sitnet_email_empty'));
                         return;
                     }
                     ExamRes.email.inspection({
                         eid: vm.exam.id,
                         msg: vm.message.text
                     }, function () {
-                        toastr.info($translate.instant('sitnet_email_sent'));
+                        toast.info($translate.instant('sitnet_email_sent'));
                         delete vm.message.text;
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 };
 

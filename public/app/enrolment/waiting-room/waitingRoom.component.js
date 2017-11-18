@@ -2,8 +2,8 @@
 angular.module('app.enrolment')
     .component('waitingRoom', {
         templateUrl: '/assets/app/enrolment/waiting-room/waitingRoom.template.html',
-        controller: ['$http', '$routeParams', '$timeout', '$translate', '$location', 'StudentExamRes',
-            function ($http, $routeParams, $timeout, $translate, $location, StudentExamRes) {
+        controller: ['$http', '$routeParams', '$timeout', '$translate', '$location', 'StudentExamRes', 'toast',
+            function ($http, $routeParams, $timeout, $translate, $location, StudentExamRes, toast) {
 
                 var vm = this;
 
@@ -24,7 +24,7 @@ angular.module('app.enrolment')
                                 vm.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
                             },
                             function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             }
                         );
                     }

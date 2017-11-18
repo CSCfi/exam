@@ -3,9 +3,9 @@ angular.module('app.review')
     .component('speedReview', {
         templateUrl: '/assets/app/review/listing/speedReview.template.html',
         controller: ['dialogs', '$q', '$route', '$routeParams', '$translate', 'ExamRes', 'Exam',
-            'Review', 'Files', '$uibModal', 'EXAM_CONF',
+            'Review', 'Files', '$uibModal', 'EXAM_CONF', 'toast',
             function (dialogs, $q, $route, $routeParams, $translate, ExamRes,
-                      Exam, Review, Files, $modal, EXAM_CONF) {
+                      Exam, Review, Files, $modal, EXAM_CONF, toast) {
 
                 var vm = this;
 
@@ -33,7 +33,7 @@ angular.module('app.review')
                                 vm.toggleReviews = vm.examReviews.length > 0;
                             },
                             function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             }
                         );
                     });
@@ -78,7 +78,7 @@ angular.module('app.review')
                         messages.push('sitnet_participation_unreviewed');
                     }
                     messages.forEach(function (msg) {
-                        toastr.warning($translate.instant(msg));
+                        toast.warning($translate.instant(msg));
                     });
                     if (messages.length === 0) {
                         var grade;
@@ -104,7 +104,7 @@ angular.module('app.review')
                             exam.grade = grade;
                             deferred.resolve();
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                             deferred.reject();
                         });
                     } else {
@@ -139,7 +139,7 @@ angular.module('app.review')
                             promises.push(gradeExam(r));
                         });
                         $q.all(promises).then(function () {
-                            toastr.info($translate.instant('sitnet_saved'));
+                            toast.info($translate.instant('sitnet_saved'));
                         });
                     });
                 };

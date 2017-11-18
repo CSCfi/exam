@@ -43,8 +43,8 @@ angular.module('app.question')
             onSave: '&?',
             onCancel: '&?'
         },
-        controller: ['$routeParams', '$scope', '$location', '$translate', 'dialogs', 'Question',
-            function ($routeParams, $scope, $location, $translate, dialogs, Question) {
+        controller: ['$routeParams', '$scope', '$location', '$translate', 'dialogs', 'Question', 'toast',
+            function ($routeParams, $scope, $location, $translate, dialogs, Question, toast) {
 
                 var vm = this;
 
@@ -63,7 +63,7 @@ angular.module('app.question')
                                 };
                             },
                             function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             }
                         );
                     }
@@ -81,7 +81,7 @@ angular.module('app.question')
                                     $location.path('/questions');
                                 }
                             }, function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             });
                     } else {
                         Question.updateQuestion(vm.question, true).then(
@@ -93,13 +93,13 @@ angular.module('app.question')
                                     $location.path('/questions');
                                 }
                             }, function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             });
                     }
                 };
 
                 vm.cancel = function () {
-                    toastr.info($translate.instant('sitnet_canceled'));
+                    toast.info($translate.instant('sitnet_canceled'));
                     // Call off the event listener so it won't ask confirmation now that we are going away
                     clearListeners();
                     if (vm.onCancel) {

@@ -5,8 +5,8 @@ angular.module('app.exam.editor')
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'limitToFilter', 'UserRes', 'Enrolment', 'EnrollRes',
-            function ($translate, limitToFilter, UserRes, Enrolment, EnrollRes) {
+        controller: ['$translate', 'limitToFilter', 'UserRes', 'Enrolment', 'EnrollRes', 'toast',
+            function ($translate, limitToFilter, UserRes, Enrolment, EnrollRes, toast) {
 
                 var vm = this;
 
@@ -30,7 +30,7 @@ angular.module('app.exam.editor')
                             return limitToFilter(names, 15);
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
@@ -51,7 +51,7 @@ angular.module('app.exam.editor')
                             delete vm.newParticipant.id;
 
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
 
                         });
 
@@ -62,9 +62,9 @@ angular.module('app.exam.editor')
                         vm.exam.examEnrolments = vm.exam.examEnrolments.filter(function (ee) {
                             return ee.id !== id;
                         });
-                        toastr.info($translate.instant('sitnet_participant_removed'));
+                        toast.info($translate.instant('sitnet_participant_removed'));
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 };
 

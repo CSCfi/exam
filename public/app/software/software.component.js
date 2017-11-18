@@ -1,8 +1,8 @@
 angular.module('app.software')
     .component('software', {
         templateUrl: '/assets/app/software/software.template.html',
-        controller: ['SoftwareRes', '$translate',
-            function (SoftwareRes, $translate) {
+        controller: ['SoftwareRes', '$translate', 'toast',
+            function (SoftwareRes, $translate, toast) {
 
                 var vm = this;
 
@@ -14,21 +14,21 @@ angular.module('app.software')
                     SoftwareRes.update.update({id: software.id}, software,
                         function (updated_software) {
                             software = updated_software;
-                            toastr.info($translate.instant('sitnet_software_updated'));
+                            toast.info($translate.instant('sitnet_software_updated'));
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
 
                 vm.addSoftware = function (name) {
                     SoftwareRes.add.insert({name: name}, function (software) {
-                            toastr.info($translate.instant('sitnet_software_added'));
+                            toast.info($translate.instant('sitnet_software_added'));
                             vm.softwares.push(software);
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
@@ -36,13 +36,13 @@ angular.module('app.software')
                 vm.removeSoftware = function (software) {
                     SoftwareRes.software.remove({id: software.id},
                         function () {
-                            toastr.info($translate.instant('sitnet_software_removed'));
+                            toast.info($translate.instant('sitnet_software_removed'));
                             if (vm.softwares.indexOf(software) > -1) {
                                 vm.softwares.splice(vm.softwares.indexOf(software), 1);
                             }
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };

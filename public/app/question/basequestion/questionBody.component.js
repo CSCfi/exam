@@ -7,8 +7,8 @@ angular.module('app.question')
             currentOwners: '<',
             lotteryOn: '<'
         },
-        controller: ['$scope', '$translate', 'Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question', 'EXAM_CONF',
-            function ($scope, $translate, Session, Attachment, UserRes, limitToFilter, Question, EXAM_CONF) {
+        controller: ['$scope', '$translate', 'Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question', 'EXAM_CONF', 'toast',
+            function ($scope, $translate, Session, Attachment, UserRes, limitToFilter, Question, EXAM_CONF, toast) {
 
                 var essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/essay_question.html';
                 var multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/multiple_choice_question.html';
@@ -100,7 +100,7 @@ angular.module('app.question')
                                 }), 15);
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
@@ -187,7 +187,7 @@ angular.module('app.question')
 
                 vm.addNewOption = function () {
                     if (vm.lotteryOn) {
-                        toastr.error($translate.instant('sitnet_action_disabled_lottery_on'));
+                        toast.error($translate.instant('sitnet_action_disabled_lottery_on'));
                         return;
                     }
                     vm.question.options.push({correctOption: false});
@@ -201,7 +201,7 @@ angular.module('app.question')
 
                 vm.removeOption = function (option) {
                     if (vm.lotteryOn) {
-                        toastr.error($translate.instant('sitnet_action_disabled_lottery_on'));
+                        toast.error($translate.instant('sitnet_action_disabled_lottery_on'));
                     } else {
                         removeOption(option);
                     }
@@ -224,7 +224,7 @@ angular.module('app.question')
                     if (!vm.isInPublishedExam || hasCorrectAnswer) {
                         vm.question.options.splice(vm.question.options.indexOf(selectedOption), 1);
                     } else {
-                        toastr.error($translate.instant('sitnet_action_disabled_minimum_options'));
+                        toast.error($translate.instant('sitnet_action_disabled_minimum_options'));
                     }
                 };
 

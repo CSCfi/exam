@@ -8,8 +8,8 @@ angular.module('app.exam.editor')
             onUpdate: '&',
             onNextTabSelected: '&'
         },
-        controller: ['$location', '$scope', '$translate', '$uibModal', 'dialogs', 'Exam', 'ExamRes', 'SettingsResource', 'Attachment', 'Files',
-            function ($location, $scope, $translate, $modal, dialogs, Exam, ExamRes, SettingsResource, Attachment, Files) {
+        controller: ['$location', '$scope', '$translate', '$uibModal', 'dialogs', 'Exam', 'ExamRes', 'SettingsResource', 'Attachment', 'Files', 'toast',
+            function ($location, $scope, $translate, $modal, dialogs, Exam, ExamRes, SettingsResource, Attachment, Files, toast) {
 
                 var vm = this;
 
@@ -29,7 +29,7 @@ angular.module('app.exam.editor')
 
                 vm.updateExam = function (resetAutoEvaluationConfig) {
                     Exam.updateExam(vm.exam).then(function () {
-                        toastr.info($translate.instant('sitnet_exam_saved'));
+                        toast.info($translate.instant('sitnet_exam_saved'));
                         if (resetAutoEvaluationConfig) {
                             delete vm.exam.autoEvaluationConfig;
                         }
@@ -37,7 +37,7 @@ angular.module('app.exam.editor')
                     }, function (error) {
                         if (error.data) {
                             var msg = error.data.message || error.data;
-                            toastr.error($translate.instant(msg));
+                            toast.error($translate.instant(msg));
                         }
                     });
                 };
@@ -119,10 +119,10 @@ angular.module('app.exam.editor')
                     if (isAllowedToUnpublishOrRemove()) {
                         var fn = function () {
                             ExamRes.exams.remove({id: vm.exam.id}, function () {
-                                toastr.success($translate.instant('sitnet_exam_removed'));
+                                toast.success($translate.instant('sitnet_exam_removed'));
                                 $location.path('/');
                             }, function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             });
                         };
                         if (canRemoveWithoutConfirmation) {
@@ -134,7 +134,7 @@ angular.module('app.exam.editor')
                             });
                         }
                     } else {
-                        toastr.warning($translate.instant('sitnet_exam_removal_not_possible'));
+                        toast.warning($translate.instant('sitnet_exam_removal_not_possible'));
                     }
                 };
 

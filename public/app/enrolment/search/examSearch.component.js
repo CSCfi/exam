@@ -2,8 +2,8 @@
 angular.module('app.enrolment')
     .component('examSearch', {
         templateUrl: '/assets/app/enrolment/search/examSearch.template.html',
-        controller: ['StudentExamRes', 'EnrollRes', 'SettingsResource', 'Language',
-            function (StudentExamRes, EnrollRes, SettingsResource, Language) {
+        controller: ['StudentExamRes', 'EnrollRes', 'SettingsResource', 'Language', 'toast',
+            function (StudentExamRes, EnrollRes, SettingsResource, Language, toast) {
 
                 var vm = this;
 
@@ -48,7 +48,7 @@ angular.module('app.enrolment')
                         vm.loader.loading = false;
                     }, function (err) {
                         vm.loader.loading = false;
-                        toastr.error(err.data);
+                        toast.error(err.data);
                     });
 
                 };

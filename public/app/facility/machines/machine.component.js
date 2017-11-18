@@ -2,8 +2,8 @@
 angular.module('app.facility.machines')
     .component('machine', {
         templateUrl: '/assets/app/facility/machines/machine.template.html',
-        controller: ['$q', 'dialogs', '$routeParams', '$location', 'Machines', '$translate',
-            function ($q, dialogs, $routeParams, $location, Machines, $translate) {
+        controller: ['$q', 'dialogs', '$routeParams', '$location', 'Machines', '$translate', 'toast',
+            function ($q, dialogs, $routeParams, $location, Machines, $translate, toast) {
 
                 var ctrl = this;
 
@@ -23,7 +23,7 @@ angular.module('app.facility.machines')
                             );
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };
@@ -33,11 +33,11 @@ angular.module('app.facility.machines')
                     dialog.result.then(function () {
                         Machines.machine.remove({id: machine.id},
                             function () {
-                                toastr.info($translate.instant('sitnet_machine_removed'));
+                                toast.info($translate.instant('sitnet_machine_removed'));
                                 $location.path("/rooms/");
                             },
                             function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             }
                         );
                     });
@@ -49,7 +49,7 @@ angular.module('app.facility.machines')
                             software.class = response.software === 'true' ? 'btn-info' : 'btn-default';
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 };
 
@@ -57,11 +57,11 @@ angular.module('app.facility.machines')
                     var deferred = $q.defer();
                     Machines.machine.update(ctrl.machine,
                         function () {
-                            toastr.info($translate.instant('sitnet_machine_updated'));
+                            toast.info($translate.instant('sitnet_machine_updated'));
                             deferred.resolve();
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                             deferred.reject();
                         }
                     );

@@ -6,9 +6,9 @@ angular.module('app.calendar')
             'isExternal': '<'
         }, controller: ['$http', '$scope', '$location', '$translate', '$routeParams', 'DateTime',
             'StudentExamRes', 'Calendar', 'SettingsResource', 'InteroperabilityResource',
-            'uiCalendarConfig',
+            'uiCalendarConfig', 'toast',
             function ($http, $scope, $location, $translate, $routeParams, DateTime, StudentExamRes,
-                      Calendar, SettingsResource, InteroperabilityResource, uiCalendarConfig) {
+                      Calendar, SettingsResource, InteroperabilityResource, uiCalendarConfig, toast) {
 
                 var vm = this;
 
@@ -183,11 +183,11 @@ angular.module('app.calendar')
                         var errorFn = function (error) {
                             vm.loader.loading = false;
                             if (error && error.status === 404) {
-                                toastr.error($translate.instant('sitnet_exam_not_active_now'));
+                                toast.error($translate.instant('sitnet_exam_not_active_now'));
                             } else if (error) {
-                                toastr.error(error.data.message);
+                                toast.error(error.data.message);
                             } else {
-                                toastr.error($translate.instant('sitnet_no_suitable_enrolment_found'));
+                                toast.error($translate.instant('sitnet_no_suitable_enrolment_found'));
                             }
                         };
                         query(successFn, errorFn, date, room, accessibility);

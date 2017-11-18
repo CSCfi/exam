@@ -5,8 +5,8 @@ angular.module('app.exam.editor')
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'SoftwareRes', 'ExamRes',
-            function ($translate, SoftwareRes, ExamRes) {
+        controller: ['$translate', 'SoftwareRes', 'ExamRes', 'toast',
+            function ($translate, SoftwareRes, ExamRes, toast) {
 
                 var vm = this;
 
@@ -37,9 +37,9 @@ angular.module('app.exam.editor')
                         } else {
                             vm.exam.softwares.push(sw);
                         }
-                        toastr.info($translate.instant('sitnet_exam_software_updated'));
+                        toast.info($translate.instant('sitnet_exam_software_updated'));
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 };
 

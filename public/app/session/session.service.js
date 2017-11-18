@@ -2,9 +2,9 @@
 'use strict';
 angular.module('app.session')
     .service('Session', ['$q', '$interval', '$sessionStorage', '$translate', '$injector', '$location',
-        '$rootScope', '$timeout', 'tmhDynamicLocale', 'EXAM_CONF',
+        '$rootScope', '$timeout', 'tmhDynamicLocale', 'EXAM_CONF', 'toast',
         function ($q, $interval, $sessionStorage, $translate, $injector, $location, $rootScope, $timeout,
-                  tmhDynamicLocale, EXAM_CONF) {
+                  tmhDynamicLocale, EXAM_CONF, toast) {
 
             var self = this;
 
@@ -89,7 +89,7 @@ angular.module('app.session')
 
             var onLogoutSuccess = function (data) {
                 $rootScope.$broadcast('userUpdated');
-                toastr.success($translate.instant('sitnet_logout_success'));
+                toast.success($translate.instant('sitnet_logout_success'));
                 window.onbeforeunload = null;
                 var localLogout = window.location.protocol + '//' + window.location.host + '/Shibboleth.sso/Logout';
                 if (data && data.logoutUrl) {
@@ -102,7 +102,7 @@ angular.module('app.session')
                     $location.path('/');
                     $rootScope.$broadcast('devLogout');
                 }
-                $timeout(toastr.clear, 300);
+                $timeout(toast.clear, 300);
             };
 
             self.logout = function () {
@@ -115,7 +115,7 @@ angular.module('app.session')
                     _user = undefined;
                     onLogoutSuccess(data);
                 }).error(function (error) {
-                    toastr.error(error.data);
+                    toast.error(error.data);
                 });
             };
 
@@ -139,7 +139,7 @@ angular.module('app.session')
                             route().reload();
                         }
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
 
                 }, function () {
@@ -168,7 +168,7 @@ angular.module('app.session')
                                 route().reload();
                             }
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                             $location.path('/logout');
                         });
 
@@ -207,10 +207,10 @@ angular.module('app.session')
                 self.restartSessionCheck();
                 $rootScope.$broadcast('userUpdated');
                 var welcome = function () {
-                    toastr.options.positionClass = 'toast-top-center';
-                    toastr.success($translate.instant('sitnet_welcome') + ' ' + _user.firstName + ' ' + _user.lastName);
+                    toast.options.positionClass = 'toast-top-center';
+                    toast.success($translate.instant('sitnet_welcome') + ' ' + _user.firstName + ' ' + _user.lastName);
                     $timeout(function () {
-                        toastr.options.positionClass = 'toast-top-right';
+                        toast.options.positionClass = 'toast-top-right';
                     }, 2500)
                 };
                 $timeout(welcome, 2000);
@@ -226,7 +226,7 @@ angular.module('app.session')
 
             var onLoginFailure = function (message) {
                 $location.path('/');
-                toastr.error(message);
+                toast.error(message);
             };
 
             var processLoggedInUser = function (user) {
@@ -298,7 +298,7 @@ angular.module('app.session')
                         _user.lang = lang;
                         self.translate(lang);
                     }).error(function () {
-                        toastr.error('failed to switch language');
+                        toast.error('failed to switch language');
                     });
                 }
             };
@@ -306,17 +306,17 @@ angular.module('app.session')
             var checkSession = function () {
                 http().get('/app/checkSession').success(function (data) {
                     if (data === 'alarm') {
-                        toastr.options = {
+                        toast.options = {
                             timeOut: 0,
                             preventDuplicates: true,
                             onclick: function () {
                                 http().put('/app/extendSession', {}).success(function () {
-                                    toastr.info($translate.instant('sitnet_session_extended'));
-                                    toastr.options.timeout = 1000;
+                                    toast.info($translate.instant('sitnet_session_extended'));
+                                    toast.options.timeout = 1000;
                                 });
                             }
                         };
-                        toastr.warning($translate.instant('sitnet_continue_session'),
+                        toast.warning($translate.instant('sitnet_continue_session'),
                             $translate.instant('sitnet_session_will_expire_soon'));
                     } else if (data === 'no_session') {
                         if (_scheduler) {

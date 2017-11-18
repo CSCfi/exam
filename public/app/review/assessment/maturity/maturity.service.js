@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.review')
-    .service('Maturity', ['$q', '$resource', '$location', '$translate', 'dialogs', 'Assessment', 'Session', 'ExamRes',
-        function ($q, $resource, $location, $translate, dialogs, Assessment, Session, ExamRes) {
+    .service('Maturity', ['$q', '$resource', '$location', '$translate', 'dialogs', 'Assessment', 'Session', 'ExamRes', 'toast',
+        function ($q, $resource, $location, $translate, dialogs, Assessment, Session, ExamRes, toast) {
 
             var self = this;
 
@@ -70,10 +70,10 @@ angular.module('app.review')
                 // Update comment
                 statementApi.update(statement,
                     function (data) {
-                        toastr.info($translate.instant('sitnet_statement_updated'));
+                        toast.info($translate.instant('sitnet_statement_updated'));
                         deferred.resolve(data);
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                         deferred.reject(error.data);
                     });
                 return deferred.promise;
@@ -134,11 +134,11 @@ angular.module('app.review')
                         var params = Assessment.getPayload(exam, 'GRADED');
                         ExamRes.review.update({id: exam.id}, params, function () {
                             inspectionApi.add({examId: exam.id}, function () {
-                                toastr.info($translate.instant('sitnet_sent_for_language_inspection'));
+                                toast.info($translate.instant('sitnet_sent_for_language_inspection'));
                                 $location.path(Assessment.getExitUrl(exam));
                             });
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                     });
                 });
@@ -153,7 +153,7 @@ angular.module('app.review')
                         approvalApi.update(
                             {id: exam.languageInspection.id, approved: approved},
                             function () {
-                                toastr.info($translate.instant('sitnet_language_inspection_finished'));
+                                toast.info($translate.instant('sitnet_language_inspection_finished'));
                                 if (approved) {
                                     Assessment.createExamRecord(exam, false, 'inspections');
                                 } else {

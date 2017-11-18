@@ -9,8 +9,8 @@ angular.module('app.review')
             disabled: '<',
             onInspection: '&'
         },
-        controller: ['$translate', 'ExamRes',
-            function ($translate, ExamRes) {
+        controller: ['$translate', 'ExamRes', 'toast',
+            function ($translate, ExamRes, toast) {
 
                 var vm = this;
 
@@ -33,11 +33,11 @@ angular.module('app.review')
                             id: vm.inspection.id,
                             ready: vm.inspection.ready
                         }, function (result) {
-                            toastr.info($translate.instant('sitnet_exam_updated'));
+                            toast.info($translate.instant('sitnet_exam_updated'));
                             vm.inspection.ready = result.ready;
                             vm.onInspection();
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                     }
                 };

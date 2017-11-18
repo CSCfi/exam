@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.examination')
-    .service('Examination', ['$q', '$location', '$http', '$translate', '$window', 'lodash',
-        function ($q, $location, $http, $translate, $window, lodash) {
+    .service('Examination', ['$q', '$location', '$http', '$translate', '$window', 'lodash', 'toast',
+        function ($q, $location, $http, $translate, $window, lodash, toast) {
 
             var self = this;
             var _external;
@@ -44,13 +44,13 @@ angular.module('app.examination')
                     if (autosave) {
                         esq.autosaved = new Date();
                     } else {
-                        toastr.info($translate.instant('sitnet_answer_saved'));
+                        toast.info($translate.instant('sitnet_answer_saved'));
                         self.setQuestionColors(esq);
                     }
                     answerObj.objectVersion = answer.objectVersion;
                     deferred.resolve();
                 }).error(function (error) {
-                    toastr.error(error.data);
+                    toast.error(error.data);
                     deferred.reject();
                 });
                 return deferred.promise;
@@ -152,13 +152,13 @@ angular.module('app.examination')
                 if (!preview) {
                     var url = getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
                     $http.post(url, {oids: ids}).success(function () {
-                        toastr.info($translate.instant('sitnet_answer_saved'));
+                        toast.info($translate.instant('sitnet_answer_saved'));
                         sq.options.forEach(function (o) {
                             o.answered = ids.indexOf(o.id) > -1;
                         });
                         self.setQuestionColors(sq);
                     }).error(function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 } else {
                     self.setQuestionColors(sq);
@@ -174,11 +174,11 @@ angular.module('app.examination')
             self.logout = function (msg, hash) {
                 var url = getResource('/app/student/exam/' + hash);
                 $http.put(url).success(function () {
-                    toastr.info($translate.instant(msg), {timeOut: 5000});
+                    toast.info($translate.instant(msg), {timeOut: 5000});
                     window.onbeforeunload = null;
                     $location.path('/student/logout/finished');
                 }).error(function (error) {
-                    toastr.error($translate.instant(error.data));
+                    toast.error($translate.instant(error.data));
                 });
             };
 

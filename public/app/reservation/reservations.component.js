@@ -6,9 +6,9 @@ angular.module('app.reservation')
             'userRole': '@'
         },
         controller: ['ExamRes', '$location', '$http', 'EXAM_CONF',
-            'ReservationResource', 'Reservation', 'Exam', '$timeout', '$routeParams', '$translate', '$filter',
+            'ReservationResource', 'Reservation', 'Exam', '$timeout', '$routeParams', '$translate', '$filter', 'toast',
             function (ExamRes, $location, $http, EXAM_CONF, ReservationResource, Reservation, Exam,
-                      $timeout, $routeParams, $translate, $filter) {
+                      $timeout, $routeParams, $translate, $filter, toast) {
 
                 var select2options = {
                     placeholder: '-',
@@ -94,7 +94,7 @@ angular.module('app.reservation')
                         });
                     },
                     function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     }
                 );
 
@@ -106,7 +106,7 @@ angular.module('app.reservation')
                         });
                     },
                     function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     }
                 );
 
@@ -121,7 +121,7 @@ angular.module('app.reservation')
                             });
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
 
@@ -138,12 +138,12 @@ angular.module('app.reservation')
                                     machinesForRooms(examrooms, machines);
                                 },
                                 function (error) {
-                                    toastr.error(error.data);
+                                    toast.error(error.data);
                                 }
                             );
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 }
@@ -238,7 +238,7 @@ angular.module('app.reservation')
                                 });
                                 ctrl.reservations = reservations;
                             }, function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             });
                     }
                 };
@@ -246,7 +246,7 @@ angular.module('app.reservation')
                 ctrl.removeReservation = function (reservation) {
                     Reservation.cancelReservation(reservation).then(function () {
                         ctrl.reservations.splice(ctrl.reservations.indexOf(reservation), 1);
-                        toastr.info($translate.instant('sitnet_reservation_removed'));
+                        toast.info($translate.instant('sitnet_reservation_removed'));
                     });
                 };
 
@@ -257,7 +257,7 @@ angular.module('app.reservation')
                 ctrl.permitRetrial = function (reservation) {
                     ExamRes.reservation.update({id: reservation.id}, function () {
                         reservation.retrialPermitted = true;
-                        toastr.info($translate.instant('sitnet_retrial_permitted'));
+                        toast.info($translate.instant('sitnet_retrial_permitted'));
                     });
                 };
 

@@ -16,8 +16,8 @@ angular.module('app.enrolment')
         '        <enrolment-candidate ng-repeat="exam in $ctrl.exams" exam="exam"></enrolment-candidate>\n' +
         '    </div>\n' +
         '</div>\n',
-        controller: ['$routeParams', 'Enrolment',
-            function ($routeParams, Enrolment) {
+        controller: ['$routeParams', 'Enrolment', 'toast',
+            function ($routeParams, Enrolment, toast) {
 
                 var vm = this;
 
@@ -25,7 +25,7 @@ angular.module('app.enrolment')
                     Enrolment.getExamEnrolment($routeParams.code, $routeParams.id).then(function (data) {
                         vm.exam = data;
                     }, function (err) {
-                        toastr.error(err.data);
+                        toast.error(err.data);
                     });
                     Enrolment.listEnrolments($routeParams.code, $routeParams.id).then(function (data) {
                         vm.exams = data;

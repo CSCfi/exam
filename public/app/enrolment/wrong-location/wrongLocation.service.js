@@ -1,6 +1,6 @@
 'use strict';
 angular.module('app.enrolment')
-    .service('WrongLocation', ['$timeout', '$translate', function ($timeout, $translate) {
+    .service('WrongLocation', ['$timeout', '$translate', 'toast', function ($timeout, $translate, toast) {
 
         var self = this;
 
@@ -18,7 +18,7 @@ angular.module('app.enrolment')
             if (startsAt.isAfter(now)) {
                 parts = ['sitnet_your_exam_will_start_at', 'sitnet_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
                 $translate(parts).then(function (t) {
-                    toastr.warning(t.sitnet_your_exam_will_start_at + ' ' + startsAt.format('HH:mm') + ' ' +
+                    toast.warning(t.sitnet_your_exam_will_start_at + ' ' + startsAt.format('HH:mm') + ' ' +
                         t.sitnet_at_location + ': ' + data[0] + ', ' + data[1] + ' ' +
                         t.sitnet_at_room + ' ' + data[2] + ' ' +
                         t.sitnet_at_machine + ' ' + data[3], opts);
@@ -26,7 +26,7 @@ angular.module('app.enrolment')
             } else {
                 parts = ['sitnet_you_have_ongoing_exam_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
                 $translate(parts).then(function (t) {
-                    toastr.error(t.sitnet_you_have_ongoing_exam_at_location + ': ' + data[0] + ', ' + data[1] + ' ' +
+                    toast.error(t.sitnet_you_have_ongoing_exam_at_location + ': ' + data[0] + ', ' + data[1] + ' ' +
                         t.sitnet_at_room + ' ' + data[2] + ' ' +
                         t.sitnet_at_machine + ' ' + data[3], opts);
                 });

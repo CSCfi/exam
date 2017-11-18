@@ -27,8 +27,6 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
         $locationProvider.html5Mode({enabled: true, requireBase: false});
 
-        toastr.options.preventDuplicates = true;
-
         // ROUTING -->
 
         var tmpl = EXAM_CONF.TEMPLATES_PATH;
@@ -107,8 +105,8 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
 
         // HTTP INTERCEPTOR
-        $httpProvider.interceptors.push(['$q', '$rootScope', '$location', '$translate', 'WrongLocation',
-            function ($q, $rootScope, $location, $translate, WrongLocation) {
+        $httpProvider.interceptors.push(['$q', '$rootScope', '$location', '$translate', 'WrongLocation', 'toast',
+            function ($q, $rootScope, $location, $translate, WrongLocation, toast) {
                 return {
                     'response': function (response) {
 
@@ -152,7 +150,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
                     'responseError': function (response) {
                         if (response.status === -1) {
                             // connection failure
-                            toastr.error($translate.instant('sitnet_connection_refused'));
+                            toast.error($translate.instant('sitnet_connection_refused'));
                         }
                         else if (typeof response.data === 'string' || response.data instanceof String) {
                             var deferred = $q.defer();

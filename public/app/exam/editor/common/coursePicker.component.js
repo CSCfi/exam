@@ -6,8 +6,8 @@ angular.module('app.exam.editor')
             exam: '<',
             onUpdate: '&'
         },
-        controller: ['$http', '$translate', 'Course', 'ExamRes',
-            function ($http, $translate, Course, ExamRes) {
+        controller: ['$http', '$translate', 'Course', 'ExamRes', 'toast',
+            function ($http, $translate, Course, ExamRes, toast) {
 
                 var vm = this;
 
@@ -29,14 +29,14 @@ angular.module('app.exam.editor')
                             toggleLoadingIcon(filter, false);
 
                             if (!courses || !courses.hasOwnProperty('length') || courses.length === 0) {
-                                toastr.error($translate.instant('sitnet_course_not_found') + ' ( ' + tmp + ' )');
+                                toast.error($translate.instant('sitnet_course_not_found') + ' ( ' + tmp + ' )');
                             }
                             return courses;
                         },
                         function () {
                             toggleLoadingIcon(filter, false);
                             vm.exam.course = undefined;
-                            toastr.error($translate.instant('sitnet_course_not_found') + ' ( ' + tmp + ' )');
+                            toast.error($translate.instant('sitnet_course_not_found') + ' ( ' + tmp + ' )');
                             return [];
                         }
                     );
@@ -44,11 +44,11 @@ angular.module('app.exam.editor')
 
                 vm.onCourseSelect = function ($item, $model, $label, exam) {
                     ExamRes.course.update({eid: exam.id, cid: $item.id}, function (course) {
-                        toastr.success($translate.instant('sitnet_exam_associated_with_course'));
+                        toast.success($translate.instant('sitnet_exam_associated_with_course'));
                         vm.exam.course = course;
                         vm.onUpdate({course: course});
                     }, function () {
-                        toastr.error($translate.instant('sitnet_course_not_found'));
+                        toast.error($translate.instant('sitnet_course_not_found'));
                     });
                     vm.exam.course = $item;
                 };

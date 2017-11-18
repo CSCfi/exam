@@ -9,8 +9,8 @@ angular.module('app.review')
             isScorable: '<',
             onScore: '&'
         },
-        controller: ['$sce', '$translate', 'Assessment', 'Attachment', 'Question',
-            function ($sce, $translate, Assessment, Attachment, Question) {
+        controller: ['$sce', '$translate', 'Assessment', 'Attachment', 'toast',
+            function ($sce, $translate, Assessment, Attachment, toast) {
 
                 var vm = this;
 
@@ -29,10 +29,10 @@ angular.module('app.review')
                 vm.insertEssayScore = function () {
                     Assessment.saveEssayScore(vm.sectionQuestion)
                         .then(function () {
-                            toastr.info($translate.instant('sitnet_graded'));
+                            toast.info($translate.instant('sitnet_graded'));
                             vm.onScore();
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 };
 

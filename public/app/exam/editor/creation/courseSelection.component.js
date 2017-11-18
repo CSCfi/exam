@@ -3,8 +3,8 @@
 angular.module('app.exam.editor')
     .component('courseSelection', {
         templateUrl: '/assets/app/exam/editor/creation/courseSelection.template.html',
-        controller: ['$translate', '$q', '$location', '$routeParams', 'ExamRes', 'Exam',
-            function ($translate, $q, $location, $routeParams, ExamRes, Exam) {
+        controller: ['$translate', '$q', '$location', '$routeParams', 'ExamRes', 'Exam', 'toast',
+            function ($translate, $q, $location, $routeParams, ExamRes, Exam, toast) {
 
                 var vm = this;
 
@@ -20,18 +20,18 @@ angular.module('app.exam.editor')
 
                 vm.updateExamName = function () {
                     Exam.updateExam(vm.exam).then(function () {
-                        toastr.info($translate.instant("sitnet_exam_saved"));
+                        toast.info($translate.instant("sitnet_exam_saved"));
                     }, function (error) {
                         if (error.data) {
                             var msg = error.data.message || error.data;
-                            toastr.error($translate.instant(msg));
+                            toast.error($translate.instant(msg));
                         }
                     });
                 };
 
                 vm.cancelNewExam = function () {
                     ExamRes.exams.remove({id: vm.exam.id}, function () {
-                        toastr.success($translate.instant('sitnet_exam_removed'));
+                        toast.success($translate.instant('sitnet_exam_removed'));
                         $location.path('/');
                     });
                 };

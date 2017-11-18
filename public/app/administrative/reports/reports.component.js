@@ -3,8 +3,8 @@
 angular.module('app.administrative.reports')
     .component('reports', {
         templateUrl: '/assets/app/administrative/reports/reports.template.html',
-        controller: ['$translate', 'EXAM_CONF', 'Reports', 'Room', 'DateTime', '$filter', 'UserRes', 'Files',
-            function ($translate, EXAM_CONF, Reports, Room, DateTime, $filter, UserRes, Files) {
+        controller: ['$translate', 'EXAM_CONF', 'Reports', 'Room', 'DateTime', '$filter', 'UserRes', 'Files', 'toast',
+            function ($translate, EXAM_CONF, Reports, Room, DateTime, $filter, UserRes, Files, toast) {
 
                 var ctrl = this;
 
@@ -43,7 +43,7 @@ angular.module('app.administrative.reports')
                     if (exam) {
                         Files.download('/app/statistics/examenrollments/' + exam.id, 'exam_enrolments.xlsx');
                     } else {
-                        toastr.error($translate.instant('sitnet_choose_exam'));
+                        toast.error($translate.instant('sitnet_choose_exam'));
                     }
                 };
 
@@ -53,7 +53,7 @@ angular.module('app.administrative.reports')
                         var t = $filter('date')(ctrl.studentEndDate || new Date(), 'dd.MM.yyyy');
                         Files.download('/app/statistics/student/' + student.id + '/' + f + '/' + t, 'student_activity.xlsx');
                     } else {
-                        toastr.error($translate.instant('sitnet_choose_student'));
+                        toast.error($translate.instant('sitnet_choose_student'));
                     }
                 };
 
@@ -67,7 +67,7 @@ angular.module('app.administrative.reports')
                     if (exam) {
                         Files.download('/app/statistics/examnames/' + exam.id + '/xlsx', 'exams.xlsx');
                     } else {
-                        toastr.error($translate.instant('sitnet_choose_exam'));
+                        toast.error($translate.instant('sitnet_choose_exam'));
                     }
                 };
 
@@ -75,7 +75,7 @@ angular.module('app.administrative.reports')
                     if (exam) {
                         Files.download('/app/statistics/examnames/' + exam.id + '/json', 'exams.json');
                     } else {
-                        toastr.error($translate.instant('sitnet_choose_exam'));
+                        toast.error($translate.instant('sitnet_choose_exam'));
                     }
                 };
 
@@ -92,7 +92,7 @@ angular.module('app.administrative.reports')
                         Files.download('/app/statistics/teacherexamsbydate/' + teacher.id + '/' + f + '/' + t,
                             'teacherexams_' + f + '_' + t + '.xlsx');
                     } else {
-                        toastr.error($translate.instant('sitnet_choose_teacher'));
+                        toast.error($translate.instant('sitnet_choose_teacher'));
                     }
                 };
 
@@ -102,7 +102,7 @@ angular.module('app.administrative.reports')
                     if (rid > 0) {
                         Files.download('/app/statistics/resbydate/' + rid + '/' + f + '/' + t, 'reservations_' + f + '_' + t + '.xlsx');
                     } else {
-                        toastr.error($translate.instant('sitnet_choose_room'));
+                        toast.error($translate.instant('sitnet_choose_room'));
                     }
                 };
 

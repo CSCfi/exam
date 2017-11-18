@@ -1,8 +1,8 @@
 angular.module('app.administrative.users')
     .component('users', {
         templateUrl: '/assets/app/administrative/users/users.template.html',
-        controller: ['$timeout', '$translate', 'UserManagement', 'EXAM_CONF', 'Session',
-            function ($timeout, $translate, UserManagement, EXAM_CONF, Session) {
+        controller: ['$timeout', '$translate', 'UserManagement', 'EXAM_CONF', 'Session', 'toast',
+            function ($timeout, $translate, UserManagement, EXAM_CONF, Session, toast) {
 
                 var updateEditOptions = function (user) {
                     user.availableRoles = [];
@@ -38,7 +38,7 @@ angular.module('app.administrative.users')
                         ctrl.loader.loading = false;
                     }, function (err) {
                         ctrl.loader.loading = false;
-                        toastr.error($translate.instant(err.data));
+                        toast.error($translate.instant(err.data));
                     });
                 };
 

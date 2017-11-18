@@ -6,9 +6,9 @@ angular.module('app.review')
             exam: '<'
         },
         controller: ['$filter', '$q', '$translate', '$uibModal', 'dialogs', 'ExamRes', 'DateTime', 'Exam',
-            'ReviewList', 'Files', 'EXAM_CONF', 'diffInMinutesToFilter',
+            'ReviewList', 'Files', 'EXAM_CONF', 'diffInMinutesToFilter', 'toast',
             function ($filter, $q, $translate, $modal, dialogs, ExamRes, DateTime, Exam, Review,
-                      Files, EXAM_CONF, diffInMinutesToFilter) {
+                      Files, EXAM_CONF, diffInMinutesToFilter, toast) {
 
                 var vm = this;
 
@@ -88,7 +88,7 @@ angular.module('app.review')
 
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
 
@@ -149,7 +149,7 @@ angular.module('app.review')
                         });
                         vm.applyFreeSearchFilter('archived');
                         vm.applyFreeSearchFilter('finished');
-                        toastr.info($translate.instant('sitnet_exams_archived'));
+                        toast.info($translate.instant('sitnet_exams_archived'));
                     });
                 };
 
@@ -166,7 +166,7 @@ angular.module('app.review')
                             promises.push(send(r));
                         });
                         $q.all(promises).then(function () {
-                            toastr.info($translate.instant('sitnet_results_send_ok'));
+                            toast.info($translate.instant('sitnet_results_send_ok'));
                         });
                     });
                 };
@@ -215,7 +215,7 @@ angular.module('app.review')
                         return i.selected;
                     });
                     if (objects.length === 0) {
-                        toastr.warning($translate.instant('sitnet_choose_atleast_one'));
+                        toast.warning($translate.instant('sitnet_choose_atleast_one'));
                         return;
                     }
                     return objects;
@@ -248,7 +248,7 @@ angular.module('app.review')
                             deferred.resolve();
                         });
                     } else {
-                        toastr.error($translate.instant('sitnet_failed_to_record_review'));
+                        toast.error($translate.instant('sitnet_failed_to_record_review'));
                         deferred.reject();
                     }
                     return deferred.promise;

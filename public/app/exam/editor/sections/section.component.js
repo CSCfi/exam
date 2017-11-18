@@ -9,8 +9,8 @@ angular.module('app.exam.editor')
             onDelete: '&',
             onReloadRequired: '&' // TODO: try to live without this callback?
         },
-        controller: ['$translate', '$uibModal', 'dialogs', 'ExamRes', 'Question',
-            function ($translate, $modal, dialogs, ExamRes, Question) {
+        controller: ['$translate', '$uibModal', 'dialogs', 'ExamRes', 'Question', 'toast',
+            function ($translate, $modal, dialogs, ExamRes, Question, toast) {
 
                 var vm = this;
 
@@ -20,9 +20,9 @@ angular.module('app.exam.editor')
                         ExamRes.clearsection.clear({eid: vm.examId, sid: vm.section.id}, function () {
                             vm.section.sectionQuestions.splice(0, vm.section.sectionQuestions.length);
                             vm.section.lotteryOn = false;
-                            toastr.info($translate.instant('sitnet_all_questions_removed'));
+                            toast.info($translate.instant('sitnet_all_questions_removed'));
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                     });
                 };
@@ -38,9 +38,9 @@ angular.module('app.exam.editor')
                     ExamRes.sections.update({eid: vm.examId, sid: vm.section.id}, getSectionPayload(vm.section),
                         function (sec) {
                             //vm.section = sec;
-                            toastr.info($translate.instant('sitnet_section_updated'));
+                            toast.info($translate.instant('sitnet_section_updated'));
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 };
 
@@ -51,7 +51,7 @@ angular.module('app.exam.editor')
                     }
 
                     if (!questionPointsMatch()) {
-                        toastr.error($translate.instant('sitnet_error_lottery_points_not_match'));
+                        toast.error($translate.instant('sitnet_error_lottery_points_not_match'));
                         vm.section.lotteryOn = false;
                         return;
                     }
@@ -62,9 +62,9 @@ angular.module('app.exam.editor')
                             if (angular.isUndefined(vm.section.lotteryItemCount)) {
                                 vm.section.lotteryItemCount = 1;
                             }
-                            toastr.info($translate.instant('sitnet_section_updated'));
+                            toast.info($translate.instant('sitnet_section_updated'));
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 };
 
@@ -74,16 +74,16 @@ angular.module('app.exam.editor')
 
                 vm.updateLotteryCount = function () {
                     if (!vm.section.lotteryItemCount) {
-                        toastr.warning($translate.instant('sitnet_warn_lottery_count'));
+                        toast.warning($translate.instant('sitnet_warn_lottery_count'));
                         vm.section.lotteryItemCount = 1;
                     }
                     else {
                         ExamRes.sections.update({eid: vm.examId, sid: vm.section.id}, getSectionPayload(vm.section),
                             function (sec) {
                                 //vm.section = sec;
-                                toastr.info($translate.instant('sitnet_section_updated'));
+                                toast.info($translate.instant('sitnet_section_updated'));
                             }, function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             });
                     }
                 };
@@ -100,14 +100,14 @@ angular.module('app.exam.editor')
                             from: from,
                             to: to
                         }, function () {
-                            toastr.info($translate.instant('sitnet_questions_reordered'));
+                            toast.info($translate.instant('sitnet_questions_reordered'));
                         });
                     }
                 };
 
                 vm.addNewQuestion = function () {
                     if (vm.section.lotteryOn) {
-                        toastr.error($translate.instant('sitnet_error_drop_disabled_lottery_on'));
+                        toast.error($translate.instant('sitnet_error_drop_disabled_lottery_on'));
                         return;
                     }
                     openBaseQuestionEditor();
@@ -121,7 +121,7 @@ angular.module('app.exam.editor')
                     }, function () {
                         // CHECK THE SPLICING
                         vm.section.sectionQuestions.splice(vm.section.sectionQuestions.indexOf(sectionQuestion), 1);
-                        toastr.info($translate.instant('sitnet_question_removed'));
+                        toast.info($translate.instant('sitnet_question_removed'));
                         if (vm.section.sectionQuestions.length < 2 && vm.section.lotteryOn) {
                             // turn off lottery
                             vm.section.lotteryOn = false;
@@ -132,7 +132,7 @@ angular.module('app.exam.editor')
                             }, getSectionPayload(vm.section));
                         }
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 };
 
@@ -140,7 +140,7 @@ angular.module('app.exam.editor')
                 vm.openLibrary = function () {
 
                     if (vm.section.lotteryOn) {
-                        toastr.error($translate.instant('sitnet_error_drop_disabled_lottery_on'));
+                        toast.error($translate.instant('sitnet_error_drop_disabled_lottery_on'));
                         return;
                     }
                     $modal.open({
@@ -207,7 +207,7 @@ angular.module('app.exam.editor')
                         }, function () {
                             vm.onReloadRequired(); // TODO: see if we could live without reloading the whole exam from back?
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };

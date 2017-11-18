@@ -1,8 +1,8 @@
 'use strict';
 angular.module('app.calendar')
     .service('Calendar', ['$resource', '$uibModal', '$http', '$routeParams', '$translate', '$location',
-        'DateTime', 'Session', 'InteroperabilityResource',
-        function ($resource, $modal, $http, $routeParams, $translate, $location, DateTime, Session, InteroperabilityResource) {
+        'DateTime', 'Session', 'InteroperabilityResource', 'toast',
+        function ($resource, $modal, $http, $routeParams, $translate, $location, DateTime, Session, InteroperabilityResource, toast) {
 
             var self = this;
 
@@ -27,7 +27,7 @@ angular.module('app.calendar')
                     InteroperabilityResource.reservations.create(slot, function () {
                         $location.path('/');
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 } else {
                     slot.roomId = room.id;
@@ -40,7 +40,7 @@ angular.module('app.calendar')
                     $http.post('/app/calendar/reservation', slot).then(function () {
                         $location.path('/');
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 }
 

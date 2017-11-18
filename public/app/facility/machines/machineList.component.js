@@ -5,7 +5,7 @@ angular.module('app.facility.machines')
         bindings: {
             room: '<'
         },
-        controller: ['Machines', '$translate', function (Machines, $translate) {
+        controller: ['Machines', '$translate', 'toast', function (Machines, $translate, toast) {
 
             var vm = this;
 
@@ -35,10 +35,10 @@ angular.module('app.facility.machines')
                 var newMachine = {};
 
                 Machines.machine.insert({id: vm.room.id}, newMachine, function (machine) {
-                    toastr.info($translate.instant("sitnet_machine_added"));
+                    toast.info($translate.instant("sitnet_machine_added"));
                     vm.room.examMachines.push(machine);
                 }, function (error) {
-                    toastr.error(error.data);
+                    toast.error(error.data);
                 });
             };
 

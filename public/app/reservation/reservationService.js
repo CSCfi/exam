@@ -1,9 +1,9 @@
 'use strict';
 angular.module('app.reservation')
     .service('Reservation', ['$q', '$uibModal', '$http', '$translate', 'dialogs',
-        'ReservationResource', 'EXAM_CONF', 'InteroperabilityResource',
+        'ReservationResource', 'EXAM_CONF', 'InteroperabilityResource', 'toast',
         function ($q, $modal, $http, $translate, dialogs,
-                  ReservationRes, EXAM_CONF, InteroperabilityRes) {
+                  ReservationRes, EXAM_CONF, InteroperabilityRes, toast) {
 
             var self = this;
 
@@ -15,7 +15,7 @@ angular.module('app.reservation')
                     enrolment.reservationCanceled = true;
                 };
                 var errorFn = function (msg) {
-                    toastr.error(msg);
+                    toast.error(msg);
                 };
                 dialog.result.then(function (btn) {
                     if (externalRef) {
@@ -43,11 +43,11 @@ angular.module('app.reservation')
                             id: reservation.id,
                             machineId: $scope.selection.machineId
                         }, function (machine) {
-                            toastr.info($translate.instant("sitnet_updated"));
+                            toast.info($translate.instant("sitnet_updated"));
                             reservation.machine = machine;
                             $modalInstance.close("Accepted");
                         }, function (msg) {
-                            toastr.error(msg);
+                            toast.error(msg);
                         });
                     };
 
@@ -79,7 +79,7 @@ angular.module('app.reservation')
                                 $modalInstance.close("Accepted");
                                 deferred.resolve("ok");
                             }, function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             });
                     };
 

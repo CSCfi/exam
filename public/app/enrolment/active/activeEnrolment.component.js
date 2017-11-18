@@ -6,8 +6,8 @@ angular.module('app.enrolment')
             enrolment: '<',
             onRemoval: '&'
         },
-        controller: ['$translate', 'dialogs', 'Enrolment', 'Reservation',
-            function ($translate, dialogs, Enrolment, Reservation) {
+        controller: ['$translate', 'dialogs', 'Enrolment', 'Reservation', 'toast',
+            function ($translate, dialogs, Enrolment, Reservation, toast) {
 
                 var vm = this;
 
@@ -17,7 +17,7 @@ angular.module('app.enrolment')
 
                 vm.removeEnrolment = function () {
                     if (vm.enrolment.reservation) {
-                        toastr.error($translate.instant('sitnet_cancel_reservation_first'));
+                        toast.error($translate.instant('sitnet_cancel_reservation_first'));
                     } else {
                         dialogs.confirm($translate.instant('sitnet_confirm'),
                             $translate.instant('sitnet_are_you_sure')).result.then(

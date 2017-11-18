@@ -3,9 +3,9 @@ angular.module('app.dashboard.teacher')
     .component('teacherDashboard', {
         templateUrl: '/assets/app/dashboard/teacher/teacherDashboard.template.html',
         controller: ['TeacherDashboard', 'Exam', 'DateTime', 'Session', 'EXAM_CONF', 'ExamRes',
-            'dialogs', '$translate', '$location', '$filter',
+            'dialogs', '$translate', '$location', '$filter', 'toast',
             function (TeacherDashboard, Exam, DateTime, Session, EXAM_CONF, ExamRes, dialogs,
-                      $translate, $location, $filter) {
+                      $translate, $location, $filter, toast) {
 
                 var ctrl = this;
 
@@ -101,10 +101,10 @@ angular.module('app.dashboard.teacher')
 
                 ctrl.copyExam = function (exam, type) {
                     ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
-                        toastr.success($translate.instant('sitnet_exam_copied'));
+                        toast.success($translate.instant('sitnet_exam_copied'));
                         $location.path('/exams/' + copy.id + '/1/');
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 };
 
@@ -112,7 +112,7 @@ angular.module('app.dashboard.teacher')
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                     dialog.result.then(function (btn) {
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
-                            toastr.success($translate.instant('sitnet_exam_removed'));
+                            toast.success($translate.instant('sitnet_exam_removed'));
                             if (listing === 'archived') {
                                 ctrl.archivedExams.splice(ctrl.archivedExams.indexOf(exam), 1);
                             }
@@ -128,7 +128,7 @@ angular.module('app.dashboard.teacher')
 
 
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                     }, function (btn) {
 

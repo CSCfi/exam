@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.facility.rooms')
-    .service('Room', ['$resource', '$translate', '$route', 'dialogs',
-        function ($resource, $translate, $route, dialogs) {
+    .service('Room', ['$resource', '$translate', '$route', 'dialogs', 'toast',
+        function ($resource, $translate, $route, dialogs, toast) {
 
         var self = this;
 
@@ -121,11 +121,11 @@ angular.module('app.facility.rooms')
             dialog.result.then(function () {
                 self.rooms.inactivate({id: room.id},
                     function () {
-                        toastr.info($translate.instant('sitnet_room_inactivated'));
+                        toast.info($translate.instant('sitnet_room_inactivated'));
                         $route.reload();
                     },
                     function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     }
                 );
             });
@@ -134,11 +134,11 @@ angular.module('app.facility.rooms')
         self.enableRoom = function (room) {
             self.rooms.activate({id: room.id},
                 function () {
-                    toastr.info($translate.instant('sitnet_room_activated'));
+                    toast.info($translate.instant('sitnet_room_activated'));
                     $route.reload();
                 },
                 function (error) {
-                    toastr.error(error.data);
+                    toast.error(error.data);
                 }
             );
 

@@ -2,8 +2,8 @@
 angular.module('app.enrolment')
     .component('examParticipations', {
         templateUrl: '/assets/app/enrolment/finished/examParticipations.template.html',
-        controller: ['$scope', '$translate', 'StudentExamRes', 'Exam', 'EXAM_CONF',
-            function ($scope, $translate, StudentExamRes, Exam, EXAM_CONF) {
+        controller: ['$scope', '$translate', 'StudentExamRes', 'toast',
+            function ($scope, $translate, StudentExamRes, toast) {
 
                 var vm = this;
 
@@ -25,7 +25,7 @@ angular.module('app.enrolment')
                             vm.participations = data;
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                 };
 

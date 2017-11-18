@@ -8,8 +8,8 @@ angular.module('app.exam.editor')
             onPreviousTabSelected: '&',
             onNextTabSelected: '&?'
         },
-        controller: ['$q', '$translate', '$location', '$uibModal', 'Session', 'Exam', 'ExamRes', 'SettingsResource', 'EXAM_CONF', 'lodash',
-            function ($q, $translate, $location, $modal, Session, Exam, ExamRes, SettingsResource, EXAM_CONF, lodash) {
+        controller: ['$q', '$translate', '$location', '$uibModal', 'Session', 'Exam', 'ExamRes', 'SettingsResource', 'EXAM_CONF', 'lodash', 'toast',
+            function ($q, $translate, $location, $modal, Session, Exam, ExamRes, SettingsResource, EXAM_CONF, lodash, toast) {
 
                 var vm = this;
 
@@ -76,13 +76,13 @@ angular.module('app.exam.editor')
                     angular.extend(config, overrides);
                     Exam.updateExam(vm.exam, config).then(function () {
                         if (!silent) {
-                            toastr.info($translate.instant('sitnet_exam_saved'));
+                            toast.info($translate.instant('sitnet_exam_saved'));
                         }
                         deferred.resolve();
                     }, function (error) {
                         if (error.data) {
                             var msg = error.data.message || error.data;
-                            toastr.error($translate.instant(msg));
+                            toast.error($translate.instant(msg));
                         }
                         deferred.reject();
                     });
@@ -176,7 +176,7 @@ angular.module('app.exam.editor')
                         }).result.then(function () {
                             // OK button clicked
                             vm.updateExam(true, {'state': 'PUBLISHED'}).then(function () {
-                                toastr.success($translate.instant('sitnet_exam_saved_and_published'));
+                                toast.success($translate.instant('sitnet_exam_saved_and_published'));
                                 $location.path('/');
                             });
                         });
@@ -201,14 +201,14 @@ angular.module('app.exam.editor')
                             }
                         }).result.then(function () {
                             vm.updateExam(true, {'state': 'SAVED'}).then(function () {
-                                toastr.success($translate.instant('sitnet_exam_unpublished'));
+                                toast.success($translate.instant('sitnet_exam_unpublished'));
                                 vm.exam.state = 'SAVED';
                             });
                         }, function (error) {
                             // Cancel button clicked
                         });
                     } else {
-                        toastr.warning($translate.instant('sitnet_unpublish_not_possible'));
+                        toast.warning($translate.instant('sitnet_unpublish_not_possible'));
                     }
                 };
 

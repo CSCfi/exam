@@ -1,7 +1,7 @@
 'use strict';
 angular.module('app.review')
-    .service('Assessment', ['$q', '$resource', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Question',
-        function ($q, $resource, $translate, $location, $timeout, dialogs, ExamRes, Session, Question) {
+    .service('Assessment', ['$q', '$resource', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Question', 'toast',
+        function ($q, $resource, $translate, $location, $timeout, dialogs, ExamRes, Session, Question, toast) {
 
             var self = this;
 
@@ -35,11 +35,11 @@ angular.module('app.review')
                         cid: exam.examFeedback.id
                     }, examFeedback, function (data) {
                         if (!silent) {
-                            toastr.info($translate.instant('sitnet_comment_updated'));
+                            toast.info($translate.instant('sitnet_comment_updated'));
                         }
                         deferred.resolve();
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                         deferred.reject();
                     });
                     // Insert new comment
@@ -49,12 +49,12 @@ angular.module('app.review')
                         cid: 0
                     }, examFeedback, function (comment) {
                         if (!silent) {
-                            toastr.info($translate.instant('sitnet_comment_added'));
+                            toast.info($translate.instant('sitnet_comment_added'));
                         }
                         exam.examFeedback = comment;
                         deferred.resolve();
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                         deferred.reject();
                     });
                 }
@@ -85,7 +85,7 @@ angular.module('app.review')
                 var valid = !isNaN(credit) && credit >= 0;
                 if (!valid) {
                     if (!silent) {
-                        toastr.error($translate.instant('sitnet_not_a_valid_custom_credit'));
+                        toast.error($translate.instant('sitnet_not_a_valid_custom_credit'));
                     }
                     // Reset to default
                     exam.customCredit = exam.course.credits;
@@ -148,7 +148,7 @@ angular.module('app.review')
                 var messages = getErrors(exam);
                 if (messages.length > 0) {
                     messages.forEach(function (msg) {
-                        toastr.error($translate.instant(msg));
+                        toast.error($translate.instant(msg));
                     });
                 }
                 else {
@@ -186,7 +186,7 @@ angular.module('app.review')
             self.saveAssessmentInfo = function (exam) {
                 if (exam.state === 'GRADED_LOGGED') {
                     self.examAssessmentApi.update({id: exam.id, assessmentInfo: exam.assessmentInfo}, function () {
-                        toastr.info($translate.instant('sitnet_saved'));
+                        toast.info($translate.instant('sitnet_saved'));
                     });
                 }
             };
@@ -196,7 +196,7 @@ angular.module('app.review')
                     if (exam.state !== 'GRADED') {
                         // Just save feedback and leave
                         saveFeedback(exam).then(function () {
-                            toastr.info($translate.instant('sitnet_saved'));
+                            toast.info($translate.instant('sitnet_saved'));
                             $location.path('exams/' + exam.parent.id + '/4');
                         });
                     }
@@ -229,10 +229,10 @@ angular.module('app.review')
                     saveFeedback(exam).then(function () {
                         var payload = getPayload(exam, 'REJECTED');
                         ExamRes.review.update(payload, function () {
-                            toastr.info($translate.instant('sitnet_maturity_rejected'));
+                            toast.info($translate.instant('sitnet_maturity_rejected'));
                             $location.path(followUpUrl || self.getExitUrl(exam));
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                     });
                 };
@@ -268,18 +268,18 @@ angular.module('app.review')
                     saveFeedback(exam).then(function () {
                         if (newState === 'REVIEW_STARTED') {
                             messages.forEach(function (msg) {
-                                toastr.warning($translate.instant(msg));
+                                toast.warning($translate.instant(msg));
                             });
                             $timeout(function () {
-                                toastr.info($translate.instant('sitnet_review_saved'));
+                                toast.info($translate.instant('sitnet_review_saved'));
                             }, 1000);
                         } else {
-                            toastr.info($translate.instant('sitnet_review_graded'));
+                            toast.info($translate.instant('sitnet_review_graded'));
                             $location.path(self.getExitUrl(exam));
                         }
                     });
                 }, function (error) {
-                    toastr.error(error.data);
+                    toast.error(error.data);
                 });
             };
 
@@ -304,10 +304,10 @@ angular.module('app.review')
             var sendToRegistry = function (payload, res, exam, followUpUrl) {
                 payload.state = 'GRADED_LOGGED';
                 res(payload, function () {
-                    toastr.info($translate.instant('sitnet_review_recorded'));
+                    toast.info($translate.instant('sitnet_review_recorded'));
                     $location.path(followUpUrl || self.getExitUrl(exam));
                 }, function (error) {
-                    toastr.error(error.data);
+                    toast.error(error.data);
                 });
             };
 
@@ -328,11 +328,11 @@ angular.module('app.review')
                 saveFeedback(exam).then(function () {
                     ExamRes.review.update(payload, function () {
                         if (exam.state !== 'GRADED') {
-                            toastr.info($translate.instant('sitnet_review_graded'));
+                            toast.info($translate.instant('sitnet_review_graded'));
                         }
                         sendToRegistry(payload, res, exam, followUpUrl);
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 });
             };

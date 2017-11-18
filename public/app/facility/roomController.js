@@ -2,9 +2,9 @@
     'use strict';
     angular.module('app.facility')
         .controller('RoomCtrl', ['$scope', '$routeParams', 'Session', '$location', '$uibModal', '$http',
-            'Room', 'Machines', 'EXAM_CONF', 'DateTime', '$translate',
+            'Room', 'Machines', 'EXAM_CONF', 'DateTime', '$translate', 'toast',
             function ($scope, $routeParams, Session, $location, $modal, $http,
-                      Room, Machines, EXAM_CONF, DateTime, $translate) {
+                      Room, Machines, EXAM_CONF, DateTime, $translate, toast) {
 
                 $scope.DateTime = DateTime;
 
@@ -40,10 +40,10 @@
                 $scope.createExamRoom = function () {
                     Room.draft.get(
                         function (room) {
-                            toastr.info($translate.instant("sitnet_room_draft_created"));
+                            toast.info($translate.instant("sitnet_room_draft_created"));
                             $location.path("/rooms/" + room.id);
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 };

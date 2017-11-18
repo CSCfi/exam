@@ -5,8 +5,8 @@ angular.module('app.enrolment')
         bindings: {
             cause: '@'
         },
-        controller: ['$http', '$routeParams', '$translate', 'Enrolment', 'StudentExamRes', 'DateTime',
-            function ($http, $routeParams, $translate, Enrolment, StudentExamRes, DateTime) {
+        controller: ['$http', '$routeParams', '$translate', 'Enrolment', 'StudentExamRes', 'DateTime', 'toast',
+            function ($http, $routeParams, $translate, Enrolment, StudentExamRes, DateTime, toast) {
 
                 var vm = this;
 
@@ -28,7 +28,7 @@ angular.module('app.enrolment')
                                 };
                             },
                             function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             }
                         );
                     }

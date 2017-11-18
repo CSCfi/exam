@@ -2,9 +2,9 @@
     'use strict';
     angular.module("app.exam")
         .controller('ExamListingController', ['dialogs', '$scope', 'Session', 'Exam',
-            '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes',
+            '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'toast',
             function (dialogs, $scope, Session, Exam,
-                      $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes) {
+                      $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, toast) {
 
                 $scope.filter = {};
                 $scope.loader = {
@@ -34,7 +34,7 @@
                         $scope.loader.loading = false;
                     }, function (err) {
                         $scope.loader.loading = false;
-                        toastr.error($translate.instant(err.data));
+                        toast.error($translate.instant(err.data));
                     });
                 };
 
@@ -49,10 +49,10 @@
 
                 $scope.copyExam = function (exam, type) {
                     ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
-                        toastr.success($translate.instant('sitnet_exam_copied'));
+                        toast.success($translate.instant('sitnet_exam_copied'));
                         $location.path("/exams/"+copy.id+"/1/");
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 };
 
@@ -60,11 +60,11 @@
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                     dialog.result.then(function (btn) {
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
-                            toastr.success($translate.instant('sitnet_exam_removed'));
+                            toast.success($translate.instant('sitnet_exam_removed'));
                             $scope.exams.splice($scope.exams.indexOf(exam), 1);
 
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         });
                     }, function (btn) {
 

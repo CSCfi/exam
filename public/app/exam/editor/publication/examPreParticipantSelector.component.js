@@ -5,8 +5,8 @@ angular.module('app.exam.editor')
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'Enrolment', 'EnrollRes',
-            function ($translate, Enrolment, EnrollRes) {
+        controller: ['$translate', 'Enrolment', 'EnrollRes', 'toast',
+            function ($translate, Enrolment, EnrollRes, toast) {
 
                 var vm = this;
 
@@ -26,7 +26,7 @@ angular.module('app.exam.editor')
                                 vm.exam.examEnrolments.push(enrolment);
                                 delete vm.newPreParticipant.email;
                             }, function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
 
                             });
                     }
@@ -37,9 +37,9 @@ angular.module('app.exam.editor')
                         vm.exam.examEnrolments = vm.exam.examEnrolments.filter(function (ee) {
                             return ee.id !== id;
                         });
-                        toastr.info($translate.instant('sitnet_participant_removed'));
+                        toast.info($translate.instant('sitnet_participant_removed'));
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
                 };
 
