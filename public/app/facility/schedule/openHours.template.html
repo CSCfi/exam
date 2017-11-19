@@ -16,8 +16,8 @@
         </thead>
 
         <tbody>
-           <tr ng-repeat="slot in $ctrl.timerange()">
-                <td ng-repeat="day in $ctrl.getWeekdays()" class='selectable {{ $ctrl.getType(day, slot) }}' ng-click='$ctrl.select(day, slot)'>
+           <tr ng-repeat="slot in $ctrl.timeRange()">
+                <td ng-repeat="day in $ctrl.getWeekdays()" class='selectable {{ $ctrl.getType(day, slot) }}' ng-click='$ctrl.selectSlot(day, slot)'>
                     <div class="fullsize" tooltip-placement="right" tooltip-animation="false" tooltip-popup-delay="50"
                          uib-tooltip="{{$ctrl.calculateTime(slot)}}"></div>
                 </td>

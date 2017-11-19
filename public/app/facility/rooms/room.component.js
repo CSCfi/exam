@@ -2,21 +2,18 @@
 angular.module('app.facility.rooms')
     .component('room', {
         templateUrl: '/assets/app/facility/rooms/room.template.html',
-        controller: ['$translate', '$scope', '$route', '$location', '$uibModal', '$routeParams', '$http',
-            'dialogs', 'Room', 'SettingsResource', 'InteroperabilityResource', 'DateTime', 'EXAM_CONF', 'toast',
-            function ($translate, $scope, $route, $location, $modal, $routeParams, $http, dialogs, Room, SettingsRes,
-                      InteroperabilityRes, DateTime, EXAM_CONF, toast) {
+        controller: ['$translate', '$scope', '$rootScope', '$route', '$location', '$uibModal', '$routeParams', '$http',
+            'dialogs', 'Room', 'SettingsResource', 'InteroperabilityResource', 'DateTime', 'EXAM_CONF', 'toast', 'lodash',
+            function ($translate, $scope, $rootScope, $route, $location, $modal, $routeParams, $http, dialogs, Room, SettingsRes,
+                      InteroperabilityRes, DateTime, EXAM_CONF, toast, lodash) {
 
                 var vm = this;
 
                 vm.$onInit = function () {
+                    vm.room = null;
+                    vm.week = Room.getWeek();
                     vm.showName = true;
                     vm.editingMultipleRooms = $location.path() === '/rooms_edit/edit_multiple';
-                    vm.hoursTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/open_hours.html";
-                    vm.showName = true;
-                    vm.weekdayNames = DateTime.getWeekdayNames();
-                    vm.times = Room.getTimes();
-                    vm.week = Room.getWeek();
                     SettingsRes.iop.get(function(data) {
                         vm.isInteroperable = data.isInteroperable;
                     });
@@ -30,10 +27,6 @@ angular.module('app.facility.rooms')
                     Room.rooms.get({id: $routeParams.id},
                         function (room) {
                             room.availableForExternals = room.externalRef !== null;
-                            room.defaultWorkingHours.forEach(function (daySlot) {
-                                var timeSlots = slotToTimes(daySlot);
-                                setSelected(daySlot.weekday, timeSlots);
-                            });
                             vm.room = room;
                             if (!Room.isAnyExamMachines(vm.room)) {
                                 toast.warning($translate.instant('sitnet_room_has_no_machines_yet'));
@@ -60,10 +53,6 @@ angular.module('app.facility.rooms')
                         }
                     );
                 };
-
-                $scope.$on('$localeChangeSuccess', function () {
-                    vm.weekdayNames = DateTime.getWeekdayNames();
-                });
 
                 vm.disableRoom = function () {
                     Room.disableRoom(vm.room);
@@ -118,71 +107,6 @@ angular.module('app.facility.rooms')
                         vm.room.externalRef = data.externalRef;
                         vm.room.availableForExternals = data.externalRef !== null;
                     });
-                };
-
-                vm.timerange = function () {
-                    return Array.apply(null, new Array(vm.times.length - 1)).map(function (x, i) {
-                        return i;
-                    });
-                };
-
-                vm.getWeekdays = function () {
-                    return Object.keys(vm.week);
-                };
-
-                vm.getType = function (day, time) {
-                    return vm.week[day][time].type;
-                };
-
-                vm.select = function (day, time) {
-                    var i = 0, status = vm.week[day][time].type;
-                    if (status === 'accepted') { // clear selection
-                        vm.week[day][time].type = '';
-                        return;
-                    }
-                    if (status === 'selected') { // mark everything hereafter as free until next block
-                        for (i = 0; i < vm.week[day].length; ++i) {
-                            if (i >= time) {
-                                if (vm.week[day][i].type === 'selected') {
-                                    vm.week[day][i].type = '';
-                                } else {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        // check if something is accepted yet
-                        var accepted;
-                        for (i = 0; i < vm.week[day].length; ++i) {
-                            if (vm.week[day][i].type === 'accepted') {
-                                accepted = i;
-                                break;
-                            }
-                        }
-                        if (accepted >= 0) { // mark everything between accepted and this as selected
-                            if (accepted < time) {
-                                for (i = accepted; i <= time; ++i) {
-                                    vm.week[day][i].type = 'selected';
-                                }
-                            } else {
-                                for (i = time; i <= accepted; ++i) {
-                                    vm.week[day][i].type = 'selected';
-                                }
-                            }
-                        } else {
-                            vm.week[day][time].type = 'accepted'; // mark beginning
-                        }
-                    }
-                    if (vm.editingMultipleRooms) {
-                        vm.room = vm.rooms[0];
-                    }
-
-                    updateWorkingHours();
-                };
-
-                vm.calculateTime = function (index) {
-                    return (vm.times[index] || "0:00") + " - " + vm.times[index + 1];
                 };
 
                 vm.setStartingHourOffset = function () {
@@ -360,28 +284,6 @@ angular.module('app.facility.rooms')
                     return start.format(fmt) + ' - ' + end.format(fmt);
                 };
 
-                function setSelected(day, slots) {
-                    for (var i = 0; i < slots.length; ++i) {
-                        if (vm.week[day][slots[i]]) {
-                            vm.week[day][slots[i]].type = 'selected';
-                        }
-                    }
-                }
-
-                function slotToTimes(slot) {
-                    var arr = [];
-                    var startKey = moment(slot.startTime).format("H:mm");
-                    var endKey = moment(slot.endTime).format("H:mm");
-                    var start = startKey === '0:00' ? 0 : vm.times.indexOf(startKey);
-                    for (var i = start; i < vm.times.length; i++) {
-                        if (vm.times[i] === endKey) {
-                            break;
-                        }
-                        arr.push(i);
-                    }
-                    return arr;
-                }
-
                 function remove(arr, item) {
                     var index = arr.indexOf(item);
                     arr.splice(index, 1);
@@ -395,60 +297,6 @@ angular.module('app.facility.rooms')
                 function zeropad(n) {
                     n += '';
                     return n.length > 1 ? n : '0' + n;
-                }
-
-                function updateWorkingHours() {
-                    var data = {};
-                    var workingHours = [];
-                    for (var day in vm.week) {
-                        if (vm.week.hasOwnProperty(day)) {
-                            var blocks = blocksForDay(day);
-                            var weekdayBlocks = {'weekday': day, 'blocks': []};
-                            for (var i = 0; i < blocks.length; ++i) {
-                                var block = blocks[i];
-                                var start = formatTime(vm.times[block[0]] || "0:00");
-                                var end = formatTime(vm.times[block[block.length - 1] + 1]);
-                                weekdayBlocks.blocks.push({'start': start, 'end': end});
-                            }
-                            workingHours.push(weekdayBlocks);
-                        }
-                    }
-                    data.workingHours = workingHours;
-                    var roomIds;
-                    if (vm.editingMultipleRooms) {
-                        roomIds = vm.rooms.map(function (s) {
-                            return s.id;
-                        });
-                    } else {
-                        roomIds = [vm.room.id];
-                    }
-                    data.roomIds = roomIds;
-                    Room.workingHours.update(data,
-                        function () {
-                            toast.info($translate.instant('sitnet_default_opening_hours_updated'));
-                        },
-                        function (error) {
-                            toast.error(error.data);
-                        }
-                    );
-                }
-
-                function blocksForDay(day) {
-                    var blocks = [];
-                    var tmp = [];
-                    for (var i = 0; i < vm.week[day].length; ++i) {
-                        if (vm.week[day][i].type) {
-                            tmp.push(i);
-                            if (i === vm.week[day].length - 1) {
-                                blocks.push(tmp);
-                                tmp = [];
-                            }
-                        } else if (tmp.length > 0) {
-                            blocks.push(tmp);
-                            tmp = [];
-                        }
-                    }
-                    return blocks;
                 }
 
                 function formatTime(time) {
