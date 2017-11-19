@@ -258,7 +258,7 @@
             <!-- Address -->
             <h3>{{'sitnet_exam_room_address' | translate }}</h3>
 
-            <div id="address" class="machines-section" ng-include="$ctrl.addressTemplate"/>
+            <exam-address address="$ctrl.room.mailAddress"></exam-address>
         </div>
     </div>
 

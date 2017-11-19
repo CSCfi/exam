@@ -13,7 +13,6 @@ angular.module('app.facility.rooms')
                     vm.showName = true;
                     vm.editingMultipleRooms = $location.path() === '/rooms_edit/edit_multiple';
                     vm.hoursTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/open_hours.html";
-                    vm.addressTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/address.html";
                     vm.showName = true;
                     vm.weekdayNames = DateTime.getWeekdayNames();
                     vm.times = Room.getTimes();
@@ -359,17 +358,6 @@ angular.module('app.facility.rooms')
                     var start = moment(exception.startDate);
                     var end = moment(exception.endDate);
                     return start.format(fmt) + ' - ' + end.format(fmt);
-                };
-
-                vm.updateAddress = function (address) {
-                    Room.addresses.update(address,
-                        function () {
-                            toast.info($translate.instant("sitnet_room_address_updated"));
-                        },
-                        function (error) {
-                            toast.error(error.data);
-                        }
-                    );
                 };
 
                 function setSelected(day, slots) {
