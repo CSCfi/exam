@@ -36,7 +36,7 @@ angular.module('app.review')
                 };
 
                 vm.createExamRecord = function () {
-                    Assessment.createExamRecord(vm.exam);
+                    Assessment.createExamRecord(vm.exam, true);
                 };
 
                 vm.rejectMaturity = function () {

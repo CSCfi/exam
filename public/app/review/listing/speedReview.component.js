@@ -3,9 +3,9 @@ angular.module('app.review')
     .component('speedReview', {
         templateUrl: '/assets/app/review/listing/speedReview.template.html',
         controller: ['dialogs', '$q', '$route', '$routeParams', '$translate', 'ExamRes', 'Exam',
-            'Review', 'Files', '$uibModal', 'EXAM_CONF', 'toast',
+            'ReviewList', 'Files', '$uibModal', 'EXAM_CONF', 'toast',
             function (dialogs, $q, $route, $routeParams, $translate, ExamRes,
-                      Exam, Review, Files, $modal, EXAM_CONF, toast) {
+                      Exam, ReviewList, Files, $modal, EXAM_CONF, toast) {
 
                 var vm = this;
 
@@ -202,7 +202,7 @@ angular.module('app.review')
                 };
 
                 var handleOngoingReviews = function (review) {
-                    Review.gradeExam(review.exam);
+                    ReviewList.gradeExam(review.exam);
                     // FIXME: Seems evil
                     ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
                         review.inspections = inspections;

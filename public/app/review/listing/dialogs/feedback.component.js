@@ -7,7 +7,7 @@ angular.module('app.review')
             dismiss: '&',
             resolve: '<'
         },
-        controller: ['$scope', 'Review', function ($scope, Review) {
+        controller: ['$scope', 'ReviewList', function ($scope, ReviewList) {
 
             var vm = this;
 
@@ -19,7 +19,7 @@ angular.module('app.review')
                 if (!vm.exam.examFeedback) {
                     vm.exam.examFeedback = {};
                 }
-                Review.saveFeedback(vm.exam);
+                ReviewList.saveFeedback(vm.exam);
                 vm.close();
             };
             vm.cancel = function () {
