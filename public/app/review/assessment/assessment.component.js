@@ -3,8 +3,8 @@
 angular.module('app.review')
     .component('assessment', {
         templateUrl: '/assets/app/review/assessment/assessment.template.html',
-        controller: ['$routeParams', 'Assessment', 'ExamRes', 'Question', 'Session', 'Exam',
-            function ($routeParams, Assessment, ExamRes, Question, Session, Exam) {
+        controller: ['$routeParams', 'Assessment', 'ExamRes', 'Question', 'Session', 'Exam', 'toast',
+            function ($routeParams, Assessment, ExamRes, Question, Session, Exam, toast) {
 
                 var vm = this;
 
@@ -22,6 +22,8 @@ angular.module('app.review')
                             vm.questionSummary = Question.getQuestionAmounts(exam);
                             vm.exam = exam;
                             vm.user = Session.getUser();
+                        }, function (err) {
+                            toast.error(err.data);
                         });
                 };
 
