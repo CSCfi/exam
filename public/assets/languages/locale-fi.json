@@ -865,5 +865,6 @@
   "sitnet_additional_info_for_student": "Arvioinnin lisätiedot opiskelijalle",
   "sitnet_additional_info_for_student_description": "Tiedota opiskelijaa arviointiin liittyen",
   "sitnet_no_show": "Ei arvioida. Käyttämätön varaus.",
-  "sitnet_exam_time": "Tenttiaika"
+  "sitnet_exam_time": "Tenttiaika",
+  "sitnet_clock_hidden": "Kello piilotettu"
 }

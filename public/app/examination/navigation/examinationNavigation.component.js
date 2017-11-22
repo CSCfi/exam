@@ -31,10 +31,8 @@ angular.module('app.examination')
                     _pages = vm.exam.examSections.map(function (es) {
                         return {id: es.id, text: es.name, type: 'section', valid: true};
                     });
-                    if (vm.exam.instruction && vm.exam.instruction.length > 0) {
-                        // Add guide page
-                        _pages.unshift({text: 'sitnet_exam_guide', type: 'guide', valid: true});
-                    }
+                    // Add guide page
+                    _pages.unshift({text: 'sitnet_exam_guide', type: 'guide', valid: true});
                     setupNavigation();
                 };
 
