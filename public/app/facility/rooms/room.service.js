@@ -144,4 +144,9 @@ angular.module('app.facility.rooms')
 
         };
 
+        self.formatExceptionEvent = function(event) {
+                event.startDate = moment(event.startDate).format();
+                event.endDate = moment(event.endDate).format();
+        };
+
     }]);

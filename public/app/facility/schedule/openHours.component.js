@@ -78,9 +78,6 @@ angular.module('app.facility.schedule')
                         vm.week[day][time].type = 'accepted'; // mark beginning
                     }
                 }
-                // if (vm.editingMultipleRooms) {
-                //     vm.room = vm.rooms[0];
-                // }
 
                 updateWorkingHours();
             };

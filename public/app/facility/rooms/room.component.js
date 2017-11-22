@@ -3,9 +3,9 @@ angular.module('app.facility.rooms')
     .component('room', {
         templateUrl: '/assets/app/facility/rooms/room.template.html',
         controller: ['$translate', '$scope', '$rootScope', '$route', '$location', '$uibModal', '$routeParams', '$http',
-            'dialogs', 'Room', 'SettingsResource', 'InteroperabilityResource', 'DateTime', 'EXAM_CONF', 'toast', 'lodash',
+            'dialogs', 'Room', 'SettingsResource', 'InteroperabilityResource', 'DateTime', 'EXAM_CONF', 'toast',
             function ($translate, $scope, $rootScope, $route, $location, $modal, $routeParams, $http, dialogs, Room, SettingsRes,
-                      InteroperabilityRes, DateTime, EXAM_CONF, toast, lodash) {
+                      InteroperabilityRes, DateTime, EXAM_CONF, toast) {
 
                 var vm = this;
 
@@ -45,7 +45,7 @@ angular.module('app.facility.rooms')
                                 });
                             }
                             vm.room.calendarExceptionEvents.forEach(function (event) {
-                                formatExceptionEvent(event);
+                                Room.formatExceptionEvent(event);
                             });
                         },
                         function (error) {
@@ -160,75 +160,6 @@ angular.module('app.facility.rooms')
                     });
                 };
 
-                vm.addException = function () {
-
-                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
-                        var now = new Date();
-                        now.setMinutes(0);
-                        now.setSeconds(0);
-                        now.setMilliseconds(0);
-                        $scope.dateOptions = {
-                            'starting-day': 1
-                        };
-                        $scope.dateFormat = 'dd.MM.yyyy';
-
-                        $scope.exception = {startDate: now, endDate: angular.copy(now), outOfService: true};
-
-                        $scope.ok = function () {
-
-                            var start = moment($scope.exception.startDate);
-                            var end = moment($scope.exception.endDate);
-                            if (end <= start) {
-                                toast.error($translate.instant('sitnet_endtime_before_starttime'));
-                            } else {
-                                $modalInstance.close({
-                                    "startDate": start,
-                                    "endDate": end,
-                                    "outOfService": $scope.exception.outOfService
-                                });
-                            }
-                        };
-
-                        $scope.cancel = function () {
-                            $modalInstance.dismiss('cancel');
-                        };
-                    }];
-
-                    var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'facility/exception.html',
-                        backdrop: 'static',
-                        keyboard: true,
-                        controller: modalController
-                    });
-
-                    modalInstance.result.then(function (exception) {
-
-                        var roomIds;
-                        if (vm.editingMultipleRooms) {
-                            roomIds = vm.rooms.map(function (s) {
-                                return s.id;
-                            });
-                        } else {
-                            roomIds = [vm.room.id];
-                        }
-
-                        Room.exceptions.update({roomIds: roomIds, exception: exception},
-                            function (data) {
-                                toast.info($translate.instant('sitnet_exception_time_added'));
-                                if (vm.editingMultipleRooms) {
-                                    vm.getMassEditedRooms();
-                                } else {
-                                    formatExceptionEvent(data);
-                                    vm.room.calendarExceptionEvents.push(data);
-                                }
-                            },
-                            function (error) {
-                                toast.error(error.data);
-                            }
-                        );
-                    });
-                };
-
                 vm.updateAccessibility = function () {
                     var ids = vm.room.accessibility.map(function (item) {
                         return item.id;
@@ -260,39 +191,6 @@ angular.module('app.facility.rooms')
                 vm.massEditedExceptionFilter = function (exception) {
                     return exception.massEdited;
                 };
-
-                vm.deleteException = function (exception) {
-                    Room.exception.remove({roomId: vm.room.id, exceptionId: exception.id},
-                        function () {
-                            if (vm.editingMultipleRooms) {
-                                vm.getMassEditedRooms();
-                            } else {
-                                remove(vm.room.calendarExceptionEvents, exception);
-                            }
-                            toast.info($translate.instant('sitnet_exception_time_removed'));
-                        },
-                        function (error) {
-                            toast.error(error.data);
-                        }
-                    );
-                };
-
-                vm.formatDate = function (exception) {
-                    var fmt = 'DD.MM.YYYY HH:mm';
-                    var start = moment(exception.startDate);
-                    var end = moment(exception.endDate);
-                    return start.format(fmt) + ' - ' + end.format(fmt);
-                };
-
-                function remove(arr, item) {
-                    var index = arr.indexOf(item);
-                    arr.splice(index, 1);
-                }
-
-                function formatExceptionEvent(event) {
-                    event.startDate = moment(event.startDate).format();
-                    event.endDate = moment(event.endDate).format();
-                }
 
                 function zeropad(n) {
                     n += '';
