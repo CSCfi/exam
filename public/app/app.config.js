@@ -83,10 +83,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         $routeProvider.when('/exams', {templateUrl: tmpl + 'exam/exams.html', controller: 'ExamListingController'});
         $routeProvider.when('/rooms', {templateUrl: tmpl + 'facility/rooms.html', controller: 'RoomCtrl'});
         $routeProvider.when('/rooms/:id', {template: '<room></room>'});
-        $routeProvider.when('/rooms_edit/edit_multiple', {
-            templateUrl: tmpl + 'facility/room.template.html',
-            controller: 'RoomCtrl'
-        });
+        $routeProvider.when('/rooms_edit/edit_multiple', {template: '<multi-room></multi-room>'});
 
         $routeProvider.when('/softwares', {template: '<software></software>'});
         $routeProvider.when('/accessibility', {template: '<accessibility></accessibility>'});

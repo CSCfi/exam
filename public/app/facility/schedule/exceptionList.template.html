@@ -1,9 +1,9 @@
-<div class="top-row">
+<div class="top-row" ng-if="!$ctrl.hideTitle">
     <h3 class="col-md-12 header-text">{{'sitnet_exception_datetimes' | translate}}</h3>
 </div>
 
 <div>
-    <div class="detail-row" ng-repeat="exception in $ctrl.room.calendarExceptionEvents">
+    <div class="detail-row" ng-repeat="exception in $ctrl.room.calendarExceptionEvents | filter: $ctrl.filter">
         <div class="col-md-3">
             {{$ctrl.formatDate(exception)}}
         </div>
@@ -18,7 +18,7 @@
         </div>
     </div>
 </div>
-<div class="main-row">
+<div class="main-row" ng-if="!$ctrl.hideButton">
     <div class="col-md-12">
         <button ng-click="$ctrl.addException()" class="btn btn-primary">
             {{'sitnet_add' | translate}}

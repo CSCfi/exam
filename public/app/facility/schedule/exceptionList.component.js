@@ -3,15 +3,19 @@ angular.module('app.facility.schedule')
     .component('exceptionList', {
         templateUrl: '/assets/app/facility/schedule/exceptionList.template.html',
         bindings: {
-            room: '<'
+            room: '<',
+            hideButton: '<',
+            hideTitle: '<',
+            filter: '<',
+            onCreate: '&',
+            onDelete: '&'
         },
-        controller: ['Room', 'toast', 'EXAM_CONF', '$translate', '$uibModal',
-            function (Room, toast, EXAM_CONF, $translate, $modal) {
+        controller: ['Room',
+            function (Room) {
 
                 var vm = this;
 
                 vm.$onInit = function () {
-
                 };
 
                 vm.formatDate = function (exception) {
@@ -22,56 +26,11 @@ angular.module('app.facility.schedule')
                 };
 
                 vm.addException = function () {
-
-                    var modalInstance = $modal.open({
-                        component: 'exception',
-                        backdrop: 'static',
-                        keyboard: true
-                    });
-
-                    modalInstance.result.then(function (exception) {
-
-                        var roomIds;
-                        if (vm.editingMultipleRooms) {
-                            roomIds = vm.rooms.map(function (s) {
-                                return s.id;
-                            });
-                        } else {
-                            roomIds = [vm.room.id];
-                        }
-
-                        Room.exceptions.update({roomIds: roomIds, exception: exception},
-                            function (data) {
-                                toast.info($translate.instant('sitnet_exception_time_added'));
-                                if (vm.editingMultipleRooms) {
-                                    vm.getMassEditedRooms();
-                                } else {
-                                    Room.formatExceptionEvent(data);
-                                    vm.room.calendarExceptionEvents.push(data);
-                                }
-                            },
-                            function (error) {
-                                toast.error(error.data);
-                            }
-                        );
-                    });
+                    Room.openExceptionDialog(vm.onCreate);
                 };
 
                 vm.deleteException = function (exception) {
-                    Room.exception.remove({roomId: vm.room.id, exceptionId: exception.id},
-                        function () {
-                            remove(vm.room.calendarExceptionEvents, exception);
-                            toast.info($translate.instant('sitnet_exception_time_removed'));
-                        },
-                        function (error) {
-                            toast.error(error.data);
-                        }
-                    );
+                    vm.onDelete({exception: exception});
                 };
-
-                function remove(arr, item) {
-                    var index = arr.indexOf(item);
-                    arr.splice(index, 1);
-                }
             }]
     });

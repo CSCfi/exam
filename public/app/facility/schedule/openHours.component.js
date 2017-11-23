@@ -3,8 +3,8 @@ angular.module('app.facility.schedule')
     .component('openHours', {
         templateUrl: '/assets/app/facility/schedule/openHours.template.html',
         bindings: {
-            room: '<',
-            week: '<'
+            week: '<',
+            onSelect: '&'
         },
         controller: ['Room', 'DateTime', 'toast', '$translate', '$scope',
             function (Room, DateTime, toast, $translate, $scope) {
@@ -14,10 +14,6 @@ angular.module('app.facility.schedule')
             vm.$onInit = function () {
                 vm.weekdayNames = DateTime.getWeekdayNames();
                 vm.times = Room.getTimes();
-                vm.room.defaultWorkingHours.forEach(function (daySlot) {
-                    var timeSlots = slotToTimes(daySlot);
-                    setSelected(daySlot.weekday, timeSlots);
-                });
             };
 
             vm.timeRange = function () {
@@ -79,95 +75,11 @@ angular.module('app.facility.schedule')
                     }
                 }
 
-                updateWorkingHours();
+                vm.onSelect();
             };
 
             $scope.$on('$localeChangeSuccess', function () {
                 vm.weekdayNames = DateTime.getWeekdayNames();
             });
-
-            function updateWorkingHours() {
-                var data = {};
-                var workingHours = [];
-                for (var day in vm.week) {
-                    if (vm.week.hasOwnProperty(day)) {
-                        var blocks = blocksForDay(day);
-                        var weekdayBlocks = {'weekday': day, 'blocks': []};
-                        for (var i = 0; i < blocks.length; ++i) {
-                            var block = blocks[i];
-                            var start = formatTime(vm.times[block[0]] || "0:00");
-                            var end = formatTime(vm.times[block[block.length - 1] + 1]);
-                            weekdayBlocks.blocks.push({'start': start, 'end': end});
-                        }
-                        workingHours.push(weekdayBlocks);
-                    }
-                }
-                data.workingHours = workingHours;
-                var roomIds;
-                if (vm.editingMultipleRooms) {
-                    roomIds = vm.rooms.map(function (s) {
-                        return s.id;
-                    });
-                } else {
-                    roomIds = [vm.room.id];
-                }
-                data.roomIds = roomIds;
-                Room.workingHours.update(data,
-                    function () {
-                        toast.info($translate.instant('sitnet_default_opening_hours_updated'));
-                    },
-                    function (error) {
-                        toast.error(error.data);
-                    }
-                );
-            }
-
-            function blocksForDay(day) {
-                var blocks = [];
-                var tmp = [];
-                for (var i = 0; i < vm.week[day].length; ++i) {
-                    if (vm.week[day][i].type) {
-                        tmp.push(i);
-                        if (i === vm.week[day].length - 1) {
-                            blocks.push(tmp);
-                            tmp = [];
-                        }
-                    } else if (tmp.length > 0) {
-                        blocks.push(tmp);
-                        tmp = [];
-                    }
-                }
-                return blocks;
-            }
-
-            function formatTime(time) {
-                var hours = moment().isDST() ? 1 : 0;
-                return moment()
-                    .set('hour', parseInt(time.split(':')[0]) + hours)
-                    .set('minute', time.split(':')[1])
-                    .format("DD.MM.YYYY HH:mmZZ");
-            }
-
-            function setSelected(day, slots) {
-                for (var i = 0; i < slots.length; ++i) {
-                    if (vm.week[day][slots[i]]) {
-                        vm.week[day][slots[i]].type = 'selected';
-                    }
-                }
-            }
-
-            function slotToTimes(slot) {
-                var arr = [];
-                var startKey = moment(slot.startTime).format("H:mm");
-                var endKey = moment(slot.endTime).format("H:mm");
-                var start = startKey === '0:00' ? 0 : vm.times.indexOf(startKey);
-                for (var i = start; i < vm.times.length; i++) {
-                    if (vm.times[i] === endKey) {
-                        break;
-                    }
-                    arr.push(i);
-                }
-                return arr;
-            }
         }]
     });

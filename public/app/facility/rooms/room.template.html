@@ -1,12 +1,11 @@
 <div id="sitnet-header" class="header">
     <div class="col-md-12 header-wrapper">
-        <span class="header-text" ng-hide="$ctrl.editingMultipleRooms">{{'sitnet_examination_location' | translate}}</span>
-        <span class="header-text" ng-show="$ctrl.editingMultipleRooms">{{'sitnet_edit_all_rooms' | translate}}</span>
+        <span class="header-text">{{'sitnet_examination_location' | translate}}</span>
     </div>
 </div>
 <div id="dashboard">
     <div class="main-row">
-        <div class="col-md-12" ng-hide="$ctrl.editingMultipleRooms">
+        <div class="col-md-12">
             <form role="form" name="roomForm" novalidate id="room">
                 <div class="row">
                     <span class="col-md-6">
@@ -23,7 +22,7 @@
                         <span ng-show="!$ctrl.showName">
                             <span class="form-group">
                                 <input id="name_field" type="text" name="name" class="form-control input-lg"
-                                       ng-model="$ctrl.room.name" autofocus
+                                       ng-model="$ctrl.room.name"
                                        required ng-pattern="/^(?!\s*$).+/"
                                        ng-blur="$ctrl.showName = !$ctrl.showName; roomForm.name.$valid ? $ctrl.updateRoom() : false">
                             </span>
@@ -99,44 +98,15 @@
         <h3 class="col-md-12 header-text">{{'sitnet_room_default_working_hours' | translate}}</h3>
     </div>
     <div class="bottom-row">
-        <open-hours ng-if="$ctrl.room" class="col-md-12" room="$ctrl.room" week="$ctrl.week"></open-hours>
+        <open-hours ng-if="$ctrl.room" class="col-md-12" week="$ctrl.week" on-select="$ctrl.updateWorkingHours()"></open-hours>
     </div>
 
-    <div class="detail-row">
-        <h3 class="col-md-12 header-text">{{'sitnet_exam_starting_hours' | translate }}</h3>
-    </div>
-    <div class="bottom-row">
-        <form>
-            <div class="col-md-12">
-                <div class="sitnet-info-text">{{'sitnet_minutes_on_the_hour' | translate }}:</div>
-                <input id="hourOffset" type="number" min="0" max="59" ng-model="$ctrl.room.examStartingHourOffset"
-                       ui-change="$ctrl.setStartingHourOffset()">
-            </div>
-        </form>
-    </div>
-    <div class="detail-row">
-        <div class="col-md-6">
-            <span ng-repeat="hour in $ctrl.examStartingHours" class="label pointer"
-                  ng-class="hour.selected ? 'label-success' : 'label-default'"
-                  ng-click="hour.selected = !hour.selected" style="margin: 0.2em">{{hour.startingHour}}</span>
-        </div>
-    </div>
-    <div class="bottom-row">
-        <div class="col-md-12">
-            <a class="pointer" ng-click="$ctrl.toggleAllExamStartingHours()">{{'sitnet_add_remove_all' | translate }}</a>
-        </div>
-    </div>
-    <div class="bottom-row">
-        <div class="col-md-12">
-            <button class="btn btn-sm btn-primary" ng-click="$ctrl.updateStartingHours()"
-                    ng-disabled="!$ctrl.anyStartingHoursSelected()">{{'sitnet_save' | translate}}
-            </button>
-        </div>
-    </div>
+    <starting-time ng-if="$ctrl.room" starting-hours="$ctrl.room.examStartingHours" room-ids="[$ctrl.room.id]"></starting-time>
 
-    <exception-list ng-if="$ctrl.room" room="$ctrl.room"></exception-list>
+    <exception-list ng-if="$ctrl.room" room="$ctrl.room" on-create="$ctrl.addException(exception)"
+                    on-delete="$ctrl.deleteException(exception)"></exception-list>
     <!-- Accessibility information -->
-    <div class="detail-row" ng-hide="$ctrl.editingMultipleRooms">
+    <div class="detail-row">
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_room_accessibility_info' | translate}}</div>
             <multiselect
@@ -152,7 +122,7 @@
     </div>
 
     <!-- Guidance & Contact person information -->
-    <div class="detail-row" ng-hide="$ctrl.editingMultipleRooms">
+    <div class="detail-row">
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_room_guidance' | translate}}</div>
             <div class="input-group">
@@ -186,7 +156,7 @@
     </div>
 
     <!-- Video recordings URL -->
-    <div class="detail-row" ng-hide="$ctrl.editingMultipleRooms">
+    <div class="detail-row">
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_room_videorecordings_url' | translate}}</div>
             <div class="input-group">
@@ -201,7 +171,7 @@
     </div>
 
     <!-- Postal address-->
-    <div class="main-row" ng-hide="$ctrl.editingMultipleRooms">
+    <div class="main-row">
         <div class="col-md-12">
             <!-- Address -->
             <h3>{{'sitnet_exam_room_address' | translate }}</h3>
@@ -211,16 +181,16 @@
     </div>
 
     <!-- Service status -->
-    <div class="top-row" ng-hide="$ctrl.editingMultipleRooms">
+    <div class="top-row">
         <div class="col-md-12">
             <input type="checkbox" ng-model="$ctrl.room.outOfService" ng-change="$ctrl.updateRoom()">
             <strong>{{'sitnet_out_of_service' | translate}}</strong>
         </div>
     </div>
-    <div class="detail-row" ng-hide="$ctrl.editingMultipleRooms">
+    <div class="detail-row">
         <div class="col-md-12 sitnet-info-text">{{'sitnet_reason' | translate}}</div>
     </div>
-    <div class="bottom-row" ng-hide="$ctrl.editingMultipleRooms">
+    <div class="bottom-row">
         <div class="col-md-6">
             <div class="input-group">
                 <textarea ng-disabled="!$ctrl.room.outOfService" class="form-control ng-pristine ng-valid"

@@ -10,15 +10,10 @@ angular.module('app.facility.rooms')
                 var vm = this;
 
                 vm.$onInit = function () {
-                    vm.room = null;
                     vm.week = Room.getWeek();
                     vm.showName = true;
-                    vm.editingMultipleRooms = $location.path() === '/rooms_edit/edit_multiple';
                     SettingsRes.iop.get(function(data) {
                         vm.isInteroperable = data.isInteroperable;
-                    });
-                    vm.examStartingHours = Array.apply(null, new Array(24)).map(function (x, i) {
-                        return {startingHour: i + ":00", selected: true};
                     });
                     $http.get('/app/accessibility').success(function (data) {
                         vm.accessibilities = data;
@@ -31,27 +26,35 @@ angular.module('app.facility.rooms')
                             if (!Room.isAnyExamMachines(vm.room)) {
                                 toast.warning($translate.instant('sitnet_room_has_no_machines_yet'));
                             }
-                            if (vm.room.examStartingHours.length > 0) {
-                                var startingHours = vm.room.examStartingHours.map(function (hours) {
-                                    return moment(hours.startingHour);
-                                });
-                                vm.room.examStartingHourOffset = startingHours[0].minute();
-                                startingHours = startingHours.map(function (hours) {
-                                    return hours.format("H:mm");
-                                });
-                                vm.setStartingHourOffset();
-                                vm.examStartingHours.forEach(function (hours) {
-                                    hours.selected = startingHours.indexOf(hours.startingHour) !== -1;
-                                });
-                            }
                             vm.room.calendarExceptionEvents.forEach(function (event) {
                                 Room.formatExceptionEvent(event);
+                            });
+                            vm.room.defaultWorkingHours.forEach(function (daySlot) {
+                                var timeSlots = slotToTimes(daySlot);
+                                setSelected(daySlot.weekday, timeSlots);
                             });
                         },
                         function (error) {
                             toast.error(error.data);
                         }
                     );
+                };
+
+                vm.updateWorkingHours = function () {
+                    Room.updateWorkingHours(vm.week, [vm.room.id]);
+                };
+
+                vm.addException = function (exception) {
+                    Room.addException([vm.room.id], exception).then(function (data) {
+                        Room.formatExceptionEvent(data);
+                        vm.room.calendarExceptionEvents.push(data);
+                    });
+                };
+
+                vm.deleteException = function (exception) {
+                    Room.deleteException(vm.room.id, exception.id).then(function () {
+                        remove(vm.room.calendarExceptionEvents, exception);
+                    })
                 };
 
                 vm.disableRoom = function () {
@@ -109,57 +112,6 @@ angular.module('app.facility.rooms')
                     });
                 };
 
-                vm.setStartingHourOffset = function () {
-                    vm.room.examStartingHourOffset = vm.room.examStartingHourOffset || 0;
-                    vm.examStartingHours.forEach(function (hours) {
-                        hours.startingHour = hours.startingHour.split(':')[0] + ':' + zeropad(vm.room.examStartingHourOffset);
-                    });
-                };
-
-                vm.toggleAllExamStartingHours = function () {
-                    var anySelected = vm.examStartingHours.some(function (hours) {
-                        return hours.selected;
-                    });
-                    vm.examStartingHours.forEach(function (hours) {
-                        hours.selected = !anySelected;
-                    });
-                };
-
-                vm.updateStartingHours = function () {
-                    var selected = vm.examStartingHours.filter(function (hours) {
-                        return hours.selected;
-                    }).map(function (hours) {
-                        return formatTime(hours.startingHour);
-                    });
-                    var data = {hours: selected, offset: vm.room.examStartingHourOffset};
-                    var roomIds;
-                    if (vm.editingMultipleRooms) {
-
-                        roomIds = vm.rooms.map(function (s) {
-                            return s.id;
-                        });
-                    } else {
-                        roomIds = [vm.room.id];
-                    }
-
-                    data.roomIds = roomIds;
-
-                    Room.examStartingHours.update(data,
-                        function () {
-                            toast.info($translate.instant('sitnet_exam_starting_hours_updated'));
-                        },
-                        function (error) {
-                            toast.error(error.data);
-                        }
-                    );
-                };
-
-                vm.anyStartingHoursSelected = function () {
-                    return vm.examStartingHours.some(function (hours) {
-                        return hours.selected;
-                    });
-                };
-
                 vm.updateAccessibility = function () {
                     var ids = vm.room.accessibility.map(function (item) {
                         return item.id;
@@ -171,38 +123,32 @@ angular.module('app.facility.rooms')
                         });
                 };
 
-                vm.getMassEditedRooms = function () {
-                    Room.rooms.query(
-                        function (rooms) {
-                            vm.rooms = rooms;
-                            vm.times = Room.getTimes();
-                        }, function (error) {
-                            toast.error(error.data);
-                        }
-                    );
-                };
-
-                vm.massEditedRoomFilter = function (room) {
-                    return room.calendarExceptionEvents.some(function (e) {
-                        return e.massEdited;
-                    });
-                };
-
-                vm.massEditedExceptionFilter = function (exception) {
-                    return exception.massEdited;
-                };
-
-                function zeropad(n) {
-                    n += '';
-                    return n.length > 1 ? n : '0' + n;
+                function remove(arr, item) {
+                    var index = arr.indexOf(item);
+                    arr.splice(index, 1);
                 }
 
-                function formatTime(time) {
-                    var hours = moment().isDST() ? 1 : 0;
-                    return moment()
-                        .set('hour', parseInt(time.split(':')[0]) + hours)
-                        .set('minute', time.split(':')[1])
-                        .format("DD.MM.YYYY HH:mmZZ");
+                function setSelected(day, slots) {
+                    for (var i = 0; i < slots.length; ++i) {
+                        if (vm.week[day][slots[i]]) {
+                            vm.week[day][slots[i]].type = 'selected';
+                        }
+                    }
+                }
+
+                function slotToTimes(slot) {
+                    var arr = [];
+                    var startKey = moment(slot.startTime).format("H:mm");
+                    var endKey = moment(slot.endTime).format("H:mm");
+                    var times = Room.getTimes();
+                    var start = startKey === '0:00' ? 0 : times.indexOf(startKey);
+                    for (var i = start; i < times.length; i++) {
+                        if (times[i] === endKey) {
+                            break;
+                        }
+                        arr.push(i);
+                    }
+                    return arr;
                 }
 
             }]
