@@ -139,10 +139,10 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
 
     private boolean isCorrectNumericAnswer(Element blank, Map<String, String> answers) {
         String key = blank.attr("id");
-        if (!answers.containsKey(key)) {
+        if (!answers.containsKey(key) || answers.get(key) == null) {
             return false;
         }
-        String answerText = answers.get(blank.attr("id"));
+        String answerText = answers.get(key);
         answerText = answerText.trim();
         if (!NumberUtils.isParsable(answerText)) {
             return false;
@@ -158,10 +158,9 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         if (isNumeric(blank)) {
             return isCorrectNumericAnswer(blank, answers);
         }
+        String answer = answers.getOrDefault(blank.attr("id"), "");
         // Get rid of excess whitespace
-        String answer = answers
-                .getOrDefault(blank.attr("id"), "")
-                .trim()
+        answer = answer == null ? "" : answer.trim()
                 .replaceAll(" +", " ");
         String correctAnswer = blank.text().trim()
                 .replaceAll(" +", " ")
