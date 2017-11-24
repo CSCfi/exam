@@ -310,8 +310,8 @@ public class EnrolmentController extends BaseController {
         if (uid.isPresent()) {
             user = Ebean.find(User.class, uid.get());
         } else if (email.isPresent()) {
-            user = Ebean.find(User.class).where().eq("email", email.get()).findOne();
-            if (user == null) {
+            List<User> users = Ebean.find(User.class).where().eq("email", email.get()).findList();
+            if (users.isEmpty()) {
                 // Pre-enrolment
                 // Check that we will not create duplicate enrolments for same email address
                 ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
@@ -322,8 +322,14 @@ public class EnrolmentController extends BaseController {
                     user = new User();
                     user.setEmail(email.get());
                 } else {
-                    wrapAsPromise(badRequest("already pre-enrolled"));
+                    return wrapAsPromise(badRequest("already pre-enrolled"));
                 }
+            } else if (users.size() == 1){
+                // User with email already exists
+                user = users.get(0);
+            } else {
+                // Multiple users with same email -> not good
+                return wrapAsPromise(internalServerError("multiple users found for email"));
             }
         } else {
             return wrapAsPromise(badRequest());

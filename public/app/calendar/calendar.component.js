@@ -101,6 +101,8 @@ angular.module('app.calendar')
 
                             });
                         });
+                    }, function (err) {
+                        toastr.error(err.data);
                     });
                 };
 
