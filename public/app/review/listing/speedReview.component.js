@@ -130,7 +130,7 @@ angular.module('app.review')
 
                 vm.gradeExams = function () {
                     var reviews = vm.examReviews.filter(function (r) {
-                        return r.exam.selectedGrade.type && vm.isGradeable(r.exam);
+                        return r.exam.selectedGrade && r.exam.selectedGrade.type && vm.isGradeable(r.exam);
                     });
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_grade_review'));
                     dialog.result.then(function (btn) {
@@ -157,7 +157,7 @@ angular.module('app.review')
                 };
 
                 vm.importGrades = function () {
-                    var modalvm = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
+                    var ctrl = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
                         Files.getMaxFilesize().then(function (data) {
                             $scope.maxFileSize = data.filesize;
                         });
@@ -175,7 +175,7 @@ angular.module('app.review')
                         templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',
                         backdrop: 'static',
                         keyboard: true,
-                        controller: modalCtrl
+                        controller: ctrl
                     });
 
                     modalInstance.result.then(function () {
