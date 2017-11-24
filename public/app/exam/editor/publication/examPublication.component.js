@@ -122,12 +122,8 @@ angular.module('app.exam.editor')
                 };
 
                 vm.previewExam = function (fromTab) {
-                    //First save the exam
-                    // TODO: Is this really necessary anymore?
-                    vm.updateExam(true).then(function () {
-                        var resource = vm.exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
-                        $location.path('/exams/' + resource + '/' + vm.exam.id + '/' + fromTab);
-                    });
+                    var resource = vm.exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
+                    $location.path('/exams/' + vm.exam.id + '/view/' + resource + '/' + fromTab);
                 };
 
                 vm.nextTab = function () {
