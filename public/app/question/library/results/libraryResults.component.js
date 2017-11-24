@@ -9,8 +9,8 @@ angular.module('app.question')
             disableLinks: '<',
             tableClass: '@?'
         },
-        controller: ['$location', 'dialogs', 'Question', 'Library', 'Attachment', 'Session', 'toast',
-            function ($location, dialogs, Question, Library, Attachment, Session, toast) {
+        controller: ['$location', '$translate', 'dialogs', 'Question', 'Library', 'Attachment', 'Session', 'toast',
+            function ($location, $translate, dialogs, Question, Library, Attachment, Session, toast) {
 
                 var vm = this;
 
@@ -74,7 +74,6 @@ angular.module('app.question')
                     dialog.result.then(function (btn) {
                         Question.questionsApi.delete({id: question.id}, function () {
                             vm.questions.splice(vm.questions.indexOf(question), 1);
-                            vm.applyFreeSearchFilter();
                             toast.info($translate.instant('sitnet_question_removed'));
                         });
                     });
