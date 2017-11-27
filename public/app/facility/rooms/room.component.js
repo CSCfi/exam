@@ -15,9 +15,6 @@ angular.module('app.facility.rooms')
                     SettingsRes.iop.get(function(data) {
                         vm.isInteroperable = data.isInteroperable;
                     });
-                    $http.get('/app/accessibility').success(function (data) {
-                        vm.accessibilities = data;
-                    });
 
                     Room.rooms.get({id: $routeParams.id},
                         function (room) {
@@ -96,31 +93,11 @@ angular.module('app.facility.rooms')
                     );
                 };
 
-                vm.selectedAccessibilities = function () {
-                    if (!vm.room) {
-                        return;
-                    }
-                    return vm.room.accessibility.map(function (software) {
-                        return software.name;
-                    }).join(", ");
-                };
-
                 vm.updateInteroperability = function() {
                     InteroperabilityRes.facility.update(vm.room, function(data) {
                         vm.room.externalRef = data.externalRef;
                         vm.room.availableForExternals = data.externalRef !== null;
                     });
-                };
-
-                vm.updateAccessibility = function () {
-                    var ids = vm.room.accessibility.map(function (item) {
-                        return item.id;
-                    }).join(", ");
-
-                    $http.post('/app/room/' + room.id + '/accessibility', {ids: ids})
-                        .success(function () {
-                            toast.info($translate.instant("sitnet_room_updated"));
-                        });
                 };
 
                 function remove(arr, item) {

@@ -107,18 +107,7 @@
                     on-delete="$ctrl.deleteException(exception)"></exception-list>
     <!-- Accessibility information -->
     <div class="detail-row">
-        <div class="col-md-12">
-            <div class="sitnet-info-text">{{'sitnet_room_accessibility_info' | translate}}</div>
-            <multiselect
-                data-multiple="true"
-                ng-model="$ctrl.room.accessibility"
-                ms-header="{{'sitnet_select' | translate}}"
-                ms-selected="{{$ctrl.selectedAccessibilities()}}"
-                options="access.name for access in accessibilities"
-                change="$ctrl.updateAccessibility()"
-                data-compare-by="id">
-            </multiselect>
-        </div>
+        <accessibility-selector ng-if="$ctrl.room" room="$ctrl.room"></accessibility-selector>
     </div>
 
     <!-- Guidance & Contact person information -->
