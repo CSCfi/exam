@@ -43,7 +43,7 @@ angular.module('app.question')
                 });
 
 
-            self.getQuestionType = function(type) {
+            self.getQuestionType = function (type) {
                 var questionType;
                 switch (type) {
                     case 'essay':
@@ -106,11 +106,12 @@ angular.module('app.question')
                 if (!sectionQuestion.options) {
                     return 0;
                 }
-                return (sectionQuestion.options.filter(function (option) {
+                var points = sectionQuestion.options.filter(function (option) {
                     return option.score > 0;
                 }).reduce(function (a, b) {
-                    return a + b.score;
-                }, 0));
+                    return a + parseFloat(b.score);
+                }, 0);
+                return parseFloat(points.toFixed(2));
             };
 
             self.scoreClozeTestAnswer = function (sectionQuestion) {
@@ -326,9 +327,9 @@ angular.module('app.question')
                         if (question.attachment && question.attachment.modified) {
                             Files.upload('/app/attachment/question', question.attachment,
                                 {questionId: question.id}, question, null, function () {
-                                esq.question.attachment = question.attachment;
-                                deferred.resolve(esq);
-                            });
+                                    esq.question.attachment = question.attachment;
+                                    deferred.resolve(esq);
+                                });
                         }
                         else if (question.attachment && question.attachment.removed) {
                             Attachment.eraseQuestionAttachment(question).then(function () {

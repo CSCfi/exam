@@ -217,6 +217,29 @@ angular.module('app')
         };
     }])
 
+    .directive('fixedPrecision', function () {
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            link: function (scope, elem, attrs, ngModel) {
+                var toFixed = function (input) {
+                    if (!input) {
+                        input = 0;
+                    }
+                    var re = /^-?[0-9]+(\.[0-9]{1,2})?$/i;
+                    if (!input.toString().match(re)) {
+                        var fixed = parseFloat(input.toFixed(2));
+                        ngModel.$setViewValue(fixed);
+                        ngModel.$render();
+                        return fixed;
+                    }
+                    return input;
+                };
+                ngModel.$parsers.push(toFixed);
+            }
+        };
+    })
+
     .directive('clozeTest', function ($compile) {
         return {
             restrict: 'E',

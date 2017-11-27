@@ -183,11 +183,10 @@
                                    required="true"/>
                         </div>
                         <div class="col-md-2 question-option-empty-radio" ng-class="option.score > 0 ? 'question-correct-option-radio' : ''">
-                            <input id="optionScore" name="maxScore" class="question-option-input points"
+                            <input fixed-precision id="optionScore" name="maxScore" class="question-option-input points"
                                    type="number" step="1"
                                    ng-model="option.score"
                                    required="true"
-                                   ng-pattern="/^-?[0-9]+(\.[0-9]{1,2})?$/"
                                    ng-disabled="$ctrl.lotteryOn"/>
                         </div>
                         <div class="col-md-1 question-option-trash pointer" ng-hide="$ctrl.lotteryOn"
@@ -269,7 +268,7 @@
                         <input id="maxScore" name="maxScore" type="number" class="form-control wdt100"
                                ng-model="$ctrl.examQuestion.maxScore" step="1"
                                min="0" max="1000"
-                               ng-pattern="/^-?[0-9]+(\.[0-9]{1,2})?$/"
+                               fixed-precision
                                required ng-disabled="$ctrl.lotteryOn"/>
                     </div>
                 </div>
