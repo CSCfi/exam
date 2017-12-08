@@ -133,10 +133,13 @@
                         {{'sitnet_essay_length_recommendation' | translate}}
 
                     </div>
-                    <div class="col-md-9">
+                    <div class="col-lg-5 col-md-7">
                         <div class="input-group" id="expectedWordCount">
-                            <input name="expectedWordCount" type="number" class="form-control wdt100"
+                            <input name="expectedWordCount" type="number" class="form-control"
                                    ng-model="$ctrl.examQuestion.expectedWordCount" min="1" max="1000000">
+                            <span class="input-group-addon" title="{{'sitnet_average_word_length_finnish' | translate}}">
+                                {{'sitnet_approximately' | translate}} {{$ctrl.estimateCharacters()}} {{'sitnet_characters' | translate}}
+                            </span>
                         </div>
                         <div ng-hide="questionForm.expectedWordCount.$valid"
                              class="warning-text-small margin-10">

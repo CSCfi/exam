@@ -48,7 +48,7 @@ angular.module('app.question')
                 };
 
                 vm.estimateCharacters = function () {
-                    return vm.examQuestion.expectedWordCount * 8;
+                    return (vm.examQuestion.expectedWordCount || 0) * 8;
                 };
 
                 vm.selectIfDefault = function (value, $event) {

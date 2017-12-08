@@ -1,19 +1,21 @@
 <div class="col-md-12 margin-20 padl0 padr0">
-    <div class="col-md-3 exam-basic-title padl0">
-        {{'sitnet_essay_length_recommendation' | translate}}
+    <ng-form name="essayForm">
+        <div class="col-md-3 exam-basic-title padl0">
+            {{'sitnet_essay_length_recommendation' | translate}}
 
-    </div>
-    <div class="col-md-9">
-        <div class="input-group" id="defaultExpectedWordCount">
-            <input name="defaultExpectedWordCount" type="number" class="form-control wdt100" ng-model="$ctrl.question.defaultExpectedWordCount"
-                   ui-change="$ctrl.estimateCharacters()" min="1" max="1000000">
-            <span class="input-group-addon" title="{{'sitnet_average_word_length_finnish' | translate}}">
-                {{'sitnet_approximately' | translate}} {{$ctrl.estimateCharacters()}} {{'sitnet_characters' | translate}}
-            </span>
         </div>
-        <div ng-hide="questionForm.defaultExpectedWordCount.$valid" class="warning-text-small margin-10">
-            <i class="fa fa-exclamation-circle reddish"></i>
-            {{'sitnet_essay_length_recommendation_bounds' | translate}}
+        <div class="col-lg-5 col-md-7">
+            <div class="input-group" id="defaultExpectedWordCount">
+                    <input name="defaultExpectedWordCount" type="number" class="form-control" ng-model="$ctrl.question.defaultExpectedWordCount"
+                        ui-change="$ctrl.estimateCharacters()" min="1" max="1000000">
+                <span class="input-group-addon" title="{{'sitnet_average_word_length_finnish' | translate}}">
+                    {{'sitnet_approximately' | translate}} {{$ctrl.estimateCharacters()}} {{'sitnet_characters' | translate}}
+                </span>
+            </div>
+            <div ng-show="essayForm.defaultExpectedWordCount.$invalid" class="warning-text-small margin-10">
+                <i class="fa fa-exclamation-circle reddish"></i>
+                {{'sitnet_essay_length_recommendation_bounds' | translate}}
+            </div>
         </div>
-    </div>
+    </ng-form>
 </div>
