@@ -19,7 +19,7 @@ angular.module('app.review')
                     vm.answer.essayAnswer.score = vm.answer.essayAnswer.evaluatedScore;
                 };
 
-                vm.getWordCount = function() {
+                vm.getWordCount = function () {
                     return Assessment.countWords(vm.answer.essayAnswer.answer);
                 };
 
@@ -33,7 +33,11 @@ angular.module('app.review')
 
                 vm.isAssessed = function () {
                     return vm.answer.essayAnswer && parseFloat(vm.answer.essayAnswer.score) >= 0;
-                }
+                };
+
+                vm.displayMaxScore = function () {
+                    return vm.answer.evaluationType === 'Points' ? vm.answer.maxScore : 1;
+                };
 
             }
         ]

@@ -6,6 +6,7 @@ angular.module('app.review')
         bindings: {
             categoryTitle: '@',
             reviews: '<',
+            allDone: '<',
             onSelection: '&'
         },
         controller: ['$sce', '$filter', 'QuestionReview',
@@ -27,7 +28,7 @@ angular.module('app.review')
                 };
 
                 vm.getAssessedAnswerCount = function (review) {
-                    return QuestionReview.getAssessedAnswerCount(review);
+                    return vm.allDone ? 0 : QuestionReview.getAssessedAnswerCount(review);
                 };
 
                 vm.selectQuestion = function (review) {

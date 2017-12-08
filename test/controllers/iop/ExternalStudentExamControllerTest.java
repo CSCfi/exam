@@ -48,8 +48,8 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
     @Override
     protected void onBeforeLogin() throws IOException {
         Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
-        User user = Ebean.find(User.class, userId == null ? 3L : userId);
 
+        User user = Ebean.find(User.class, userId == null ? 3L : userId);
         ee = new ExternalExam();
         ee.setExternalRef(UUID.randomUUID().toString());
         ee.setHash(UUID.randomUUID().toString());

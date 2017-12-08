@@ -55,7 +55,7 @@ angular.module('app.examination')
                 };
 
                 var activePageIndex = function () {
-                    var page = _pages.filter(function (p, i) {
+                    var page = _pages.filter(function (p) {
                         return vm.activeSection.id === p.id;
                     })[0];
                     return _pages.indexOf(page);

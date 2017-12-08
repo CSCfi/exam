@@ -6,8 +6,8 @@ angular.module('app.calendar')
 
             var self = this;
 
-            self.slotsApi = $resource("/app/calendar/:eid/:rid", {eid: "@eid", rid: "@rid"});
-            self.reservationWindowApi = $resource("/app/settings/reservationWindow");
+            self.slotsApi = $resource('/app/calendar/:eid/:rid', {eid: '@eid', rid: '@rid'});
+            self.reservationWindowApi = $resource('/app/settings/reservationWindow');
 
             var adjustBack = function (date, tz) {
                 date = moment.tz(date, tz);
@@ -34,9 +34,10 @@ angular.module('app.calendar')
                     slot.aids = accessibilities.filter(
                         function (item) {
                             return item.filtered;
-                        }).map(function (item) {
-                        return item.id;
-                    });
+                        })
+                        .map(function (item) {
+                            return item.id;
+                        });
                     $http.post('/app/calendar/reservation', slot).then(function () {
                         $location.path('/');
                     }, function (error) {
