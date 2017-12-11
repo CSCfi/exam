@@ -1,12 +1,17 @@
 <div class="essay-answer-wrapper">
-    <div class="top-row">
-        <div class="col-md-12">
+    <div class="detail-row" ng-if="$ctrl.answer.question.question !== $ctrl.answer.question.parent.question">
+       <span class="col-md-12 alert alert-warning essay-answer-warning" role="alert">
+           <i class="fa fa-exclamation-triangle fa-lg"></i>&nbsp;{{'sitnet_question_differs' | translate}}
+       </span>
+    </div>
+    <div class="main-row">
+        <div class="col-md-12 marl5">
             <strong>{{'sitnet_assessee_information' | translate | uppercase}}</strong>
         </div>
     </div>
     <div class="main-row">
         <div class="col-md-10 essay-answer-item">
-            <a href="mailto:{{$ctrl.answer.examSection.exam.creator.email}}">
+            <a href="/assessments/{{$ctrl.answer.examSection.exam.id}}">
                 <strong>{{$ctrl.answer.examSection.exam.creator.firstName}}
                 {{$ctrl.answer.examSection.exam.creator.lastName}}
                 <span ng-if="$ctrl.answer.examSection.exam.creator.userIdentifier">

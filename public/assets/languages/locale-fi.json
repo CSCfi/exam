@@ -867,5 +867,6 @@
   "sitnet_no_show": "Ei arvioida. Käyttämätön varaus.",
   "sitnet_exam_time": "Tenttiaika",
   "sitnet_clock_hidden": "Kello piilotettu",
-  "sitnet_choose_institution": "Valitse oppilaitos"
+  "sitnet_choose_institution": "Valitse oppilaitos",
+  "sitnet_question_differs": "Kysymys, johon opiskelija on vastannut, poikkeaa tekstin osalta tämänhetkisestä kysymyksestä."
 }
