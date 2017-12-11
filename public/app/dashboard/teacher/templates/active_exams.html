@@ -78,7 +78,7 @@
                         <teacher-list exam="exam"/>
                     </td>
                     <td class="text-center">
-                        <a ng-if="$ctrl.isOwner(exam)" ng-click="deleteExam(exam, 'active')" class="pointer">
+                        <a ng-if="$ctrl.isOwner(exam)" ng-click="$ctrl.deleteExam(exam, 'active')" class="pointer">
                             <img src="/assets/assets/images/icon_trashcan.svg" alt="exam"
                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_trashcan.png'"
                                  popover-placement="left" popover-trigger="'mouseenter'"
