@@ -269,40 +269,29 @@ angular.module('app')
             }
         };
     })
-    .directive('uiBlur', function () {
-        return function (scope, elem, attrs) {
-
-            elem.bind('blur', function () {
-                scope.$apply(attrs.uiBlur);
-            });
-        };
-    })
-
-    .directive('uiChange', function () {
+    .directive('uiBlur', ['$parse', function ($parse) {
         return {
             restrict: 'A', // only activate on element attribute
-
             link: function (scope, elem, attrs) {
-
-                elem.bind('change', function () {
-                    scope.$apply(attrs.uiChange);
+                var parser = $parse(attrs.uiBlur);
+                elem.bind('blur', function () {
+                    parser(scope);
                 });
             }
         };
-    })
+    }])
 
-    .directive('snLibrary', function ($window) {
-
+    .directive('uiChange', ['$parse', function ($parse) {
         return {
-            restrict: 'A',
-
+            restrict: 'A', // only activate on element attribute
             link: function (scope, elem, attrs) {
-
-                var winHeight = $window.innerHeight;
-                elem.css('height', winHeight - 15);
+                var parser = $parse(attrs.uiChange);
+                elem.bind('change', function () {
+                    parser(scope);
+                });
             }
         };
-    })
+    }])
 
     .directive('fileModel', ['$parse', function ($parse) {
         return {
@@ -372,17 +361,7 @@ angular.module('app')
             }
         };
     }])
-    .directive('sitnetHeader', [function () {
-        return {
-            restrict: 'E',
-            replace: true,
-            template: '<div id="sitnet-header" class="header">' +
-            '<div class="col-md-12 header-wrapper">' +
-            '<span class="header-text">{{ "sitnet_welcome" | translate }}, {{getUsername()}}</span>' +
-            '</div>' +
-            '</div>'
-        };
-    }])
+
     .directive('sort', ['$timeout', function ($timeout) {
         return {
             restrict: 'A',
@@ -472,9 +451,6 @@ angular.module('app')
 
                 scope.printRange = function (n) {
                     if (scope.items) {
-                        var begin = n * scope.pageSize + 1;
-                        var end = Math.min(scope.items.length, (n + 1) * scope.pageSize);
-                        //return begin + " - " + end;
                         return n + 1;
                     }
                 };
