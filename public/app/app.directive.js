@@ -249,13 +249,13 @@ angular.module('app')
                 editable: '=?'
             },
             link: function (scope, element, attrs) {
-                var answer = scope.results ? scope.results[Object.keys(scope.results)[0]] : null;
                 var editable = angular.isUndefined(scope.editable) || scope.editable; // defaults to true
                 var replacement = angular.element(scope.content);
                 var inputs = replacement.find('input');
                 for (var i = 0; i < inputs.length; ++i) {
                     var input = inputs[i];
                     var id = input.attributes.id.value;
+                    var answer = scope.results ? scope.results[input.id] : null;
                     if (answer) {
                         input.setAttribute('size', answer.length);
                     }
