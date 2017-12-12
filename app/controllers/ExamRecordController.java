@@ -246,6 +246,8 @@ public class ExamRecordController extends BaseController {
         score.setLecturer(record.getTeacher().getEppn());
         score.setLecturerId(record.getTeacher().getUserIdentifier());
         score.setLecturerEmployeeNumber(record.getTeacher().getEmployeeNumber());
+        score.setLecturerFirstName(record.getTeacher().getFirstName());
+        score.setLecturerLastName(record.getTeacher().getLastName());
 
         DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
         // Record transfer timestamp (date)

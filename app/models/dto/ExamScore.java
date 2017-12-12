@@ -34,10 +34,12 @@ public class ExamScore extends GeneratedIdentityModel {
     private String creditType;
     private String lecturer;
     private String lecturerId;
+    private String lecturerEmployeeNumber;
+    private String lecturerFirstName;
+    private String lecturerLastName;
     private String registrationDate;
     private String courseImplementation;
     private String additionalInfo;
-    private String lecturerEmployeeNumber;
     private String institutionName;
 
     public ExamRecord getExamRecord() {
@@ -195,6 +197,22 @@ public class ExamScore extends GeneratedIdentityModel {
 
     public void setLecturerEmployeeNumber(String lecturerEmployeeNumber) {
         this.lecturerEmployeeNumber = lecturerEmployeeNumber;
+    }
+
+    public String getLecturerFirstName() {
+        return lecturerFirstName;
+    }
+
+    public void setLecturerFirstName(String lecturerFirstName) {
+        this.lecturerFirstName = lecturerFirstName;
+    }
+
+    public String getLecturerLastName() {
+        return lecturerLastName;
+    }
+
+    public void setLecturerLastName(String lecturerLastName) {
+        this.lecturerLastName = lecturerLastName;
     }
 
     public String getInstitutionName() {
