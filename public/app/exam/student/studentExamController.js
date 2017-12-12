@@ -169,12 +169,10 @@
                                 });
                             });
 
-
                             $scope.exam = data;
-                            if ($scope.exam.instruction && $scope.exam.instruction.length > 0) {
-                                // Add guide page
-                                $scope.pages.push('guide');
-                            }
+
+                            // Add guide page
+                            $scope.pages.push('guide');
 
                             // set sections and question numbering
                             angular.forEach($scope.exam.examSections, function (section, index) {
