@@ -273,7 +273,11 @@ angular.module('app.exam')
                 if (section.lotteryOn) {
                     score = score * section.lotteryItemCount / Math.max(1, section.sectionQuestions.length);
                 }
-                return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
+                function isInteger(n) {
+                    return typeof n === "number" && isFinite(n) && Math.floor(n) === n;
+                }
+
+                return isInteger(score) ? score : parseFloat(score.toFixed(2));
             };
 
             self.hasQuestions = function (exam) {
