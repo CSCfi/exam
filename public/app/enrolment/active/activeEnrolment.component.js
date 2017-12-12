@@ -36,8 +36,14 @@ angular.module('app.enrolment')
                 };
 
                 vm.getRoomInstruction = function () {
-                    var room = vm.enrolment.reservation.machine.room;
-                    return room['roomInstruction' + $translate.use().toUpperCase()] || room.roomInstruction;
+                    var reservation = vm.enrolment.reservation;
+                    var o;
+                    if (reservation.externalReservation) {
+                        o = reservation.externalReservation;
+                    } else if (reservation.machine){
+                        o = reservation.machine.room;
+                    }
+                    return o['roomInstruction' + $translate.use().toUpperCase()] || o.roomInstruction;
                 };
 
                 vm.showMaturityInstructions = function () {

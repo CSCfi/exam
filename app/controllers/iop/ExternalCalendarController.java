@@ -306,6 +306,9 @@ public class ExternalCalendarController extends CalendarController {
         external.setRoomName(roomNode.get("name").asText());
         external.setRoomCode(roomNode.get("roomCode").asText());
         external.setRoomTz(roomNode.get("localTimezone").asText());
+        external.setRoomInstruction(roomNode.path("roomInstruction").asText(null));
+        external.setRoomInstructionEN(roomNode.path("roomInstructionEN").asText(null));
+        external.setRoomInstructionSV(roomNode.path("roomInstructionSV").asText(null));
         external.save();
         reservation.setExternalReservation(external);
         Ebean.save(reservation);
