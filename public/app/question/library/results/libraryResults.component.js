@@ -4,13 +4,13 @@ angular.module('app.question')
         templateUrl: '/assets/app/question/library/results/libraryResults.template.html',
         bindings: {
             onSelection: '&',
+            onCopy: '&',
             questions: '<',
-            allowEditing: '<',
             disableLinks: '<',
             tableClass: '@?'
         },
-        controller: ['$location', '$translate', 'dialogs', 'Question', 'Library', 'Attachment', 'Session', 'toast',
-            function ($location, $translate, dialogs, Question, Library, Attachment, Session, toast) {
+        controller: ['$translate', 'dialogs', 'Question', 'Library', 'Attachment', 'Session', 'toast',
+            function ($translate, dialogs, Question, Library, Attachment, Session, toast) {
 
                 var vm = this;
 
@@ -83,8 +83,8 @@ angular.module('app.question')
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_copy_question'));
                     dialog.result.then(function (btn) {
                         Question.questionCopyApi.copy({id: question.id}, function (copy) {
-                            toast.info($translate.instant('sitnet_question_copied'));
-                            $location.path('/questions/' + copy.id);
+                            vm.questions.splice(vm.questions.indexOf(question), 0, copy);
+                            vm.onCopy({copy: copy});
                         });
                     });
                 };

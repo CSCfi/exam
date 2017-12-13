@@ -2,7 +2,7 @@
 angular.module('app.question')
     .component('library', {
         templateUrl: '/assets/app/question/library/library.template.html',
-        controller: [function () {
+        controller: ['$location', '$translate', 'toast', function ($location, $translate, toast) {
 
             var vm = this;
 
@@ -16,6 +16,11 @@ angular.module('app.question')
 
             vm.questionSelected = function (selections) {
                 vm.selections = selections;
+            };
+
+            vm.questionCopied = function (copy) {
+                toast.info($translate.instant('sitnet_question_copied'));
+                $location.path('/questions/' + copy.id);
             };
 
         }]

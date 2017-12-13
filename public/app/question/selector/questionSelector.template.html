@@ -25,7 +25,7 @@
 
         <!-- resulting table with questions -->
         <library-results questions="$ctrl.questions" on-selection="$ctrl.questionSelected(selections)"
-                         table-class="library-table" disable-links="true"></library-results>
+                         on-copy="$ctrl.questionCopied(copy)" table-class="library-table" disable-links="true"></library-results>
 
         <!-- Buttons -->
         <div class="row">

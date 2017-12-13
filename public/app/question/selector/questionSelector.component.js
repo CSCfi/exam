@@ -23,6 +23,10 @@ angular.module('app.question')
                 vm.selections = selections;
             };
 
+            vm.questionCopied = function(copy) {
+                toastr.info($translate.instant('sitnet_question_copied'));
+            };
+
             vm.addQuestions = function () {
                 // check that at least one has been selected
                 if (vm.selections.length === 0) {

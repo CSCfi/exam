@@ -23,8 +23,8 @@
                 <th>{{'sitnet_categories' | translate}}</th>
                 <th ng-show="$ctrl.user.isAdmin" sort by="ownerAggregate" text="sitnet_owner"
                     predicate="$ctrl.questionsPredicate" reverse="$ctrl.reverse" on-sort="$ctrl.onSort()"></th>
-                <th ng-if="$ctrl.allowEditing">{{'sitnet_remove' | translate}}</th>
-                <th ng-if="$ctrl.allowEditing">{{'sitnet_copy' | translate}}</th>
+                <th>{{'sitnet_remove' | translate}}</th>
+                <th>{{'sitnet_copy' | translate}}</th>
             </tr>
             </thead>
             <tbody>
@@ -80,14 +80,14 @@
                         </a>
                     </span>
                 </td>
-                <td class="padl20" ng-if="$ctrl.allowEditing">
+                <td class="padl20">
                     <a ng-if="question.allowedToRemove" ng-click="$ctrl.deleteQuestion(question)"
                        class="pointer">
                         <i class="fa fa-trash-o fa-fw" popover-placement="left" popover-trigger="'mouseenter'"
                            uib-popover="{{'sitnet_exam_remove' | translate}}"></i>
                     </a>
                 </td>
-                <td class="padl20 padr10" ng-if="$ctrl.allowEditing">
+                <td class="padl20 padr10">
                     <a ng-click="$ctrl.copyQuestion(question, false)">
                         <i class="fa fa-clone fa-fw" popover-placement="left" popover-trigger="'mouseenter'"
                            uib-popover="{{'sitnet_copy' | translate}}"></i>
