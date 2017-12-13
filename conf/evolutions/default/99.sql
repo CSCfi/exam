@@ -1,9 +1,5 @@
 # --- !Ups
-ALTER TABLE external_reservation ADD room_instruction TEXT NULL;
-ALTER TABLE external_reservation ADD room_instruction_en TEXT NULL;
-ALTER TABLE external_reservation ADD room_instruction_sv TEXT NULL;
+ALTER TABLE exam ADD assessment_info VARCHAR NULL;
 
 # --- !Downs
-ALTER TABLE external_reservation DROP room_instruction;
-ALTER TABLE external_reservation DROP room_instruction_en;
-ALTER TABLE external_reservation DROP room_instruction_sv;
+ALTER TABLE exam DROP assessment_info;
