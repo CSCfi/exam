@@ -119,6 +119,9 @@
         <div ng-repeat="esq in es.sectionQuestions | orderBy:'sequenceNumber'" class="prow question">
             <span class="col-md-8"><strong>{{ esq.sequenceNumber  + 1}}.&nbsp;{{ $ctrl.getQuestionTypeName(esq) }}</strong></span>
             <span class="col-md-4"><strong class="pull-right">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span>
+            <span class="col-md-12 question"ng-if="esq.answerInstructions.length > 0"><strong>Ohjeet / Anvisning / Instructions:</strong><br />
+                {{esq.answerInstructions}}
+            </span>
             <span class="col-md-12 question" ng-if="esq.question.type !== 'ClozeTestQuestion'"
                   mathjax ng-bind-html="$ctrl.trustAsHtml(esq.question.question)"></span>
             <span class="col-md-12 question" ng-if="esq.question.type === 'ClozeTestQuestion'"
