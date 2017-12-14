@@ -10,6 +10,7 @@ angular.module('app.dashboard.teacher')
                 var ctrl = this;
 
                 ctrl.$onInit = function () {
+                    ctrl.activeTab = $location.search().tab ? parseInt($location.search().tab) : 1;
                     ctrl.userId = Session.getUser().id;
                     ctrl.templates = {
                         dashboardToolbarPath: EXAM_CONF.TEMPLATES_PATH + 'dashboard/teacher/templates/toolbar.html',
@@ -20,7 +21,7 @@ angular.module('app.dashboard.teacher')
                     };
                     // Pagesize for showing finished exams
                     ctrl.pageSize = 10;
-                    ctrl.filter = {};
+                    ctrl.filter = $location.search().filter ? {text: $location.search().filter} : {};
                     ctrl.reduceDraftCount = 0;
 
                     TeacherDashboard.populate(ctrl).then(function () {
@@ -28,7 +29,14 @@ angular.module('app.dashboard.teacher')
                         ctrl.filteredActive = ctrl.activeExams;
                         ctrl.filteredArchived = ctrl.archivedExams;
                         ctrl.filteredDraft = ctrl.draftExams;
+                        if (ctrl.filter.text) {
+                            ctrl.search();
+                        }
                     });
+                };
+
+                ctrl.changeTab = function (index) {
+                    $location.search('tab', index);
                 };
 
                 ctrl.printExamDuration = function (exam) {
@@ -54,7 +62,7 @@ angular.module('app.dashboard.teacher')
                 };
 
                 ctrl.search = function () {
-
+                    $location.search('filter', ctrl.filter.text);
                     ctrl.reduceDraftCount = 0;
 
                     // Use same search parameter for all the 4 result tables

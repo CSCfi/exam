@@ -22,6 +22,7 @@ angular.module('app.review')
                             vm.questionSummary = Question.getQuestionAmounts(exam);
                             vm.exam = exam;
                             vm.user = Session.getUser();
+                            vm.backUrl = vm.user.isAdmin ? "/" : "/exams/" + vm.exam.parent.id + "/4";
                         }, function (err) {
                             toast.error(err.data);
                         });

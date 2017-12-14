@@ -10,24 +10,24 @@
     </div>
 
     <div class="tab-wrapper">
-        <uib-tabset active="active">
-            <uib-tab index="1">
+        <uib-tabset active="$ctrl.activeTab">
+            <uib-tab index="1" select="$ctrl.changeTab(1)">
                 <uib-tab-heading><div class="make-inline">{{ 'sitnet_active_exams_title' | translate }}</div>
                     <div ng-if="$ctrl.activeExams" class="make-inline tab-number">{{ $ctrl.filteredActive.length }}</div></uib-tab-heading>
                 <div ng-include="$ctrl.templates.dashboardActiveExamsPath"></div>
             </uib-tab>
-            <uib-tab index="2">
+            <uib-tab index="2" select="$ctrl.changeTab(2)">
                 <uib-tab-heading><div class="make-inline">{{ 'sitnet_finished_exams_title' | translate }}</div>
                     <div ng-if="$ctrl.finishedExams" class="make-inline tab-number">{{ $ctrl.filteredFinished.length }}</div></uib-tab-heading>
                 <div ng-include="$ctrl.templates.dashboardFinishedExamsPath"></div>
             </uib-tab>
-            <uib-tab index="3">
+            <uib-tab index="3" select="$ctrl.changeTab(3)">
                 <uib-tab-heading><div class="make-inline">{{ 'sitnet_archived_teacher_exams_title' | translate }}</div>
                     <div ng-if="$ctrl.archivedExams" class="make-inline tab-number">{{ $ctrl.filteredArchived.length }}</div>
                 </uib-tab-heading>
                 <div ng-include="$ctrl.templates.dashboardArchivedExamsPath"></div>
             </uib-tab>
-            <uib-tab index="4">
+            <uib-tab index="4" select="$ctrl.changeTab(4)">
                 <uib-tab-heading><div class="make-inline">{{ 'sitnet_draft_exams' | translate }}</div>
                     <div ng-if="$ctrl.draftExams" class="make-inline tab-number">{{ $ctrl.filteredDraft.length }}</div>
                 </uib-tab-heading>

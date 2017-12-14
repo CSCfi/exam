@@ -2,8 +2,8 @@
 angular.module('app.exam.editor')
     .component('examTabs', {
         templateUrl: '/assets/app/exam/editor/examTabs.template.html',
-        controller: ['$routeParams', '$translate', 'ExamRes', 'Session',
-            function ($routeParams, $translate, ExamRes, Session) {
+        controller: ['$routeParams', '$translate', 'ExamRes', 'Session', '$window',
+            function ($routeParams, $translate, ExamRes, Session, $window) {
 
                 var vm = this;
 
@@ -56,6 +56,11 @@ angular.module('app.exam.editor')
                 vm.titleUpdated = function (props) {
                     vm.updateTitle(props.code, props.name);
                 };
+
+                vm.goBack = function (event) {
+                    event.preventDefault();
+                    $window.history.back();
+                }
 
             }
         ]

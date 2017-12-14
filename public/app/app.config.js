@@ -32,7 +32,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         var tmpl = EXAM_CONF.TEMPLATES_PATH;
 
         /* index */
-        $routeProvider.when('/', {template: '<dashboard></dashboard>'});
+        $routeProvider.when('/', {template: '<dashboard></dashboard>', reloadOnSearch: false});
 
         // questions
         $routeProvider.when('/questions', {template: '<library></library>'});
