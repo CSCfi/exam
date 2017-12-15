@@ -1,13 +1,3 @@
-<script>
-    $(document).ready(function () {
-
-        $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function (e) {
-            e.stopPropagation();
-        });
-
-    });
-</script>
-
 <div class="row col-md-12">
     <div class="col-md-6">
         <div class="form-group input-group search question-search padl20">
@@ -41,6 +31,7 @@
                     aria-labelledby="dropDownMenu1">
                     <li role="presentation" class="input-group">
                         <input ng-model="$ctrl.limitations.courses" class="form-control"
+                               ng-click="$event.stopPropagation()"
                                placeholder="{{'sitnet_search' | translate }}">
 
                         <div class="input-group-addon">
@@ -65,6 +56,7 @@
                     aria-labelledby="dropDownMenu2">
                     <li role="presentation" class="input-group">
                         <input ng-model="$ctrl.limitations.exams" class="form-control"
+                               ng-click="$event.stopPropagation()"
                                placeholder="{{'sitnet_search' | translate }}">
 
                         <div class="input-group-addon">
@@ -90,6 +82,7 @@
                     aria-labelledby="dropDownMenu3">
                     <li role="presentation" class="input-group">
                         <input ng-model="$ctrl.limitations.tags" class="form-control"
+                               ng-click="$event.stopPropagation()"
                                placeholder="{{'sitnet_search' | translate }}">
 
                         <div class="input-group-addon">
