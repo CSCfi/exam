@@ -207,6 +207,7 @@ angular.module('app')
 
                 ck.on('change', lodash.debounce(updateModel, 100)); // This can bring down the UI if not scaled down
                 ck.on('dataReady', updateModel);
+                ck.on('key', lodash.debounce(updateModel, 100));
                 ck.on('mode', updateModel); // Editing mode change
 
                 ngModel.$render = function (value) {
