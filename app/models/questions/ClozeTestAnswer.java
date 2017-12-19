@@ -72,6 +72,8 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             b.attr("class", "cloze-input");
             if (isNumeric) {
                 b.attr("step", "any");
+                // Should allow for using both comma and period as decimal separator
+                b.attr( "lang", "en-150");
             }
         });
         this.question = doc.body().children().toString();
