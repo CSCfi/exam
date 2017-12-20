@@ -110,7 +110,7 @@
 
                 $scope.updateMachine = function (machine) {
 
-                    ExamMachineResource.update({id: machine.id}, machine,
+                    ExamMachineResource.update(machine,
                         function (updated_machine) {
                             machine = updated_machine;
                             $scope.selectedSoftwares(machine);

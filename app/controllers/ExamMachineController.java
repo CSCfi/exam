@@ -3,9 +3,15 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Query;
+import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
-import models.*;
+import models.Exam;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.Reservation;
+import models.Software;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.mvc.Result;
@@ -27,9 +33,11 @@ public class ExamMachineController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
     public Result getExamMachine(Long id) {
-        ExamMachine machine = Ebean.find(ExamMachine.class, id);
-
-        return ok(Json.toJson(machine));
+        PathProperties pp = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))");
+        Query<ExamMachine> query = Ebean.find(ExamMachine.class);
+        pp.apply(query);
+        ExamMachine machine = query.where().idEq(id).findUnique();
+        return ok(machine, pp);
     }
 
     @Restrict({@Group("ADMIN")})
@@ -76,8 +84,8 @@ public class ExamMachineController extends BaseController {
         dest.setOutOfService(src.getOutOfService());
 
         dest.update();
-
-        return ok(Json.toJson(dest));
+        PathProperties pp = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))");
+        return ok(dest, pp);
     }
 
     @Restrict({@Group("ADMIN")})
@@ -89,8 +97,8 @@ public class ExamMachineController extends BaseController {
 
         machine.getSoftwareInfo().clear();
         machine.update();
-
-        return ok(Json.toJson(machine));
+        PathProperties pp = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))");
+        return ok(machine, pp);
     }
 
     @Restrict({@Group("ADMIN")})
