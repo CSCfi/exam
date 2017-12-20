@@ -202,6 +202,7 @@
                                 <!-- Students not having finished the exam -->
                                 <li ng-repeat="enrolment in newExam.examEnrolments">
                                     {{enrolment.user.firstName }} {{ enrolment.user.lastName }}
+                                    <span ng-if="enrolment.user.userIdentifier">({{enrolment.user.userIdentifier}})</span>
                                     <button class="reviewer-remove"
                                             ng-disabled="newExam.state === 'PUBLISHED'"
                                             ng-click="removeParticipant(enrolment.id)"
@@ -213,6 +214,7 @@
                                 <!-- Students that have finished the exam -->
                                 <li ng-repeat="participant in newExam.participants">
                                     {{ participant.user.firstName }} {{ participant.user.lastName }}
+                                    <span ng-if="participant.user.userIdentifier">({{participant.user.userIdentifier}})</span>
                                     <button class="reviewer-remove"
                                             ng-disabled="newExam.state === 'PUBLISHED'">
                                         <img src="../../../assets/assets/images/icon_remove.svg" alt="exam"
