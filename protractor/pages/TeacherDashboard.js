@@ -6,11 +6,11 @@ var TeacherDashboard = function () {
     };
 
     this.getActiveExams = function () {
-        return element.all(by.repeater('exam in filteredActive'));
+        return element.all(by.repeater('exam in $ctrl.filteredActive'));
     };
 
     this.getFinishedExams = function () {
-        return element.all(by.repeater('exam in filteredFinished'));
+        return element.all(by.repeater('exam in $ctrl.filteredFinished'));
     };
 
     this.selectTab = function (index) {
@@ -19,12 +19,12 @@ var TeacherDashboard = function () {
     };
 
     this.createNewExam = function () {
-        element(by.css('a[href*="/newExam/"]')).click();
-        expect(browser.getCurrentUrl()).toContain('/exams/course/newExam');
+        element(by.css('a[href="/exams/new"]')).click();
+        expect(browser.getCurrentUrl()).toContain('/exams/new');
     };
 
     this.questionPage = function () {
-        element.all(by.repeater('link in links')).get(2).click();
+        element.all(by.repeater('link in $ctrl.links')).get(2).click();
         expect(browser.getCurrentUrl()).toMatch(/.+\/questions/);
     };
 

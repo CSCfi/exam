@@ -11,8 +11,8 @@ var LoginPage = function () {
     };
 
     this.logout = function () {
-        element(by.xpath('//a[@href=\'/logout\']')).click();
-        expect(browser.getCurrentUrl()).toContain('/login');
+        element(by.css('a[href="/logout"]')).click();
+        expect(browser.getCurrentUrl()).toEqual(browser.baseUrl + '/');
     };
 
     this.selectRole = function (role) {
