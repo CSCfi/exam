@@ -29,8 +29,6 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
 
         // ROUTING -->
 
-        var tmpl = EXAM_CONF.TEMPLATES_PATH;
-
         /* index */
         $routeProvider.when('/', {template: '<dashboard></dashboard>', reloadOnSearch: false});
 
@@ -80,7 +78,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         $routeProvider.when('/reservations/:eid', {template: '<reservations user-role="teacher"></reservations>'});
 
         /* Admin */
-        $routeProvider.when('/exams', {templateUrl: tmpl + 'exam/exams.html', controller: 'ExamListingController'});
+        $routeProvider.when('/exams', {template: '<exam-list></exam-list>'});
         $routeProvider.when('/rooms', {template: '<room-list></room-list>'});
         $routeProvider.when('/rooms/:id', {template: '<room></room>'});
         $routeProvider.when('/rooms_edit/edit_multiple', {template: '<multi-room></multi-room>'});

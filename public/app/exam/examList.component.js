@@ -1,25 +1,34 @@
-(function () {
-    'use strict';
-    angular.module("app.exam")
-        .controller('ExamListingController', ['dialogs', '$scope', 'Session', 'Exam',
-            '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'toast',
-            function (dialogs, $scope, Session, Exam,
-                      $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, toast) {
+'use strict';
+angular.module('app.exam')
+    .component('examList', {
+        templateUrl: '/assets/app/exam/examList.template.html',
+        controller: ['dialogs', 'Session', 'Exam', '$translate', '$location', 'ExamRes', 'toast',
+            function (dialogs, Session, Exam, $translate, $location, ExamRes, toast) {
+                var vm = this;
 
-                $scope.filter = {};
-                $scope.loader = {
-                    loading: false
+                vm.$onInit = function () {
+                    vm.user = Session.getUser();
+                    if (!vm.user.isAdmin) {
+                        $location.url("/");
+                        return;
+                    }
+                    vm.view = 'PUBLISHED';
+                    vm.showExpired = false;
+                    vm.examsPredicate = 'examActiveEndDate';
+                    vm.reverse = true;
+                    vm.filter = {};
+                    vm.loader = {
+                        loading: false
+                    };
+
+                    Exam.listExecutionTypes().then(function (types) {
+                        vm.executionTypes = types;
+                    });
                 };
 
-                $scope.user = Session.getUser();
-
-                Exam.listExecutionTypes().then(function (types) {
-                    $scope.executionTypes = types;
-                });
-
-                var search = function () {
-                    $scope.loader.loading = true;
-                    ExamRes.exams.query({filter: $scope.filter.text}, function (exams) {
+                vm.search = function () {
+                    vm.loader.loading = true;
+                    ExamRes.exams.query({filter: vm.filter.text}, function (exams) {
                         exams.forEach(function (e) {
                             e.ownerAggregate = e.examOwners.map(function (o) {
                                 return o.firstName + " " + o.lastName;
@@ -30,38 +39,34 @@
                                 e.expired = false;
                             }
                         });
-                        $scope.exams = exams;
-                        $scope.loader.loading = false;
+                        vm.exams = exams;
+                        vm.loader.loading = false;
                     }, function (err) {
-                        $scope.loader.loading = false;
+                        vm.loader.loading = false;
                         toast.error($translate.instant(err.data));
                     });
                 };
 
-                $scope.search = function () {
-                    search();
-                };
-
                 // Called when create exam button is clicked
-                $scope.createExam = function (executionType) {
+                vm.createExam = function (executionType) {
                     Exam.createExam(executionType);
                 };
 
-                $scope.copyExam = function (exam, type) {
+                vm.copyExam = function (exam, type) {
                     ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
                         toast.success($translate.instant('sitnet_exam_copied'));
-                        $location.path("/exams/"+copy.id+"/1/");
+                        $location.path("/exams/" + copy.id + "/1/");
                     }, function (error) {
                         toast.error(error.data);
                     });
                 };
 
-                $scope.deleteExam = function (exam) {
+                vm.deleteExam = function (exam) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                     dialog.result.then(function (btn) {
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
                             toast.success($translate.instant('sitnet_exam_removed'));
-                            $scope.exams.splice($scope.exams.indexOf(exam), 1);
+                            vm.exams.splice(vm.exams.indexOf(exam), 1);
 
                         }, function (error) {
                             toast.error(error.data);
@@ -71,13 +76,9 @@
                     });
                 };
 
-                $scope.getExecutionTypeTranslation = function (exam) {
+                vm.getExecutionTypeTranslation = function (exam) {
                     return Exam.getExecutionTypeTranslation(exam.executionType.type);
                 };
+            }]
+    });
 
-                if ($scope.user.isTeacher) {
-                    search();
-                }
-
-            }]);
-}());
