@@ -162,6 +162,13 @@ angular.module('app.exam.editor')
                             backdrop: 'static',
                             keyboard: true,
                             controller: function ($scope, $uibModalInstance) {
+                                $scope.getConfirmationText = function () {
+                                    var confirmation = $translate.instant('sitnet_publish_exam_confirm');
+                                    if (vm.exam.executionType.type !== 'PRINTOUT') {
+                                        confirmation += ' ' + $translate.instant('sitnet_publish_exam_confirm_enroll');
+                                    }
+                                    return confirmation;
+                                };
                                 $scope.ok = function () {
                                     $uibModalInstance.close();
                                 };
