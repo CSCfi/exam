@@ -10,7 +10,7 @@
                 <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
                 <i class="fa sitnet-white fa-building-o fa-stack-1x"></i>
             </span>
-            <a class="header-top-link" ng-click="createExamRoom()">{{ 'sitnet_add_new_room' | translate }}</a>
+            <a class="header-top-link" ng-click="$ctrl.createExamRoom()">{{ 'sitnet_add_new_room' | translate }}</a>
         </div>
         <div class="col-md-3">
              <span class="pull-left fa-stack fa-lg header-top-icon">
@@ -33,11 +33,11 @@
                     <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
                     <i class="fa sitnet-white fa-building-o fa-stack-1x"></i>
                 </span>
-            <a class="header-top-link" ng-click="editMultipleRooms()">{{ 'sitnet_edit_all_rooms' | translate }}</a>
+            <a class="header-top-link" ng-click="$ctrl.editMultipleRooms()">{{ 'sitnet_edit_all_rooms' | translate }}</a>
         </div>
     </div>
 
-    <div id="room" ng-repeat="room in rooms" ng-class="{'text-muted': room.state === 'INACTIVE'}">
+    <div id="room" ng-repeat="room in $ctrl.rooms" ng-class="{'text-muted': room.state === 'INACTIVE'}">
         <div class="main-row">
             <span class="col-md-12">
                 <span class="exams-list-title-text">{{room.name}}</span>
@@ -47,14 +47,14 @@
                     <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
                     <i class="fa fa-wrench fa-stack-1x"></i>
                 </a>
-                <a ng-show="room.state !== 'INACTIVE'" ng-click="disableRoom(room)" popover-placement="top"
+                <a ng-show="room.state !== 'INACTIVE'" ng-click="$ctrl.disableRoom(room)" popover-placement="top"
                    popover-popup-delay="500"
                    popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_inactivate_room' | translate }}"
                    class="fa-stack fa-lg">
                     <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
                     <i class="fa fa-trash-o text-warning pointer fa-stack-1x"></i>
                 </a>
-                <a ng-show="room.state === 'INACTIVE'" ng-click="enableRoom(room)" popover-placement="top"
+                <a ng-show="room.state === 'INACTIVE'" ng-click="$ctrl.enableRoom(room)" popover-placement="top"
                    popover-popup-delay="500"
                    popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_activate_room' | translate }}"
                    class="fa-stack fa-lg">
@@ -93,7 +93,7 @@
                     <span class="sitnet-text-medium">{{ 'sitnet_exam_room_address' | translate }}:</span>
                 </div>
                 <div class="col-md-10">
-                    <span class="room-info-span-text">{{ displayAddress(room.mailAddress) }}</span>
+                    <span class="room-info-span-text">{{ $ctrl.displayAddress(room.mailAddress) }}</span>
                 </div>
             </div>
 
