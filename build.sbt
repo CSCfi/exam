@@ -2,7 +2,7 @@ import scala.util.Properties
 
 name := "exam"
 
-version := "4.0.0-alpha"
+version := "4.0.0"
 
 lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 

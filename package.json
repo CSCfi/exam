@@ -1,6 +1,6 @@
 {
   "name": "exam",
-  "version": "4.0.0-alpha",
+  "version": "4.0.0",
   "description": "EXAM – electronic exam software for higher education",
   "repository": {
     "type": "git",
