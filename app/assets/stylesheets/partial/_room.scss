@@ -148,40 +148,6 @@
     overflow-y: scroll;
   }
 
-  .room-machines-table {
-    border-left: $sitnet-common-light solid 0.15em;
-    border-top: $sitnet-common-light solid 0.15em;
-    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
-
-    font-family: $sitnet-family-opensans;
-    font-weight: normal;
-    font-size: 0.9em;
-    margin-left: 2em;
-    padding-right: 2em;
-
-    th {
-      background-color: $sitnet-common-light;
-      font-family: $sitnet-family-georgia;
-      color: $sitnet-common-medium;
-      font-style: italic;
-      font-weight: normal;
-      border: 0;
-    }
-
-    td:first-child {
-      border-left: 0;
-    }
-    td:last-child {
-      border-right: 0;
-    }
-
-    tr:last-child {
-      td {
-        border-bottom: 0;
-      }
-    }
-  }
-
   .exam-machine {
     color: $sitnet-white;
     background-color: $sitnet-teacher-turquoise-active-question;
@@ -215,4 +181,38 @@
 //  -ms-user-select: none;
 //  user-select: none;
 //  outline-style:none;
+}
+
+.room-machines-table {
+  border-left: $sitnet-common-light solid 0.15em;
+  border-top: $sitnet-common-light solid 0.15em;
+  box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
+
+  font-family: $sitnet-family-opensans;
+  font-weight: normal;
+  font-size: 0.9em;
+  margin-left: 2em;
+  padding-right: 2em;
+
+  th {
+    background-color: $sitnet-common-light;
+    font-family: $sitnet-family-georgia;
+    color: $sitnet-common-medium;
+    font-style: italic;
+    font-weight: normal;
+    border: 0;
+  }
+
+  td:first-child {
+    border-left: 0;
+  }
+  td:last-child {
+    border-right: 0;
+  }
+
+  tr:last-child {
+    td {
+      border-bottom: 0;
+    }
+  }
 }

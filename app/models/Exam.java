@@ -1,42 +1,44 @@
 package models;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.FetchConfig;
-import com.avaje.ebean.Query;
-import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.ebean.Ebean;
+import io.ebean.FetchConfig;
+import io.ebean.Query;
+import io.ebean.annotation.EnumValue;
 import models.api.AttachmentContainer;
 import models.base.OwnedModel;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import util.AppUtil;
+import util.DateTimeAdapter;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.*;
 
+
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentContainer {
 
-    @EnumMapping(integerType = true, nameValuePairs = "DRAFT=1, SAVED=2, PUBLISHED=3, STUDENT_STARTED=4, REVIEW=5, " +
-            "REVIEW_STARTED=6, GRADED=7, GRADED_LOGGED=8, ARCHIVED=9, ABORTED=10, DELETED=11, REJECTED=12")
     public enum State {
-        DRAFT,
-        SAVED,
-        PUBLISHED,       // EXAM PUBLISHED, VISIBLE TO STUDENTS AND READY FOR TAKING
-        STUDENT_STARTED, // EXAM STARTED BY STUDENT
-        REVIEW,          // EXAM RETURNED BY STUDENT AND READY FOR REVIEW
-        REVIEW_STARTED,  // REVIEW STARTED BY TEACHERS
-        GRADED,          // GRADE GIVEN
+        @EnumValue("1") DRAFT,
+        @EnumValue("2") SAVED,
+        @EnumValue("3") PUBLISHED,       // EXAM PUBLISHED, VISIBLE TO STUDENTS AND READY FOR TAKING
+        @EnumValue("4") STUDENT_STARTED, // EXAM STARTED BY STUDENT
+        @EnumValue("5") REVIEW,          // EXAM RETURNED BY STUDENT AND READY FOR REVIEW
+        @EnumValue("6") REVIEW_STARTED,  // REVIEW STARTED BY TEACHERS
+        @EnumValue("7") GRADED,          // GRADE GIVEN
         /* FINAL STATES */
-        GRADED_LOGGED,   // EXAM PROCESSED AND READY FOR REGISTRATION
-        ARCHIVED,        // EXAM ARCHIVED FOR CERTAIN PERIOD AFTER WHICH IT GETS DELETED
-        ABORTED,         // EXAM ABORTED BY STUDENT WHILST TAKING
-        DELETED,         // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
-        REJECTED         // EXAM NOT QUALIFIED FOR REGISTRATION
+        @EnumValue("8") GRADED_LOGGED,   // EXAM PROCESSED AND READY FOR REGISTRATION
+        @EnumValue("9") ARCHIVED,        // EXAM ARCHIVED FOR CERTAIN PERIOD AFTER WHICH IT GETS DELETED
+        @EnumValue("10") ABORTED,         // EXAM ABORTED BY STUDENT WHILST TAKING
+        @EnumValue("11") DELETED,         // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
+        @EnumValue("12") REJECTED         // EXAM NOT QUALIFIED FOR REGISTRATION
     }
 
     private String name;
@@ -102,11 +104,13 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     // Exam valid/enrollable from
     @Temporal(TemporalType.TIMESTAMP)
-    private Date examActiveStartDate;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime examActiveStartDate;
 
     // Exam valid/enrollable until
     @Temporal(TemporalType.TIMESTAMP)
-    private Date examActiveEndDate;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime examActiveEndDate;
 
     // Exam duration (minutes)
     private Integer duration;
@@ -142,7 +146,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private User gradedByUser;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date gradedTime;
+    private DateTime gradedTime;
 
     @OneToOne
     private Comment examFeedback;
@@ -169,7 +173,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private Attachment attachment;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date autoEvaluationNotified;
+    private DateTime autoEvaluationNotified;
 
     private boolean gradeless;
 
@@ -177,6 +181,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     // Optional internal reference to this exam
     private String internalRef;
+
+    private String assessmentInfo;
 
     public User getGradedByUser() {
         return gradedByUser;
@@ -212,8 +218,10 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Transient
     private int approvedAnswerCount;
 
-    // Cloned - needed as field for serialization :(
-    private Boolean cloned;
+    @Transient
+    private boolean cloned;
+    @Transient
+    private boolean external;
 
     public Double getTotalScore() {
         return examSections.stream()
@@ -256,20 +264,27 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         approvedAnswerCount = getApprovedAnswerCount();
     }
 
-    @Transient
-    public Boolean isCloned() {
+    public boolean isCloned() {
         return cloned;
     }
 
-    public void setCloned(Boolean cloned) {
+    public void setCloned(boolean cloned) {
         this.cloned = cloned;
     }
 
-    public Date getGradedTime() {
+    public boolean isExternal() {
+        return external;
+    }
+
+    public void setExternal(boolean external) {
+        this.external = external;
+    }
+
+    public DateTime getGradedTime() {
         return gradedTime;
     }
 
-    public void setGradedTime(Date gradedTime) {
+    public void setGradedTime(DateTime gradedTime) {
         this.gradedTime = gradedTime;
     }
 
@@ -331,6 +346,10 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public String getHash() {
         return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 
     public Integer getDuration() {
@@ -495,6 +514,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.languageInspection = languageInspection;
     }
 
+    public String getAssessmentInfo() {
+        return assessmentInfo;
+    }
+
+    public void setAssessmentInfo(String assessmentInfo) {
+        this.assessmentInfo = assessmentInfo;
+    }
+
     private Exam createCopy(User user, boolean produceStudentExam) {
         Exam clone = new Exam();
         BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipations",
@@ -558,19 +585,19 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return createCopy(user, false);
     }
 
-    public Date getExamActiveStartDate() {
+    public DateTime getExamActiveStartDate() {
         return examActiveStartDate;
     }
 
-    public void setExamActiveStartDate(Date examActiveStartDate) {
+    public void setExamActiveStartDate(DateTime examActiveStartDate) {
         this.examActiveStartDate = examActiveStartDate;
     }
 
-    public Date getExamActiveEndDate() {
+    public DateTime getExamActiveEndDate() {
         return examActiveEndDate;
     }
 
-    public void setExamActiveEndDate(Date examActiveEndDate) {
+    public void setExamActiveEndDate(DateTime examActiveEndDate) {
         this.examActiveEndDate = examActiveEndDate;
     }
 
@@ -606,11 +633,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.inspectionComments = inspectionComments;
     }
 
-    public Date getAutoEvaluationNotified() {
+    public DateTime getAutoEvaluationNotified() {
         return autoEvaluationNotified;
     }
 
-    public void setAutoEvaluationNotified(Date autoEvaluationNotified) {
+    public void setAutoEvaluationNotified(DateTime autoEvaluationNotified) {
         this.autoEvaluationNotified = autoEvaluationNotified;
     }
 

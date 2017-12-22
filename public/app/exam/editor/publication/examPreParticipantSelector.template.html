@@ -1,0 +1,38 @@
+<div class="col-md-12 padl0 margin-20" ng-hide="$ctrl.exam.executionType.type==='PUBLIC'">
+
+    <div class="col-md-3 exam-basic-title">{{'sitnet_exam_pre_participants' | translate}}
+        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
+                  uib-popover="{{'sitnet_exam_pre_participants_description' | translate}}"
+                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
+    </div>
+    <div class="col-md-9">
+        <form name="myForm">
+            <input type="email" name="email" placeholder="{{'sitnet_write_pre_participant_email' | translate}}"
+               class="form-control wdth-30 make-inline" ng-model="$ctrl.newPreParticipant.email">
+            <button ng-disabled="!myForm.email.$valid || !$ctrl.newPreParticipant.email" ng-click="$ctrl.addPreParticipant()"
+                class="btn btn-primary green border-green">{{'sitnet_add' | translate}}
+            </button>
+        </form>
+    </div>
+
+    <div class="row col-md-12">
+        <div class="col-md-3 exam-basic-title"></div>
+        <div class="col-md-9">
+            <ul class="list-inline mart10">
+                <!-- Students pre-enrolled for the exam -->
+                <li class="marl10" ng-repeat="enrolment in $ctrl.exam.examEnrolments | filter:$ctrl.isPreEnrolment">
+                    {{ enrolment.preEnrolledUserEmail }}
+                    <button class="reviewer-remove"
+                            ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
+                            ng-click="$ctrl.removeParticipant(enrolment.id)"
+                            title="{{'sitnet_remove' | translate}}">
+                        <img src="/assets/assets/images/icon_remove.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'" />
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>

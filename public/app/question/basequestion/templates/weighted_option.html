@@ -1,0 +1,24 @@
+<div class="col-md-12 form-horizontal question-editor-option">
+
+    <div class="col-md-6 question-option-empty" ng-class="option.defaultScore > 0 ? 'question-correct-option' : ''">
+        <input id="optionText" type="text" focus-on="opt{{option.id}}" class="question-option-input"
+           ng-model="option.option"
+           ng-click="$ctrl.selectIfDefault(option.option, $event)"
+           required="true"/>
+    </div>
+
+    <div class="col-md-2 question-option-empty-radio" ng-class="option.defaultScore > 0 ? 'question-correct-option-radio' : ''">
+        <input id="optionScore" name="maxScore" class="question-option-input points"
+           type="number" step="1"
+           ng-model="option.defaultScore"
+           fixed-precision
+           required="true"
+           ng-disabled="$ctrl.lotteryOn"/>
+    </div>
+
+    <div class="col-md-1 question-option-trash pointer" ng-hide="$ctrl.lotteryOn" ng-click="$ctrl.removeOption(option)">
+        <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
+    </div>
+
+    <div class="col-md-3"></div>
+</div>

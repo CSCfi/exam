@@ -1,24 +1,33 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import models.base.GeneratedIdentityModel;
 import models.iop.ExternalReservation;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import util.DateTimeAdapter;
 
 import javax.annotation.Nonnull;
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 @Entity
 public class Reservation extends GeneratedIdentityModel implements Comparable<Reservation> {
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date startAt;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime startAt;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date endAt;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime endAt;
 
     private boolean noShow;
 
@@ -45,19 +54,19 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
     @OneToOne(cascade = CascadeType.ALL)
     private ExternalReservation externalReservation;
 
-    public Date getStartAt() {
+    public DateTime getStartAt() {
         return startAt;
     }
 
-    public void setStartAt(Date startAt) {
+    public void setStartAt(DateTime startAt) {
         this.startAt = startAt;
     }
 
-    public Date getEndAt() {
+    public DateTime getEndAt() {
         return endAt;
     }
 
-    public void setEndAt(Date endAt) {
+    public void setEndAt(DateTime endAt) {
         this.endAt = endAt;
     }
 
@@ -135,7 +144,7 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
 
     @Transient
     public Interval toInterval() {
-        return new Interval(startAt.getTime(), endAt.getTime());
+        return new Interval(startAt, endAt);
     }
 
     @Override

@@ -1,0 +1,240 @@
+<div id="dashboard">
+
+    <div class="row" ng-show="$ctrl.assessment.grade.name === 'NONE'">
+        <div class="notice-wrap">
+            <span class="form-group"><img class="nopad" src="/assets/assets/images/icon_info.png">
+                    &nbsp;
+                    <span>{{ 'sitnet_no_grading_description' | translate }}</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="row" ng-show="$ctrl.assessment.state === 'GRADED'">
+        <div class="notice-wrap">
+            <span class="form-group"><img class="nopad" src="/assets/assets/images/icon_info.png">
+                    &nbsp;
+                    <span>{{ 'sitnet_autoevaluation_release_description' | translate }}</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- credits and grade-->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'sitnet_exam_credit' | translate}}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    {{ $ctrl.assessment.credit }} {{'sitnet_exam_credit_abbr' | translate}}
+                </div>
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'sitnet_exam_grade' | translate}}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                    {{ $ctrl.assessment.grade.displayName }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'sitnet_exam_credit_type' | translate}}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-5 col-lg-3">
+                    {{$ctrl.assessment.creditType.displayName}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- maturity evaluation-->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'sitnet_graded' | translate}}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-5 col-lg-3">
+                    {{$ctrl.assessment.gradedTime | date:'dd.MM.yyyy'}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- total score: only show if not maturity and actual grade given -->
+    <div class="row evaluation-padtop"
+         ng-hide="$ctrl.assessment.executionType.type === 'MATURITY' || $ctrl.assessment.grade.name === 'NONE'">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'sitnet_total_score' | translate}}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    {{ $ctrl.scores.totalScore}} / {{$ctrl.scores.maxScore}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- approved and rejected: only show if not maturity and actual grade given -->
+    <div class="row evaluation-padtop"
+         ng-hide="$ctrl.assessment.executionType.type === 'MATURITY' || $ctrl.assessment.grade.name === 'NONE'">
+        <div class="col-md-12">
+
+            <!-- only show if approved or rejected answer count is given -->
+            <div class="row" ng-if="$ctrl.scores.hasApprovedRejectedAnswers">
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'sitnet_approved' | translate }}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    {{ $ctrl.scores.approvedAnswerCount }}
+                </div>
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'sitnet_rejected' | translate }}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    {{ $ctrl.scores.rejectedAnswerCount }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- comments: only show if comments given -->
+    <div class="row evaluation-padtop margin-10" ng-show="$ctrl.assessment.languageInspection">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'sitnet_content_grade' | translate}}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                    {{ $ctrl.assessment.contentGrade }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" ng-class="!$ctrl.assessment.languageInspection ? 'evaluation-padtop margin-10' : ''"
+         ng-if="$ctrl.assessment.examFeedback.comment">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
+                    {{'sitnet_teachers_comment' | translate}}:
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 evaluation-padtop general-info-content"
+                     ng-bind-html="$ctrl.assessment.examFeedback.comment">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- comment attachment: only show if attachment uploaded -->
+    <div class="row evaluation-padtop"
+         ng-if="$ctrl.assessment.examFeedback && $ctrl.assessment.examFeedback.attachment">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'sitnet_feedback_attachment' | translate}}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    <a class="link-text pointer col-md-8"
+                       ng-click="$ctrl.downloadFeedbackAttachment()">
+                        {{$ctrl.assessment.examFeedback.attachment.fileName}}
+                    </a>
+                </div>
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    &nbsp;
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    &nbsp;
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- credits and grade-->
+    <div class="row evaluation-padtop margin-20" ng-if="$ctrl.assessment.languageInspection">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'sitnet_language_inspections' | translate}}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    {{ $ctrl.assessment.grade.displayName }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- inspector statement: only show if language inspection done -->
+    <div class="row" ng-if="$ctrl.assessment.languageInspection">
+        <div class="col-md-12">
+
+            <div class="row">
+                <div class="col-md-12">
+                    {{'sitnet_inspector_statement' | translate}}:
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 evaluation-padtop general-info-content"
+                     ng-bind-html="$ctrl.assessment.languageInspection.statement.comment">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- statement attachment: only show if attachment uploaded -->
+    <div class="row evaluation-padtop" ng-if="$ctrl.assessment.languageInspection.statement.attachment">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    {{'sitnet_statement_attachment' | translate}}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    <a class="link-text pointer col-md-8"
+                       ng-click="$ctrl.downloadStatementAttachment()">
+                        {{$ctrl.assessment.languageInspection.statement.attachment.fileName}}
+                    </a>
+                </div>
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    &nbsp;
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                    &nbsp;
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row evaluation-padtop margin-10" ng-show="$ctrl.assessment.assessmentInfo">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                    <i class="fa fa-exclamation-circle text-danger"></i> {{'sitnet_additional_info_for_student' | translate }}:
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                    {{ $ctrl.assessment.assessmentInfo }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

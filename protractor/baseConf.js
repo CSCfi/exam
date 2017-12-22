@@ -11,7 +11,7 @@ var baseUrl = 'http://localhost:9000';
 var fixture = new Fixture();
 module.exports = {
     baseUrl: baseUrl,
-    seleniumServerJar: '../node_modules/protractor/node_modules/webdriver-manager/selenium/selenium-server-standalone-2.53.1.jar',
+    // seleniumServerJar: '../node_modules/protractor/node_modules/webdriver-manager/selenium/selenium-server-standalone-2.53.1.jar',
     specs: ['e2e/**/*-spec.js'],
     framework: 'jasmine2',
     allScriptsTimeout: 30000,

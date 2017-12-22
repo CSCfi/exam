@@ -3,13 +3,14 @@ package controllers;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.FetchConfig;
-import com.avaje.ebean.Query;
-import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
+import impl.EmailComposer;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.FetchConfig;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
 import models.*;
 import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
@@ -19,16 +20,20 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import play.Logger;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.CommaJoinedListSanitizer;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
-import util.java.CsvBuilder;
-import util.java.EmailComposer;
+import util.CsvBuilder;
 
 import javax.inject.Inject;
 import java.io.BufferedOutputStream;
@@ -86,6 +91,23 @@ public class ReviewController extends BaseController {
                 .endJunction()
                 .findList();
         return ok(participations);
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result listNoShowsForExamAndUser(Long eid, Long uid) {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation", "startAt, endAt")
+                .where()
+                .eq("user.id", uid)
+                .eq("exam.id", eid)
+                .eq("reservation.noShow", true)
+                .orderBy("reservation.endAt")
+                .findList();
+        if (enrolments == null) {
+            return notFound();
+        } else {
+            return ok(enrolments);
+        }
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -222,6 +244,26 @@ public class ReviewController extends BaseController {
         return ok(Json.toJson(essayQuestion));
     }
 
+    @Restrict({@Group("TEACHER")})
+    public Result updateAssessmentInfo(Long id) {
+        String info = request().body().asJson().get("assessmentInfo").asText();
+        Optional<Exam>  option = Ebean.find(Exam.class).fetch("parent.creator")
+                .where()
+                .idEq(id)
+                .eq("state", Exam.State.GRADED_LOGGED)
+                .findOneOrEmpty();
+        if (!option.isPresent()) {
+            return notFound("sitnet_exam_not_found");
+        }
+        Exam exam = option.get();
+        if (exam.getState() != Exam.State.GRADED_LOGGED || !isAllowedToModify(exam, getLoggedUser(), exam.getState())) {
+            return forbidden("You are not allowed to modify this object");
+        }
+        exam.setAssessmentInfo(info);
+        exam.update();
+        return ok();
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result reviewExam(Long id) {
         DynamicForm df = formFactory.form().bindFromRequest();
@@ -243,7 +285,7 @@ public class ReviewController extends BaseController {
             return updateReviewState(exam, newState, true);
         }
         Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
-        String additionalInfo = df.get("additionalInfo") == null ? null : df.get("additionalInfo");
+        String additionalInfo = df.get("additionalInfo");
         if (grade != null) {
             Grade examGrade = Ebean.find(Grade.class, grade);
             GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
@@ -407,14 +449,23 @@ public class ReviewController extends BaseController {
         return ok(ic, PathProperties.parse("(creator(firstName, lastName, email), created, comment)"));
     }
 
+    private List<String> parseArrayFieldFromBody(String field) {
+        DynamicForm df = formFactory.form().bindFromRequest();
+        String args = df.get(field);
+        String[] array;
+        if (args == null || args.isEmpty()) {
+            array = new String[]{};
+        } else {
+            array = args.split(",");
+        }
+        return Arrays.asList(array);
+    }
 
 
+    @With(CommaJoinedListSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result archiveExams() {
-        List<String> ids = parseArrayFieldFromBody("ids");
-        if (ids.isEmpty()) {
-            return badRequest();
-        }
+        Collection<Long> ids = request().attrs().get(Attrs.ID_COLLECTION);
         List<Exam> exams = Ebean.find(Exam.class).where()
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .idIn(ids)
@@ -426,22 +477,22 @@ public class ReviewController extends BaseController {
         return ok();
     }
 
-    private static boolean isEligibleForArchiving(Exam exam, Date start, Date end) {
+    private static boolean isEligibleForArchiving(Exam exam, DateTime start, DateTime end) {
         return exam.hasState(Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED)
-                && !(start != null && exam.getCreated().before(start))
-                && !(end != null && exam.getCreated().after(end));
+                && !(start != null && exam.getCreated().isBefore(start))
+                && !(end != null && exam.getCreated().isAfter(end));
     }
 
-    private static void createSummaryFile(ArchiveOutputStream aos, Date start, Date end, Exam exam,
+    private static void createSummaryFile(ArchiveOutputStream aos, DateTime start, DateTime end, Exam exam,
                                           Map<Long, String> questions) throws IOException {
         File file = File.createTempFile("summary", ".txt");
         FileOutputStream fos = new FileOutputStream(file);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
 
         if (start != null || end != null) {
-            DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+            DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy");
             writer.write(String.format("period: %s-%s",
-                    start == null ? "" : df.format(start), end == null ? "" : df.format(end)));
+                    start == null ? "" : dtf.print(start), end == null ? "" : dtf.print(end)));
             writer.newLine();
         }
         writer.write(String.format("exam id: %d", exam.getId()));
@@ -463,7 +514,7 @@ public class ReviewController extends BaseController {
         aos.closeArchiveEntry();
     }
 
-    private void createArchive(Exam prototype, ArchiveOutputStream aos, Date start, Date end) throws IOException {
+    private void createArchive(Exam prototype, ArchiveOutputStream aos, DateTime start, DateTime end) throws IOException {
         List<Exam> children = prototype.getChildren().stream()
                 .filter(e -> isEligibleForArchiving(e, start, end))
                 .collect(Collectors.toList());
@@ -538,15 +589,15 @@ public class ReviewController extends BaseController {
         if (prototype == null) {
             return notFound();
         }
-        Date startDate = null;
-        Date endDate = null;
+        DateTime startDate = null;
+        DateTime endDate = null;
         try {
             DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
             if (start.isPresent()) {
-                startDate = new DateTime(df.parse(start.get())).withTimeAtStartOfDay().toDate();
+                startDate = new DateTime(df.parse(start.get())).withTimeAtStartOfDay();
             }
             if (end.isPresent()) {
-                endDate = new DateTime(df.parse(end.get())).withTimeAtStartOfDay().plusDays(1).toDate();
+                endDate = new DateTime(df.parse(end.get())).withTimeAtStartOfDay().plusDays(1);
             }
         } catch (ParseException e) {
             return badRequest();
@@ -585,7 +636,7 @@ public class ReviewController extends BaseController {
         // set grading info only if exam is really graded, not just modified
         if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)) {
             if (!stateOnly) {
-                exam.setGradedTime(new Date());
+                exam.setGradedTime(DateTime.now());
                 exam.setGradedByUser(getLoggedUser());
             }
             if (exam.hasState(Exam.State.REJECTED)) {
@@ -620,6 +671,14 @@ public class ReviewController extends BaseController {
                 .fetch("parent.gradeScale")
                 .fetch("parent.gradeScale.grades", new FetchConfig().query())
                 .fetch("parent.examOwners", new FetchConfig().query())
+                .fetch("examEnrolments")
+                .fetch("examEnrolments.reservation")
+                .fetch("examEnrolments.reservation.machine")
+                .fetch("examEnrolments.reservation.machine.room")
+                .fetch("examInspections")
+                .fetch("examInspections.user")
+                .fetch("examParticipations")
+                .fetch("examParticipations.user")
                 .fetch("examType")
                 .fetch("executionType")
                 .fetch("examSections")

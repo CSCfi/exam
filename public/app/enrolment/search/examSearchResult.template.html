@@ -1,0 +1,71 @@
+<div class="student-enrolment-wrapper details-view marr20" ng-class="($ctrl.exam.enrolled && $ctrl.exam.reservationMade) ? '' : 'notactive'">
+    <div class="row">
+        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+            <span class="student-exam-row-title-blue">
+                <a href="/enroll/{{$ctrl.exam.course.code}}/exam/{{$ctrl.exam.id}}">{{$ctrl.exam.name}}</a></span><br/>
+            <span ng-if="$ctrl.exam.enrolled && !$ctrl.exam.reservationMade"
+                  class="student-exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
+
+        </div>
+        <div class="clearfix visible-xs"></div>
+        <div class="clearfix visible-sm"></div>
+
+        <div class="col-xs-6 col-sm-6 col-md-7 col-lg-7 mobile-pads">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{ 'sitnet_course_name' | translate }}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{$ctrl.exam.course.code}} {{ $ctrl.exam.course.name }}
+                    </div>
+                    <div class="clearfix visible-xs"></div>
+                    <div class="clearfix visible-sm"></div>
+
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{'sitnet_exam_validity' | translate}}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}}
+                        &ndash;
+                        {{$ctrl.exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{ 'sitnet_teachers' | translate }}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3"><teacher-list exam="$ctrl.exam" /></div>
+                    <div class="clearfix visible-xs"></div>
+                    <div class="clearfix visible-sm"></div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{'sitnet_exam_language' | translate}}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{$ctrl.exam.languages.join(', ')}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix visible-xs"></div>
+        <div class="clearfix visible-sm"></div>
+
+        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 mobile-pads">
+            <div class="student-message-dialog-button-save" ng-if="!$ctrl.exam.enrolled">
+                <button class="btn btn-success" ng-click="$ctrl.enrollForExam()">{{'sitnet_enroll_to_exam' | translate}}</button>
+            </div>
+            <div class="student-message-dialog-button-save" ng-if="$ctrl.exam.enrolled && !$ctrl.exam.reservationMade">
+                <button class="btn btn-success" ng-click="$ctrl.makeReservation()">{{'sitnet_student_new_reservation' | translate}}</button>
+            </div>
+            <div class="student-message-dialog-button-save" ng-if="$ctrl.exam.enrolled && $ctrl.exam.reservationMade">
+                <span class="student-exam-all-required">{{'sitnet_enrolled_to_exam' | translate}}</span>
+            </div>
+        </div>
+
+    </div>
+</div>

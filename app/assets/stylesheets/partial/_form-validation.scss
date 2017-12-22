@@ -1,7 +1,11 @@
 .ng-invalid {
-  border: 0px;
+  border: 0;
 }
 
 form .ng-invalid {
   border: 1px solid red;
+}
+
+ng-form {
+  border: 0 !important;
 }

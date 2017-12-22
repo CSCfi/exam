@@ -2,26 +2,27 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
+import io.ebean.Ebean;
 import models.Exam;
 import models.ExaminationDate;
 import org.joda.time.LocalDate;
-import org.joda.time.format.ISODateTimeFormat;
 import play.mvc.Result;
+import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.ExaminationDateSanitizer;
 
 
 public class ExaminationDateController extends BaseController {
 
+    @With(ExaminationDateSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertExaminationDate(Long eid) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("exam not found");
         }
-        JsonNode body = request().body().asJson();
-        LocalDate date = LocalDate.parse(body.get("date").asText(), ISODateTimeFormat.dateTimeParser());
+        LocalDate date = request().attrs().get(Attrs.DATE);
         ExaminationDate ed = new ExaminationDate();
         ed.setDate(date.toDate());
         ed.setExam(exam);

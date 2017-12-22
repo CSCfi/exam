@@ -3,42 +3,49 @@ package controllers;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
+import impl.EmailComposer;
+import io.ebean.Ebean;
 import models.*;
 import models.dto.ExamScore;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
 import play.data.DynamicForm;
 import play.mvc.Result;
+import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.ExamRecordSanitizer;
 import scala.concurrent.duration.Duration;
-import util.java.CsvBuilder;
-import util.java.EmailComposer;
-import util.java.ExcelBuilder;
+import util.CsvBuilder;
+import util.ExcelBuilder;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 
 public class ExamRecordController extends BaseController {
 
-    @Inject
-    protected EmailComposer emailComposer;
+    protected final EmailComposer emailComposer;
+
+    protected final ActorSystem actor;
 
     @Inject
-    protected ActorSystem actor;
+    public ExamRecordController(EmailComposer emailComposer, ActorSystem actor) {
+        this.emailComposer = emailComposer;
+        this.actor = actor;
+    }
 
     // Do not update anything else but state to GRADED_LOGGED regarding the exam
     // Instead assure that all required exam fields are set
@@ -115,13 +122,6 @@ public class ExamRecordController extends BaseController {
         return ok(content);
     }
 
-    private static List<Long> getChildIds() {
-        JsonNode node = request().body().asJson().get("params").get("childIds");
-        return StreamSupport.stream(node.spliterator(), false)
-                .map(JsonNode::asLong)
-                .collect(Collectors.toList());
-    }
-
     private Result sendFile(File file) {
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
         String content = Base64.getEncoder().encodeToString(setData(file).toByteArray());
@@ -131,9 +131,10 @@ public class ExamRecordController extends BaseController {
         return ok(content);
     }
 
+    @With(ExamRecordSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result exportSelectedExamRecordsAsCsv(Long examId) {
-        List<Long> childIds = getChildIds();
+        Collection<Long> childIds = request().attrs().get(Attrs.ID_COLLECTION);
         File file;
         try {
             file = CsvBuilder.build(examId, childIds);
@@ -143,9 +144,10 @@ public class ExamRecordController extends BaseController {
         return sendFile(file);
     }
 
+    @With(ExamRecordSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result exportSelectedExamRecordsAsExcel(Long examId) {
-        List<Long> childIds = getChildIds();
+        Collection<Long> childIds = request().attrs().get(Attrs.ID_COLLECTION);
         ByteArrayOutputStream bos;
         try {
             bos = ExcelBuilder.build(examId, childIds);
@@ -229,7 +231,7 @@ public class ExamRecordController extends BaseController {
         return code;
     }
 
-    private static ExamScore createScore(ExamRecord record, Date examDate) {
+    private static ExamScore createScore(ExamRecord record, DateTime examDate) {
         Exam exam = record.getExam();
         ExamScore score = new ExamScore();
         score.setAdditionalInfo(exam.getAdditionalInfo());
@@ -247,10 +249,10 @@ public class ExamRecordController extends BaseController {
         score.setLecturerFirstName(record.getTeacher().getFirstName());
         score.setLecturerLastName(record.getTeacher().getLastName());
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
         // Record transfer timestamp (date)
-        score.setRegistrationDate(sdf.format(new Date()));
-        score.setExamDate(sdf.format(examDate));
+        score.setRegistrationDate(dtf.print(DateTime.now()));
+        score.setExamDate(dtf.print(examDate));
 
         score.setCourseImplementation(exam.getCourse().getCourseImplementation());
         score.setCourseUnitCode(exam.getCourse().getCode());

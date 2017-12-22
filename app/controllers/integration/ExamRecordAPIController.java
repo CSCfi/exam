@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import controllers.base.BaseController;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import models.ExamRecord;
 import models.dto.ExamScore;
 import org.joda.time.DateTime;

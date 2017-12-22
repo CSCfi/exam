@@ -1,6 +1,6 @@
-(function () {
+(function () { /* TBD: refactor away */
     'use strict';
-    angular.module("exam.resources")
+    angular.module('app.exam')
         .factory("ExamRes", ['$resource', function ($resource) {
             return {
                 exams: $resource("/app/exams/:id",
@@ -91,7 +91,7 @@
                         "delete": {method: "DELETE", params: {eid: "@eid", cid: "@cid"}}
                     }),
                 reviewerExams: $resource("/app/reviewerexams"),
-                reviewerExam: $resource("/app/reviewerexams/:eid", {eid: "@eid"}),
+                reviewerExam: $resource("/app/review/:eid", {eid: "@eid"}),
                 draft: $resource("/app/exams", null, {"create": {method: "POST"}}),
                 review: $resource("/app/review/:id", {id: "@id"}, {"update": {method: "PUT"}}),
                 inspectionComment: $resource("/app/review/:id/inspection", {id: "@id"}, {"create": {method: "POST"}}),
@@ -201,7 +201,7 @@
                         code: "@code"
                     },
                     {
-                        "add": {method: "PUT"}
+                        "update": {method: "PUT"}
                     }),
                 languages: $resource("/app/exam/:eid/languages",
                     {
@@ -213,12 +213,13 @@
                 examTypes: $resource("/app/examtypes"),
                 executionTypes: $resource("/app/executiontypes"),
                 gradeScales: $resource("/app/gradescales"),
-                software: $resource("/app/exam/:eid/software",
+                software: $resource("/app/exam/:eid/software/:sid",
                     {
-                        eid: "@eid"
+                        eid: "@eid",
+                        sid: "@sid"
                     },
                     {
-                        "add": {method: "PUT"}
+                        "update": {method: "PUT"}
                     }),
                 reservation: $resource("/app/reservations/:id",
                     {

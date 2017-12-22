@@ -2,11 +2,11 @@ package controllers.integration;
 
 
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.Query;
-import com.avaje.ebean.text.PathProperties;
 import controllers.base.BaseController;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
 import models.Exam;
 import models.ExamRoom;
 import models.Reservation;

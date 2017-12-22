@@ -3,14 +3,14 @@ package controllers;
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.FetchConfig;
-import com.avaje.ebean.Query;
-import com.avaje.ebean.text.PathProperties;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
+import impl.EmailComposer;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.FetchConfig;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
 import models.*;
 import models.questions.ClozeTestAnswer;
 import models.questions.Question;
@@ -19,23 +19,30 @@ import org.joda.time.LocalDate;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
+import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.ExamUpdateSanitizer;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
-import util.java.EmailComposer;
 
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class ExamController extends BaseController {
 
-    @Inject
-    protected EmailComposer emailComposer;
+    protected final EmailComposer emailComposer;
+
+    protected final ActorSystem actor;
 
     @Inject
-    protected ActorSystem actor;
+    public ExamController(EmailComposer emailComposer, ActorSystem actor) {
+        this.emailComposer = emailComposer;
+        this.actor = actor;
+    }
 
     private static ExpressionList<Exam> createPrototypeQuery() {
         return Ebean.find(Exam.class)
@@ -264,52 +271,53 @@ public class ExamController extends BaseController {
 
     private void notifyParticipantsAboutPrivateExamPublication(Exam exam) {
         User sender = getLoggedUser();
-        Set<User> participants = exam.getExamEnrolments().stream().map(ExamEnrolment::getUser).collect(Collectors.toSet());
+        Set<User> enrolments = exam.getExamEnrolments().stream()
+                .map(ExamEnrolment::getUser)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Set<User> preEnrolments = exam.getExamEnrolments().stream()
+                .map(ExamEnrolment::getPreEnrolledUserEmail)
+                .filter(Objects::nonNull)
+                .map(email -> {
+                    User user = new User();
+                    user.setEmail(email);
+                    return user;
+                }).collect(Collectors.toSet());
+        Set<User> receivers = Stream.concat(enrolments.stream(), preEnrolments.stream()).collect(Collectors.toSet());
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            for (User u : participants) {
+            for (User u : receivers) {
                 emailComposer.composePrivateExamParticipantNotification(u, sender, exam);
                 Logger.info("Exam participation notification email sent to {}", u.getEmail());
             }
         }, actor.dispatcher());
     }
 
-    private Optional<Result> getFormValidationError(JsonNode node, boolean checkPeriod) {
-        String examName = node.has("name") ? node.get("name").asText() : null;
+    private Optional<Result> getFormValidationError(boolean checkPeriod) {
         String reason = null;
-        if (examName == null || examName.isEmpty()) {
-            reason = "sitnet_error_exam_empty_name";
-        }
-        Long start = null, end = null;
         if (checkPeriod) {
-            JsonNode startNode = node.get("examActiveStartDate");
-            JsonNode endNode = node.get("examActiveEndDate");
-            if (startNode != null && startNode.isLong()) {
-                start = startNode.asLong();
-            } else {
+            Optional<DateTime> start = request().attrs().getOptional(Attrs.START_DATE);
+            Optional<DateTime> end = request().attrs().getOptional(Attrs.END_DATE);
+            if (!start.isPresent()) {
                 reason = "sitnet_error_start_date";
             }
-            if (endNode != null && endNode.isLong()) {
-                end = endNode.asLong();
-            } else {
+            else if (!end.isPresent()) {
                 reason = "sitnet_error_end_date";
             }
-            if (start != null && end != null) {
-                if (start >= end) {
+            else if (start.get().isAfter(end.get())) {
                     reason = "sitnet_error_end_sooner_than_start";
-                } else if (end <= DateTime.now().getMillis()) {
-                    reason = "sitnet_error_end_sooner_than_now";
-                }
+            } else if (end.get().isBeforeNow()) {
+                reason = "sitnet_error_end_sooner_than_now";
             }
         }
         return reason == null ? Optional.empty() : Optional.of(badRequest(reason));
     }
 
-    private Optional<Result> updateStateAndValidate(Exam exam, JsonNode node) {
-        Exam.State state = node.has("state") ? Exam.State.valueOf(node.get("state").asText()) : null;
-        if (state != null) {
-            if (state == Exam.State.PUBLISHED) {
+    private Optional<Result> updateStateAndValidate(Exam exam) {
+        Optional<Exam.State> state = request().attrs().getOptional(Attrs.EXAM_STATE);
+        if (state.isPresent()) {
+            if (state.get() == Exam.State.PUBLISHED) {
                 // Exam is published or about to be published
-                Optional<Result> err = getFormValidationError(node, !exam.isPrintout());
+                Optional<Result> err = getFormValidationError(!exam.isPrintout());
                 // invalid data
                 if (err.isPresent()) {
                     return err;
@@ -322,7 +330,7 @@ public class ExamController extends BaseController {
                     return Optional.of(badRequest("no exam languages specified"));
                 }
                 if (exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString())) {
-                    if (parse("subjectToLanguageInspection", node, Boolean.class) == null) {
+                    if (!request().attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).isPresent()) {
                         return Optional.of(badRequest("language inspection requirement not configured"));
                     }
                 }
@@ -337,46 +345,45 @@ public class ExamController extends BaseController {
                     return Optional.of(badRequest("no examination dates specified"));
                 }
             }
-            exam.setState(state);
+            exam.setState(state.get());
         }
         return Optional.empty();
     }
 
-    private boolean isRestrictingValidityChange(Date newDate, Exam exam, boolean isStartDate) {
-        Date oldDate = isStartDate ? exam.getExamActiveStartDate() : exam.getExamActiveEndDate();
-        return isStartDate ? oldDate.before(newDate) : newDate.before(oldDate);
+    private boolean isRestrictingValidityChange(DateTime newDate, Exam exam, boolean isStartDate) {
+        DateTime oldDate = isStartDate ? exam.getExamActiveStartDate() : exam.getExamActiveEndDate();
+        return isStartDate ? oldDate.isBefore(newDate) : newDate.isBefore(oldDate);
     }
 
-    private Optional<Result> updateTemporalFieldsAndValidate(Exam exam, JsonNode node, User user) {
-        Integer newDuration = node.get("duration").asInt();
+    private Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user) {
+        Optional<Integer> newDuration = request().attrs().getOptional(Attrs.DURATION);
+        Optional<DateTime> newStart = request().attrs().getOptional(Attrs.START_DATE);
+        Optional<DateTime> newEnd = request().attrs().getOptional(Attrs.END_DATE);
+
         // For printout exams everything is allowed
         if (exam.isPrintout()) {
-            exam.setDuration(newDuration);
+            exam.setDuration(newDuration.orElse(null));
             return Optional.empty();
         }
         boolean hasFutureReservations = hasFutureReservations(exam);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
-        Long start = parse("examActiveStartDate", node, Long.class);
-        Long end = parse("examActiveEndDate", node, Long.class);
-        if (start != null && start != 0) {
-            Date newStart = new Date(start);
-            if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newStart, exam, true)) {
-                exam.setExamActiveStartDate(new Date(start));
+        if (newStart.isPresent()) {
+            if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newStart.get(), exam, true)) {
+                exam.setExamActiveStartDate(newStart.get());
             } else {
                 return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
             }
         }
-        if (end != null && end != 0) {
-            Date newEnd = new Date(end);
-            if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newEnd, exam, false)) {
-                exam.setExamActiveEndDate(new Date(end));
+        if (newEnd.isPresent()) {
+            if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newEnd.get(), exam, false)) {
+                exam.setExamActiveEndDate(newEnd.get());
             } else {
                 return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
             }
         }
-        if (newDuration != 0) {
-            if (Objects.equals(newDuration, exam.getDuration()) || !hasFutureReservations || isAdmin) {
-                exam.setDuration(newDuration);
+        if (newDuration.isPresent()) {
+            if (Objects.equals(newDuration.get(), exam.getDuration()) || !hasFutureReservations || isAdmin) {
+                exam.setDuration(newDuration.get());
             } else {
                 return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
             }
@@ -384,27 +391,25 @@ public class ExamController extends BaseController {
         return Optional.empty();
     }
 
-    private Result handleExamUpdate(Exam exam, JsonNode node) {
-        String examName = parse("name", node, String.class);
-        Boolean shared = parse("shared", node, Boolean.class);
-        Integer grading = parse("grading", node, Integer.class);
-        String answerLanguage = parse("answerLanguage", node, String.class);
-        String instruction = parse("instruction", node, String.class);
-        String enrollInstruction = parse("enrollInstruction", node, String.class);
-        Integer trialCount = parse("trialCount", node, Integer.class);
-        Boolean expanded = parse("expanded", node, Boolean.class, false);
-        Boolean requiresLanguageInspection = parse("subjectToLanguageInspection",
-                node, Boolean.class);
-        String internalRef = parse("internalRef", node, String.class);
-        if (examName != null) {
-            exam.setName(examName);
-        }
+    private Result handleExamUpdate(Exam exam) {
+        Optional<String> examName = request().attrs().getOptional(Attrs.NAME);
+        Boolean shared = request().attrs().getOptional(Attrs.SHARED).orElse(false);
+        Optional<Integer> grading = request().attrs().getOptional(Attrs.GRADE_ID);
+        Optional<String> answerLanguage = request().attrs().getOptional(Attrs.LANG);
+        Optional<String> instruction = request().attrs().getOptional(Attrs.INSTRUCTION);
+        Optional<String> enrollInstruction = request().attrs().getOptional(Attrs.ENROLMENT_INFORMATION);
+        Optional<String> examType = request().attrs().getOptional(Attrs.TYPE);
+        Integer trialCount = request().attrs().getOptional(Attrs.TRIAL_COUNT).orElse(null);
+        Boolean expanded = request().attrs().getOptional(Attrs.EXPANDED).orElse(false);
+        Boolean requiresLanguageInspection = request().attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).orElse(null);
+        String internalRef = request().attrs().getOptional(Attrs.REFERENCE).orElse(null);
+        examName.ifPresent(exam::setName);
         exam.setShared(shared);
 
         // Scale and auto evaluation are intermingled, if scale changed then the auto evaluation needs be reset
         boolean gradeScaleChanged = false;
-        if (grading != null) {
-            gradeScaleChanged = updateGrading(exam, grading);
+        if (grading.isPresent()) {
+            gradeScaleChanged = updateGrading(exam, grading.get());
         }
         if (gradeScaleChanged) {
             if (exam.getAutoEvaluationConfig() != null) {
@@ -412,29 +417,22 @@ public class ExamController extends BaseController {
                 exam.setAutoEvaluationConfig(null);
             }
         } else {
-            updateAutoEvaluationConfig(exam, node);
+            request().attrs().getOptional(Attrs.AUTO_EVALUATION_CONFIG)
+                    .ifPresent(nc -> updateAutoEvaluationConfig(exam, nc));
         }
-        if (answerLanguage != null) {
-            exam.setAnswerLanguage(answerLanguage);
-        }
-        if (instruction != null) {
-            exam.setInstruction(instruction);
-        }
-        if (enrollInstruction != null) {
-            exam.setEnrollInstruction(enrollInstruction);
-        }
-        if (node.has("examType")) {
-            String examType = parse("type", node.get("examType"), String.class);
+        answerLanguage.ifPresent(exam::setAnswerLanguage);
+        instruction.ifPresent(exam::setInstruction);
+        enrollInstruction.ifPresent(exam::setEnrollInstruction);
+        examType.ifPresent(type -> {
             ExamType eType = Ebean.find(ExamType.class)
                     .where()
-                    .eq("type", examType)
+                    .eq("type", type)
                     .findUnique();
 
             if (eType != null) {
                 exam.setExamType(eType);
             }
-        }
-
+        });
         exam.setTrialCount(trialCount);
         exam.generateHash();
         exam.setExpanded(expanded);
@@ -444,6 +442,7 @@ public class ExamController extends BaseController {
         return ok(exam);
     }
 
+    @With(ExamUpdateSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateExam(Long id) {
         Exam exam = prototypeQuery().where().idEq(id).findUnique();
@@ -452,24 +451,23 @@ public class ExamController extends BaseController {
         }
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || getLoggedUser().hasRole("ADMIN", getSession())) {
-            JsonNode node = request().body().asJson();
-            return updateTemporalFieldsAndValidate(exam, node, user)
-                    .orElseGet(() -> updateStateAndValidate(exam, node)
-                            .orElseGet(() -> handleExamUpdate(exam, node)));
+            return updateTemporalFieldsAndValidate(exam, user)
+                    .orElseGet(() -> updateStateAndValidate(exam)
+                            .orElseGet(() -> handleExamUpdate(exam)));
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }
     }
 
-    private static void updateGradeEvaluations(Exam exam, JsonNode node) {
+    private static void updateGradeEvaluations(Exam exam, AutoEvaluationConfig newConfig) {
         AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
 
         Map<Integer, GradeEvaluation> gradeMap = config.asGradeMap();
         List<Integer> handledEvaluations = new ArrayList<>();
         GradeScale gs = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
         // Handle proposed entries, persist new ones where necessary
-        for (JsonNode evaluation : node.get("gradeEvaluations")) {
-            Grade grade = Ebean.find(Grade.class, evaluation.get("grade").get("id").asInt());
+        for (GradeEvaluation src : newConfig.getGradeEvaluations()) {
+            Grade grade = Ebean.find(Grade.class, src.getGrade().getId());
             if (grade != null && gs.getGrades().contains(grade)) {
                 GradeEvaluation ge = gradeMap.get(grade.getId());
                 if (ge == null) {
@@ -478,7 +476,7 @@ public class ExamController extends BaseController {
                     ge.setAutoEvaluationConfig(config);
                     config.getGradeEvaluations().add(ge);
                 }
-                ge.setPercentage(evaluation.get("percentage").asInt());
+                ge.setPercentage(src.getPercentage());
                 ge.save();
                 handledEvaluations.add(grade.getId());
             } else {
@@ -494,11 +492,9 @@ public class ExamController extends BaseController {
                 });
     }
 
-    private static void updateAutoEvaluationConfig(Exam exam, JsonNode node) {
-        if (node.has("evaluationConfig")) {
-            JsonNode jsonConfig = node.get("evaluationConfig");
+    private static void updateAutoEvaluationConfig(Exam exam, AutoEvaluationConfig newConfig) {
             AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
-            if (jsonConfig.isNull()) {
+            if (newConfig == null) {
                 // User wishes to disable the config
                 if (config != null) {
                     config.delete();
@@ -515,17 +511,14 @@ public class ExamController extends BaseController {
                     config.setExam(exam);
                     exam.setAutoEvaluationConfig(config);
                 }
-                AutoEvaluationConfig.ReleaseType releaseType =
-                        AutoEvaluationConfig.ReleaseType.valueOf(jsonConfig.get("releaseType").asText());
-                config.setReleaseType(releaseType);
-                switch (releaseType) {
+                config.setReleaseType(newConfig.getReleaseType());
+                switch (config.getReleaseType()) {
                     case GIVEN_AMOUNT_DAYS:
-                        config.setAmountDays(jsonConfig.get("amountDays").asInt());
+                        config.setAmountDays(newConfig.getAmountDays());
                         config.setReleaseDate(null);
                         break;
                     case GIVEN_DATE:
-                        Long releaseDateMs = jsonConfig.get("releaseDate").asLong();
-                        config.setReleaseDate(new Date(releaseDateMs));
+                        config.setReleaseDate(newConfig.getReleaseDate());
                         config.setAmountDays(null);
                         break;
                     default:
@@ -534,10 +527,10 @@ public class ExamController extends BaseController {
                         break;
                 }
                 config.save();
-                updateGradeEvaluations(exam, jsonConfig);
+                updateGradeEvaluations(exam, newConfig);
                 exam.setAutoEvaluationConfig(config);
             }
-        }
+
     }
 
     private static boolean updateGrading(Exam exam, int grading) {
@@ -557,7 +550,7 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result resetExamLanguages(Long eid) {
+    public Result updateExamSoftware(Long eid, Long sid) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
@@ -566,30 +559,11 @@ public class ExamController extends BaseController {
         if (!isPermittedToUpdate(exam, user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
-
-        exam.getExamLanguages().clear();
-        exam.update();
-
-        return ok();
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateExamSoftwareInfo(Long eid) {
-        List<String> softwareIds = parseArrayFieldFromBody("softwareIds");
-        Exam exam = Ebean.find(Exam.class, eid);
-        if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
-        }
-        User user = getLoggedUser();
-        if (!isPermittedToUpdate(exam, user)) {
-            return forbidden("sitnet_error_access_forbidden");
-        }
-
-        exam.getSoftwareInfo().clear();
-        List<Software> software;
-        if (!softwareIds.isEmpty()) {
-            software = Ebean.find(Software.class).where().idIn(softwareIds).findList();
-            exam.getSoftwareInfo().addAll(software);
+        Software software = Ebean.find(Software.class, sid);
+        if (exam.getSoftwareInfo().contains(software)) {
+            exam.getSoftwareInfo().remove(software);
+        } else {
+            exam.getSoftwareInfo().add(software);
             if (!softwareRequirementDoable(exam)) {
                 return badRequest("sitnet_no_required_softwares");
             }
@@ -608,7 +582,7 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addExamLanguage(Long eid, String code) {
+    public Result updateExamLanguage(Long eid, String code) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
@@ -619,9 +593,12 @@ public class ExamController extends BaseController {
         }
 
         Language language = Ebean.find(Language.class, code);
-        exam.getExamLanguages().add(language);
+        if (exam.getExamLanguages().contains(language)) {
+            exam.getExamLanguages().remove(language);
+        } else {
+            exam.getExamLanguages().add(language);
+        }
         exam.update();
-
         return ok();
     }
 
@@ -660,8 +637,8 @@ public class ExamController extends BaseController {
         copy.setParent(null);
         copy.setCourse(null);
         DateTime now = DateTime.now().withTimeAtStartOfDay();
-        copy.setExamActiveStartDate(now.toDate());
-        copy.setExamActiveEndDate(now.plusDays(1).toDate());
+        copy.setExamActiveStartDate(now);
+        copy.setExamActiveEndDate(now.plusDays(1));
         copy.save();
         return ok(copy);
     }
@@ -697,8 +674,8 @@ public class ExamController extends BaseController {
 
         DateTime start = DateTime.now().withTimeAtStartOfDay();
         if (!exam.isPrintout()) {
-            exam.setExamActiveStartDate(start.toDate());
-            exam.setExamActiveEndDate(start.plusDays(1).toDate());
+            exam.setExamActiveStartDate(start);
+            exam.setExamActiveEndDate(start.plusDays(1));
         }
         exam.setDuration(AppUtil.getExamDurations().get(0));
         if (AppUtil.isCourseGradeScaleOverridable()) {
@@ -723,10 +700,10 @@ public class ExamController extends BaseController {
     }
 
     private boolean hasFutureReservations(Exam exam) {
-        Date now = new Date();
+        DateTime now = DateTime.now();
         return exam.getExamEnrolments().stream()
                 .map(ExamEnrolment::getReservation)
-                .anyMatch(r -> r != null && r.getEndAt().after(now));
+                .anyMatch(r -> r != null && r.getEndAt().isAfter(now));
     }
 
     private boolean isPermittedToUpdate(Exam exam, User user) {
@@ -806,6 +783,7 @@ public class ExamController extends BaseController {
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")
+                .fetch("examEnrolments", "preEnrolledUserEmail")
                 .fetch("examEnrolments.user")
                 .fetch("examEnrolments.reservation", "endAt")
                 .fetch("children", "id")

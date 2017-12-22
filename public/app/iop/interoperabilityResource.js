@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.resources")
+    angular.module('app.iop')
         .factory("InteroperabilityResource", ['$resource', function ($resource) {
             return {
                 facility: $resource("/integration/iop/facilities/:id",

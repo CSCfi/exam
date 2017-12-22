@@ -1,16 +1,21 @@
 package system;
 
 
-import com.avaje.ebean.Ebean;
 import com.google.inject.Inject;
 import controllers.base.BaseController;
-import models.*;
+import io.ebean.Ebean;
+import models.Exam;
+import models.ExamEnrolment;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.Session;
+import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Environment;
 import play.Logger;
-import play.cache.CacheApi;
+import play.cache.SyncCacheApi;
 import play.http.ActionCreator;
 import play.mvc.Action;
 import play.mvc.Http;
@@ -19,7 +24,11 @@ import util.AppUtil;
 
 import javax.xml.bind.DatatypeConverter;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -27,19 +36,20 @@ public class SystemRequestHandler implements ActionCreator {
 
     private static final String SITNET_FAILURE_HEADER_KEY = "x-exam-token-failure";
 
-    protected CacheApi cache;
+    protected SyncCacheApi cache;
     protected Environment environment;
 
     @Inject
-    public SystemRequestHandler(CacheApi cache, Environment environment) {
+    public SystemRequestHandler(SyncCacheApi cache, Environment environment) {
         this.cache = cache;
         this.environment = environment;
     }
 
     @Override
     public Action createAction(Http.Request request, Method actionMethod) {
-        String token = BaseController.getToken(request);
+        String token = BaseController.getToken(request).orElse("");
         Session session = cache.get(BaseController.SITNET_CACHE_KEY + token);
+        boolean temporalStudent = session != null && session.isTemporalStudent();
         User user = session == null ? null : Ebean.find(User.class, session.getUserId());
         AuditLogger.log(request, user);
 
@@ -50,7 +60,7 @@ public class SystemRequestHandler implements ActionCreator {
 
         return validateSession(session, token).orElseGet(() -> {
             updateSession(request, session, token);
-            if (user == null || !user.hasRole("STUDENT", session)) {
+            if ((user == null || !user.hasRole("STUDENT", session)) && !temporalStudent) {
                 // propagate further right away
                 return propagateAction();
             } else {
@@ -132,7 +142,10 @@ public class SystemRequestHandler implements ActionCreator {
     }
 
     private boolean isOnExamMachine(Http.RequestHeader request) {
-        return Ebean.find(ExamMachine.class).where().eq("ipAddress", request.remoteAddress()).findUnique() != null;
+        return Ebean.find(ExamMachine.class).where()
+                .eq("ipAddress", request.remoteAddress())
+                .findOneOrEmpty()
+                .isPresent();
     }
 
     private boolean isMachineOk(ExamEnrolment enrolment, Http.RequestHeader request, Map<String,
@@ -166,12 +179,11 @@ public class SystemRequestHandler implements ActionCreator {
             } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                 // Right room, wrong machine
                 header = "x-exam-wrong-machine";
-                message = enrolment.getId() + ":::" + lookedUp.getName();
+                message = enrolment.getId() + ":::" + lookedUp.getId();
             } else {
                 // Wrong room
                 header = "x-exam-wrong-room";
-                message = enrolment.getId() + ":::" + lookedUp.getRoom() + ":::" +
-                        lookedUp.getRoom().getRoomCode() + ":::" + lookedUp.getName();
+                message = enrolment.getId() + ":::" + lookedUp.getId();
             }
             headers.put(header, DatatypeConverter.printBase64Binary(message.getBytes()));
             Logger.debug("room and machine not ok. " + message);
@@ -181,16 +193,20 @@ public class SystemRequestHandler implements ActionCreator {
         return true;
     }
 
+    private String getExamHash(ExamEnrolment enrolment) {
+        return enrolment.getExternalExam() != null ? enrolment.getExternalExam().getHash() : enrolment.getExam().getHash();
+    }
+
     private void handleOngoingEnrolment(ExamEnrolment enrolment, Http.RequestHeader request, Map<String, String> headers) {
         if (isMachineOk(enrolment, request, headers)) {
-            String hash = enrolment.getExam().getHash();
+            String hash = getExamHash(enrolment);
             headers.put("x-exam-start-exam", hash);
         }
     }
 
     private void handleUpcomingEnrolment(ExamEnrolment enrolment, Http.RequestHeader request, Map<String, String> headers) {
         if (isMachineOk(enrolment, request, headers)) {
-            String hash = enrolment.getExam().getHash();
+            String hash = getExamHash(enrolment);
             headers.put("x-exam-start-exam", hash);
             headers.put("x-exam-upcoming-exam", enrolment.getId().toString());
         }
@@ -204,11 +220,14 @@ public class SystemRequestHandler implements ActionCreator {
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
                 .fetch("exam")
+                .fetch("externalExam")
                 .where()
                 .eq("user.id", userId)
                 .disjunction()
                 .eq("exam.state", Exam.State.PUBLISHED)
                 .eq("exam.state", Exam.State.STUDENT_STARTED)
+                .jsonEqualTo("externalExam.content", "state", Exam.State.PUBLISHED.toString())
+                .jsonEqualTo("externalExam.content", "state", Exam.State.STUDENT_STARTED.toString())
                 .endJunction()
                 .le("reservation.startAt", future)
                 .gt("reservation.endAt", now)

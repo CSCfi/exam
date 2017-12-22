@@ -3,32 +3,35 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.FetchConfig;
-import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
+import impl.ExternalCourseHandler;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.FetchConfig;
+import io.ebean.text.PathProperties;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamExecutionType;
 import models.ExamInspection;
 import models.ExamParticipation;
 import models.User;
+import models.api.CountsAsTrial;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.mvc.Result;
-import security.interceptors.SensitiveDataPolicy;
+import system.interceptors.SensitiveDataPolicy;
 import util.AppUtil;
-import util.java.ExternalCourseHandler;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
@@ -47,6 +50,7 @@ public class StudentActionsController extends BaseController {
                 .fetch("creator", "firstName, lastName, email")
                 .fetch("course", "code, name, credits")
                 .fetch("grade")
+                .fetch("creditType", "id, type, deprecated")
                 .fetch("gradeScale")
                 .fetch("executionType")
                 .fetch("examFeedback")
@@ -101,8 +105,33 @@ public class StudentActionsController extends BaseController {
         exam.setApprovedAnswerCount();
         exam.setRejectedAnswerCount();
         exam.setTotalScore();
-        PathProperties pp  = PathProperties.parse("(*)");
+        PathProperties pp = PathProperties.parse("(*)");
         return ok(exam, pp);
+    }
+
+    private Set<ExamEnrolment> getNoShows(User user, String filter) {
+        ExpressionList<ExamEnrolment> noShows = Ebean.find(ExamEnrolment.class)
+                .fetch("exam", "id, state, name")
+                .fetch("exam.course", "code, name")
+                .fetch("exam.examOwners", "firstName, lastName, id")
+                .fetch("exam.examInspections.user", "firstName, lastName, id")
+                .fetch("reservation")
+                .where()
+                .eq("user", user)
+                .isNull("exam.parent")
+                .eq("reservation.noShow", true);
+        if (filter != null) {
+            String condition = String.format("%%%s%%", filter);
+            noShows = noShows.disjunction()
+                    .ilike("exam.name", condition)
+                    .ilike("exam.course.code", condition)
+                    .ilike("exam.examOwners.firstName", condition)
+                    .ilike("exam.examOwners.lastName", condition)
+                    .ilike("exam.examInspections.user.firstName", condition)
+                    .ilike("exam.examInspections.user.lastName", condition)
+                    .endJunction();
+        }
+        return noShows.findSet();
     }
 
     @ActionMethod
@@ -132,29 +161,49 @@ public class StudentActionsController extends BaseController {
                     .ilike("exam.examInspections.user.lastName", condition)
                     .endJunction();
         }
-        return ok(query.findSet());
+        Set<ExamParticipation> participations = query.findSet();
+        Set<ExamEnrolment> noShows = getNoShows(user, filter.orElse(null));
+        Set<CountsAsTrial> trials = new HashSet<>();
+        trials.addAll(participations);
+        trials.addAll(noShows);
+        return ok(trials);
     }
 
     @ActionMethod
-    public Result getEnrolment(Long eid) {
+    public Result getEnrolment(Long eid) throws IOException {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
+                .fetch("externalExam")
                 .fetch("exam.course", "name, code")
-                .fetch("exam.examOwners", "firstName, lastName")
+                .fetch("exam.examOwners", "firstName, lastName", new FetchConfig().query())
+                .fetch("exam.examInspections", new FetchConfig().query())
                 .fetch("exam.examInspections.user", "firstName, lastName")
                 .fetch("user", "id")
                 .fetch("reservation", "startAt, endAt")
                 .fetch("reservation.machine", "name")
-                .fetch("reservation.machine.room", "name, roomCode, localTimezone")
+                .fetch("reservation.machine.room", "name, roomCode, localTimezone, roomInstruction, roomInstructionEN, roomInstructionSV")
                 .where()
                 .idEq(eid)
                 .eq("user", getLoggedUser())
                 .findUnique();
-
         if (enrolment == null) {
             return notFound();
+        }
+        PathProperties pp = PathProperties.parse(
+                "(*, exam(*, course(name, code), examOwners(firstName, lastName), examInspections(user(firstName, lastName))), " +
+                        "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone, " +
+                        "roomInstruction, roomInstructionEN, roomInstructionSV))))"
+        );
+
+        if (enrolment.getExternalExam() == null) {
+            return ok(enrolment, pp);
         } else {
-            return ok(enrolment);
+            // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+            // Works in this particular use case
+            Exam exam = enrolment.getExternalExam().deserialize();
+            enrolment.setExternalExam(null);
+            enrolment.setExam(exam);
+            return ok(enrolment, pp);
         }
     }
 
@@ -172,7 +221,8 @@ public class StudentActionsController extends BaseController {
                 .fetch("reservation", "startAt, endAt, externalRef")
                 .fetch("reservation.externalReservation")
                 .fetch("reservation.machine", "name")
-                .fetch("reservation.machine.room", "name, roomCode, localTimezone")
+                .fetch("reservation.machine.room", "name, roomCode, localTimezone, " +
+                        "roomInstruction, roomInstructionEN, roomInstructionSV")
                 .where()
                 .eq("user", user)
                 .gt("exam.examActiveEndDate", now.toDate())
@@ -273,8 +323,6 @@ public class StudentActionsController extends BaseController {
         List<Exam> exams = query.orderBy("course.code").findList();
         return ok(exams);
     }
-
-
 
 
 }

@@ -1,4 +1,3 @@
-var LoginPage = require('../pages/LoginPage');
 var StudentDashboard = require('../pages/StudentDashboard');
 var NavBar = require("../pages/NavBar");
 var Common = require('../pages/Common');

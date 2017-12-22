@@ -1,0 +1,72 @@
+<div class="pad30 marl20">
+    <div class="detail-row marb20">
+        <div class="col-md-2 general-info-title">{{'sitnet_name' | translate}}:</div>
+        <div class="col-md-4 general-info-content">{{$ctrl.student.firstName}} {{$ctrl.student.lastName}}
+            <span ng-if="$ctrl.student.userIdentifier">&nbsp;({{$ctrl.student.userIdentifier}})</span>
+        </div>
+        <div class="col-md-2 general-info-title">{{'sitnet_email' | translate}}:</div>
+        <div class="col-md-4 general-info-link">
+            <a href="mailto:{{$ctrl.student.email}}">{{$ctrl.student.email}}</a>
+        </div>
+    </div>
+    <div class="detail-row marb20">
+        <div class="col-md-2 general-info-title">{{'sitnet_exam_reservation' | translate}}:</div>
+        <div class="col-md-4 general-info-content">{{$ctrl.participation.started | adjustdst |date:'dd.MM.yyyy HH:mm'}} -
+            {{$ctrl.participation.ended | adjustdst | date:'HH:mm'}}
+        </div>
+        <div class="col-md-2 general-info-title">{{'sitnet_time_of_exam_participation' | translate}}:</div>
+        <div class="col-md-4 general-info-content">{{$ctrl.participation.duration}}</div>
+    </div>
+    <div class="detail-row marb20" ng-show="$ctrl.enrolment.information">
+        <div class="col-md-2 general-info-title">{{'sitnet_student_enrolment_info' | translate }}:</div>
+        <div class="col-md-10 general-info-content">{{$ctrl.enrolment.information}}</div>
+    </div>
+    <div class="detail-row marb20">
+        <div class="col-md-2 general-info-title">{{'sitnet_examination_location' | translate}}:</div>
+        <div class="col-md-4 general-info-content" ng-if="$ctrl.reservation.machine.room">
+            {{$ctrl.reservation.machine.room.name}} ({{$ctrl.reservation.machine.room.roomCode}})
+        </div>
+        <div class="col-md-4 general-info-content" ng-if="!$ctrl.reservation.machine.room">N/A</div>
+
+        <div class="col-md-2 general-info-title">{{'sitnet_exam_machine' | translate}}:</div>
+        <div class="col-md-4 general-info-content" ng-if="$ctrl.reservation.machine">{{$ctrl.reservation.machine.name}}</div>
+        <div class="col-md-4 general-info-content" ng-if="!$ctrl.reservation.machine">N/A</div>
+    </div>
+
+    <div class="detail-row marb20">
+        <div class="col-md-12 general-info-title">{{'sitnet_previous_exam_participations' | translate}}:</div>
+    </div>
+    <div class="detail-row marb20">
+        <span ng-show="$ctrl.previousParticipations.length === 0" class="padl15 sitnet-info-text-compact">
+            <img src="/assets/assets/images/icon_info.svg" alt="exam"
+                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"/>
+            <span class="padl10 notice-text">{{'sitnet_exam_no_previous_participations' | translate}}</span>
+        </span>
+        <div class="col-md-12 padl0" ng-if="$ctrl.previousParticipations.length > 0"
+             ng-repeat="participation in $ctrl.previousParticipations">
+            <r-participation participation="participation"></r-participation>
+        </div>
+    </div>
+
+    <div class="detail-row marb20" ng-show="$ctrl.exam.instruction">
+        <div class="col-md-12 general-info-title">
+            <img src="/assets/assets/images/icon_info.svg" alt="exam"
+                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"/>
+            <span class="padl10 notice-text">{{'sitnet_exam_instruction' | translate}}:</span></div>
+    </div>
+    <div class="detail-row marb20" ng-show="$ctrl.exam.instruction">
+        <div class="col-md-12 general-info-content">
+            <p mathjax ng-bind-html="$ctrl.exam.instruction"></p>
+        </div>
+    </div>
+
+    <div class="detail-row marb20" ng-show="$ctrl.exam.attachment">
+        <div class="col-md-12 general-info-title">{{'sitnet_exam_attachment' | translate}}:</div>
+    </div>
+    <div class="detail-row" ng-show="$ctrl.exam.attachment">
+        <div class="col-md-12 general-info-link">
+            <a class="pointer" ng-click="$ctrl.downloadExamAttachment()">{{$ctrl.exam.attachment.fileName}}</a>
+        </div>
+    </div>
+
+</div>

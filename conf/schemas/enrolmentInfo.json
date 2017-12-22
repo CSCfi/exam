@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "EnrolmentInfo",
+  "description": "Student provided enrolment information",
+  "type": "object",
+  "properties": {
+    "information": {
+      "description": "Information",
+      "type": ["string", "null"]
+    }
+  },
+  "required": ["information"]
+}

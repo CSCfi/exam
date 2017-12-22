@@ -4,12 +4,12 @@ import be.objectify.deadbolt.java.ConfigKeys;
 import be.objectify.deadbolt.java.DeadboltHandler;
 import be.objectify.deadbolt.java.DynamicResourceHandler;
 import be.objectify.deadbolt.java.models.Subject;
-import com.avaje.ebean.Ebean;
 import controllers.base.BaseController;
+import io.ebean.Ebean;
 import models.Role;
 import models.Session;
 import models.User;
-import play.cache.CacheApi;
+import play.cache.SyncCacheApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
 @Singleton
 class AuthorizationHandler implements DeadboltHandler {
 
-    private final CacheApi cache;
+    private final SyncCacheApi cache;
 
     @Inject
-    AuthorizationHandler(final CacheApi cacheApi) {
+    AuthorizationHandler(final SyncCacheApi cacheApi) {
         this.cache = cacheApi;
     }
 
@@ -39,7 +39,7 @@ class AuthorizationHandler implements DeadboltHandler {
 
     @Override
     public CompletionStage<Optional<? extends Subject>> getSubject(final Http.Context context) {
-        String token = BaseController.getToken(context);
+        String token = BaseController.getToken(context).orElse("");
         Session session = cache.get(BaseController.SITNET_CACHE_KEY + token);
         User user = session == null ? null : Ebean.find(User.class, session.getUserId());
         // filter out roles not found in session

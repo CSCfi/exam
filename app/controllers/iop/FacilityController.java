@@ -3,7 +3,7 @@ package controllers.iop;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.typesafe.config.ConfigFactory;
@@ -28,7 +28,7 @@ import java.util.function.Function;
 public class FacilityController extends BaseController implements ExternalFacilityAPI {
 
     @Inject
-    protected WSClient wsClient;
+    private WSClient wsClient;
 
     private static URL parseUrl(String facilityRef) throws MalformedURLException {
         StringBuilder url = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));

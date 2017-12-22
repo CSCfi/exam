@@ -2,11 +2,11 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Query;
-import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
+import io.ebean.Ebean;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
 import models.Exam;
 import models.ExamMachine;
 import models.ExamRoom;
@@ -31,12 +31,12 @@ public class ExamMachineController extends BaseController {
         return ok(Json.toJson(machines));
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result getExamMachine(Long id) {
         PathProperties pp = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))");
         Query<ExamMachine> query = Ebean.find(ExamMachine.class);
         pp.apply(query);
-        ExamMachine machine = query.where().idEq(id).findUnique();
+        ExamMachine machine = query.where().idEq(id).findOne();
         return ok(machine, pp);
     }
 
@@ -85,6 +85,7 @@ public class ExamMachineController extends BaseController {
 
         dest.update();
         PathProperties pp = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))");
+
         return ok(dest, pp);
     }
 
@@ -98,6 +99,7 @@ public class ExamMachineController extends BaseController {
         machine.getSoftwareInfo().clear();
         machine.update();
         PathProperties pp = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))");
+
         return ok(machine, pp);
     }
 

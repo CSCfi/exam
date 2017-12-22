@@ -3,7 +3,7 @@ package controllers;
 import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import models.Exam;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -26,8 +26,8 @@ public class ExamAPIControllerTest extends IntegrationTestCase {
         super.setUp();
         exams = Ebean.find(Exam.class).findList();
         exams.subList(0, 3).forEach(e -> {
-            e.setExamActiveStartDate(DateTime.now().minusDays(4).toDate());
-            e.setExamActiveEndDate(DateTime.now().plusDays(4).toDate());
+            e.setExamActiveStartDate(DateTime.now().minusDays(4));
+            e.setExamActiveEndDate(DateTime.now().plusDays(4));
             e.setState(Exam.State.PUBLISHED);
             e.update();
         });

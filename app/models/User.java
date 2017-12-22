@@ -1,6 +1,7 @@
 package models;
 
 import be.objectify.deadbolt.java.models.Subject;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.base.GeneratedIdentityModel;
@@ -55,7 +56,7 @@ public class User extends GeneratedIdentityModel implements Subject {
     private List<ExamParticipation> participations;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    @JsonManagedReference
+    @JsonBackReference
     private List<ExamInspection> inspections;
 
     public boolean isUserAgreementAccepted() {

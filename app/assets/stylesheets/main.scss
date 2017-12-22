@@ -39,7 +39,6 @@ p {
 .vmenu-on {
   width: auto;
   margin-left: 17.025em;
-  overflow-x: hidden;
 
   @media (max-width: $sitnet-mobile) {
     margin-left: 0;
@@ -48,7 +47,6 @@ p {
   @media print {
     overflow-x: visible;
   }
-
 }
 
 .vmenu-on-admin {
@@ -59,6 +57,8 @@ p {
   @media (max-width: $sitnet-mobile) {
     margin-left: 0;
   }
+
+
 }
 
 .vmenu-off {
@@ -166,7 +166,7 @@ label {
     font-family: $sitnet-family-helvetica;
     background-color: #3CA34F;
     border: 1px solid #358F45;
-    width: 150px;
+    min-width: 150px;
     padding-top: 11px;
     padding-bottom: 11px;
     margin-left: 10px;

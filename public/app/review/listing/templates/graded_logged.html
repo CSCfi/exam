@@ -1,0 +1,155 @@
+<div class="main-row">
+    <div class="col-md-12">
+        <div class="review-list-title">{{ 'sitnet_exam_graded_logged' | translate }}
+            <a ng-click="$ctrl.data.finished.toggle = !$ctrl.data.finished.toggle" class="pointer">
+                <img ng-show="!$ctrl.data.finished.toggle" src="/assets/assets/images/icon_list_show_right.svg"
+                     alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"/>
+                <img ng-show="$ctrl.data.finished.toggle" src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"/>
+            </a>
+            <sup class="padl05"><img popover-placement="right" popover-trigger="'mouseenter'"
+                                     uib-popover="{{'sitnet_graded_logged_description' | translate}}"
+                                     src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
+        </div>
+    </div>
+</div>
+
+
+<div ng-show="$ctrl.data.finished.filtered.length === 0">
+    <div class="review-no-results"><i class="fa fa-exclamation-circle padl20 grayish"></i>
+        {{ 'sitnet_exam_no_graded_logged' | translate }}
+    </div>
+</div>
+
+
+<div ng-show="$ctrl.data.finished.toggle && $ctrl.data.finished.filtered.length > 0">
+    <div class="form-group input-group search tab-search review-list-search padl0 marl30">
+        <input ng-change="$ctrl.applyFreeSearchFilter('finished')"
+               ng-model="$ctrl.data.finished.filter"
+               class="form-control search"
+               placeholder="{{'sitnet_search' | translate }}">
+        <div class="input-group-addon search">
+            <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
+        </div>
+    </div>
+
+    <table class="table table-striped exams-table">
+        <thead>
+        <tr>
+            <th class="dropdown" uib-dropdown>
+                <button class="btn btn-xs btn-default" data-toggle="dropdown" uib-dropdown-toggle>
+                    <i class="fa fa-square-o"></i>&nbsp;<i class="fa fa-angle-down"></i>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li role="presentation" ng-class="$ctrl.selections.gradedLogged.page ? 'active': ''">
+                        <a role="menuitem" class="pointer"
+                           ng-click="$ctrl.selectPage('gradedLogged', $ctrl.data.finished.filtered, 'gradedLoggedBox')">
+                            {{'sitnet_choose_visible' | translate}}
+                        </a>
+                    </li>
+                    <li role="presentation" ng-class="$ctrl.selections.gradedLogged.all ? 'active': ''">
+                        <a role="menuitem" class="pointer"
+                           ng-click="$ctrl.selectAll('gradedLogged', $ctrl.data.finished.filtered)">
+                            {{'sitnet_choose_all' | translate}}
+                        </a>
+                    </li>
+                </ul>
+            </th>
+            <th sort by="user.lastName" text="sitnet_student" predicate="$ctrl.data.finished.predicate"
+                reverse="$ctrl.data.finished.reverse"></th>
+            <th sort by="user.email" text="sitnet_email" predicate="$ctrl.data.finished.predicate"
+                reverse="$ctrl.data.finished.reverse"></th>
+            <th sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.finished.predicate"
+                reverse="$ctrl.data.finished.reverse"></th>
+            <th sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.finished.predicate"
+                reverse="$ctrl.data.finished.reverse"></th>
+            <th sort by="exam.totalScore" text="sitnet_total_score" predicate="$ctrl.data.finished.predicate"
+                reverse="$ctrl.data.finished.reverse"></th>
+            <th sort by="displayedGrade" text="sitnet_grade" predicate="$ctrl.data.finished.predicate"
+                reverse="$ctrl.data.finished.reverse"></th>
+            <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="$ctrl.data.finished.predicate"
+                reverse="$ctrl.data.finished.reverse"></th>
+            <th sort by="displayedGradingTime" text="sitnet_graded" predicate="$ctrl.data.finished.predicate"
+                reverse="$ctrl.data.finished.reverse"></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr ng-repeat="review in $ctrl.data.finished.filtered | orderBy:$ctrl.data.finished.predicate:$ctrl.data.finished.reverse
+        | offset: $ctrl.currentPageGradedLogged*$ctrl.pageSize | limitTo:$ctrl.pageSize">
+            <td class="table-column-checkbox">
+                <input type="checkbox" ng-model="review.selected" class="gradedLoggedBox" value="{{review.exam.id}}"/>
+            </td>
+            <td class="table-column-13 table-column-bold">
+                <a class="pointer" href="/assessments/{{review.exam.id}}">
+                    {{review.user.firstName}} {{review.user.lastName}}
+                    <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
+                </a>
+            </td>
+            <td class="table-column-15"><a class="pointer smaller" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+            </td>
+            <td class="table-column-10">{{review.duration + " min"}}</td>
+            <td class="table-column-10">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                {{'sitnet_clock_short' |
+                translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                {{review.ended | adjustdst | date: 'HH:mm'}}
+            </td>
+            <td class="table-column-15">{{review.exam.totalScore}} / {{review.exam.maxScore}}
+                <span ng-if="review.exam.rejectedAnswerCount > 0 || review.exam.approvedAnswerCount > 0">
+                    <br/>{{'sitnet_approved' | translate }}: {{ review.exam.approvedAnswerCount }}
+                    <br/>{{'sitnet_rejected' | translate }}: {{ review.exam.rejectedAnswerCount }}
+                </span>
+            </td>
+            <td class="table-column-15">{{review.displayedGrade}}</td>
+            <td class="table-column-10">
+                {{ review.displayedCredit }}
+            </td>
+            <td class="table-column-15">{{review.displayedGradingTime | date:'dd.MM.yyyy'}}</td>
+        </tr>
+        <!--Fill if page not full-->
+        <tr ng-if=" $ctrl.data.finished.filtered.length === 0">
+            <td colspan="8">{{'sitnet_review_no_result' | translate}}</td>
+        </tr>
+        <tr ng-repeat="r in [] | pagefill: $ctrl.data.finished.filtered.length:$ctrl.data.finished.page:$ctrl.pageSize">
+            <td class="table-column-examname">&nbsp;</td>
+            <td colspan="7"></td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+
+<div class="detail-row">
+    <div class="col-md-12" ng-show="$ctrl.data.finished.toggle && $ctrl.data.finished.filtered.length > $ctrl.pageSize">
+        <paginator items="$ctrl.data.finished.filtered" page-size="$ctrl.pageSize"
+                   current-page="$ctrl.data.finished.page"></paginator>
+    </div>
+</div>
+
+<div class="main-row" ng-show="$ctrl.data.finished.toggle && $ctrl.data.finished.filtered.length > 0">
+
+    <!-- Buttons -->
+    <div class=" padl0 padr0 marb20">
+
+        <div class="speed-review-csv">
+            <a class="pointer" ng-click="$ctrl.printSelected()">{{'sitnet_print_selected_to_file' | translate}}</a>
+        </div>
+
+        <span class="pull-right">
+            <div class="review-attachment-button make-inline mart20 marr30 marl10">
+                <a target="_self" class="pointer" ng-click="$ctrl.archiveSelected()">
+                    {{'sitnet_archive_selected' | translate}}
+                </a>
+            </div>
+        </span>
+    </div>
+    <div class="padl0">
+        <div class="speed-review-csv mart0">
+            <a class="pointer" ng-click="$ctrl.printSelected(true)">{{'sitnet_print_selected_to_excel' | translate}}</a>
+        </div>
+    </div>
+
+
+</div>
