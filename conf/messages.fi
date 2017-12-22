@@ -4,7 +4,7 @@ email.enrolment.no.reservation=HUOM! Et ole vielä varannut tenttiaikaa tenttiti
 email.enrolment.no.enrolments=Ei tenttiaikojen varauksia
 email.weekly.report.subject=Tenttijärjestelmän viikkokooste
 email.machine.reservation.subject=Tenttiajanvaraus
-email.machine.reservation.reminder.subject = Muistutus tenttiajanvarauksesta
+email.machine.reservation.reminder.subject=Muistutus tenttiajanvarauksesta
 email.review.request.subject=Sinut on lisätty arvioijaksi
 email.reservation.cancellation.subject=Perumasi tenttiajanvaraus:
 email.reservation.cancellation.subject.forced=Ajanvarauksesi tenttiin "{0}" on peruutettu
@@ -12,9 +12,9 @@ email.reservation.cancellation.info=Lisätietoja
 email.template.inspection.done={0} on arvioinut tenttiä
 email.template.inspection.comment=Viesti muille arvioijille
 email.template.link.to.review=Siirry arviointiin
-email.template.review.ready=Vastauksesi tenttiin {0} on arvioitu. Voit lukea alustavan arvioinnin ja palautteen täältä
+email.template.review.ready=Vastauksesi tenttiin {0} on arvioitu. Voit lukea arvioinnin ja palautteen täältä
 email.template.review.autoevaluated=Arvosana on laskettu automaattisesti eikä ole lopullinen. Tentaattoreilla on halutessaan vielä mahdollisuus muokata arviointia.
-email.template.main.system.info=Lopullisen arvosanan näet opintohallinnon järjestelmästä
+email.template.main.system.info=rakennus: {0}
 email.template.inspector.new={0} on merkinnyt sinut arvioijaksi seuraavalle tentille
 email.template.participation=Tentissä on {0} arvioitavaa suoritusta.
 email.template.inspector.message=Saateviesti
@@ -71,7 +71,7 @@ email.template.maturity.exam.aborted.subject=Opiskelija on keskeyttänyt kypsyys
 email.template.maturity.exam.aborted.message=Opiskelija {0} on päättänyt keskeyttää kypsyysnäytteen {1} suorittamisen eikä suoritusta tule arvioida.
 email.template.maturity.exam.returned.subject=Kypsyysnäyte on palautettu
 email.template.maturity.exam.returned.message=Opiskelija {0} on suorittanut kypsyysnäytteen {1}
-email.template.maturity.noshow.subject=Opiskelija ei saapunut kypsyysnäytetenttiin
+email.template.maturity.noshow.subject=Opiskelija ei saapunut kypsyysnäytteeseen
 email.template.noshow.student.subject=Et saapunut varaamaasi EXAM-tenttiin
 email.template.noshow.student.message=Et saapunut tenttiin {0} ({1}) tenttivarauksen aikana.
 email.template.reservation.change.subject=Tenttikone vaihdettu: "{0}"
@@ -79,8 +79,3 @@ email.template.reservation.change.message=Hei, tenttikoneesi on vaihdettu ylläp
 email.template.reservation.change.previous=Edellinen kone
 email.template.reservation.change.current=Uusi kone
 email.template.reservation.exam.info=Tentin tiedot
-
-
-
-
-
