@@ -4,6 +4,10 @@ name := "exam"
 
 version := "3.3.3"
 
+organization := "CSC"
+
+licenses += "EUPL v1.2" -> url("https://joinup.ec.europa.eu/sites/default/files/custom-page/attachment/eupl_v1.2_en.pdf")
+
 lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 scalaVersion := "2.11.8"
