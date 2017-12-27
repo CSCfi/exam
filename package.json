@@ -4,9 +4,9 @@
   "description": "EXAM – electronic exam software for higher education",
   "repository": {
     "type": "git",
-    "url": "https://source.csc.fi/scm/git/Sitnet/sitnet"
+    "url": " https://github.com/CSCfi/exam.git"
   },
-  "license": "UNLICENSED",
+  "license": "EUPL-1.1",
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-contrib-concat": "^1.0.0",

@@ -4,6 +4,8 @@ name := "exam"
 
 version := "4.0.0"
 
+licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
+
 lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 scalaVersion := "2.11.11"
