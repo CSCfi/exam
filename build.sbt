@@ -4,9 +4,7 @@ name := "exam"
 
 version := "4.0.0"
 
-organization := "CSC"
-
-licenses += "EUPL v1.2" -> url("https://joinup.ec.europa.eu/sites/default/files/custom-page/attachment/eupl_v1.2_en.pdf")
+licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
 lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
