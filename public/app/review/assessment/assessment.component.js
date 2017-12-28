@@ -78,8 +78,13 @@ angular.module('app.review')
                 // Set review status as started if not already done so
                 var startReview = function () {
                     if (vm.exam.state === 'REVIEW') {
-                        var review = Assessment.getPayload(vm.exam, 'REVIEW_STARTED');
-                        ExamRes.review.update({id: review.id}, review);
+                        var state = 'REVIEW_STARTED';
+                        var review = Assessment.getPayload(vm.exam, state);
+                        ExamRes.review.update({id: review.id}, review,
+                            function () {
+                                vm.exam.state = state;
+                            }
+                        );
                     }
                 };
 
