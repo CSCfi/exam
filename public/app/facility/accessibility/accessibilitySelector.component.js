@@ -24,8 +24,8 @@ angular.module('app.facility.accessibility')
             var vm = this;
 
             vm.$onInit = function () {
-                $http.get('/app/accessibility').success(function (data) {
-                    vm.accessibilities = data;
+                $http.get('/app/accessibility').then(function (resp) {
+                    vm.accessibilities = resp.data;
                 });
             };
 
@@ -52,7 +52,7 @@ angular.module('app.facility.accessibility')
                 }).join(", ");
 
                 $http.post('/app/room/' + vm.room.id + '/accessibility', {ids: ids})
-                    .success(function () {
+                    .then(function () {
                         toast.info($translate.instant("sitnet_room_updated"));
                     });
             };

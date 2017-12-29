@@ -64,8 +64,8 @@ angular.module('app.administrative.settings')
                 };
 
                 ctrl.showAttributes = function () {
-                    $http.get('/attributes').success(function (attributes) {
-                        ctrl.attributes = attributes;
+                    $http.get('/attributes').then(function (resp) {
+                        ctrl.attributes = resp.data;
                     });
                 };
             }

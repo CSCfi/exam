@@ -35,8 +35,8 @@ angular.module('app.enrolment')
                                 var room = vm.enrolment.reservation.machine.room;
                                 var code = $translate.use().toUpperCase();
                                 vm.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
-                                $http.get('/app/machines/' + $routeParams.mid).success(function (machine) {
-                                    vm.currentMachine = machine;
+                                $http.get('/app/machines/' + $routeParams.mid).then(function (data) {
+                                    vm.currentMachine = data.machine;
                                 });
                                 vm.printExamDuration = function () {
                                     return DateTime.printExamDuration(vm.enrolment.exam);

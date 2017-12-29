@@ -50,21 +50,21 @@ angular.module('app.utility')
 
             var download = function (url, filename, params, post) {
                 var res = post ? $http.post : $http.get;
-                res(url, {params: params}).success(function (data, status, headers) {
-                    var contentType = headers()['content-type'].split(';')[0];
-                    saveFile(data, filename, contentType);
-                }).error(function (error) {
-                    toast.error(error.data || error);
+                res(url, {params: params}).then(function (resp) {
+                    var contentType = resp.headers()['content-type'].split(';')[0];
+                    saveFile(resp.data, filename, contentType);
+                }).error(function (resp) {
+                    toast.error(resp.data || resp);
                 });
             };
 
             var downloadUrl = function (url, filename, params) {
                 var deferred = $q.defer();
-                $http.get(url, {params: params}).success(function (data, status, headers) {
-                    var contentType = headers()['content-type'].split(';')[0];
-                    return deferred.resolve({url: 'data:' + contentType + ';base64, ' + data});
-                }).error(function (error) {
-                    toast.error(error.data || error);
+                $http.get(url, {params: params}).then(function (resp) {
+                    var contentType = resp.headers()['content-type'].split(';')[0];
+                    return deferred.resolve({url: 'data:' + contentType + ';base64, ' + resp.data});
+                }).error(function (resp) {
+                    toast.error(resp.data || resp);
                     return deferred.reject();
                 });
                 return deferred.promise;
@@ -120,12 +120,12 @@ angular.module('app.utility')
                     transformRequest: angular.identity,
                     headers: {'Content-Type': undefined}
                 })
-                    .success(callback)
-                    .error(function (error) {
+                    .then(callback)
+                    .catch(function (resp) {
                         if (modal) {
                             modal.dismiss();
                         }
-                        toast.error(error);
+                        toast.error(resp.data);
                     });
             };
 
@@ -155,11 +155,9 @@ angular.module('app.utility')
 
             return {
                 download: download,
-                downloadUrl: downloadUrl,
                 upload: upload,
                 uploadAnswerAttachment: uploadAnswerAttachment,
                 getMaxFilesize: getMaxFilesize,
-                isFileTooBig: isFileTooBig,
                 open: open
             };
         }]);

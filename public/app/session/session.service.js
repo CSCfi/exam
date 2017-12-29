@@ -75,8 +75,8 @@ angular.module('app.session')
             var init = function () {
                 var deferred = $q.defer();
                 if (!_env) {
-                    http().get('/app/settings/environment').success(function (data) {
-                        _env = data;
+                    http().get('/app/settings/environment').then(function (resp) {
+                        _env = resp.data;
                         deferred.resolve();
                     });
                 } else {
@@ -124,12 +124,12 @@ angular.module('app.session')
                 if (!_user) {
                     return;
                 }
-                http().post('/app/logout').success(function (data) {
+                http().post('/app/logout').then(function (resp) {
                     delete $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY];
                     delete http().defaults.headers.common;
                     _user = undefined;
-                    onLogoutSuccess(data);
-                }).error(function (error) {
+                    onLogoutSuccess(resp.data);
+                }).catch(function (error) {
                     toast.error(error.data);
                 });
             };
@@ -226,7 +226,7 @@ angular.module('app.session')
                     toast.success($translate.instant('sitnet_welcome') + ' ' + _user.firstName + ' ' + _user.lastName);
                     $timeout(function () {
                         toast.options.positionClass = 'toast-top-right';
-                    }, 2500)
+                    }, 2500);
                 };
                 $timeout(welcome, 2000);
                 if (!_user.loginRole) {
@@ -293,15 +293,14 @@ angular.module('app.session')
                     password: password
                 };
                 var deferred = $q.defer();
-                http().post('/app/login', credentials, {ignoreAuthModule: true}).then(
-                    function (user) {
-                        processLoggedInUser(user.data);
-                        onLoginSuccess();
-                        deferred.resolve(_user);
-                    }, function (error) {
-                        onLoginFailure(error.data);
-                        deferred.reject();
-                    });
+                http().post('/app/login', credentials, {ignoreAuthModule: true}).then(function (resp) {
+                    processLoggedInUser(resp.data);
+                    onLoginSuccess();
+                    deferred.resolve(_user);
+                }).catch(function (resp) {
+                    onLoginFailure(resp.data);
+                    deferred.reject();
+                });
                 return deferred.promise;
             };
 
@@ -309,23 +308,23 @@ angular.module('app.session')
                 if (!_user) {
                     self.translate(lang);
                 } else {
-                    http().put('/app/user/lang', {lang: lang}).success(function () {
+                    http().put('/app/user/lang', {lang: lang}).then(function () {
                         _user.lang = lang;
                         self.translate(lang);
-                    }).error(function () {
+                    }).catch(function () {
                         toast.error('failed to switch language');
                     });
                 }
             };
 
             var checkSession = function () {
-                http().get('/app/checkSession').success(function (data) {
-                    if (data === 'alarm') {
+                http().get('/app/checkSession').then(function (resp) {
+                    if (resp.data === 'alarm') {
                         toast.options = {
                             timeOut: 0,
                             preventDuplicates: true,
                             onclick: function () {
-                                http().put('/app/extendSession', {}).success(function () {
+                                http().put('/app/extendSession', {}).then(function () {
                                     toast.info($translate.instant('sitnet_session_extended'));
                                     toast.options.timeout = 1000;
                                 });
@@ -333,7 +332,7 @@ angular.module('app.session')
                         };
                         toast.warning($translate.instant('sitnet_continue_session'),
                             $translate.instant('sitnet_session_will_expire_soon'));
-                    } else if (data === 'no_session') {
+                    } else if (resp.data === 'no_session') {
                         if (_scheduler) {
                             $interval.cancel(_scheduler);
                         }

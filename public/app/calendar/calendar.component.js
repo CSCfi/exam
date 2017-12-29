@@ -62,8 +62,8 @@ angular.module('app.calendar')
                                         .replace('{}', setting.value) + ' (' +
                                     vm.reservationWindowEndDate.format('DD.MM.YYYY') + ')';
                             };
-                            $http.get('/app/accessibility').success(function (data) {
-                                vm.accessibilities = data;
+                            $http.get('/app/accessibility').then(function (resp) {
+                                vm.accessibilities = resp.data;
                                 vm.selectedAccessibilities = function () {
                                     return vm.accessibilities.filter(function (a) {
                                         return a.filtered;

@@ -107,6 +107,8 @@ angular.module('app.dashboard.teacher')
                     }, function (error) {
                         return deferred.reject(error);
                     });
+                }, function () {
+                    return deferred.reject();
                 });
                 return deferred.promise;
             };

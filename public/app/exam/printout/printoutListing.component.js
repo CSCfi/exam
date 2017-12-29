@@ -59,8 +59,8 @@ angular.module('app.exam')
                 vm.$onInit = function () {
                     vm.predicate = 'examinationDatesAggregate';
                     vm.reverse = true;
-                    $http.get('/app/exam/printouts').success(function (printouts) {
-                        printouts.forEach(function (printout) {
+                    $http.get('/app/exam/printouts').then(function (resp) {
+                        resp.data.forEach(function (printout) {
                             var dates = printout.examinationDates.map(function (ed) {
                                 return ed.date;
                             });

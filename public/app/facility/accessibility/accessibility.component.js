@@ -23,26 +23,26 @@ angular.module('app.facility.accessibility')
 
             ctrl.$onInit = function () {
                 ctrl.newItem = {};
-                $http.get('/app/accessibility').success(function (data) {
-                    ctrl.accessibilities = data;
+                $http.get('/app/accessibility').then(function (resp) {
+                    ctrl.accessibilities = resp.data;
                 });
             };
 
             ctrl.add = function (item) {
-                $http.post('/app/accessibility', item).success(function (data) {
-                    ctrl.accessibilities.push(data);
+                $http.post('/app/accessibility', item).then(function (resp) {
+                    ctrl.accessibilities.push(resp.data);
                     toast.info($translate.instant("sitnet_accessibility_added"));
                 });
             };
 
             ctrl.update = function (accessibility) {
-                $http.put('/app/accessibility', accessibility).success(function () {
+                $http.put('/app/accessibility', accessibility).then(function () {
                     toast.info($translate.instant("sitnet_accessibility_updated"));
                 });
             };
 
             ctrl.remove = function (accessibility) {
-                $http.delete('/app/accessibility/' + accessibility.id).success(function () {
+                $http.delete('/app/accessibility/' + accessibility.id).then(function () {
                     ctrl.accessibilities.splice(ctrl.accessibilities.indexOf(accessibility), 1);
                     toast.info($translate.instant("sitnet_accessibility_removed"));
                 });

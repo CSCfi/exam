@@ -23,26 +23,26 @@ angular.module('app.exam')
                 var vm = this;
 
                 vm.$onInit = function () {
-                    $http.get('/app/exampreview/' + $routeParams.id).success(function (data) {
-                        data.examSections.sort(function (a, b) {
+                    $http.get('/app/exampreview/' + $routeParams.id).then(function (resp) {
+                        resp.data.examSections.sort(function (a, b) {
                             return a.sequenceNumber - b.sequenceNumber;
                         });
-                        data.examSections.forEach(function (es) {
+                        resp.data.examSections.forEach(function (es) {
                             es.sectionQuestions.filter(function (esq) {
                                 return esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer.answer;
                             }).forEach(function (esq) {
                                 esq.clozeTestAnswer.answer = JSON.parse(esq.clozeTestAnswer.answer);
                             });
                         });
-                        data.examLanguages.forEach(function (l) {
+                        resp.data.examLanguages.forEach(function (l) {
                             l.ord = ['fi', 'sv', 'en', 'de'].indexOf(l.code); // TODO: fixed languages?
                         });
                         // set sections and question numbering
-                        angular.forEach(data.examSections, function (section, index) {
+                        angular.forEach(resp.data.examSections, function (section, index) {
                             section.index = index + 1;
                         });
 
-                        vm.exam = data;
+                        vm.exam = resp.data;
 
                     });
                 };

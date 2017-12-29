@@ -212,6 +212,8 @@ angular.module('app.exam')
 
                     });
                     return deferred.resolve(types);
+                }, function () {
+                    deferred.reject();
                 });
                 return deferred.promise;
             };

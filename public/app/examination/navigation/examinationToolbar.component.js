@@ -33,10 +33,9 @@ angular.module('app.examination')
 
                 vm.$onInit = function () {
                     if (!vm.isPreview) {
-                        $http.get('/app/enroll/room/' + vm.exam.hash)
-                            .success(function (data) {
-                                vm.room = data;
-                            });
+                        $http.get('/app/enroll/room/' + vm.exam.hash).then(function (resp) {
+                            vm.room = resp.data;
+                        });
                     }
                 };
 
@@ -65,11 +64,11 @@ angular.module('app.examination')
                 vm.abortExam = function () {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
                     dialog.result.then(function () {
-                        Examination.abort(vm.exam.hash).success(function () {
+                        Examination.abort(vm.exam.hash).then(function () {
                             toast.info($translate.instant('sitnet_exam_aborted'), {timeOut: 5000});
                             window.onbeforeunload = null;
                             $location.path('/student/logout/aborted');
-                        }).error(function (err) {
+                        }).catch(function (err) {
                             toast.error(err.data);
                         });
                     });
@@ -96,8 +95,8 @@ angular.module('app.examination')
                         }).length;
                     } else if (type === 'unanswered') {
                         return section.sectionQuestions.length - section.sectionQuestions.filter(function (sq) {
-                                return Examination.isAnswered(sq);
-                            }).length;
+                            return Examination.isAnswered(sq);
+                        }).length;
                     }
                 };
 

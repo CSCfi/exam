@@ -50,10 +50,9 @@ public class SystemErrorHandler implements HttpErrorHandler {
     @Override
     public CompletionStage<Result> onServerError(Http.RequestHeader request, Throwable exception) {
         return CompletableFuture.supplyAsync(() -> {
+            Logger.error("onServerError: URL: {}", request.uri(), exception);
             Throwable cause = exception.getCause();
             String errorMessage = cause == null ? exception.getMessage() : cause.getMessage();
-            Logger.error("onServerError: URL: {}, msg: {}", request.uri(), errorMessage);
-            exception.printStackTrace();
             if (cause != null) {
                 if (cause instanceof MalformedDataException) {
                     return Results.badRequest(Json.toJson(errorMessage));

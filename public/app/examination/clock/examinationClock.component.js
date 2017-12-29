@@ -79,8 +79,8 @@ angular.module('app.examination')
 
                 var getRemainingTime = function () {
                     var req = $http.get('/app/time/' + vm.examHash);
-                    req.success(function (reply) {
-                        vm.remainingTime = parseInt(reply);
+                    req.then(function (resp) {
+                        vm.remainingTime = parseInt(resp.data);
                     });
                 };
 

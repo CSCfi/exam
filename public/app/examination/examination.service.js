@@ -28,16 +28,16 @@ angular.module('app.examination')
             self.startExam = function (hash, isPreview, id) {
                 var url = isPreview && id ? '/app/exampreview/' + id : '/app/student/exam/' + hash;
                 var deferred = $q.defer();
-                $http.get(url).success(function (data) {
-                    if (data.cloned) {
+                $http.get(url).then(function (resp) {
+                    if (resp.data.cloned) {
                         // we came here with a reference to the parent exam so do not render page just yet,
                         // reload with reference to student exam that we just created
                         $location.path('/student/exam/' + data.hash);
                     }
                     _external = data.external;
                     deferred.resolve(data);
-                }).error(function (err) {
-                    deferred.reject(err);
+                }).catch(function (resp) {
+                    deferred.reject(resp.data);
                 });
                 return deferred.promise;
             };
@@ -55,17 +55,17 @@ angular.module('app.examination')
                     answer: answerObj.answer,
                     objectVersion: answerObj.objectVersion
                 };
-                $http.post(url, msg).success(function (answer) {
+                $http.post(url, msg).then(function (resp) {
                     if (autosave) {
                         esq.autosaved = new Date();
                     } else {
                         toast.info($translate.instant('sitnet_answer_saved'));
                         self.setQuestionColors(esq);
                     }
-                    answerObj.objectVersion = answer.objectVersion;
+                    answerObj.objectVersion = resp.data.objectVersion;
                     deferred.resolve();
-                }).error(function (error) {
-                    toast.error(error.data);
+                }).catch(function (resp) {
+                    toast.error(resp.data);
                     deferred.reject();
                 });
                 return deferred.promise;
@@ -166,14 +166,14 @@ angular.module('app.examination')
                 }
                 if (!preview) {
                     var url = getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
-                    $http.post(url, {oids: ids}).success(function () {
+                    $http.post(url, {oids: ids}).then(function () {
                         toast.info($translate.instant('sitnet_answer_saved'));
                         sq.options.forEach(function (o) {
                             o.answered = ids.indexOf(o.id) > -1;
                         });
                         self.setQuestionColors(sq);
-                    }).error(function (error) {
-                        toast.error(error.data);
+                    }).catch(function (resp) {
+                        toast.error(resp.data);
                     });
                 } else {
                     self.setQuestionColors(sq);
@@ -188,12 +188,12 @@ angular.module('app.examination')
 
             self.logout = function (msg, hash) {
                 var url = getResource('/app/student/exam/' + hash);
-                $http.put(url).success(function () {
+                $http.put(url).then(function () {
                     toast.info($translate.instant(msg), {timeOut: 5000});
                     window.onbeforeunload = null;
                     $location.path('/student/logout/finished');
-                }).error(function (error) {
-                    toast.error($translate.instant(error.data));
+                }).catch(function (resp) {
+                    toast.error($translate.instant(resp.data));
                 });
             };
 

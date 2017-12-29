@@ -29,16 +29,16 @@ angular.module('app.reservation')
                     delete enrolment.reservation;
                     enrolment.reservationCanceled = true;
                 };
-                var errorFn = function (msg) {
-                    toast.error(msg);
+                var errorFn = function (resp) {
+                    toast.error(resp.data);
                 };
-                dialog.result.then(function (btn) {
+                dialog.result.then(function () {
                     if (externalRef) {
                         InteroperabilityRes.reservation.remove({ref: externalRef}, successFn, errorFn);
                     } else {
                         $http.delete('/app/calendar/reservation/' + enrolment.reservation.id)
-                            .success(successFn)
-                            .error(errorFn);
+                            .then(successFn)
+                            .catch(errorFn);
                     }
                 });
             };
