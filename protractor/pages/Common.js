@@ -52,7 +52,7 @@ var Common = function () {
                             console.log("Toaster is not present anymore.");
                             return;
                         }
-                        toast.getInnerHtml().then(function (text) {
+                        toast.getText().then(function (text) {
                             console.log("Click " + text);
                         });
                         toast.click();

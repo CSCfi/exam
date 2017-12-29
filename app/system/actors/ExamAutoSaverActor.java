@@ -1,27 +1,29 @@
 package system.actors;
 
-import akka.actor.UntypedActor;
-import com.avaje.ebean.Ebean;
+import akka.actor.AbstractActor;
 import controllers.SettingsController;
+import io.ebean.Ebean;
 import models.Exam;
+import models.ExamEnrolment;
 import models.ExamInspection;
 import models.ExamParticipation;
 import models.GeneralSettings;
 import models.Reservation;
 import models.User;
+import models.json.ExternalExam;
 import org.joda.time.DateTime;
 import play.Logger;
 import util.AppUtil;
-import util.java.EmailComposer;
+import impl.EmailComposer;
 
 import javax.inject.Inject;
-import java.util.Date;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ExamAutoSaverActor extends UntypedActor {
+public class ExamAutoSaverActor extends AbstractActor {
 
     private EmailComposer composer;
 
@@ -31,8 +33,15 @@ public class ExamAutoSaverActor extends UntypedActor {
     }
 
     @Override
-    public void onReceive(Object message) throws Exception {
-        Logger.debug("{}: Checking for ongoing exams ...", getClass().getCanonicalName());
+    public Receive createReceive() {
+        return receiveBuilder().match(String.class, s -> {
+            Logger.debug("{}: Checking for ongoing exams ...", getClass().getCanonicalName());
+            checkLocalExams();
+            checkExternalExams();
+        }).build();
+    }
+
+    private void checkLocalExams() {
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
                 .fetch("reservation")
@@ -42,7 +51,7 @@ public class ExamAutoSaverActor extends UntypedActor {
                 .isNotNull("reservation")
                 .findList();
 
-        if (participations == null || participations.isEmpty()) {
+        if (participations.isEmpty()) {
             Logger.debug("{}: ... none found.", getClass().getCanonicalName());
             return;
         }
@@ -57,13 +66,13 @@ public class ExamAutoSaverActor extends UntypedActor {
             DateTime participationTimeLimit = reservationStart.plusMinutes(exam.getDuration());
             DateTime now = AppUtil.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
             if (participationTimeLimit.isBefore(now)) {
-                participation.setEnded(now.toDate());
+                participation.setEnded(now);
                 participation.setDuration(
-                        new Date(participation.getEnded().getTime() - participation.getStarted().getTime()));
+                        new DateTime(participation.getEnded().getMillis() - participation.getStarted().getMillis()));
 
                 GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
                 int deadlineDays = Integer.parseInt(settings.getValue());
-                Date deadline = new DateTime(participation.getEnded()).plusDays(deadlineDays).toDate();
+                DateTime deadline = new DateTime(participation.getEnded()).plusDays(deadlineDays);
                 participation.setDeadline(deadline);
 
                 participation.save();
@@ -81,6 +90,43 @@ public class ExamAutoSaverActor extends UntypedActor {
             } else {
                 Logger.info("{}: ... exam {} is ongoing until {}", getClass().getCanonicalName(), exam.getId(),
                         participationTimeLimit);
+            }
+        }
+    }
+
+    private void checkExternalExams() {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("externalExam")
+                .fetch("reservation")
+                .fetch("reservation.machine.room")
+                .where()
+                .isNotNull("externalExam")
+                .isNotNull("externalExam.started")
+                .isNull("externalExam.finished")
+                .isNotNull("reservation.externalRef")
+                .findList();
+        for (ExamEnrolment enrolment : enrolments) {
+            ExternalExam exam = enrolment.getExternalExam();
+            Exam content;
+            try {
+                content = exam.deserialize();
+            } catch (IOException e) {
+                Logger.error("failed to parse content out of an external exam");
+                continue;
+            }
+            Reservation reservation = enrolment.getReservation();
+            DateTime reservationStart = new DateTime(reservation.getStartAt());
+            DateTime participationTimeLimit = reservationStart.plusMinutes(content.getDuration());
+            DateTime now = AppUtil.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
+            if (participationTimeLimit.isBefore(now)) {
+                exam.setFinished(now);
+                content.setState(Exam.State.REVIEW);
+                try {
+                    exam.serialize(content);
+                    Logger.info("{}: ... setting external exam {} state to REVIEW", getClass().getCanonicalName(), exam.getHash());
+                } catch (IOException e) {
+                    Logger.error("failed to parse content out of an external exam");
+                }
             }
         }
     }

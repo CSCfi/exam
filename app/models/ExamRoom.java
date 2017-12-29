@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import io.ebean.Finder;
 import models.base.GeneratedIdentityModel;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
@@ -10,7 +11,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
-import util.java.DateTimeUtils;
+import util.DateTimeUtils;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -319,9 +320,9 @@ public class ExamRoom extends GeneratedIdentityModel {
         defaultWorkingHours.stream().filter(dwh -> dwh.getWeekday().equalsIgnoreCase(day)).collect(Collectors.toList()).forEach(dwh -> {
             DateTime midnight = date.toDateTimeAtStartOfDay();
             DateTime start = midnight.withMillisOfDay(DateTimeUtils
-                    .resolveStartWorkingHourMillis(dwh.getStartTime(), dwh.getTimezoneOffset()));
+                    .resolveStartWorkingHourMillis(new DateTime(dwh.getStartTime()), dwh.getTimezoneOffset()));
             DateTime end = midnight.withMillisOfDay(DateTimeUtils
-                    .resolveEndWorkingHourMillis(dwh.getEndTime(), dwh.getTimezoneOffset()));
+                    .resolveEndWorkingHourMillis(new DateTime(dwh.getEndTime()), dwh.getTimezoneOffset()));
             Interval interval = new Interval(start, end);
             hours.add(new OpeningHours(interval, dwh.getTimezoneOffset()));
         });
@@ -384,7 +385,6 @@ public class ExamRoom extends GeneratedIdentityModel {
         }
     }
 
-    public static final Find<Long, ExamRoom> find = new Find<Long, ExamRoom>() {
-    };
+    public static final Finder<Long, ExamRoom> find = new Finder<>(ExamRoom.class);
 
 }

@@ -2,11 +2,11 @@ package controllers;
 
 import base.IntegrationTestCase;
 import base.RunAsStudent;
-import com.avaje.ebean.Ebean;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamExecutionType;
@@ -24,7 +24,6 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 import javax.mail.internet.MimeMessage;
-import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -71,15 +70,15 @@ public class CalendarControllerTest extends IntegrationTestCase {
         // Add Arvo teacher to owner
         exam.getExamOwners().add(Ebean.find(User.class, 4));
         exam.save();
-        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
-        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
 
         // Execute
         Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
-                        .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
-                        .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
+                        .put("start", ISODateTimeFormat.dateTime().print(start))
+                        .put("end", ISODateTimeFormat.dateTime().print(end)));
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -89,6 +88,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(ee.getReservation().getEndAt()).isEqualTo(end);
         assertThat(ee.getExam().getId()).isEqualTo(exam.getId());
         assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
+        greenMail.purgeEmailFromAllMailboxes();
 
         // Check that correct mail was sent
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
@@ -106,11 +106,11 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservationPreviousInFuture() throws Exception {
         // Setup
-        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
-        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
 
-        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
         enrolment.setReservation(reservation);
@@ -120,8 +120,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
-                        .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
-                        .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
+                        .put("start", ISODateTimeFormat.dateTime().print(start))
+                        .put("end", ISODateTimeFormat.dateTime().print(end)));
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -148,18 +148,19 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservationPreviousInPast() throws Exception {
         // Setup
-        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
-        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
 
-        reservation.setStartAt(DateTime.now().minusMinutes(30).toDate());
-        reservation.setEndAt(DateTime.now().minusMinutes(5).toDate());
+        reservation.setStartAt(DateTime.now().minusMinutes(30));
+        reservation.setEndAt(DateTime.now().minusMinutes(5));
         reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setNoShow(true);
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();
 
         ExamEnrolment newEnrolment = new ExamEnrolment();
-        Date enrolledOn = new Date();
+        DateTime enrolledOn = DateTime.now();
         newEnrolment.setEnrolledOn(enrolledOn);
         newEnrolment.setExam(exam);
         newEnrolment.setUser(user);
@@ -169,8 +170,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
-                        .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
-                        .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
+                        .put("start", ISODateTimeFormat.dateTime().print(start))
+                        .put("end", ISODateTimeFormat.dateTime().print(end)));
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -197,15 +198,15 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservationStartIsPast() throws Exception {
         // Setup
-        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusHours(1).toDate();
-        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusHours(1);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
 
         // Execute
         Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
-                        .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
-                        .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
+                        .put("start", ISODateTimeFormat.dateTime().print(start))
+                        .put("end", ISODateTimeFormat.dateTime().print(end)));
         assertThat(result.status()).isEqualTo(400);
 
         // Verify
@@ -217,15 +218,15 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservationEndsBeforeStarts() throws Exception {
         // Setup
-        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
-        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
 
         // Execute
         Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
-                        .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
-                        .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
+                        .put("start", ISODateTimeFormat.dateTime().print(start))
+                        .put("end", ISODateTimeFormat.dateTime().print(end)));
         assertThat(result.status()).isEqualTo(400);
 
         // Verify
@@ -237,11 +238,11 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservationPreviousInEffect() throws Exception {
         // Setup
-        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
-        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
 
-        reservation.setStartAt(DateTime.now().minusMinutes(10).toDate());
-        reservation.setEndAt(DateTime.now().plusMinutes(10).toDate());
+        reservation.setStartAt(DateTime.now().minusMinutes(10));
+        reservation.setEndAt(DateTime.now().plusMinutes(10));
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
         enrolment.setReservation(reservation);
@@ -251,8 +252,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/app/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
-                        .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
-                        .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
+                        .put("start", ISODateTimeFormat.dateTime().print(start))
+                        .put("end", ISODateTimeFormat.dateTime().print(end)));
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result).equals("sitnet_error_enrolment_not_found"));
 
@@ -267,8 +268,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
         // Setup
         reservation.setMachine(room.getExamMachines().get(0));
-        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
+        reservation.setStartAt(DateTime.now().plusHours(2));
+        reservation.setEndAt(DateTime.now().plusHours(3));
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();
@@ -290,8 +291,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
         // Setup
         reservation.setMachine(room.getExamMachines().get(0));
-        reservation.setStartAt(DateTime.now().minusHours(2).toDate());
-        reservation.setEndAt(DateTime.now().minusHours(1).toDate());
+        reservation.setStartAt(DateTime.now().minusHours(2));
+        reservation.setEndAt(DateTime.now().minusHours(1));
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();
@@ -311,8 +312,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
         // Setup
         reservation.setMachine(room.getExamMachines().get(0));
-        reservation.setStartAt(DateTime.now().minusHours(1).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(1).toDate());
+        reservation.setStartAt(DateTime.now().minusHours(1));
+        reservation.setEndAt(DateTime.now().plusHours(1));
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();

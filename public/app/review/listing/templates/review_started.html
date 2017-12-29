@@ -1,0 +1,114 @@
+<div class="main-row">
+    <div class="col-md-12">
+        <div class="review-list-title" >{{ 'sitnet_exam_in_review' | translate }}
+        <a ng-click="$ctrl.data.started.toggle = !$ctrl.data.started.toggle" class="pointer">
+            <img ng-show="!$ctrl.data.started.toggle" src="/assets/assets/images/icon_list_show_right.svg" alt="exam"
+                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'" />
+            <img ng-show="$ctrl.data.started.toggle" src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
+                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'" />
+        </a>
+        <sup class="padl05"><img popover-placement="right" popover-trigger="'mouseenter'"
+                                 uib-popover="{{'sitnet_review_started_description' | translate}}"
+                                 src="/assets/assets/images/icon_tooltip.svg" alt="exam"
+                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
+        </div>
+    </div>
+</div>
+
+
+<div ng-show="$ctrl.data.started.filtered.length === 0">
+    <div class="review-no-results">
+        <i class="fa fa-exclamation-circle padl20 grayish"></i>
+        {{ 'sitnet_exam_no_started' | translate }}</div>
+</div>
+
+
+<div ng-show="$ctrl.data.started.toggle && $ctrl.data.started.filtered.length > 0">
+
+    <div class="col-md-12">
+        <div class="form-group input-group search tab-search review-list-search padl0 marl10">
+            <input ng-change="$ctrl.applyFreeSearchFilter('started')"
+                   ng-model="$ctrl.data.started.filter"
+                   class="form-control search"
+                   placeholder="{{'sitnet_search' | translate }}">
+            <div class="input-group-addon search">
+                <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
+            </div>
+        </div>
+        <div ng-hide="$ctrl.exam.executionType.type==='MATURITY'" class="review-attachment-button review-list-speed-button marr20">
+            <a target="_self" class="pointer" href="/speedreview/{{$ctrl.exam.id}}">
+                {{'sitnet_speed_review' | translate}} ({{$ctrl.data.started.filtered.length}})
+            </a>
+        </div>
+
+    </div>
+
+        <table class="table table-striped exams-table">
+            <thead>
+            <tr>
+                <th class="with-top" sort by="user.lastName" text="sitnet_student" predicate="$ctrl.data.started.predicate" reverse="$ctrl.data.started.reverse"></th>
+                <th class="with-top" sort by="user.email" text="sitnet_email" predicate="$ctrl.data.started.predicate" reverse="$ctrl.data.started.reverse"></th>
+                <th class="with-top" sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.started.predicate" reverse="$ctrl.data.started.reverse"></th>
+                <th class="with-top" sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.started.predicate" reverse="$ctrl.data.started.reverse"></th>
+                <th class="with-space with-top" sort by="deadline" text="sitnet_review_deadline" predicate="$ctrl.data.started.predicate" reverse="$ctrl.data.started.reverse"></th>
+                <th class="with-space with-top">{{'sitnet_inspection_status' | translate}}</th>
+                <th class="with-space with-top">{{'sitnet_exam_state' | translate}}</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr ng-repeat="review in $ctrl.data.started.filtered | orderBy:$ctrl.data.started.predicate:$ctrl.data.started.reverse
+                | offset: $ctrl.data.started.page*$ctrl.pageSize | limitTo: $ctrl.pageSize">
+                <td class="table-column-15 table-column-bold">
+                    <a class="pointer" href="/assessments/{{review.exam.id}}">
+                        {{review.user.firstName}} {{review.user.lastName}}
+                        <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
+                    </a>
+                </td>
+                <td class="table-column-15"><a class="pointer smaller"
+                                               href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+                </td>
+                <td class="table-column-10">
+                    {{review.duration + " min"}}
+                </td>
+                <td class="table-column-10">
+                    {{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                    {{'sitnet_clock_short' | translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                    {{review.ended | adjustdst | date: 'HH:mm'}}
+                </td>
+                <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
+                        ng-bind-html="review.deadline | diffInDaysToNow"></span>)
+                </td>
+                <td class="table-column-teachers">
+                    <div ng-repeat="inspection in review.inspections">
+                        <span ng-class="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
+                            <span ng-class="$ctrl.isOwner(inspection.user, review.exam.examOwners) ? 'bold' : ''">
+                                {{inspection.user.firstName}} {{inspection.user.lastName}}
+                            </span>
+                        </span>
+                    </div>
+                </td>
+                <td class="table-column-15"
+                    ng-class="review.exam.state !== 'ABORTED' ? 'sitnet-text-ready' : 'sitnet-text-aborted'">
+                    {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
+                </td>
+            </tr>
+            <tr ng-if="$ctrl.data.started.filtered.length == 0"><td colspan="6">{{'sitnet_review_no_result' | translate}}</td></tr>
+            <!--Fill if page not full-->
+            <tr ng-repeat="r in [] | pagefill: $ctrl.data.started.filtered.length:$ctrl.data.started.page:$ctrl.pageSize">
+                <td class="table-column-bold">&nbsp;</td>
+                <td colspan="5"></td>
+            </tr>
+            </tbody>
+        </table>
+
+</div>
+
+<div class="detail-row" ng-show="$ctrl.data.started.toggle">
+    <div class="col-md-12" ng-show="$ctrl.data.started.filtered.length > $ctrl.pageSize">
+        <paginator items="$ctrl.data.started.filtered" page-size="$ctrl.pageSize"
+                   current-page="$ctrl.data.started.page">
+        </paginator>
+    </div>
+</div>
+

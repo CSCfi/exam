@@ -3,24 +3,25 @@ package controllers;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;
-import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.ebean.Ebean;
 import models.Exam;
 import models.ExamSection;
+import models.ExamType;
+import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+import static play.test.Helpers.contentAsString;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
 
 public class ExamControllerTest extends IntegrationTestCase {
 
@@ -44,8 +45,8 @@ public class ExamControllerTest extends IntegrationTestCase {
         });
         Set<Long> ids = new HashSet<>();
         for (Exam e : activeExams) {
-            e.setExamActiveStartDate(new Date());
-            e.setExamActiveEndDate(DateTime.now().plusWeeks(1).toDate());
+            e.setExamActiveStartDate(DateTime.now());
+            e.setExamActiveEndDate(DateTime.now().plusWeeks(1));
             e.update();
             ids.add(e.getId());
         }
@@ -62,8 +63,8 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertPathsExist(node, jsonPaths(expectedPaths, exams.size()));
         for (JsonNode n : exams) {
             Exam e = deserialize(Exam.class, n);
-            assertThat(e.getExamActiveEndDate().after(new Date()));
-            assertThat(e.getExamActiveStartDate().before(new Date()));
+            assertThat(e.getExamActiveEndDate().isAfterNow());
+            assertThat(e.getExamActiveStartDate().isBeforeNow());
             assertThat(ids.contains(e.getId()));
         }
     }
@@ -81,7 +82,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testCreateDraftExam() {
         // Setup
-        int originalRowCount = Ebean.find(Exam.class).findRowCount();
+        int originalRowCount = Ebean.find(Exam.class).findCount();
 
         // Execute
         Result result = request(Helpers.POST, "/app/exams", Json.newObject().put("executionType", "PUBLIC"));
@@ -104,7 +105,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(draft.getExamLanguages().get(0).getCode()).isEqualTo("fi");
         assertThat(draft.getExamType().getId()).isEqualTo(2);
         assertThat(draft.getExpanded()).isTrue();
-        int rowCount = Ebean.find(Exam.class).findRowCount();
+        int rowCount = Ebean.find(Exam.class).findCount();
         assertThat(rowCount).isEqualTo(originalRowCount + 1);
     }
 
@@ -153,6 +154,42 @@ public class ExamControllerTest extends IntegrationTestCase {
         // Execute
         Result result = get("/app/exams/" + id);
         assertThat(result.status()).isEqualTo(404);
+    }
+
+    @Test
+    @RunAsTeacher
+    public void testExamTypeUpdate() throws Exception {
+        // Setup
+        final long id = 1L;
+        Exam exam = Ebean.find(Exam.class, id);
+        ExamType examType = Ebean.find(ExamType.class, 1L);
+        exam.setExamType(examType);
+        exam.save();
+
+        // Check current state
+        final String examPath = "/app/exams/" + id;
+        Result result = get(examPath);
+        assertThat(result.status()).isEqualTo(200);
+        ObjectNode examJson = (ObjectNode) Json.parse(contentAsString(result));
+
+        assertThat(examJson.has("examType")).isTrue();
+        assertThat(examJson.get("examType").get("type").asText()).isEqualTo("PARTIAL");
+
+        // Update body
+        final ObjectNode examUpdate = JsonNodeFactory.instance.objectNode();
+        examUpdate.put("id", id);
+        ObjectNode eType = JsonNodeFactory.instance.objectNode();
+        eType.put("type", "FINAL");
+        eType.put("id", 2);
+        examUpdate.set("examType", eType);
+
+        // Send update
+        result = request("PUT", examPath, examUpdate);
+
+        assertThat(result.status()).isEqualTo(200);
+        examJson = (ObjectNode) Json.parse(contentAsString(result));
+        eType = (ObjectNode) examJson.get("examType");
+        assertThat(eType.get("type").asText()).isEqualTo("FINAL");
     }
 
     private String[] getExamFields() {

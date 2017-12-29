@@ -3,8 +3,8 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
@@ -64,7 +64,7 @@ public class ReportController extends BaseController {
                 .fetch("exam", "id, created")
                 .where()
                 .ne("exam.state", Exam.State.PUBLISHED)
-                .isNotNull("reservation")
+                .isNotNull("reservation.machine")
                 .ne("reservation.noShow", true);
         query = applyFilters(query, "exam.course", "exam.created", dept.orElse(null), start.orElse(null), end.orElse(null));
         Map<String, List<ExamEnrolment>> roomMap = new HashMap<>();
@@ -109,7 +109,7 @@ public class ReportController extends BaseController {
 
     private boolean applyExamFilter(Exam e, Optional<String> start, Optional<String> end) {
         Boolean result = e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && !e.getExamParticipations().isEmpty();
-        Long created = e.getCreated().getTime();
+        DateTime created = e.getCreated();
         if (start.isPresent()) {
             DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
             result = result && startDate.isBefore(created);

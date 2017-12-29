@@ -1,12 +1,14 @@
 package controllers;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
-import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
-import controllers.iop.api.ExternalCalendarAPI;
+import controllers.iop.api.ExternalReservationHandler;
+import impl.EmailComposer;
+import impl.ExternalCourseHandler;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamExecutionType;
@@ -14,31 +16,47 @@ import models.Reservation;
 import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
+import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
+import sanitizers.Attrs;
+import sanitizers.EnrolmentInformationSanitizer;
+import sanitizers.StudentEnrolmentSanitizer;
+import scala.concurrent.duration.Duration;
 import util.AppUtil;
-import util.java.EmailComposer;
-import util.java.ExternalCourseHandler;
+import validators.JsonValidator;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public class EnrolmentController extends BaseController {
 
     private static final boolean PERM_CHECK_ACTIVE = AppUtil.isEnrolmentPermissionCheckActive();
 
-    @Inject
-    protected EmailComposer emailComposer;
+    protected final EmailComposer emailComposer;
+
+    private final ExternalCourseHandler externalCourseHandler;
+
+    private final ExternalReservationHandler externalReservationHandler;
+
+    private final ActorSystem actor;
 
     @Inject
-    private ExternalCourseHandler externalCourseHandler;
-
-    @Inject
-    protected ExternalCalendarAPI externalCalendarAPI;
+    public EnrolmentController(EmailComposer emailComposer, ExternalCourseHandler externalCourseHandler,
+                               ExternalReservationHandler externalReservationHandler,
+                               ActorSystem actor) {
+        this.emailComposer = emailComposer;
+        this.externalCourseHandler = externalCourseHandler;
+        this.externalReservationHandler = externalReservationHandler;
+        this.actor = actor;
+    }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result enrollExamList(String code) {
@@ -103,8 +121,12 @@ public class EnrolmentController extends BaseController {
 
     private static ExamEnrolment makeEnrolment(Exam exam, User user) {
         ExamEnrolment enrolment = new ExamEnrolment();
-        enrolment.setEnrolledOn(new Date());
-        enrolment.setUser(user);
+        enrolment.setEnrolledOn(DateTime.now());
+        if (user.getId() == null) {
+            enrolment.setPreEnrolledUserEmail(user.getEmail());
+        } else {
+            enrolment.setUser(user);
+        }
         enrolment.setExam(exam);
         enrolment.save();
         return enrolment;
@@ -165,8 +187,11 @@ public class EnrolmentController extends BaseController {
         return ok();
     }
 
+    @JsonValidator(schema = "enrolmentInfo")
+    @With(EnrolmentInformationSanitizer.class)
     @Restrict({@Group("STUDENT")})
     public Result updateEnrolment(Long id) {
+        String info = request().attrs().getOptional(Attrs.ENROLMENT_INFORMATION).orElse(null);
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .idEq(id)
                 .eq("user", getLoggedUser())
@@ -174,8 +199,6 @@ public class EnrolmentController extends BaseController {
         if (enrolment == null) {
             return notFound("enrolment not found");
         }
-        JsonNode json = request().body().asJson();
-        String info = json.get("information").asText();
         enrolment.setInformation(info);
         enrolment.update();
         return ok();
@@ -200,7 +223,17 @@ public class EnrolmentController extends BaseController {
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
                 .where()
+                // Either user's id matches or email matches
+                .or()
+                .and()
+                .isNotNull("user.id")
                 .eq("user.id", user.getId())
+                .endAnd()
+                .and()
+                .isNull("user.id")
+                .eq("user.email", user.getEmail())
+                .endAnd()
+                .endOr()
                 // either exam ID matches OR (exam parent ID matches AND exam is started by student)
                 .disjunction()
                 .eq("exam.id", exam.getId())
@@ -230,7 +263,7 @@ public class EnrolmentController extends BaseController {
             } else if (reservation.toInterval().isAfterNow()) {
                 // reservation in the future, replace it
                 // pass this through externalAPI to see if there's something to remove externally also
-                return externalCalendarAPI.removeReservation(reservation).thenApplyAsync(result -> {
+                return externalReservationHandler.removeReservation(reservation, user).thenApplyAsync(result -> {
                     enrolment.delete();
                     ExamEnrolment newEnrolment = makeEnrolment(exam, user);
                     return ok(newEnrolment);
@@ -262,14 +295,64 @@ public class EnrolmentController extends BaseController {
                 .exceptionally(throwable -> internalServerError(throwable.getMessage()));
     }
 
+    @With(StudentEnrolmentSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public CompletionStage<Result> createStudentEnrolment(Long eid, Long uid) {
+    public CompletionStage<Result> createStudentEnrolment(Long eid) {
+        Optional<Long> uid = request().attrs().getOptional(Attrs.USER_ID);
+        Optional<String> email = request().attrs().getOptional(Attrs.EMAIL);
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
-        User user = Ebean.find(User.class, uid);
-        return doCreateEnrolment(eid, ExamExecutionType.Type.valueOf(exam.getExecutionType().getType()), user);
+        ExamExecutionType.Type executionType = ExamExecutionType.Type.valueOf(exam.getExecutionType().getType());
+
+        User user;
+        if (uid.isPresent()) {
+            user = Ebean.find(User.class, uid.get());
+        } else if (email.isPresent()) {
+            List<User> users = Ebean.find(User.class).where().eq("email", email.get()).findList();
+            if (users.isEmpty()) {
+                // Pre-enrolment
+                // Check that we will not create duplicate enrolments for same email address
+                ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
+                        .eq("exam.id", eid )
+                        .eq("preEnrolledUserEmail", email.get())
+                        .findOne();
+                if (enrolment == null) {
+                    user = new User();
+                    user.setEmail(email.get());
+                } else {
+                    return wrapAsPromise(badRequest("already pre-enrolled"));
+                }
+            } else if (users.size() == 1){
+                // User with email already exists
+                user = users.get(0);
+            } else {
+                // Multiple users with same email -> not good
+                return wrapAsPromise(internalServerError("multiple users found for email"));
+            }
+        } else {
+            return wrapAsPromise(badRequest());
+        }
+
+        final User receiver = user;
+        final User sender = getLoggedUser();
+        return doCreateEnrolment(eid, executionType, user).thenApplyAsync(result -> {
+            if (receiver == null) {
+                return result;
+            }
+            if (exam.getState() != Exam.State.PUBLISHED) {
+                return result;
+            }
+            if (result.status() != Http.Status.OK) {
+                return result;
+            }
+            actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+                emailComposer.composePrivateExamParticipantNotification(receiver, sender, exam);
+                Logger.info("Exam participation notification email sent to {}", receiver.getEmail());
+            }, actor.dispatcher());
+            return result;
+        });
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
@@ -296,22 +379,26 @@ public class EnrolmentController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public Result getRoomInfoFromEnrolment(Long eid) {
+    public Result getRoomInfoFromEnrolment(String hash) {
         User user = getLoggedUser();
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("user", "id")
                 .fetch("user.language")
                 .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
                 .where()
-                .eq("exam.id", eid);
+                .disjunction()
+                .eq("exam.hash", hash)
+                .eq("externalExam.hash", hash)
+                .endJunction()
+                .isNotNull("reservation.machine.room");
         if (user.hasRole("STUDENT", getSession())) {
             query = query.eq("user", user);
         }
-        ExamEnrolment enrolment = query.setMaxRows(1).findUnique();
+        ExamEnrolment enrolment = query.findUnique();
         if (enrolment == null) {
             return notFound();
         } else {
-            return ok(enrolment);
+            return ok(enrolment.getReservation().getMachine().getRoom());
         }
     }
 

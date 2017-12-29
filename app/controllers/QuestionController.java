@@ -2,14 +2,14 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.Model;
-import com.avaje.ebean.Query;
-import com.avaje.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import controllers.base.BaseController;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.Model;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
 import models.Exam;
 import models.ExamSectionQuestion;
 import models.ExamSectionQuestionOption;
@@ -22,12 +22,13 @@ import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
+import sanitizers.SanitizingHelper;
 import util.AppUtil;
 
 import javax.persistence.PersistenceException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,8 +43,8 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds) {
         User user = getLoggedUser();
-        PathProperties pp = PathProperties.parse("*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
-                "attachment(id, fileName), options(defaultScore), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))");
+        PathProperties pp = PathProperties.parse("*, modifier(firstName, lastName) questionOwners(id, firstName, lastName, userIdentifier, email), " +
+                "attachment(id, fileName), options(defaultScore), tags(name), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))");
         Query<Question> query = Ebean.find(Question.class);
         pp.apply(query);
         ExpressionList<Question> el = query
@@ -125,14 +126,16 @@ public class QuestionController extends BaseController {
         return ok(Json.toJson(copy));
     }
 
+    // TODO: Move to sanitizer
     private Question parseFromBody(JsonNode node, User user, Question existing) {
-        String questionText = parse("question", node, String.class);
-        Double defaultMaxScore = round(parse("defaultMaxScore", node, Double.class));
-        Integer defaultWordCount = parse("defaultExpectedWordCount", node, Integer.class);
-        Question.EvaluationType defaultEvaluationType = parseEnum("defaultEvaluationType", node, Question.EvaluationType.class);
-        String defaultInstructions = parse("defaultAnswerInstructions", node, String.class);
-        String defaultCriteria = parse("defaultEvaluationCriteria", node, String.class);
-        Question.Type type = parseEnum("type", node, Question.Type.class);
+        String questionText = SanitizingHelper.parse("question", node, String.class).orElse(null);
+        Double defaultMaxScore = round(SanitizingHelper.parse("defaultMaxScore", node, Double.class).orElse(null));
+        Integer defaultWordCount = SanitizingHelper.parse("defaultExpectedWordCount", node, Integer.class).orElse(null);
+        Question.EvaluationType defaultEvaluationType =
+                SanitizingHelper.parseEnum("defaultEvaluationType", node, Question.EvaluationType.class).orElse(null);
+        String defaultInstructions = SanitizingHelper.parse("defaultAnswerInstructions", node, String.class).orElse(null);
+        String defaultCriteria = SanitizingHelper.parse("defaultEvaluationCriteria", node, String.class).orElse(null);
+        Question.Type type = SanitizingHelper.parseEnum("type", node, Question.Type.class).orElse(null);
 
         Question question = existing == null ? new Question() : existing;
         question.setType(type);
@@ -246,7 +249,7 @@ public class QuestionController extends BaseController {
         if (!question.getExamSectionQuestions().stream()
                 .filter(esq -> {
                     Exam exam = esq.getExamSection().getExam();
-                    return exam.getState() == Exam.State.PUBLISHED && exam.getExamActiveEndDate().after(new Date());
+                    return exam.getState() == Exam.State.PUBLISHED && exam.getExamActiveEndDate().isAfterNow();
                 })
                 .collect(Collectors.toList())
                 .isEmpty()) {
@@ -272,14 +275,14 @@ public class QuestionController extends BaseController {
                 .map(MultipleChoiceOption::getId)
                 .collect(Collectors.toSet());
         Set<Long> providedIds = StreamSupport.stream(node.spliterator(), false)
-                .filter(n -> parse("id", n, Long.class) != null)
-                .map(n -> parse("id", n, Long.class))
+                .filter(n -> SanitizingHelper.parse("id", n, Long.class).isPresent())
+                .map(n -> SanitizingHelper.parse("id", n, Long.class).get())
                 .collect(Collectors.toSet());
         // Updates
         StreamSupport.stream(node.spliterator(), false)
                 .filter(o -> {
-                    Long id = parse("id", o, Long.class);
-                    return id != null && persistedIds.contains(id);
+                    Optional<Long> id = SanitizingHelper.parse("id", o, Long.class);
+                    return id.isPresent() && persistedIds.contains(id.get());
                 }).forEach(o -> updateOption(o, false));
         // Removals
         question.getOptions().stream()
@@ -287,17 +290,17 @@ public class QuestionController extends BaseController {
                 .forEach(this::deleteOption);
         // Additions
         StreamSupport.stream(node.spliterator(), false)
-                .filter(o -> parse("id", o, Long.class) == null)
+                .filter(o -> !SanitizingHelper.parse("id", o, Long.class).isPresent())
                 .forEach(o -> createOption(question, o));
     }
 
     private void createOption(Question question, JsonNode node) {
         MultipleChoiceOption option = new MultipleChoiceOption();
-        option.setOption(parse("option", node, String.class));
+        option.setOption(SanitizingHelper.parse("option", node, String.class).orElse(null));
         String scoreFieldName = node.has("defaultScore") ? "defaultScore" : "score";
-        option.setDefaultScore(round(parse(scoreFieldName, node, Double.class)));
-        Boolean correctOption = parse("correctOption", node, Boolean.class);
-        option.setCorrectOption(correctOption == null ? false : correctOption);
+        option.setDefaultScore(round(SanitizingHelper.parse(scoreFieldName, node, Double.class).orElse(null)));
+        Boolean correctOption = SanitizingHelper.parse("correctOption", node, Boolean.class, false);
+        option.setCorrectOption(correctOption);
         question.getOptions().add(option);
         AppUtil.setModifier(question, getLoggedUser());
         question.save();
@@ -308,10 +311,10 @@ public class QuestionController extends BaseController {
     void createOptionBasedOnExamQuestion(Question question, ExamSectionQuestion esq, JsonNode node) {
         MultipleChoiceOption option = new MultipleChoiceOption();
         JsonNode baseOptionNode = node.get("option");
-        option.setOption(parse("option", baseOptionNode, String.class));
-        option.setDefaultScore(round(parse("score", node, Double.class)));
-        Boolean correctOption = parse("correctOption", baseOptionNode, Boolean.class);
-        option.setCorrectOption(correctOption == null ? false : correctOption);
+        option.setOption(SanitizingHelper.parse("option", baseOptionNode, String.class).orElse(null));
+        option.setDefaultScore(round(SanitizingHelper.parse("score", node, Double.class).orElse(null)));
+        Boolean correctOption = SanitizingHelper.parse("correctOption", baseOptionNode, Boolean.class, false);
+        option.setCorrectOption(correctOption);
         question.getOptions().add(option);
         AppUtil.setModifier(question, getLoggedUser());
         question.save();
@@ -339,14 +342,15 @@ public class QuestionController extends BaseController {
     }
 
     void updateOption(JsonNode node, boolean skipDefaults) {
-        Long id = parse("id", node, Long.class);
+        Long id = SanitizingHelper.parse("id", node, Long.class).orElse(null);
         MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, id);
         if (option != null) {
-            option.setOption(parse("option", node, String.class));
+            option.setOption(SanitizingHelper.parse("option", node, String.class).orElse(null));
             if (!skipDefaults) {
-                option.setDefaultScore(round(parse("defaultScore", node, Double.class)));
+                option.setDefaultScore(round(SanitizingHelper.parse("defaultScore", node, Double.class).orElse(null)));
             }
-            option.setCorrectOption(parse("correctOption", node, Boolean.class, Boolean.FALSE));
+            option.setCorrectOption(
+                    SanitizingHelper.parse("correctOption", node, Boolean.class, Boolean.FALSE));
             option.update();
         }
     }
@@ -392,7 +396,7 @@ public class QuestionController extends BaseController {
             return notFound();
         }
         final DynamicForm df = formFactory.form().bindFromRequest();
-        final String questionIds = df.data().get("questionIds");
+        final String questionIds = df.rawData().get("questionIds");
 
         if (questionIds == null || questionIds.isEmpty()) {
             return badRequest();

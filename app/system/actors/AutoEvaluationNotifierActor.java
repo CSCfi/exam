@@ -1,22 +1,20 @@
 package system.actors;
 
-import akka.actor.UntypedActor;
-import com.avaje.ebean.Ebean;
+import akka.actor.AbstractActor;
+import io.ebean.Ebean;
 import models.AutoEvaluationConfig;
 import models.Exam;
 import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
 import util.AppUtil;
-import util.java.EmailComposer;
+import impl.EmailComposer;
 
 import javax.inject.Inject;
 import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
-public class AutoEvaluationNotifierActor extends UntypedActor {
+public class AutoEvaluationNotifierActor extends AbstractActor {
 
     private EmailComposer composer;
 
@@ -26,24 +24,25 @@ public class AutoEvaluationNotifierActor extends UntypedActor {
     }
 
     @Override
-    public void onReceive(Object message) throws Exception {
-        Logger.debug("{}: Running auto evaluation notification check ...", getClass().getCanonicalName());
-        List<Exam> exams = Ebean.find(Exam.class)
-                .fetch("autoEvaluationConfig")
-                .where()
-                .eq("state", Exam.State.GRADED)
-                .isNotNull("gradedTime")
-                .isNotNull("autoEvaluationConfig")
-                .isNotNull("grade")
-                .isNotNull("creditType")
-                .isNotNull("answerLanguage")
-                .isNull("autoEvaluationNotified")
-                .findList();
-        exams.stream()
-                .filter(this::isPastReleaseDate)
-                .forEach(this::notifyStudent);
-
-        Logger.debug("{}: ... Done", getClass().getCanonicalName());
+    public Receive createReceive() {
+        return receiveBuilder().match(String.class, s -> {
+            Logger.debug("{}: Running auto evaluation notification check ...", getClass().getCanonicalName());
+            Ebean.find(Exam.class)
+                    .fetch("autoEvaluationConfig")
+                    .where()
+                    .eq("state", Exam.State.GRADED)
+                    .isNotNull("gradedTime")
+                    .isNotNull("autoEvaluationConfig")
+                    .isNotNull("grade")
+                    .isNotNull("creditType")
+                    .isNotNull("answerLanguage")
+                    .isNull("autoEvaluationNotified")
+                    .findList()
+                    .stream()
+                    .filter(this::isPastReleaseDate)
+                    .forEach(this::notifyStudent);
+            Logger.debug("{}: ... Done", getClass().getCanonicalName());
+        }).build();
     }
 
     private DateTime adjustReleaseDate(DateTime date) {
@@ -79,7 +78,7 @@ public class AutoEvaluationNotifierActor extends UntypedActor {
         try {
             composer.composeInspectionReady(student, null, exam, Collections.emptySet());
             Logger.debug("{}: ... Mail sent to {}", getClass().getCanonicalName(), student.getEmail());
-            exam.setAutoEvaluationNotified(new Date());
+            exam.setAutoEvaluationNotified(DateTime.now());
             exam.update();
         } catch (RuntimeException e) {
             Logger.error("{}: ... Sending email to {} failed", getClass().getCanonicalName(), student.getEmail());

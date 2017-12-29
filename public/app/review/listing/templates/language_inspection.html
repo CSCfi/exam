@@ -1,0 +1,95 @@
+<div class="main-row">
+    <div class="col-md-12">
+        <div class="review-list-title">{{ 'sitnet_await_inspection' | translate }}
+            <a ng-click="$ctrl.data.inspected.toggle = !$ctrl.data.inspected.toggle"
+               class="pointer">
+                <img ng-show="!$ctrl.data.inspected.toggle"
+                     src="/assets/assets/images/icon_list_show_right.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"/>
+                <img ng-show="$ctrl.data.inspected.toggle"
+                     src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"/>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div ng-show="$ctrl.data.inspected.filtered.length === 0">
+    <div class="review-no-results"><i class="fa fa-exclamation-circle padl20 grayish"></i>
+        {{ 'sitnet_exam_no_inspection' | translate }}
+    </div>
+</div>
+
+<div ng-show="$ctrl.data.inspected.toggle && $ctrl.data.inspected.filtered.length > 0">
+
+    <div class="form-group input-group search tab-search review-list-search padl0 marl30">
+        <input ng-change="$ctrl.applyFreeSearchFilter('inspected')"
+               ng-model="$ctrl.data.inspected.filter"
+               class="form-control search"
+               placeholder="{{'sitnet_search' | translate }}">
+        <div class="input-group-addon search">
+            <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
+        </div>
+    </div>
+
+    <table class="table table-striped exams-table">
+        <thead>
+        <tr>
+            <th sort by="user.lastName" text="sitnet_student" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
+            <th sort by="user.email" text="sitnet_email" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
+            <th sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
+            <th sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
+            <th sort by="deadline" text="sitnet_review_deadline" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
+            <th sort by="displayedGrade" text="sitnet_grade" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
+            <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="$ctrl.data.inspected.predicate"
+                reverse="$ctrl.data.inspected.reverse"></th>
+            <th sort by="exam.gradedTime" text="sitnet_graded" predicate="$ctrl.data.inspected.predicate" reverse="$ctrl.data.inspected.reverse"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="review in $ctrl.data.inspected.filtered | orderBy:$ctrl.data.inspected.predicate:$ctrl.data.inspected.reverse
+            | offset: $ctrl.data.inspected.page*$ctrl.pageSize | limitTo: $ctrl.pageSize">
+            <td class="table-column-13 table-column-bold">
+                <a class="pointer" href="/assessments/{{review.exam.id}}">
+                    {{review.user.firstName}} {{review.user.lastName}}
+                    <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
+                </a>
+            </td>
+            <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+            </td>
+            <td class="table-column-10">{{review.duration + " min"}}</td>
+            <td class="table-column-10">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                {{'sitnet_clock_short' |
+                translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                {{review.ended | adjustdst | date: 'HH:mm'}}
+            </td>
+            <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
+                    ng-bind-html="review.deadline | diffInDaysToNow"></span>)
+            </td>
+            <td class="table-column-15">{{ review.displayedGrade }}</td>
+            <td class="table-column-10">
+                {{ review.displayedCredit }}
+            </td>
+            <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+        </tr>
+        <tr ng-if="$ctrl.data.inspected.filtered.length == 0">
+            <td colspan="7">{{'sitnet_review_no_result' | translate}}</td>
+        </tr>
+        <!--Fill if page not full-->
+        <tr ng-repeat="r in [] | pagefill: $ctrl.data.inspected.filtered.length:$ctrl.data.inspected.page:$ctrl.pageSize">
+            <td class="table-column-examname">&nbsp;</td>
+            <td colspan="6"></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<div class="detail-row" ng-show="$ctrl.data.inspected.toggle">
+    <div class="col-md-12" ng-show="$ctrl.data.inspected.filtered.length > $ctrl.pageSize">
+        <paginator items="$ctrl.data.inspected.filtered" page-size="$ctrl.pageSize"
+                   current-page="$ctrl.data.inspected.page">
+        </paginator>
+    </div>
+</div>
+

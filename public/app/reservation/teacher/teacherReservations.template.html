@@ -1,0 +1,46 @@
+<div id="dashboard">
+
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-enroll-title-wrap">
+                <div class="student-enroll-title">{{'sitnet_reservations_new' | translate}}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reservation-border">
+
+        <div class="pad30">
+            <div class="col-md-2 reservation-search-titles">
+                {{'sitnet_begin' | translate}}
+                <date-picker on-update="$ctrl.startDateChanged(date)"></date-picker>
+            </div>
+            <div class="col-md-2 reservation-search-titles">
+                <strong>{{'sitnet_end' | translate}}</strong>
+                <date-picker on-update="$ctrl.endDateChanged(date)"></date-picker>
+            </div>
+            <div class="col-md-2 reservation-search-titles">
+                <strong>{{'sitnet_student' | translate}}</strong>
+                <input class="wide-select fat-select" ui-select2="$ctrl.studentOptions"
+                       ng-model="$ctrl.selection.studentId" ng-click="$ctrl.query()">
+                </input>
+            </div>
+            <div class="col-md-3 reservation-search-titles">
+                <strong>{{'sitnet_exam' | translate}}</strong>
+                <input class="wide-select fat-select" ui-select2="$ctrl.examOptions"
+                       ng-model="$ctrl.selection.examId" ng-click="$ctrl.query()">
+                </input>
+            </div>
+            <div class="col-md-3 reservation-search-titles">
+                <strong>{{'sitnet_exam_state' | translate}}</strong>
+                <input class="wide-select fat-select" ui-select2="$ctrl.stateOptions"
+                       ng-model="$ctrl.selection.state" ng-click="$ctrl.query()">
+                </input>
+            </div>
+        </div>
+
+
+        <div ng-init="$ctrl.query()" ng-include="$ctrl.reservationDetails"></div>
+
+    </div>
+</div>

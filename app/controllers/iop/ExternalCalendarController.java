@@ -3,15 +3,14 @@ package controllers.iop;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.text.PathProperties;
+import io.ebean.Ebean;
+import io.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.CalendarController;
 import controllers.SettingsController;
-import controllers.iop.api.ExternalCalendarAPI;
 import exceptions.NotFoundException;
 import models.Exam;
 import models.ExamEnrolment;
@@ -48,27 +47,23 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 
-public class ExternalCalendarController extends CalendarController implements ExternalCalendarAPI {
+public class ExternalCalendarController extends CalendarController {
 
     @Inject
-    protected WSClient wsClient;
+    private WSClient wsClient;
 
     private static URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration)
             throws MalformedURLException {
-        StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
-        sb.append(String.format("/api/organisations/%s/facilities/%s/slots", orgRef, facilityRef));
-        sb.append(String.format("?date=%s&startAt=%s&endAt=%s&duration=%d", date, start, end, duration));
-        return new URL(sb.toString());
+        String url = ConfigFactory.load().getString("sitnet.integration.iop.host") +
+                String.format("/api/organisations/%s/facilities/%s/slots", orgRef, facilityRef) +
+                String.format("?date=%s&startAt=%s&endAt=%s&duration=%d", date, start, end, duration);
+        return new URL(url);
     }
 
-    private static URL parseUrl(String orgRef, String facilityRef, String reservationRef)
+    private static URL parseUrl(String orgRef, String facilityRef)
             throws MalformedURLException {
-        StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
-        sb.append(String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
-        if (reservationRef != null) {
-            sb.append("/").append(reservationRef);
-        }
-        return new URL(sb.toString());
+        return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host")
+                + String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
     }
 
     private Set<TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user) {
@@ -124,8 +119,8 @@ public class ExternalCalendarController extends CalendarController implements Ex
         // We are good to go :)
         Reservation reservation = new Reservation();
         reservation.setExternalRef(reservationRef);
-        reservation.setEndAt(end.toDate());
-        reservation.setStartAt(start.toDate());
+        reservation.setEndAt(end);
+        reservation.setStartAt(start);
         reservation.setMachine(machine.get());
         reservation.setExternalUserRef(userEppn);
         reservation.save();
@@ -192,12 +187,12 @@ public class ExternalCalendarController extends CalendarController implements Ex
     }
 
     // Actions invoked directly by logged in users
-
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservation() throws MalformedURLException {
         User user = getLoggedUser();
         // Parse request body
         JsonNode node = request().body().asJson();
+        String homeOrgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
         String orgRef = node.get("orgId").asText();
         String roomRef = node.get("roomId").asText();
         DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("start").asText());
@@ -224,8 +219,9 @@ public class ExternalCalendarController extends CalendarController implements Ex
             return wrapAsPromise(error.get());
         }
         // Lets do this
-        URL url = parseUrl(orgRef, roomRef, null);
+        URL url = parseUrl(orgRef, roomRef);
         ObjectNode body = Json.newObject();
+        body.put("requestingOrg", homeOrgRef);
         body.put("start", ISODateTimeFormat.dateTime().print(start));
         body.put("end", ISODateTimeFormat.dateTime().print(end));
         body.put("user", user.getEppn());
@@ -244,47 +240,8 @@ public class ExternalCalendarController extends CalendarController implements Ex
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservationRemoval(String ref) throws MalformedURLException {
         User user = getLoggedUser();
-        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .fetch("reservation.machine")
-                .fetch("reservation.machine.room")
-                .where()
-                .eq("user.id", user.getId())
-                .eq("reservation.externalRef", ref)
-                .findUnique();
-        if (enrolment == null) {
-            return wrapAsPromise(notFound(String.format("No reservation with ref %s for current user.", ref)));
-        }
-        // Removal not permitted if reservation is in the past or ongoing
-        final Reservation reservation = enrolment.getReservation();
-        DateTime now = AppUtil.adjustDST(DateTime.now(), reservation.getExternalReservation());
-        if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
-        }
-        // good to go
-        ExternalReservation external = reservation.getExternalReservation();
-        URL url = parseUrl(external.getOrgRef(), external.getRoomRef(), ref);
-        WSRequest request = wsClient.url(url.toString());
-        Function<WSResponse, Result> onSuccess = response -> {
-            if (response.getStatus() != 200) {
-                JsonNode root = response.asJson();
-                return internalServerError(root.get("message").asText("Connection refused"));
-            }
-            enrolment.setReservation(null);
-            enrolment.setReservationCanceled(true);
-            Ebean.save(enrolment);
-            reservation.delete();
-
-            // send email asynchronously
-            boolean isStudentUser = user.equals(enrolment.getUser());
-            system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
-                Logger.info("Reservation cancellation confirmation email sent");
-            }, system.dispatcher());
-
-            return ok();
-        };
-        return request.delete().thenApplyAsync(onSuccess);
+        Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", ref).findUnique();
+        return externalReservationHandler.removeReservation(reservation, user);
     }
 
     @Restrict(@Group("STUDENT"))
@@ -330,8 +287,8 @@ public class ExternalCalendarController extends CalendarController implements Ex
                                            User user, String orgRef, String roomRef) {
         Reservation oldReservation = enrolment.getReservation();
         final Reservation reservation = new Reservation();
-        reservation.setEndAt(end.toDate());
-        reservation.setStartAt(start.toDate());
+        reservation.setEndAt(end);
+        reservation.setStartAt(start);
         reservation.setUser(user);
         reservation.setExternalRef(node.get("id").asText());
 
@@ -349,6 +306,9 @@ public class ExternalCalendarController extends CalendarController implements Ex
         external.setRoomName(roomNode.get("name").asText());
         external.setRoomCode(roomNode.get("roomCode").asText());
         external.setRoomTz(roomNode.get("localTimezone").asText());
+        external.setRoomInstruction(roomNode.path("roomInstruction").asText(null));
+        external.setRoomInstructionEN(roomNode.path("roomInstructionEN").asText(null));
+        external.setRoomInstructionSV(roomNode.path("roomInstructionSV").asText(null));
         external.save();
         reservation.setExternalReservation(external);
         Ebean.save(reservation);
@@ -478,15 +438,4 @@ public class ExternalCalendarController extends CalendarController implements Ex
                 .anyMatch(r -> interval.overlaps(r.toInterval()));
     }
 
-    @Override
-    public CompletionStage<Result> removeReservation(Reservation reservation) {
-        if (reservation.getExternalReservation() == null) {
-            return wrapAsPromise(ok());
-        }
-        try {
-            return requestReservationRemoval(reservation.getExternalRef());
-        } catch (MalformedURLException e) {
-            return wrapAsPromise(internalServerError(e.getMessage()));
-        }
-    }
 }

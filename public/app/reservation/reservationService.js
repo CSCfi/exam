@@ -1,248 +1,109 @@
-(function () {
-    'use strict';
-    angular.module('exam.services')
-        .service('reservationService', ['$q', '$uibModal', '$http', '$routeParams', '$translate', '$location', 'dialogs',
-            'dateService', 'sessionService', 'ReservationResource', 'EXAM_CONF', 'InteroperabilityResource',
-            function ($q, $modal, $http, $routeParams, $translate, $location, dialogs, dateService, sessionService,
-                      ReservationRes, EXAM_CONF, InteroperabilityRes) {
+'use strict';
+angular.module('app.reservation')
+    .service('Reservation', ['$q', '$uibModal', '$http', '$translate', 'dialogs',
+        'ReservationResource', 'EXAM_CONF', 'InteroperabilityResource', 'toast',
+        function ($q, $modal, $http, $translate, dialogs,
+                  ReservationRes, EXAM_CONF, InteroperabilityRes, toast) {
 
-                var self = this;
+            var self = this;
 
-                self.removeReservation = function (enrolment) {
-                    var externalRef = enrolment.reservation.externalRef;
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
-                    var successFn = function () {
-                        delete enrolment.reservation;
-                        enrolment.reservationCanceled = true;
-                    };
-                    var errorFn = function (msg) {
-                        toastr.error(msg);
-                    };
-                    dialog.result.then(function (btn) {
-                        if (externalRef) {
-                            InteroperabilityRes.reservation.remove({ref: externalRef}, successFn, errorFn);
-                        } else {
-                            $http.delete('/app/calendar/reservation/' + enrolment.reservation.id)
-                                .success(successFn)
-                                .error(errorFn);
-                        }
-                    });
+            self.removeReservation = function (enrolment) {
+                var externalRef = enrolment.reservation.externalRef;
+                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
+                var successFn = function () {
+                    delete enrolment.reservation;
+                    enrolment.reservationCanceled = true;
                 };
-
-                self.getReservationCount = function (exam) {
-                    return exam.examEnrolments.filter(function (enrolment) {
-                        return enrolment.reservation && enrolment.reservation.endAt > new Date().getTime();
-                    }).length;
+                var errorFn = function (msg) {
+                    toast.error(msg);
                 };
+                dialog.result.then(function (btn) {
+                    if (externalRef) {
+                        InteroperabilityRes.reservation.remove({ref: externalRef}, successFn, errorFn);
+                    } else {
+                        $http.delete('/app/calendar/reservation/' + enrolment.reservation.id)
+                            .success(successFn)
+                            .error(errorFn);
+                    }
+                });
+            };
 
-                self.viewReservations = function (examId) {
-                    $location.path('/reservations').search({eid: examId});
-                };
+            self.getReservationCount = function (exam) {
+                return exam.examEnrolments.filter(function (enrolment) {
+                    return enrolment.reservation && enrolment.reservation.endAt > new Date().getTime();
+                }).length;
+            };
 
-                self.renderCalendarTitle = function () {
-                    // Fix date range format in title
-                    var selector = $(".fc-toolbar .fc-center > h2");
-                    var title = selector.text();
-                    var newTitle = '';
-                    var separator = ' — ';
-                    var endPart = title.split(separator)[1];
-                    var startFragments = title.split(separator)[0].split('.').filter(function (x) {
-                        // ignore empty fragments (introduced if title already correctly formatted)
-                        return x;
-                    });
-                    if (startFragments.length < 3) {
-                        startFragments.forEach(function (f) {
-                            newTitle += f;
-                            if (f && f[f.length - 1] != '.') {
-                                newTitle += '.';
-                            }
+            self.changeMachine = function (reservation) {
+                var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                    $scope.selection = {};
+                    $scope.availableMachines = ReservationRes.availableMachines.query({id: reservation.id});
+                    $scope.ok = function () {
+                        ReservationRes.machine.update({
+                            id: reservation.id,
+                            machineId: $scope.selection.machineId
+                        }, function (machine) {
+                            toast.info($translate.instant("sitnet_updated"));
+                            reservation.machine = machine;
+                            $modalInstance.close("Accepted");
+                        }, function (msg) {
+                            toast.error(msg);
                         });
-                        newTitle += separator + endPart;
-                        selector.text(newTitle);
-                    }
-                };
-
-                var getWeekdayNames = function () {
-                    var lang = sessionService.getUser().lang;
-                    var locale = lang.toLowerCase() + "-" + lang.toUpperCase();
-                    var options = {weekday: 'short'};
-                    var weekday = dateService.getDateForWeekday;
-                    return {
-                        SUNDAY: {ord: 7, name: weekday(0).toLocaleDateString(locale, options)},
-                        MONDAY: {ord: 1, name: weekday(1).toLocaleDateString(locale, options)},
-                        TUESDAY: {ord: 2, name: weekday(2).toLocaleDateString(locale, options)},
-                        WEDNESDAY: {ord: 3, name: weekday(3).toLocaleDateString(locale, options)},
-                        THURSDAY: {ord: 4, name: weekday(4).toLocaleDateString(locale, options)},
-                        FRIDAY: {ord: 5, name: weekday(5).toLocaleDateString(locale, options)},
-                        SATURDAY: {ord: 6, name: weekday(6).toLocaleDateString(locale, options)}
                     };
-                };
 
-                var findOpeningHours = function (obj, items) {
-                    var found = null;
-                    items.some(function (item) {
-                        if (item.ref === obj.weekday) {
-                            found = item;
-                            return true;
-                        }
-                    });
-                    return found;
-                };
+                    $scope.cancel = function () {
+                        $modalInstance.close("Dismissed");
+                    };
 
-                self.processOpeningHours = function (room) {
-                    if (!room) {
-                        return;
-                    }
-                    var weekdayNames = getWeekdayNames();
-                    var openingHours = [];
-                    var tz = room.localTimezone;
+                }];
 
-                    room.defaultWorkingHours.forEach(function (dwh) {
-                        if (!findOpeningHours(dwh, openingHours)) {
-                            var obj = {
-                                name: weekdayNames[dwh.weekday].name,
-                                ref: dwh.weekday,
-                                ord: weekdayNames[dwh.weekday].ord,
-                                periods: []
-                            };
-                            openingHours.push(obj);
-                        }
-                        var hours = findOpeningHours(dwh, openingHours);
-                        hours.periods.push(
-                            moment.tz(dwh.startTime, tz).format('HH:mm') + " - " +
-                            moment.tz(dwh.endTime, tz).format('HH:mm'));
-                    });
-                    openingHours.forEach(function (oh) {
-                        oh.periods = oh.periods.sort().join(', ');
-                    });
-                    return openingHours.sort(function (a, b) {
-                        return a.ord > b.ord;
-                    });
-                };
+                var modalInstance = $modal.open({
+                    templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/admin/change_machine_dialog.html',
+                    backdrop: 'static',
+                    keyboard: true,
+                    controller: modalController
+                });
 
-                var formatExceptionEvent = function (event, tz) {
-                    var startDate = moment.tz(event.startDate, tz);
-                    var endDate = moment.tz(event.endDate, tz);
-                    var offset = moment.tz(tz).isDST() ? -1 : 0;
-                    startDate.add(offset, 'hour');
-                    endDate.add(offset, 'hour');
-                    event.start = startDate.format('DD.MM.YYYY HH:mm');
-                    event.end = endDate.format('DD.MM.YYYY HH:mm');
-                    event.description = event.outOfService ? 'sitnet_closed' : 'sitnet_open';
-                };
+                modalInstance.result.then(function () {
+                    console.log("closed");
+                });
+            };
 
-                self.getExceptionHours = function (room) {
-                    if (!room) {
-                        return;
-                    }
-                    var start = moment.max(moment(),
-                        uiCalendarConfig.calendars.myCalendar.fullCalendar('getView').start);
-                    var end = uiCalendarConfig.calendars.myCalendar.fullCalendar('getView').end;
-                    var events = room.calendarExceptionEvents.filter(function (e) {
-                        return (moment(e.startDate) > start && moment(e.endDate) < end);
-                    });
-                    events.forEach(formatExceptionEvent.call(this, room.localTimezone));
-                    return events;
-                };
-
-                self.getEarliestOpening = function (room) {
-                    var tz = room.localTimezone;
-                    var openings = room.defaultWorkingHours.map(function (dwh) {
-                        var start = moment.tz(dwh.startTime, tz);
-                        return moment().hours(start.hours()).minutes(start.minutes()).seconds(start.seconds());
-                    });
-                    return moment.min(openings);
-                };
-
-                self.getLatestClosing = function (room) {
-                    var tz = room.localTimezone;
-                    var closings = room.defaultWorkingHours.map(function (dwh) {
-                        var end = moment.tz(dwh.endTime, tz);
-                        return moment().hours(end.hours()).minutes(end.minutes()).seconds(end.seconds());
-                    });
-                    return moment.max(closings);
-                };
-
-                self.getClosedWeekdays = function (room) {
-                    var weekdays = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
-                    var openedDays = room.defaultWorkingHours.map(function (dwh) {
-                        return weekdays.indexOf(dwh.weekday);
-                    });
-                    return [0, 1, 2, 3, 4, 5, 6].filter(function (x) {
-                        return openedDays.indexOf(x) === -1;
-                    });
-                };
-
-                self.changeMachine = function (reservation) {
-                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
-                        $scope.selection = {};
-                        $scope.availableMachines = ReservationRes.availableMachines.query({id: reservation.id});
-                        $scope.ok = function () {
-                            ReservationRes.machine.update({
-                                id: reservation.id,
-                                machineId: $scope.selection.machineId
-                            }, function (machine) {
-                                toastr.info($translate.instant("sitnet_updated"));
-                                reservation.machine = machine;
+            self.cancelReservation = function (reservation) {
+                var deferred = $q.defer();
+                var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
+                    $scope.message = {};
+                    $scope.ok = function () {
+                        ReservationRes.reservation.remove({id: reservation.id, msg: $scope.message.text},
+                            function () {
                                 $modalInstance.close("Accepted");
-                            }, function (msg) {
-                                toastr.error(msg);
+                                deferred.resolve("ok");
+                            }, function (error) {
+                                toast.error(error.data);
                             });
-                        };
+                    };
 
-                        $scope.cancel = function () {
-                            $modalInstance.close("Dismissed");
-                        };
-
-                    }];
-
-                    var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/change_machine_dialog.html',
-                        backdrop: 'static',
-                        keyboard: true,
-                        controller: modalController
-                    });
-
-                    modalInstance.result.then(function () {
-                        console.log("closed");
-                    });
-                };
-
-                self.cancelReservation = function (reservation) {
-                    var deferred = $q.defer();
-                    var modalController = ["$scope", "$uibModalInstance", function ($scope, $modalInstance) {
-                        $scope.message = {};
-                        $scope.ok = function () {
-                            ReservationRes.reservation.remove({id: reservation.id, msg: $scope.message.text},
-                                function () {
-                                    $modalInstance.close("Accepted");
-                                    deferred.resolve("ok");
-                                }, function (error) {
-                                    toastr.error(error.data);
-                                });
-                        };
-
-                        $scope.cancel = function () {
-                            $modalInstance.close("Dismissed");
-                            deferred.reject();
-                        };
-
-                    }];
-
-                    var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/remove_reservation_dialog.html',
-                        backdrop: 'static',
-                        keyboard: true,
-                        controller: modalController
-                    });
-
-                    modalInstance.result.then(function () {
-                        console.log("closed");
+                    $scope.cancel = function () {
+                        $modalInstance.close("Dismissed");
                         deferred.reject();
-                    });
-                    return deferred.promise;
-                };
+                    };
+
+                }];
+
+                var modalInstance = $modal.open({
+                    templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/admin/remove_reservation_dialog.html',
+                    backdrop: 'static',
+                    keyboard: true,
+                    controller: modalController
+                });
+
+                modalInstance.result.then(function () {
+                    console.log("closed");
+                    deferred.reject();
+                });
+                return deferred.promise;
+            };
 
 
-            }]);
-}());
+        }]);
+

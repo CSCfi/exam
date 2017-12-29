@@ -1,0 +1,76 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-8 header-wrapper">
+        <span class="header-text">{{'sitnet_room_accessibility_info' | translate}}</span>
+    </div>
+</div>
+<div id="room">
+    <span class="sitnet-horizontal-line col-md-12"></span>
+    <div class="vertical-padding-2">
+        <div class="col-md-3">
+            <form class="form-inline" role="form">
+                <div class="sitnet-info-text">{{'sitnet_name' | translate}}</div>
+                <div class="pull-left col-md-8 row"><input type="text" class="form-control col-md-12"
+                                                           ng-model="$ctrl.newItem.name"/></div>
+                <div class="pull-right col-md-4">
+                    <button ng-disabled="!$ctrl.newItem.name" ng-click="$ctrl.add($ctrl.newItem)"
+                            class="btn btn-primary pull-left">
+                        {{'sitnet_create_new' | translate}}
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <div class="row col-md-12">
+                <div class="col-md-12 pull-left"><h4 class="col-md-12">{{ 'sitnet_room_accessibility_info' | translate
+                    }}</h4></div>
+            </div>
+            <div class="row col-md-12">
+                <table class="table table-bordered table-condensed room-machines-table">
+                    <thead>
+                    <tr>
+                        <th>{{ 'sitnet_name' | translate }}</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="accessibility in $ctrl.accessibilities">
+                        <td>
+                            <div ng-hide="$ctrl.showName" class="editable" ng-click="$ctrl.showName = !$ctrl.showName">
+                                    {{ accessibility.name }}
+                            </div>
+                            <div ng-show="$ctrl.showName">
+                                <form class="form-inline" role="form">
+                                    <div class="form-group">
+                                        <label>
+                                            <input type="text" class="form-control input-sm"
+                                                   ng-model="accessibility.name" autofocus>
+                                        </label>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm"
+                                            ng-click="$ctrl.showName = !$ctrl.showName; $ctrl.update(accessibility);">
+                                        <i class="fa fa-check"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        <td class="col-md-1 text-center">
+                            <a class="fa-stack fa-lg" ng-click="$ctrl.showName = !$ctrl.showName;">
+                                <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+                                <i class="fa fa-pencil fa-stack-1x"></i>
+                            </a>
+                        </td>
+                        <td class="col-md-1 text-center">
+                            <a class="fa-stack fa-lg" ng-click="$ctrl.remove(accessibility)"
+                               popover-placement="top" popover-trigger="'mouseenter'"
+                               uib-popover="{{'sitnet_remove_room_accessibility_info' | translate}}">
+                                <i class="sitnet-red fa fa-times fa-stack-1x"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

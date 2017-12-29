@@ -1,0 +1,99 @@
+<div class="top-padding-2 lightBorderBox">
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <span mathjax ng-bind-html="sectionQuestion.question.question"></span>
+        </div>
+    </div>
+    <!-- question attachment -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:
+        </div>
+        <div class="sub-content-row col-md-9">
+            <span ng-hide="sectionQuestion.question.attachment">N/A</span>
+            <span ng-show="sectionQuestion.question.attachment">{{sectionQuestion.question.attachment.fileName}}&nbsp;</span>
+        </div>
+    </div>
+
+    <!-- question evaluation criteria -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow"
+             ng-show="sectionQuestion.evaluationCriteria">
+            {{ 'sitnet_exam_evaluation_criteria' | translate}}:
+        </div>
+        <div class="sub-content-row col-md-9" ng-show="sectionQuestion.evaluationCriteria">
+            <div ng-bind-html="sectionQuestion.evaluationCriteria"></div>
+            &nbsp;
+        </div>
+    </div>
+    <!-- question instructions -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow" ng-show="sectionQuestion.answerInstructions">
+            {{ 'sitnet_instructions' | translate}}:
+        </div>
+        <div class="sub-content-row col-md-9" ng-show="sectionQuestion.answerInstructions">
+            <div ng-bind-html="sectionQuestion.answerInstructions"></div>
+            &nbsp;
+        </div>
+    </div>
+    <!-- answer -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <span mathjax ng-bind-html="sectionQuestion.essayAnswer.answer"></span>&nbsp;
+        </div>
+    </div>
+    <!-- answer attachment -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_answer_attachment' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <div ng-hide="sectionQuestion.essayAnswer.attachment">N/A</div>
+            <div ng-show="sectionQuestion.essayAnswer.attachment">
+                {{sectionQuestion.essayAnswer.attachment.fileName}}
+            </div>
+        </div>
+    </div>
+    <!-- answer length & recommended length-->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_answer_length' | translate}}:</div>
+        <div class="sub-content-row col-md-9">
+            {{ $ctrl.getWordCount(sectionQuestion) }} {{'sitnet_words' |
+            translate }},
+            {{ 'sitnet_approximately' | translate }}
+            {{ $ctrl.getCharacterCount(sectionQuestion) }} {{'sitnet_characters' |
+            translate
+            }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_essay_length_recommendation' |
+            translate}}:
+        </div>
+        <div class="sub-content-row col-md-9">{{ sectionQuestion.expectedWordCount }}&nbsp;
+            ({{ 'sitnet_approximately' | translate}} {{sectionQuestion.expectedWordCount * 8}}
+            {{'sitnet_characters' | translate}})
+        </div>
+    </div>
+    <!-- grade -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">
+            <span ng-show="sectionQuestion.evaluationType === 'Points'">{{'sitnet_word_points' | translate}}:</span>
+            <span ng-hide="sectionQuestion.evaluationType === 'Points'">{{'sitnet_comments' | translate}}:</span>
+        </div>
+        <div class="sub-content-row col-md-9">
+            <span ng-show="sectionQuestion.evaluationType === 'Points'">
+                {{sectionQuestion.essayAnswer.evaluatedScore}} / {{ sectionQuestion.maxScore}}
+            </span>
+            <span ng-show="sectionQuestion.evaluationType === 'Selection'">
+                <div ng-if="sectionQuestion.essayAnswer.evaluatedScore == 1">{{ 'sitnet_approved' |
+                    translate
+                    }}
+                </div>
+                <div ng-if="sectionQuestion.essayAnswer.evaluatedScore == 0">{{ 'sitnet_rejected' |
+                    translate
+                    }}
+                </div>
+            </span>
+        </div>
+    </div>
+</div>

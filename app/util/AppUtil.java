@@ -1,7 +1,10 @@
 package util;
 
 import com.typesafe.config.ConfigFactory;
-import models.*;
+import models.Exam;
+import models.ExamRoom;
+import models.Reservation;
+import models.User;
 import models.base.OwnedModel;
 import models.iop.ExternalReservation;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -9,7 +12,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import play.Logger;
-import util.java.EmailComposer;
+import impl.EmailComposer;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,10 +22,11 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
-public class AppUtil {
+public final class AppUtil {
+
+    private AppUtil() {}
 
     public static String getHostName() {
         return ConfigFactory.load().getString("sitnet.application.hostname");
@@ -58,10 +62,10 @@ public class AppUtil {
         return DateTimeZone.forID(config);
     }
 
-    public static Date getExamExpirationDate(Date timeOfSubmission) {
+    public static DateTime getExamExpirationDate(DateTime timeOfSubmission) {
         String expiresAfter = ConfigFactory.load().getString("sitnet.exam.expiration.period");
         Period period = Period.parse(expiresAfter);
-        return new DateTime(timeOfSubmission).plus(period).toDate();
+        return timeOfSubmission.plus(period);
     }
 
     public static String getAppVersion() {
@@ -119,13 +123,13 @@ public class AppUtil {
 
     public static OwnedModel setCreator(OwnedModel object, User user) {
         object.setCreator(user);
-        object.setCreated(DateTime.now().toDate());
+        object.setCreated(DateTime.now());
         return object;
     }
 
     public static OwnedModel setModifier(OwnedModel object, User user) {
         object.setModifier(user);
-        object.setModified(DateTime.now().toDate());
+        object.setModified(DateTime.now());
         return object;
     }
 

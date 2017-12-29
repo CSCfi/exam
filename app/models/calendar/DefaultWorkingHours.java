@@ -1,26 +1,27 @@
 package models.calendar;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import models.ExamRoom;
 import models.base.GeneratedIdentityModel;
+import org.joda.time.DateTime;
+import util.DateTimeAdapter;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import java.util.Date;
 
 @Entity
 public class DefaultWorkingHours extends GeneratedIdentityModel {
 
     @Temporal(TemporalType.TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
-    private Date startTime;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime startTime;
 
     @Temporal(TemporalType.TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
-    private Date endTime;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime endTime;
 
     private int timezoneOffset;
 
@@ -38,19 +39,19 @@ public class DefaultWorkingHours extends GeneratedIdentityModel {
         this.room = room;
     }
 
-    public Date getStartTime() {
+    public DateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(DateTime startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime() {
+    public DateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(DateTime endTime) {
         this.endTime = endTime;
     }
 

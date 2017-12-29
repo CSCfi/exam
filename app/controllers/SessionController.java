@@ -3,12 +3,14 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectPresent;
-import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
+import controllers.iop.api.ExternalExamAPI;
 import exceptions.NotFoundException;
+import io.ebean.Ebean;
+import models.ExamEnrolment;
 import models.Language;
 import models.Organisation;
 import models.Reservation;
@@ -21,6 +23,7 @@ import org.joda.time.Minutes;
 import play.Environment;
 import play.Logger;
 import play.libs.Json;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import util.AppUtil;
@@ -29,17 +32,38 @@ import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletionStage;
 
 public class SessionController extends BaseController {
 
+    private final Environment environment;
+
+    private final ExternalExamAPI externalExamAPI;
+
+    private final HttpExecutionContext ec;
+
+    private static final String CSRF_COOKIE = ConfigFactory.load().getString("play.filters.csrf.cookie.name");
+
     @Inject
-    Environment environment;
+    public SessionController(Environment environment, ExternalExamAPI externalExamAPI, HttpExecutionContext ec) {
+        this.environment = environment;
+        this.externalExamAPI = externalExamAPI;
+        this.ec = ec;
+    }
+
 
     @ActionMethod
-    public Result login() {
-        Result result;
+    public CompletionStage<Result> login() {
+        CompletionStage<Result> result;
         switch (LOGIN_TYPE) {
             case "HAKA":
                 result = hakaLogin();
@@ -48,46 +72,49 @@ public class SessionController extends BaseController {
                 result = devLogin();
                 break;
             default:
-                result = badRequest("login type not supported");
+                result = wrapAsPromise(badRequest("login type not supported"));
         }
         return result;
     }
 
-    private Result hakaLogin() {
-        Optional<String> id = parse(request().getHeader("eppn"));
+    private CompletionStage<Result> hakaLogin() {
+        Optional<String> id = parse(request().header("eppn").orElse("")); //TODO: check this shit out
         if (!id.isPresent()) {
-            return badRequest("No credentials!");
+            return wrapAsPromise(badRequest("No credentials!"));
         }
         String eppn = id.get();
-        Set<Reservation> externalReservationsInEffect = getUpcomingExternalReservations(eppn);
-        boolean isTemporaryVisitor = !externalReservationsInEffect.isEmpty();
+        Reservation externalReservation = getUpcomingExternalReservation(eppn);
+        boolean isTemporaryVisitor = externalReservation != null;
         User user = Ebean.find(User.class)
                 .where()
                 .eq("eppn", eppn)
                 .findUnique();
+        boolean newUser = user == null;
         try {
-            if (user == null) {
+            if (newUser) {
                 user = createNewUser(eppn, isTemporaryVisitor);
             } else {
                 updateUser(user);
             }
         } catch (NotFoundException | AddressException e) {
-            return badRequest(e.getMessage());
+            return wrapAsPromise(badRequest(e.getMessage()));
         }
         user.setLastLogin(new Date());
         user.save();
-        handleExternalReservations(user, externalReservationsInEffect);
-        return createSession(user, isTemporaryVisitor);
+        if (newUser) {
+            associateWithPreEnrolments(user);
+        }
+        return handleExternalReservationAndCreateSession(user, externalReservation);
     }
 
-    private Result devLogin() {
+    private CompletionStage<Result> devLogin() {
         if (!environment.isDev()) {
-            return unauthorized();
+            return wrapAsPromise(unauthorized());
         }
         Credentials credentials = bindForm(Credentials.class);
         Logger.debug("User login with username: {}", credentials.getUsername() + "@funet.fi");
         if (credentials.getPassword() == null || credentials.getUsername() == null) {
-            return unauthorized("sitnet_error_unauthenticated");
+            return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
         }
         String pwd = AppUtil.encodeMD5(credentials.getPassword());
         User user = Ebean.find(User.class)
@@ -95,29 +122,65 @@ public class SessionController extends BaseController {
                 .eq("password", pwd).findUnique();
 
         if (user == null) {
-            return unauthorized("sitnet_error_unauthenticated");
+            return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
         }
         user.setLastLogin(new Date());
         user.update();
-        return createSession(user, false);
+        // In dev environment we will not fiddle with the role definitions here regarding visitor status
+        Reservation externalReservation = getUpcomingExternalReservation(user.getEppn());
+        return handleExternalReservationAndCreateSession(user, externalReservation);
     }
 
-    private Set<Reservation> getUpcomingExternalReservations(String eppn) {
+    private CompletionStage<Result> handleExternalReservationAndCreateSession(User user, Reservation reservation) {
+        if (reservation != null) {
+            try {
+                return handleExternalReservation(user, reservation).
+                        thenApplyAsync(r -> createSession(user, true), ec.current());
+            } catch (MalformedURLException e) {
+                return wrapAsPromise(internalServerError());
+            }
+        } else {
+            return wrapAsPromise(createSession(user, false));
+        }
+    }
+
+    private void associateWithPreEnrolments(User user) {
+        // Associate pre-enrolment with a real user now that he/she is logged in
+        Ebean.find(ExamEnrolment.class)
+                .where()
+                .eq("preEnrolledUserEmail", user.getEmail())
+                .findEach(e -> {
+                    e.setPreEnrolledUserEmail(null);
+                    e.setUser(user);
+                    e.update();
+                });
+    }
+
+    private Reservation getUpcomingExternalReservation(String eppn) {
         DateTime now = AppUtil.adjustDST(new DateTime());
         int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
         DateTime future = now.plusMinutes(lookAheadMinutes);
-        return Ebean.find(Reservation.class).where()
+        List<Reservation> reservations = Ebean.find(Reservation.class).where()
                 .eq("externalUserRef", eppn)
                 .isNotNull("externalRef")
                 .le("startAt", future)
-                .gt("endAt", now).findSet();
+                .gt("endAt", now)
+                .orderBy("startAt")
+                .findList();
+        return reservations.isEmpty() ? null : reservations.get(0);
     }
 
-    private void handleExternalReservations(User user, Set<Reservation> externalReservationsInEffect) {
-        externalReservationsInEffect.forEach(r -> {
-            r.setUser(user);
-            r.update();
-        });
+    private CompletionStage<Result> handleExternalReservation(User user, Reservation reservation) throws MalformedURLException {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation", reservation).findUnique();
+        if (enrolment != null) {
+            // already imported
+            return wrapAsPromise(ok());
+        }
+        reservation.setUser(user);
+        reservation.update();
+        return externalExamAPI.requestEnrolment(user, reservation)
+                .thenApplyAsync(e -> e == null ? internalServerError() : ok());
+
     }
 
     private static Language getLanguage(String code) {
@@ -148,12 +211,12 @@ public class SessionController extends BaseController {
     }
 
     private Optional<String> parseDisplayName(Http.Request request) {
-        return parse(request.getHeader("displayName")).map(n ->
+        return parse(request.header("displayName").orElse("")).map(n ->
                 n.indexOf(" ") > 0 ? n.substring(0, n.lastIndexOf(" ")) : n);
     }
 
     private String parseGivenName(Http.Request request) {
-        return parse(request.getHeader("givenName"))
+        return parse(request.header("givenName").orElse(""))
                 .orElse(parseDisplayName(request)
                         .orElseThrow(IllegalArgumentException::new));
     }
@@ -163,24 +226,26 @@ public class SessionController extends BaseController {
     }
 
     private void updateUser(User user) throws AddressException {
-        user.setOrganisation(parse(request().getHeader("homeOrganisation"))
+        user.setOrganisation(parse(request().header("homeOrganisation").orElse(""))
                 .map(this::findOrganisation).orElse(null));
-        user.setUserIdentifier(parse(request().getHeader("schacPersonalUniqueCode"))
+        user.setUserIdentifier(parse(request().header("schacPersonalUniqueCode").orElse(""))
                 .map(this::parseUserIdentifier).orElse(null));
-        user.setEmail(parse(request().getHeader("mail"))
+        user.setEmail(parse(request().header("mail").orElse(""))
                 .flatMap(this::validateEmail).orElseThrow(AddressException::new));
 
-        user.setLastName(parse(request().getHeader("sn")).orElseThrow(IllegalArgumentException::new));
+        user.setLastName(parse(request().header("sn").orElse(""))
+                .orElseThrow(IllegalArgumentException::new));
         user.setFirstName(parseGivenName(request()));
-        user.setEmployeeNumber(parse(request().getHeader("employeeNumber")).orElse(null));
-        user.setLogoutUrl(parse(request().getHeader("logouturl")).orElse(null));
+        user.setEmployeeNumber(parse(request().header("employeeNumber").orElse("")).orElse(null));
+        user.setLogoutUrl(parse(request().header("logouturl").orElse("")).orElse(null));
     }
 
     private User createNewUser(String eppn, boolean ignoreRoleNotFound) throws NotFoundException, AddressException {
         User user = new User();
-        user.getRoles().addAll(parseRoles(parse(request().getHeader("unscoped-affiliation"))
+        user.getRoles().addAll(parseRoles(parse(request().header("unscoped-affiliation").orElse(""))
                 .orElseThrow(NotFoundException::new), ignoreRoleNotFound));
-        user.setLanguage(getLanguage(parse(request().getHeader("preferredLanguage")).orElse(null)));
+        user.setLanguage(getLanguage(parse(request().header("preferredLanguage").orElse(""))
+                .orElse(null)));
         user.setEppn(eppn);
         updateUser(user);
         return user;
@@ -215,11 +280,11 @@ public class SessionController extends BaseController {
 
     // prints HAKA attributes, used for debugging
     public Result getAttributes() {
-        Map<String, String[]> attributes = request().headers();
+        Http.Headers attributes = request().getHeaders();
         ObjectNode node = Json.newObject();
 
-        for (Map.Entry<String, String[]> entry : attributes.entrySet()) {
-            node.put(entry.getKey(), Arrays.toString(entry.getValue()));
+        for (Map.Entry<String, List<String>> entry : attributes.toMap().entrySet()) {
+            node.put(entry.getKey(), String.join(", ", entry.getValue()));
         }
 
         return ok(node);
@@ -268,7 +333,8 @@ public class SessionController extends BaseController {
                 result = ok(Json.toJson(node));
             }
         }
-        response().discardCookie("csrfToken");
+
+        response().discardCookie(CSRF_COOKIE);
         session().clear();
         return result;
     }

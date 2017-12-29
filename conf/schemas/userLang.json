@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "UserLang",
+  "description": "User language",
+  "type": "object",
+  "properties": {
+    "lang": {
+      "description": "ISO code for the language",
+      "type": "string"
+    }
+  },
+  "required": ["lang"]
+}

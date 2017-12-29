@@ -1,0 +1,46 @@
+<div class="padl15 marb10" ng-show="$ctrl.sectionQuestion.reviewExpanded"
+     ng-repeat="option in $ctrl.sectionQuestion.options | orderBy:'id'">
+
+
+    <div ng-if="option.answered">
+        <div ng-if="option.option.correctOption" class="exam-answered-correct">
+            <div class="make-inline pull-left">
+                <img ng-show="option.answered" src="/assets/assets/images/icon_correct_answer_radio.png" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer_radio.png'" />
+            </div>
+            <div class="make-inline middle-column">
+                <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
+            </div>
+        </div>
+
+        <div ng-if="!option.option.correctOption" class="exam-answered-wrong">
+            <div class="make-inline pull-left">
+                <img ng-show="option.answered" src="/assets/assets/images/icon_wrong_answer_radio.png" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer_radio.svg'" />
+            </div>
+            <div class="make-inline middle-column">
+                <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
+            </div>
+        </div>
+    </div>
+
+
+    <div ng-if="!option.answered">
+
+        <div class="exam-not-answered">
+            <div class="make-inline pull-left">
+                <img ng-if="option.option.correctOption" src="/assets/assets/images/icon_correct_answer_radio.png" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer_radio.svg'" />
+                <img ng-if="!option.option.correctOption" src="/assets/assets/images/icon_wrong_answer.png" alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.svg'" />
+
+            </div>
+            <div class="make-inline middle-column">
+                <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>

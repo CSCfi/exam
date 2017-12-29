@@ -1,14 +1,14 @@
 package util.scala
 
-import com.avaje.ebean.Model
-import play.api.mvc.{Controller, Result}
+import io.ebean.Model
+import play.api.mvc.{InjectedController, Result}
 import play.libs.{Json => JavaJson}
 
 import scala.language.implicitConversions
 
 
 trait JsonResponder {
-  self: Controller =>
+  self: InjectedController =>
 
   implicit def coursesList2Response[T <: Model](c: java.util.List[T]): Result = java2Response(c)
 

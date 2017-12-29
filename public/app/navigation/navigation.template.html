@@ -1,0 +1,148 @@
+<div ng-if="$ctrl.user.isTeacher || $ctrl.user.isStudent" id="vmenu" class="hidden-print">
+    <div class="nav-container">
+        <div class="nav-header">
+            <div class="logo">
+                <div class="hidden-mobile">
+                    <img src="/assets/assets/images/exam-logo-new.svg" alt="exam" onerror="this.onerror = null;
+                            this.src = '../../../assets/assets/images/exam-logo-new.png'"/>
+                </div>
+                <div class="visible-mobile">
+                    <div class="mobile-menu" ng-click="$ctrl.openMenu();" ng-hide="!$ctrl.user">
+                        <img src="/assets/assets/images/icon_menu_mobile.svg" alt="exam" onerror="this.onerror = null;
+                                this.src = '../../../assets/assets/images/icon_menu_mobile.png'"/>
+                    </div>
+                    <img src="/assets/assets/images/exam-logo-mobile.svg" alt="exam" onerror="this.onerror = null;
+                            this.src = '../../../assets/assets/images/exam-logo-mobile.png'"/>
+                </div>
+            </div>
+            <div ng-hide="!$ctrl.appVersion">
+                <div class="app-version">
+                    <strong>v. {{ $ctrl.appVersion }}</strong>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="nav-body">
+            <ul class="links">
+                <li ng-class="{selected: $ctrl.isActive(link)}" ng-repeat="link in $ctrl.links"
+                    ng-show="link.visible">
+                    <a class="menu_item_link" href="{{link.href}}">
+                        <img width="18" src="/assets/assets/images/nav/{{link.icon_png}}"
+                             alt="{{ link.name | translate }}"/>
+                        <span class="menu-item">{{ link.name | translate }}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="nav-body-mobile" ng-show="$ctrl.mobileMenuOpen">
+            <ul class="links">
+                <li ng-class="{selected: $ctrl.isActive(link)}" ng-repeat="link in $ctrl.links" ng-show="link.visible">
+                    <a class="menu_item_link" href="{{link.href}}">
+                        <img width="18" src="/assets/assets/images/nav/{{link.icon_png}}"
+                             alt="{{ link.name | translate }}"/>
+                        <span class="menu-item">{{ link.name | translate }}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-user" ng-hide="!$ctrl.user">
+            <div class="user">
+                <div class="user-name">
+                    <div class="user-logo"><img src="/assets/assets/images/icon_menu_user.png"
+                                                alt="{{$ctrl.user.firstName}}&nbsp;{{$ctrl.user.lastName}}"/></div>
+                    <div class="user-data">
+                        {{$ctrl.user.firstName}}&nbsp;{{$ctrl.user.lastName}}<br/>
+                        <span ng-show="$ctrl.user.isStudent">{{ 'sitnet_student' | translate }}
+                            </span>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="nav-footer">
+            <div class="locale-bar">
+                <span class="locale-item"> <a ng-click="$ctrl.switchLanguage('fi')">FI</a></span>
+                <span class="locale-item"> <a ng-click="$ctrl.switchLanguage('sv')">SV</a></span>
+                <span class="locale-item"> <a ng-click="$ctrl.switchLanguage('en')">EN</a></span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- old navbar for admin, will phase out eventually-->
+<div ng-if="$ctrl.user.isAdmin" id="vmenu-admin"
+     ng-init="$ctrl.minimizeNavigation = !$ctrl.canDisplayFullNavbar()">
+    <div class="nav-container">
+        <div ng-class="$ctrl.minimizeNavigation ? 'minimize' : ''">
+            <div class="nav-header">
+                <div class="logo">
+                    <div ng-hide="$ctrl.minimizeNavigation">
+                        <img src="/assets/assets/images/exam-logo-black-small.png" alt="exam"/>
+                    </div>
+                    <div ng-hide="!$ctrl.minimizeNavigation">
+                        <img width="50" height="90" src="/assets/assets/images/exam-logo-black-small-v.png"
+                             alt="exam"/>
+                    </div>
+                </div>
+                <div ng-hide="$ctrl.minimizeNavigation || !$ctrl.appVersion">
+                    <div class="app-version">
+                        <strong>v. {{ $ctrl.appVersion }}</strong>
+                    </div>
+                </div>
+                <div ng-hide="$ctrl.minimizeNavigation">
+                    <div class="locale-bar">
+                        <span class="locale-item"> <a ng-click="$ctrl.switchLanguage('fi')">FI</a></span>
+                        <span class="locale-item"> <a ng-click="$ctrl.switchLanguage('sv')">SV</a></span>
+                        <span class="locale-item"> <a ng-click="$ctrl.switchLanguage('en')">EN</a></span>
+                    </div>
+                </div>
+                <div ng-hide="!$ctrl.minimizeNavigation">
+                    <div class="locale-item"><a ng-click="$ctrl.switchLanguage('fi')">FI</a></div>
+                    <div class="locale-item"><a ng-click="$ctrl.switchLanguage('sv')">SV</a></div>
+                    <div class="locale-item"><a ng-click="$ctrl.switchLanguage('en')">EN</a></div>
+                </div>
+                <div ng-hide="$ctrl.minimizeNavigation">
+                    <div class="user">
+                        <div class="user-name">
+                            <p>{{$ctrl.user.firstName}}<br>{{$ctrl.user.lastName}}&nbsp;</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div ng-class="minimizeNavigation ? 'minimize' : ''">
+            <div class="nav-body">
+                <nav ng-class="minimizeNavigation ? 'minimize' : ''">
+                    <ul class="links">
+                        <li ng-class="{selected: $ctrl.isActive(link)}" ng-repeat="link in $ctrl.links"
+                            ng-show="link.visible">
+                            <a href="{{link.href}}">
+                                <i class="fa fa-2x fa-fw {{link.class}}"></i>
+                                <span class="menu-item">{{ link.name | translate }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div ng-class="$ctrl.minimizeNavigation ? 'minimize' : ''">
+            <div class="nav-footer">
+                <div ng-click="$ctrl.minimizeNavigation = !$ctrl.minimizeNavigation" class="minify">
+                    <div ng-hide="$ctrl.minimizeNavigation">
+                        <i class="pointer fa fa-3x fa-chevron-left hit"></i>
+                    </div>
+                    <div ng-hide="!$ctrl.minimizeNavigation">
+                        <i class="pointer fa fa-3x fa-chevron-right hit"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

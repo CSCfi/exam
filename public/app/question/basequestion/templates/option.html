@@ -1,0 +1,24 @@
+<div class="form-horizontal question-editor-option mart10">
+
+    <div class="col-md-12">
+        <div class="col-md-6 question-option-empty" ng-class="{'question-correct-option':option.correctOption}">
+            <input type="text" focus-on="opt{{option.id}}" class="make-inline question-option-input radiobut"
+                   ng-model="option.option"
+                   ng-click="$ctrl.selectIfDefault(option.option, $event)"
+                   required="true"/>
+        </div>
+        <div class="col-md-2 question-option-empty-radio" ng-class="{'question-correct-option-radio':option.correctOption}">
+            <input name="correctOption" type="radio" ng-model="option.correctOption" ng-value="true" ng-click="$ctrl.correctAnswerToggled(option)"
+                   ng-disabled="option.correctOption == true" class="make-inline question-option-radio">
+        </div>
+
+        <div ng-hide="lotteryOn" ng-click="$ctrl.removeOption(option)" class="col-md-1 question-option-trash">
+            <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
+        </div>
+        <div class="col-md-3">
+        </div>
+
+    </div>
+
+</div>
+

@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("exam.resources")
+    angular.module('app.enrolment')
         .factory("EnrollRes", ['$resource', function ($resource) {
             return {
                 list: $resource("/app/enroll/:code",
@@ -19,12 +19,12 @@
                         "get": {method: "GET", isArray: false, params: {code: "@code", id: "@id"}},
                         "create": {method: "POST", params: {code: "@code", id: "@id"}}
                     }),
-                enrollStudent: $resource("/app/enroll/student/:eid/:uid",
+                enrollStudent: $resource("/app/enroll/student/:eid",
                     {
-                        eid: "@eid", uid: "@uid"
+                        eid: "@eid"
                     },
                     {
-                        "create": {method: "POST", params: {eid: "@eid", uid: "@uid"}}
+                        "create": {method: "POST", params: {eid: "@eid"}}
                     }),
                 unenrollStudent: $resource("/app/enroll/student/:id", {id: "@id"}, {"remove": {method: "DELETE"}}),
                 reservations: $resource("/app/machines/:id/reservations",

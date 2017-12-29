@@ -4,7 +4,7 @@ package system;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -15,7 +15,7 @@ import play.inject.ApplicationLifecycle;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
 import util.AppUtil;
-import util.java.EmailComposer;
+import impl.EmailComposer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -38,6 +38,8 @@ class SystemInitializer {
     private static final int EXAM_EXPIRY_POLLER_INTERVAL_DAYS = 1;
     private static final int AUTO_EVALUATION_NOTIFIER_START_AFTER_SECONDS = 60;
     private static final int AUTO_EVALUATION_NOTIFIER_INTERVAL_MINUTES = 15;
+    private static final int ASSESSMENT_SENDER_START_AFTER_SECONDS = 70;
+    private static final int ASSESSMENT_SENDER_INTERVAL_HOURS = 1;
     private static final int RESERVATION_REMINDER_START_AFTER_SECONDS = 80;
     private static final int RESERVATION_REMINDER_INTERVAL_MINUTES = 10;
 
@@ -54,6 +56,7 @@ class SystemInitializer {
                       @Named("reservation-checker-actor") ActorRef reservationChecker,
                       @Named("auto-evaluation-notifier-actor") ActorRef autoEvaluationNotifier,
                       @Named("exam-expiration-actor") ActorRef examExpirationChecker,
+                      @Named("assessment-sender-actor") ActorRef assessmentSender,
                       @Named("reservation-reminder-actor") ActorRef reservationReminder) {
 
         this.system = system;
@@ -93,6 +96,11 @@ class SystemInitializer {
                 autoEvaluationNotifier, "tick",
                 system.dispatcher(), null
         ));
+        tasks.put("EXTERNAL_EXAM_SENDER", system.scheduler().schedule(
+                Duration.create(ASSESSMENT_SENDER_START_AFTER_SECONDS, TimeUnit.SECONDS),
+                Duration.create(ASSESSMENT_SENDER_INTERVAL_HOURS, TimeUnit.HOURS),
+                assessmentSender, "tick", system.dispatcher(), null
+        ));
         tasks.put("RESERVATION_REMINDER", system.scheduler().schedule(
                 Duration.create(RESERVATION_REMINDER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                 Duration.create(RESERVATION_REMINDER_INTERVAL_MINUTES, TimeUnit.MINUTES),
@@ -108,9 +116,10 @@ class SystemInitializer {
         });
     }
 
-    private int secondsUntilNextMondayRun(int scheduledHour) {
+    private int secondsUntilNextMondayRun() {
         DateTime now = DateTime.now();
-        int adjustedHours = scheduledHour;
+        // Every Monday at 5AM UTC
+        int adjustedHours = 5;
         if (!AppUtil.getDefaultTimeZone().isStandardOffset(now.getMillis())) {
             // Have the run happen an hour earlier to take care of DST offset
             adjustedHours -= 1;
@@ -126,11 +135,11 @@ class SystemInitializer {
             nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
         }
         // Case for: now there's no DST but by next run there will be.
-        if (adjustedHours == scheduledHour && !AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
+        if (adjustedHours == 5 && !AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
             nextRun = nextRun.minusHours(1);
         }
         // Case for: now there's DST but by next run there won't be
-        else if (adjustedHours != scheduledHour && AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
+        else if (adjustedHours != 5 && AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
             nextRun = nextRun.plusHours(1);
         }
 
@@ -141,8 +150,7 @@ class SystemInitializer {
     }
 
     private void scheduleWeeklyReport() {
-        // Every Monday at 5AM UTC
-        FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(5), TimeUnit.SECONDS);
+        FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(), TimeUnit.SECONDS);
         Cancellable reportTask = tasks.remove("REPORT_SENDER");
         if (reportTask != null) {
             reportTask.cancel();

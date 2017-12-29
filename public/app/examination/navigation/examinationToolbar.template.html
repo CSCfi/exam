@@ -1,0 +1,143 @@
+<!-- SECTIONS AREA -->
+<div class="top-padding-6">
+    <div class="row bottom-padding-2 right-column-box padr15 padl15">
+
+        <!-- USERNAME -->
+        <div class="info-column bot-border">
+            <img src="/assets/assets/images/icon_user.svg" alt="exam"
+                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_user.png';"/><span
+                class="user-span">{{ $ctrl.displayUser() }}</span>
+        </div>
+
+        <!-- RETURN -->
+        <div class="" ng-hide="$ctrl.isPreview">
+            <div class="pointer" ng-click="$ctrl.turnExam()">
+                <a class="green_button save-and-exit">{{'sitnet_save_and_return_exam' | translate}}</a>
+            </div>
+        </div>
+
+        <!-- ABORT -->
+        <div class="button-separator" ng-hide="$ctrl.isPreview">
+            <div class="pointer" ng-click="$ctrl.abortExam()">
+                <a class="grey-button abort-and-exit">
+                    <img src="/assets/assets/images/icon_exit.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_exit.png';"/><span
+                        class="abort-and-exit">{{'sitnet_abort_exam' | translate}}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- COURSE NAME -->
+    <div class="padl15">
+        <div class="more-separators"></div>
+    </div>
+    <div class="right-title">{{ $ctrl.exam.course.name }}</div>
+
+    <!-- ATTACHMENT -->
+    <div class="padl20" ng-show="$ctrl.exam.attachment">
+        <div class="row pointer attachment-button" ng-click="$ctrl.downloadExamAttachment()">
+            <a class="green_button left-floater">
+                {{'sitnet_exam_attachment' | translate}} <img
+                    src="/assets/assets/images/icon_attachment.svg" alt="exam"
+                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_attachment.png';"/>
+            </a>
+        </div>
+        <div class="attachment-name">{{$ctrl.exam.attachment.fileName | uppercase}}</div>
+
+    </div>
+
+
+    <div class="top-padding-2 bottom-padding-2 padl15">
+        <ul class="list-muted">
+
+            <li class="row pointer phase-box" ng-class="!$ctrl.activeSection ? '' : 'notactive'"
+                ng-click="$ctrl.selectGuidePage()">
+                <div class="col-md-11 vcenter">{{'sitnet_exam_guide' | translate}}</div>
+            </li>
+
+            <li class="row pointer phase-box"
+                ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'"
+                ng-class="$ctrl.activeSection.index === section.index ? '' : 'notactive'"
+                ng-click="$ctrl.selectSection(section)"
+                popover-placement="left"
+                popover-trigger="'mouseenter'"
+                uib-popover="{{section.name}}: {{'sitnet_question_status_answered' | translate}}
+                 {{ $ctrl.getQuestionAmount(section, 'answered')}}, {{'sitnet_questions_total' | translate}}
+                 {{ $ctrl.getQuestionAmount(section, 'total') }}">
+
+                <div class="pull-left marr10">
+                    <div class="question-type-img-wrap"
+                         ng-if="$ctrl.getQuestionAmount(section, 'answered') === $ctrl.getQuestionAmount(section, 'total')">
+                        <img src="/assets/assets/images/icon_question_type_ready_grey.png"
+                             alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_question_type_ready_grey.png';"/>
+                    </div>
+                    <div class="question-type-img-wrap"
+                         ng-if="$ctrl.getQuestionAmount(section, 'answered') !== getQuestionAmount(section, 'total')">
+                        <img src="/assets/assets/images/icon_question_type_waiting.svg"
+                             alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_question_type_waiting.png';"/>
+                    </div>
+                </div>
+
+                <div class="vcenter"
+                     ng-class="$ctrl.activeSection.index === section.index ? 'sitnet-text' : 'sitnet-text-dark'">
+                    {{section.index}}. {{section.name}}
+                </div>
+                <div class="pull-right vcenter section-answered">
+                    <span class="pull-left">{{ $ctrl.getQuestionAmount(section, 'answered') }}</span>
+                    <span class="pull-left horizontal-padding-05"> / </span>
+                    <span class="pull-left">{{ $ctrl.getQuestionAmount(section, 'total') }}</span>
+                </div>
+            </li>
+        </ul>
+
+        <!-- INSTRUCTIONS -->
+        <div class="col-md-12" ng-hide="$ctrl.exam.executionType.type === 'MATURITY'">
+            <div class="row pointer" popover-placement="left" popover-trigger="'mouseenter'"
+                 uib-popover="{{ $ctrl.displayRoomInstructions() }}">
+                <a class="col-md-1" style="margin-top: 7px;">
+                    <img src="/assets/assets/images/icon_info.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"/>
+                </a>
+                <div class="col-md-10 question-text question-type-text info">
+                    {{'sitnet_room_guidance' | translate}}
+                </div>
+            </div>
+        </div>
+
+        <!-- MATURITY INSTRUCTIONS -->
+        <div class="col-md-12" ng-click="$ctrl.showMaturityInstructions()"
+             ng-show="$ctrl.exam.executionType.type==='MATURITY'">
+            <div class="row pointer">
+                <a class="col-md-1" style="margin-top: 7px;">
+                    <img src="/assets/assets/images/icon_info.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"/>
+                </a>
+                <div class="col-md-10 question-text question-type-text info">
+                    {{'sitnet_maturity_instructions' | translate}}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12" ng-show="$ctrl.isPreview">
+            <div class="row pointer" ng-click="$ctrl.exitPreview()">
+                <a class="col-md-1" style="margin-top: 7px;">
+                    <img src="/assets/assets/images/icon_info.svg" alt="exam"
+                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"/>
+                </a>
+                <div class="col-md-10 question-text question-type-text info">
+                    {{'sitnet_exit_preview' | translate}}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+

@@ -20,6 +20,12 @@ public class ExternalReservation extends GeneratedIdentityModel {
 
     private String roomTz;
 
+    private String roomInstruction;
+
+    private String roomInstructionEN;
+
+    private String roomInstructionSV;
+
     public String getOrgRef() {
         return orgRef;
     }
@@ -66,5 +72,29 @@ public class ExternalReservation extends GeneratedIdentityModel {
 
     public void setRoomTz(String roomTz) {
         this.roomTz = roomTz;
+    }
+
+    public String getRoomInstruction() {
+        return roomInstruction;
+    }
+
+    public void setRoomInstruction(String roomInstruction) {
+        this.roomInstruction = roomInstruction;
+    }
+
+    public String getRoomInstructionEN() {
+        return roomInstructionEN;
+    }
+
+    public void setRoomInstructionEN(String roomInstructionEN) {
+        this.roomInstructionEN = roomInstructionEN;
+    }
+
+    public String getRoomInstructionSV() {
+        return roomInstructionSV;
+    }
+
+    public void setRoomInstructionSV(String roomInstructionSV) {
+        this.roomInstructionSV = roomInstructionSV;
     }
 }

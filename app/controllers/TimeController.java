@@ -2,8 +2,9 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import controllers.base.BaseController;
+import models.Exam;
 import models.ExamEnrolment;
 import models.User;
 import org.joda.time.DateTime;
@@ -13,6 +14,8 @@ import org.joda.time.format.DateTimeFormatter;
 import play.mvc.Result;
 import util.AppUtil;
 
+import java.io.IOException;
+
 
 public class TimeController extends BaseController {
 
@@ -20,13 +23,7 @@ public class TimeController extends BaseController {
 
 
     @Restrict({@Group("STUDENT")})
-    public Result getTime() {
-        return ok(DateTime.now().toString(format));
-    }
-
-
-    @Restrict({@Group("STUDENT")})
-    public Result getExamRemainingTime(Long examId) {
+    public Result getExamRemainingTime(String hash) throws IOException {
 
         User user = getLoggedUser();
         if (user == null) {
@@ -38,8 +35,12 @@ public class TimeController extends BaseController {
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
                 .fetch("exam")
+                .fetch("externalExam")
                 .where()
-                .eq("exam.id", examId)
+                .disjunction()
+                .eq("exam.hash", hash)
+                .eq("externalExam.hash", hash)
+                .endJunction()
                 .eq("user.id", user.getId())
                 .findUnique();
 
@@ -48,11 +49,19 @@ public class TimeController extends BaseController {
         }
 
         final DateTime reservationStart = new DateTime(enrolment.getReservation().getStartAt());
-        final int durationMinutes = enrolment.getExam().getDuration();
+        final int durationMinutes = getDuration(enrolment);
         DateTime now = AppUtil.adjustDST(DateTime.now(), enrolment.getReservation());
         final Seconds timeLeft = Seconds.secondsBetween(now, reservationStart.plusMinutes(durationMinutes));
 
         return ok(String.valueOf(timeLeft.getSeconds()));
+    }
+
+    private int getDuration(ExamEnrolment enrolment) throws IOException {
+        if (enrolment.getExam() != null) {
+            return enrolment.getExam().getDuration();
+        }
+        Exam exam = enrolment.getExternalExam().deserialize();
+        return exam.getDuration();
     }
 
 }

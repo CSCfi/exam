@@ -5,9 +5,9 @@ import be.objectify.deadbolt.java.actions.Dynamic;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
 import controllers.base.BaseController;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import models.Comment;
 import models.Exam;
 import models.LanguageInspection;
@@ -18,7 +18,7 @@ import play.data.DynamicForm;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
-import util.java.EmailComposer;
+import impl.EmailComposer;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -36,7 +36,7 @@ public class LanguageInspectionController extends BaseController {
     @Inject
     protected ActorSystem actor;
 
-    @Dynamic(value="inspector or admin", meta="pattern=CAN_INSPECT_LANGUAGE,role=ADMIN,anyMatch=true")
+    @Dynamic(value = "inspector or admin", meta = "pattern=CAN_INSPECT_LANGUAGE,role=ADMIN,anyMatch=true")
     public Result listInspections(Optional<String> month, Optional<Long> start, Optional<Long> end) {
         ExpressionList<LanguageInspection> query = Ebean.find(LanguageInspection.class)
                 .fetch("exam")
@@ -46,9 +46,11 @@ public class LanguageInspectionController extends BaseController {
                 .fetch("statement")
                 .fetch("creator", "firstName, lastName, email, userIdentifier")
                 .fetch("assignee", "firstName, lastName, email, userIdentifier")
-                .where();
+                .where()
+                .ne("exam.state", Exam.State.DELETED);
 
-        if(start.isPresent() || end.isPresent()) {
+        if (start.isPresent() || end.isPresent()) {
+            long x = 100;
             if (start.isPresent()) {
                 DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
                 query = query.ge("finishedAt", startDate.toDate());
@@ -58,13 +60,11 @@ public class LanguageInspectionController extends BaseController {
                 DateTime endDate = new DateTime(end.get()).plusDays(1).withTimeAtStartOfDay();
                 query = query.lt("finishedAt", endDate.toDate());
             }
-        }
-        else if (month.isPresent()) {
+        } else if (month.isPresent()) {
             DateTime startWithMonth = DateTime.parse(month.get()).withDayOfMonth(1).withMillisOfDay(0);
             DateTime endWithMonth = startWithMonth.plusMonths(1);
             query = query.between("finishedAt", startWithMonth.toDate(), endWithMonth.toDate());
-        }
-        else {
+        } else {
             DateTime beginningOfYear = DateTime.now().withDayOfYear(1);
             query = query
                     .disjunction()
@@ -183,7 +183,7 @@ public class LanguageInspectionController extends BaseController {
         statement.update();
         AppUtil.setModifier(inspection, user);
         inspection.update();
-        return ok(statement);
+        return ok(inspection);
     }
 
 }

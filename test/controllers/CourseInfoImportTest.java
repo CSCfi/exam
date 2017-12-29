@@ -4,7 +4,7 @@ import base.IntegrationTestCase;
 import base.RunAsAdmin;
 import base.RunAsStudent;
 import base.RunAsTeacher;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Course;
 import models.Grade;

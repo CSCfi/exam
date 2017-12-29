@@ -8,6 +8,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 @Entity
 public class EssayAnswer extends OwnedModel implements AttachmentContainer {
@@ -45,5 +46,13 @@ public class EssayAnswer extends OwnedModel implements AttachmentContainer {
 
     public void setEvaluatedScore(Double evaluatedScore) {
         this.evaluatedScore = evaluatedScore;
+    }
+
+    @Transient
+    public EssayAnswer copy() {
+        EssayAnswer essayAnswer = new EssayAnswer();
+        essayAnswer.setAnswer(answer);
+        essayAnswer.save();
+        return essayAnswer;
     }
 }
