@@ -10,3 +10,6 @@ test-2.11
 test-2.12
 .DS_STORE
 package-lock.json
+public/app/exam.js
+public/app/exam.min.js
+public/app/exam.min.js.map
