@@ -127,56 +127,67 @@ public class CalendarController extends BaseController {
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
         DateTime now = AppUtil.adjustDST(DateTime.now(), room);
         final User user = getLoggedUser();
-        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .where()
-                .eq("user.id", user.getId())
-                .eq("exam.id", examId)
-                .eq("exam.state", Exam.State.PUBLISHED)
-                .disjunction()
-                .isNull("reservation")
-                .gt("reservation.startAt", now.toDate())
-                .endJunction()
-                .findUnique();
-        Optional<Result> badEnrolment = checkEnrolment(enrolment, user);
-        if (badEnrolment.isPresent()) {
-            return wrapAsPromise(badEnrolment.get());
-        }
-        Optional<ExamMachine> machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
-        if (!machine.isPresent()) {
-            return wrapAsPromise(forbidden("sitnet_no_machines_available"));
-        }
-
-        // We are good to go :)
-        Reservation oldReservation = enrolment.getReservation();
-        Reservation reservation = new Reservation();
-        reservation.setEndAt(end);
-        reservation.setStartAt(start);
-        reservation.setMachine(machine.get());
-        reservation.setUser(user);
-
-        // If this is due in less than a day, make sure we won't send a reminder
-        if (start.minusDays(1).isBeforeNow()) {
-            reservation.setReminderSent(true);
-        }
-
-        // Nuke the old reservation if any
-        if (oldReservation != null) {
-            String externalReference = oldReservation.getExternalRef();
-            if (externalReference != null) {
-                return externalReservationHandler.removeReservation(oldReservation, user)
-                        .thenCompose(result -> {
-                            // Refetch enrolment, otherwise
-                            ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());
-                            return makeNewReservation(updatedEnrolment, reservation, user);
-                        });
-            } else {
-                enrolment.setReservation(null);
-                enrolment.update();
-                oldReservation.delete();
+        // Start manual transaction.
+        Ebean.beginTransaction();
+        try {
+            // Take pessimistic lock for user to prevent multiple reservations creating.
+            Ebean.find(User.class).setForUpdate(true).where().eq("id", user.getId()).findUnique();
+            final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                    .fetch("reservation")
+                    .where()
+                    .eq("user.id", user.getId())
+                    .eq("exam.id", examId)
+                    .eq("exam.state", Exam.State.PUBLISHED)
+                    .disjunction()
+                    .isNull("reservation")
+                    .gt("reservation.startAt", now.toDate())
+                    .endJunction()
+                    .findUnique();
+            Optional<Result> badEnrolment = checkEnrolment(enrolment, user);
+            if (badEnrolment.isPresent()) {
+                return wrapAsPromise(badEnrolment.get());
             }
+            Optional<ExamMachine> machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
+            if (!machine.isPresent()) {
+                return wrapAsPromise(forbidden("sitnet_no_machines_available"));
+            }
+
+            // We are good to go :)
+            Reservation oldReservation = enrolment.getReservation();
+            Reservation reservation = new Reservation();
+            reservation.setEndAt(end);
+            reservation.setStartAt(start);
+            reservation.setMachine(machine.get());
+            reservation.setUser(user);
+
+            // If this is due in less than a day, make sure we won't send a reminder
+            if (start.minusDays(1).isBeforeNow()) {
+                reservation.setReminderSent(true);
+            }
+
+            // Nuke the old reservation if any
+            if (oldReservation != null) {
+                String externalReference = oldReservation.getExternalRef();
+                if (externalReference != null) {
+                    return externalReservationHandler.removeReservation(oldReservation, user)
+                            .thenCompose(result -> {
+                                // Refetch enrolment, otherwise
+                                ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());
+                                return makeNewReservation(updatedEnrolment, reservation, user);
+                            });
+                } else {
+                    enrolment.setReservation(null);
+                    enrolment.update();
+                    oldReservation.delete();
+                }
+            }
+            final CompletionStage<Result> result = makeNewReservation(enrolment, reservation, user);
+            Ebean.commitTransaction();
+            return result;
+        } finally {
+            // End transaction to release lock.
+            Ebean.endTransaction();
         }
-        return makeNewReservation(enrolment, reservation, user);
     }
 
     private CompletionStage<Result> makeNewReservation(ExamEnrolment enrolment, Reservation reservation, User user) {

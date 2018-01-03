@@ -25,8 +25,18 @@ angular.module('app.enrolment')
 
                 var vm = this;
 
+                vm.$onInit = function () {
+                    vm.enrolling = false;
+                };
+
                 vm.enrollForExam = function () {
-                    Enrolment.checkAndEnroll(vm.exam);
+                    if (vm.enrolling) {
+                        return;
+                    }
+                    vm.enrolling = true;
+                    Enrolment.checkAndEnroll(vm.exam).then(function () {
+                        vm.enrolling = false;
+                    });
                 };
 
                 vm.makeReservation = function () {
