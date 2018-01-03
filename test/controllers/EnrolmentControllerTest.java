@@ -15,7 +15,9 @@ import models.ExamRoom;
 import models.Reservation;
 import models.User;
 import models.json.ExternalExam;
+import net.jodah.concurrentunit.Waiter;
 import org.eclipse.jetty.server.Server;
+import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -24,6 +26,7 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+import static play.test.Helpers.contentAsString;
 import util.JsonDeserializer;
 
 import javax.servlet.http.HttpServlet;
@@ -33,9 +36,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.UUID;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
+import java.util.stream.IntStream;
 
 
 public class EnrolmentControllerTest extends IntegrationTestCase {
@@ -125,6 +126,24 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("exam.id", exam.getId())
                 .eq("user.id", user.getId()).findUnique();
         assertThat(enrolment).isNotNull();
+    }
+
+    @Test
+    @RunAsStudent
+    public void testConcurentCreateEnrolment() throws Exception {
+        final int callCount = 10;
+        final Waiter waiter = new Waiter();
+
+        IntStream.range(0, callCount).parallel().forEach(i -> new Thread(() -> {
+            request(Helpers.POST,
+                    String.format("/app/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
+            waiter.resume();
+        }).start());
+
+        waiter.await(5000, callCount);
+        final int count = Ebean.find(ExamEnrolment.class).where().eq("exam.id", exam.getId())
+                .eq("user.id", user.getId()).findCount();
+        assertThat(count).isEqualTo(1);
     }
 
     @Test
