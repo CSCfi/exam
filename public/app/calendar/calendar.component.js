@@ -28,6 +28,7 @@ angular.module('app.calendar')
                 var vm = this;
 
                 vm.$onInit = function () {
+                    vm.confirming = false;
                     vm.limitations = {};
                     vm.openingHours = [];
                     vm.exceptionHours = [];
@@ -236,14 +237,20 @@ angular.module('app.calendar')
                 };
 
                 vm.confirmReservation = function () {
-                    if (vm.reservation) {
-                        Calendar.reserve(
-                            vm.reservation.start,
-                            vm.reservation.end,
-                            vm.selectedRoom(),
-                            vm.accessibilities,
-                            vm.selectedOrganisation);
+                    if (!vm.reservation || vm.confirming) {
+                        return;
                     }
+                    vm.confirming = true;
+                    Calendar.reserve(
+                        vm.reservation.start,
+                        vm.reservation.end,
+                        vm.selectedRoom(),
+                        vm.accessibilities,
+                        vm.selectedOrganisation).then(
+                        function () {
+                            vm.confirming = false;
+                        }
+                    );
                 };
 
                 vm.setOrganisation = function (org) {

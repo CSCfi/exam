@@ -53,18 +53,28 @@
                 };
 
                 self.checkAndEnroll = function (exam) {
+                    var deferred = $q.defer();
                     EnrollRes.check.get({id: exam.id}, function () {
                             // already enrolled
                             toast.error($translate.instant('sitnet_already_enrolled'));
+                            deferred.resolve();
                         }, function (err) {
                             if (err.status === 403) {
                                 toast.error(err.data);
+                                deferred.reject(err);
                             }
                             if (err.status === 404) {
-                                self.enroll(exam);
+                                self.enroll(exam).then(function () {
+                                    deferred.resolve();
+                                }, function (error) {
+                                    deferred.reject(error);
+                                });
+                            } else {
+                                deferred.resolve();
                             }
                         }
                     );
+                    return deferred.promise;
                 };
 
                 self.enrollStudent = function (exam, student) {

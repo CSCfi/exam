@@ -347,7 +347,7 @@
 
         <div class="calendar-button-save">
 
-            <div ng-disabled="!$ctrl.reservation" ng-class="$ctrl.reservation ? 'calendar-button-save-activated' : 'link-button'">
+            <div ng-disabled="!$ctrl.reservation || $ctrl.confirming" ng-class="$ctrl.reservation ? 'calendar-button-save-activated' : 'link-button'">
                 <a class="link-button" ng-click="$ctrl.confirmReservation()">{{'sitnet_student_confirm_reservation' |
                     translate}}
                 </a>
