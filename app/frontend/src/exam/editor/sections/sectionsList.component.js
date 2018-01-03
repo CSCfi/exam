@@ -13,23 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.exam.editor')
     .component('sections', {
-        templateUrl: '/assets/app/exam/editor/sections/sectionsList.template.html',
+        template: require('./sectionsList.template.html'),
         bindings: {
             exam: '<',
             onNextTabSelected: '&',
             onPreviousTabSelected: '&',
             onNewLibraryQuestion: '&'
         },
-        controller: ['$q', '$translate', '$location', 'dialogs', 'ExamRes', 'Exam', 'toast',
-            function ($q, $translate, $location, dialogs, ExamRes, Exam, toast) {
+        controller: ['$q', '$translate', '$location', 'dialogs', 'ExamRes', 'Exam',
+            function ($q, $translate, $location, dialogs, ExamRes, Exam) {
 
-                var vm = this;
+                const vm = this;
 
-                var init = function () {
+                const init = function () {
                     vm.exam.examSections.sort(function (a, b) {
                         return a.sequenceNumber - b.sequenceNumber;
                     });
@@ -75,7 +77,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.updateExam = function (silent) {
-                    var deferred = $q.defer();
+                    const deferred = $q.defer();
                     Exam.updateExam(vm.exam).then(function () {
                         if (!silent) {
                             toast.info($translate.instant('sitnet_exam_saved'));
@@ -83,7 +85,7 @@ angular.module('app.exam.editor')
                         deferred.resolve();
                     }, function (error) {
                         if (error.data) {
-                            var msg = error.data.message || error.data;
+                            const msg = error.data.message || error.data;
                             toast.error($translate.instant(msg));
                         }
                         deferred.reject();
@@ -92,13 +94,13 @@ angular.module('app.exam.editor')
                 };
 
                 vm.previewExam = function (fromTab) {
-                    var resource = vm.exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
+                    const resource = vm.exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
                     $location.path('/exams/' + vm.exam.id + '/view/' + resource + '/' + fromTab);
                 };
 
                 vm.removeExam = function () {
                     if (isAllowedToUnpublishOrRemove()) {
-                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
+                        const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                         dialog.result.then(function () {
                             ExamRes.exams.remove({id: vm.exam.id}, function () {
                                 toast.success($translate.instant('sitnet_exam_removed'));
@@ -138,12 +140,12 @@ angular.module('app.exam.editor')
                     vm.onNewLibraryQuestion();
                 };
 
-                var isAllowedToUnpublishOrRemove = function () {
+                const isAllowedToUnpublishOrRemove = function () {
                     // allowed if no upcoming reservations and if no one has taken this yet
                     return !vm.exam.hasEnrolmentsInEffect && vm.exam.children.length === 0;
                 };
 
-                var updateSectionIndices = function () {
+                const updateSectionIndices = function () {
                     // set sections and question numbering
                     angular.forEach(vm.exam.examSections, function (section, index) {
                         section.index = index + 1;

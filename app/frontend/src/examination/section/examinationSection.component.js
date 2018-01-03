@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.examination')
     .component('examinationSection', {
-        templateUrl: '/assets/app/examination/section/examinationSection.template.html',
+        template: require('./examinationSection.template.html'),
         bindings: {
             examHash: '<',
             isPreview: '<',
@@ -26,8 +26,8 @@ angular.module('app.examination')
         controller: ['$interval', 'Examination',
             function ($interval, Examination) {
 
-                var vm = this;
-                var _autosaver = null;
+                const vm = this;
+                let _autosaver = null;
 
                 vm.$onInit = function () {
                     resetAutosaver();
@@ -45,7 +45,7 @@ angular.module('app.examination')
                     cancelAutosaver();
                 };
 
-                var resetAutosaver = function () {
+                const resetAutosaver = function () {
                     cancelAutosaver();
                     if (vm.section) {
                         _autosaver = $interval(function () {
@@ -54,7 +54,7 @@ angular.module('app.examination')
                     }
                 };
 
-                var cancelAutosaver = function () {
+                const cancelAutosaver = function () {
                     if (_autosaver) {
                         $interval.cancel(_autosaver);
                         _autosaver = null;

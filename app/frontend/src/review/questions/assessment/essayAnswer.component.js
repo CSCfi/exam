@@ -13,10 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.review')
     .component('essayAnswer', {
-        templateUrl: '/assets/app/review/questions/assessment/essayAnswer.template.html',
+        template: require('./essayAnswer.template.html'),
         bindings: {
             answer: '<',
             editable: '<',
@@ -26,7 +27,7 @@ angular.module('app.review')
         controller: ['Assessment',
             function (Assessment) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.answer.expanded = true;

@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.examination')
     .component('examinationMultiChoiceQuestion', {
@@ -36,10 +36,10 @@ angular.module('app.examination')
         controller: ['Examination',
             function (Examination) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
-                    var answered = vm.sq.options.filter(function (o) {
+                    const answered = vm.sq.options.filter(function (o) {
                         return o.answered;
                     });
                     if (answered.length > 1) {

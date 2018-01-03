@@ -13,13 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'';
-'use strict';
+var toastr = require('toastr');
+
 angular.module('app.session')
     .service('Session', ['$q', '$interval', '$sessionStorage', '$translate', '$injector', '$location',
-        '$rootScope', '$timeout', 'tmhDynamicLocale', 'EXAM_CONF', 'toast',
-        function ($q, $interval, $sessionStorage, $translate, $injector, $location, $rootScope, $timeout,
-                  tmhDynamicLocale, EXAM_CONF, toast) {
+        '$rootScope', '$timeout', 'EXAM_CONF',
+        function ($q, $interval, $sessionStorage, $translate, $injector, $location, $rootScope, $timeout, EXAM_CONF) {
 
             var self = this;
 
@@ -88,7 +87,7 @@ angular.module('app.session')
             self.setLoginEnv = function (scope) {
                 init().then(function () {
                     if (!_env.isProd) {
-                        scope.loginTemplatePath = EXAM_CONF.TEMPLATES_PATH + 'session/templates/dev_login.html';
+                        scope.devLoginRequired = true;
                     }
                 });
             };
@@ -104,7 +103,7 @@ angular.module('app.session')
 
             var onLogoutSuccess = function (data) {
                 $rootScope.$broadcast('userUpdated');
-                toast.success($translate.instant('sitnet_logout_success'));
+                toastr.success($translate.instant('sitnet_logout_success'));
                 window.onbeforeunload = null;
                 var localLogout = window.location.protocol + '//' + window.location.host + '/Shibboleth.sso/Logout';
                 if (data && data.logoutUrl) {
@@ -117,7 +116,7 @@ angular.module('app.session')
                     $location.path('/');
                     $rootScope.$broadcast('devLogout');
                 }
-                $timeout(toast.clear, 300);
+                $timeout(toastr.clear, 300);
             };
 
             self.logout = function () {
@@ -130,14 +129,13 @@ angular.module('app.session')
                     _user = undefined;
                     onLogoutSuccess(resp.data);
                 }).catch(function (error) {
-                    toast.error(error.data);
+                    toastr.error(error.data);
                 });
             };
 
             self.translate = function (lang) {
                 $translate.use(lang);
-                tmhDynamicLocale.set(lang);
-            };
+                $rootScope.$broadcast('$localeChangeSuccess');            };
 
             self.openEulaModal = function (user) {
                 modal().open({
@@ -154,7 +152,7 @@ angular.module('app.session')
                             route().reload();
                         }
                     }, function (error) {
-                        toast.error(error.data);
+                        toastr.error(error.data);
                     });
 
                 }, function () {
@@ -183,7 +181,7 @@ angular.module('app.session')
                                 route().reload();
                             }
                         }, function (error) {
-                            toast.error(error.data);
+                            toastr.error(error.data);
                             $location.path('/logout');
                         });
 
@@ -222,10 +220,10 @@ angular.module('app.session')
                 self.restartSessionCheck();
                 $rootScope.$broadcast('userUpdated');
                 var welcome = function () {
-                    toast.options.positionClass = 'toast-top-center';
-                    toast.success($translate.instant('sitnet_welcome') + ' ' + _user.firstName + ' ' + _user.lastName);
+                    toastr.options.positionClass = 'toast-top-center';
+                    toastr.success($translate.instant('sitnet_welcome') + ' ' + _user.firstName + ' ' + _user.lastName);
                     $timeout(function () {
-                        toast.options.positionClass = 'toast-top-right';
+                        toastr.options.positionClass = 'toast-top-right';
                     }, 2500);
                 };
                 $timeout(welcome, 2000);
@@ -241,7 +239,7 @@ angular.module('app.session')
 
             var onLoginFailure = function (message) {
                 $location.path('/');
-                toast.error(message);
+                toastr.error(message);
             };
 
             var processLoggedInUser = function (user) {
@@ -312,7 +310,7 @@ angular.module('app.session')
                         _user.lang = lang;
                         self.translate(lang);
                     }).catch(function () {
-                        toast.error('failed to switch language');
+                        toastr.error('failed to switch language');
                     });
                 }
             };
@@ -320,17 +318,17 @@ angular.module('app.session')
             var checkSession = function () {
                 http().get('/app/checkSession').then(function (resp) {
                     if (resp.data === 'alarm') {
-                        toast.options = {
+                        toastr.options = {
                             timeOut: 0,
                             preventDuplicates: true,
                             onclick: function () {
                                 http().put('/app/extendSession', {}).then(function () {
-                                    toast.info($translate.instant('sitnet_session_extended'));
-                                    toast.options.timeout = 1000;
+                                    toastr.info($translate.instant('sitnet_session_extended'));
+                                    toastr.options.timeout = 1000;
                                 });
                             }
                         };
-                        toast.warning($translate.instant('sitnet_continue_session'),
+                        toastr.warning($translate.instant('sitnet_continue_session'),
                             $translate.instant('sitnet_session_will_expire_soon'));
                     } else if (resp.data === 'no_session') {
                         if (_scheduler) {

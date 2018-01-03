@@ -13,18 +13,40 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+require('angular');
+require('angular-resource');
+require('angular-route');
+require('ngstorage');
+require('angular-translate');
+
+import configs from './app.config';
+import constants from './app.constant';
+import run from './app.run';
+
+require('./utility');
+require('./session');
+require('./dashboard');
+require('./navigation');
+require('./reservation');
+require('./maturity');
+require('./enrolment/enrolment.module');
+require('./administrative/administrative.module');
+require('./software/software.module');
+
+require('toastr/toastr.scss');
+require('font-awesome/css/font-awesome.min.css');
 
 angular.module('app', [
     'ngResource',
     'ngRoute',
     'ngStorage',
-    'tmh.dynamicLocale',
     'app.session',
     'app.navigation',
     'app.enrolment',
     'app.dashboard',
     'app.administrative',
     'app.software'
-]);
+]).constant('EXAM_CONF', constants).config(configs).run(run);
 
+require('./app.directive');
+require('./app.filter');

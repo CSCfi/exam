@@ -13,51 +13,53 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import angular from'angular';
+
 angular.module('app.navigation')
     .component("navigation", {
-        templateUrl: '/assets/app/navigation/navigation.template.html',
+        template: require('./navigation.template.html'),
         controller: ['$rootScope', '$location', 'Session', 'Navigation',
             function ($rootScope, $location, Session, Navigation) {
 
-                var ctrl = this;
+                const vm = this;
 
-                ctrl.isActive = function (link) {
+                vm.isActive = function (link) {
                     return link.href === $location.path();
                 };
 
-                ctrl.canDisplayFullNavbar = function () {
+                vm.canDisplayFullNavbar = function () {
                     return window.matchMedia("(min-width: 600px)").matches;
                 };
 
-                ctrl.openMenu = function () {
-                    ctrl.mobileMenuOpen = !ctrl.mobileMenuOpen;
+                vm.openMenu = function () {
+                    vm.mobileMenuOpen = !vm.mobileMenuOpen;
                 };
 
-                var links = function () {
-                    ctrl.user = Session.getUser();
+                const links = function () {
+                    vm.user = Session.getUser();
 
-                    if (!ctrl.user || ctrl.user.isLoggedOut) {
-                        ctrl.loggedOut = true;
-                        delete ctrl.appVersion;
+                    if (!vm.user || vm.user.isLoggedOut) {
+                        vm.loggedOut = true;
+                        delete vm.appVersion;
                         return [];
                     }
 
-                    var admin = ctrl.user.isAdmin || false;
-                    var student = ctrl.user.isStudent || false;
-                    var teacher = ctrl.user.isTeacher || false;
-                    var languageInspector = ctrl.user.isTeacher && ctrl.user.isLanguageInspector;
+                    const admin = vm.user.isAdmin || false;
+                    const student = vm.user.isStudent || false;
+                    const teacher = vm.user.isTeacher || false;
+                    const languageInspector = vm.user.isTeacher && vm.user.isLanguageInspector;
 
                     if (admin) {
                         Navigation.appVersion.get(function (data) {
-                            ctrl.appVersion = data.appVersion;
+                            vm.appVersion = data.appVersion;
                         });
                     }
 
                     // Do not show if waiting for exam to begin
-                    var hideDashboard = /\/student\/waiting-room|wrong-machine|wrong-room/.test($location.path());
+                    const hideDashboard = /\/student\/waiting-room|wrong-machine|wrong-room/.test($location.path());
 
                     // Change the menu item title if student
-                    var nameForDashboard = "sitnet_dashboard";
+                    let nameForDashboard = "sitnet_dashboard";
                     if (student) {
                         nameForDashboard = "sitnet_user_enrolled_exams_title";
                     }
@@ -180,7 +182,7 @@ angular.module('app.navigation')
                         },
                         {
                             href: "/login",
-                            visible: !ctrl.user,
+                            visible: !vm.user,
                             class: "fa-sign-in",
                             name: "sitnet_login",
                             icon_svg: "icon_enrols.svg",
@@ -190,23 +192,23 @@ angular.module('app.navigation')
                 };
 
                 $rootScope.$on('userUpdated', function () {
-                    ctrl.links = links();
+                    vm.links = links();
                 });
 
                 $rootScope.$on('upcomingExam', function () {
-                    ctrl.links = links();
+                    vm.links = links();
                 });
 
                 $rootScope.$on('wrongLocation', function () {
-                    ctrl.links = links();
+                    vm.links = links();
                 });
 
-                ctrl.switchLanguage = function (key) {
+                vm.switchLanguage = function (key) {
                     Session.switchLanguage(key);
                 };
 
-                ctrl.$onInit = function() {
-                    ctrl.links = links();
+                vm.$onInit = function() {
+                    vm.links = links();
                 };
 
 

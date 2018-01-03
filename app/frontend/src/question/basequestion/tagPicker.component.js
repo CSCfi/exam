@@ -13,7 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import toast from 'toastr';
+
 angular.module('app.question')
     .component('tagPicker', {
         template: '<div class="col-md-12 margin-20 padl0 padr0">\n' +
@@ -48,10 +50,10 @@ angular.module('app.question')
         '    </div>',
         bindings: {
             question: '<'
-        }, controller: ['$resource', 'limitToFilter', 'toast',
-            function ($resource, limitToFilter, toast) {
+        }, controller: ['$resource', 'limitToFilter',
+            function ($resource, limitToFilter) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.getTags = function (filter) {
                     return $resource("/app/tags").query({filter: filter}).$promise.then(

@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+var toastr = require('toastr');
+
 angular.module('app.reservation')
     .component('reservations', {
         template: '<div ng-include="$ctrl.templateUrl"></div>',
@@ -21,9 +22,9 @@ angular.module('app.reservation')
             'userRole': '@'
         },
         controller: ['ExamRes', '$location', '$http', 'EXAM_CONF',
-            'ReservationResource', 'Reservation', 'Exam', '$timeout', '$routeParams', '$translate', '$filter', 'toast',
+            'ReservationResource', 'Reservation', 'Exam', '$timeout', '$routeParams', '$translate', '$filter',
             function (ExamRes, $location, $http, EXAM_CONF, ReservationResource, Reservation, Exam,
-                      $timeout, $routeParams, $translate, $filter, toast) {
+                      $timeout, $routeParams, $translate, $filter) {
 
                 var select2options = {
                     placeholder: '-',
@@ -109,7 +110,7 @@ angular.module('app.reservation')
                         });
                     },
                     function (error) {
-                        toast.error(error.data);
+                        toastr.error(error.data);
                     }
                 );
 
@@ -121,7 +122,7 @@ angular.module('app.reservation')
                         });
                     },
                     function (error) {
-                        toast.error(error.data);
+                        toastr.error(error.data);
                     }
                 );
 
@@ -136,7 +137,7 @@ angular.module('app.reservation')
                             });
                         },
                         function (error) {
-                            toast.error(error.data);
+                            toastr.error(error.data);
                         }
                     );
 
@@ -153,12 +154,12 @@ angular.module('app.reservation')
                                     machinesForRooms(examrooms, machines);
                                 },
                                 function (error) {
-                                    toast.error(error.data);
+                                    toastr.error(error.data);
                                 }
                             );
                         },
                         function (error) {
-                            toast.error(error.data);
+                            toastr.error(error.data);
                         }
                     );
                 }
@@ -253,7 +254,7 @@ angular.module('app.reservation')
                                 });
                                 ctrl.reservations = reservations;
                             }, function (error) {
-                                toast.error(error.data);
+                                toastr.error(error.data);
                             });
                     }
                 };
@@ -261,7 +262,7 @@ angular.module('app.reservation')
                 ctrl.removeReservation = function (reservation) {
                     Reservation.cancelReservation(reservation).then(function () {
                         ctrl.reservations.splice(ctrl.reservations.indexOf(reservation), 1);
-                        toast.info($translate.instant('sitnet_reservation_removed'));
+                        toastr.info($translate.instant('sitnet_reservation_removed'));
                     });
                 };
 
@@ -272,7 +273,7 @@ angular.module('app.reservation')
                 ctrl.permitRetrial = function (reservation) {
                     ExamRes.reservation.update({id: reservation.id}, function () {
                         reservation.retrialPermitted = true;
-                        toast.info($translate.instant('sitnet_retrial_permitted'));
+                        toastr.info($translate.instant('sitnet_retrial_permitted'));
                     });
                 };
 

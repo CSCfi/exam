@@ -13,21 +13,24 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+import moment from 'moment';
+
 angular.module('app.facility.rooms')
     .component('room', {
-        templateUrl: '/assets/app/facility/rooms/room.template.html',
+        template: require('./room.template.html'),
         controller: ['$translate', '$scope', '$rootScope', '$route', '$location', '$uibModal', '$routeParams', '$http',
-            'dialogs', 'Room', 'SettingsResource', 'InteroperabilityResource', 'DateTime', 'EXAM_CONF', 'toast',
+            'dialogs', 'Room', 'SettingsResource', 'InteroperabilityResource',
             function ($translate, $scope, $rootScope, $route, $location, $modal, $routeParams, $http, dialogs, Room, SettingsRes,
-                      InteroperabilityRes, DateTime, EXAM_CONF, toast) {
+                      InteroperabilityRes) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.week = Room.getWeek();
                     vm.showName = true;
-                    SettingsRes.iop.get(function(data) {
+                    SettingsRes.iop.get(function (data) {
                         vm.isInteroperable = data.isInteroperable;
                     });
 
@@ -42,7 +45,7 @@ angular.module('app.facility.rooms')
                                 Room.formatExceptionEvent(event);
                             });
                             vm.room.defaultWorkingHours.forEach(function (daySlot) {
-                                var timeSlots = slotToTimes(daySlot);
+                                const timeSlots = slotToTimes(daySlot);
                                 setSelected(daySlot.weekday, timeSlots);
                             });
                         },
@@ -66,7 +69,7 @@ angular.module('app.facility.rooms')
                 vm.deleteException = function (exception) {
                     Room.deleteException(vm.room.id, exception.id).then(function () {
                         remove(vm.room.calendarExceptionEvents, exception);
-                    })
+                    });
                 };
 
                 vm.disableRoom = function () {
@@ -95,12 +98,12 @@ angular.module('app.facility.rooms')
                     }
 
                     if (!Room.isAnyExamMachines(vm.room))
-                        toast.error($translate.instant("sitnet_dont_forget_to_add_machines") + " " + vm.room.name);
+                        toast.error($translate.instant('sitnet_dont_forget_to_add_machines') + ' ' + vm.room.name);
 
                     Room.rooms.update(vm.room,
                         function () {
-                            toast.info($translate.instant("sitnet_room_saved"));
-                            $location.path("/rooms/");
+                            toast.info($translate.instant('sitnet_room_saved'));
+                            $location.path('/rooms/');
                         },
                         function (error) {
                             toast.error(error.data);
@@ -108,20 +111,20 @@ angular.module('app.facility.rooms')
                     );
                 };
 
-                vm.updateInteroperability = function() {
-                    InteroperabilityRes.facility.update(vm.room, function(data) {
+                vm.updateInteroperability = function () {
+                    InteroperabilityRes.facility.update(vm.room, function (data) {
                         vm.room.externalRef = data.externalRef;
                         vm.room.availableForExternals = data.externalRef !== null;
                     });
                 };
 
                 function remove(arr, item) {
-                    var index = arr.indexOf(item);
+                    const index = arr.indexOf(item);
                     arr.splice(index, 1);
                 }
 
                 function setSelected(day, slots) {
-                    for (var i = 0; i < slots.length; ++i) {
+                    for (let i = 0; i < slots.length; ++i) {
                         if (vm.week[day][slots[i]]) {
                             vm.week[day][slots[i]].type = 'selected';
                         }
@@ -129,12 +132,12 @@ angular.module('app.facility.rooms')
                 }
 
                 function slotToTimes(slot) {
-                    var arr = [];
-                    var startKey = moment(slot.startTime).format("H:mm");
-                    var endKey = moment(slot.endTime).format("H:mm");
-                    var times = Room.getTimes();
-                    var start = startKey === '0:00' ? 0 : times.indexOf(startKey);
-                    for (var i = start; i < times.length; i++) {
+                    const arr = [];
+                    const startKey = moment(slot.startTime).format('H:mm');
+                    const endKey = moment(slot.endTime).format('H:mm');
+                    const times = Room.getTimes();
+                    const start = startKey === '0:00' ? 0 : times.indexOf(startKey);
+                    for (let i = start; i < times.length; i++) {
                         if (times[i] === endKey) {
                             break;
                         }

@@ -13,14 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.enrolment')
     .component('examParticipations', {
-        templateUrl: '/assets/app/enrolment/finished/examParticipations.template.html',
-        controller: ['$scope', '$translate', 'StudentExamRes', 'toast',
-            function ($scope, $translate, StudentExamRes, toast) {
+        template: require('./examParticipations.template.html'),
+        controller: ['$scope', '$translate', 'StudentExamRes',
+            function ($scope, $translate, StudentExamRes) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.filter = {ordering: '-ended', text: null};

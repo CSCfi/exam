@@ -13,25 +13,27 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.exam.editor')
     .component('examParticipantSelector', {
-        templateUrl: '/assets/app/exam/editor/publication/examParticipantSelector.template.html',
+        template: require('./examParticipantSelector.template.html'),
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'limitToFilter', 'UserRes', 'Enrolment', 'EnrollRes', 'toast',
-            function ($translate, limitToFilter, UserRes, Enrolment, EnrollRes, toast) {
+        controller: ['$translate', 'limitToFilter', 'UserRes', 'Enrolment', 'EnrollRes',
+            function ($translate, limitToFilter, UserRes, Enrolment, EnrollRes) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.newParticipant = {
-                        "id": null,
-                        "name": null
+                        'id': null,
+                        'name': null
                     };
                     // go through child exams and read in the enrolments
-                    var x = [];
+                    let x = [];
                     vm.exam.children.forEach(function (c) {
                         x = x.concat(c.examEnrolments);
                     });
@@ -62,7 +64,7 @@ angular.module('app.exam.editor')
                             vm.exam.examEnrolments.push(enrolment);
 
                             // nullify input field
-                            delete vm.newParticipant.name ;
+                            delete vm.newParticipant.name;
                             delete vm.newParticipant.id;
 
                         }, function (error) {
@@ -85,7 +87,7 @@ angular.module('app.exam.editor')
 
                 vm.isActualEnrolment = function (enrolment) {
                     return !enrolment.preEnrolledUserEmail;
-                }
+                };
 
             }]
     });

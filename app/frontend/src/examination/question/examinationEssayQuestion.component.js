@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.examination')
     .component('examinationEssayQuestion', {
-        templateUrl: '/assets/app/examination/question/examinationEssayQuestion.template.html',
+        template: require('./examinationEssayQuestion.template.html'),
         bindings: {
             sq: '<',
             examHash: '<',
@@ -26,7 +26,7 @@ angular.module('app.examination')
         controller: ['Examination', 'Attachment', 'Files',
             function (Examination, Attachment, Files) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     Examination.setQuestionColors(vm.sq);

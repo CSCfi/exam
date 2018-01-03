@@ -13,12 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.facility.rooms')
     .component('multiRoom', {
-        templateUrl: '/assets/app/facility/rooms/multiRoom.template.html',
+        template: require('./multiRoom.template.html'),
         controller: ['Room', 'toast', function (Room, toast) {
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
                 vm.week = Room.getWeek();

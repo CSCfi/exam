@@ -13,23 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
-angular.module('app.enrolment')
-    .service('WrongLocation', ['$timeout', '$translate', 'toast', function ($timeout, $translate, toast) {
+import toast from 'toastr';
+const moment = require('moment');
 
-        var self = this;
+angular.module('app.enrolment')
+    .service('WrongLocation', ['$timeout', '$translate', function ($timeout, $translate) {
+
+        const self = this;
 
         self.display = function (data) {
 
-            var opts = {
+            const opts = {
                 timeOut: 10000
             };
-            var startsAt = moment(data[4]);
-            var now = moment();
+            let startsAt = moment(data[4]);
+            const now = moment();
             if (now.isDST()) {
                 startsAt.add(-1, 'hour');
             }
-            var parts;
+            let parts;
             if (startsAt.isAfter(now)) {
                 parts = ['sitnet_your_exam_will_start_at', 'sitnet_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
                 $translate(parts).then(function (t) {

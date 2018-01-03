@@ -13,21 +13,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.review')
     .component('rEssayQuestion', {
-        templateUrl: '/assets/app/review/assessment/questions/essayQuestion.template.html',
+        template: require('./essayQuestion.template.html'),
         bindings: {
             exam: '<',
             sectionQuestion: '<',
             isScorable: '<',
             onScore: '&'
         },
-        controller: ['$sce', '$translate', 'Assessment', 'Attachment', 'toast',
-            function ($sce, $translate, Assessment, Attachment, toast) {
+        controller: ['$sce', '$translate', 'Assessment', 'Attachment',
+            function ($sce, $translate, Assessment, Attachment) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.displayQuestionText = function () {
                     return $sce.trustAsHtml(vm.sectionQuestion.question.question);

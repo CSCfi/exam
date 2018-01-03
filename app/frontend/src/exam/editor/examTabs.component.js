@@ -13,14 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.exam.editor')
     .component('examTabs', {
-        templateUrl: '/assets/app/exam/editor/examTabs.template.html',
+        template: require('./examTabs.template.html'),
         controller: ['$routeParams', '$translate', 'ExamRes', 'Session', '$window',
             function ($routeParams, $translate, ExamRes, Session, $window) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.user = Session.getUser();

@@ -13,21 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import _ from 'lodash';
+import toast from 'toastr';
+import async from 'async';
+
 angular.module('app.examination')
-    .service('Examination', ['$q', '$location', '$http', '$translate', '$window', 'lodash', 'toast',
-        function ($q, $location, $http, $translate, $window, lodash, toast) {
+    .service('Examination', ['$q', '$location', '$http', '$translate',
+        function ($q, $location, $http, $translate) {
 
-            var self = this;
-            var _external;
+            const self = this;
+            let _external;
 
-            var getResource = function (url) {
+            const getResource = function (url) {
                 return _external ? url.replace('/app/', '/app/iop/') : url;
             };
 
             self.startExam = function (hash, isPreview, id) {
-                var url = isPreview && id ? '/app/exampreview/' + id : '/app/student/exam/' + hash;
-                var deferred = $q.defer();
+                const url = isPreview && id ? '/app/exampreview/' + id : '/app/student/exam/' + hash;
+                const deferred = $q.defer();
                 $http.get(url).then(function (resp) {
                     if (resp.data.cloned) {
                         // we came here with a reference to the parent exam so do not render page just yet,
@@ -44,14 +48,14 @@ angular.module('app.examination')
 
             self.saveTextualAnswer = function (esq, hash, autosave) {
                 esq.questionStatus = $translate.instant('sitnet_answer_saved');
-                var deferred = $q.defer();
-                var type = esq.question.type;
-                var answerObj = type === 'EssayQuestion' ? esq.essayAnswer : esq.clozeTestAnswer;
-                var url = getResource(type === 'EssayQuestion' ?
+                const deferred = $q.defer();
+                const type = esq.question.type;
+                const answerObj = type === 'EssayQuestion' ? esq.essayAnswer : esq.clozeTestAnswer;
+                const url = getResource(type === 'EssayQuestion' ?
                     '/app/student/exam/' + hash + '/question/' + esq.id :
                     '/app/student/exam/' + hash + '/clozetest/' + esq.id
                 );
-                var msg = {
+                const msg = {
                     answer: answerObj.answer,
                     objectVersion: answerObj.objectVersion
                 };
@@ -71,24 +75,24 @@ angular.module('app.examination')
                 return deferred.promise;
             };
 
-            var isTextualAnswer = function (esq) {
+            const isTextualAnswer = function (esq) {
                 switch (esq.question.type) {
                     case 'EssayQuestion':
                         return esq.essayAnswer && esq.essayAnswer.answer.length > 0;
                     case 'ClozeTestQuestion':
-                        return esq.clozeTestAnswer && !lodash.isEmpty(esq.clozeTestAnswer.answer);
+                        return esq.clozeTestAnswer && !_.isEmpty(esq.clozeTestAnswer.answer);
                     default:
                         return false;
                 }
             };
 
             self.saveAllTextualAnswersOfSection = function (section, hash, autosave, canFail) {
-                var deferred = $q.defer();
+                const deferred = $q.defer();
 
-                var questions = section.sectionQuestions.filter(function (esq) {
+                const questions = section.sectionQuestions.filter(function (esq) {
                     return isTextualAnswer(esq);
                 });
-                var save = function (question, cb) {
+                const save = function (question, cb) {
                     self.saveTextualAnswer(question, hash, autosave).then(function () {
                         cb(null);
                     }, function (err) {
@@ -96,7 +100,7 @@ angular.module('app.examination')
                     });
                 };
                 // Run this in an async loop to make sure we don't get version conflicts
-                $window.async.eachSeries(questions, save, function (err) {
+                async.eachSeries(questions, save, function (err) {
                     if (err && canFail) {
                         deferred.reject();
                     } else {
@@ -106,7 +110,7 @@ angular.module('app.examination')
                 return deferred.promise;
             };
 
-            var stripHtml = function (text) {
+            const stripHtml = function (text) {
                 if (text && text.indexOf('math-tex') === -1) {
                     return String(text).replace(/<[^>]+>/gm, '');
                 }
@@ -114,10 +118,10 @@ angular.module('app.examination')
             };
 
             self.isAnswered = function (sq) {
-                var isAnswered;
+                let isAnswered;
                 switch (sq.question.type) {
                     case 'EssayQuestion':
-                        var essayAnswer = sq.essayAnswer;
+                        const essayAnswer = sq.essayAnswer;
                         isAnswered = essayAnswer && essayAnswer.answer &&
                             stripHtml(essayAnswer.answer).length > 0;
                         break;
@@ -132,8 +136,8 @@ angular.module('app.examination')
                         }).length > 0;
                         break;
                     case 'ClozeTestQuestion':
-                        var clozeTestAnswer = sq.clozeTestAnswer;
-                        isAnswered = clozeTestAnswer && !lodash.isEmpty(clozeTestAnswer.answer);
+                        const clozeTestAnswer = sq.clozeTestAnswer;
+                        isAnswered = clozeTestAnswer && !_.isEmpty(clozeTestAnswer.answer);
                         break;
                     default:
                         isAnswered = false;
@@ -154,7 +158,7 @@ angular.module('app.examination')
             };
 
             self.saveOption = function (hash, sq, preview) {
-                var ids;
+                let ids;
                 if (sq.question.type === 'WeightedMultipleChoiceQuestion') {
                     ids = sq.options.filter(function (o) {
                         return o.answered;
@@ -165,7 +169,7 @@ angular.module('app.examination')
                     ids = [sq.selectedOption];
                 }
                 if (!preview) {
-                    var url = getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
+                    const url = getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
                     $http.post(url, {oids: ids}).then(function () {
                         toast.info($translate.instant('sitnet_answer_saved'));
                         sq.options.forEach(function (o) {
@@ -182,12 +186,12 @@ angular.module('app.examination')
             };
 
             self.abort = function (hash) {
-                var url = getResource('/app/student/exam/abort/' + hash);
+                const url = getResource('/app/student/exam/abort/' + hash);
                 return $http.put(url);
             };
 
             self.logout = function (msg, hash) {
-                var url = getResource('/app/student/exam/' + hash);
+                const url = getResource('/app/student/exam/' + hash);
                 $http.put(url).then(function () {
                     toast.info($translate.instant(msg), {timeOut: 5000});
                     window.onbeforeunload = null;

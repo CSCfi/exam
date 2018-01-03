@@ -13,14 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from'angular';
+
 angular.module('app.facility.rooms')
     .component('roomList', {
-        templateUrl: '/assets/app/facility/rooms/roomList.template.html',
+        template: require('./roomList.template.html'),
         controller: ['$routeParams', 'Session', '$location', 'Room', '$translate', 'toast',
             function ($routeParams, Session, $location, Room,  $translate, toast) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.user = Session.getUser();
@@ -72,10 +73,9 @@ angular.module('app.facility.rooms')
                 };
 
                 vm.displayAddress = function (address) {
-
                     if (!address || (!address.street && !address.city && !address.zip)) return "N/A";
-                    var street = address.street ? address.street + ", " : "";
-                    var city = (address.city || "").toUpperCase();
+                    const street = address.street ? address.street + ", " : "";
+                    const city = (address.city || "").toUpperCase();
                     return street + address.zip + " " + city;
                 };
 

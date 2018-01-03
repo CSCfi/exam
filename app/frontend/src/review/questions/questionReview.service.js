@@ -13,12 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
-angular.module('app.exam.editor')
+import angular from 'angular';
+
+angular.module('app.review')
     .service('QuestionReview', ['$resource',
         function ($resource) {
 
-            var self = this;
+            const self = this;
 
             self.questionsApi = $resource('/app/exam/:id/questions', {
                 id: '@id'
@@ -35,7 +36,6 @@ angular.module('app.exam.editor')
             self.isEvaluated = function (answer) {
                 return answer.selected && answer.essayAnswer && parseFloat(answer.essayAnswer.evaluatedScore) >= 0;
             };
-
 
             self.getAssessedAnswerCount = function (review) {
                 if (!review) {

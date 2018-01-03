@@ -13,7 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import toast from 'toastr';
+
 angular.module('app.question')
     .component('examQuestion', {
         templateUrl: '/assets/app/question/examquestion/examQuestion.template.html',
@@ -23,11 +25,11 @@ angular.module('app.question')
             onSave: '&',
             onCancel: '&'
         },
-        controller: ['$scope', '$translate', 'Attachment', 'Question', 'toast',
-            function ($scope, $translate, Attachment, Question, toast) {
+        controller: ['$scope', '$translate', 'Attachment', 'Question',
+            function ($scope, $translate, Attachment, Question) {
                 // This component depicts a distributed exam question
 
-                var vm = this;
+                const vm = this;
 
                 var init = function () {
                     Question.questionsApi.get({id: vm.examQuestion.question.id}, function (data) {

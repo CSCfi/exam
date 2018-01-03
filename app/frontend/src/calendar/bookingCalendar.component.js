@@ -13,7 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import moment from 'moment';
+require('fullcalendar/dist/fullcalendar.min.css');
+
 angular.module('app.calendar')
     .component('bookingCalendar', {
         template: '<div id="calendarBlock" style="display:none">\n' +
@@ -31,12 +34,12 @@ angular.module('app.calendar')
         }, controller: ['$translate', 'Calendar',
             function ($translate, Calendar) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.eventSources = [];
 
-                    var selectedEvent;
+                    let selectedEvent;
                     vm.calendarConfig = {
                         editable: false,
                         selectable: false,
@@ -101,11 +104,11 @@ angular.module('app.calendar')
                         },
                         eventAfterAllRender: function (view) {
                             // Disable next/prev buttons if date range is off limits
-                            var prevButton = $('.fc-prev-button');
-                            var nextButton = $('.fc-next-button');
-                            var todayButton = $('.fc-today-button');
+                            const prevButton = $('.fc-prev-button');
+                            const nextButton = $('.fc-next-button');
+                            const todayButton = $('.fc-today-button');
 
-                            var today = moment();
+                            const today = moment();
 
                             if (vm.minDate >= view.start && vm.minDate <= view.end) {
                                 prevButton.prop('disabled', true);
@@ -135,10 +138,10 @@ angular.module('app.calendar')
 
                 vm.$onChanges = function (props) {
                     if (props.room && props.room.currentValue) {
-                        var room = props.room.currentValue;
-                        var minTime = Calendar.getEarliestOpening(room);
-                        var maxTime = Calendar.getLatestClosing(room);
-                        var hiddenDays = Calendar.getClosedWeekdays(room);
+                        const room = props.room.currentValue;
+                        const minTime = Calendar.getEarliestOpening(room);
+                        const maxTime = Calendar.getLatestClosing(room);
+                        const hiddenDays = Calendar.getClosedWeekdays(room);
                         $('#calendar').fullCalendar(
                             $.extend(vm.calendarConfig, {
                                 timezone: room.localTimezone,

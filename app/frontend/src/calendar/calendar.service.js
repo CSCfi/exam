@@ -13,11 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import toast from 'toastr';
+const moment = require('moment');
+
 angular.module('app.calendar')
     .service('Calendar', ['$resource', '$uibModal', '$http', '$routeParams', '$translate', '$location',
-        'DateTime', 'Session', 'InteroperabilityResource', 'toast',
-        function ($resource, $modal, $http, $routeParams, $translate, $location, DateTime, Session, InteroperabilityResource, toast) {
+        'DateTime', 'Session', 'InteroperabilityResource', '$q',
+        function ($resource, $modal, $http, $routeParams, $translate, $location, DateTime, Session,
+                  InteroperabilityResource, $q) {
 
             var self = this;
 
@@ -31,6 +35,7 @@ angular.module('app.calendar')
             };
 
             self.reserve = function (start, end, room, accessibilities, org) {
+                var deferred = $q.defer();
                 var tz = room.localTimezone;
                 var slot = {};
                 slot.start = adjustBack(start, tz);
@@ -41,8 +46,10 @@ angular.module('app.calendar')
                     slot.orgId = org ? org._id : undefined;
                     InteroperabilityResource.reservations.create(slot, function () {
                         $location.path('/');
+                        deferred.resolve();
                     }, function (error) {
                         toast.error(error.data);
+                        deferred.reject(error);
                     });
                 } else {
                     slot.roomId = room.id;
@@ -55,11 +62,13 @@ angular.module('app.calendar')
                         });
                     $http.post('/app/calendar/reservation', slot).then(function () {
                         $location.path('/');
+                        deferred.resolve();
                     }, function (error) {
                         toast.error(error.data);
+                        deferred.reject(error);
                     });
                 }
-
+                return deferred.promise;
             };
 
 

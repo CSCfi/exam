@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('questionFlow', {
-        templateUrl: '/assets/app/review/questions/flow/questionFlow.template.html',
+        template: require('./questionFlow.template.html'),
         bindings: {
             reviews: '<',
             onSelection: '&'
@@ -25,10 +25,10 @@ angular.module('app.review')
         controller: ['QuestionReview',
             function (QuestionReview) {
 
-                var vm = this;
+                const vm = this;
 
-                var init = function () {
-                    vm.unfinished = vm.reviews.filter(function(r) {
+                const init = function () {
+                    vm.unfinished = vm.reviews.filter(function (r) {
                         return !QuestionReview.isFinalized(r);
                     });
                     vm.finished = vm.reviews.filter(QuestionReview.isFinalized);
@@ -49,7 +49,7 @@ angular.module('app.review')
                         r.selected = r.question.id === review.question.id;
                     });
                     vm.onSelection({index: vm.reviews.indexOf(review)});
-                }
+                };
 
             }
 

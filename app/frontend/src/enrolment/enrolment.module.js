@@ -13,7 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
 
-angular.module('app.enrolment', []);
+require('../common');
+require('../exam'); // TODO: refactor
+require('../calendar');
+
+angular.module('app.enrolment', ['app.common', 'app.exam', 'app.calendar']);
 

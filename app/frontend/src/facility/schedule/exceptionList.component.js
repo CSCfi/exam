@@ -13,10 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from'angular';
+import moment from 'moment';
+
 angular.module('app.facility.schedule')
     .component('exceptionList', {
-        templateUrl: '/assets/app/facility/schedule/exceptionList.template.html',
+        template: require('./exceptionList.template.html'),
         bindings: {
             room: '<',
             hideButton: '<',
@@ -28,15 +30,12 @@ angular.module('app.facility.schedule')
         controller: ['Room',
             function (Room) {
 
-                var vm = this;
-
-                vm.$onInit = function () {
-                };
+                const vm = this;
 
                 vm.formatDate = function (exception) {
-                    var fmt = 'DD.MM.YYYY HH:mm';
-                    var start = moment(exception.startDate);
-                    var end = moment(exception.endDate);
+                    const fmt = 'DD.MM.YYYY HH:mm';
+                    const start = moment(exception.startDate);
+                    const end = moment(exception.endDate);
                     return start.format(fmt) + ' - ' + end.format(fmt);
                 };
 

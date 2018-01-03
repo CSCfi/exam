@@ -13,10 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.review')
     .component('reviewFeedback', {
-        templateUrl: '/assets/app/review/listing/dialogs/feedback.template.html',
+        template: require('./feedback.template.html'),
         bindings: {
             close: '&',
             dismiss: '&',
@@ -24,7 +25,7 @@ angular.module('app.review')
         },
         controller: ['$scope', 'Assessment', function ($scope, Assessment) {
 
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
                 vm.exam = vm.resolve.exam;

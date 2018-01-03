@@ -13,24 +13,26 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.exam.editor')
     .component('coursePicker', {
-        templateUrl: '/assets/app/exam/editor/common/coursePicker.template.html',
+        template: require('./coursePicker.template.html'),
         bindings: {
             exam: '<',
             onUpdate: '&'
         },
-        controller: ['$http', '$translate', 'Course', 'ExamRes', 'toast',
-            function ($http, $translate, Course, ExamRes, toast) {
+        controller: ['$http', '$translate', 'Course', 'ExamRes',
+            function ($http, $translate, Course, ExamRes) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.getCourses = function (filter, criteria) {
                     toggleLoadingIcon(filter, true);
-                    var tmp = criteria;
+                    const tmp = criteria;
                     if (vm.exam && vm.exam.course && vm.exam.course.id) {
-                        var course = vm.exam.course;
+                        const course = vm.exam.course;
                         vm.exam.course = undefined;
                         setInputValue(filter, tmp);
 

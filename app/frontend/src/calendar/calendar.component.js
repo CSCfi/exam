@@ -13,21 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+import moment from 'moment';
+
 angular.module('app.calendar')
     .component('calendar', {
-        templateUrl: '/assets/app/calendar/calendar.template.html',
+        template: require('./calendar.template.html'),
         bindings: {
             'isExternal': '<'
         }, controller: ['$http', '$scope', '$location', '$translate', '$routeParams', 'DateTime',
             'StudentExamRes', 'Calendar', 'SettingsResource', 'InteroperabilityResource',
-            'uiCalendarConfig', 'toast',
+            'uiCalendarConfig',
             function ($http, $scope, $location, $translate, $routeParams, DateTime, StudentExamRes,
-                      Calendar, SettingsResource, InteroperabilityResource, uiCalendarConfig, toast) {
+                      Calendar, SettingsResource, InteroperabilityResource, uiCalendarConfig) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
+                    vm.confirming = false;
                     vm.limitations = {};
                     vm.openingHours = [];
                     vm.exceptionHours = [];
@@ -88,7 +92,7 @@ angular.module('app.calendar')
                                     if (!vm.selectedRoom()) {
                                         return;
                                     }
-                                    var info;
+                                    let info;
                                     switch ($translate.use()) {
                                         case 'fi':
                                             info = vm.selectedRoom().roomInstruction;
@@ -117,7 +121,7 @@ angular.module('app.calendar')
                             });
                         });
                     }, function (err) {
-                        toastr.error(err.data);
+                        toast.error(err.data);
                     });
                 };
 
@@ -129,13 +133,13 @@ angular.module('app.calendar')
                     $location.path('/calendar/' + $routeParams.id);
                 };
 
-                var adjust = function (date, tz) {
+                const adjust = function (date, tz) {
                     date = moment.tz(date, tz);
-                    var offset = date.isDST() ? -1 : 0;
+                    const offset = date.isDST() ? -1 : 0;
                     return date.add(offset, 'hour').format();
                 };
 
-                var getTitle = function (slot) {
+                const getTitle = function (slot) {
                     if (slot.availableMachines > 0) {
                         return $translate.instant('sitnet_slot_available') + ' (' + slot.availableMachines + ')';
                     }
@@ -145,7 +149,7 @@ angular.module('app.calendar')
                     return $translate.instant('sitnet_reserved');
                 };
 
-                var getColor = function (slot) {
+                const getColor = function (slot) {
                     if (slot.availableMachines < 0) {
                         return '#266B99';
                     }
@@ -155,7 +159,7 @@ angular.module('app.calendar')
                     return '#D8D8D8';
                 };
 
-                var query = function (success, error, date, room, accessibility) {
+                const query = function (success, error, date, room, accessibility) {
                     if (vm.isExternal) {
                         InteroperabilityResource.slots.query({
                             examId: $routeParams.id,
@@ -174,18 +178,22 @@ angular.module('app.calendar')
                 };
 
                 vm.refresh = function (start, callback) {
-                    var date = start.format();
-                    var room = vm.selectedRoom();
-                    var accessibility = vm.accessibilities.filter(function (item) {
+                    if (!vm.selectedRoom) {
+                        callback([]);
+                        return;
+                    }
+                    const date = start.format();
+                    const room = vm.selectedRoom();
+                    const accessibility = vm.accessibilities.filter(function (item) {
                         return item.filtered;
                     }).map(function (item) {
                         return item.id;
                     });
                     if (room) {
                         vm.loader.loading = true;
-                        var successFn = function (slots) {
-                            var tz = room.localTimezone;
-                            var events = slots.map(function (slot) {
+                        const successFn = function (slots) {
+                            const tz = room.localTimezone;
+                            const events = slots.map(function (slot) {
                                 return {
                                     title: getTitle(slot),
                                     color: getColor(slot),
@@ -197,7 +205,7 @@ angular.module('app.calendar')
                             callback(events);
                             vm.loader.loading = false;
                         };
-                        var errorFn = function (error) {
+                        const errorFn = function (error) {
                             vm.loader.loading = false;
                             if (error && error.status === 404) {
                                 toast.error($translate.instant('sitnet_exam_not_active_now'));
@@ -213,18 +221,19 @@ angular.module('app.calendar')
                 };
 
                 $scope.$on('$localeChangeSuccess', function () {
-                    vm.calendarConfig.buttonText.today = $translate.instant('sitnet_today');
+                    if (vm.calendarConfig) {
+                        vm.calendarConfig.buttonText.today = $translate.instant('sitnet_today');
+                    }
                     vm.openingHours = Calendar.processOpeningHours(vm.selectedRoom());
                 });
 
-                var listExternalRooms = function () {
+                const listExternalRooms = function () {
                     if (vm.selectedOrganisation) {
                         InteroperabilityResource.facilities.query({org: vm.selectedOrganisation._id}, function (data) {
                             vm.rooms = data;
                         });
                     }
                 };
-
 
                 vm.createReservation = function (start, end) {
                     vm.reservation = {
@@ -236,14 +245,20 @@ angular.module('app.calendar')
                 };
 
                 vm.confirmReservation = function () {
-                    if (vm.reservation) {
-                        Calendar.reserve(
-                            vm.reservation.start,
-                            vm.reservation.end,
-                            vm.selectedRoom(),
-                            vm.accessibilities,
-                            vm.selectedOrganisation);
+                    if (!vm.reservation || vm.confirming) {
+                        return;
                     }
+                    vm.confirming = true;
+                    Calendar.reserve(
+                        vm.reservation.start,
+                        vm.reservation.end,
+                        vm.selectedRoom(),
+                        vm.accessibilities,
+                        vm.selectedOrganisation).then(
+                        function () {
+                            vm.confirming = false;
+                        }
+                    );
                 };
 
                 vm.setOrganisation = function (org) {
@@ -265,7 +280,7 @@ angular.module('app.calendar')
 
                 vm.getDescription = function (room) {
                     if (room.outOfService) {
-                        var status = room.statusComment ? ': ' + room.statusComment : '';
+                        const status = room.statusComment ? ': ' + room.statusComment : '';
                         return $translate.instant('sitnet_room_out_of_service') + status;
                     }
                     return room.name;

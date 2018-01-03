@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('questionReview', {
-        templateUrl: '/assets/app/review/questions/listing/questionReview.template.html',
+        template: require('./questionReview.template.html'),
         bindings: {
             review: '<',
             onSelection: '&'
@@ -25,7 +25,7 @@ angular.module('app.review')
         controller: ['$sce', 'QuestionReview',
             function ($sce, QuestionReview) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.getAssessedAnswerCount = function () {
                     return QuestionReview.getAssessedAnswerCount(vm.review);

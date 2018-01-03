@@ -13,7 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import toast from 'toastr';
+
 angular.module('app.question')
     .component('questionSelector', {
         templateUrl: '/assets/app/question/selector/questionSelector.template.html',
@@ -22,9 +24,9 @@ angular.module('app.question')
             dismiss: '&',
             resolve: '<'
         },
-        controller: ['$translate', 'ExamRes', 'toast', function ($translate, ExamRes, toast) {
+        controller: ['$translate', 'ExamRes', function ($translate, ExamRes) {
 
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
                 vm.questions = [];

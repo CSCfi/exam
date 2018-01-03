@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
 angular.module('app.question')
     .component('baseQuestionEditor', {
         template:
@@ -34,7 +33,7 @@ angular.module('app.question')
             function ($scope) {
                 // This component is used for creating new exam questions and editing existing undistributed ones.
 
-                var vm = this;
+                const vm = this;
 
                 vm.onSave = function (question) {
                     vm.close({

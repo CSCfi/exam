@@ -13,18 +13,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import angular from 'angular';
+
 angular.module('app.dashboard.teacher')
     .service('TeacherDashboard', ['$q', 'Exam', 'Reservation', 'ExamRes',
         function ($q, Exam, Reservation, ExamRes) {
 
-            var self = this;
+            const self = this;
 
             // Exam is private and has unfinished participants
-            var participationsInFuture = function (exam) {
+            const participationsInFuture = function (exam) {
                 return exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0;
             };
 
-            var hasUpcomingExaminationDates = function (exam) {
+            const hasUpcomingExaminationDates = function (exam) {
                 return exam.examinationDates.some(function (ed) {
                     return Date.now() <= new Date(ed.date).setHours(23, 59, 59, 999);
                 });
@@ -32,8 +34,8 @@ angular.module('app.dashboard.teacher')
 
             // Printout exams do not have an activity period but have examination dates.
             // Produce a fake period for information purposes by selecting first and last examination dates.
-            var createFakeActivityPeriod = function (exam) {
-                var dates = exam.examinationDates.map(function (es) {
+            const createFakeActivityPeriod = function (exam) {
+                const dates = exam.examinationDates.map(function (es) {
                     return es.date;
                 });
                 exam.examActiveStartDate = Math.min.apply(Math, dates);
@@ -41,7 +43,7 @@ angular.module('app.dashboard.teacher')
             };
 
             self.populate = function (scope) {
-                var deferred = $q.defer();
+                const deferred = $q.defer();
 
                 Exam.listExecutionTypes().then(function (types) {
                     scope.executionTypes = types;
@@ -51,16 +53,16 @@ angular.module('app.dashboard.teacher')
                         });
                         scope.draftExams.forEach(function (de) {
                             de.ownerAggregate = de.examOwners.map(function (o) {
-                                return o.firstName + " " + o.lastName;
+                                return o.firstName + ' ' + o.lastName;
                             }).join();
                         });
 
                         scope.activeExams = reviewerExams.filter(function (review) {
                             if (review.state !== 'PUBLISHED') return false;
-                            var periodOk = review.executionType.type !== 'PRINTOUT' &&
+                            const periodOk = review.executionType.type !== 'PRINTOUT' &&
                                 Date.now() <= new Date(review.examActiveEndDate) &&
                                 participationsInFuture(review);
-                            var examinationDatesOk = review.executionType.type === 'PRINTOUT' &&
+                            const examinationDatesOk = review.executionType.type === 'PRINTOUT' &&
                                 hasUpcomingExaminationDates(review);
                             return periodOk || examinationDatesOk;
                         });
@@ -72,25 +74,25 @@ angular.module('app.dashboard.teacher')
                             ae.unfinishedCount = Exam.getGradedCount(ae);
                             ae.reservationCount = Reservation.getReservationCount(ae);
                             ae.ownerAggregate = ae.examOwners.map(function (o) {
-                                return o.firstName + " " + o.lastName;
+                                return o.firstName + ' ' + o.lastName;
                             }).join();
                         });
 
                         scope.finishedExams = [];
                         scope.archivedExams = [];
-                        var endedExams = reviewerExams.filter(function (review) {
+                        const endedExams = reviewerExams.filter(function (review) {
                             if (review.state !== 'PUBLISHED') return false;
-                            var periodOk = review.executionType.type !== 'PRINTOUT' &&
+                            const periodOk = review.executionType.type !== 'PRINTOUT' &&
                                 (Date.now() > new Date(review.examActiveEndDate) || !participationsInFuture(review));
-                            var examinationDatesOk = review.executionType.type === 'PRINTOUT' && !hasUpcomingExaminationDates(review);
+                            const examinationDatesOk = review.executionType.type === 'PRINTOUT' && !hasUpcomingExaminationDates(review);
                             return periodOk || examinationDatesOk;
                         });
                         endedExams.forEach(function (ee) {
                             ee.ownerAggregate = ee.examOwners.map(function (o) {
-                                return o.firstName + " " + o.lastName;
+                                return o.firstName + ' ' + o.lastName;
                             }).join();
-                            var unassessedCount = Exam.getReviewablesCount(ee);
-                            var unfinishedCount = Exam.getGradedCount(ee);
+                            const unassessedCount = Exam.getReviewablesCount(ee);
+                            const unfinishedCount = Exam.getGradedCount(ee);
                             if (unassessedCount + unfinishedCount > 0 && ee.executionType.type !== 'PRINTOUT') {
                                 ee.unassessedCount = unassessedCount;
                                 ee.unfinishedCount = unfinishedCount;

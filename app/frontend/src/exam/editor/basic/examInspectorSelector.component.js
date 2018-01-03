@@ -13,17 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.exam.editor')
     .component('examInspectorSelector', {
-        templateUrl: '/assets/app/exam/editor/basic/examInspectorSelector.template.html',
+        template: require('./examInspectorSelector.template.html'),
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'limitToFilter', 'ExamRes', 'UserRes', 'toast',
-            function ($translate, limitToFilter, ExamRes, UserRes, toast) {
+        controller: ['$translate', 'limitToFilter', 'ExamRes', 'UserRes',
+            function ($translate, limitToFilter, ExamRes, UserRes) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.newInspector = {

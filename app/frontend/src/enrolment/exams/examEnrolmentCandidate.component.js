@@ -13,17 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular'
+
 angular.module('app.enrolment')
     .component('enrolmentCandidate', {
-        templateUrl: '/assets/app/enrolment/exams/examEnrolmentCandidate.template.html',
+        template: require('./examEnrolmentCandidate.template.html'),
         bindings: {
             exam: '<'
         },
         controller: ['$location', 'Enrolment',
             function ($location, Enrolment) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.enrollForExam = function () {
                     Enrolment.checkAndEnroll(vm.exam);

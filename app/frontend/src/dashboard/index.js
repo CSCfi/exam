@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -13,16 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+require('./student/studentDashboard.module');
+require('./student/studentDashboard.service');
+require('./student/studentDashboard.component');
 
-angular.module('app')
-    // Lodash factory
-    .factory('lodash', ['$window', function ($window) {
-        return $window._;
-    }])
-    // Toastr factory
-    .factory('toast', ['$window', function ($window) {
-        var toast = $window.toastr;
-        toast.options.preventDuplicates = true;
-        return toast;
-    }]);
+require('./teacher/teacherDashboard.module');
+require('./teacher/teacherDashboard.service');
+require('./teacher/categories/examListCategory.component');
+require('./teacher/teacherDashboard.component');
+
+require('./dashboard.module');
+require('./dashboard.component');

@@ -1,14 +1,13 @@
 /* global __dirname */
-var webpack = require('webpack');
-var path = require('path');
+require('webpack');
+const path = require('path');
 console.log(__dirname);
-var buildPath = path.resolve(__dirname, '../../../public/bundles/');
-var nodeModulesPath = path.resolve(__dirname, 'node_modules');
+const buildPath = path.resolve(__dirname, '../../../public/bundles/');
 
 /**
  * Base configuration object for Webpack
  */
-var config = {
+const config = {
     entry: [
         './src/app.module.js'
     ],
@@ -18,13 +17,12 @@ var config = {
         sourceMapFilename: 'bundle.map',
         publicPath: '/bundles/'
     },
-    externals: {
-    },
+    externals: {},
     module: {
         rules: [
             {
                 test: /\.css$/,
-                use: ['style-loader','css-loader']
+                use: ['style-loader', 'css-loader']
             },
             {
                 test: /\.less$/,
@@ -32,13 +30,7 @@ var config = {
             },
             {
                 test: /\.scss$/,
-                use: [{
-                    loader: "style-loader" // creates style nodes from JS strings
-                }, {
-                    loader: "css-loader" // translates CSS into CommonJS
-                }, {
-                    loader: "sass-loader" // compiles Sass to CSS
-                }]
+                use: ['style-loader', 'css-loader', 'sass-loader']
             },
             {
                 test: /\.ts$/,
@@ -46,25 +38,30 @@ var config = {
             },
             {
                 test: /\.js$/,
-                use: 'source-map-loader'
+                use: ['ng-annotate-loader', 'babel-loader'],
+                exclude: /node_modules/
             },
             {
-                test: /\.(jpg|png)$/,
+                test: /\.json$/,
+                use: 'json-loader'
+            },
+            {
+                test: /\.(jpg|png|svg)$/,
                 use: 'url-loader?limit=100000'
             },
             {
-                test: /\.svg$/,
-                use: 'url-loader?limit=10000&mimetype=image/svg+xml'
+                test: /\.html$/,
+                use: 'ng-cache-loader?prefix=[dir]/[dir]',
+                exclude: '/node_modules/'
             },
-            { test: /\.html$/, loader: 'ng-cache-loader?prefix=[dir]/[dir]' },
-            { test: /\.woff2?$/,   loader: "url-loader?limit=10000&minetype=application/font-woff" },
-            { test: /\.ttf$/,    loader: "file-loader" },
-            { test: /\.eot$/,    loader: "file-loader" },
-            { test: /\.svg$/,    loader: "file-loader" }
+            {
+                test: /\.(woff2?|ttf|eof|eot)$/,
+                use: 'file-loader'
+            }
         ]
     },
     resolve: {
-        extensions: ['.ts','.js','.json','.css','.html']
+        extensions: ['.ts', '.js', '.json', '.css', '.html']
     }
 };
 

@@ -13,14 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from'angular';
+
 angular.module('app.maturity')
     .component('maturityReporting', {
-        templateUrl: '/assets/app/maturity/reporting/maturityReporting.template.html',
-        controller: ['$translate', 'LanguageInspections', 'Session', 'EXAM_CONF',
-            function ($translate, LanguageInspections, Session, EXAM_CONF) {
+        template: require('./maturityReporting.template.html'),
+        controller: ['$translate', 'LanguageInspections',
+            function ($translate, LanguageInspections) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.selection = {opened: false, month: new Date()};
@@ -40,7 +41,7 @@ angular.module('app.maturity')
                 };
 
                 vm.query = function () {
-                    var params = {};
+                    const params = {};
                     if (vm.selection.month) {
                         params.month = vm.selection.month;
                     }

@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.exam.editor')
     .component('examCourse', {
-        templateUrl: '/assets/app/exam/editor/basic/examCourse.template.html',
+        template: require('./examCourse.template.html'),
         bindings: {
             exam: '<',
             onUpdate: '&'
@@ -25,7 +25,7 @@ angular.module('app.exam.editor')
         controller: ['Exam',
             function (Exam) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.displayGradeScale = function () {
                     return !vm.exam.course || !vm.exam.course.gradeScale ? null :

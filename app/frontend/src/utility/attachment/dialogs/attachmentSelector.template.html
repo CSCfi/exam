@@ -1,7 +1,6 @@
 <div id="sitnet-dialog">
     <div class="student-details-title-wrap mart20">
-        <div class="student-enroll-title" ng-if="!$ctrl.title">{{'sitnet_attachment_selection' | translate}}</div>
-        <div class="student-enroll-title" ng-if="$ctrl.title">{{'sitnet_import_grades_from_csv' | translate}}</div>
+        <div class="student-enroll-title">{{ $ctrl.title | translate }}</div>
     </div>
 
     <div class="modal-body marl20">

@@ -13,21 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('rFeedback', {
-        templateUrl: '/assets/app/review/assessment/feedback/feedback.template.html',
+        template: require('./feedback.template.html'),
         bindings: {
             exam: '<'
         },
         controller: ['$uibModal', 'Assessment', 'Attachment', 'Files',
             function ($modal, Assessment, Attachment, Files) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.toggleFeedbackVisibility = function () {
-                    var selector = $('.body');
+                    const selector = $('.body');
                     if (vm.hideEditor) {
                         selector.show();
                     } else {

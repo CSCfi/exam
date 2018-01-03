@@ -13,7 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+require('../../exam/editor');
+require('../../question/question.module');
+require('../../reservation/reservation.module');
+require('../../iop/iop.module');
 
 angular.module('app.dashboard.teacher', ['app.exam', 'app.question', 'app.reservation', 'app.iop']);
 

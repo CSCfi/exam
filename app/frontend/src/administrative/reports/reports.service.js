@@ -13,13 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
-angular
-    .module('app.administrative.reports')
-    .factory('Reports', ['$resource',
-        function ($resource) {
-            return {examNames: $resource("/app/statistics/examnames")};
-        }
-    ]);
+angular.module('app.administrative.reports').factory('Reports', ['$resource',
+    function ($resource) {
+        return {examNames: $resource('/app/statistics/examnames')};
+    }
+]);
 

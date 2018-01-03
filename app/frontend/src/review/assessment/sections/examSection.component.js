@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('rExamSection', {
-        templateUrl: '/assets/app/review/assessment/sections/examSection.template.html',
+        template: require('./examSection.template.html'),
         bindings: {
             exam: '<',
             section: '<',
@@ -28,9 +28,9 @@ angular.module('app.review')
         controller: ['$sce', 'Attachment',
             function ($sce, Attachment) {
 
-                var vm = this;
+                const vm = this;
 
-                vm.scoreSet = function() {
+                vm.scoreSet = function () {
                     vm.onScore();
                 };
 
@@ -43,8 +43,8 @@ angular.module('app.review')
                 };
 
                 vm.displayClozeTestScore = function () {
-                    var max = vm.sectionQuestion.maxScore;
-                    var score = vm.sectionQuestion.clozeTestAnswer.score;
+                    const max = vm.sectionQuestion.maxScore;
+                    const score = vm.sectionQuestion.clozeTestAnswer.score;
                     return score.correctAnswers * max / (score.correctAnswers + score.incorrectAnswers).toFixed(2)
                         + ' / ' + max;
                 };

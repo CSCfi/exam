@@ -13,7 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+require('jquery-ui');
+require('jquery-ui/ui/widgets/droppable');
+require('jquery-ui/ui/widgets/sortable');
+require('jquery-ui/ui/disable-selection');
+
+import toast from 'toastr';
+
 angular.module('app.utility')
 
     .directive('sortable', [function () {
@@ -25,7 +32,7 @@ angular.module('app.utility')
                 selection: '@selection'
             },
             link: function (scope, element, attrs) {
-                var startIndex = -1;
+                let startIndex = -1;
                 element.sortable({
                     items: scope.selection,
                     accept: 'section-handle',
@@ -36,8 +43,8 @@ angular.module('app.utility')
                     stop: function (event, ui) {
                         // on stop we determine the new index of the
                         // item and store it there
-                        var newIndex = ($(ui.item).index());
-                        var objToMove = scope.objects[startIndex];
+                        const newIndex = ($(ui.item).index());
+                        const objToMove = scope.objects[startIndex];
                         scope.objects.splice(startIndex, 1);
                         scope.objects.splice(newIndex, 0, objToMove);
                         // we move items in the array, propagate update to angular as well
@@ -50,7 +57,7 @@ angular.module('app.utility')
         };
     }])
 
-    .directive('droppable', ['$translate', '$parse', 'toast', function ($translate, $parse, toast) {
+    .directive('droppable', ['$translate', '$parse', function ($translate, $parse) {
         return {
             scope: {
                 objects: '=',
@@ -60,10 +67,10 @@ angular.module('app.utility')
             },
             link: function (scope, element, attrs) {
 
-                var startIndex = -1;
+                let startIndex = -1;
 
                 attrs.$observe('dropDisabled', function () {
-                    var dropDisabled = $parse(attrs.dropDisabled)(scope);
+                    const dropDisabled = $parse(attrs.dropDisabled)(scope);
                     initDroppable(scope, element, dropDisabled);
                 });
 
@@ -92,8 +99,8 @@ angular.module('app.utility')
                             startIndex = ($(ui.item).index());
                         },
                         stop: function (event, ui) {
-                            var newIndex = ($(ui.item).index());
-                            var toMove = scope.objects[startIndex];
+                            const newIndex = ($(ui.item).index());
+                            const toMove = scope.objects[startIndex];
                             if (!toMove) {
                                 event.revert = true;
                                 return;

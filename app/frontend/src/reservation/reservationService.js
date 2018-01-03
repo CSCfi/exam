@@ -13,12 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+var toast = require('toastr');
+
 angular.module('app.reservation')
     .service('Reservation', ['$q', '$uibModal', '$http', '$translate', 'dialogs',
-        'ReservationResource', 'EXAM_CONF', 'InteroperabilityResource', 'toast',
+        'ReservationResource', 'EXAM_CONF', 'InteroperabilityResource',
         function ($q, $modal, $http, $translate, dialogs,
-                  ReservationRes, EXAM_CONF, InteroperabilityRes, toast) {
+                  ReservationRes, EXAM_CONF, InteroperabilityRes) {
 
             var self = this;
 

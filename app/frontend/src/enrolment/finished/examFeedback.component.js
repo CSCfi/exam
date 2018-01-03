@@ -13,10 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.enrolment')
     .component('examFeedback', {
-        templateUrl: '/assets/app/enrolment/finished/examFeedback.template.html',
+        template: require('./examFeedback.template.html'),
         bindings: {
             assessment: '<',
             scores: '<'
@@ -24,7 +25,7 @@ angular.module('app.enrolment')
         controller: ['Attachment',
             function (Attachment) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.downloadFeedbackAttachment = function () {
                     Attachment.downloadFeedbackAttachment(vm.assessment);

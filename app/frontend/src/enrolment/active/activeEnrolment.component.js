@@ -13,18 +13,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.enrolment')
     .component('activeEnrolment', {
-        templateUrl: '/assets/app/enrolment/active/activeEnrolment.template.html',
+        template: require('./activeEnrolment.template.html'),
         bindings: {
             enrolment: '<',
             onRemoval: '&'
         },
-        controller: ['$translate', 'dialogs', 'Enrolment', 'Reservation', 'toast',
-            function ($translate, dialogs, Enrolment, Reservation, toast) {
+        controller: ['$translate', 'dialogs', 'Enrolment', 'Reservation',
+            function ($translate, dialogs, Enrolment, Reservation) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.removeReservation = function () {
                     Reservation.removeReservation(vm.enrolment);

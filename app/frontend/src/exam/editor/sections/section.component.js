@@ -13,24 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.exam.editor')
     .component('section', {
-        templateUrl: '/assets/app/exam/editor/sections/section.template.html',
+        template: require('./section.template.html'),
         bindings: {
             section: '<',
             examId: '<',
             onDelete: '&',
             onReloadRequired: '&' // TODO: try to live without this callback?
         },
-        controller: ['$translate', '$uibModal', 'dialogs', 'ExamRes', 'Question', 'toast',
-            function ($translate, $modal, dialogs, ExamRes, Question, toast) {
+        controller: ['$translate', '$uibModal', 'dialogs', 'ExamRes', 'Question',
+            function ($translate, $modal, dialogs, ExamRes, Question) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.clearAllQuestions = function () {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_all_questions'));
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_all_questions'));
                     dialog.result.then(function () {
                         ExamRes.clearsection.clear({eid: vm.examId, sid: vm.section.id}, function () {
                             vm.section.sectionQuestions.splice(0, vm.section.sectionQuestions.length);
@@ -43,7 +44,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.removeSection = function () {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_section'));
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_section'));
                     dialog.result.then(function () {
                         vm.onDelete({section: vm.section});
                     });
@@ -180,19 +181,19 @@ angular.module('app.exam.editor')
                     if (!vm.section.sectionQuestions) {
                         return true;
                     }
-                    var sectionQuestions = vm.section.sectionQuestions;
+                    const sectionQuestions = vm.section.sectionQuestions;
                     if (sectionQuestions.length < 1) {
                         return true;
                     }
-                    var score = getQuestionScore(sectionQuestions[0]);
+                    const score = getQuestionScore(sectionQuestions[0]);
                     return sectionQuestions.every(function (sectionQuestion) {
                         return score === getQuestionScore(sectionQuestion);
                     });
                 }
 
                 function getQuestionScore(question) {
-                    var evaluationType = question.evaluationType;
-                    var type = question.question.type;
+                    const evaluationType = question.evaluationType;
+                    const type = question.question.type;
                     if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion' || type === 'ClozeTestQuestion') {
                         return question.maxScore;
                     }
@@ -202,7 +203,7 @@ angular.module('app.exam.editor')
                     return null;
                 }
 
-                var getSectionPayload = function (section) {
+                const getSectionPayload = function (section) {
                     return {
                         id: section.id,
                         name: section.name,
@@ -213,7 +214,7 @@ angular.module('app.exam.editor')
                     };
                 };
 
-                var insertExamQuestion = function (examId, sectionId, questionId, sequenceNumber) {
+                const insertExamQuestion = function (examId, sectionId, questionId, sequenceNumber) {
                     ExamRes.sectionquestions.insert({
                             eid: examId,
                             sid: sectionId,
@@ -228,7 +229,7 @@ angular.module('app.exam.editor')
                 };
 
 
-                var openBaseQuestionEditor = function () {
+                const openBaseQuestionEditor = function () {
 
                     $modal.open({
                         component: 'baseQuestionEditor',

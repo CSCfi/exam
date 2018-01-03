@@ -13,18 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.exam')
     .component('examList', {
-        templateUrl: '/assets/app/exam/examList.template.html',
-        controller: ['dialogs', 'Session', 'Exam', '$translate', '$location', 'ExamRes', 'toast',
-            function (dialogs, Session, Exam, $translate, $location, ExamRes, toast) {
-                var vm = this;
+        template: require('./examList.template.html'),
+        controller: ['dialogs', 'Session', 'Exam', '$translate', '$location', 'ExamRes',
+            function (dialogs, Session, Exam, $translate, $location, ExamRes) {
+
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.user = Session.getUser();
                     if (!vm.user.isAdmin) {
-                        $location.url("/");
+                        $location.url('/');
                         return;
                     }
                     vm.view = 'PUBLISHED';
@@ -46,7 +49,7 @@ angular.module('app.exam')
                     ExamRes.exams.query({filter: vm.filter.text}, function (exams) {
                         exams.forEach(function (e) {
                             e.ownerAggregate = e.examOwners.map(function (o) {
-                                return o.firstName + " " + o.lastName;
+                                return o.firstName + ' ' + o.lastName;
                             }).join();
                             if (e.state === 'PUBLISHED') {
                                 e.expired = Date.now() > new Date(e.examActiveEndDate);
@@ -70,14 +73,14 @@ angular.module('app.exam')
                 vm.copyExam = function (exam, type) {
                     ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
                         toast.success($translate.instant('sitnet_exam_copied'));
-                        $location.path("/exams/" + copy.id + "/1/");
+                        $location.path('/exams/' + copy.id + '/1/');
                     }, function (error) {
                         toast.error(error.data);
                     });
                 };
 
                 vm.deleteExam = function (exam) {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                     dialog.result.then(function (btn) {
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
                             toast.success($translate.instant('sitnet_exam_removed'));

@@ -13,21 +13,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.review')
     .component('rMaturityGrading', {
-        templateUrl: '/assets/app/review/assessment/maturity/grading.template.html',
+        template: require('./grading.template.html'),
         bindings: {
             exam: '<',
             user: '<',
             questionSummary: '<',
             onUpdate: '&'
         },
-        controller: ['$translate', '$scope', 'Assessment', 'Exam', 'ExamRes', 'Attachment', 'Language', 'toast',
-            function ($translate, $scope, Assessment, Exam, ExamRes, Attachment, Language, toast) {
+        controller: ['$translate', '$scope', 'Assessment', 'Exam', 'ExamRes', 'Attachment', 'Language',
+            function ($translate, $scope, Assessment, Exam, ExamRes, Attachment, Language) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.message = {};
@@ -134,11 +135,11 @@ angular.module('app.review')
                     vm.exam.answerLanguage = vm.selections.language ? vm.selections.language.name : undefined;
                 };
 
-                var initGrade = function () {
+                const initGrade = function () {
                     if (!vm.exam.grade || !vm.exam.grade.id) {
                         vm.exam.grade = {};
                     }
-                    var scale = vm.exam.gradeScale || vm.exam.parent.gradeScale || vm.exam.course.gradeScale;
+                    const scale = vm.exam.gradeScale || vm.exam.parent.gradeScale || vm.exam.course.gradeScale;
                     scale.grades = scale.grades || [];
                     vm.grades = scale.grades.map(function (grade) {
                         grade.type = grade.name;
@@ -151,16 +152,16 @@ angular.module('app.review')
                         return grade;
                     });
                     // The "no grade" option
-                    var noGrade = {type: 'NONE', name: Exam.getExamGradeDisplayName('NONE')};
+                    const noGrade = {type: 'NONE', name: Exam.getExamGradeDisplayName('NONE')};
                     if (vm.exam.gradeless && !vm.selections.grade) {
                         vm.selections.grade = noGrade;
                     }
                     vm.grades.push(noGrade);
                 };
 
-                var initCreditTypes = function () {
+                const initCreditTypes = function () {
                     Exam.refreshExamTypes().then(function (types) {
-                        var creditType = vm.exam.creditType || vm.exam.examType;
+                        const creditType = vm.exam.creditType || vm.exam.examType;
                         vm.creditTypes = types;
                         types.forEach(function (type) {
                             if (creditType.id === type.id) {
@@ -174,8 +175,8 @@ angular.module('app.review')
                     }
                 };
 
-                var initLanguages = function () {
-                    var lang = Assessment.pickExamLanguage(vm.exam);
+                const initLanguages = function () {
+                    const lang = Assessment.pickExamLanguage(vm.exam);
                     if (!vm.exam.answerLanguage) {
                         vm.exam.answerLanguage = lang;
                     }

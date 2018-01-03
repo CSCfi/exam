@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.examination')
     .component('examinationClozeTest', {
-        templateUrl: '/assets/app/examination/question/examinationClozeTest.template.html',
+        template: require('./examinationClozeTest.template.html'),
         bindings: {
             sq: '<',
             examHash: '<'
@@ -25,7 +25,7 @@ angular.module('app.examination')
         controller: ['Examination',
             function (Examination) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.saveAnswer = function () {
                     Examination.saveTextualAnswer(vm.sq, vm.examHash, false);

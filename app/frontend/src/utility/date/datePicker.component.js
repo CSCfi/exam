@@ -13,10 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
 angular.module('app.utility')
     .component('datePicker', {
-        templateUrl: '/assets/app/utility/date/datePicker.template.html',
+        template: require('./datePicker.template.html'),
         bindings: {
             onUpdate: '&',
             initialDate: '<?',
@@ -29,7 +28,7 @@ angular.module('app.utility')
         controller: [
             function () {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     if (angular.isUndefined(vm.modelOptions)) {

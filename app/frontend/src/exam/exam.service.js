@@ -13,12 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
-angular.module('app.exam')
-    .service('Exam', ['$translate', '$q', '$location', 'ExamRes', 'Question', 'Session', 'toast',
-        function ($translate, $q, $location, ExamRes, Question, Session, toast) {
+import angular from 'angular';
+import toast from 'toastr';
 
-            var self = this;
+angular.module('app.exam')
+    .service('Exam', ['$translate', '$q', '$location', 'ExamRes', 'Question', 'Session',
+        function ($translate, $q, $location, ExamRes, Question, Session) {
+
+            const self = this;
 
             self.getReviewablesCount = function (exam) {
                 return exam.children.filter(function (child) {
@@ -50,7 +52,7 @@ angular.module('app.exam')
             };
 
             self.updateExam = function (exam, overrides) {
-                var data = {
+                const data = {
                     'id': exam.id,
                     'name': exam.name || '',
                     'examType': exam.examType,
@@ -70,12 +72,12 @@ angular.module('app.exam')
                     'internalRef': exam.internalRef,
                     'objectVersion': exam.objectVersion
                 };
-                for (var k in overrides) {
+                for (let k in overrides) {
                     if (overrides.hasOwnProperty(k)) {
                         data[k] = overrides[k];
                     }
                 }
-                var deferred = $q.defer();
+                const deferred = $q.defer();
                 ExamRes.exams.update(data,
                     function (exam) {
                         deferred.resolve(exam);
@@ -87,7 +89,7 @@ angular.module('app.exam')
 
 
             self.getExamTypeDisplayName = function (type) {
-                var name;
+                let name;
                 switch (type) {
                     case 'PARTIAL':
                         name = $translate.instant('sitnet_exam_credit_type_partial');
@@ -102,7 +104,7 @@ angular.module('app.exam')
             };
 
             self.getExamGradeDisplayName = function (grade) {
-                var name;
+                let name;
                 switch (grade) {
                     case 'NONE':
                         name = $translate.instant('sitnet_no_grading');
@@ -145,7 +147,7 @@ angular.module('app.exam')
             };
 
             self.refreshExamTypes = function () {
-                var deferred = $q.defer();
+                const deferred = $q.defer();
                 ExamRes.examTypes.query(function (examTypes) {
                     return deferred.resolve(examTypes.map(function (examType) {
                         examType.name = self.getExamTypeDisplayName(examType.type);
@@ -156,8 +158,8 @@ angular.module('app.exam')
             };
 
             self.getScaleDisplayName = function (type) {
-                var name;
-                var description = type.description || type;
+                let name;
+                const description = type.description || type;
                 switch (description) {
                     case 'ZERO_TO_FIVE':
                         name = '0-5';
@@ -175,7 +177,7 @@ angular.module('app.exam')
             };
 
             self.refreshGradeScales = function () {
-                var deferred = $q.defer();
+                const deferred = $q.defer();
                 ExamRes.gradeScales.query(function (scales) {
                     return deferred.resolve(scales.map(function (scale) {
                         scale.name = self.getScaleDisplayName(scale);
@@ -194,7 +196,7 @@ angular.module('app.exam')
             };
 
             self.listExecutionTypes = function () {
-                var deferred = $q.defer();
+                const deferred = $q.defer();
                 ExamRes.executionTypes.query(function (types) {
                     types.forEach(function (t) {
                         if (t.type === 'PUBLIC') {
@@ -219,7 +221,7 @@ angular.module('app.exam')
             };
 
             self.getExecutionTypeTranslation = function (type) {
-                var translation;
+                let translation;
                 if (type === 'PUBLIC') {
                     translation = 'sitnet_public_exam';
                 }
@@ -236,7 +238,7 @@ angular.module('app.exam')
             };
 
             self.getSectionTotalScore = function (section) {
-                var score = 0;
+                let score = 0;
 
                 section.sectionQuestions.forEach(function (sq) {
                     switch (sq.question.type) {
@@ -251,7 +253,7 @@ angular.module('app.exam')
                             break;
                         case 'EssayQuestion':
                             if (sq.essayAnswer && sq.essayAnswer.evaluatedScore && sq.evaluationType === 'Points') {
-                                var number = parseFloat(sq.essayAnswer.evaluatedScore);
+                                const number = parseFloat(sq.essayAnswer.evaluatedScore);
                                 if (angular.isNumber(number)) {
                                     score += number;
                                 }
@@ -265,7 +267,7 @@ angular.module('app.exam')
             };
 
             self.getSectionMaxScore = function (section) {
-                var score = 0;
+                let score = 0;
                 section.sectionQuestions.forEach(function (sq) {
                     if (!sq || !sq.question) {
                         return;
@@ -290,8 +292,9 @@ angular.module('app.exam')
                 if (section.lotteryOn) {
                     score = score * section.lotteryItemCount / Math.max(1, section.sectionQuestions.length);
                 }
+
                 function isInteger(n) {
-                    return typeof n === "number" && isFinite(n) && Math.floor(n) === n;
+                    return typeof n === 'number' && isFinite(n) && Math.floor(n) === n;
                 }
 
                 return isInteger(score) ? score : parseFloat(score.toFixed(2));
@@ -321,7 +324,7 @@ angular.module('app.exam')
                 if (!exam || !exam.examSections) {
                     return 0;
                 }
-                var total = 0;
+                let total = 0;
                 exam.examSections.forEach(function (section) {
                     total += self.getSectionMaxScore(section);
                 });
@@ -332,7 +335,7 @@ angular.module('app.exam')
                 if (!exam || !exam.examSections) {
                     return 0;
                 }
-                var total = 0;
+                let total = 0;
                 exam.examSections.forEach(function (section) {
                     total += self.getSectionTotalScore(section);
                 });
@@ -340,15 +343,15 @@ angular.module('app.exam')
             };
 
             self.isOwner = function (exam) {
-                var user = Session.getUser();
-                var examToCheck = exam && exam.parent ? exam.parent : exam;
+                const user = Session.getUser();
+                const examToCheck = exam && exam.parent ? exam.parent : exam;
                 return examToCheck && examToCheck.examOwners.filter(function (o) {
                     return o.id === user.id;
                 }).length > 0;
             };
 
             self.isOwnerOrAdmin = function (exam) {
-                var user = Session.getUser();
+                const user = Session.getUser();
                 return exam && user && (user.isAdmin || self.isOwner(exam));
             };
 

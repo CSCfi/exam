@@ -13,17 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.exam.editor')
     .component('languageSelector', {
-        templateUrl: '/assets/app/exam/editor/common/languageSelector.template.html',
+        template: require('./languageSelector.template.html'),
         bindings: {
             exam: '<'
         },
-        controller: ['$q', '$translate', 'Language', 'ExamRes', 'toast',
-            function ($q, $translate, Language, ExamRes, toast) {
+        controller: ['$q', '$translate', 'Language', 'ExamRes',
+            function ($q, $translate, Language, ExamRes) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     Language.languageApi.query(function (languages) {
@@ -50,7 +52,7 @@ angular.module('app.exam.editor')
                 vm.updateExamLanguage = function (lang) {
                     ExamRes.language.update({eid: vm.exam.id, code: lang.code}, function (){
                         if (vm.isSelected(lang)) {
-                            var index = vm.exam.examLanguages.map(function (el) {
+                            const index = vm.exam.examLanguages.map(function (el) {
                                 return el.code;
                             }).indexOf(lang.code);
                             vm.exam.examLanguages.splice(index, 1);

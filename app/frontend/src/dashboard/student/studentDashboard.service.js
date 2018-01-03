@@ -13,6 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+require('moment-timezone');
+const moment = require('moment');
+
 angular.module('app.dashboard.student')
     .service('StudentDashboard', ['$q', '$resource',
         function ($q, $resource) {

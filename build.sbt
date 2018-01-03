@@ -27,7 +27,8 @@ libraryDependencies ++= Seq(javaJdbc, ehcache, ws, evolutions, filters, guice,
   "org.eclipse.jetty" % "jetty-server" % "9.4.4.v20170414" % "test",
   "org.eclipse.jetty" % "jetty-servlet" % "9.4.4.v20170414" % "test",
   "org.easytesting" % "fest-assert" % "1.4" % "test",
-  "org.yaml" % "snakeyaml" % "1.17" % "test"
+  "org.yaml" % "snakeyaml" % "1.17" % "test",
+  "net.jodah" % "concurrentunit" % "0.4.2" % "test"
 )
 
 libraryDependencies ++= Seq(

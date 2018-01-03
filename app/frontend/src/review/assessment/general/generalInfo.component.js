@@ -13,22 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import moment from 'moment';
 
 angular.module('app.review')
     .component('rGeneralInfo', {
-        templateUrl: '/assets/app/review/assessment/general/generalInfo.template.html',
+        template: require('./generalInfo.template.html'),
         bindings: {
             exam: '<'
         },
         controller: ['ExamRes', 'Attachment', 'Assessment',
             function (ExamRes, Attachment, Assessment) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.participation = vm.exam.examParticipations[0];
-                    var duration = moment.utc(new Date(vm.participation.duration));
+                    const duration = moment.utc(new Date(vm.participation.duration));
                     if (duration.second() > 29) {
                         duration.add(1, 'minutes');
                     }
@@ -42,15 +43,14 @@ angular.module('app.review')
                         uid: vm.student.id
                     }, function (data) {
                         // Filter out the participation we are looking into
-                        var previousParticipations = data.filter(function (p) {
+                        const previousParticipations = data.filter(function (p) {
                             return p.id !== vm.participation.id;
                         });
                         Assessment.noShowApi.query({eid: vm.exam.parent.id, uid: vm.student.id}, function (data) {
-                            var noShows = data.map(function (d) {
+                            const noShows = data.map(function (d) {
                                 return {noShow: true, started: d.reservation.startAt, exam: {state: 'no_show'}};
                             });
                             vm.previousParticipations = previousParticipations.concat(noShows);
-
                         });
                     });
 

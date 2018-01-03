@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('questionFlowCategory', {
-        templateUrl: '/assets/app/review/questions/flow/questionFlowCategory.template.html',
+        template: require('./questionFlowCategory.template.html'),
         bindings: {
             categoryTitle: '@',
             reviews: '<',
@@ -27,14 +27,14 @@ angular.module('app.review')
         controller: ['$sce', '$filter', 'QuestionReview',
             function ($sce, $filter, QuestionReview) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.displayQuestionText = function (review) {
-                    var truncate = function (content, offset) {
+                    const truncate = function (content, offset) {
                         return $filter('truncate')(content, offset);
                     };
 
-                    var text = truncate(review.question.question, 50);
+                    const text = truncate(review.question.question, 50);
                     return $sce.trustAsHtml(text);
                 };
 

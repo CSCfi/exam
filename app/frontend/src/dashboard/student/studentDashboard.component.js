@@ -13,14 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.dashboard.student')
     .component('studentDashboard', {
-        templateUrl: '/assets/app/dashboard/student/studentDashboard.template.html',
+        template: require('./studentDashboard.template.html'),
         controller: ['StudentDashboard', 'Reservation', 'Room', 'DateTime', 'Enrolment', 'Session',
             function (StudentDashboard, Reservation, Room, DateTime, Enrolment, Session) {
 
-                var ctrl = this;
+                const ctrl = this;
 
                 ctrl.$onInit = function () {
                     ctrl.showInst = 0;

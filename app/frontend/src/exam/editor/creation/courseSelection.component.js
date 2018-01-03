@@ -13,15 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.exam.editor')
     .component('courseSelection', {
-        templateUrl: '/assets/app/exam/editor/creation/courseSelection.template.html',
-        controller: ['$translate', '$q', '$location', '$routeParams', 'ExamRes', 'Exam', 'toast',
-            function ($translate, $q, $location, $routeParams, ExamRes, Exam, toast) {
+        template: require('./courseSelection.template.html'),
+        controller: ['$translate', '$q', '$location', '$routeParams', 'ExamRes', 'Exam',
+            function ($translate, $q, $location, $routeParams, ExamRes, Exam) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     ExamRes.exams.get({id: $routeParams.id}, function (exam) {
@@ -35,10 +36,10 @@ angular.module('app.exam.editor')
 
                 vm.updateExamName = function () {
                     Exam.updateExam(vm.exam).then(function () {
-                        toast.info($translate.instant("sitnet_exam_saved"));
+                        toast.info($translate.instant('sitnet_exam_saved'));
                     }, function (error) {
                         if (error.data) {
-                            var msg = error.data.message || error.data;
+                            const msg = error.data.message || error.data;
                             toast.error($translate.instant(msg));
                         }
                     });
@@ -52,7 +53,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.continueToExam = function () {
-                    $location.path("/exams/" + vm.exam.id + "/1");
+                    $location.path('/exams/' + vm.exam.id + '/1');
                 };
 
             }

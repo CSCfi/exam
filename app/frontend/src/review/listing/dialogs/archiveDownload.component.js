@@ -13,7 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import moment from 'moment';
+import toast from 'toastr';
+
 angular.module('app.review')
     .component('archiveDownload', {
         templateUrl: '/assets/app/review/listing/dialogs/archiveDownload.template.html',
@@ -21,9 +24,9 @@ angular.module('app.review')
             close: '&',
             dismiss: '&'
         },
-        controller: ['$translate', 'toast', function ($translate, toast) {
+        controller: ['$translate', function ($translate) {
 
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
                 vm.params = {startDate: new Date(), endDate: new Date()};
@@ -38,7 +41,7 @@ angular.module('app.review')
             };
 
             vm.ok = function () {
-                var start, end;
+                let start, end;
                 if (vm.params.startDate) {
                     start = moment(vm.params.startDate);
                 }

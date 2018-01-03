@@ -13,15 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.review')
     .component('assessment', {
-        templateUrl: '/assets/app/review/assessment/assessment.template.html',
-        controller: ['$routeParams', 'Assessment', 'ExamRes', 'Question', 'Session', 'Exam', 'toast',
-            function ($routeParams, Assessment, ExamRes, Question, Session, Exam, toast) {
+        template: require('./assessment.template.html'),
+        controller: ['$routeParams', 'Assessment', 'ExamRes', 'Question', 'Session', 'Exam',
+            function ($routeParams, Assessment, ExamRes, Question, Session, Exam) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     ExamRes.reviewerExam.get({eid: $routeParams.id},
@@ -37,7 +38,7 @@ angular.module('app.review')
                             vm.questionSummary = Question.getQuestionAmounts(exam);
                             vm.exam = exam;
                             vm.user = Session.getUser();
-                            vm.backUrl = vm.user.isAdmin ? "/" : "/exams/" + vm.exam.parent.id + "/4";
+                            vm.backUrl = vm.user.isAdmin ? '/' : '/exams/' + vm.exam.parent.id + '/4';
                         }, function (err) {
                             toast.error(err.data);
                         });
@@ -51,7 +52,7 @@ angular.module('app.review')
                 };
 
                 vm.print = function () {
-                    window.open("/print/exam/" + vm.exam.id, "_blank");
+                    window.open('/print/exam/' + vm.exam.id, '_blank');
                 };
 
                 vm.scoreSet = function () {
@@ -76,10 +77,10 @@ angular.module('app.review')
                 };
 
                 // Set review status as started if not already done so
-                var startReview = function () {
+                const startReview = function () {
                     if (vm.exam.state === 'REVIEW') {
-                        var state = 'REVIEW_STARTED';
-                        var review = Assessment.getPayload(vm.exam, state);
+                        const state = 'REVIEW_STARTED';
+                        const review = Assessment.getPayload(vm.exam, state);
                         ExamRes.review.update({id: review.id}, review,
                             function () {
                                 vm.exam.state = state;

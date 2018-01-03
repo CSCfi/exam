@@ -13,20 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.review')
     .component('questionAssessment', {
-        templateUrl: '/assets/app/review/questions/assessment/questionAssessment.template.html',
-        controller: ['$routeParams', '$q', '$sce', '$translate', 'QuestionReview', 'Assessment', 'Session', 'Attachment', 'toast',
-            function ($routeParams, $q, $sce, $translate, QuestionReview, Assessment, Session, Attachment, toast) {
+        template: require('./questionAssessment.template.html'),
+        controller: ['$routeParams', '$q', '$sce', '$translate', 'QuestionReview', 'Assessment', 'Session', 'Attachment',
+            function ($routeParams, $q, $sce, $translate, QuestionReview, Assessment, Session, Attachment) {
 
-                var vm = this;
+                const vm = this;
 
-                var isLocked = function (answer) {
-                    var states = ['REVIEW', 'REVIEW_STARTED'];
-                    var exam = answer.examSection.exam;
-                    var isInspector = exam.examInspections.map(function(ei) {
+                const isLocked = function (answer) {
+                    const states = ['REVIEW', 'REVIEW_STARTED'];
+                    const exam = answer.examSection.exam;
+                    const isInspector = exam.examInspections.map(function (ei) {
                         return ei.user.id;
                     }).indexOf(vm.user.id) > -1;
                     if (!isInspector) {
@@ -35,7 +36,7 @@ angular.module('app.review')
                     return states.indexOf(exam.state) === -1;
                 };
 
-                var setSelectedReview = function (review) {
+                const setSelectedReview = function (review) {
                     vm.selectedReview = review;
                     vm.assessedAnswers = vm.selectedReview.answers.filter(function (a) {
                         return a.essayAnswer && parseFloat(a.essayAnswer.evaluatedScore) >= 0 && !isLocked(a);
@@ -43,7 +44,7 @@ angular.module('app.review')
                     vm.unassessedAnswers = vm.selectedReview.answers.filter(function (a) {
                         return !a.essayAnswer || a.essayAnswer.evaluatedScore === null && !isLocked(a);
                     });
-                    vm.lockedAnswers = vm.selectedReview.answers.filter(function (a){
+                    vm.lockedAnswers = vm.selectedReview.answers.filter(function (a) {
                         return isLocked(a);
                     });
                 };
@@ -51,7 +52,7 @@ angular.module('app.review')
                 vm.$onInit = function () {
                     vm.user = Session.getUser();
                     vm.examId = $routeParams.id;
-                    var ids = $routeParams.q || [];
+                    const ids = $routeParams.q || [];
                     QuestionReview.questionsApi.query({id: vm.examId, ids: ids}, function (data) {
                         data.forEach(function (r, i) {
                             r.selected = i === 0; // select the first in the list
@@ -65,7 +66,8 @@ angular.module('app.review')
                             };
 
                             vm.getAssessedAnswerCount = function () {
-                                return vm.assessedAnswers.length;;
+                                return vm.assessedAnswers.length;
+                                ;
                             };
 
                             vm.getUnassessedAnswerCount = function () {
@@ -74,7 +76,7 @@ angular.module('app.review')
 
                             vm.getLockedAnswerCount = function () {
                                 return vm.lockedAnswers.length;
-                            }
+                            };
 
                         }
                     });
@@ -84,8 +86,8 @@ angular.module('app.review')
                     setSelectedReview(vm.reviews[index]);
                 };
 
-                var saveEvaluation = function (answer) {
-                    var deferred = $q.defer();
+                const saveEvaluation = function (answer) {
+                    const deferred = $q.defer();
                     answer.essayAnswer.evaluatedScore = answer.essayAnswer.score;
                     Assessment.saveEssayScore(answer).then(function () {
                         toast.info($translate.instant('sitnet_graded'));
@@ -104,13 +106,13 @@ angular.module('app.review')
                 };
 
                 vm.saveAssessments = function (answers) {
-                    var promises = []
+                    const promises = [];
                     answers.forEach(function (a) {
                         promises.push(saveEvaluation(a));
                     });
-                    $q.all(promises).then(function() {
+                    $q.all(promises).then(function () {
                         vm.reviews = angular.copy(vm.reviews);
-                    })
+                    });
                 };
 
                 vm.isFinalized = function (review) {

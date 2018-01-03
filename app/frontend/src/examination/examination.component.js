@@ -13,17 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import angular from 'angular';
+
 angular.module('app.examination')
     .component('examination', {
-        templateUrl: '/assets/app/examination/examination.template.html',
+        template: require('./examination.template.html'),
         bindings: {
             isPreview: '<'
         },
         controller: ['$http', '$location', '$routeParams', '$translate', 'Examination',
             function ($http, $location, $routeParams, $translate, Examination) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     if (!vm.isPreview) {
@@ -63,8 +65,8 @@ angular.module('app.examination')
                     }
                 };
 
-                var findSection = function (sectionId) {
-                    var i = vm.exam.examSections.map(function (es) {
+                const findSection = function (sectionId) {
+                    const i = vm.exam.examSections.map(function (es) {
                         return es.id;
                     }).indexOf(sectionId);
                     if (i >= 0) {
@@ -72,7 +74,7 @@ angular.module('app.examination')
                     }
                 };
 
-                var setActiveSection = function (page) {
+                const setActiveSection = function (page) {
                     delete vm.activeSection;
                     if (page.type === 'section') {
                         vm.activeSection = findSection(page.id);
@@ -80,7 +82,7 @@ angular.module('app.examination')
                     window.scrollTo(0, 0);
                 };
 
-                var logout = function (msg) {
+                const logout = function (msg) {
                     Examination.logout(msg, vm.exam.hash);
                 };
 

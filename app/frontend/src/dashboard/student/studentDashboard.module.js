@@ -13,7 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+require('angular-animate');
+require('../../calendar');
+require('../../facility/rooms');
+require('../../utility');
+require('../../enrolment');
 
-angular.module('app.dashboard.student', ['ngAnimate', 'app.calendar']);
+angular.module('app.dashboard.student', ['ngAnimate', 'app.facility.rooms', 'app.calendar', 'app.utility', 'app.enrolment']);
 

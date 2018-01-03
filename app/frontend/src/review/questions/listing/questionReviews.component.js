@@ -13,18 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('questionReviews', {
-        templateUrl: '/assets/app/review/questions/listing/questionReviews.template.html',
+        template: require('./questionReviews.template.html'),
         bindings: {
             examId: '<'
         },
         controller: ['$location', 'QuestionReview',
             function ($location, QuestionReview) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.reviews = QuestionReview.questionsApi.query({id: vm.examId});
@@ -33,7 +33,7 @@ angular.module('app.review')
                 };
 
                 vm.onReviewSelection = function (id, selected) {
-                    var index = vm.selectedReviews.indexOf(id);
+                    const index = vm.selectedReviews.indexOf(id);
                     if (selected && index === -1) {
                         vm.selectedReviews.push(id);
                     } else if (index > -1) {
@@ -41,14 +41,14 @@ angular.module('app.review')
                     }
                 };
 
-                var removeSelections = function () {
+                const removeSelections = function () {
                     vm.reviews.forEach(function (r) {
                         r.selected = false;
                     });
                     vm.selectedReviews = [];
                 };
 
-                var addSelections = function () {
+                const addSelections = function () {
                     vm.reviews.forEach(function (r) {
                         r.selected = true;
                     });
@@ -63,7 +63,7 @@ angular.module('app.review')
 
                 vm.startReview = function () {
                     $location.path('/assessments/' + vm.examId + '/questions').search('q', vm.selectedReviews);
-                }
+                };
 
             }
         ]

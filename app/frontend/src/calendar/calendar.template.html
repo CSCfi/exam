@@ -1,13 +1,3 @@
-<script>
-    $(document).ready(function () {
-
-        $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function (e) {
-            e.stopPropagation();
-        });
-
-    });
-</script>
-
 <div id='dashboard'>
 
     <div class="top-row">
@@ -83,7 +73,7 @@
                 <span class="calendar-phase-title">2. {{ 'sitnet_choose_institution' | translate }}
                     <small>
                         <button class="btn btn-sm btn-success btn-link" ng-click="$ctrl.makeInternalReservation()">
-                            {{'sitnet_internal_reservation' | translate }}&nbsp;<i class="fa fa-angle-double-right" />
+                            {{'sitnet_internal_reservation' | translate }}&nbsp;<i class="fa fa-angle-double-right"></i>
                         </button>
                     </small>
                 </span>
@@ -101,6 +91,7 @@
                         aria-labelledby="dropDownMenu21">
                         <li role="presentation" class="input-group">
                             <input ng-model="$ctrl.limitations.organisations" class="form-control"
+                                   ng-click="$event.preventDefault()"
                                    placeholder="{{'sitnet_search' | translate }}">
                             <div class="input-group-addon">
                                 <i class="fa fa-search fa-fw"></i>
@@ -136,7 +127,7 @@
                 <small>
                     <button class="btn btn-sm btn-success btn-link" ng-click="$ctrl.makeExternalReservation()"
                             ng-if="$ctrl.isInteroperable && !$ctrl.isExternal">
-                        {{'sitnet_external_reservation' | translate }}&nbsp;<i class="fa fa-angle-double-right"/>
+                        {{'sitnet_external_reservation' | translate }}&nbsp;<i class="fa fa-angle-double-right"></i>
                     </button>
                 </small>
             </span>
@@ -175,6 +166,7 @@
                         aria-labelledby="dropDownMenu1">
                         <li role="presentation" class="input-group">
                             <input ng-model="$ctrl.limitations.rooms" class="form-control"
+                                   ng-click="$event.preventDefault()"
                                    placeholder="{{'sitnet_search' | translate }}">
 
                             <div class="input-group-addon">
@@ -347,7 +339,7 @@
 
         <div class="calendar-button-save">
 
-            <div ng-disabled="!$ctrl.reservation" ng-class="$ctrl.reservation ? 'calendar-button-save-activated' : 'link-button'">
+            <div ng-disabled="!$ctrl.reservation || $ctrl.confirming" ng-class="$ctrl.reservation ? 'calendar-button-save-activated' : 'link-button'">
                 <a class="link-button" ng-click="$ctrl.confirmReservation()">{{'sitnet_student_confirm_reservation' |
                     translate}}
                 </a>

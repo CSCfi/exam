@@ -13,20 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.common')
-    .factory("SettingsResource", ['$resource',
+    .factory('SettingsResource', ['$resource',
         function ($resource) {
             return {
-                hostname: $resource("/app/settings/hostname"),
-                examDurations: $resource("/app/settings/durations"),
-                gradeScale: $resource("/app/settings/gradescale"),
-                enrolmentPermissions: $resource("/app/settings/enrolmentPermissionCheck"),
-                environment: $resource("/app/settings/environment"),
-                iop: $resource("/app/settings/iop"),
-                maxFilesize: $resource("/app/settings/maxfilesize"),
-                appVersion: $resource("/app/settings/appVersion"),
-                maturityInstructions: $resource("/app/settings/maturityInstructions")
+                hostname: $resource('/app/settings/hostname'),
+                examDurations: $resource('/app/settings/durations'),
+                gradeScale: $resource('/app/settings/gradescale'),
+                enrolmentPermissions: $resource('/app/settings/enrolmentPermissionCheck'),
+                environment: $resource('/app/settings/environment'),
+                iop: $resource('/app/settings/iop'),
+                maxFilesize: $resource('/app/settings/maxfilesize'),
+                appVersion: $resource('/app/settings/appVersion'),
+                maturityInstructions: $resource('/app/settings/maturityInstructions')
             };
         }
     ]);

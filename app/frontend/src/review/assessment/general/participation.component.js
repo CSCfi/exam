@@ -13,25 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('rParticipation', {
-        templateUrl: '/assets/app/review/assessment/general/participation.template.html',
+        template: require('./participation.template.html'),
         bindings: {
             participation: '<'
         },
         controller: ['Exam',
             function (Exam) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.viewAnswers = function () {
                     window.open('/assessments/' + vm.participation.exam.id, '_blank');
                 };
 
                 vm.translateGrade = function () {
-                    if (vm.participation.noShow ||!vm.participation.exam.grade) {
+                    if (vm.participation.noShow || !vm.participation.exam.grade) {
                         return;
                     }
                     return Exam.getExamGradeDisplayName(vm.participation.exam.grade.name);

@@ -13,6 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+require('angular-ui-calendar');
+require('fullcalendar');
 
 angular.module('app.calendar', ['ui.calendar']);

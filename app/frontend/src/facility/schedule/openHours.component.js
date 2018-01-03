@@ -13,10 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
 angular.module('app.facility.schedule')
     .component('openHours', {
-        templateUrl: '/assets/app/facility/schedule/openHours.template.html',
+        template: require('./openHours.template.html'),
         bindings: {
             week: '<',
             onSelect: '&'
@@ -24,7 +23,7 @@ angular.module('app.facility.schedule')
         controller: ['Room', 'DateTime', 'toast', '$translate', '$scope',
             function (Room, DateTime, toast, $translate, $scope) {
 
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
                 vm.weekdayNames = DateTime.getWeekdayNames();
@@ -50,13 +49,13 @@ angular.module('app.facility.schedule')
             };
 
             vm.selectSlot = function (day, time) {
-                var i = 0, status = vm.week[day][time].type;
+                const status = vm.week[day][time].type;
                 if (status === 'accepted') { // clear selection
                     vm.week[day][time].type = '';
                     return;
                 }
                 if (status === 'selected') { // mark everything hereafter as free until next block
-                    for (i = 0; i < vm.week[day].length; ++i) {
+                    for (let i = 0; i < vm.week[day].length; ++i) {
                         if (i >= time) {
                             if (vm.week[day][i].type === 'selected') {
                                 vm.week[day][i].type = '';
@@ -68,8 +67,8 @@ angular.module('app.facility.schedule')
                 }
                 else {
                     // check if something is accepted yet
-                    var accepted;
-                    for (i = 0; i < vm.week[day].length; ++i) {
+                    let accepted;
+                    for (let i = 0; i < vm.week[day].length; ++i) {
                         if (vm.week[day][i].type === 'accepted') {
                             accepted = i;
                             break;
@@ -77,11 +76,11 @@ angular.module('app.facility.schedule')
                     }
                     if (accepted >= 0) { // mark everything between accepted and this as selected
                         if (accepted < time) {
-                            for (i = accepted; i <= time; ++i) {
+                            for (let i = accepted; i <= time; ++i) {
                                 vm.week[day][i].type = 'selected';
                             }
                         } else {
-                            for (i = time; i <= accepted; ++i) {
+                            for (let i = time; i <= accepted; ++i) {
                                 vm.week[day][i].type = 'selected';
                             }
                         }

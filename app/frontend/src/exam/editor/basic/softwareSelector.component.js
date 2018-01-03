@@ -13,17 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.exam.editor')
     .component('softwareSelector', {
-        templateUrl: '/assets/app/exam/editor/basic/softwareSelector.template.html',
+        template: require('./softwareSelector.template.html'),
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'SoftwareRes', 'ExamRes', 'toast',
-            function ($translate, SoftwareRes, ExamRes, toast) {
+        controller: ['$translate', 'SoftwareRes', 'ExamRes',
+            function ($translate, SoftwareRes, ExamRes) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.software = SoftwareRes.softwares.query();
@@ -45,7 +47,7 @@ angular.module('app.exam.editor')
                 vm.updateExamSoftware = function (sw) {
                     ExamRes.software.update({eid: vm.exam.id, sid: sw.id}, function (){
                         if (vm.isSelected(sw)) {
-                            var index = vm.exam.softwares.map(function (es) {
+                            const index = vm.exam.softwares.map(function (es) {
                                 return es.id;
                             }).indexOf(sw.id);
                             vm.exam.softwares.splice(index, 1);

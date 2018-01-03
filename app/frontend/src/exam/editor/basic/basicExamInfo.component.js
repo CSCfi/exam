@@ -13,20 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.exam.editor')
     .component('basicExamInfo', {
-        templateUrl: '/assets/app/exam/editor/basic/basicExamInfo.template.html',
+        template: require('./basicExamInfo.template.html'),
         bindings: {
             exam: '<',
             onUpdate: '&',
             onNextTabSelected: '&'
         },
-        controller: ['$location', '$scope', '$translate', '$uibModal', 'dialogs', 'Exam', 'ExamRes', 'SettingsResource', 'Attachment', 'Files', 'toast',
-            function ($location, $scope, $translate, $modal, dialogs, Exam, ExamRes, SettingsResource, Attachment, Files, toast) {
+        controller: ['$location', '$scope', '$translate', '$uibModal', 'dialogs', 'Exam', 'ExamRes', 'SettingsResource',
+            'Attachment', 'Files',
+            function ($location, $scope, $translate, $modal, dialogs, Exam, ExamRes, SettingsResource,
+                      Attachment, Files) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     refreshExamTypes();
@@ -132,7 +135,7 @@ angular.module('app.exam.editor')
 
                 vm.removeExam = function (canRemoveWithoutConfirmation) {
                     if (isAllowedToUnpublishOrRemove()) {
-                        var fn = function () {
+                        const fn = function () {
                             ExamRes.exams.remove({id: vm.exam.id}, function () {
                                 toast.success($translate.instant('sitnet_exam_removed'));
                                 $location.path('/');
@@ -143,7 +146,8 @@ angular.module('app.exam.editor')
                         if (canRemoveWithoutConfirmation) {
                             fn();
                         } else {
-                            var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
+                            const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                                $translate.instant('sitnet_remove_exam'));
                             dialog.result.then(function () {
                                 fn();
                             });
@@ -157,12 +161,12 @@ angular.module('app.exam.editor')
                     vm.onNextTabSelected();
                 };
 
-                var isAllowedToUnpublishOrRemove = function () {
+                const isAllowedToUnpublishOrRemove = function () {
                     // allowed if no upcoming reservations and if no one has taken this yet
                     return !vm.exam.hasEnrolmentsInEffect && vm.exam.children.length === 0;
                 };
 
-                var refreshExamTypes = function () {
+                const refreshExamTypes = function () {
                     Exam.refreshExamTypes().then(function (types) {
                         // Maturity can only have a FINAL type
                         if (vm.exam.executionType.type === 'MATURITY') {
@@ -174,13 +178,13 @@ angular.module('app.exam.editor')
                     });
                 };
 
-                var refreshGradeScales = function () {
+                const refreshGradeScales = function () {
                     Exam.refreshGradeScales().then(function (scales) {
                         vm.gradeScales = scales;
                     });
                 };
 
-                var initGradeScale = function () {
+                const initGradeScale = function () {
                     // Set exam grade scale from course default if not specifically set for exam
                     if (!vm.exam.gradeScale && vm.exam.course && vm.exam.course.gradeScale) {
                         vm.exam.gradeScale = vm.exam.course.gradeScale;

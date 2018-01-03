@@ -13,7 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
-angular.module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.examination', 'ngAnimate']);
+require('./editor/editor.module');
+require('../facility/facility.module');
+require('../review/review.module');
+require('../examination/examination.module');
+require('../question');
+require('angular-animate');
+
+angular.module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.examination', 'app.question', 'ngAnimate']);
 

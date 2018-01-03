@@ -13,7 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from'angular';
+
+require('./accessibility/accessibility.module');
+require('./machines/machines.module');
+require('./rooms/rooms.module');
+require('./address/address.module');
+require('./schedule/schedule.module');
 
 angular.module('app.facility', ['app.facility.accessibility', 'app.facility.machines',
     'app.facility.rooms', 'app.facility.address', 'app.facility.schedule']);

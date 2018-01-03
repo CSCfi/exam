@@ -13,13 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import toast from 'toastr';
+
 angular.module('app.question')
     .component('library', {
         templateUrl: '/assets/app/question/library/library.template.html',
-        controller: ['$location', '$translate', 'toast', function ($location, $translate, toast) {
+        controller: ['$location', '$translate', function ($location, $translate) {
 
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
                 vm.questions = [];

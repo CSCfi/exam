@@ -13,14 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.enrolment')
     .component('examSearch', {
-        templateUrl: '/assets/app/enrolment/search/examSearch.template.html',
-        controller: ['StudentExamRes', 'EnrollRes', 'SettingsResource', 'Language', 'toast',
-            function (StudentExamRes, EnrollRes, SettingsResource, Language, toast) {
+        template: require('./examSearch.template.html'),
+        controller: ['StudentExamRes', 'EnrollRes', 'SettingsResource', 'Language',
+            function (StudentExamRes, EnrollRes, SettingsResource, Language) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.filter = {};
@@ -45,7 +47,7 @@ angular.module('app.enrolment')
                     }
                 };
 
-                var search = function () {
+                const search = function () {
                     StudentExamRes.exams.query({filter: vm.filter.text}, function (exams) {
                         exams.forEach(function (exam) {
                             if (!exam.examLanguages) {
@@ -68,7 +70,7 @@ angular.module('app.enrolment')
 
                 };
 
-                var checkEnrolment = function () {
+                const checkEnrolment = function () {
                     vm.exams.forEach(function (exam) {
                         EnrollRes.check.get({id: exam.id}, function (enrolments) {
                                 // check if student has reserved aquarium
@@ -90,7 +92,6 @@ angular.module('app.enrolment')
                     });
 
                 };
-
 
             }
         ]

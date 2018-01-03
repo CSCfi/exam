@@ -13,14 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.session')
     .component('session', {
-        templateUrl: '/assets/app/session/session.template.html',
+        template: require('./session.template.html'),
         controller: ['$location', 'Session', '$rootScope',
             function ($location, Session, $rootScope) {
 
-                var ctrl = this;
+                const ctrl = this;
 
                 ctrl.$onInit = function () {
                     ctrl.user = Session.getUser();
@@ -44,11 +45,8 @@ angular.module('app.session')
                 });
 
                 // dev-mode login, not usable with production environment
-                ctrl.login = function () {
-                    Session.login(ctrl.credentials.username, ctrl.credentials.password)
-                        .then(function (user) {
-                            ctrl.user = user;
-                        });
+                ctrl.setUser= function (user) {
+                    ctrl.user = user;
                 };
 
             }

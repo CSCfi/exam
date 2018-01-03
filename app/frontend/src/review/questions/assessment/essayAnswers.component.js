@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('essayAnswers', {
@@ -39,7 +39,7 @@ angular.module('app.review')
         controller: ['QuestionReview',
             function (QuestionReview) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.countSelected = function () {
                     if (!vm.answers) {

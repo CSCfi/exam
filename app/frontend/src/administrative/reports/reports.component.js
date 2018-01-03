@@ -13,15 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.administrative.reports')
     .component('reports', {
-        templateUrl: '/assets/app/administrative/reports/reports.template.html',
-        controller: ['$translate', 'EXAM_CONF', 'Reports', 'Room', 'DateTime', '$filter', 'UserRes', 'Files', 'toast',
-            function ($translate, EXAM_CONF, Reports, Room, DateTime, $filter, UserRes, Files, toast) {
+        template: require('./reports.template.html'),
+        controller: ['$translate', 'EXAM_CONF', 'Reports', 'Room', 'DateTime', '$filter', 'UserRes', 'Files',
+            function ($translate, EXAM_CONF, Reports, Room, DateTime, $filter, UserRes, Files) {
 
-                var ctrl = this;
+                const ctrl = this;
 
                 ctrl.$onInit = function () {
                     ctrl.csvExport = {};

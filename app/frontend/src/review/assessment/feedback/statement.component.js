@@ -13,25 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('rStatement', {
-        templateUrl: '/assets/app/review/assessment/feedback/statement.template.html',
+        template: require('./statement.template.html'),
         bindings: {
             exam: '<'
         },
         controller: ['$uibModal', 'Maturity', 'Attachment', 'Files',
             function ($modal, Maturity, Attachment, Files) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.hasGoneThroughLanguageInspection = function () {
                     return vm.exam.languageInspection && vm.exam.languageInspection.finishedAt;
                 };
 
                 vm.toggleEditorVisibility = function () {
-                    var selector = $('.body');
+                    const selector = $('.body');
                     if (vm.hideEditor) {
                         selector.show();
                     } else {
@@ -73,7 +73,6 @@ angular.module('app.review')
                         });
                     });
                 };
-
 
             }
 

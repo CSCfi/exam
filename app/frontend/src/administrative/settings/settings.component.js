@@ -13,31 +13,32 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.administrative.settings')
     .component('settings', {
-        templateUrl: '/assets/app/administrative/settings/settings.template.html',
-        controller: ['$translate', '$http', 'Settings', 'toast',
-            function ($translate, $http, Settings, toast) {
+        template: require('./settings.template.html'),
+        controller: ['$translate', '$http', 'Settings',
+            function ($translate, $http, Settings) {
 
-                var ctrl = this;
+                const vm = this;
 
-                ctrl.$onInit = function () {
-                    ctrl.settings = {};
-                    ctrl.settings.eula = Settings.agreement.get();
+                vm.$onInit = function () {
+                    vm.settings = {};
+                    vm.settings.eula = Settings.agreement.get();
                     Settings.deadline.get(function (deadline) {
                         deadline.value = parseInt(deadline.value);
-                        ctrl.settings.deadline = deadline;
+                        vm.settings.deadline = deadline;
                     });
                     Settings.reservationWindow.get(function (window) {
                         window.value = parseInt(window.value);
-                        ctrl.settings.reservationWindow = window;
+                        vm.settings.reservationWindow = window;
                     });
                 };
 
-                ctrl.updateAgreement = function () {
-                    Settings.agreement.update(ctrl.settings.eula,
+                vm.updateAgreement = function () {
+                    Settings.agreement.update(vm.settings.eula,
                         function () {
                             toast.info($translate.instant("sitnet_user_agreement") + " " + $translate.instant("sitnet_updated"));
                         }, function (error) {
@@ -45,8 +46,8 @@ angular.module('app.administrative.settings')
                         });
                 };
 
-                ctrl.updateDeadline = function () {
-                    Settings.deadline.update(ctrl.settings.deadline,
+                vm.updateDeadline = function () {
+                    Settings.deadline.update(vm.settings.deadline,
                         function () {
                             toast.info($translate.instant("sitnet_settings") + " " + $translate.instant("sitnet_updated"));
                         }, function (error) {
@@ -54,8 +55,8 @@ angular.module('app.administrative.settings')
                         });
                 };
 
-                ctrl.updateReservationWindow = function () {
-                    Settings.reservationWindow.update(ctrl.settings.reservationWindow,
+                vm.updateReservationWindow = function () {
+                    Settings.reservationWindow.update(vm.settings.reservationWindow,
                         function () {
                             toast.info($translate.instant("sitnet_settings") + " " + $translate.instant("sitnet_updated"));
                         }, function (error) {
@@ -63,9 +64,9 @@ angular.module('app.administrative.settings')
                         });
                 };
 
-                ctrl.showAttributes = function () {
+                vm.showAttributes = function () {
                     $http.get('/attributes').then(function (resp) {
-                        ctrl.attributes = resp.data;
+                        vm.attributes = resp.data;
                     });
                 };
             }

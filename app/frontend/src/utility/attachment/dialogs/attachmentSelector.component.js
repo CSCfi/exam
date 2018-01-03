@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
 angular.module('app.utility')
     .component('attachmentSelector', {
         templateUrl: '/assets/app/utility/attachment/dialogs/attachmentSelector.template.html',
@@ -24,10 +23,10 @@ angular.module('app.utility')
         },
         controller: ['$scope', 'Files', function ($scope, Files) {
 
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
-                vm.title = vm.resolve.title;
+                vm.title = vm.resolve.title || 'sitnet_attachment_selection';
                 vm.isTeacherModal = vm.resolve.isTeacherModal;
                 Files.getMaxFilesize().then(function (data) {
                     vm.maxFileSize = data.filesize;

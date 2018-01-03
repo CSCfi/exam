@@ -13,6 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
+require('../maturity/maturity.module');
+require('angular-ui-bootstrap');
+require('../exam/editor');
 
 angular.module('app.dashboard', ['app.dashboard.teacher', 'app.dashboard.student', 'app.maturity', 'ui.bootstrap']);

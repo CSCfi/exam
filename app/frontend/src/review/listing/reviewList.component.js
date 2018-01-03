@@ -13,33 +13,35 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.review')
     .component('reviewList', {
-        templateUrl: '/assets/app/review/listing/reviewList.template.html',
+        template: require('./reviewList.template.html'),
         bindings: {
             exam: '<'
         },
         controller: ['$filter', '$q', '$translate', '$uibModal', 'dialogs', 'ExamRes', 'DateTime', 'Exam',
-            'ReviewList', 'Files', 'EXAM_CONF', 'diffInMinutesToFilter', 'toast',
+            'ReviewList', 'Files', 'EXAM_CONF', 'diffInMinutesToFilter',
             function ($filter, $q, $translate, $modal, dialogs, ExamRes, DateTime, Exam, Review,
-                      Files, EXAM_CONF, diffInMinutesToFilter, toast) {
+                      Files, EXAM_CONF, diffInMinutesToFilter) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.applyFreeSearchFilter = function (key) {
-                    var text = vm.data[key].filter;
-                    var target = vm.data[key].items;
+                    const text = vm.data[key].filter;
+                    const target = vm.data[key].items;
                     vm.data[key].filtered = Review.applyFilter(text, target);
                 };
 
-                var prepareView = function (items, view, setup) {
+                const prepareView = function (items, view, setup) {
                     items.forEach(setup);
                     vm.data[view].items = vm.data[view].filtered = items;
                     vm.data[view].toggle = items.length > 0;
                 };
 
-                var filterByState = function (reviews, states) {
+                const filterByState = function (reviews, states) {
                     return reviews.filter(function (r) {
                         return states.indexOf(r.exam.state) > -1;
                     });
@@ -50,7 +52,6 @@ angular.module('app.review')
 
                     vm.templates = {
                         reviewStartedPath: EXAM_CONF.TEMPLATES_PATH + 'review/listing/templates/review_started.html',
-                        speedReviewPath: EXAM_CONF.TEMPLATES_PATH + 'review/listing/templates/speed_review.html',
                         languageInspectionPath: EXAM_CONF.TEMPLATES_PATH + 'review/listing/templates/language_inspection.html',
                         gradedPath: EXAM_CONF.TEMPLATES_PATH + 'review/listing/templates/graded.html',
                         gradedLoggedPath: EXAM_CONF.TEMPLATES_PATH + 'review/listing/templates/graded_logged.html',
@@ -89,13 +90,13 @@ angular.module('app.review')
                             // ARCHIVED
                             prepareView(filterByState(reviews, ['ARCHIVED']), 'archived', handleGradedReviews);
                             // GRADED
-                            var gradedReviews = reviews.filter(function (r) {
+                            const gradedReviews = reviews.filter(function (r) {
                                 return r.exam.state === 'GRADED' &&
                                     (!r.exam.languageInspection || r.exam.languageInspection.finishedAt);
                             });
                             prepareView(gradedReviews, 'graded', handleGradedReviews);
                             // IN LANGUAGE INSPECTION
-                            var inspections = reviews.filter(function (r) {
+                            const inspections = reviews.filter(function (r) {
                                 return r.exam.state === 'GRADED' && r.exam.languageInspection &&
                                     !r.exam.languageInspection.finishedAt;
                             });
@@ -114,21 +115,21 @@ angular.module('app.review')
                 };
 
                 vm.translateGrade = function (exam) {
-                    var grade = exam.grade ? exam.grade.name : 'NONE';
+                    const grade = exam.grade ? exam.grade.name : 'NONE';
                     return Exam.getExamGradeDisplayName(grade);
                 };
 
                 vm.selectAll = function (name, items) {
-                    var override = resetSelections(name, 'all');
+                    const override = resetSelections(name, 'all');
                     items.forEach(function (i) {
                         i.selected = !i.selected || override;
                     });
                 };
 
                 vm.selectPage = function (name, items, boxClass) {
-                    var override = resetSelections(name, 'page');
-                    var boxes = angular.element('.' + boxClass);
-                    var ids = [];
+                    const override = resetSelections(name, 'page');
+                    const boxes = angular.element('.' + boxClass);
+                    const ids = [];
                     angular.forEach(boxes, function (input) {
                         ids.push(parseInt(angular.element(input).val()));
                     });
@@ -138,7 +139,7 @@ angular.module('app.review')
                             i.selected = false;
                         });
                     }
-                    var pageItems = items.filter(function (i) {
+                    const pageItems = items.filter(function (i) {
                         return ids.indexOf(i.exam.id) > -1;
                     });
                     pageItems.forEach(function (pi) {
@@ -147,11 +148,11 @@ angular.module('app.review')
                 };
 
                 vm.archiveSelected = function () {
-                    var selection = getSelectedReviews(vm.data.finished.filtered);
+                    const selection = getSelectedReviews(vm.data.finished.filtered);
                     if (!selection) {
                         return;
                     }
-                    var ids = selection.map(function (r) {
+                    const ids = selection.map(function (r) {
                         return r.exam.id;
                     });
                     ExamRes.archive.update({ids: ids.join()}, function () {
@@ -169,14 +170,14 @@ angular.module('app.review')
                 };
 
                 vm.sendSelectedToRegistry = function () {
-                    var selection = getSelectedReviews(vm.data.graded.filtered);
+                    const selection = getSelectedReviews(vm.data.graded.filtered);
                     if (!selection) {
                         return;
                     }
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_record_review'));
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_record_review'));
 
                     dialog.result.then(function (btn) {
-                        var promises = [];
+                        const promises = [];
                         selection.forEach(function (r) {
                             promises.push(send(r));
                         });
@@ -187,16 +188,16 @@ angular.module('app.review')
                 };
 
                 vm.printSelected = function (asReport) {
-                    var selection = getSelectedReviews(vm.data.finished.filtered);
+                    const selection = getSelectedReviews(vm.data.finished.filtered);
                     if (!selection) {
                         return;
                     }
-                    var url = '/app/exam/record/export/';
+                    let url = '/app/exam/record/export/';
                     if (asReport) {
                         url += 'report/';
                     }
-                    var fileType = asReport ? '.xlsx' : '.csv';
-                    var ids = selection.map(function (r) {
+                    const fileType = asReport ? '.xlsx' : '.csv';
+                    const ids = selection.map(function (r) {
                         return r.exam.id;
                     });
 
@@ -206,10 +207,10 @@ angular.module('app.review')
                     );
                 };
 
-                var resetSelections = function (name, view) {
-                    var scope = vm.selections[name];
-                    var prev, next;
-                    for (var k in scope) {
+                const resetSelections = function (name, view) {
+                    const scope = vm.selections[name];
+                    let prev, next;
+                    for (let k in scope) {
                         if (scope.hasOwnProperty(k)) {
                             if (k === view) {
                                 scope[k] = !scope[k];
@@ -225,8 +226,8 @@ angular.module('app.review')
                     return prev && next;
                 };
 
-                var getSelectedReviews = function (items) {
-                    var objects = items.filter(function (i) {
+                const getSelectedReviews = function (items) {
+                    const objects = items.filter(function (i) {
                         return i.selected;
                     });
                     if (objects.length === 0) {
@@ -236,12 +237,12 @@ angular.module('app.review')
                     return objects;
                 };
 
-                var send = function (review) {
-                    var deferred = $q.defer();
-                    var exam = review.exam;
-                    var resource = exam.gradeless ? ExamRes.register : ExamRes.saveRecord;
+                const send = function (review) {
+                    const deferred = $q.defer();
+                    const exam = review.exam;
+                    const resource = exam.gradeless ? ExamRes.register : ExamRes.saveRecord;
                     if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
-                        var examToRecord = {
+                        const examToRecord = {
                             'id': exam.id,
                             'state': 'GRADED_LOGGED',
                             'grade': exam.grade,
@@ -269,14 +270,14 @@ angular.module('app.review')
                     return deferred.promise;
                 };
 
-                var handleOngoingReviews = function (review) {
+                const handleOngoingReviews = function (review) {
                     Review.gradeExam(review.exam);
                     ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
                         review.inspections = inspections;
                     });
                 };
 
-                var handleGradedReviews = function (r) {
+                const  handleGradedReviews = function (r) {
                     r.displayedGradingTime = r.exam.languageInspection ?
                         r.exam.languageInspection.finishedAt : r.exam.gradedTime;
                     r.displayedGrade = vm.translateGrade(r.exam);

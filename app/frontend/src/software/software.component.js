@@ -13,13 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import toast from 'toastr';
+
 angular.module('app.software')
     .component('software', {
-        templateUrl: '/assets/app/software/software.template.html',
-        controller: ['SoftwareRes', '$translate', 'toast',
-            function (SoftwareRes, $translate, toast) {
+        template: require('./software.template.html'),
+        controller: ['SoftwareRes', '$translate',
+            function (SoftwareRes, $translate) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.softwares = SoftwareRes.softwares.query();

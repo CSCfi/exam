@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('rMaturityToolbar', {
-        templateUrl: '/assets/app/review/assessment/maturity/toolbar.template.html',
+        template: require('./toolbar.template.html'),
         bindings: {
             exam: '<',
             valid: '<'
@@ -25,7 +25,7 @@ angular.module('app.review')
         controller: ['$translate', 'Maturity', 'Assessment', 'Session', 'Exam',
             function ($translate, Maturity, Assessment, Session, Exam) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.isOwnerOrAdmin = function () {
                     return Exam.isOwnerOrAdmin(vm.exam);

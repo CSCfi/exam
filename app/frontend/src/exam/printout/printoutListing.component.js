@@ -13,7 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import moment from 'moment';
+
 angular.module('app.exam')
     .component('printoutListing', {
         template:
@@ -54,7 +56,7 @@ angular.module('app.exam')
         controller: ['$http',
             function ($http) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.predicate = 'examinationDatesAggregate';

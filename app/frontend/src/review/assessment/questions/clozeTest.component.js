@@ -13,18 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('rClozeTest', {
-        templateUrl: '/assets/app/review/assessment/questions/clozeTest.template.html',
+        template: require('./clozeTest.template.html'),
         bindings: {
             sectionQuestion: '<'
         },
         controller: ['$sce', 'Attachment',
             function ($sce, Attachment) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.displayQuestionText = function () {
                     return $sce.trustAsHtml(vm.sectionQuestion.question.question);
@@ -35,8 +35,8 @@ angular.module('app.review')
                 };
 
                 vm.displayClozeTestScore = function () {
-                    var max = vm.sectionQuestion.maxScore;
-                    var score = vm.sectionQuestion.clozeTestAnswer.score;
+                    const max = vm.sectionQuestion.maxScore;
+                    const score = vm.sectionQuestion.clozeTestAnswer.score;
                     return score.correctAnswers * max / (score.correctAnswers + score.incorrectAnswers).toFixed(2)
                         + ' / ' + max;
                 };

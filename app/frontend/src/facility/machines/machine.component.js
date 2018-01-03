@@ -13,24 +13,26 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.facility.machines')
     .component('machine', {
-        templateUrl: '/assets/app/facility/machines/machine.template.html',
-        controller: ['$q', 'dialogs', '$routeParams', '$location', 'Machines', '$translate', 'toast',
-            function ($q, dialogs, $routeParams, $location, Machines, $translate, toast) {
+        template: require('./machine.template.html'),
+        controller: ['$q', 'dialogs', '$routeParams', '$location', 'Machines', '$translate',
+            function ($q, dialogs, $routeParams, $location, Machines, $translate) {
 
-                var ctrl = this;
+                const vm = this;
 
-                ctrl.$onInit = function () {
+                vm.$onInit = function () {
                     Machines.machine.get({id: $routeParams.id},
                         function (machine) {
-                            ctrl.machine = machine;
+                            vm.machine = machine;
                             Machines.software.query(
                                 function (data) {
-                                    ctrl.software = data;
-                                    ctrl.software.forEach(function (s) {
-                                        s.class = ctrl.machine.softwareInfo.map(function (si) {
+                                    vm.software = data;
+                                    vm.software.forEach(function (s) {
+                                        s.class = vm.machine.softwareInfo.map(function (si) {
                                             return si.id;
                                         }).indexOf(s.id) > -1 ? "btn-info" : "btn-default";
                                     });
@@ -43,8 +45,9 @@ angular.module('app.facility.machines')
                     );
                 };
 
-                ctrl.removeMachine = function (machine) {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_machine'));
+                vm.removeMachine = function (machine) {
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                        $translate.instant('sitnet_remove_machine'));
                     dialog.result.then(function () {
                         Machines.machine.remove({id: machine.id},
                             function () {
@@ -58,8 +61,8 @@ angular.module('app.facility.machines')
                     });
                 };
 
-                ctrl.toggleSoftware = function (software) {
-                    Machines.machineSoftware.toggle({mid: ctrl.machine.id, sid: software.id},
+                vm.toggleSoftware = function (software) {
+                    Machines.machineSoftware.toggle({mid: vm.machine.id, sid: software.id},
                         function (response) {
                             software.class = response.software === 'true' ? 'btn-info' : 'btn-default';
                         },
@@ -68,9 +71,9 @@ angular.module('app.facility.machines')
                         });
                 };
 
-                ctrl.updateMachine = function () {
-                    var deferred = $q.defer();
-                    Machines.machine.update(ctrl.machine,
+                vm.updateMachine = function () {
+                    const deferred = $q.defer();
+                    Machines.machine.update(vm.machine,
                         function () {
                             toast.info($translate.instant('sitnet_machine_updated'));
                             deferred.resolve();
@@ -83,8 +86,8 @@ angular.module('app.facility.machines')
                     return deferred.promise;
                 };
 
-                ctrl.updateMachineAndExit = function () {
-                    ctrl.updateMachine(ctrl.machine).then(function () {
+                vm.updateMachineAndExit = function () {
+                    vm.updateMachine(vm.machine).then(function () {
                         $location.path("/rooms/");
                     });
                 };

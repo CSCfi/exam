@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.examination')
     .component('examinationLogout', {
@@ -31,7 +31,7 @@ angular.module('app.examination')
         controller: ['$rootScope', '$routeParams', '$location', '$timeout',
             function ($rootScope, $routeParams, $location, $timeout) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.reasonPhrase = $routeParams.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';

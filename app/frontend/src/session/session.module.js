@@ -13,6 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+require('../common/common.module');
 
 angular.module('app.session', ['app.common']);

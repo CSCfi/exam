@@ -13,10 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import toast from 'toastr';
+
 angular.module('app.utility')
-    .service('Attachment', ['$resource', '$uibModal', 'dialogs', '$translate', 'Files', 'toast',
-        function ($resource, $modal, dialogs, $translate, Files, toast) {
+    .service('Attachment', ['$resource', '$uibModal', 'dialogs', '$translate', 'Files',
+        function ($resource, $modal, dialogs, $translate, Files) {
 
             var questionAttachmentApi = $resource(
                 '/app/attachment/question/:id',

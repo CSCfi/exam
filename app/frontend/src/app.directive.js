@@ -14,6 +14,9 @@
  */
 
 'use strict';
+
+const moment = require('moment');
+
 angular.module('app')
 
     .directive('dateValidator', function () {

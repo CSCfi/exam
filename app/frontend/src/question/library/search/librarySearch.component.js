@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
 angular.module('app.question')
     .component('librarySearch', {
         templateUrl: '/assets/app/question/library/search/librarySearch.template.html',
@@ -23,7 +22,7 @@ angular.module('app.question')
         controller: ['$q', 'Library', 'Session',
             function ($q, Library, Session) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.limitations = {};

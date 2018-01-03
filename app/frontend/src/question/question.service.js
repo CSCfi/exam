@@ -13,12 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import toast from 'toastr';
+
 angular.module('app.question')
     .service('Question', ['$q', '$resource', '$translate', '$location', '$sessionStorage',
-        'ExamQuestion', 'Session', 'Files', 'Attachment', 'toast',
+        'ExamQuestion', 'Session', 'Files', 'Attachment',
         function ($q, $resource, $translate, $location, $sessionStorage, ExamQuestion, Session,
-                  Files, Attachment, toast) {
+                  Files, Attachment) {
 
             var self = this;
 

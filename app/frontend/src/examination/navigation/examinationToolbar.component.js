@@ -13,11 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.examination')
     .component('examinationToolbar', {
-        templateUrl: '/assets/app/examination/navigation/examinationToolbar.template.html',
+        template: require('./examinationToolbar.template.html'),
         bindings: {
             exam: '<',
             activeSection: '<',
@@ -25,11 +26,11 @@ angular.module('app.examination')
             onPageSelect: '&'
         },
         controller: ['$http', '$location', '$routeParams', '$translate', 'dialogs', 'Session', 'Examination',
-            'Attachment', 'Enrolment', 'toast',
+            'Attachment', 'Enrolment',
             function ($http, $location, $routeParams, $translate, dialogs, Session, Examination, Attachment,
-                      Enrolment, toast) {
+                      Enrolment) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     if (!vm.isPreview) {
@@ -40,16 +41,16 @@ angular.module('app.examination')
                 };
 
                 vm.displayUser = function () {
-                    var user = Session.getUser();
+                    const user = Session.getUser();
                     if (!user) {
                         return;
                     }
-                    var userId = user.userIdentifier ? ' (' + user.userIdentifier + ')' : '';
+                    const userId = user.userIdentifier ? ' (' + user.userIdentifier + ')' : '';
                     return user.firstName + ' ' + user.lastName + userId;
                 };
 
                 vm.turnExam = function () {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_turn_exam'));
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_turn_exam'));
                     dialog.result.then(function () {
                         if (vm.activeSection) {
                             Examination.saveAllTextualAnswersOfSection(vm.activeSection, vm.exam.hash, false).then(function () {
@@ -62,7 +63,7 @@ angular.module('app.examination')
                 };
 
                 vm.abortExam = function () {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
                     dialog.result.then(function () {
                         Examination.abort(vm.exam.hash).then(function () {
                             toast.info($translate.instant('sitnet_exam_aborted'), {timeOut: 5000});

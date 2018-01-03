@@ -13,11 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import moment from 'moment';
 
 angular.module('app.review')
     .component('printedAssessment', {
-        templateUrl: '/assets/app/review/assessment/print/printedAssessment.template.html',
+        template: require('./printedAssessment.template.html'),
         bindings: {
             exam: '<'
         },
@@ -25,11 +26,11 @@ angular.module('app.review')
             'Session', 'Language',
             function ($routeParams, $document, $sce, ExamRes, Question, Exam, Assessment, EXAM_CONF, Session, Language) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
 
-                    var path = EXAM_CONF.TEMPLATES_PATH + 'review/assessment/print/templates/';
+                    const path = EXAM_CONF.TEMPLATES_PATH + 'review/assessment/print/templates/';
                     vm.templates = {
                         section: path + 'section.html',
                         multiChoice: path + 'multiChoice.html',
@@ -52,7 +53,7 @@ angular.module('app.review')
                             vm.user = Session.getUser();
 
                             vm.participation = vm.exam.examParticipations[0];
-                            var duration = moment.utc(new Date(vm.participation.duration));
+                            const duration = moment.utc(new Date(vm.participation.duration));
                             if (duration.second() > 29) {
                                 duration.add(1, 'minutes');
                             }
@@ -66,20 +67,20 @@ angular.module('app.review')
                                 uid: vm.student.id
                             }, function (data) {
                                 // Filter out the participation we are looking into
-                                var previousParticipations = data.filter(function (p) {
+                                const previousParticipations = data.filter(function (p) {
                                     return p.id !== vm.participation.id;
                                 });
                                 Assessment.noShowApi.query({
                                     eid: vm.exam.parent.id,
                                     uid: vm.student.id
                                 }, function (data) {
-                                    var noShows = data.map(function (d) {
+                                    const noShows = data.map(function (d) {
                                         return {noShow: true, started: d.reservation.startAt, exam: {state: 'no_show'}};
                                     });
                                     vm.previousParticipations = previousParticipations.concat(noShows);
                                     $document.ready(function () {
                                         $('#vmenu').hide();
-                                        var mainView = $('#mainView');
+                                        const mainView = $('#mainView');
                                         mainView.css('margin', '0 15px');
                                         mainView.css('max-width', '1000px');
 
@@ -120,7 +121,7 @@ angular.module('app.review')
 
                 vm.getTeacherCount = function () {
                     // Do not add up if user exists in both groups
-                    var owners = vm.exam.parent.examOwners.filter(function (owner) {
+                    const owners = vm.exam.parent.examOwners.filter(function (owner) {
                         return vm.exam.examInspections.map(function (inspection) {
                             return inspection.user.id;
                         }).indexOf(owner.id) === -1;

@@ -13,7 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
+require('./reports/reports.module');
+require('./statistics/statistics.module');
+require('./settings/settings.module');
+require('./users/users.module');
 
 angular.module('app.administrative',
     ['app.administrative.reports', 'app.administrative.statistics', 'app.administrative.settings', 'app.administrative.users']

@@ -13,7 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import toast from 'toastr';
+
 angular.module('app.question')
     .component('libraryOwnerSelection', {
         templateUrl: '/assets/app/question/library/owners/libraryOwners.template.html',
@@ -21,10 +23,10 @@ angular.module('app.question')
             selections: '<',
             ownerUpdated: '&'
         },
-        controller: ['$translate', 'Question', 'UserRes', 'toast',
-            function ($translate, Question, UserRes, toast) {
+        controller: ['$translate', 'Question', 'UserRes',
+            function ($translate, Question, UserRes) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.teachers = UserRes.usersByRole.query({role: 'TEACHER'});

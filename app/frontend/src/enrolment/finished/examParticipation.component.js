@@ -13,27 +13,28 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.enrolment')
     .component('examParticipation', {
-        templateUrl: '/assets/app/enrolment/finished/examParticipation.template.html',
+        template: require('./examParticipation.template.html'),
         bindings: {
             participation: '<'
         },
         controller: ['$scope', '$translate', 'StudentExamRes', 'Exam',
             function ($scope, $translate, StudentExamRes, Exam) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
-                    var state = vm.participation.exam.state;
+                    const state = vm.participation.exam.state;
                     if (state === 'GRADED_LOGGED' || state === 'REJECTED' || state === 'ARCHIVED'
                         || (state === 'GRADED' && vm.participation.exam.autoEvaluationNotified)) {
                         loadReview();
                     }
                 };
 
-                var loadReview = function () {
+                const loadReview = function () {
                     StudentExamRes.feedback.get({eid: vm.participation.exam.id},
                         function (exam) {
                             if (!exam.grade) {

@@ -14,6 +14,8 @@ import models.ExamRoom;
 import models.Language;
 import models.Reservation;
 import models.User;
+import net.jodah.concurrentunit.Waiter;
+import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
@@ -22,11 +24,12 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+import static play.test.Helpers.contentAsString;
 
 import javax.mail.internet.MimeMessage;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 
 public class CalendarControllerTest extends IntegrationTestCase {
 
@@ -59,6 +62,36 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
         reservation = new Reservation();
         reservation.setUser(user);
+    }
+
+    @Test
+    @RunAsStudent
+    public void testConcurentCreateReservation() throws Exception {
+        exam.setExecutionType(Ebean.find(ExamExecutionType.class, 2));
+        // Add Arvo teacher to owner
+        exam.getExamOwners().add(Ebean.find(User.class, 4));
+        exam.save();
+        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
+        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
+
+        final int callCount = 10;
+        final Waiter waiter = new Waiter();
+        List<Integer> status = new ArrayList<>();
+        IntStream.range(0, callCount).parallel().forEach(i -> new Thread(() -> {
+            final Result result = request(Helpers.POST, "/app/calendar/reservation",
+                    Json.newObject().put("roomId", room.getId())
+                            .put("examId", exam.getId())
+                            .put("start", ISODateTimeFormat.dateTime().print(start))
+                            .put("end", ISODateTimeFormat.dateTime().print(end)));
+            status.add(result.status());
+            waiter.resume();
+        }).start());
+        waiter.await(MAIL_TIMEOUT + 1000, callCount);
+        assertThat(status).containsOnly(200);
+        greenMail.purgeEmailFromAllMailboxes();
+        assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, callCount)).isTrue();
+        final int count = Ebean.find(Reservation.class).where().eq("user.id", 3L).findCount();
+        assertThat(count).isEqualTo(1);
     }
 
     @Test

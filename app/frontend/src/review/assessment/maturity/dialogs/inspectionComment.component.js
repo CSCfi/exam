@@ -13,17 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.review')
     .component('rInspectionComment', {
-        templateUrl: '/assets/app/review/assessment/maturity/dialogs/inspectionComment.template.html',
+        template: require('./inspectionComment.template.html'),
         bindings: {
             close: '&',
             dismiss: '&'
         },
-        controller: ['$scope', 'Files', function ($scope, Files) {
+        controller: ['$scope', 'Files', function ($scope) {
 
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
                 vm.data = {comment: null};

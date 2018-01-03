@@ -13,10 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from'angular';
+
 angular.module('app.facility.schedule')
     .component('exception', {
-        templateUrl: '/assets/app/facility/schedule/exception.template.html',
+        template: require('./exception.template.html'),
         bindings: {
             close: '&',
             dismiss: '&',
@@ -24,10 +25,10 @@ angular.module('app.facility.schedule')
         },
         controller: ['$translate', 'toast', function ($translate, toast) {
 
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
-                var now = new Date();
+                const now = new Date();
                 now.setMinutes(0);
                 now.setSeconds(0);
                 now.setMilliseconds(0);
@@ -40,8 +41,8 @@ angular.module('app.facility.schedule')
             };
 
             vm.ok = function () {
-                var start = moment(vm.exception.startDate);
-                var end = moment(vm.exception.endDate);
+                const start = moment(vm.exception.startDate);
+                const end = moment(vm.exception.endDate);
                 if (end <= start) {
                     toast.error($translate.instant('sitnet_endtime_before_starttime'));
                     return;

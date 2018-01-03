@@ -13,21 +13,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.review')
     .component('rInspection', {
-        templateUrl: '/assets/app/review/assessment/grading/inspection.template.html',
+        template: require('./inspection.template.html'),
         bindings: {
             inspection: '<',
             user: '<',
             disabled: '<',
             onInspection: '&'
         },
-        controller: ['$translate', 'ExamRes', 'toast',
-            function ($translate, ExamRes, toast) {
+        controller: ['$translate', 'ExamRes',
+            function ($translate, ExamRes) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.reviewStatuses = [

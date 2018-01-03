@@ -13,37 +13,39 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.facility.accessibility')
     .component('accessibility', {
-        templateUrl: '/assets/app/facility/accessibility/accessibility.template.html',
-        controller: ['$translate', '$http', 'toast', function ($translate, $http, toast) {
+        template: require('./accessibility.template.html'),
+        controller: ['$translate', '$http', function ($translate, $http) {
 
-            var ctrl = this;
+            const vm = this;
 
-            ctrl.$onInit = function () {
-                ctrl.newItem = {};
+            vm.$onInit = function () {
+                vm.newItem = {};
                 $http.get('/app/accessibility').then(function (resp) {
-                    ctrl.accessibilities = resp.data;
+                    vm.accessibilities = resp.data;
                 });
             };
 
-            ctrl.add = function (item) {
+            vm.add = function (item) {
                 $http.post('/app/accessibility', item).then(function (resp) {
-                    ctrl.accessibilities.push(resp.data);
+                    vm.accessibilities.push(resp.data);
                     toast.info($translate.instant("sitnet_accessibility_added"));
                 });
             };
 
-            ctrl.update = function (accessibility) {
+            vm.update = function (accessibility) {
                 $http.put('/app/accessibility', accessibility).then(function () {
                     toast.info($translate.instant("sitnet_accessibility_updated"));
                 });
             };
 
-            ctrl.remove = function (accessibility) {
+            vm.remove = function (accessibility) {
                 $http.delete('/app/accessibility/' + accessibility.id).then(function () {
-                    ctrl.accessibilities.splice(ctrl.accessibilities.indexOf(accessibility), 1);
+                    vm.accessibilities.splice(vm.accessibilities.indexOf(accessibility), 1);
                     toast.info($translate.instant("sitnet_accessibility_removed"));
                 });
             };

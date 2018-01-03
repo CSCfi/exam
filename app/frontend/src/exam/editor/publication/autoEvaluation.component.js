@@ -13,11 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import angular from 'angular';
 
 angular.module('app.exam.editor')
     .component('autoEvaluation', {
-        templateUrl: '/assets/app/exam/editor/publication/autoEvaluation.template.html',
+        template: require('./autoEvaluation.template.html'),
         bindings: {
             exam: '<',
             onEnabled: '&',
@@ -27,7 +28,7 @@ angular.module('app.exam.editor')
         controller: ['Exam',
             function (Exam) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.autoevaluation = {
@@ -47,15 +48,15 @@ angular.module('app.exam.editor')
                     prepareAutoEvaluationConfig();
                 };
 
-                var getReleaseTypeByName = function (name) {
-                    var matches = vm.autoevaluation.releaseTypes.filter(function (rt) {
+                const getReleaseTypeByName = function (name) {
+                    const matches = vm.autoevaluation.releaseTypes.filter(function (rt) {
                         return rt.name === name;
                     });
                     return matches.length > 0 ? matches[0] : null;
                 };
 
 
-                var prepareAutoEvaluationConfig = function () {
+                const prepareAutoEvaluationConfig = function () {
                     vm.autoevaluation.enabled = !!vm.exam.autoEvaluationConfig;
                     if (!vm.exam.autoEvaluationConfig && vm.exam.gradeScale) {
                         vm.exam.autoEvaluationConfig = {
@@ -83,16 +84,16 @@ angular.module('app.exam.editor')
                 };
 
                 vm.calculatePointLimit = function (evaluation) {
-                    var max = vm.calculateExamMaxScore();
+                    const max = vm.calculateExamMaxScore();
                     if (evaluation.percentage === 0 || isNaN(evaluation.percentage)) {
                         return 0;
                     }
-                    var ratio = max * evaluation.percentage;
+                    const ratio = max * evaluation.percentage;
                     return (ratio / 100).toFixed(2);
                 };
 
                 vm.selectedReleaseType = function () {
-                    var type = null;
+                    let type = null;
                     vm.autoevaluation.releaseTypes.some(function (rt) {
                         if (rt.filtered) {
                             type = rt;

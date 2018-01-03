@@ -13,14 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.exam')
     .service('Course', ['$resource',
         function ($resource) {
-
-            var self = this;
-
-            self.courseApi = $resource('/app/courses');
-
-
+            this.courseApi = $resource('/app/courses');
         }]);

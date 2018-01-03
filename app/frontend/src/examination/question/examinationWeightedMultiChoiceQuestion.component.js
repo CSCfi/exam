@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.examination')
     .component('examinationWeightedMultiChoiceQuestion', {
@@ -36,7 +36,7 @@ angular.module('app.examination')
         controller: ['Examination',
             function (Examination) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.saveOption = function () {
                     Examination.saveOption(vm.examHash, vm.sq, vm.isPreview);

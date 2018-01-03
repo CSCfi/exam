@@ -13,18 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.dashboard')
     .component('dashboard', {
-        templateUrl: '/assets/app/dashboard/dashboard.template.html',
+        template: require('./dashboard.template.html'),
         controller: ['Session',
             function (Session) {
 
-                var ctrl = this;
+                const vm = this;
 
-                ctrl.$onInit = function () {
-                    ctrl.user = Session.getUser();
-                    if (!ctrl.user) {
+                vm.$onInit = function () {
+                    vm.user = Session.getUser();
+                    if (!vm.user) {
                         console.log('not logged in');
                     }
                 };

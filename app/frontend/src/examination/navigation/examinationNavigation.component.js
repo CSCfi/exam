@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import angular from 'angular';
 
 angular.module('app.examination')
     .component('examinationNavigation', {
@@ -38,9 +39,9 @@ angular.module('app.examination')
         controller: [
             function () {
 
-                var vm = this;
+                const vm = this;
 
-                var _pages = [];
+                let _pages = [];
 
                 vm.$onInit = function () {
                     _pages = vm.exam.examSections.map(function (es) {
@@ -57,31 +58,31 @@ angular.module('app.examination')
                     }
                 };
 
-                var setupNavigation = function () {
+                const setupNavigation = function () {
                     if (angular.isUndefined(vm.activeSection)) {
                         vm.next = _pages[1];
                         vm.prev = {valid: false};
                     } else {
-                        var nextIndex = nextPageIndex();
+                        const nextIndex = nextPageIndex();
                         vm.next = nextIndex > -1 ? _pages[nextIndex] : {valid: false};
-                        var prevIndex = prevPageIndex();
+                        const prevIndex = prevPageIndex();
                         vm.prev = prevIndex > -1 ? _pages[prevIndex] : {valid: false};
                     }
                 };
 
-                var activePageIndex = function () {
-                    var page = _pages.filter(function (p) {
+                const activePageIndex = function () {
+                    const page = _pages.filter(function (p) {
                         return vm.activeSection.id === p.id;
                     })[0];
                     return _pages.indexOf(page);
                 };
 
-                var nextPageIndex = function () {
-                    var activeIndex = activePageIndex();
+                const nextPageIndex = function () {
+                    const activeIndex = activePageIndex();
                     return activeIndex + 1 === _pages.length ? -1 : activeIndex + 1;
                 };
 
-                var prevPageIndex = function () {
+                const prevPageIndex = function () {
                     return activePageIndex() - 1;
                 };
 

@@ -13,10 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import toast from 'toastr';
+
 angular.module('app.utility')
-    .factory('Files', ['$q', '$http', '$translate', '$timeout', 'SettingsResource', 'toast',
-        function ($q, $http, $translate, $timeout, SettingsResource, toast) {
+    .factory('Files', ['$q', '$http', '$translate', '$timeout', 'SettingsResource',
+        function ($q, $http, $translate, $timeout, SettingsResource) {
             var _supportsBlobUrls;
             var _maxFileSize;
 

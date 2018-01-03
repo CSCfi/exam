@@ -13,19 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.review')
     .component('noShows', {
-        templateUrl: '/assets/app/review/listing/dialogs/noShows.template.html',
+        template: './noShows.template.html',
         bindings: {
             dismiss: '&',
             resolve: '<'
         },
-        controller: ['$translate', '$scope', 'ExamRes', 'toast', function ($translate, $scope, ExamRes, toast) {
+        controller: ['$translate', '$scope', 'ExamRes', function ($translate, $scope, ExamRes) {
 
             //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
 
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
                 vm.noShows = vm.resolve.noShows;

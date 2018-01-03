@@ -1,16 +1,16 @@
 <div class="main-row">
     <div class="col-md-12">
         <div class="review-list-title">{{ 'sitnet_processed_language_inspections' | translate }}
-            <span>{{ $ctrl.getProcessedInspectionsDetails() }}&nbsp;
+            <span>{{ $ctrl.getInspectionAmounts() }}&nbsp;
                 <!-- DISABLED UNTIL REPORT VIEW FIXED -->
                 <a href="/inspections/reports">{{'sitnet_language_inspection_report_link' | translate}}</a>
             </span>
-            <a ng-if="$ctrl.processedInspections.length > 0" ng-click="$ctrl.hideProcessed = !$ctrl.hideProcessed"
+            <a ng-if="$ctrl.inspections.length > 0" ng-click="$ctrl.hideItems = !$ctrl.hideItems"
                class="pointer">
-                <img ng-show="$ctrl.hideProcessed" src="/assets/assets/images/icon_list_show_right.svg"
+                <img ng-show="$ctrl.hideItems" src="/assets/assets/images/icon_list_show_right.svg"
                      alt="exam"
                      onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"/>
-                <img ng-hide="$ctrl.hideProcessed" src="/assets/assets/images/icon_list_show_down.svg"
+                <img ng-hide="$ctrl.hideItems" src="/assets/assets/images/icon_list_show_down.svg"
                      alt="exam"
                      onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"/>
             </a>
@@ -19,7 +19,7 @@
 </div>
 
 
-<div ng-hide="$ctrl.hideProcessed">
+<div ng-hide="$ctrl.hideItems">
 
     <div class="top-row marb20 padt20">
         <div class="col-md-12">
@@ -28,7 +28,7 @@
                 <div class="col-md-6">
                     <span class="exam-basic-selecttitle">&nbsp;</span>
                     <div class="input-group">
-                        <input ng-model="$ctrl.filters.processed"
+                        <input ng-model="$ctrl.filterText"
                                ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
                                class="form-control hgt40"
                                placeholder="{{'sitnet_search' | translate }}" popover-placement="top"
@@ -63,38 +63,40 @@
         <thead>
         <tr>
             <th class="with-top" sort by="exam.course.code" text="sitnet_course_code"
-                predicate="$ctrl.sorting.processed.predicate"
-                reverse="$ctrl.sorting.processed.reverse"></th>
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
             <th class="with-top" sort by="exam.name" text="sitnet_exam_name"
-                predicate="$ctrl.sorting.processed.predicate"
-                reverse="$ctrl.sorting.processed.reverse"></th>
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
             <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers"
-                predicate="$ctrl.sorting.processed.predicate"
-                reverse="$ctrl.sorting.processed.reverse"></th>
-            <th class="with-top" sort by="arrived" text="sitnet_arrived" predicate="$ctrl.sorting.processed.predicate"
-                reverse="$ctrl.sorting.processed.reverse"></th>
-            <th class="with-top" sort by="studentNameAggregate" text="sitnet_student" predicate="$ctrl.sorting.processed.predicate"
-                reverse="$ctrl.sorting.processed.reverse"></th>
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top" sort by="arrived" text="sitnet_arrived" predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top" sort by="studentNameAggregate" text="sitnet_student"
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
             <th class="with-top" sort by="exam.created" text="sitnet_finished"
-                predicate="$ctrl.sorting.processed.predicate"
-                reverse="$ctrl.sorting.processed.reverse"></th>
-            <th class="with-top" sort by="inspectorNameAggregate" text="sitnet_language_inspector" predicate="$ctrl.sorting.processed.predicate"
-                reverse="$ctrl.sorting.processed.reverse"></th>
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top" sort by="inspectorNameAggregate" text="sitnet_language_inspector"
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
             <th class="with-top" sort by="finishedAt" text="sitnet_inspection_finished"
-                predicate="$ctrl.sorting.processed.predicate"
-                reverse="$ctrl.sorting.processed.reverse"></th>
-            <th class="with-top"sort by="approved" text="sitnet_language_inspections"
-                predicate="$ctrl.sorting.processed.predicate"
-                reverse="$ctrl.sorting.processed.reverse"></th>
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top" sort by="approved" text="sitnet_language_inspections"
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
             <th class="with-top">{{ 'sitnet_feedback' | translate }}</th>
         </tr>
         </thead>
 
         <tbody>
-        <tr ng-repeat="inspection in $ctrl.processedInspections
-            | orderBy:$ctrl.sorting.processed.predicate:$ctrl.sorting.processed.reverse
+        <tr ng-repeat="inspection in $ctrl.inspections
+            | orderBy:$ctrl.sorting.predicate:$ctrl.sorting.reverse
             | limitTo: 20
-            | filter: $ctrl.filters.processed as rs">
+            | filter: $ctrl.filterText as rs">
             <!-- 1 -->
             <td class="table-column-bold">
                 {{ inspection.exam.course.code }}

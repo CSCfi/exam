@@ -13,21 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('rMultiChoiceQuestion', {
-        templateUrl: '/assets/app/review/assessment/questions/multiChoiceQuestion.template.html',
+        templateUrl: require('./multiChoiceQuestion.template.html'),
         bindings: {
             sectionQuestion: '<'
         },
         controller: ['$sce', 'Attachment', 'Question', 'EXAM_CONF',
             function ($sce, Attachment, Question, EXAM_CONF) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
-                    var path = EXAM_CONF.TEMPLATES_PATH + 'review/assessment/questions/';
+                    const path = EXAM_CONF.TEMPLATES_PATH + 'review/assessment/questions/';
                     vm.templates = {
                         multiChoiceAnswer: path + 'multiChoiceAnswer.template.html',
                         weightedMultiChoiceAnswer: path + 'weightedMultiChoiceAnswer.template.html'

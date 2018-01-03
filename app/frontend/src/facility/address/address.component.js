@@ -13,16 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.facility.address')
     .component('examAddress', {
-        templateUrl: '/assets/app/facility/address/address.template.html',
+        template: require('./address.template.html'),
         bindings: {
             address: '<'
         },
         controller: ['Room', 'toast', '$translate', function (Room, toast, $translate) {
 
-            var vm = this;
+            const vm = this;
 
             vm.updateAddress = function () {
                 Room.addresses.update(vm.address,

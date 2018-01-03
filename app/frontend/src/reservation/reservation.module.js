@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+require('ng-ui-select');
+require('../iop');
 
-angular.module('app.reservation', ['ui.select2']);
+angular.module('app.reservation', ['app.iop', 'ui.select']);

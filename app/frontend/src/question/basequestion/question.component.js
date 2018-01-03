@@ -13,7 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import toast from 'toastr';
+
 angular.module('app.question')
     .component('question', {
         template:
@@ -58,10 +60,10 @@ angular.module('app.question')
             onSave: '&?',
             onCancel: '&?'
         },
-        controller: ['$routeParams', '$scope', '$location', '$translate', 'dialogs', 'Question', 'toast',
-            function ($routeParams, $scope, $location, $translate, dialogs, Question, toast) {
+        controller: ['$routeParams', '$scope', '$location', '$translate', 'dialogs', 'Question',
+            function ($routeParams, $scope, $location, $translate, dialogs, Question) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.currentOwners = [];

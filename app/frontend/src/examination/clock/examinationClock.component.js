@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.examination')
     .component('examinationClock', {
@@ -44,11 +44,11 @@ angular.module('app.examination')
         controller: ['$timeout', '$http',
             function ($timeout, $http) {
 
-                var vm = this;
+                const vm = this;
 
-                var _syncInterval = 15; // Interval for syncing time with backend in seconds
-                var _secondsSinceSync = _syncInterval + 1; // Init so that we sync right away
-                var _poller = {};
+                const _syncInterval = 15; // Interval for syncing time with backend in seconds
+                let _secondsSinceSync = _syncInterval + 1; // Init so that we sync right away
+                let _poller = {};
 
                 vm.$onInit = function () {
                     vm.alarmThreshold = 300; //  Alert user if less than five minutes left.
@@ -60,7 +60,7 @@ angular.module('app.examination')
                     $timeout.cancel(_poller);
                 };
 
-                var checkRemainingTime = function () {
+                const checkRemainingTime = function () {
                     _secondsSinceSync++;
                     if (_secondsSinceSync > _syncInterval) {
                         // Sync time with backend
@@ -77,19 +77,19 @@ angular.module('app.examination')
                     _poller = $timeout(checkRemainingTime, 1000);
                 };
 
-                var getRemainingTime = function () {
-                    var req = $http.get('/app/time/' + vm.examHash);
+                const getRemainingTime = function () {
+                    const req = $http.get('/app/time/' + vm.examHash);
                     req.then(function (resp) {
                         vm.remainingTime = parseInt(resp.data);
                     });
                 };
 
-                var onTimeout = function () {
+                const onTimeout = function () {
                     $timeout.cancel(_poller);
                     vm.onTimeout();
                 };
 
-                var zeroPad = function (n) {
+                const zeroPad = function (n) {
                     n += '';
                     return n.length > 1 ? n : '0' + n;
                 };
@@ -98,9 +98,9 @@ angular.module('app.examination')
                     if (!vm.remainingTime) {
                         return '';
                     }
-                    var hours = Math.floor(vm.remainingTime / 60 / 60);
-                    var minutes = Math.floor(vm.remainingTime / 60) % 60;
-                    var seconds = vm.remainingTime % 60;
+                    const hours = Math.floor(vm.remainingTime / 60 / 60);
+                    const minutes = Math.floor(vm.remainingTime / 60) % 60;
+                    const seconds = vm.remainingTime % 60;
                     return hours + ':' + zeroPad(minutes) + ':' + zeroPad(seconds);
                 };
             }

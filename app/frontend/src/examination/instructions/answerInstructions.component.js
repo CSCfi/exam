@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.examination')
     .component('answerInstructions', {
@@ -56,7 +56,7 @@ angular.module('app.examination')
         controller: ['DateTime',
             function (DateTime) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.printExamDuration = function () {
                     return DateTime.printExamDuration(vm.exam);

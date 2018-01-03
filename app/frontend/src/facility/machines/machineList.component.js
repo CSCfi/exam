@@ -13,16 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.facility.machines')
     .component('machineList', {
-        templateUrl: '/assets/app/facility/machines/machineList.template.html',
+        template: require('./machineList.template.html'),
         bindings: {
             room: '<'
         },
         controller: ['Machines', '$translate', 'toast', function (Machines, $translate, toast) {
 
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
                 vm.showMachines = true;
@@ -47,7 +48,7 @@ angular.module('app.facility.machines')
             };
 
             vm.addNewMachine = function () {
-                var newMachine = {};
+                const newMachine = {};
 
                 Machines.machine.insert({id: vm.room.id}, newMachine, function (machine) {
                     toast.info($translate.instant("sitnet_machine_added"));

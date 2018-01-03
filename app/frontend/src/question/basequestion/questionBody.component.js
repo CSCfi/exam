@@ -13,7 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import toast from 'toastr';
+
 angular.module('app.question')
     .component('questionBody', {
         templateUrl: '/assets/app/question/basequestion/questionBody.template.html',
@@ -22,14 +24,14 @@ angular.module('app.question')
             currentOwners: '<',
             lotteryOn: '<'
         },
-        controller: ['$scope', '$translate', 'Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question', 'EXAM_CONF', 'toast',
-            function ($scope, $translate, Session, Attachment, UserRes, limitToFilter, Question, EXAM_CONF, toast) {
+        controller: ['$scope', '$translate', 'Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question', 'EXAM_CONF',
+            function ($scope, $translate, Session, Attachment, UserRes, limitToFilter, Question, EXAM_CONF) {
 
                 var essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/essay_question.html';
                 var multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/multiple_choice_question.html';
 
 
-                var vm = this;
+                const vm = this;
 
                 var init = function () {
                     // TODO: move these to subcomponents

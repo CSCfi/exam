@@ -13,20 +13,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.exam.editor')
     .component('sectionQuestion', {
-        templateUrl: '/assets/app/exam/editor/sections/sectionQuestion.template.html',
+        template: require('./sectionQuestion.template.html'),
         bindings: {
             sectionQuestion: '<',
             lotteryOn: '<',
             onDelete: '&'
         },
-        controller: ['$sce', '$q', '$uibModal', '$translate', 'dialogs', 'Question', 'ExamQuestion', 'ExamRes', 'Attachment', 'toast',
-            function ($sce, $q, $modal, $translate, dialogs, Question, ExamQuestion, ExamRes, Attachment, toast) {
+        controller: ['$sce', '$q', '$uibModal', '$translate', 'dialogs', 'Question', 'ExamQuestion', 'ExamRes', 'Attachment',
+            function ($sce, $q, $modal, $translate, dialogs, Question, ExamQuestion, ExamRes, Attachment) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.calculateMaxPoints = function () {
                     return Question.calculateMaxPoints(vm.sectionQuestion);
@@ -45,14 +47,14 @@ angular.module('app.exam.editor')
                 };
 
                 vm.removeQuestion = function () {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_question'));
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_question'));
                     dialog.result.then(function () {
                         vm.onDelete({sectionQuestion: vm.sectionQuestion});
                     });
                 };
 
-                var getQuestionDistribution = function () {
-                    var deferred = $q.defer();
+                const getQuestionDistribution = function () {
+                    const deferred = $q.defer();
                     ExamRes.questionDistribution.get({id: vm.sectionQuestion.id}, function (data) {
                         deferred.resolve({distributed: data.distributed});
                     }, function (error) {
@@ -62,7 +64,7 @@ angular.module('app.exam.editor')
                     return deferred.promise;
                 };
 
-                var openExamQuestionEditor = function () {
+                const openExamQuestionEditor = function () {
                     getQuestionDistribution().then(function (data) {
                         if (!data.distributed) {
                             // If this is not distributed, treat it as a plain question (or at least trick the user to
@@ -74,7 +76,7 @@ angular.module('app.exam.editor')
                     });
                 };
 
-                var openBaseQuestionEditor = function () {
+                const openBaseQuestionEditor = function () {
                     $modal.open({
                         component: 'baseQuestionEditor',
                         backdrop: 'static',
@@ -91,7 +93,7 @@ angular.module('app.exam.editor')
                     });
                 };
 
-                var openDistributedQuestionEditor = function () {
+                const openDistributedQuestionEditor = function () {
                     $modal.open({
                         component: 'examQuestionEditor',
                         backdrop: 'static',
@@ -110,7 +112,7 @@ angular.module('app.exam.editor')
                             });
 
                     });
-                }
+                };
 
 
             }]

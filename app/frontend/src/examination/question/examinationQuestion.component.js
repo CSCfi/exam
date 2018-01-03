@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.examination')
     .component('examinationQuestion', {
-        templateUrl: '/assets/app/examination/question/examinationQuestion.template.html',
+        template: require('./examinationQuestion.template.html'),
         bindings: {
             examHash: '<',
             sq: '<',
@@ -26,18 +26,18 @@ angular.module('app.examination')
         controller: ['$sce', '$filter', 'Examination', 'Attachment',
             function ($sce, $filter, Examination, Attachment) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.sq.expanded = true;
-                    var answerData = vm.sq.clozeTestAnswer;
+                    const answerData = vm.sq.clozeTestAnswer;
                     if (answerData && typeof answerData.answer === 'string') {
                         answerData.answer = JSON.parse(answerData.answer);
                     }
                 };
 
                 vm.displayQuestionText = function (truncated) {
-                    var text = truncated ? truncate(vm.sq.question.question, 240) : vm.sq.question.question;
+                    const text = truncated ? truncate(vm.sq.question.question, 240) : vm.sq.question.question;
                     return $sce.trustAsHtml(text);
                 };
 
@@ -49,7 +49,7 @@ angular.module('app.examination')
                     return Examination.isAnswered(vm.sq);
                 };
 
-                var truncate = function (content, offset) {
+                const truncate = function (content, offset) {
                     return $filter('truncate')(content, offset);
                 };
 

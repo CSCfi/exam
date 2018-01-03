@@ -13,7 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+
+import toast from 'toastr';
+
 angular.module('app.question')
     .component('libraryResults', {
         templateUrl: '/assets/app/question/library/results/libraryResults.template.html',
@@ -24,10 +26,10 @@ angular.module('app.question')
             disableLinks: '<',
             tableClass: '@?'
         },
-        controller: ['$translate', 'dialogs', 'Question', 'Library', 'Attachment', 'Session', 'toast',
-            function ($translate, dialogs, Question, Library, Attachment, Session, toast) {
+        controller: ['$translate', 'dialogs', 'Question', 'Library', 'Attachment', 'Session',
+            function ($translate, dialogs, Question, Library, Attachment, Session) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.user = Session.getUser();

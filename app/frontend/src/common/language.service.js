@@ -13,15 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.common')
     .service('Language', ['$resource', function ($resource) {
 
-        var self = this;
+        const self = this;
 
         self.languageApi = $resource('/app/languages');
 
-        var isoLangs = {
+        const isoLangs = {
             "ab":{
                 "name":"Abkhaz",
                 "nativeName":"аҧсуа"

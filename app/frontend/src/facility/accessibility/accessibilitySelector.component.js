@@ -13,15 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.facility.accessibility')
     .component('accessibilitySelector', {
-        templateUrl: '/assets/app/facility/accessibility/accessibilitySelector.template.html',
+        template: require('./accessibilitySelector.template.html'),
         bindings: {
             room: '<'
         },
-        controller: ['$translate', 'toast', '$http', function ($translate, toast, $http) {
-            var vm = this;
+        controller: ['$translate', '$http', function ($translate, $http) {
+            const vm = this;
 
             vm.$onInit = function () {
                 $http.get('/app/accessibility').then(function (resp) {
@@ -41,13 +43,13 @@ angular.module('app.facility.accessibility')
             };
 
             vm.updateAccessibility = function (ac) {
-                var index = getIndexOf(ac);
+                const index = getIndexOf(ac);
                 if (index > -1) {
                     vm.room.accessibility.splice(index, 1);
                 } else {
                     vm.room.accessibility.push(ac);
                 }
-                var ids = vm.room.accessibility.map(function (item) {
+                const ids = vm.room.accessibility.map(function (item) {
                     return item.id;
                 }).join(", ");
 

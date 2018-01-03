@@ -13,20 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import moment from 'moment';
+import toast from 'toastr';
+import _ from 'lodash';
 
 angular.module('app.exam.editor')
     .component('examPublication', {
-        templateUrl: '/assets/app/exam/editor/publication/examPublication.template.html',
+        template: require('./examPublication.template.html'),
         bindings: {
             exam: '<',
             onPreviousTabSelected: '&',
             onNextTabSelected: '&?'
         },
-        controller: ['$q', '$translate', '$location', '$uibModal', 'Session', 'Exam', 'ExamRes', 'SettingsResource', 'EXAM_CONF', 'lodash', 'toast',
-            function ($q, $translate, $location, $modal, Session, Exam, ExamRes, SettingsResource, EXAM_CONF, lodash, toast) {
+        controller: ['$q', '$translate', '$location', '$uibModal', 'Session', 'Exam', 'ExamRes', 'SettingsResource', 'EXAM_CONF',
+            function ($q, $translate, $location, $modal, Session, Exam, ExamRes, SettingsResource, EXAM_CONF) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.newExaminationDate = {
@@ -47,7 +50,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.addExaminationDate = function (date) {
-                    var alreadyExists = vm.exam.examinationDates.map(function (ed) {
+                    const alreadyExists = vm.exam.examinationDates.map(function (ed) {
                         return moment(ed.date).format('L');
                     }).some(function (ed) {
                         return ed === moment(date).format('L');
@@ -61,7 +64,7 @@ angular.module('app.exam.editor')
 
                 vm.removeExaminationDate = function (date) {
                     ExamRes.examinationDate.delete({eid: vm.exam.id, edid: date.id}, function () {
-                        var i = vm.exam.examinationDates.indexOf(date);
+                        const i = vm.exam.examinationDates.indexOf(date);
                         vm.exam.examinationDates.splice(i, 1);
                     });
                 };
@@ -79,8 +82,8 @@ angular.module('app.exam.editor')
                 };
 
                 vm.updateExam = function (silent, overrides) {
-                    var deferred = $q.defer();
-                    var config = {
+                    const deferred = $q.defer();
+                    const config = {
                         'evaluationConfig': vm.autoevaluation.enabled && vm.canBeAutoEvaluated() ? {
                             releaseType: vm.exam.autoEvaluationConfig.releaseType.name,
                             releaseDate: new Date(vm.exam.autoEvaluationConfig.releaseDate).getTime(),
@@ -115,8 +118,8 @@ angular.module('app.exam.editor')
 
                 vm.range = function (min, max, step) {
                     step |= 1;
-                    var input = [];
-                    for (var i = min; i <= max; i += step) {
+                    const input = [];
+                    for (let i = min; i <= max; i += step) {
                         input.push(i);
                     }
                     return input;
@@ -137,7 +140,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.previewExam = function (fromTab) {
-                    var resource = vm.exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
+                    const resource = vm.exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
                     $location.path('/exams/' + vm.exam.id + '/view/' + resource + '/' + fromTab);
                 };
 
@@ -151,12 +154,12 @@ angular.module('app.exam.editor')
 
                 vm.saveAndPublishExam = function () {
 
-                    var err = readyForPublishing();
+                    const err = readyForPublishing();
 
                     if (Object.getOwnPropertyNames(err) && Object.getOwnPropertyNames(err).length > 0) {
 
                         $modal.open({
-                            templateUrl: EXAM_CONF.TEMPLATES_PATH + 'exam/editor/publication/publication_error_dialog.html',
+                            template: require('./publication_error_dialog.html'),
                             backdrop: 'static',
                             keyboard: true,
                             controller: function ($scope, $uibModalInstance) {
@@ -173,12 +176,12 @@ angular.module('app.exam.editor')
                         });
                     } else {
                         $modal.open({
-                            templateUrl: EXAM_CONF.TEMPLATES_PATH + 'exam/editor/publication/publication_dialog.html',
+                            template: require('./publication_dialog.html'),
                             backdrop: 'static',
                             keyboard: true,
                             controller: function ($scope, $uibModalInstance) {
                                 $scope.getConfirmationText = function () {
-                                    var confirmation = $translate.instant('sitnet_publish_exam_confirm');
+                                    let confirmation = $translate.instant('sitnet_publish_exam_confirm');
                                     if (vm.exam.executionType.type !== 'PRINTOUT') {
                                         confirmation += ' ' + $translate.instant('sitnet_publish_exam_confirm_enroll');
                                     }
@@ -206,7 +209,7 @@ angular.module('app.exam.editor')
                 vm.unpublishExam = function () {
                     if (isAllowedToUnpublishOrRemove()) {
                         $modal.open({
-                            templateUrl: EXAM_CONF.TEMPLATES_PATH + 'exam/editor/publication/publication_revoke_dialog.html',
+                            template: require('./publication_revoke_dialog.html'),
                             backdrop: 'static',
                             keyboard: true,
                             controller: function ($scope, $uibModalInstance) {
@@ -238,19 +241,19 @@ angular.module('app.exam.editor')
                     vm.autoevaluation.enabled = true;
                 };
 
-                var isAllowedToUnpublishOrRemove = function () {
+                const isAllowedToUnpublishOrRemove = function () {
                     // allowed if no upcoming reservations and if no one has taken this yet
                     return !vm.exam.hasEnrolmentsInEffect && vm.exam.children.length === 0;
                 };
 
 
-                var countQuestions = function () {
+                const countQuestions = function () {
                     return vm.exam.examSections.reduce(function (a, b) {
                         return a + b.sectionQuestions.length;
                     }, 0);
                 };
 
-                var hasDuplicatePercentages = function () {
+                const hasDuplicatePercentages = function () {
                     var percentages = vm.exam.autoEvaluationConfig.gradeEvaluations.map(function (e) {
                         return e.percentage;
                     }).sort();
@@ -263,9 +266,9 @@ angular.module('app.exam.editor')
                 };
 
 
-                var readyForPublishing = function () {
+                const readyForPublishing = function () {
 
-                    var errors = {};
+                    const errors = {};
 
                     if (!vm.exam.course) {
                         errors.course = $translate.instant('sitnet_course_missing');
@@ -279,7 +282,7 @@ angular.module('app.exam.editor')
                         errors.name = $translate.instant('sitnet_error_exam_empty_exam_language');
                     }
 
-                    var isPrintout = vm.exam.executionType.type === 'PRINTOUT';
+                    const isPrintout = vm.exam.executionType.type === 'PRINTOUT';
                     if (!isPrintout && !vm.exam.examActiveStartDate) {
                         errors.examActiveStartDate = $translate.instant('sitnet_exam_start_date_missing');
                     }
@@ -307,7 +310,7 @@ angular.module('app.exam.editor')
                         errors.examType = $translate.instant('sitnet_exam_credit_type_missing');
                     }
 
-                    var allSectionsNamed = vm.exam.examSections.every(function (section) {
+                    const allSectionsNamed = vm.exam.examSections.every(function (section) {
                         return section.name;
                     });
                     if (!allSectionsNamed) {
@@ -316,7 +319,7 @@ angular.module('app.exam.editor')
                     if (['PRIVATE', 'MATURITY'].indexOf(vm.exam.executionType.type) > -1 && vm.exam.examEnrolments.length < 1) {
                         errors.participants = $translate.instant('sitnet_no_participants');
                     }
-                    if (vm.exam.executionType.type === 'MATURITY' && !lodash.isBoolean(vm.exam.subjectToLanguageInspection)) {
+                    if (vm.exam.executionType.type === 'MATURITY' && !_.isBoolean(vm.exam.subjectToLanguageInspection)) {
                         errors.languageInspection = $translate.instant('sitnet_language_inspection_setting_not_chosen');
                     }
 

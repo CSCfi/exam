@@ -13,17 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.exam.editor')
     .component('newExam', {
-        templateUrl: '/assets/app/exam/editor/creation/newExam.template.html',
+        template: require('./newExam.template.html'),
         controller: ['Exam',
             function (Exam) {
 
-                var vm = this;
+                const vm = this;
 
-                vm.$onInit = function  () {
+                vm.$onInit = function () {
                     Exam.listExecutionTypes().then(function (types) {
                         vm.executionTypes = types;
                     });
@@ -33,7 +33,7 @@ angular.module('app.exam.editor')
                     if (vm.type) {
                         Exam.createExam(vm.type.type);
                     }
-                }
+                };
             }
         ]
     });

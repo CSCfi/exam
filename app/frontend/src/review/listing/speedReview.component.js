@@ -13,16 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.review')
     .component('speedReview', {
-        templateUrl: '/assets/app/review/listing/speedReview.template.html',
+        template: require('./speedReview.template.html'),
         controller: ['dialogs', '$q', '$route', '$routeParams', '$translate', 'ExamRes', 'Exam',
-            'ReviewList', 'Files', '$uibModal', 'EXAM_CONF', 'toast',
+            'ReviewList', 'Files', '$uibModal',
             function (dialogs, $q, $route, $routeParams, $translate, ExamRes,
-                      Exam, ReviewList, Files, $modal, EXAM_CONF, toast) {
+                      Exam, ReviewList, Files, $modal) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.pageSize = 10;
@@ -71,8 +73,8 @@ angular.module('app.review')
                     return Exam.isOwnerOrAdmin(exam);
                 };
 
-                var getErrors = function (exam) {
-                    var messages = [];
+                const getErrors = function (exam) {
+                    const messages = [];
                     if (!vm.isAllowedToGrade(exam)) {
                         messages.push('sitnet_error_unauthorized');
                     }
@@ -85,10 +87,10 @@ angular.module('app.review')
                     return messages;
                 };
 
-                var gradeExam = function (review) {
-                    var deferred = $q.defer();
-                    var exam = review.exam;
-                    var messages = getErrors(exam);
+                const gradeExam = function (review) {
+                    const deferred = $q.defer();
+                    const exam = review.exam;
+                    const messages = getErrors(exam);
                     if (!exam.selectedGrade && !exam.grade.id) {
                         messages.push('sitnet_participation_unreviewed');
                     }
@@ -96,7 +98,7 @@ angular.module('app.review')
                         toast.warning($translate.instant(msg));
                     });
                     if (messages.length === 0) {
-                        var grade;
+                        let grade;
                         if (exam.selectedGrade.type === 'NONE') {
                             grade = undefined;
                             exam.gradeless = true;
@@ -104,7 +106,7 @@ angular.module('app.review')
                             grade = exam.selectedGrade.id ? exam.selectedGrade : exam.grade;
                             exam.gradeless = false;
                         }
-                        var data = {
+                        const data = {
                             'id': exam.id,
                             'state': 'GRADED',
                             'gradeless': exam.gradeless,
@@ -135,21 +137,21 @@ angular.module('app.review')
                 vm.hasModifications = function () {
                     if (vm.examReviews) {
                         return vm.examReviews.filter(function (r) {
-                                return r.exam.selectedGrade &&
-                                    (r.exam.selectedGrade.id || r.exam.selectedGrade.type === 'NONE') &&
-                                    vm.isGradeable(r.exam);
-                            }).length > 0;
+                            return r.exam.selectedGrade &&
+                                (r.exam.selectedGrade.id || r.exam.selectedGrade.type === 'NONE') &&
+                                vm.isGradeable(r.exam);
+                        }).length > 0;
 
                     }
                 };
 
                 vm.gradeExams = function () {
-                    var reviews = vm.examReviews.filter(function (r) {
+                    const reviews = vm.examReviews.filter(function (r) {
                         return r.exam.selectedGrade && r.exam.selectedGrade.type && vm.isGradeable(r.exam);
                     });
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_grade_review'));
-                    dialog.result.then(function (btn) {
-                        var promises = [];
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_grade_review'));
+                    dialog.result.then(function () {
+                        const promises = [];
                         reviews.forEach(function (r) {
                             promises.push(gradeExam(r));
                         });
@@ -160,63 +162,44 @@ angular.module('app.review')
                 };
 
                 vm.isOwner = function (user, owners) {
-                    var b = false;
                     if (owners) {
-                        angular.forEach(owners, function (owner) {
-                            if ((owner.firstName + ' ' + owner.lastName) === (user.firstName + ' ' + user.lastName)) {
-                                b = true;
-                            }
-                        });
+                        return owners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
                     }
-                    return b;
+                    return false;
                 };
 
                 vm.importGrades = function () {
-                    var ctrl = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
-                        Files.getMaxFilesize().then(function (data) {
-                            $scope.maxFileSize = data.filesize;
-                        });
-                        $scope.title = 'sitnet_import_grades_from_csv';
-                        $scope.submit = function () {
-                            Files.upload('/app/gradeimport', $scope.attachmentFile, {}, null, $modalInstance,
-                                $route.reload);
-                        };
-                        $scope.cancel = function () {
-                            $modalInstance.dismiss('Canceled');
-                        };
-                    }];
 
-                    var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',
+                    $modal.open({
                         backdrop: 'static',
                         keyboard: true,
-                        controller: ctrl
+                        animation: true,
+                        component: 'attachmentSelector',
+                        resolve: {title: 'sitnet_import_grades_from_csv'}
+                    }).result.then(function () {
+                        $route.reload();
                     });
 
-                    modalInstance.result.then(function () {
-                        // OK button
-                        console.log('closed');
-                    });
                 };
 
                 vm.createGradingTemplate = function () {
-                    var content = vm.examReviews.map(function (r) {
+                    const rows = vm.examReviews.map(function (r) {
                         return [r.exam.id,
-                                '',
-                                '',
-                                r.exam.totalScore + ' / ' + r.exam.maxScore,
-                                r.user.firstName + ' ' + r.user.lastName,
-                                r.user.userIdentifier]
-                                .join() + ',\n';
+                            '',
+                            '',
+                            r.exam.totalScore + ' / ' + r.exam.maxScore,
+                            r.user.firstName + ' ' + r.user.lastName,
+                            r.user.userIdentifier]
+                            .join() + ',\n';
                     }).reduce(function (a, b) {
                         return a + b;
                     }, '');
-                    content = 'exam id,grade,feedback,total score,student,student id\n' + content;
-                    var blob = new Blob([content], {type: 'text/csv;charset=utf-8'});
+                    const content = 'exam id,grade,feedback,total score,student,student id\n' + rows;
+                    const blob = new Blob([content], {type: 'text/csv;charset=utf-8'});
                     saveAs(blob, 'grading.csv');
                 };
 
-                var handleOngoingReviews = function (review) {
+                const handleOngoingReviews = function (review) {
                     ReviewList.gradeExam(review.exam);
                     // FIXME: Seems evil
                     ExamRes.inspections.get({id: review.exam.id}, function (inspections) {

@@ -13,23 +13,24 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from'angular';
+
 angular.module('app.facility.schedule')
     .component('startingTime', {
-        templateUrl: '/assets/app/facility/schedule/startingTime.template.html',
+        template: require('./startingTime.template.html'),
         bindings: {
             roomIds: '<',
             startingHours: '<'
         },
         controller: ['Room', function (Room) {
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
                 vm.examStartingHours = Array.apply(null, new Array(24)).map(function (x, i) {
                     return {startingHour: i + ":00", selected: true};
                 });
                 if (vm.startingHours && vm.startingHours.length > 0) {
-                    var startingHours = vm.startingHours.map(function (hour) {
+                    let startingHours = vm.startingHours.map(function (hour) {
                         return moment(hour.startingHour);
                     });
                     vm.examStartingHourOffset = startingHours[0].minute();
@@ -53,7 +54,7 @@ angular.module('app.facility.schedule')
             };
 
             vm.toggleAllExamStartingHours = function () {
-                var anySelected = vm.examStartingHours.some(function (hours) {
+                const anySelected = vm.examStartingHours.some(function (hours) {
                     return hours.selected;
                 });
                 vm.examStartingHours.forEach(function (hours) {

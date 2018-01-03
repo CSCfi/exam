@@ -13,6 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import run from './utility.run';
 
-angular.module('app.utility', []);
+angular.module('app.utility', []).run(run);

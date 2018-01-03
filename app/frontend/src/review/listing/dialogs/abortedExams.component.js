@@ -13,17 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.review')
     .component('abortedExams', {
-        templateUrl: '/assets/app/review/listing/dialogs/abortedExams.template.html',
+        template: require('./abortedExams.template.html'),
         bindings: {
             dismiss: '&',
             resolve: '<'
         },
-        controller: ['$translate', '$scope', 'ExamRes', 'toast', function ($translate, $scope, ExamRes, toast) {
+        controller: ['$translate', '$scope', 'ExamRes', function ($translate, $scope, ExamRes) {
 
-            var vm = this;
+            const vm = this;
 
             vm.$onInit = function () {
                 vm.abortedExams = vm.resolve.abortedExams;

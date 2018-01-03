@@ -13,20 +13,31 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.enrolment')
     .component('examSearchResult', {
-        templateUrl: '/assets/app/enrolment/search/examSearchResult.template.html',
+        template: require('./examSearchResult.template.html'),
         bindings: {
             exam: '<'
         },
         controller: ['$location', 'Enrolment',
             function ($location, Enrolment) {
 
-                var vm = this;
+                const vm = this;
+
+                vm.$onInit = function () {
+                    vm.enrolling = false;
+                };
 
                 vm.enrollForExam = function () {
-                    Enrolment.checkAndEnroll(vm.exam);
+                    if (vm.enrolling) {
+                        return;
+                    }
+                    vm.enrolling = true;
+                    Enrolment.checkAndEnroll(vm.exam).then(function () {
+                        vm.enrolling = false;
+                    });
                 };
 
                 vm.makeReservation = function () {

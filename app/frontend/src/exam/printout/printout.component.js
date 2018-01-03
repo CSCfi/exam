@@ -13,14 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.exam')
     .component('printout', {
-        templateUrl: '/assets/app/exam/printout/printout.template.html',
+        template: require('./printout.template.html'),
         controller: ['$http', '$routeParams', '$location', '$sce', 'Files',
             function ($http, $routeParams, $location, $sce, Files) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     $http.get('/app/exampreview/' + $routeParams.id).then(function (resp) {
@@ -49,7 +50,7 @@ angular.module('app.exam')
 
 
                 vm.getLanguageName = function (lang) { // TODO: fixed languages?
-                    var name;
+                    let name;
                     switch (lang.code) {
                         case 'fi':
                             name = 'suomeksi';
@@ -68,7 +69,7 @@ angular.module('app.exam')
                 };
 
                 vm.getQuestionTypeName = function (esq) {
-                    var name;
+                    let name;
                     switch (esq.question.type) {
                         case 'WeightedMultipleChoiceQuestion':
                             name = 'Monivalintakysymys (voit valita monta) / Flervalsfråga (du kan välja många) / Multiple choice question (you can pick multiple)';
@@ -87,7 +88,7 @@ angular.module('app.exam')
                 };
 
                 vm.exitPreview = function () {
-                    var path = $routeParams.tab ? '/exams/' + $routeParams.id + '/' + $routeParams.tab : '/printouts';
+                    const path = $routeParams.tab ? '/exams/' + $routeParams.id + '/' + $routeParams.tab : '/printouts';
                     $location.path(path);
                 };
 

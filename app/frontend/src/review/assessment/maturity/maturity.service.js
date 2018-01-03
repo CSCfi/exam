@@ -13,41 +13,43 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.review')
-    .service('Maturity', ['$q', '$resource', '$location', '$translate', 'dialogs', 'Assessment', 'Session', 'ExamRes', 'toast',
-        function ($q, $resource, $location, $translate, dialogs, Assessment, Session, ExamRes, toast) {
+    .service('Maturity', ['$q', '$resource', '$location', '$translate', 'dialogs', 'Assessment', 'Session', 'ExamRes',
+        function ($q, $resource, $location, $translate, dialogs, Assessment, Session, ExamRes) {
 
-            var self = this;
+            const self = this;
 
-            var inspectionApi = $resource('/app/inspection', null, {'add': {method: 'POST'}});
-            var approvalApi = $resource('/app/inspection/:id/approval', {id: '@id'}, {'update': {method: 'PUT'}});
-            var statementApi = $resource('/app/inspection/:id/statement', {id: '@id'}, {'update': {method: 'PUT'}});
+            const inspectionApi = $resource('/app/inspection', null, {'add': {method: 'POST'}});
+            const approvalApi = $resource('/app/inspection/:id/approval', {id: '@id'}, {'update': {method: 'PUT'}});
+            const statementApi = $resource('/app/inspection/:id/statement', {id: '@id'}, {'update': {method: 'PUT'}});
 
-            var canFinalizeInspection = function (exam) {
+            const canFinalizeInspection = function (exam) {
                 return exam.languageInspection.statement && exam.languageInspection.statement.comment;
             };
 
-            var isUnderLanguageInspection = function (exam) {
+            const isUnderLanguageInspection = function (exam) {
                 return Session.getUser().isLanguageInspector && exam.languageInspection && !exam.languageInspection.finishedAt;
             };
 
-            var isMissingStatement = function (exam) {
+            const isMissingStatement = function (exam) {
                 if (!isUnderLanguageInspection(exam)) {
                     return false;
                 }
                 return !exam.languageInspection.statement || !exam.languageInspection.statement.comment;
             };
 
-            var isMissingFeedback = function (exam) {
+            const isMissingFeedback = function (exam) {
                 return !exam.examFeedback || !exam.examFeedback.comment;
             };
 
-            var isAwaitingInspection = function (exam) {
+            const isAwaitingInspection = function (exam) {
                 return exam.languageInspection && !exam.languageInspection.finishedAt;
             };
 
-            var MATURITY_STATES = {
+            const MATURITY_STATES = {
                 NOT_REVIEWED: {id: 1, text: 'sitnet_not_reviewed'},
                 REJECT_STRAIGHTAWAY: {id: 2, text: 'sitnet_reject_maturity', canProceed: true, warn: true},
                 LANGUAGE_INSPECT: {id: 3, text: 'sitnet_send_for_language_inspection', canProceed: true},
@@ -68,7 +70,7 @@ angular.module('app.review')
             };
             MATURITY_STATES.APPROVE_LANGUAGE.alternateState = MATURITY_STATES.REJECT_LANGUAGE;
 
-            var isGraded = function (exam) {
+            const isGraded = function (exam) {
                 return exam.grade;
             };
 
@@ -77,8 +79,8 @@ angular.module('app.review')
             };
 
             self.saveInspectionStatement = function (exam) {
-                var deferred = $q.defer();
-                var statement = {
+                const deferred = $q.defer();
+                const statement = {
                     'id': exam.languageInspection.id,
                     'comment': exam.languageInspection.statement.comment
                 };
@@ -107,15 +109,15 @@ angular.module('app.review')
                 if (isAwaitingInspection(exam)) {
                     return MATURITY_STATES.AWAIT_INSPECTION;
                 }
-                var grade = exam.grade;
-                var disapproved = !grade || grade.marksRejection;
+                const grade = exam.grade;
+                const disapproved = !grade || grade.marksRejection;
 
                 return disapproved ? MATURITY_STATES.REJECT_STRAIGHTAWAY :
                     MATURITY_STATES.LANGUAGE_INSPECT;
             };
 
             self.proceed = function (exam, alternate) {
-                var state = self.getNextState(exam);
+                let state = self.getNextState(exam);
                 if (state.alternateState && alternate) {
                     state = state.alternateState;
                 }
@@ -141,12 +143,12 @@ angular.module('app.review')
                 }
             };
 
-            var sendForLanguageInspection = function (exam) {
-                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+            const sendForLanguageInspection = function (exam) {
+                const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                     $translate.instant('sitnet_confirm_maturity_approval'));
                 dialog.result.then(function () {
                     Assessment.saveFeedback(exam).then(function () {
-                        var params = Assessment.getPayload(exam, 'GRADED');
+                        const params = Assessment.getPayload(exam, 'GRADED');
                         ExamRes.review.update({id: exam.id}, params, function () {
                             inspectionApi.add({examId: exam.id}, function () {
                                 toast.info($translate.instant('sitnet_sent_for_language_inspection'));
@@ -159,11 +161,11 @@ angular.module('app.review')
                 });
             };
 
-            var finalizeLanguageInspection = function (exam, reject) {
-                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+            const finalizeLanguageInspection = function (exam, reject) {
+                const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                     $translate.instant('sitnet_confirm_language_inspection_approval'));
                 dialog.result.then(function () {
-                    var approved = !reject;
+                    const approved = !reject;
                     self.saveInspectionStatement(exam).then(function () {
                         approvalApi.update(
                             {id: exam.languageInspection.id, approved: approved},

@@ -13,7 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.enrolment')
     .component('examEnrolments', {
         template:
@@ -31,10 +33,10 @@ angular.module('app.enrolment')
         '        <enrolment-candidate ng-repeat="exam in $ctrl.exams" exam="exam"></enrolment-candidate>\n' +
         '    </div>\n' +
         '</div>\n',
-        controller: ['$routeParams', 'Enrolment', 'toast',
-            function ($routeParams, Enrolment, toast) {
+        controller: ['$routeParams', 'Enrolment',
+            function ($routeParams, Enrolment) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     Enrolment.getExamEnrolment($routeParams.code, $routeParams.id).then(function (data) {

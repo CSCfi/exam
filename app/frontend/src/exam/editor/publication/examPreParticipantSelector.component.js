@@ -13,17 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+
 angular.module('app.exam.editor')
     .component('examPreParticipantSelector', {
-        templateUrl: '/assets/app/exam/editor/publication/examPreParticipantSelector.template.html',
+        template: require('./examPreParticipantSelector.template.html'),
         bindings: {
             exam: '<'
         },
-        controller: ['$translate', 'Enrolment', 'EnrollRes', 'toast',
-            function ($translate, Enrolment, EnrollRes, toast) {
+        controller: ['$translate', 'Enrolment', 'EnrollRes',
+            function ($translate, Enrolment, EnrollRes) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     vm.newPreParticipant = {
@@ -32,7 +34,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.addPreParticipant = function () {
-                    var exists = vm.exam.examEnrolments.map(function (e) {
+                    const exists = vm.exam.examEnrolments.map(function (e) {
                         return e.preEnrolledUserEmail;
                     }).indexOf(vm.newPreParticipant.email) > -1;
                     if (!exists) {

@@ -13,12 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
-angular.module('app.review')
-    .service('ReviewList', ['Exam', 'lodash',
-        function (Exam, lodash) {
 
-            var self = this;
+import _ from 'lodash';
+
+angular.module('app.review')
+    .service('ReviewList', ['Exam',
+        function (Exam) {
+
+            const self = this;
 
             self.gradeExam = function (exam) {
                 if (!exam.grade || !exam.grade.id) {
@@ -27,7 +29,7 @@ angular.module('app.review')
                 if (!exam.selectedGrade) {
                     exam.selectedGrade = {};
                 }
-                var scale = exam.gradeScale || exam.parent.gradeScale || exam.course.gradeScale;
+                const scale = exam.gradeScale || exam.parent.gradeScale || exam.course.gradeScale;
                 scale.grades = scale.grades || [];
                 exam.selectableGrades = scale.grades.map(function (grade) {
                     grade.type = grade.name;
@@ -38,7 +40,7 @@ angular.module('app.review')
                     }
                     return grade;
                 });
-                var noGrade = {type: 'NONE', name: Exam.getExamGradeDisplayName('NONE')};
+                const noGrade = {type: 'NONE', name: Exam.getExamGradeDisplayName('NONE')};
                 if (exam.gradeless && !exam.selectedGrade) {
                     exam.selectedGrade = noGrade;
                 }
@@ -49,10 +51,10 @@ angular.module('app.review')
                 if (!filter) {
                     return true;
                 }
-                var s = filter.toLowerCase();
-                var name = lodash.get(review, 'user.firstName', '') + ' ' + lodash.get(review, 'user.lastName', '');
+                const s = filter.toLowerCase();
+                const name = _.get(review, 'user.firstName', '') + ' ' + lodash.get(review, 'user.lastName', '');
                 return name.toLowerCase().indexOf(s) > -1
-                    || lodash.get(review, 'user.email', '').toLowerCase().indexOf(s) > -1;
+                    || _.get(review, 'user.email', '').toLowerCase().indexOf(s) > -1;
             };
 
             self.applyFilter = function (filter, items) {

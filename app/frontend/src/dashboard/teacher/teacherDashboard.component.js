@@ -13,163 +13,94 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+
 angular.module('app.dashboard.teacher')
     .component('teacherDashboard', {
-        templateUrl: '/assets/app/dashboard/teacher/teacherDashboard.template.html',
-        controller: ['TeacherDashboard', 'Exam', 'DateTime', 'Session', 'EXAM_CONF', 'ExamRes',
-            'dialogs', '$translate', '$location', '$filter', 'toast',
-            function (TeacherDashboard, Exam, DateTime, Session, EXAM_CONF, ExamRes, dialogs,
-                      $translate, $location, $filter, toast) {
+        template: require('./teacherDashboard.template.html'),
+        controller: ['$location', '$filter', 'TeacherDashboard', 'Session',
+            function ($location, $filter, TeacherDashboard, Session) {
 
-                var ctrl = this;
+                const vm = this;
 
-                ctrl.$onInit = function () {
-                    ctrl.activeTab = $location.search().tab ? parseInt($location.search().tab) : 1;
-                    ctrl.userId = Session.getUser().id;
-                    ctrl.templates = {
-                        dashboardToolbarPath: EXAM_CONF.TEMPLATES_PATH + 'dashboard/teacher/templates/toolbar.html',
-                        dashboardActiveExamsPath: EXAM_CONF.TEMPLATES_PATH + 'dashboard/teacher/templates/active_exams.html',
-                        dashboardFinishedExamsPath: EXAM_CONF.TEMPLATES_PATH + 'dashboard/teacher/templates/finished_exams.html',
-                        dashboardArchivedExamsPath: EXAM_CONF.TEMPLATES_PATH + 'dashboard/teacher/templates/archived_exams.html',
-                        dashboardDraftExamsPath: EXAM_CONF.TEMPLATES_PATH + 'dashboard/teacher/templates/draft_exams.html'
-                    };
-                    // Pagesize for showing finished exams
-                    ctrl.pageSize = 10;
-                    ctrl.filter = $location.search().filter ? {text: $location.search().filter} : {};
-                    ctrl.reduceDraftCount = 0;
-
-                    TeacherDashboard.populate(ctrl).then(function () {
-                        ctrl.filteredFinished = ctrl.finishedExams;
-                        ctrl.filteredActive = ctrl.activeExams;
-                        ctrl.filteredArchived = ctrl.archivedExams;
-                        ctrl.filteredDraft = ctrl.draftExams;
-                        if (ctrl.filter.text) {
-                            ctrl.search();
+                vm.$onInit = function () {
+                    vm.activeTab = $location.search().tab ? parseInt($location.search().tab) : 1;
+                    vm.userId = Session.getUser().id;
+                    vm.activeExtraColumns = [
+                        {
+                            text: 'sitnet_participation_unreviewed',
+                            property: 'unassessedCount',
+                            link: '/exams/__/4',
+                            checkOwnership: true
+                        }, {
+                            text: 'sitnet_participation_unfinished',
+                            property: 'unfinishedCount',
+                            link: '/exams/__/4',
+                            checkOwnership: true
+                        }, {
+                            text: 'sitnet_dashboard_title_waiting_reservation',
+                            property: 'reservationCount',
+                            link: '/reservations/__'
                         }
+                    ];
+                    vm.finishedExtraColumns = [
+                        {
+                            text: 'sitnet_participation_unreviewed',
+                            property: 'unassessedCount',
+                            link: '/exams/__/4',
+                            checkOwnership: true
+                        }, {
+                            text: 'sitnet_participation_unfinished',
+                            property: 'unfinishedCount',
+                            link: '/exams/__/4',
+                            checkOwnership: true
+                        }
+                    ];
+                    vm.archivedExtraColumns = [
+                        {
+                            text: 'sitnet_participation_unreviewed',
+                            property: 'assessedCount',
+                            link: '/exams/__/4',
+                            checkOwnership: true
+                        }
+                    ];
+                    vm.draftExtraColumns = [];
+
+                    TeacherDashboard.populate(vm).then(function () {
+                        vm.filteredFinished = vm.finishedExams;
+                        vm.filteredActive = vm.activeExams;
+                        vm.filteredArchived = vm.archivedExams;
+                        vm.filteredDrafts = vm.draftExams;
                     });
                 };
 
-                ctrl.changeTab = function (index) {
+                vm.changeTab = function (index) {
                     $location.search('tab', index);
                 };
 
-                ctrl.printExamDuration = function (exam) {
-                    return DateTime.printExamDuration(exam);
-                };
-
-                ctrl.getUsername = function () {
-                    return Session.getUserName();
-                };
-
-                ctrl.getExecutionTypeTranslation = function (exam) {
-                    return Exam.getExecutionTypeTranslation(exam.executionType.type);
-                };
-
-                ctrl.checkOwner = function (isOwner) {
-
-                    if (isOwner) {
-                        ctrl.reduceDraftCount += 1;
-                        return true;
-                    }
-
-                    return false;
-                };
-
-                ctrl.search = function () {
-                    $location.search('filter', ctrl.filter.text);
-                    ctrl.reduceDraftCount = 0;
+                vm.search = function (text) {
 
                     // Use same search parameter for all the 4 result tables
-                    ctrl.filteredFinished = $filter('filter')(ctrl.finishedExams, ctrl.filter.text);
-                    ctrl.filteredActive = $filter('filter')(ctrl.activeExams, ctrl.filter.text);
-                    ctrl.filteredArchived = $filter('filter')(ctrl.archivedExams, ctrl.filter.text);
-                    ctrl.filteredDraft = $filter('filter')(ctrl.draftExams, ctrl.filter.text);
+                    vm.filteredFinished = $filter('filter')(vm.finishedExams, text);
+                    vm.filteredActive = $filter('filter')(vm.activeExams, text);
+                    vm.filteredArchived = $filter('filter')(vm.archivedExams, text);
+                    vm.filteredDrafts = $filter('filter')(vm.draftExams, text);
 
                     // for drafts, display exams only for owners AM-1658
-                    ctrl.filteredDraft = ctrl.filteredDraft.filter(function (exam) {
-                        var owner = exam.examOwners.filter(function (own) {
-                            return (own.id === ctrl.userId);
-                        });
-                        if (owner.length > 0) {
-                            return exam;
-                        }
-                        return false;
+                    vm.filteredDrafts = vm.filteredDrafts.filter(function (exam) {
+                        return exam.examOwners.some(eo => eo.id === vm.userId);
                     });
 
                     // for finished, display exams only for owners OR if exam has unassessed reviews AM-1658
-                    ctrl.filteredFinished = ctrl.filteredFinished.filter(function (exam) {
-                        var owner = exam.examOwners.filter(function (own) {
-                            return (own.id === ctrl.userId);
-                        });
-                        if (owner.length > 0 || (owner.length === 0 && exam.unassessedCount > 0)) {
-                            return exam;
-                        }
-                        return false;
+                    vm.filteredFinished = vm.filteredFinished.filter(function (exam) {
+                        return exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === vm.userId);
                     });
 
                     // for active, display exams only for owners OR if exam has unassessed reviews AM-1658
-                    ctrl.filteredActive = ctrl.filteredActive.filter(function (exam) {
-                        var owner = exam.examOwners.filter(function (own) {
-                            return (own.id === ctrl.userId);
-                        });
-                        if (owner.length > 0 || (owner.length === 0 && exam.unassessedCount > 0)) {
-                            return exam;
-                        }
-                        return false;
-                    });
-
-
-                };
-
-                ctrl.copyExam = function (exam, type) {
-                    ExamRes.exams.copy({id: exam.id, type: type}, function (copy) {
-                        toast.success($translate.instant('sitnet_exam_copied'));
-                        $location.path('/exams/' + copy.id + '/1/');
-                    }, function (error) {
-                        toast.error(error.data);
+                    vm.filteredActive = vm.filteredActive.filter(function (exam) {
+                        return exam.unassessedCount > 0 || exam.examOwners.some(eo => eo.id === vm.userId);
                     });
                 };
 
-                ctrl.deleteExam = function (exam, listing) {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
-                    dialog.result.then(function (btn) {
-                        ExamRes.exams.remove({id: exam.id}, function (ex) {
-                            toast.success($translate.instant('sitnet_exam_removed'));
-                            if (listing === 'archived') {
-                                ctrl.archivedExams.splice(ctrl.archivedExams.indexOf(exam), 1);
-                            }
-                            if (listing === 'finished') {
-                                ctrl.finishedExams.splice(ctrl.finishedExams.indexOf(exam), 1);
-                            }
-                            if (listing === 'draft') {
-                                ctrl.draftExams.splice(ctrl.draftExams.indexOf(exam), 1);
-                            }
-                            if (listing === 'active') {
-                                ctrl.activeExams.splice(ctrl.activeExams.indexOf(exam), 1);
-                            }
-
-
-                        }, function (error) {
-                            toast.error(error.data);
-                        });
-                    }, function (btn) {
-
-                    });
-                };
-
-                ctrl.isOwner = function (exam) {
-                    return exam.examOwners.some(function (eo) {
-                        return eo.id === ctrl.userId;
-                    });
-                };
-
-                ctrl.filterOwners = function (exam) {
-                    if (!exam) return false;
-                    var owner = exam.examOwners.filter(function (own) {
-                        return (own.id === ctrl.userId);
-                    });
-                    return owner.length > 0;
-                };
             }]
     });

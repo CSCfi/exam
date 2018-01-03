@@ -13,14 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
+import toast from 'toastr';
+import moment from 'moment';
+
 angular.module('app.enrolment')
     .component('waitingRoom', {
-        templateUrl: '/assets/app/enrolment/waiting-room/waitingRoom.template.html',
-        controller: ['$http', '$routeParams', '$timeout', '$translate', '$location', 'StudentExamRes', 'toast',
-            function ($http, $routeParams, $timeout, $translate, $location, StudentExamRes, toast) {
+        template: require('./waitingRoom.template.html'),
+        controller: ['$http', '$routeParams', '$timeout', '$translate', '$location', 'StudentExamRes',
+            function ($http, $routeParams, $timeout, $translate, $location, StudentExamRes) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.$onInit = function () {
                     if ($routeParams.id) {
@@ -29,13 +32,13 @@ angular.module('app.enrolment')
                             function (enrolment) {
                                 setOccasion(enrolment.reservation);
                                 vm.enrolment = enrolment;
-                                var offset = calculateOffset();
+                                const offset = calculateOffset();
                                 vm.timeout = $timeout(function () {
                                     $location.path('/student/exam/' + vm.enrolment.exam.hash);
                                 }, offset);
 
-                                var room = vm.enrolment.reservation.machine.room;
-                                var code = $translate.use().toUpperCase();
+                                const room = vm.enrolment.reservation.machine.room;
+                                const code = $translate.use().toUpperCase();
                                 vm.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
                             },
                             function (error) {
@@ -51,19 +54,19 @@ angular.module('app.enrolment')
                     }
                 };
 
-                var calculateOffset = function () {
-                    var startsAt = moment(vm.enrolment.reservation.startAt);
-                    var now = moment();
+                const calculateOffset = function () {
+                    const startsAt = moment(vm.enrolment.reservation.startAt);
+                    const now = moment();
                     if (now.isDST()) {
                         startsAt.add(-1, 'hour');
                     }
                     return Date.parse(startsAt.format()) - new Date().getTime();
                 };
 
-                var setOccasion = function (reservation) {
-                    var tz = reservation.machine.room.localTimezone;
-                    var start = moment.tz(reservation.startAt, tz);
-                    var end = moment.tz(reservation.endAt, tz);
+                const setOccasion = function (reservation) {
+                    const tz = reservation.machine.room.localTimezone;
+                    const start = moment.tz(reservation.startAt, tz);
+                    const end = moment.tz(reservation.endAt, tz);
                     if (start.isDST()) {
                         start.add(-1, 'hour');
                     }

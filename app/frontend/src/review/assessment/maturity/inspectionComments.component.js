@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
+import angular from 'angular';
 
 angular.module('app.review')
     .component('rInspectionComments', {
-        templateUrl: '/assets/app/review/assessment/maturity/inspectionComments.template.html',
+        template: require('./inspectionComments.template.html'),
         bindings: {
             exam: '<',
             addingDisabled: '<',
@@ -26,7 +26,7 @@ angular.module('app.review')
         controller: ['$uibModal', 'ExamRes',
             function ($modal, ExamRes) {
 
-                var vm = this;
+                const vm = this;
 
                 vm.addInspectionComment = function () {
                     $modal.open({
