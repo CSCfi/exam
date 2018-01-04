@@ -32,7 +32,7 @@ angular.module('app').run(['$http', '$sessionStorage', 'Session', 'EXAM_CONF',
             Session.restartSessionCheck();
         } else {
             Session.switchLanguage('en');
-            Session.login('', '');
+            Session.login('', '').catch(angular.noop);
         }
     }
 ]);

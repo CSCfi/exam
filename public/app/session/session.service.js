@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'';
 'use strict';
 angular.module('app.session')
     .service('Session', ['$q', '$interval', '$sessionStorage', '$translate', '$injector', '$location',
@@ -78,6 +77,8 @@ angular.module('app.session')
                     http().get('/app/settings/environment').then(function (resp) {
                         _env = resp.data;
                         deferred.resolve();
+                    }).catch(function (e) {
+                        console.error(e);
                     });
                 } else {
                     deferred.resolve();
@@ -90,6 +91,8 @@ angular.module('app.session')
                     if (!_env.isProd) {
                         scope.loginTemplatePath = EXAM_CONF.TEMPLATES_PATH + 'session/templates/dev_login.html';
                     }
+                }).catch(function (e) {
+                    console.error(e);
                 });
             };
 
@@ -136,7 +139,9 @@ angular.module('app.session')
 
             self.translate = function (lang) {
                 $translate.use(lang);
-                tmhDynamicLocale.set(lang);
+                tmhDynamicLocale.set(lang).catch(function (e) {
+                    console.error(e);
+                });
             };
 
             self.openEulaModal = function (user) {
@@ -159,6 +164,8 @@ angular.module('app.session')
 
                 }, function () {
                     $location.path('/logout');
+                }).catch(function (e) {
+                    console.error(e);
                 });
             };
 
@@ -173,7 +180,7 @@ angular.module('app.session')
                             user.isStudent = hasRole(user, 'STUDENT');
                             user.isLanguageInspector = user.isTeacher && hasPermission(user, 'CAN_INSPECT_LANGUAGE');
                             self.setUser(user);
-                            $modalInstance.dismiss();
+                            $modalInstance.close();
                             $rootScope.$broadcast('userUpdated');
                             if (user.isStudent && !user.userAgreementAccepted) {
                                 self.openEulaModal(user);
@@ -206,7 +213,9 @@ angular.module('app.session')
                 });
 
                 m.result.then(function () {
-                    console.log('closed');
+                    console.log('Close role dialog.');
+                }).catch(function (e) {
+                    console.error(e);
                 });
             };
 
@@ -338,6 +347,8 @@ angular.module('app.session')
                         }
                         self.logout();
                     }
+                }).catch(function (e) {
+                    console.error(e);
                 });
             };
 

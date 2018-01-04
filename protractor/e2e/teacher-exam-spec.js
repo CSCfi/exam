@@ -1,4 +1,3 @@
-var LoginPage = require('../pages/LoginPage');
 var TeacherDashboard = require('../pages/TeacherDashboard');
 var NavBar = require("../pages/NavBar");
 var ExamEditor = require('../pages/ExamEditor');
