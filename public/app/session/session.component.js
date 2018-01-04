@@ -48,7 +48,7 @@ angular.module('app.session')
                     Session.login(ctrl.credentials.username, ctrl.credentials.password)
                         .then(function (user) {
                             ctrl.user = user;
-                        });
+                        }).catch(angular.noop);
                 };
 
             }
