@@ -1,4 +1,6 @@
+import play.sbt.PlayRunHook
 
+import scala.util.Properties
 
 name := "exam"
 
@@ -33,7 +35,7 @@ libraryDependencies ++= Seq(javaJdbc, ehcache, ws, evolutions, filters, guice,
 
 libraryDependencies ++= Seq(
   "org.webjars" %% "webjars-play" % "2.6.2",
-  "org.webjars.bower" % "bootstrap-sass" % "3.3.7" // TODO move css away from backend
+  "org.webjars.bower" % "bootstrap-sass" % "3.3.7" // TODO move all css away from backend
 )
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
@@ -42,19 +44,84 @@ routesImport += "util.scala.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 
-sources in (Compile, doc) := Seq.empty
-publishArtifact in (Compile, packageDoc) := false
+sources in(Compile, doc) := Seq.empty
+publishArtifact in(Compile, packageDoc) := false
+
+/**
+  * Webpack dev server task
+  */
+def withoutWebpackServer = Properties.propOrEmpty("withoutWebpackServer")
+
+def webpackTask = Def.taskDyn[PlayRunHook] {
+  if (withoutWebpackServer.equals("true"))
+    Def.task {
+      NoOp()
+    }
+  else {
+    val appPath = "./app/frontend"
+    val webpackBuild = taskKey[Unit]("Webpack build task.")
+
+    webpackBuild := {
+      Process("npm run build", file(appPath)).run
+    }
+
+    (packageBin in Universal) := ((packageBin in Universal) dependsOn webpackBuild).value
+
+    lazy val frontendDirectory = baseDirectory {
+      _ / appPath
+    }
+    Def.task {
+      frontendDirectory.map(WebpackServer(_)).value
+    }
+  }
+}
+
+PlayKeys.playRunHooks += webpackTask.value
 
 
-// Webpack build task
-//val appPath = "./app/frontend"
-//val webpackBuild = taskKey[Unit]("Webpack build task.")
+/**
+  * Karma test task.
+  */
 
-//webpackBuild := {
-//  Process("npm run build", file(appPath)).run
-//}
+def skipUiTests = Properties.propOrEmpty("skipUiTests")
 
-//(packageBin in Universal) := ((packageBin in Universal) dependsOn webpackBuild).value
+def protractorConf = Properties.propOrEmpty("config.resource")
 
-//lazy val frontendDirectory = baseDirectory {_ / appPath}
-//PlayKeys.playRunHooks += frontendDirectory.map(WebpackServer(_)).value
+lazy val karmaTest = taskKey[Int]("Karma test task")
+karmaTest := {
+  baseDirectory.value + "/node_modules/karma/bin/karma start karma.conf.ci.js" !
+}
+
+lazy val webDriverUpdate = taskKey[Int]("Web driver update task")
+webDriverUpdate := {
+  baseDirectory.value + "/node_modules/protractor/bin/webdriver-manager update" !
+}
+
+def uiTestTask = Def.taskDyn[PlayRunHook] {
+  if (skipUiTests.equals("true")) {
+    Def.task {
+      NoOp()
+    }
+  } else {
+    Def.task {
+      test in Test := {
+        if (karmaTest.value != 0)
+          sys.error("Karma tests failed!")
+        (test in Test).value
+      }
+
+      if (protractorConf.equals("protractor.conf") && webDriverUpdate.value == 0)
+        Protractor(baseDirectory.value,
+          Properties.propOrElse("protractor.config", "conf.js"),
+          Properties.propOrElse("protractor.args", " "))
+      else {
+        Karma(baseDirectory.value)
+      }
+    }
+  }
+}
+
+PlayKeys.playRunHooks += uiTestTask.value
+
+
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -13,14 +13,24 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
+import java.net.InetSocketAddress
 
-require('../../facility');
-require('../../software');
-require('../../review');
-require('../../examination');
-require('../../question');
-require('angular-animate');
+import play.sbt.PlayRunHook
 
-angular.module('app.exam.editor',
-    ['app.facility', 'app.review', 'app.examination', 'app.question', 'ngAnimate', 'ui.bootstrap']);
+object NoOp {
+  def apply(): PlayRunHook = {
+
+    object DummyScript extends PlayRunHook {
+
+      override def afterStarted(addr: InetSocketAddress): Unit = {
+
+      }
+
+      override def afterStopped(): Unit = {
+
+      }
+    }
+
+    DummyScript
+  }
+}
