@@ -13,6 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import angular from 'angular';
+
 angular.module('app.session')
     .component('eula', {
         template: '<div id="sitnet-dialog">\n' +
@@ -45,21 +47,21 @@ angular.module('app.session')
         controller: ['Settings',
             function (Settings) {
 
-                var ctrl = this;
+                const vm = this;
 
-                ctrl.$onInit = function () {
-                    ctrl.settings = {
+                vm.$onInit = function () {
+                    vm.settings = {
                         eula: Settings.agreement.get()
                     };
                 };
 
-                ctrl.cancel = function () {
-                    ctrl.dismiss({$value: 'cancel'});
+                vm.cancel = function () {
+                    vm.dismiss({$value: 'cancel'});
                 };
 
-                ctrl.ok = function () {
-                    ctrl.close();
-                }
+                vm.ok = function () {
+                    vm.close();
+                };
             }
         ]
     });

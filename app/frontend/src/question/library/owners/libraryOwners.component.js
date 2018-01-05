@@ -13,12 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
+import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.question')
     .component('libraryOwnerSelection', {
-        templateUrl: '/assets/app/question/library/owners/libraryOwners.template.html',
+        template: require('./libraryOwners.template.html'),
         bindings: {
             selections: '<',
             ownerUpdated: '&'
@@ -47,7 +47,7 @@ angular.module('app.question')
                         return;
                     }
 
-                    var data = {
+                    const data = {
                         'uid': vm.newTeacher.id,
                         'questionIds': vm.selections.join()
                     };

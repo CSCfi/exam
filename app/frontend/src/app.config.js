@@ -16,11 +16,10 @@
 require('angular');
 require('angular-translate');
 require('angular-translate-loader-static-files');
-const toast = require('toastr');
+import toast from 'toastr';
 
 configs.$inject = ['$translateProvider', '$routeProvider', '$httpProvider', '$locationProvider', '$compileProvider',
     'EXAM_CONF'];
-
 
 export default function configs($translateProvider, $routeProvider, $httpProvider, $locationProvider, $compileProvider,
                                 EXAM_CONF) {

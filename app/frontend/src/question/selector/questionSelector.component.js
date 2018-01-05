@@ -13,12 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
+import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.question')
     .component('questionSelector', {
-        templateUrl: '/assets/app/question/selector/questionSelector.template.html',
+        template: require('./questionSelector.template.html'),
         bindings: {
             close: '&',
             dismiss: '&',
@@ -40,8 +40,8 @@ angular.module('app.question')
                 vm.selections = selections;
             };
 
-            vm.questionCopied = function(copy) {
-                toastr.info($translate.instant('sitnet_question_copied'));
+            vm.questionCopied = function (copy) {
+                toast.info($translate.instant('sitnet_question_copied'));
             };
 
             vm.addQuestions = function () {
@@ -50,14 +50,14 @@ angular.module('app.question')
                     toast.warning($translate.instant('sitnet_choose_atleast_one'));
                     return;
                 }
-                var insertQuestion = function (sectionId, to, examId) {
+                const insertQuestion = function (sectionId, to, examId) {
 
                     ExamRes.sectionquestionsmultiple.insert({
                             eid: examId,
                             sid: sectionId,
                             seq: to,
                             questions: vm.selections.join()
-                        }, function (sec) {
+                        }, function () {
                             toast.info($translate.instant('sitnet_question_added'));
                             vm.close();
                         }, function (error) {
@@ -71,7 +71,7 @@ angular.module('app.question')
                 // calculate the new order number for question sequence
                 // always add question to last spot, because dragndrop
                 // is not in use here
-                var to = parseInt(vm.resolve.questionCount) + 1;
+                const to = parseInt(vm.resolve.questionCount) + 1;
                 insertQuestion(vm.resolve.sectionId, to, vm.resolve.examId);
             };
 

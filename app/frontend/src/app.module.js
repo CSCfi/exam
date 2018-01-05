@@ -17,7 +17,6 @@ require('angular');
 require('angular-resource');
 require('angular-route');
 require('ngstorage');
-require('angular-translate');
 
 import configs from './app.config';
 import constants from './app.constant';

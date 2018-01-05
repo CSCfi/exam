@@ -13,12 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
+import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.question')
     .component('library', {
-        templateUrl: '/assets/app/question/library/library.template.html',
+        template: require('./library.template.html'),
         controller: ['$location', '$translate', function ($location, $translate) {
 
             const vm = this;

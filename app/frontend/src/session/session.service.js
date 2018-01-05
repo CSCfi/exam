@@ -13,39 +13,40 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-var toastr = require('toastr');
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.session')
     .service('Session', ['$q', '$interval', '$sessionStorage', '$translate', '$injector', '$location',
         '$rootScope', '$timeout', 'EXAM_CONF',
         function ($q, $interval, $sessionStorage, $translate, $injector, $location, $rootScope, $timeout, EXAM_CONF) {
 
-            var self = this;
+            const self = this;
 
-            var PING_INTERVAL = 60 * 1000;
+            const PING_INTERVAL = 60 * 1000;
 
-            var _user;
-            var _env;
-            var _scheduler;
+            let _user;
+            let _env;
+            let _scheduler;
 
             // Services need to be accessed like this because of circular dependency issues
-            var $http;
-            var http = function () {
+            let $http;
+            const http = function () {
                 $http = $http || $injector.get('$http');
                 return $http;
             };
-            var $modal;
-            var modal = function () {
+            let $modal;
+            const modal = function () {
                 $modal = $modal || $injector.get('$uibModal');
                 return $modal;
             };
-            var $route;
-            var route = function () {
+            let $route;
+            const route = function () {
                 $route = $route || $injector.get('$route');
                 return $route;
             };
-            var UserRes;
-            var userRes = function () {
+            let UserRes;
+            const userRes = function () {
                 UserRes = UserRes || $injector.get('UserRes');
                 return UserRes;
             };
@@ -64,15 +65,15 @@ angular.module('app.session')
                 _user = user;
             };
 
-            var hasRole = function (user, role) {
+            const hasRole = function (user, role) {
                 if (!user || !user.loginRole) {
                     return false;
                 }
                 return user.loginRole.name === role;
             };
 
-            var init = function () {
-                var deferred = $q.defer();
+            const init = function () {
+                const deferred = $q.defer();
                 if (!_env) {
                     http().get('/app/settings/environment').then(function (resp) {
                         _env = resp.data;
@@ -92,7 +93,7 @@ angular.module('app.session')
                 });
             };
 
-            var hasPermission = function (user, permission) {
+            const hasPermission = function (user, permission) {
                 if (!user) {
                     return false;
                 }
@@ -101,11 +102,11 @@ angular.module('app.session')
                 });
             };
 
-            var onLogoutSuccess = function (data) {
+            const onLogoutSuccess = function (data) {
                 $rootScope.$broadcast('userUpdated');
-                toastr.success($translate.instant('sitnet_logout_success'));
+                toast.success($translate.instant('sitnet_logout_success'));
                 window.onbeforeunload = null;
-                var localLogout = window.location.protocol + '//' + window.location.host + '/Shibboleth.sso/Logout';
+                const localLogout = window.location.protocol + '//' + window.location.host + '/Shibboleth.sso/Logout';
                 if (data && data.logoutUrl) {
                     window.location.href = data.logoutUrl + '?return=' + localLogout;
                 } else if (!_env || _env.isProd) {
@@ -116,7 +117,7 @@ angular.module('app.session')
                     $location.path('/');
                     $rootScope.$broadcast('devLogout');
                 }
-                $timeout(toastr.clear, 300);
+                $timeout(toast.clear, 300);
             };
 
             self.logout = function () {
@@ -129,13 +130,14 @@ angular.module('app.session')
                     _user = undefined;
                     onLogoutSuccess(resp.data);
                 }).catch(function (error) {
-                    toastr.error(error.data);
+                    toast.error(error.data);
                 });
             };
 
             self.translate = function (lang) {
                 $translate.use(lang);
-                $rootScope.$broadcast('$localeChangeSuccess');            };
+                $rootScope.$broadcast('$localeChangeSuccess');
+            };
 
             self.openEulaModal = function (user) {
                 modal().open({
@@ -152,7 +154,7 @@ angular.module('app.session')
                             route().reload();
                         }
                     }, function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     });
 
                 }, function () {
@@ -161,7 +163,7 @@ angular.module('app.session')
             };
 
             self.openRoleSelectModal = function (user) {
-                var ctrl = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
+                const ctrl = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
                     $scope.user = user;
                     $scope.ok = function (role) {
                         userRes().userRoles.update({id: user.id, role: role.name}, function () {
@@ -181,7 +183,7 @@ angular.module('app.session')
                                 route().reload();
                             }
                         }, function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                             $location.path('/logout');
                         });
 
@@ -191,7 +193,7 @@ angular.module('app.session')
                         $location.path('/logout');
                     };
                 }];
-                var m = modal().open({
+                const m = modal().open({
                     templateUrl: EXAM_CONF.TEMPLATES_PATH + 'session/templates/select_role.html',
                     backdrop: 'static',
                     keyboard: false,
@@ -208,7 +210,7 @@ angular.module('app.session')
                 });
             };
 
-            var redirect = function () {
+            const redirect = function () {
                 if ($location.path() === '/' && _user.isLanguageInspector) {
                     $location.path('/inspections');
                 } else if (_env && !_env.isProd) {
@@ -216,14 +218,14 @@ angular.module('app.session')
                 }
             };
 
-            var onLoginSuccess = function () {
+            const onLoginSuccess = function () {
                 self.restartSessionCheck();
                 $rootScope.$broadcast('userUpdated');
-                var welcome = function () {
-                    toastr.options.positionClass = 'toast-top-center';
-                    toastr.success($translate.instant('sitnet_welcome') + ' ' + _user.firstName + ' ' + _user.lastName);
+                const welcome = function () {
+                    toast.options.positionClass = 'toast-top-center';
+                    toast.success($translate.instant('sitnet_welcome') + ' ' + _user.firstName + ' ' + _user.lastName);
                     $timeout(function () {
-                        toastr.options.positionClass = 'toast-top-right';
+                        toast.options.positionClass = 'toast-top-right';
                     }, 2500);
                 };
                 $timeout(welcome, 2000);
@@ -237,13 +239,13 @@ angular.module('app.session')
                 }
             };
 
-            var onLoginFailure = function (message) {
+            const onLoginFailure = function (message) {
                 $location.path('/');
-                toastr.error(message);
+                toast.error(message);
             };
 
-            var processLoggedInUser = function (user) {
-                var header = {};
+            const processLoggedInUser = function (user) {
+                const header = {};
                 header[EXAM_CONF.AUTH_HEADER] = user.token;
                 http().defaults.headers.common = header;
                 user.roles.forEach(function (role) {
@@ -286,11 +288,11 @@ angular.module('app.session')
             };
 
             self.login = function (username, password) {
-                var credentials = {
+                const credentials = {
                     username: username,
                     password: password
                 };
-                var deferred = $q.defer();
+                const deferred = $q.defer();
                 http().post('/app/login', credentials, {ignoreAuthModule: true}).then(function (resp) {
                     processLoggedInUser(resp.data);
                     onLoginSuccess();
@@ -310,25 +312,25 @@ angular.module('app.session')
                         _user.lang = lang;
                         self.translate(lang);
                     }).catch(function () {
-                        toastr.error('failed to switch language');
+                        toast.error('failed to switch language');
                     });
                 }
             };
 
-            var checkSession = function () {
+            const checkSession = function () {
                 http().get('/app/checkSession').then(function (resp) {
                     if (resp.data === 'alarm') {
-                        toastr.options = {
+                        toast.options = {
                             timeOut: 0,
                             preventDuplicates: true,
                             onclick: function () {
                                 http().put('/app/extendSession', {}).then(function () {
-                                    toastr.info($translate.instant('sitnet_session_extended'));
-                                    toastr.options.timeout = 1000;
+                                    toast.info($translate.instant('sitnet_session_extended'));
+                                    toast.options.timeout = 1000;
                                 });
                             }
                         };
-                        toastr.warning($translate.instant('sitnet_continue_session'),
+                        toast.warning($translate.instant('sitnet_continue_session'),
                             $translate.instant('sitnet_session_will_expire_soon'));
                     } else if (resp.data === 'no_session') {
                         if (_scheduler) {

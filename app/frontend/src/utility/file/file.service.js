@@ -13,20 +13,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
+import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.utility')
     .factory('Files', ['$q', '$http', '$translate', '$timeout', 'SettingsResource',
         function ($q, $http, $translate, $timeout, SettingsResource) {
-            var _supportsBlobUrls;
-            var _maxFileSize;
+            let _supportsBlobUrls;
+            let _maxFileSize;
 
-            var svg = new Blob(
+            const svg = new Blob(
                 ['<svg xmlns=\'http://www.w3.org/2000/svg\'></svg>'],
                 {type: 'image/svg+xml;charset=utf-8'}
             );
-            var img = new Image();
+            const img = new Image();
             img.onload = function () {
                 _supportsBlobUrls = true;
             };
@@ -35,54 +35,42 @@ angular.module('app.utility')
             };
             img.src = URL.createObjectURL(svg);
 
-            var saveFile = function (data, fileName, contentType) {
+            const saveFile = function (data, fileName, contentType) {
                 if (!_supportsBlobUrls) {
                     window.open('data:' + contentType + ';base64,' + data);
                 } else {
-                    var byteString = atob(data);
-                    var ab = new ArrayBuffer(byteString.length);
-                    var ia = new Uint8Array(ab);
-                    for (var i = 0; i < byteString.length; i++) {
+                    const byteString = atob(data);
+                    const ab = new ArrayBuffer(byteString.length);
+                    const ia = new Uint8Array(ab);
+                    for (let i = 0; i < byteString.length; i++) {
                         ia[i] = byteString.charCodeAt(i);
                     }
-                    var blob = new Blob([ia], {type: contentType});
+                    const blob = new Blob([ia], {type: contentType});
                     saveAs(blob, fileName);
                 }
             };
 
-            var download = function (url, filename, params, post) {
-                var res = post ? $http.post : $http.get;
+            const download = function (url, filename, params, post) {
+                const res = post ? $http.post : $http.get;
                 res(url, {params: params}).then(function (resp) {
-                    var contentType = resp.headers()['content-type'].split(';')[0];
+                    const contentType = resp.headers()['content-type'].split(';')[0];
                     saveFile(resp.data, filename, contentType);
                 }).error(function (resp) {
                     toast.error(resp.data || resp);
                 });
             };
 
-            var downloadUrl = function (url, filename, params) {
-                var deferred = $q.defer();
-                $http.get(url, {params: params}).then(function (resp) {
-                    var contentType = resp.headers()['content-type'].split(';')[0];
-                    return deferred.resolve({url: 'data:' + contentType + ';base64, ' + resp.data});
-                }).error(function (resp) {
-                    toast.error(resp.data || resp);
-                    return deferred.reject();
-                });
-                return deferred.promise;
-            };
-
-            var open = function (file, filename) {
-                var reader = new FileReader();
+            const open = function (file) {
+                const reader = new FileReader();
                 reader.onload = function (e) {
-                    var f = reader.result;
+                    const f = reader.result;
                     window.open(f);
                 };
                 reader.readAsDataURL(file);
             };
 
-            var getMaxFilesize = function () {
-                var deferred = $q.defer();
+            const getMaxFilesize = function () {
+                const deferred = $q.defer();
 
                 if (_maxFileSize) {
                     $timeout(function () {
@@ -98,7 +86,7 @@ angular.module('app.utility')
                 return deferred.promise;
             };
 
-            var isFileTooBig = function (file) {
+            const isFileTooBig = function (file) {
                 if (file.size > _maxFileSize) {
                     toast.error($translate.instant('sitnet_file_too_large'));
                     return true;
@@ -106,13 +94,13 @@ angular.module('app.utility')
                 return false;
             };
 
-            var doUpload = function (url, file, params, parent, modal, callback) {
+            const doUpload = function (url, file, params, parent, modal, callback) {
                 if (isFileTooBig(file)) {
                     return;
                 }
-                var fd = new FormData();
+                const fd = new FormData();
                 fd.append('file', file);
-                for (var k in params) {
+                for (let k in params) {
                     if (params.hasOwnProperty(k)) {
                         fd.append(k, params[k]);
                     }
@@ -131,7 +119,7 @@ angular.module('app.utility')
                     });
             };
 
-            var upload = function (url, file, params, parent, modal, callback) {
+            const upload = function (url, file, params, parent, modal, callback) {
                 doUpload(url, file, params, parent, modal, function (attachment) {
                     if (modal) {
                         modal.dismiss();
@@ -145,7 +133,7 @@ angular.module('app.utility')
                 });
             };
 
-            var uploadAnswerAttachment = function (url, file, params, parent, modal) {
+            const uploadAnswerAttachment = function (url, file, params, parent, modal) {
                 doUpload(url, file, params, parent, modal, function (answer) {
                     if (modal) {
                         modal.dismiss();

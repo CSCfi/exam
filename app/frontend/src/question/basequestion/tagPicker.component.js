@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
+import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.question')
@@ -62,7 +62,7 @@ angular.module('app.question')
                                 tags.unshift({id: 0, name: filter});
                             }
                             // filter out the ones already tagged for this question
-                            var filtered = tags.filter(function (tag) {
+                            const filtered = tags.filter(function (tag) {
                                 return vm.question.tags.map(function (qtag) {
                                     return qtag.name;
                                 }).indexOf(tag.name) === -1;

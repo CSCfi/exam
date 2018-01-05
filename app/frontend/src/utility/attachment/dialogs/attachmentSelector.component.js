@@ -13,9 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import angular from 'angular';
+
 angular.module('app.utility')
     .component('attachmentSelector', {
-        templateUrl: '/assets/app/utility/attachment/dialogs/attachmentSelector.template.html',
+        template: require('./attachmentSelector.template.html'),
         bindings: {
             close: '&',
             dismiss: '&',

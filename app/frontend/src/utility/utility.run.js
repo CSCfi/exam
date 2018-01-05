@@ -16,5 +16,6 @@
 run.$inject = ['$templateCache'];
 
 export default function run($templateCache) {
-    $templateCache.put("uib/template/datepickerPopup/popup.html", require("./date/template/uibPopupOverride.html"));
+    // This is necessary because angular can't find the bundled uib-template unless added to template cache
+    $templateCache.put('uib/template/datepickerPopup/popup.html', require('./date/template/uibPopupOverride.html'));
 }

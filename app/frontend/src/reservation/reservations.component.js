@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-var toastr = require('toastr');
+import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.reservation')
     .component('reservations', {
@@ -26,24 +27,25 @@ angular.module('app.reservation')
             function (ExamRes, $location, $http, EXAM_CONF, ReservationResource, Reservation, Exam,
                       $timeout, $routeParams, $translate, $filter) {
 
-                var select2options = {
+                const select2options = {
                     placeholder: '-',
                     data: [],
                     allowClear: true,
                     dropdownAutoWidth: true
                 };
 
-                var ctrl = this;
-                var examId = $routeParams.eid ? parseInt($routeParams.eid) : undefined;
+                let _examId = $routeParams.eid ? parseInt($routeParams.eid) : undefined;
 
-                ctrl.$onInit = function () {
-                    ctrl.startDate = ctrl.endDate = new Date();
-                    if (ctrl.userRole === 'admin') {
-                        ctrl.templateUrl = EXAM_CONF.TEMPLATES_PATH + 'reservation/admin/adminReservations.template.html';
-                    } else if (ctrl.userRole === 'teacher') {
-                        ctrl.templateUrl = EXAM_CONF.TEMPLATES_PATH + 'reservation/teacher/teacherReservations.template.html';
+                const vm = this;
+
+                vm.$onInit = function () {
+                    vm.startDate = vm.endDate = new Date();
+                    if (vm.userRole === 'admin') {
+                        vm.templateUrl = EXAM_CONF.TEMPLATES_PATH + 'reservation/admin/adminReservations.template.html';
+                    } else if (vm.userRole === 'teacher') {
+                        vm.templateUrl = EXAM_CONF.TEMPLATES_PATH + 'reservation/teacher/teacherReservations.template.html';
                     }
-                    ctrl.examStates = [
+                    vm.examStates = [
                         'REVIEW',
                         'REVIEW_STARTED',
                         'GRADED',
@@ -55,43 +57,43 @@ angular.module('app.reservation')
                         'ABORTED',
                         'NO_SHOW'
                     ];
-                    if (ctrl.userRole === 'admin') {
-                        ctrl.examStates.push('EXTERNAL_UNFINISHED');
-                        ctrl.examStates.push('EXTERNAL_FINISHED');
+                    if (vm.userRole === 'admin') {
+                        vm.examStates.push('EXTERNAL_UNFINISHED');
+                        vm.examStates.push('EXTERNAL_FINISHED');
                     }
 
-                    ctrl.selection = {examId: examId};
+                    vm.selection = {examId: _examId};
 
-                    ctrl.machineOptions = angular.copy(select2options);
+                    vm.machineOptions = angular.copy(select2options);
 
-                    ctrl.roomOptions = angular.copy(select2options);
+                    vm.roomOptions = angular.copy(select2options);
 
-                    ctrl.examOptions = angular.copy(select2options);
-                    ctrl.examOptions.initSelection = function (element, callback) {
-                        if (examId) {
-                            var selected = ctrl.examOptions.data.filter(function (d) {
-                                return d.id === examId;
+                    vm.examOptions = angular.copy(select2options);
+                    vm.examOptions.initSelection = function (element, callback) {
+                        if (_examId) {
+                            const selected = vm.examOptions.data.filter(function (d) {
+                                return d.id === _examId;
                             });
                             if (selected.length > 0) {
                                 callback(selected[0]);
                                 // this reset is dumb but necessary because for some reason this callback is executed
                                 // each time selection changes. Might be a problem with the (deprecated) ui-select2
                                 // directive or not
-                                examId = null;
+                                _examId = null;
                             }
                         }
                     };
 
-                    ctrl.studentOptions = angular.copy(select2options);
+                    vm.studentOptions = angular.copy(select2options);
 
-                    ctrl.stateOptions = angular.copy(select2options);
+                    vm.stateOptions = angular.copy(select2options);
 
-                    ctrl.teacherOptions = angular.copy(select2options);
+                    vm.teacherOptions = angular.copy(select2options);
 
-                    ctrl.reservationDetails = EXAM_CONF.TEMPLATES_PATH + 'reservation/reservation_details.html';
+                    vm.reservationDetails = EXAM_CONF.TEMPLATES_PATH + 'reservation/reservation_details.html';
 
-                    ctrl.examStates.forEach(function (state) {
-                        ctrl.stateOptions.data.push({
+                    vm.examStates.forEach(function (state) {
+                        vm.stateOptions.data.push({
                             id: state,
                             text: $translate.instant('sitnet_exam_status_' + state.toLowerCase())
                         });
@@ -99,106 +101,106 @@ angular.module('app.reservation')
                 };
 
 
-                ctrl.isAdminView = function () {
+                vm.isAdminView = function () {
                     return $location.path() === '/';
                 };
 
                 ReservationResource.students.query(function (students) {
-                        ctrl.students = $filter('orderBy')(students, ['lastName', 'firstName']);
-                        ctrl.students.forEach(function (student) {
-                            ctrl.studentOptions.data.push({id: student.id, text: student.name});
+                        vm.students = $filter('orderBy')(students, ['lastName', 'firstName']);
+                        vm.students.forEach(function (student) {
+                            vm.studentOptions.data.push({id: student.id, text: student.name});
                         });
                     },
                     function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     }
                 );
 
                 ReservationResource.exams.query(
                     function (exams) {
-                        ctrl.examnames = $filter('orderBy')(exams, 'name');
-                        ctrl.examnames.forEach(function (exam) {
-                            ctrl.examOptions.data.push({id: exam.id, text: exam.name});
+                        vm.examnames = $filter('orderBy')(exams, 'name');
+                        vm.examnames.forEach(function (exam) {
+                            vm.examOptions.data.push({id: exam.id, text: exam.name});
                         });
                     },
                     function (error) {
-                        toastr.error(error.data);
+                        toast.error(error.data);
                     }
                 );
 
-                if (ctrl.isAdminView()) {
+                if (vm.isAdminView()) {
                     ReservationResource.teachers.query(function (teachers) {
-                            ctrl.examOwners = $filter('orderBy')(teachers, ['lastName', 'firstName']);
-                            ctrl.examOwners.forEach(function (owner) {
-                                ctrl.teacherOptions.data.push({
+                            vm.examOwners = $filter('orderBy')(teachers, ['lastName', 'firstName']);
+                            vm.examOwners.forEach(function (owner) {
+                                vm.teacherOptions.data.push({
                                     id: owner.id,
                                     text: owner.firstName + ' ' + owner.lastName
                                 });
                             });
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
 
                     ReservationResource.examrooms.query(
                         function (examrooms) {
-                            ctrl.examrooms = examrooms;
+                            vm.examrooms = examrooms;
                             examrooms.forEach(function (room) {
-                                ctrl.roomOptions.data.push({id: room.id, text: room.name});
+                                vm.roomOptions.data.push({id: room.id, text: room.name});
                             });
                             // Load machines after rooms are loaded
                             ReservationResource.machines.query(
                                 function (machines) {
-                                    ctrl.machines = machines;
+                                    vm.machines = machines;
                                     machinesForRooms(examrooms, machines);
                                 },
                                 function (error) {
-                                    toastr.error(error.data);
+                                    toast.error(error.data);
                                 }
                             );
                         },
                         function (error) {
-                            toastr.error(error.data);
+                            toast.error(error.data);
                         }
                     );
                 }
 
-                ctrl.printExamState = function (reservation) {
+                vm.printExamState = function (reservation) {
                     return reservation.noShow ? 'NO_SHOW' : reservation.enrolment.exam.state;
                 };
 
 
-                ctrl.getStateclass = function (reservation) {
+                vm.getStateclass = function (reservation) {
                     return reservation.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase();
                 };
 
-                ctrl.roomChanged = function () {
-                    if (typeof ctrl.selection.roomId !== 'object') {
+                vm.roomChanged = function () {
+                    if (typeof vm.selection.roomId !== 'object') {
                         return;
                     }
 
-                    ctrl.machineOptions.data.length = 0;
-                    if (ctrl.selection.roomId === null) {
-                        machinesForRooms(ctrl.examrooms, ctrl.machines);
+                    vm.machineOptions.data.length = 0;
+                    if (vm.selection.roomId === null) {
+                        machinesForRooms(vm.examrooms, vm.machines);
                     } else {
-                        machinesForRoom(findRoom(ctrl.selection.roomId.id), ctrl.machines);
+                        machinesForRoom(findRoom(vm.selection.roomId.id), vm.machines);
                     }
-                    ctrl.query();
+                    vm.query();
                 };
 
-                ctrl.startDateChanged = function (date) {
-                    ctrl.startDate = date;
-                    ctrl.query();
+                vm.startDateChanged = function (date) {
+                    vm.startDate = date;
+                    vm.query();
                 };
 
-                ctrl.endDateChanged = function (date) {
-                    ctrl.endDate = date;
-                    ctrl.query();
+                vm.endDateChanged = function (date) {
+                    vm.endDate = date;
+                    vm.query();
                 };
 
-                var somethingSelected = function (params) {
-                    for (var k in params) {
+                const somethingSelected = function (params) {
+                    for (let k in params) {
                         if (!params.hasOwnProperty(k)) {
                             continue;
                         }
@@ -206,14 +208,14 @@ angular.module('app.reservation')
                             return true;
                         }
                     }
-                    return ctrl.startDate || ctrl.endDate;
+                    return vm.startDate || vm.endDate;
                 };
 
-                ctrl.query = function () {
-                    var params = angular.copy(ctrl.selection);
+                vm.query = function () {
+                    const params = angular.copy(vm.selection);
                     if (somethingSelected(params)) {
                         // have to clear empty strings completely
-                        for (var k in params) {
+                        for (let k in params) {
                             if (!params.hasOwnProperty(k)) {
                                 continue;
                             }
@@ -226,11 +228,11 @@ angular.module('app.reservation')
                             }
                         }
 
-                        if (ctrl.startDate) {
-                            params.start = ctrl.startDate;
+                        if (vm.startDate) {
+                            params.start = vm.startDate;
                         }
-                        if (ctrl.endDate) {
-                            params.end = ctrl.endDate;
+                        if (vm.endDate) {
+                            params.end = vm.endDate;
                         }
 
                         ReservationResource.reservations.query(params,
@@ -239,41 +241,41 @@ angular.module('app.reservation')
                                     r.userAggregate = r.user ? r.user.lastName + r.user.firstName : r.externalUserRef;
                                     if (!r.enrolment || r.enrolment.externalExam) {
                                         r.enrolment = r.enrolment || {};
-                                        var externalState = r.enrolment.finished ? 'EXTERNAL_FINISHED' :
+                                        const externalState = r.enrolment.finished ? 'EXTERNAL_FINISHED' :
                                             'EXTERNAL_UNFINISHED';
                                         r.enrolment.exam = {external: true, examOwners: [], state: externalState};
                                     }
-                                    var exam = r.enrolment.exam.parent || r.enrolment.exam;
+                                    const exam = r.enrolment.exam.parent || r.enrolment.exam;
                                     r.enrolment.teacherAggregate = exam.examOwners.map(function (o) {
                                         return o.lastName + o.firstName;
                                     }).join();
-                                    var state = ctrl.printExamState(r);
+                                    const state = vm.printExamState(r);
                                     r.stateOrd = ['PUBLISHED', 'NO_SHOW', 'STUDENT_STARTED', 'ABORTED', 'REVIEW',
                                         'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'REJECTED', 'ARCHIVED',
                                         'EXTERNAL_UNFINISHED', 'EXTERNAL_FINISHED'].indexOf(state);
                                 });
-                                ctrl.reservations = reservations;
+                                vm.reservations = reservations;
                             }, function (error) {
-                                toastr.error(error.data);
+                                toast.error(error.data);
                             });
                     }
                 };
 
-                ctrl.removeReservation = function (reservation) {
+                vm.removeReservation = function (reservation) {
                     Reservation.cancelReservation(reservation).then(function () {
-                        ctrl.reservations.splice(ctrl.reservations.indexOf(reservation), 1);
-                        toastr.info($translate.instant('sitnet_reservation_removed'));
+                        vm.reservations.splice(vm.reservations.indexOf(reservation), 1);
+                        toast.info($translate.instant('sitnet_reservation_removed'));
                     });
                 };
 
-                ctrl.changeReservationMachine = function (reservation) {
+                vm.changeReservationMachine = function (reservation) {
                     Reservation.changeMachine(reservation);
                 };
 
-                ctrl.permitRetrial = function (reservation) {
+                vm.permitRetrial = function (reservation) {
                     ExamRes.reservation.update({id: reservation.id}, function () {
                         reservation.retrialPermitted = true;
-                        toastr.info($translate.instant('sitnet_retrial_permitted'));
+                        toast.info($translate.instant('sitnet_retrial_permitted'));
                     });
                 };
 
@@ -287,11 +289,11 @@ angular.module('app.reservation')
                 }
 
                 function findRoom(id) {
-                    var i = ctrl.examrooms.map(function (er) {
+                    const i = vm.examrooms.map(function (er) {
                         return er.id;
                     }).indexOf(id);
                     if (i >= 0) {
-                        return ctrl.examrooms[i];
+                        return vm.examrooms[i];
                     }
                     return undefined;
                 }
@@ -300,7 +302,7 @@ angular.module('app.reservation')
                     if (room.examMachines.length < 1) {
                         return;
                     }
-                    var data = {
+                    const data = {
                         text: room.name,
                         children: []
                     };
@@ -310,7 +312,7 @@ angular.module('app.reservation')
                         }
                         data.children.push({id: machine.id, text: machine.name === null ? '' : machine.name});
                     });
-                    ctrl.machineOptions.data.push(data);
+                    vm.machineOptions.data.push(data);
                 }
 
                 function machinesForRooms(rooms, machines) {

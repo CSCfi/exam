@@ -15,7 +15,6 @@
 
 require('./question.module');
 require('./question.service');
-require('./questionResource');
 require('./basequestion/question.component');
 require('./basequestion/questionBody.component');
 require('./basequestion/tagPicker.component');

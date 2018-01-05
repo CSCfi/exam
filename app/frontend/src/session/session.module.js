@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('../common/common.module');
+import angular from 'angular';
+require('../common');
 
 angular.module('app.session', ['app.common']);

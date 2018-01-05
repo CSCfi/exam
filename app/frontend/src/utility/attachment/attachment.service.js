@@ -13,14 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
+import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.utility')
     .service('Attachment', ['$resource', '$uibModal', 'dialogs', '$translate', 'Files',
         function ($resource, $modal, dialogs, $translate, Files) {
 
-            var questionAttachmentApi = $resource(
+            const questionAttachmentApi = $resource(
                 '/app/attachment/question/:id',
                 {
                     id: '@id'
@@ -28,7 +28,7 @@ angular.module('app.utility')
                 {
                     'remove': {method: 'DELETE', params: {id: '@id'}}
                 });
-            var questionAnswerAttachmentApi = $resource(
+            const questionAnswerAttachmentApi = $resource(
                 '/app/attachment/question/:qid/answer/:hash',
                 {
                     qid: '@qid',
@@ -37,7 +37,7 @@ angular.module('app.utility')
                 {
                     'remove': {method: 'DELETE', params: {qid: '@qid', hash: '@hash'}}
                 });
-            var examAttachmentApi = $resource(
+            const examAttachmentApi = $resource(
                 '/app/attachment/exam/:id',
                 {
                     id: '@id'
@@ -45,7 +45,7 @@ angular.module('app.utility')
                 {
                     'remove': {method: 'DELETE', params: {id: '@id'}}
                 });
-            var feedbackAttachmentApi = $resource(
+            const feedbackAttachmentApi = $resource(
                 '/app/attachment/exam/:id/feedback',
                 {
                     id: '@id'
@@ -53,7 +53,7 @@ angular.module('app.utility')
                 {
                     'remove': {method: 'DELETE', params: {eid: '@id'}}
                 });
-            var statementAttachmentApi = $resource(
+            const statementAttachmentApi = $resource(
                 '/app/attachment/exam/:id/statement',
                 {
                     id: '@id'
@@ -63,19 +63,19 @@ angular.module('app.utility')
                 });
 
 
-            var self = this;
+            const self = this;
 
             self.removeQuestionAttachment = function (question) {
                 question.attachment.removed = true;
             };
 
             self.eraseQuestionAttachment = function (question) {
-               return questionAttachmentApi.remove({id: question.id}).$promise;
+                return questionAttachmentApi.remove({id: question.id}).$promise;
             };
 
             self.removeQuestionAnswerAttachment = function (question, hash) {
 
-                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
+                const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                 dialog.result.then(function (btn) {
                     questionAnswerAttachmentApi.remove({qid: question.id, hash: hash},
                         function (answer) {
@@ -90,7 +90,7 @@ angular.module('app.utility')
 
             self.removeExamAttachment = function (exam) {
 
-                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
+                const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                 dialog.result.then(function (btn) {
                     examAttachmentApi.remove({id: exam.id},
                         function () {
@@ -104,7 +104,7 @@ angular.module('app.utility')
 
             self.removeFeedbackAttachment = function (exam) {
 
-                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
+                const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                 dialog.result.then(function (btn) {
                     feedbackAttachmentApi.remove({id: exam.id},
                         function () {
@@ -118,7 +118,7 @@ angular.module('app.utility')
 
             self.removeStatementAttachment = function (exam) {
 
-                var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
+                const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                 dialog.result.then(function (btn) {
                     statementAttachmentApi.remove({id: exam.id},
                         function () {
@@ -158,7 +158,7 @@ angular.module('app.utility')
             };
 
             self.selectFile = function (isTeacherModal, resolve) {
-                var resolution = angular.extend({}, resolve);
+                const resolution = angular.extend({}, resolve);
                 resolution.isTeacherModal = isTeacherModal;
                 return $modal.open({
                     backdrop: 'static',

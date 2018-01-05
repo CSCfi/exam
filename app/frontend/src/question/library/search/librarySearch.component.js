@@ -13,9 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import angular from 'angular';
+
 angular.module('app.question')
     .component('librarySearch', {
-        templateUrl: '/assets/app/question/library/search/librarySearch.template.html',
+        template: require('./librarySearch.template.html'),
         bindings: {
             onUpdate: '&'
         },
@@ -29,7 +31,7 @@ angular.module('app.question')
                     vm.filter = {};
                     vm.user = Session.getUser();
 
-                    var storedData = Library.loadFilters('search');
+                    const storedData = Library.loadFilters('search');
                     if (storedData.filters) {
                         vm.exams = storedData.filters.exams || [];
                         vm.courses = storedData.filters.courses || [];
@@ -53,19 +55,19 @@ angular.module('app.question')
                 };
 
                 vm.applyFreeSearchFilter = function () {
-                    var results = Library.applyFreeSearchFilter(vm.filter.text, vm.questions);
+                    const results = Library.applyFreeSearchFilter(vm.filter.text, vm.questions);
                     vm.onUpdate({results: results});
                     saveFilters();
                 };
 
                 vm.applyOwnerSearchFilter = function () {
-                    var results = Library.applyOwnerSearchFilter(vm.filter.owner, vm.questions);
+                    const results = Library.applyOwnerSearchFilter(vm.filter.owner, vm.questions);
                     vm.onUpdate({results: results});
                     saveFilters();
                 };
 
-                var saveFilters = function () {
-                    var filters = {
+                const saveFilters = function () {
+                    const filters = {
                         exams: vm.exams,
                         courses: vm.courses,
                         tags: vm.tags,
@@ -74,7 +76,7 @@ angular.module('app.question')
                     Library.storeFilters(filters, 'search');
                 };
 
-                var getCourseIds = function () {
+                const getCourseIds = function () {
                     return vm.courses.filter(function (course) {
                         return course && course.filtered;
                     }).map(function (course) {
@@ -82,7 +84,7 @@ angular.module('app.question')
                     });
                 };
 
-                var getExamIds = function () {
+                const getExamIds = function () {
                     return vm.exams.filter(function (exam) {
                         return exam.filtered;
                     }).map(function (exam) {
@@ -90,7 +92,7 @@ angular.module('app.question')
                     });
                 };
 
-                var getTagIds = function () {
+                const getTagIds = function () {
                     return vm.tags.filter(function (tag) {
                         return !tag.isSectionTag && tag.filtered;
                     }).map(function (tag) {
@@ -98,7 +100,7 @@ angular.module('app.question')
                     });
                 };
 
-                var getSectionIds = function () {
+                const getSectionIds = function () {
                     return vm.tags.filter(function (tag) {
                         return tag.isSectionTag && tag.filtered;
                     }).map(function (section) {
@@ -106,8 +108,8 @@ angular.module('app.question')
                     });
                 };
 
-                var query = function () {
-                    var deferred = $q.defer();
+                const query = function () {
+                    const deferred = $q.defer();
                     Library.search(getExamIds(), getCourseIds(), getTagIds(), getSectionIds())
                         .then(
                             function (questions) {
@@ -120,8 +122,8 @@ angular.module('app.question')
                 };
 
 
-                var union = function (filtered, tags) {
-                    var filteredIds = filtered.map(function (tag) {
+                const union = function (filtered, tags) {
+                    const filteredIds = filtered.map(function (tag) {
                         return tag.id;
                     });
                     return filtered.concat(tags.filter(function (tag) {
@@ -133,7 +135,7 @@ angular.module('app.question')
                     vm.courses = vm.courses.filter(function (course) {
                         return course.filtered;
                     });
-                    var deferred = $q.defer();
+                    const deferred = $q.defer();
                     Library.courseApi.query({
                         examIds: getExamIds(),
                         tagIds: getTagIds(),
@@ -149,7 +151,7 @@ angular.module('app.question')
                     vm.exams = vm.exams.filter(function (exam) {
                         return exam.filtered;
                     });
-                    var deferred = $q.defer();
+                    const deferred = $q.defer();
                     Library.examApi.query({
                         courseIds: getCourseIds(),
                         sectionIds: getSectionIds(),
@@ -161,19 +163,19 @@ angular.module('app.question')
                     return deferred.promise;
                 };
 
-                var doListTags = function (sections) {
-                    var examIds = getExamIds();
-                    var courseIds = getCourseIds();
+                const doListTags = function (sections) {
+                    const examIds = getExamIds();
+                    const courseIds = getCourseIds();
                     Library.tagApi.query({
                         examIds: examIds,
                         courseIds: courseIds,
                         sectionIds: getSectionIds()
                     }, function (data) {
                         vm.tags = union(vm.tags, data);
-                        var examSections = [];
+                        let examSections = [];
                         vm.exams.filter(function (e) {
-                            var examMatch = examIds.length === 0 || examIds.indexOf(e.id) > -1;
-                            var courseMatch = courseIds.length === 0 || courseIds.indexOf(e.course.id) > -1;
+                            const examMatch = examIds.length === 0 || examIds.indexOf(e.id) > -1;
+                            const courseMatch = courseIds.length === 0 || courseIds.indexOf(e.course.id) > -1;
                             return examMatch && courseMatch;
                         }).forEach(function (exam) {
                             examSections = examSections.concat(exam.examSections.filter(function (es) {
@@ -191,7 +193,7 @@ angular.module('app.question')
                     vm.tags = vm.tags.filter(function (tag) {
                         return tag.filtered && !tag.isSectionTag;
                     });
-                    var sections = vm.tags.filter(function (tag) {
+                    const sections = vm.tags.filter(function (tag) {
                         return tag.filtered && tag.isSectionTag;
                     });
                     if (getExamIds().length === 0) {
@@ -204,13 +206,13 @@ angular.module('app.question')
                 };
 
                 vm.getTags = function () {
-                    var courses = vm.courses.filter(function (course) {
+                    const courses = vm.courses.filter(function (course) {
                         return course && course.filtered;
                     });
-                    var exams = vm.exams.filter(function (exam) {
+                    const exams = vm.exams.filter(function (exam) {
                         return exam.filtered;
                     });
-                    var tags = vm.tags.filter(function (tag) {
+                    const tags = vm.tags.filter(function (tag) {
                         return tag.filtered;
                     });
                     return courses.concat(exams).concat(tags);

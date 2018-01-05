@@ -13,12 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
+import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.question')
     .component('libraryResults', {
-        templateUrl: '/assets/app/question/library/results/libraryResults.template.html',
+        template: require('./libraryResults.template.html'),
         bindings: {
             onSelection: '&',
             onCopy: '&',
@@ -37,7 +37,7 @@ angular.module('app.question')
                     vm.pageSize = 25;
                     vm.currentPage = 0;
                     vm.tableClass = vm.tableClass || 'exams-table';
-                    var storedData = Library.loadFilters('sorting');
+                    const storedData = Library.loadFilters('sorting');
                     if (storedData.filters) {
                         vm.questionsPredicate = storedData.filters.predicate;
                         vm.reverse = storedData.filters.reverse;
@@ -55,8 +55,8 @@ angular.module('app.question')
                     saveFilters();
                 };
 
-                var saveFilters = function () {
-                    var filters = {
+                const saveFilters = function () {
+                    const filters = {
                         predicate: vm.questionsPredicate,
                         reverse: vm.reverse
                     };
@@ -70,7 +70,7 @@ angular.module('app.question')
                     vm.questionSelected();
                 };
 
-                var resetSelections = function () {
+                const resetSelections = function () {
                     vm.questions.forEach(function (q) {
                         q.selected = false;
                     });
@@ -78,7 +78,7 @@ angular.module('app.question')
                 };
 
                 vm.questionSelected = function () {
-                    var selections = vm.questions.filter(function (q) {
+                    const selections = vm.questions.filter(function (q) {
                         return q.selected;
                     }).map(function (q) {
                         return q.id;
@@ -87,7 +87,8 @@ angular.module('app.question')
                 };
 
                 vm.deleteQuestion = function (question) {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_question_from_library_only'));
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                        $translate.instant('sitnet_remove_question_from_library_only'));
                     dialog.result.then(function (btn) {
                         Question.questionsApi.delete({id: question.id}, function () {
                             vm.questions.splice(vm.questions.indexOf(question), 1);
@@ -97,7 +98,8 @@ angular.module('app.question')
                 };
 
                 vm.copyQuestion = function (question) {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_copy_question'));
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                        $translate.instant('sitnet_copy_question'));
                     dialog.result.then(function (btn) {
                         Question.questionCopyApi.copy({id: question.id}, function (copy) {
                             vm.questions.splice(vm.questions.indexOf(question), 0, copy);
@@ -117,15 +119,15 @@ angular.module('app.question')
                 };
 
                 vm.printOwner = function (owner, showId) {
-                    var s = owner.firstName + ' ' + owner.lastName;
+                    let s = owner.firstName + ' ' + owner.lastName;
                     if (showId && owner.userIdentifier) {
-                        s += " (" + owner.userIdentifier + ")";
+                        s += ' (' + owner.userIdentifier + ')';
                     }
                     return s;
                 };
 
                 vm.printTags = function (question) {
-                    return question.tags.map (function (t) {
+                    return question.tags.map(function (t) {
                         return t.name.toUpperCase();
                     }).join(', ');
                 };
@@ -156,7 +158,7 @@ angular.module('app.question')
                             return 'sitnet_toolbar_cloze_test_question';
                     }
                     return '';
-                }
+                };
 
 
             }

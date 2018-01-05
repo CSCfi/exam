@@ -122,6 +122,3 @@ def uiTestTask = Def.taskDyn[PlayRunHook] {
 }
 
 PlayKeys.playRunHooks += uiTestTask.value
-
-
-

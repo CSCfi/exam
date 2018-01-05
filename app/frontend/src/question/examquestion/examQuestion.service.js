@@ -13,10 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import angular from 'angular';
+
 angular.module('app.question')
     .service('ExamQuestion', ['$resource', function ($resource) {
 
-        var self = this;
+        const self = this;
 
         self.undistributionApi = $resource('/app/examquestions/undistributed/:id',
             {

@@ -13,11 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import angular from 'angular';
+
 angular.module('app.question')
     .service('Library', ['$resource', '$sessionStorage', '$q', 'Question',
         function ($resource, $sessionStorage, $q, Question) {
 
-            var self = this;
+            const self = this;
 
             self.examApi = $resource('/app/examsearch');
             self.courseApi = $resource('/app/courses/user');
@@ -32,7 +34,7 @@ angular.module('app.question')
             };
 
             self.storeFilters = function (filters, category) {
-                var data = {filters: filters};
+                const data = {filters: filters};
                 if (!$sessionStorage.questionFilters) {
                     $sessionStorage.questionFilters = {};
                 }
@@ -42,9 +44,9 @@ angular.module('app.question')
             self.applyFreeSearchFilter = function (text, questions) {
                 if (text) {
                     return questions.filter(function (question) {
-                        var re = new RegExp(text, 'i');
+                        const re = new RegExp(text, 'i');
 
-                        var isMatch = question.question && htmlDecode(question.question).match(re);
+                        const isMatch = question.question && htmlDecode(question.question).match(re);
                         if (isMatch) {
                             return true;
                         }
@@ -62,8 +64,8 @@ angular.module('app.question')
             self.applyOwnerSearchFilter = function (text, questions) {
                 if (text) {
                     return questions.filter(function (question) {
-                        var re = new RegExp(text, 'i');
-                        var owner = question.creator.firstName + ' ' + question.creator.lastName;
+                        const re = new RegExp(text, 'i');
+                        const owner = question.creator.firstName + ' ' + question.creator.lastName;
                         return owner.match(re);
                     });
                 } else {
@@ -72,7 +74,7 @@ angular.module('app.question')
             };
 
             self.search = function (examIds, courseIds, tagIds, sectionIds) {
-                var deferred = $q.defer();
+                const deferred = $q.defer();
                 self.questionApi.query({
                     exam: examIds,
                     course: courseIds,
@@ -96,7 +98,7 @@ angular.module('app.question')
                         }
                         return item;
                     });
-                    var questions = Question.applyFilter(data);
+                    const questions = Question.applyFilter(data);
                     questions.forEach(function (q) {
                         if (q.defaultEvaluationType === 'Points' || q.type === 'ClozeTestQuestion' || q.type === 'MultipleChoiceQuestion') {
                             q.displayedMaxScore = q.defaultMaxScore;
@@ -109,14 +111,14 @@ angular.module('app.question')
                             'ClozeTestQuestion',
                             'MultipleChoiceQuestion',
                             'WeightedMultipleChoiceQuestion'].indexOf(q.type);
-                        q.ownerAggregate = "";
+                        q.ownerAggregate = '';
                         if (q.questionOwners) {
                             q.ownerAggregate = q.questionOwners.reduce(function (s, owner) {
                                 return s + owner.lastName + owner.firstName;
-                            }, "");
+                            }, '');
                         }
                         q.allowedToRemove = q.examSectionQuestions.filter(function (esq) {
-                            var exam = esq.examSection.exam;
+                            const exam = esq.examSection.exam;
                             return exam.state === 'PUBLISHED' && exam.examActiveEndDate > new Date().getTime();
                         }).length === 0;
                     });
@@ -126,7 +128,7 @@ angular.module('app.question')
             };
 
 
-            var htmlDecode = function (text) {
+            const htmlDecode = function (text) {
                 return $('<div/>').html(text).text();
             };
 

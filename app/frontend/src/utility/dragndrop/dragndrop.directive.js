@@ -13,13 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import angular from 'angular';
+import toast from 'toastr';
 
 require('jquery-ui');
+require('jquery-ui/ui/widgets/draggable');
 require('jquery-ui/ui/widgets/droppable');
 require('jquery-ui/ui/widgets/sortable');
 require('jquery-ui/ui/disable-selection');
-
-import toast from 'toastr';
 
 angular.module('app.utility')
 
@@ -56,6 +57,21 @@ angular.module('app.utility')
             }
         };
     }])
+
+    .directive('draggableModal', [function () {
+        return {
+            restrict: 'A',
+            link: function (scope, elem, attrs) {
+                elem.draggable({
+                    revert: false,
+                    drag: function () {
+                        elem.css('height', 'auto');
+                    }
+                });
+            }
+        };
+    }])
+
 
     .directive('droppable', ['$translate', '$parse', function ($translate, $parse) {
         return {

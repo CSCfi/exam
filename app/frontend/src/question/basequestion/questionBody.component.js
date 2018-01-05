@@ -13,12 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
+import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.question')
     .component('questionBody', {
-        templateUrl: '/assets/app/question/basequestion/questionBody.template.html',
+        template: require('./questionBody.template.html'),
         bindings: {
             question: '<',
             currentOwners: '<',
@@ -27,27 +27,27 @@ angular.module('app.question')
         controller: ['$scope', '$translate', 'Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question', 'EXAM_CONF',
             function ($scope, $translate, Session, Attachment, UserRes, limitToFilter, Question, EXAM_CONF) {
 
-                var essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/essay_question.html';
-                var multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/multiple_choice_question.html';
+                const essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/essay_question.html';
+                const multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/multiple_choice_question.html';
 
 
                 const vm = this;
 
-                var init = function () {
+                const init = function () {
                     // TODO: move these to subcomponents
                     if (vm.question.type === 'WeightedMultipleChoiceQuestion' || vm.question.defaultEvaluationType === 'Selection') {
                         delete vm.question.defaultMaxScore; // will screw up validation otherwise
                     }
-                    var sections = vm.question.examSectionQuestions.map(function (esq) {
+                    const sections = vm.question.examSectionQuestions.map(function (esq) {
                         return esq.examSection;
                     });
-                    var examNames = sections.map(function (s) {
+                    const examNames = sections.map(function (s) {
                         if (s.exam.state === 'PUBLISHED') {
                             vm.isInPublishedExam = true;
                         }
                         return s.exam.name;
                     });
-                    var sectionNames = sections.map(function (s) {
+                    const sectionNames = sections.map(function (s) {
                         return s.name;
                     });
                     // remove duplicates
@@ -103,7 +103,7 @@ angular.module('app.question')
                 };
 
                 vm.questionOwners = function (filter, criteria) {
-                    var data = {
+                    const data = {
                         role: 'TEACHER',
                         q: criteria
                     };
@@ -150,7 +150,7 @@ angular.module('app.question')
                     if (vm.removeOwnerDisabled(user)) {
                         return;
                     }
-                    var i = vm.currentOwners.indexOf(user);
+                    const i = vm.currentOwners.indexOf(user);
                     if (i >= 0) {
                         vm.currentOwners.splice(i, 1);
                     }
@@ -186,7 +186,7 @@ angular.module('app.question')
                 };
 
                 vm.isUserAllowedToModifyOwners = function () {
-                    var user = Session.getUser();
+                    const user = Session.getUser();
                     return vm.question.questionOwners && (user.isAdmin ||
                         vm.question.questionOwners.map(function (o) {
                             return o.id;
@@ -232,8 +232,8 @@ angular.module('app.question')
                     return option.correctOption === true;
                 };
 
-                var removeOption = function (selectedOption) {
-                    var hasCorrectAnswer = vm.question.options.filter(function (o) {
+                const removeOption = function (selectedOption) {
+                    const hasCorrectAnswer = vm.question.options.filter(function (o) {
                         return o.id !== selectedOption.id && (o.correctOption || o.defaultScore > 0);
                     }).length > 0;
 

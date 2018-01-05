@@ -39,7 +39,7 @@ EXAM Quickstart for developers
         $ cd app/frontend
         $ npm start    
 
-5.  Start the app
+5.  Inside sbt console start the app
 
         [exam] $ run
 

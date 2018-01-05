@@ -12,37 +12,38 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import angular from 'angular';
 
 angular.module('app.utility')
     .factory('DateTime', ['$translate', function ($translate) {
 
-        var printExamDuration = function (exam) {
+        const printExamDuration = function (exam) {
 
             if (exam && exam.duration) {
-                var h = Math.floor(exam.duration / 60);
-                var m = exam.duration % 60;
+                const h = Math.floor(exam.duration / 60);
+                const m = exam.duration % 60;
                 if (h === 0) {
-                    return m + " min";
+                    return m + ' min';
                 } else if (m === 0) {
-                    return h + " h";
+                    return h + ' h';
                 } else {
-                    return h + " h " + m + " min";
+                    return h + ' h ' + m + ' min';
                 }
             } else {
-                return "";
+                return '';
             }
         };
 
-        var getDateForWeekday = function (ordinal) {
-            var now = new Date();
-            var distance = ordinal - now.getDay();
+        const getDateForWeekday = function (ordinal) {
+            const now = new Date();
+            const distance = ordinal - now.getDay();
             return new Date(now.setDate(now.getDate() + distance));
         };
 
-        var getWeekdayNames = function () {
-            var lang = $translate.use();
-            var locale = lang.toLowerCase() + "-" + lang.toUpperCase();
-            var options = {weekday: 'short'};
+        const getWeekdayNames = function () {
+            const lang = $translate.use();
+            const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
+            const options = {weekday: 'short'};
             return [
                 getDateForWeekday(1).toLocaleDateString(locale, options),
                 getDateForWeekday(2).toLocaleDateString(locale, options),

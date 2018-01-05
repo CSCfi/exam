@@ -13,12 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
+import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.question')
     .component('examQuestion', {
-        templateUrl: '/assets/app/question/examquestion/examQuestion.template.html',
+        template: require('./examQuestion.template.html'),
         bindings: {
             examQuestion: '<',
             lotteryOn: '<',
@@ -31,19 +31,19 @@ angular.module('app.question')
 
                 const vm = this;
 
-                var init = function () {
+                const init = function () {
                     Question.questionsApi.get({id: vm.examQuestion.question.id}, function (data) {
                         vm.question = data;
-                        var sections = vm.question.examSectionQuestions.map(function (esq) {
+                        const sections = vm.question.examSectionQuestions.map(function (esq) {
                             return esq.examSection;
                         });
-                        var examNames = sections.map(function (s) {
+                        const examNames = sections.map(function (s) {
                             if (s.exam.state === 'PUBLISHED') {
                                 vm.isInPublishedExam = true;
                             }
                             return s.exam.name;
                         });
-                        var sectionNames = sections.map(function (s) {
+                        const sectionNames = sections.map(function (s) {
                             return s.name;
                         });
                         // remove duplicates
@@ -81,7 +81,7 @@ angular.module('app.question')
                         return;
                     }
 
-                    var hasCorrectAnswer = vm.examQuestion.options.filter(function (o) {
+                    const hasCorrectAnswer = vm.examQuestion.options.filter(function (o) {
                         return o.id !== selectedOption.id && (o.option.correctOption || o.option.defaultScore > 0);
                     }).length > 0;
 
@@ -152,11 +152,11 @@ angular.module('app.question')
                     return Question.calculateMaxPoints(vm.examQuestion);
                 };
 
-                var routingWatcher = $scope.$on('$locationChangeStart', function (event, newUrl) {
+                const routingWatcher = $scope.$on('$locationChangeStart', function (event, newUrl) {
                     if (window.onbeforeunload) {
                         event.preventDefault();
                         // we got changes in the model, ask confirmation
-                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm_exit'),
+                        const dialog = dialogs.confirm($translate.instant('sitnet_confirm_exit'),
                             $translate.instant('sitnet_unsaved_question_data'));
                         dialog.result.then(function (data) {
                             if (data.toString() === 'yes') {
@@ -170,12 +170,11 @@ angular.module('app.question')
                     }
                 });
 
-                var clearListeners = function () {
+                const clearListeners = function () {
                     window.onbeforeunload = null;
                     // Call off the event listener so it won't ask confirmation now that we are going away
                     routingWatcher();
                 };
-
 
             }]
     });

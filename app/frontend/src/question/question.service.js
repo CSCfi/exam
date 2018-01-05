@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
+import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.question')
@@ -22,7 +22,7 @@ angular.module('app.question')
         function ($q, $resource, $translate, $location, $sessionStorage, ExamQuestion, Session,
                   Files, Attachment) {
 
-            var self = this;
+            const self = this;
 
             self.questionsApi = $resource('/app/questions/:id',
                 {
@@ -90,10 +90,10 @@ angular.module('app.question')
             };
 
             self.getQuestionAmounts = function (exam) {
-                var data = {accepted: 0, rejected: 0, hasEssays: false};
+                const data = {accepted: 0, rejected: 0, hasEssays: false};
                 angular.forEach(exam.examSections, function (section) {
                     angular.forEach(section.sectionQuestions, function (sectionQuestion) {
-                        var question = sectionQuestion.question;
+                        const question = sectionQuestion.question;
                         if (question.type === 'EssayQuestion') {
                             if (sectionQuestion.evaluationType === 'Selection' && sectionQuestion.essayAnswer) {
                                 if (parseInt(sectionQuestion.essayAnswer.evaluatedScore) === 1) {
@@ -111,11 +111,9 @@ angular.module('app.question')
 
             // For weighted mcq
             self.calculateDefaultMaxPoints = function (question) {
-                return (question.options.filter(function (option) {
-                    return option.defaultScore > 0;
-                }).reduce(function (a, b) {
-                    return a + b.defaultScore;
-                }, 0));
+                return question.options
+                    .filter(o => option.defaultScore > 0)
+                    .reduce((a, b) => a + b.defaultScore, 0);
             };
 
             // For weighted mcq
@@ -123,32 +121,28 @@ angular.module('app.question')
                 if (!sectionQuestion.options) {
                     return 0;
                 }
-                var points = sectionQuestion.options.filter(function (option) {
-                    return option.score > 0;
-                }).reduce(function (a, b) {
-                    return a + parseFloat(b.score);
-                }, 0);
+                const points = sectionQuestion.options
+                    .filter(o => option.score > 0)
+                    .reduce((a, b) => a + parseFloat(b.score), 0);
                 return parseFloat(points.toFixed(2));
             };
 
             self.scoreClozeTestAnswer = function (sectionQuestion) {
-                var score = sectionQuestion.clozeTestAnswer.score;
+                const score = sectionQuestion.clozeTestAnswer.score;
                 return parseFloat(score.correctAnswers * sectionQuestion.maxScore /
                     (score.correctAnswers + score.incorrectAnswers).toFixed(2));
             };
 
             self.scoreWeightedMultipleChoiceAnswer = function (sectionQuestion) {
-                var score = sectionQuestion.options.filter(function (o) {
-                    return o.answered;
-                }).reduce(function (a, b) {
-                    return a + b.score;
-                }, 0);
+                const score = sectionQuestion.options
+                    .filter(o => o.answered)
+                    .reduce((a, b) => a + b.score, 0);
                 return Math.max(0, score);
             };
 
             // For non-weighted mcq
             self.scoreMultipleChoiceAnswer = function (sectionQuestion) {
-                var selected = sectionQuestion.options.filter(function (o) {
+                const selected = sectionQuestion.options.filter(function (o) {
                     return o.answered;
                 });
                 if (selected.length === 0) {
@@ -164,7 +158,7 @@ angular.module('app.question')
             };
 
             self.decodeHtml = function (html) {
-                var txt = document.createElement('textarea');
+                const txt = document.createElement('textarea');
                 txt.innerHTML = html;
                 return txt.value;
             };
@@ -172,7 +166,7 @@ angular.module('app.question')
             self.longTextIfNotMath = function (text) {
                 if (text && text.length > 0 && text.indexOf('math-tex') === -1) {
                     // remove HTML tags
-                    var str = String(text).replace(/<[^>]+>/gm, '');
+                    const str = String(text).replace(/<[^>]+>/gm, '');
                     // shorten string
                     return self.decodeHtml(str);
                 }
@@ -183,7 +177,7 @@ angular.module('app.question')
 
                 if (text && text.length > 0 && text.indexOf('math-tex') === -1) {
                     // remove HTML tags
-                    var str = String(text).replace(/<[^>]+>/gm, '');
+                    let str = String(text).replace(/<[^>]+>/gm, '');
                     // shorten string
                     str = self.decodeHtml(str);
                     return str.length + 3 > maxLength ? str.substr(0, maxLength) + '...' : str;
@@ -191,7 +185,7 @@ angular.module('app.question')
                 return text ? self.decodeHtml(text) : '';
             };
 
-            var _filter;
+            let _filter;
 
             self.setFilter = function (filter) {
                 switch (filter) {
@@ -223,7 +217,7 @@ angular.module('app.question')
             };
 
             self.storeFilters = function (filters, category) {
-                var data = {filters: filters};
+                const data = {filters: filters};
                 if (!$sessionStorage.questionFilters) {
                     $sessionStorage.questionFilters = {};
                 }
@@ -232,15 +226,15 @@ angular.module('app.question')
 
             self.range = function (min, max, step) {
                 step |= 1;
-                var input = [];
-                for (var i = min; i <= max; i += step) {
+                const input = [];
+                for (let i = min; i <= max; i += step) {
                     input.push(i);
                 }
                 return input;
             };
 
-            var getQuestionData = function (question) {
-                var questionToUpdate = {
+            const getQuestionData = function (question) {
+                const questionToUpdate = {
                     'type': question.type,
                     'defaultMaxScore': question.defaultMaxScore,
                     'question': question.question,
@@ -270,8 +264,8 @@ angular.module('app.question')
             };
 
             self.createQuestion = function (question) {
-                var body = getQuestionData(question);
-                var deferred = $q.defer();
+                const body = getQuestionData(question);
+                const deferred = $q.defer();
 
                 self.questionsApi.create(body,
                     function (response) {
@@ -292,8 +286,8 @@ angular.module('app.question')
             };
 
             self.updateQuestion = function (question, displayErrors) {
-                var body = getQuestionData(question);
-                var deferred = $q.defer();
+                const body = getQuestionData(question);
+                const deferred = $q.defer();
                 self.questionsApi.update(body,
                     function (response) {
                         toast.info($translate.instant('sitnet_question_saved'));
@@ -321,7 +315,7 @@ angular.module('app.question')
             };
 
             self.updateDistributedExamQuestion = function (question, sectionQuestion) {
-                var data = {
+                const data = {
                     'id': sectionQuestion.id,
                     'maxScore': sectionQuestion.maxScore,
                     'answerInstructions': sectionQuestion.answerInstructions,
@@ -337,7 +331,7 @@ angular.module('app.question')
                         data.evaluationType = sectionQuestion.evaluationType;
                         break;
                 }
-                var deferred = $q.defer();
+                const deferred = $q.defer();
                 ExamQuestion.distributionApi.update({id: sectionQuestion.id}, data,
                     function (esq) {
                         angular.extend(esq.question, question);

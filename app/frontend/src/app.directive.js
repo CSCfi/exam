@@ -49,20 +49,6 @@ angular.module('app')
         };
     })
 
-    .directive('draggableModal', function () {
-        return {
-            restrict: 'A',
-            link: function (scope, elem, attrs) {
-                elem.draggable({
-                    revert: false,
-                    drag: function () {
-                        elem.css('height', 'auto');
-                    }
-                });
-            }
-        };
-    })
-
     .directive('uniqueValue', function () {
         return {
             require: 'ngModel',
