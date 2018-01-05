@@ -5,7 +5,13 @@ const webpack = require('webpack');
 module.exports = exports = Object.create(require('./webpack.base.config.js'));
 
 exports.devtool = 'eval-source-map';
-exports.entry = ['webpack/hot/dev-server', 'webpack-dev-server/client?http://localhost:8080'].concat(exports.entry);
+exports.entry = Object.assign(exports.entry,
+    {
+        hot: 'webpack/hot/dev-server',
+        srv: 'webpack-dev-server/client?http://localhost:8080'
+    }
+);
+
 exports.plugins = [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.ProvidePlugin({
@@ -14,6 +20,6 @@ exports.plugins = [
     new webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery',
-        "window.jQuery": "jquery"
+        'window.jQuery': 'jquery'
     })
 ];

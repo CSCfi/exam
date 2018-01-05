@@ -16,6 +16,7 @@
 import angular from 'angular';
 import toast from 'toastr';
 import moment from 'moment';
+require('moment-timezone');
 
 angular.module('app.calendar')
     .component('calendar', {

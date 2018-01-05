@@ -52,7 +52,7 @@ angular.module('app.review')
                     return true;
                 }
                 const s = filter.toLowerCase();
-                const name = _.get(review, 'user.firstName', '') + ' ' + lodash.get(review, 'user.lastName', '');
+                const name = _.get(review, 'user.firstName', '') + ' ' + _.get(review, 'user.lastName', '');
                 return name.toLowerCase().indexOf(s) > -1
                     || _.get(review, 'user.email', '').toLowerCase().indexOf(s) > -1;
             };
