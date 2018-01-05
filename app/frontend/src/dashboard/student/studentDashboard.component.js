@@ -28,6 +28,8 @@ angular.module('app.dashboard.student')
                     ctrl.showGuide = 0;
                     StudentDashboard.listEnrolments().then(function (data) {
                         ctrl.userEnrolments = data.result;
+                    }).catch(function (e) {
+                        console.error(e);
                     });
                 };
 

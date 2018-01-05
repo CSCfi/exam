@@ -13,6 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import angular from 'angular';
+
 run.$inject = ['$http', '$sessionStorage', 'Session', 'EXAM_CONF'];
 
 export default function run($http, $sessionStorage, Session, EXAM_CONF) {
@@ -31,7 +33,7 @@ export default function run($http, $sessionStorage, Session, EXAM_CONF) {
         Session.restartSessionCheck();
     } else {
         Session.switchLanguage('en');
-        Session.login('', '');
+        Session.login('', '').catch(angular.noop);
     }
 
 }

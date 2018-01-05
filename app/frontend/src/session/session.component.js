@@ -44,7 +44,6 @@ angular.module('app.session')
                     ctrl.hideNavBar = false;
                 });
 
-                // dev-mode login, not usable with production environment
                 ctrl.setUser= function (user) {
                     ctrl.user = user;
                 };

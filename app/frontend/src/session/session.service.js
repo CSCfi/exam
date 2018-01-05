@@ -78,6 +78,8 @@ angular.module('app.session')
                     http().get('/app/settings/environment').then(function (resp) {
                         _env = resp.data;
                         deferred.resolve();
+                    }).catch(function (e) {
+                        console.error(e);
                     });
                 } else {
                     deferred.resolve();
@@ -90,6 +92,8 @@ angular.module('app.session')
                     if (!_env.isProd) {
                         scope.devLoginRequired = true;
                     }
+                }).catch(function (e) {
+                    console.error(e);
                 });
             };
 
@@ -159,6 +163,8 @@ angular.module('app.session')
 
                 }, function () {
                     $location.path('/logout');
+                }).catch(function (e) {
+                    console.error(e);
                 });
             };
 
@@ -173,7 +179,7 @@ angular.module('app.session')
                             user.isStudent = hasRole(user, 'STUDENT');
                             user.isLanguageInspector = user.isTeacher && hasPermission(user, 'CAN_INSPECT_LANGUAGE');
                             self.setUser(user);
-                            $modalInstance.dismiss();
+                            $modalInstance.close();
                             $rootScope.$broadcast('userUpdated');
                             if (user.isStudent && !user.userAgreementAccepted) {
                                 self.openEulaModal(user);
@@ -206,7 +212,9 @@ angular.module('app.session')
                 });
 
                 m.result.then(function () {
-                    console.log('closed');
+                    console.log('Close role dialog.');
+                }).catch(function (e) {
+                    console.error(e);
                 });
             };
 
@@ -338,6 +346,8 @@ angular.module('app.session')
                         }
                         self.logout();
                     }
+                }).catch(function (e) {
+                    console.error(e);
                 });
             };
 

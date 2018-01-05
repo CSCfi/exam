@@ -35,7 +35,7 @@ angular.module('app.session')
                     Session.login(vm.credentials.username, vm.credentials.password)
                         .then(function (user) {
                             vm.onLoggedIn({user: user});
-                        });
+                        }).catch(angular.noop);
                 };
 
             }
