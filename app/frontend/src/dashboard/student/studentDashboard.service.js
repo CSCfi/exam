@@ -13,23 +13,24 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import angular from 'angular';
+import moment from 'moment';
 require('moment-timezone');
-const moment = require('moment');
 
 angular.module('app.dashboard.student')
     .service('StudentDashboard', ['$q', '$resource',
         function ($q, $resource) {
 
-            var self = this;
+            const self = this;
 
-            var enrolmentApi = $resource('/app/enrolments');
+            const enrolmentApi = $resource('/app/enrolments');
 
-            var setOccasion = function (reservation) {
-                var machine = reservation.machine;
-                var external = reservation.externalReservation;
-                var tz = machine ? machine.room.localTimezone : external.roomTz;
-                var start = moment.tz(reservation.startAt, tz);
-                var end = moment.tz(reservation.endAt, tz);
+            const setOccasion = function (reservation) {
+                const machine = reservation.machine;
+                const external = reservation.externalReservation;
+                const tz = machine ? machine.room.localTimezone : external.roomTz;
+                const start = moment.tz(reservation.startAt, tz);
+                const end = moment.tz(reservation.endAt, tz);
                 if (start.isDST()) {
                     start.add(-1, 'hour');
                 }
@@ -43,7 +44,7 @@ angular.module('app.dashboard.student')
             };
 
             self.listEnrolments = function () {
-                var deferred = $q.defer();
+                const deferred = $q.defer();
 
                 enrolmentApi.query(function (enrolments) {
                         enrolments.forEach(function (e) {

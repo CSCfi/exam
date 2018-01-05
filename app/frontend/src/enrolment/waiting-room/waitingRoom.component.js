@@ -37,9 +37,12 @@ angular.module('app.enrolment')
                                     $location.path('/student/exam/' + vm.enrolment.exam.hash);
                                 }, offset);
 
-                                const room = vm.enrolment.reservation.machine.room;
-                                const code = $translate.use().toUpperCase();
-                                vm.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
+                                $timeout(() => {
+                                    const room = vm.enrolment.reservation.machine.room;
+                                    const code = $translate.use().toUpperCase();
+                                    vm.roomInstructions = code === 'FI' ? room.roomInstruction : room['roomInstruction' + code];
+                                }, 1000);
+
                             },
                             function (error) {
                                 toast.error(error.data);

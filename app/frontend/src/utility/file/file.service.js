@@ -55,7 +55,7 @@ angular.module('app.utility')
                 res(url, {params: params}).then(function (resp) {
                     const contentType = resp.headers()['content-type'].split(';')[0];
                     saveFile(resp.data, filename, contentType);
-                }).error(function (resp) {
+                }).catch(function (resp) {
                     toast.error(resp.data || resp);
                 });
             };

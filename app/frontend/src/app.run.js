@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
 run.$inject = ['$http', '$sessionStorage', 'Session', 'EXAM_CONF'];
 
 export default function run($http, $sessionStorage, Session, EXAM_CONF) {

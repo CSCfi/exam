@@ -13,10 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
-
-const moment = require('moment');
-const truncate = require('truncate-html');
+import angular from 'angular';
+import moment from 'moment';
+import truncate from 'truncate-html';
 
 angular.module('app')
     .filter('newlines', function (text) {
@@ -44,7 +43,7 @@ angular.module('app')
         return function (html) {
             // test if mathjax formula
             if (html && html.indexOf('math-tex') === -1) {
-                var div = document.createElement('div');
+                const div = document.createElement('div');
                 div.innerHTML = html;
                 return div.textContent || div.innerText || '';
             }
@@ -61,26 +60,26 @@ angular.module('app')
     })
     .filter('wordcount', function () {
         return function (text) {
-            var words = text.replace(/(\S\.)(?!\s)/g, '$1 ').replace(/(^"|"$|\\n)/g, '').match(/\S+/g);
+            const words = text.replace(/(\S\.)(?!\s)/g, '$1 ').replace(/(^"|"$|\\n)/g, '').match(/\S+/g);
             return words ? words.length : 0;
         };
     })
     .filter('diffInMinutesTo', function () {
-        var magicNumber = (1000 * 60);
+        const msInMinute = (1000 * 60);
 
         return function (fromDate, toDate) {
             if (toDate && fromDate) {
-                var diff = (new Date(toDate).getTime() - new Date(fromDate).getTime()) / magicNumber;
+                const diff = (new Date(toDate).getTime() - new Date(fromDate).getTime()) / msInMinute;
                 return Math.round(diff);
             }
         };
     })
     .filter('diffInDaysToNow', function () {
-        var magicNumber = (1000 * 60 * 60 * 24);
+        const msInDay = (1000 * 60 * 60 * 24);
 
         return function (fromDate) {
             if (fromDate) {
-                var diff = (new Date(fromDate).getTime() - new Date().getTime()) / magicNumber;
+                const diff = (new Date(fromDate).getTime() - new Date().getTime()) / msInDay;
                 if (diff < 0) {
                     return '<span class="sitnet-text-alarm">' + Math.floor(diff) + '</span>';
                 }
@@ -100,10 +99,10 @@ angular.module('app')
             total = parseInt(total, 10);
             current = parseInt(current, 10);
             pageSize = parseInt(pageSize, 10);
-            var pages = Math.floor(total / pageSize);
+            const pages = Math.floor(total / pageSize);
             if (pages > 0 && current === pages) {
-                var amount = (pages + 1) * pageSize - total;
-                for (var i = 0; i < amount; ++i) input.push(i);
+                const amount = (pages + 1) * pageSize - total;
+                for (let i = 0; i < amount; ++i) input.push(i);
             }
             return input;
         };

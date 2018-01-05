@@ -13,8 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
-
 export default {
     AUTH_STORAGE_KEY: 'EXAM_USER',
     AUTH_HEADER: 'x-exam-authentication',

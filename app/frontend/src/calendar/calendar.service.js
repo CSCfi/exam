@@ -14,8 +14,10 @@
  */
 
 
+import angular from 'angular';
 import toast from 'toastr';
-const moment = require('moment');
+import moment from 'moment';
+require('moment-timezone');
 
 angular.module('app.calendar')
     .service('Calendar', ['$resource', '$uibModal', '$http', '$routeParams', '$translate', '$location',
@@ -23,24 +25,25 @@ angular.module('app.calendar')
         function ($resource, $modal, $http, $routeParams, $translate, $location, DateTime, Session,
                   InteroperabilityResource, $q) {
 
-            var self = this;
+            const self = this;
 
             self.slotsApi = $resource('/app/calendar/:eid/:rid', {eid: '@eid', rid: '@rid'});
             self.reservationWindowApi = $resource('/app/settings/reservationWindow');
 
-            var adjustBack = function (date, tz) {
+            const adjustBack = function (date, tz) {
                 date = moment.tz(date, tz);
-                var offset = date.isDST() ? 1 : 0;
+                const offset = date.isDST() ? 1 : 0;
                 return moment.utc(date.add(offset, 'hour')).format();
             };
 
             self.reserve = function (start, end, room, accessibilities, org) {
-                var deferred = $q.defer();
-                var tz = room.localTimezone;
-                var slot = {};
-                slot.start = adjustBack(start, tz);
-                slot.end = adjustBack(end, tz);
-                slot.examId = parseInt($routeParams.id);
+                const deferred = $q.defer();
+                const tz = room.localTimezone;
+                const slot = {
+                    start: adjustBack(start, tz),
+                    end: adjustBack(end, tz),
+                    examId: parseInt($routeParams.id)
+                };
                 if (org) { // External reservation request
                     slot.roomId = room._id;
                     slot.orgId = org ? org._id : undefined;
@@ -74,15 +77,15 @@ angular.module('app.calendar')
 
             self.renderCalendarTitle = function () {
                 // Fix date range format in title
-                var selector = $('.fc-toolbar .fc-center > h2');
-                var title = selector.text();
-                var newTitle = '';
-                var separator = ' — ';
-                var endPart = title.split(separator)[1];
-                var startFragments = title.split(separator)[0].split('.').filter(function (x) {
+                const selector = $('.fc-toolbar .fc-center > h2');
+                const title = selector.text();
+                const separator = ' — ';
+                const endPart = title.split(separator)[1];
+                const startFragments = title.split(separator)[0].split('.').filter(function (x) {
                     // ignore empty fragments (introduced if title already correctly formatted)
                     return x;
                 });
+                let newTitle = '';
                 if (startFragments.length < 3) {
                     startFragments.forEach(function (f) {
                         newTitle += f;
@@ -95,11 +98,11 @@ angular.module('app.calendar')
                 }
             };
 
-            var getWeekdayNames = function () {
-                var lang = Session.getUser().lang;
-                var locale = lang.toLowerCase() + '-' + lang.toUpperCase();
-                var options = {weekday: 'short'};
-                var weekday = DateTime.getDateForWeekday;
+            const getWeekdayNames = function () {
+                const lang = Session.getUser().lang;
+                const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
+                const options = {weekday: 'short'};
+                const weekday = DateTime.getDateForWeekday;
                 return {
                     SUNDAY: {ord: 7, name: weekday(0).toLocaleDateString(locale, options)},
                     MONDAY: {ord: 1, name: weekday(1).toLocaleDateString(locale, options)},
@@ -111,8 +114,8 @@ angular.module('app.calendar')
                 };
             };
 
-            var findOpeningHours = function (obj, items) {
-                var found = null;
+            const findOpeningHours = function (obj, items) {
+                let found = null;
                 items.some(function (item) {
                     if (item.ref === obj.weekday) {
                         found = item;
@@ -126,13 +129,13 @@ angular.module('app.calendar')
                 if (!room) {
                     return;
                 }
-                var weekdayNames = getWeekdayNames();
-                var openingHours = [];
-                var tz = room.localTimezone;
+                const weekdayNames = getWeekdayNames();
+                const openingHours = [];
+                const tz = room.localTimezone;
 
                 room.defaultWorkingHours.forEach(function (dwh) {
                     if (!findOpeningHours(dwh, openingHours)) {
-                        var obj = {
+                        const obj = {
                             name: weekdayNames[dwh.weekday].name,
                             ref: dwh.weekday,
                             ord: weekdayNames[dwh.weekday].ord,
@@ -140,7 +143,7 @@ angular.module('app.calendar')
                         };
                         openingHours.push(obj);
                     }
-                    var hours = findOpeningHours(dwh, openingHours);
+                    const hours = findOpeningHours(dwh, openingHours);
                     hours.periods.push(
                         moment.tz(dwh.startTime, tz).format('HH:mm') + ' - ' +
                         moment.tz(dwh.endTime, tz).format('HH:mm'));
@@ -153,10 +156,10 @@ angular.module('app.calendar')
                 });
             };
 
-            var formatExceptionEvent = function (event, tz) {
-                var startDate = moment.tz(event.startDate, tz);
-                var endDate = moment.tz(event.endDate, tz);
-                var offset = moment.tz(tz).isDST() ? -1 : 0;
+            const formatExceptionEvent = function (event, tz) {
+                const startDate = moment.tz(event.startDate, tz);
+                const endDate = moment.tz(event.endDate, tz);
+                const offset = moment.tz(tz).isDST() ? -1 : 0;
                 startDate.add(offset, 'hour');
                 endDate.add(offset, 'hour');
                 event.start = startDate.format('DD.MM.YYYY HH:mm');
@@ -168,10 +171,10 @@ angular.module('app.calendar')
                 if (!room) {
                     return;
                 }
-                var start = moment.max(moment(),
+                const start = moment.max(moment(),
                     uiCalendarConfig.calendars.myCalendar.fullCalendar('getView').start);
-                var end = uiCalendarConfig.calendars.myCalendar.fullCalendar('getView').end;
-                var events = room.calendarExceptionEvents.filter(function (e) {
+                const end = uiCalendarConfig.calendars.myCalendar.fullCalendar('getView').end;
+                const events = room.calendarExceptionEvents.filter(function (e) {
                     return (moment(e.startDate) > start && moment(e.endDate) < end);
                 });
                 events.forEach(formatExceptionEvent.call(this, room.localTimezone));
@@ -179,26 +182,26 @@ angular.module('app.calendar')
             };
 
             self.getEarliestOpening = function (room) {
-                var tz = room.localTimezone;
-                var openings = room.defaultWorkingHours.map(function (dwh) {
-                    var start = moment.tz(dwh.startTime, tz);
+                const tz = room.localTimezone;
+                const openings = room.defaultWorkingHours.map(function (dwh) {
+                    const start = moment.tz(dwh.startTime, tz);
                     return moment().hours(start.hours()).minutes(start.minutes()).seconds(start.seconds());
                 });
                 return moment.min(openings);
             };
 
             self.getLatestClosing = function (room) {
-                var tz = room.localTimezone;
-                var closings = room.defaultWorkingHours.map(function (dwh) {
-                    var end = moment.tz(dwh.endTime, tz);
+                const tz = room.localTimezone;
+                const closings = room.defaultWorkingHours.map(function (dwh) {
+                    const end = moment.tz(dwh.endTime, tz);
                     return moment().hours(end.hours()).minutes(end.minutes()).seconds(end.seconds());
                 });
                 return moment.max(closings);
             };
 
             self.getClosedWeekdays = function (room) {
-                var weekdays = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-                var openedDays = room.defaultWorkingHours.map(function (dwh) {
+                const weekdays = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+                const openedDays = room.defaultWorkingHours.map(function (dwh) {
                     return weekdays.indexOf(dwh.weekday);
                 });
                 return [0, 1, 2, 3, 4, 5, 6].filter(function (x) {

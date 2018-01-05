@@ -112,7 +112,7 @@ angular.module('app.question')
             // For weighted mcq
             self.calculateDefaultMaxPoints = function (question) {
                 return question.options
-                    .filter(o => option.defaultScore > 0)
+                    .filter(o => o.defaultScore > 0)
                     .reduce((a, b) => a + b.defaultScore, 0);
             };
 
@@ -122,7 +122,7 @@ angular.module('app.question')
                     return 0;
                 }
                 const points = sectionQuestion.options
-                    .filter(o => option.score > 0)
+                    .filter(o => o.score > 0)
                     .reduce((a, b) => a + parseFloat(b.score), 0);
                 return parseFloat(points.toFixed(2));
             };

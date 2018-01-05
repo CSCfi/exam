@@ -13,9 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-'use strict';
-
-const moment = require('moment');
+import angular from 'angular';
+import _ from 'lodash';
+import moment from 'moment';
 
 angular.module('app')
 
@@ -29,7 +29,7 @@ angular.module('app')
                         ngModel.$setValidity('date', true);
                         ngModel.$setValidity('required', true);
                         if (value instanceof Date) {
-                            var d = Date.parse(value);
+                            const d = Date.parse(value);
                             // it is a date
                             if (isNaN(d)) {
                                 ngModel.$setValidity('badDate', false);
@@ -58,10 +58,10 @@ angular.module('app')
             },
             link: function (scope, elem, attrs, ngModel) {
                 function validate(value) {
-                    var values = !scope.items ? [] : scope.items.map(function (i) {
+                    const values = !scope.items ? [] : scope.items.map(function (i) {
                         return i[scope.property];
                     }).filter(function (i) {
-                        return i == value;
+                        return i === value;
                     });
                     ngModel.$setValidity('uniqueness', values.length < 2);
                 }
@@ -108,7 +108,7 @@ angular.module('app')
                     }
 
                     function createEvalAttr(innerAttr, dateTimeAttrOpt) {
-                        var dateTimeAttr = angular.isDefined(dateTimeAttrOpt) ? dateTimeAttrOpt : innerAttr;
+                        const dateTimeAttr = angular.isDefined(dateTimeAttrOpt) ? dateTimeAttrOpt : innerAttr;
                         if (attrs[dateTimeAttr]) {
                             return dashCase(innerAttr) + '="' + attrs[dateTimeAttr] + '" ';
                         } else {
@@ -120,7 +120,7 @@ angular.module('app')
                         return previousAttrs + createAttr.apply(null, attr);
                     }
 
-                    var tmpl = '<div id="datetimepicker" class="datetimepicker-wrapper">' +
+                    return '<div id="datetimepicker" class="datetimepicker-wrapper">' +
                         '<input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-click="open($event)" is-open="opened" ng-model="ngModel" ' +
                         'datepicker-options="datepickerOptions" close-text="{{\'sitnet_close\' | translate}}" ' +
                         'current-text="{{\'sitnet_today\' | translate}}" date-validator />\n' +
@@ -136,7 +136,6 @@ angular.module('app')
                         createEvalAttr('readonlyInput', 'readonlyTime') +
                         '></div>\n' +
                         '</div>';
-                    return tmpl;
                 },
                 controller: ['$scope',
                     function ($scope) {
@@ -168,16 +167,14 @@ angular.module('app')
         }])
 
 
-    .directive('ckEditor', ['$rootScope', 'lodash', function ($rootScope, lodash) {
+    .directive('ckEditor', ['$rootScope', function ($rootScope) {
         return {
             require: 'ngModel',
             scope: {
                 enableClozeTest: '=?'
             },
             link: function (scope, elm, attr, ngModel) {
-                var tmp;
-
-                var ck = CKEDITOR.replace(elm[0]);
+                const ck = CKEDITOR.replace(elm[0]);
 
                 if (!ngModel) {
                     return;
@@ -191,7 +188,7 @@ angular.module('app')
                 });
 
                 scope.$watch('enableClozeTest', function (value) {
-                    var cmd = ck.getCommand('insertCloze');
+                    const cmd = ck.getCommand('insertCloze');
                     if (cmd) {
                         if (!value) {
                             cmd.disable();
@@ -202,17 +199,19 @@ angular.module('app')
                 });
 
                 function updateModel() {
-                    lodash.defer(function () {
+                    _.defer(function () {
                         scope.$apply(function () {
                             ngModel.$setViewValue(ck.getData());
                         });
                     });
                 }
 
-                ck.on('change', lodash.debounce(updateModel, 100)); // This can bring down the UI if not scaled down
+                ck.on('change', _.debounce(updateModel, 100)); // This can bring down the UI if not scaled down
                 ck.on('dataReady', updateModel);
-                ck.on('key', lodash.debounce(updateModel, 100));
+                ck.on('key', _.debounce(updateModel, 100));
                 ck.on('mode', updateModel); // Editing mode change
+
+                let tmp;
 
                 ngModel.$render = function (value) {
                     tmp = ngModel.$modelValue;
@@ -227,13 +226,13 @@ angular.module('app')
             restrict: 'A',
             require: 'ngModel',
             link: function (scope, elem, attrs, ngModel) {
-                var toFixed = function (input) {
+                const toFixed = function (input) {
                     if (!input) {
                         input = 0;
                     }
-                    var re = /^-?[0-9]+(\.[0-9]{1,2})?$/i;
+                    const re = /^-?[0-9]+(\.[0-9]{1,2})?$/i;
                     if (!input.toString().match(re)) {
-                        var fixed = parseFloat(input.toFixed(2));
+                        const fixed = parseFloat(input.toFixed(2));
                         ngModel.$setViewValue(fixed);
                         ngModel.$render();
                         return fixed;
@@ -254,13 +253,13 @@ angular.module('app')
                 editable: '=?'
             },
             link: function (scope, element, attrs) {
-                var editable = angular.isUndefined(scope.editable) || scope.editable; // defaults to true
-                var replacement = angular.element(scope.content);
-                var inputs = replacement.find('input');
-                for (var i = 0; i < inputs.length; ++i) {
-                    var input = inputs[i];
-                    var id = input.attributes.id.value;
-                    var answer = scope.results ? scope.results[input.id] : null;
+                const editable = angular.isUndefined(scope.editable) || scope.editable; // defaults to true
+                const replacement = angular.element(scope.content);
+                const inputs = replacement.find('input');
+                for (let i = 0; i < inputs.length; ++i) {
+                    const input = inputs[i];
+                    const id = input.attributes.id.value;
+                    const answer = scope.results ? scope.results[input.id] : null;
                     if (answer) {
                         input.setAttribute('size', answer.length);
                     }
@@ -278,7 +277,7 @@ angular.module('app')
         return {
             restrict: 'A', // only activate on element attribute
             link: function (scope, elem, attrs) {
-                var parser = $parse(attrs.uiBlur);
+                const parser = $parse(attrs.uiBlur);
                 elem.bind('blur', function () {
                     parser(scope);
                 });
@@ -290,7 +289,7 @@ angular.module('app')
         return {
             restrict: 'A', // only activate on element attribute
             link: function (scope, elem, attrs) {
-                var parser = $parse(attrs.uiChange);
+                const parser = $parse(attrs.uiChange);
                 elem.bind('change', function () {
                     parser(scope);
                 });
@@ -302,8 +301,8 @@ angular.module('app')
         return {
             restrict: 'A',
             link: function (scope, element, attrs) {
-                var model = $parse(attrs.fileModel);
-                var modelSetter = model.assign;
+                const model = $parse(attrs.fileModel);
+                const modelSetter = model.assign;
 
                 element.bind('change', function () {
                     scope.$apply(function () {
@@ -351,11 +350,11 @@ angular.module('app')
         return {
             require: 'ngModel',
             link: function (scope, element, attrs, modelCtrl) {
-                var toLowerCase = function (input) {
+                const toLowerCase = function (input) {
                     if (input === undefined) {
                         input = '';
                     }
-                    var lc = input.toLowerCase();
+                    const lc = input.toLowerCase();
                     if (lc !== input) {
                         modelCtrl.$setViewValue(lc);
                         modelCtrl.$render();
@@ -444,7 +443,7 @@ angular.module('app')
                 currentPage: '=currentPage'
             }, // We might want to wire this with the table this paginates upon. The question is: HOW :)
             link: function (scope, element, attrs) {
-                var pageCount = 0;
+                let pageCount = 0;
                 scope.currentPage = 0;
                 scope.$watch('items', function (items) {
                     if (items) {
@@ -486,8 +485,8 @@ angular.module('app')
                 };
 
                 scope.range = function () {
-                    var ret = [];
-                    for (var x = 0; x <= pageCount; ++x) {
+                    const ret = [];
+                    for (let x = 0; x <= pageCount; ++x) {
                         ret.push(x);
                     }
                     return ret;
