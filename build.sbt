@@ -105,11 +105,13 @@ test in Test := {
 
 val conf = Properties.propOrEmpty("config.resource")
 
-PlayKeys.playRunHooks += {
-  if (conf.equals("protractor.conf") && webDriver.value == 0)
-    Protractor(baseDirectory.value,
-      Properties.propOrElse("protractor.config", "conf.js"),
-      Properties.propOrElse("protractor.args", " "))
-  else
-    Karma(baseDirectory.value)
-}
+PlayKeys.playRunHooks ++= Seq(MockCourseInfo(baseDirectory.value),
+  {
+    if (conf.equals("protractor.conf") && webDriver.value == 0)
+      Protractor(baseDirectory.value,
+        Properties.propOrElse("protractor.config", "conf.js"),
+        Properties.propOrElse("protractor.args", " "))
+    else
+      Karma(baseDirectory.value)
+  }
+)

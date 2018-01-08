@@ -30,7 +30,7 @@ var Fixture = function () {
     };
 
     this.clearFixtures = function () {
-        var tables = ['app_user', 'exam', 'organisation', 'question'];
+        var tables = ['app_user', 'exam', 'organisation', 'question', 'course'];
         console.log("Clearing fixtures from tables: " + tables);
         var queries = [];
         for (var i = 0; i < tables.length; i++) {
