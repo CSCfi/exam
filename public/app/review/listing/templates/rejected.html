@@ -13,14 +13,14 @@
     </div>
 </div>
 
-<div ng-show="$ctrl.data.rejected.filtered.length === 0">
+<div ng-show="$ctrl.data.rejected.items.length === 0">
     <div class="review-no-results"><i class="fa fa-exclamation-circle padl20 grayish"></i>
         {{ 'sitnet_exam_no_rejected' | translate }}
     </div>
 </div>
 
 
-<div ng-show="$ctrl.data.rejected.toggle && $ctrl.data.rejected.filtered.length > 0">
+<div ng-show="$ctrl.data.rejected.toggle && $ctrl.data.rejected.items.length > 0">
 
     <div class="form-group input-group search tab-search review-list-search padl0 marl30">
         <input ng-change="$ctrl.applyFreeSearchFilter('rejected')"
@@ -36,25 +36,25 @@
         <thead>
         <tr>
             <th sort by="user.lastName" text="sitnet_student" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
+                reverse="$ctrl.data.rejected.reverse"></th>
             <th sort by="user.email" text="sitnet_email" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
+                reverse="$ctrl.data.rejected.reverse"></th>
             <th sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
+                reverse="$ctrl.data.rejected.reverse"></th>
             <th sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
+                reverse="$ctrl.data.rejected.reverse"></th>
             <th sort by="deadline" text="sitnet_review_deadline" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
+                reverse="$ctrl.data.rejected.reverse"></th>
             <th sort by="displayedGrade" text="sitnet_grade" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
+                reverse="$ctrl.data.rejected.reverse"></th>
             <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
+                reverse="$ctrl.data.rejected.reverse"></th>
             <th sort by="displayedGradingTime" text="sitnet_graded" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
+                reverse="$ctrl.data.rejected.reverse"></th>
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="review in $ctrl.data.rejected.filtered | orderBy:$ctrl.data.rejected.predicate:$data.rejected.reverse
+        <tr ng-repeat="review in $ctrl.data.rejected.filtered | orderBy:$ctrl.data.rejected.predicate:$ctrl.data.rejected.reverse
             | offset: $ctrl.data.rejected.page*$ctrl.pageSize | limitTo: $ctrl.pageSize">
             <td class="table-column-13 table-column-bold">
                 <a class="pointer" href="/assessments/{{review.exam.id}}">

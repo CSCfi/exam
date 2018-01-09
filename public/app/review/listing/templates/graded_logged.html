@@ -17,14 +17,14 @@
 </div>
 
 
-<div ng-show="$ctrl.data.finished.filtered.length === 0">
+<div ng-show="$ctrl.data.finished.items.length === 0">
     <div class="review-no-results"><i class="fa fa-exclamation-circle padl20 grayish"></i>
         {{ 'sitnet_exam_no_graded_logged' | translate }}
     </div>
 </div>
 
 
-<div ng-show="$ctrl.data.finished.toggle && $ctrl.data.finished.filtered.length > 0">
+<div ng-show="$ctrl.data.finished.toggle && $ctrl.data.finished.items.length > 0">
     <div class="form-group input-group search tab-search review-list-search padl0 marl30">
         <input ng-change="$ctrl.applyFreeSearchFilter('finished')"
                ng-model="$ctrl.data.finished.filter"

@@ -15,14 +15,14 @@
     </div>
 </div>
 
-<div ng-show="$ctrl.data.graded.filtered.length === 0">
+<div ng-show="$ctrl.data.graded.items.length === 0">
     <div class="review-no-results">
         <i class="fa fa-exclamation-circle padl20 grayish"></i>
         {{ 'sitnet_exam_no_logged' | translate }}
     </div>
 </div>
 
-<div ng-show="$ctrl.data.graded.toggle && $ctrl.data.graded.filtered.length > 0">
+<div ng-show="$ctrl.data.graded.toggle && $ctrl.data.graded.items.length > 0">
 
     <div class="col-md-12">
         <div class="form-group input-group search tab-search review-list-search padl0 marl10">
