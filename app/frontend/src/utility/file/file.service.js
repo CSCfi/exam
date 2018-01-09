@@ -15,6 +15,7 @@
 
 import angular from 'angular';
 import toast from 'toastr';
+import FileSaver from 'filesaver.js';
 
 angular.module('app.utility')
     .factory('Files', ['$q', '$http', '$translate', '$timeout', 'SettingsResource',
@@ -46,7 +47,7 @@ angular.module('app.utility')
                         ia[i] = byteString.charCodeAt(i);
                     }
                     const blob = new Blob([ia], {type: contentType});
-                    saveAs(blob, fileName);
+                    FileSaver.saveAs(blob, fileName);
                 }
             };
 

@@ -13,12 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
+import angular from 'angular';
 import _ from 'lodash';
+import toast from 'toastr';
 
 angular.module('app.review')
-    .service('ReviewList', ['Exam',
-        function (Exam) {
+    .service('ReviewList', ['$q', '$translate', 'Exam', 'ExamRes',
+        function ($q, $translate, Exam, ExamRes) {
 
             const self = this;
 
@@ -57,6 +58,22 @@ angular.module('app.review')
                     || _.get(review, 'user.email', '').toLowerCase().indexOf(s) > -1;
             };
 
+            self.filterByState = function (reviews, states) {
+                return reviews.filter(function (r) {
+                    return states.indexOf(r.exam.state) > -1;
+                });
+            };
+
+            self.prepareView = function (items, setup) {
+                items.forEach(setup);
+                return {
+                    items: items,
+                    filtered: items,
+                    toggle: items.length > 0,
+                    pageSize: 30
+                };
+            };
+
             self.applyFilter = function (filter, items) {
                 if (!filter) {
                     return items;
@@ -64,7 +81,120 @@ angular.module('app.review')
                 return items.filter(function (i) {
                     return self.filterReview(filter, i);
                 });
-            }
+            };
+
+            const getSelectedReviews = function (items) {
+                const objects = items.filter(function (i) {
+                    return i.selected;
+                });
+                if (objects.length === 0) {
+                    toast.warning($translate.instant('sitnet_choose_atleast_one'));
+                    return;
+                }
+                return objects;
+            };
+
+            self.sendSelectedToRegistry = function (data) {
+                const selection = getSelectedReviews(data);
+                if (!selection) {
+                    return;
+                }
+                const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_record_review'));
+
+                dialog.result.then(function (btn) {
+                    const promises = [];
+                    selection.forEach(function (r) {
+                        promises.push(send(r));
+                    });
+                    $q.all(promises).then(function () {
+                        toast.info($translate.instant('sitnet_results_send_ok'));
+                    });
+                });
+            };
+
+            const resetSelections = function (scope, view) {
+                let prev, next;
+                for (let k in scope) {
+                    if (scope.hasOwnProperty(k)) {
+                        if (k === view) {
+                            scope[k] = !scope[k];
+                            next = scope[k];
+                        } else {
+                            if (scope[k]) {
+                                prev = true;
+                            }
+                            scope[k] = false;
+                        }
+                    }
+                }
+                return prev && next;
+            };
+
+            self.selectAll = function (scope, items) {
+                const override = resetSelections(scope, 'all');
+                items.forEach(function (i) {
+                    i.selected = !i.selected || override;
+                });
+            };
+
+            self.selectPage = function (scope, items, selector) {
+                const override = resetSelections(scope, 'page');
+                const boxes = angular.element('.' + selector);
+                const ids = [];
+                angular.forEach(boxes, function (input) {
+                    ids.push(parseInt(angular.element(input).val()));
+                });
+                // init all as not selected
+                if (override) {
+                    items.forEach(function (i) {
+                        i.selected = false;
+                    });
+                }
+                const pageItems = items.filter(function (i) {
+                    return ids.indexOf(i.exam.id) > -1;
+                });
+                pageItems.forEach(function (pi) {
+                    pi.selected = !pi.selected || override;
+                });
+            };
+
+            self.getSelectedReviews = function (items) {
+                const objects = items.filter(function (i) {
+                    return i.selected;
+                });
+                if (objects.length === 0) {
+                    toast.warning($translate.instant('sitnet_choose_atleast_one'));
+                    return;
+                }
+                return objects;
+            };
+
+            self.sendToRegistry = function (review) {
+                const deferred = $q.defer();
+                const exam = review.exam;
+                const resource = exam.gradeless ? ExamRes.register : ExamRes.saveRecord;
+                if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
+                    const examToRecord = {
+                        'id': exam.id,
+                        'state': 'GRADED_LOGGED',
+                        'grade': exam.grade,
+                        'customCredit': exam.customCredit,
+                        'totalScore': exam.totalScore,
+                        'creditType': exam.creditType,
+                        'sendFeedback': true,
+                        'answerLanguage': exam.answerLanguage
+                    };
+
+                    resource.add(examToRecord, function () {
+                        deferred.resolve();
+                    });
+                } else {
+                    toast.error($translate.instant('sitnet_failed_to_record_review'));
+                    deferred.reject();
+                }
+                return deferred.promise;
+            };
+
 
         }]);
 

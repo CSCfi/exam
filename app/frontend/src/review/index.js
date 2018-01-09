@@ -49,6 +49,12 @@ require('./listing/dialogs/archiveDownload.component');
 require('./listing/dialogs/feedback.component');
 require('./listing/dialogs/noShows.component');
 
+require('./listing/categories/archived.component');
+require('./listing/categories/inProgress.component');
+require('./listing/categories/inLanguageInspection.component');
+require('./listing/categories/graded.component');
+require('./listing/categories/gradedLogged.component');
+
 require('./questions/questionReview.service');
 require('./questions/assessment/questionAssessment.component');
 require('./questions/assessment/essayAnswer.component');

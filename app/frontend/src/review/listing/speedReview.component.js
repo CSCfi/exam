@@ -15,6 +15,8 @@
 
 import angular from 'angular';
 import toast from 'toastr';
+import moment from 'moment';
+import FileSaver from 'filesaver.js';
 
 angular.module('app.review')
     .component('speedReview', {
@@ -175,7 +177,7 @@ angular.module('app.review')
                         keyboard: true,
                         animation: true,
                         component: 'attachmentSelector',
-                        resolve: {title: 'sitnet_import_grades_from_csv'}
+                        resolve: {title: function () { return 'sitnet_import_grades_from_csv';}}
                     }).result.then(function () {
                         $route.reload();
                     });
@@ -196,7 +198,7 @@ angular.module('app.review')
                     }, '');
                     const content = 'exam id,grade,feedback,total score,student,student id\n' + rows;
                     const blob = new Blob([content], {type: 'text/csv;charset=utf-8'});
-                    saveAs(blob, 'grading.csv');
+                    FileSaver.saveAs(blob, 'grading.csv');
                 };
 
                 const handleOngoingReviews = function (review) {

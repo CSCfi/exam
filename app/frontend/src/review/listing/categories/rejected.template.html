@@ -1,11 +1,11 @@
 <div class="main-row">
     <div class="col-md-12">
         <div class="review-list-title">{{ 'sitnet_exam_rejected' | translate }}
-            <a ng-click="$ctrl.data.rejected.toggle = !$ctrl.data.rejected.toggle" class="pointer">
-                <img ng-show="!$ctrl.data.rejected.toggle" src="/assets/assets/images/icon_list_show_right.svg"
+            <a ng-click="$ctrl.data.toggle = !$ctrl.data.toggle" class="pointer">
+                <img ng-show="!$ctrl.data.toggle" src="/assets/assets/images/icon_list_show_right.svg"
                      alt="exam"
                      onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"/>
-                <img ng-show="$ctrl.data.rejected.toggle" src="/assets/assets/images/icon_list_show_down.svg"
+                <img ng-show="$ctrl.data.toggle" src="/assets/assets/images/icon_list_show_down.svg"
                      alt="exam"
                      onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"/>
             </a>
@@ -13,18 +13,18 @@
     </div>
 </div>
 
-<div ng-show="$ctrl.data.rejected.filtered.length === 0">
+<div ng-show="$ctrl.data.items.length === 0">
     <div class="review-no-results"><i class="fa fa-exclamation-circle padl20 grayish"></i>
         {{ 'sitnet_exam_no_rejected' | translate }}
     </div>
 </div>
 
 
-<div ng-show="$ctrl.data.rejected.toggle && $ctrl.data.rejected.filtered.length > 0">
+<div ng-show="$ctrl.data.toggle && $ctrl.data.items.length > 0">
 
     <div class="form-group input-group search tab-search review-list-search padl0 marl30">
-        <input ng-change="$ctrl.applyFreeSearchFilter('rejected')"
-               ng-model="$ctrl.data.rejected.filter"
+        <input ng-change="$ctrl.applyFreeSearchFilter()"
+               ng-model="$ctrl.data.filter"
                class="form-control search"
                placeholder="{{'sitnet_search' | translate }}">
         <div class="input-group-addon search">
@@ -35,27 +35,27 @@
     <table class="table table-striped exams-table">
         <thead>
         <tr>
-            <th sort by="user.lastName" text="sitnet_student" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
-            <th sort by="user.email" text="sitnet_email" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
-            <th sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
-            <th sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
-            <th sort by="deadline" text="sitnet_review_deadline" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
-            <th sort by="displayedGrade" text="sitnet_grade" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
-            <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
-            <th sort by="displayedGradingTime" text="sitnet_graded" predicate="$ctrl.data.rejected.predicate"
-                reverse="$data.rejected.reverse"></th>
+            <th sort by="user.lastName" text="sitnet_student" predicate="$ctrl.data.predicate"
+                reverse="$ctrl.data.reverse"></th>
+            <th sort by="user.email" text="sitnet_email" predicate="$ctrl.data.predicate"
+                reverse="$ctrl.data.reverse"></th>
+            <th sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.predicate"
+                reverse="$ctrl.data.reverse"></th>
+            <th sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.predicate"
+                reverse="$ctrl.data.reverse"></th>
+            <th sort by="deadline" text="sitnet_review_deadline" predicate="$ctrl.data.predicate"
+                reverse="$ctrl.data.reverse"></th>
+            <th sort by="displayedGrade" text="sitnet_grade" predicate="$ctrl.data.predicate"
+                reverse="$ctrl.data.reverse"></th>
+            <th sort by="displayedCredit" text="sitnet_exam_credit" predicate="$ctrl.data.predicate"
+                reverse="$ctrl.data.reverse"></th>
+            <th sort by="displayedGradingTime" text="sitnet_graded" predicate="$ctrl.data.predicate"
+                reverse="$ctrl.data.reverse"></th>
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="review in $ctrl.data.rejected.filtered | orderBy:$ctrl.data.rejected.predicate:$data.rejected.reverse
-            | offset: $ctrl.data.rejected.page*$ctrl.pageSize | limitTo: $ctrl.pageSize">
+        <tr ng-repeat="review in $ctrl.data.filtered | orderBy:$ctrl.data.predicate:$ctrl.data.reverse
+            | offset: $ctrl.data.page*$ctrl.data.pageSize | limitTo: $ctrl.data.pageSize">
             <td class="table-column-13 table-column-bold">
                 <a class="pointer" href="/assessments/{{review.exam.id}}">
                     {{review.user.firstName}} {{review.user.lastName}}
@@ -79,11 +79,11 @@
             </td>
             <td class="table-column-15">{{review.displayedGradingTime | date:'dd.MM.yyyy'}}</td>
         </tr>
-        <tr ng-if="$ctrl.data.rejected.filtered.length === 0">
+        <tr ng-if="$ctrl.data.filtered.length === 0">
             <td colspan="7">{{'sitnet_review_no_result' | translate}}</td>
         </tr>
         <!--Fill if page not full-->
-        <tr ng-repeat="r in [] | pagefill: $ctrl.data.rejected.filtered.length:$ctrl.data.rejected.page:$ctrl.pageSize">
+        <tr ng-repeat="r in [] | pagefill: $ctrl.data.filtered.length:$ctrl.data.page:$ctrl.data.pageSize">
             <td class="table-column-examname">&nbsp;</td>
             <td colspan="6"></td>
         </tr>
@@ -92,9 +92,9 @@
 
 </div>
 
-<div class="detail-row" ng-show="$ctrl.data.rejected.toggle">
-    <div class="col-md-12" ng-show="$ctrl.data.rejected.filtered.length > $ctrl.pageSize">
-        <paginator items="$ctrl.data.rejected.filtered" page-size="$ctrl.pageSize" current-page="$ctrl.data.rejected.page"/>
+<div class="detail-row" ng-show="$ctrl.data.toggle">
+    <div class="col-md-12" ng-show="$ctrl.data.filtered.length > $ctrl.data.pageSize">
+        <paginator items="$ctrl.data.filtered" page-size="$ctrl.data.pageSize" current-page="$ctrl.data.page"/>
     </div>
 </div>
 

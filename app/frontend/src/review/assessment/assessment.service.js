@@ -13,11 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-angular.module('app.review')
-    .service('Assessment', ['$q', '$resource', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Question', 'toast',
-        function ($q, $resource, $translate, $location, $timeout, dialogs, ExamRes, Session, Question, toast) {
 
-            var self = this;
+import angular from 'angular';
+import toast from 'toastr';
+
+angular.module('app.review')
+    .service('Assessment', ['$q', '$resource', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Question',
+        function ($q, $resource, $translate, $location, $timeout, dialogs, ExamRes, Session, Question) {
+
+            const self = this;
 
             self.noShowApi = $resource('/app/noshows/:eid/:uid', {
                 eid: '@eid',
@@ -36,8 +40,8 @@ angular.module('app.review')
             });
 
             self.saveFeedback = function (exam, silent) {
-                var deferred = $q.defer();
-                var examFeedback = {
+                const deferred = $q.defer();
+                const examFeedback = {
                     'comment': exam.examFeedback.comment
                 };
 
@@ -84,7 +88,7 @@ angular.module('app.review')
             };
 
             self.pickExamLanguage = function (exam) {
-                var lang = exam.answerLanguage;
+                let lang = exam.answerLanguage;
                 if (lang) {
                     return {code: lang};
                 }
@@ -95,8 +99,8 @@ angular.module('app.review')
             };
 
             self.checkCredit = function (exam, silent) {
-                var credit = exam.customCredit;
-                var valid = !isNaN(credit) && credit >= 0;
+                const credit = exam.customCredit;
+                const valid = !isNaN(credit) && credit >= 0;
                 if (!valid) {
                     if (!silent) {
                         toast.error($translate.instant('sitnet_not_a_valid_custom_credit'));
@@ -118,7 +122,7 @@ angular.module('app.review')
                 if (!text) {
                     return 0;
                 }
-                var normalizedText = text
+                let normalizedText = text
                     .replace(/\s/g, '')
                     .replace(/&nbsp;/g, '')
                     .replace(/(\r\n|\n|\r)/gm, '')
@@ -132,16 +136,16 @@ angular.module('app.review')
                 if (!text) {
                     return 0;
                 }
-                var normalizedText = text
+                let normalizedText = text
                     .replace(/(\r\n|\n|\r)/gm, ' ')
                     .replace(/^\s+|\s+$/g, '')
                     .replace('&nbsp;', ' ');
 
                 normalizedText = strip(normalizedText);
 
-                var words = normalizedText.split(/\s+/);
+                const words = normalizedText.split(/\s+/);
 
-                for (var wordIndex = words.length - 1; wordIndex >= 0; wordIndex--) {
+                for (let wordIndex = words.length - 1; wordIndex >= 0; wordIndex--) {
                     if (words[wordIndex].match(/^([\s\t\r\n]*)$/)) {
                         words.splice(wordIndex, 1);
                     }
@@ -150,7 +154,7 @@ angular.module('app.review')
             };
 
             self.getExitUrl = function (exam) {
-                var user = Session.getUser || {isAdmin: false};
+                const user = Session.getUser || {isAdmin: false};
                 return user.isAdmin ? '/' : '/exams/' + exam.parent.id + '/4';
             };
 
@@ -159,14 +163,14 @@ angular.module('app.review')
                 if (!self.checkCredit(exam)) {
                     return;
                 }
-                var messages = getErrors(exam);
+                const messages = getErrors(exam);
                 if (messages.length > 0) {
                     messages.forEach(function (msg) {
                         toast.error($translate.instant(msg));
                     });
                 }
                 else {
-                    var dialogNote, res;
+                    let dialogNote, res;
                     if (exam.gradeless) {
                         dialogNote = $translate.instant('sitnet_confirm_archiving_without_grade');
                         res = ExamRes.register.add;
@@ -174,9 +178,9 @@ angular.module('app.review')
                         dialogNote = self.getRecordReviewConfirmationDialogContent(exam.examFeedback.comment);
                         res = ExamRes.saveRecord.add;
                     }
-                    var payload = getPayload(exam, 'GRADED');
+                    const payload = getPayload(exam, 'GRADED');
                     if (needsConfirmation) {
-                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), dialogNote);
+                        const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), dialogNote);
                         dialog.result.then(function () {
                             register(exam, res, payload, followUpUrl);
                         });
@@ -219,17 +223,17 @@ angular.module('app.review')
                     if (!self.checkCredit(exam)) {
                         return;
                     }
-                    var messages = getErrors(exam);
+                    const messages = getErrors(exam);
                     if (exam.executionType.type === 'MATURITY') {
                         sendAssessment(exam.state, getPayload(exam), messages, exam);
                     } else {
-                        var oldState = exam.state;
-                        var newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
-                        var payload = getPayload(exam, newState);
+                        const oldState = exam.state;
+                        const newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
+                        const payload = getPayload(exam, newState);
                         if (newState !== 'GRADED' || oldState === 'GRADED') {
                             sendAssessment(newState, payload, messages, exam);
                         } else {
-                            var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_grade_review'));
+                            const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_grade_review'));
                             dialog.result.then(function () {
                                 sendAssessment(newState, payload, messages, exam);
                             });
@@ -239,9 +243,9 @@ angular.module('app.review')
             };
 
             self.rejectMaturity = function (exam, askConfirmation, followUpUrl) {
-                var reject = function () {
+                const reject = function () {
                     saveFeedback(exam).then(function () {
-                        var payload = getPayload(exam, 'REJECTED');
+                        const payload = getPayload(exam, 'REJECTED');
                         ExamRes.review.update(payload, function () {
                             toast.info($translate.instant('sitnet_maturity_rejected'));
                             $location.path(followUpUrl || self.getExitUrl(exam));
@@ -251,7 +255,7 @@ angular.module('app.review')
                     });
                 };
                 if (askConfirmation) {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                    const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                         $translate.instant('sitnet_confirm_maturity_disapproval'));
                     dialog.result.then(function () {
                         reject();
@@ -266,8 +270,8 @@ angular.module('app.review')
                 return getPayload(exam, state);
             };
 
-            var strip = function (html) {
-                var tmp = document.createElement('div');
+            const strip = function (html) {
+                const tmp = document.createElement('div');
                 tmp.innerHTML = html;
 
                 if (!tmp.textContent && typeof tmp.innerText === 'undefined') {
@@ -277,7 +281,7 @@ angular.module('app.review')
                 return tmp.textContent || tmp.innerText;
             };
 
-            var sendAssessment = function (newState, payload, messages, exam) {
+            const sendAssessment = function (newState, payload, messages, exam) {
                 ExamRes.review.update(payload, function () {
                     saveFeedback(exam).then(function () {
                         if (newState === 'REVIEW_STARTED') {
@@ -297,8 +301,8 @@ angular.module('app.review')
                 });
             };
 
-            var getErrors = function (exam) {
-                var messages = [];
+            const getErrors = function (exam) {
+                const messages = [];
                 if (!exam.grade.id) {
                     messages.push('sitnet_participation_unreviewed');
                 }
@@ -311,11 +315,11 @@ angular.module('app.review')
                 return messages;
             };
 
-            var saveFeedback = function (exam) {
+            const saveFeedback = function (exam) {
                 return self.saveFeedback(exam, true);
             };
 
-            var sendToRegistry = function (payload, res, exam, followUpUrl) {
+            const sendToRegistry = function (payload, res, exam, followUpUrl) {
                 payload.state = 'GRADED_LOGGED';
                 res(payload, function () {
                     toast.info($translate.instant('sitnet_review_recorded'));
@@ -325,7 +329,7 @@ angular.module('app.review')
                 });
             };
 
-            var getPayload = function (exam, state) {
+            const getPayload = function (exam, state) {
                 return {
                     'id': exam.id,
                     'state': state || exam.state,
@@ -338,7 +342,7 @@ angular.module('app.review')
                 };
             };
 
-            var register = function (exam, res, payload, followUpUrl) {
+            const register = function (exam, res, payload, followUpUrl) {
                 saveFeedback(exam).then(function () {
                     ExamRes.review.update(payload, function () {
                         if (exam.state !== 'GRADED') {
