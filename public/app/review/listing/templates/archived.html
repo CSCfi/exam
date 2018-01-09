@@ -13,7 +13,7 @@
     </div>
 </div>
 
-<div ng-show="$ctrl.archivedReviews.length === 0">
+<div ng-show="$ctrl.data.archived.items.length === 0">
     <div class="col-md-12 review-no-results">
         <i class="fa fa-exclamation-circle padl20 grayish"></i>
         {{ 'sitnet_exam_archived' | translate }}
@@ -21,7 +21,7 @@
 </div>
 
 
-<div ng-show="$ctrl.data.archived.toggle && $ctrl.data.archived.filtered.length > 0">
+<div ng-show="$ctrl.data.archived.toggle && $ctrl.data.archived.items.length > 0">
 
     <div class="form-group input-group search tab-search review-list-search padl0 marl30">
         <input ng-change="$ctrl.applyFreeSearchFilter('archived')"
