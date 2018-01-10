@@ -92,8 +92,8 @@ export default function configs($translateProvider, $routeProvider, $httpProvide
 
 
     /* reservations */
-    $routeProvider.when('/reservations', {template: '<reservations user-role="teacher"></reservations>'});
-    $routeProvider.when('/reservations/:eid', {template: '<reservations user-role="teacher"></reservations>'});
+    $routeProvider.when('/reservations', {template: '<teacher-reservations user-role="teacher"></teacher-reservations>'});
+    $routeProvider.when('/reservations/:eid', {template: '<teacher-reservations user-role="teacher"></teacher-reservations>'});
 
     /* Admin */
     $routeProvider.when('/exams', {template: '<exam-list></exam-list>'});

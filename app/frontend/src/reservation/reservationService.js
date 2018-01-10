@@ -24,6 +24,10 @@ angular.module('app.reservation')
 
             const self = this;
 
+            self.printExamState = function (reservation) {
+                return reservation.noShow ? 'NO_SHOW' : reservation.enrolment.exam.state;
+            };
+
             self.removeReservation = function (enrolment) {
                 const externalRef = enrolment.reservation.externalRef;
                 const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
@@ -52,71 +56,35 @@ angular.module('app.reservation')
             };
 
             self.changeMachine = function (reservation) {
-                const modalController = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
-                    $scope.selection = {};
-                    $scope.availableMachines = ReservationRes.availableMachines.query({id: reservation.id});
-                    $scope.ok = function () {
-                        ReservationRes.machine.update({
-                            id: reservation.id,
-                            machineId: $scope.selection.machineId
-                        }, function (machine) {
-                            toast.info($translate.instant('sitnet_updated'));
-                            reservation.machine = machine;
-                            $modalInstance.close('Accepted');
-                        }, function (msg) {
-                            toast.error(msg);
-                        });
-                    };
-
-                    $scope.cancel = function () {
-                        $modalInstance.close('Dismissed');
-                    };
-
-                }];
-
-                const modalInstance = $modal.open({
-                    templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/admin/change_machine_dialog.html',
+                $modal.open({
+                    component: 'changeMachineDialog',
+                    resolve: {
+                        reservation: reservation
+                    },
                     backdrop: 'static',
-                    keyboard: true,
-                    controller: modalController
-                });
-
-                modalInstance.result.then(function () {
-                    console.log('closed');
-                });
+                    keyboard: true
+                }).result.then(function (data) {
+                    if (!data.machine) {
+                        return;
+                    }
+                    reservation.machine = data.machine;
+                }).catch(angular.noop);
             };
 
             self.cancelReservation = function (reservation) {
                 const deferred = $q.defer();
-                const modalController = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
-                    $scope.message = {};
-                    $scope.ok = function () {
-                        ReservationRes.reservation.remove({id: reservation.id, msg: $scope.message.text},
-                            function () {
-                                $modalInstance.close('Accepted');
-                                deferred.resolve('ok');
-                            }, function (error) {
-                                toast.error(error.data);
-                            });
-                    };
 
-                    $scope.cancel = function () {
-                        $modalInstance.close('Dismissed');
-                        deferred.reject();
-                    };
-
-                }];
-
-                const modalInstance = $modal.open({
-                    templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/admin/remove_reservation_dialog.html',
+                $modal.open({
+                    component: 'removeReservationDialog',
+                    resolve: {
+                        reservation: reservation
+                    },
                     backdrop: 'static',
-                    keyboard: true,
-                    controller: modalController
-                });
-
-                modalInstance.result.then(function () {
-                    console.log('closed');
-                    deferred.reject();
+                    keyboard: true
+                }).result.then(function () {
+                    deferred.resolve();
+                }).catch(function (e) {
+                    deferred.reject(e);
                 });
                 return deferred.promise;
             };
