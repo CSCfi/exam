@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -16,13 +16,13 @@
 import angular from 'angular';
 
 angular.module('app.review')
-    .component('rMultiChoiceQuestion', {
-        template: require('./multiChoiceQuestion.template.html'),
+    .component('printedMultiChoice', {
+        template: require('./templates/multiChoice.html'),
         bindings: {
             sectionQuestion: '<'
         },
-        controller: ['$sce', 'Attachment', 'Question',
-            function ($sce, Attachment, Question) {
+        controller: ['Question',
+            function (Question) {
 
                 const vm = this;
 
@@ -43,15 +43,6 @@ angular.module('app.review')
                 vm.calculateMaxPoints = function () {
                     return Question.calculateMaxPoints(vm.sectionQuestion);
                 };
-
-                vm.displayQuestionText = function () {
-                    return $sce.trustAsHtml(vm.sectionQuestion.question.question);
-                };
-
-                vm.downloadQuestionAttachment = function () {
-                    return Attachment.downloadQuestionAttachment(vm.sectionQuestion.question);
-                };
-
 
             }
         ]

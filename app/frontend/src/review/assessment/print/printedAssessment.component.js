@@ -22,21 +22,13 @@ angular.module('app.review')
         bindings: {
             exam: '<'
         },
-        controller: ['$routeParams', '$document', '$sce', 'ExamRes', 'Question', 'Exam', 'Assessment', 'EXAM_CONF',
+        controller: ['$routeParams', '$document', '$sce', 'ExamRes', 'Question', 'Exam', 'Assessment',
             'Session', 'Language',
-            function ($routeParams, $document, $sce, ExamRes, Question, Exam, Assessment, EXAM_CONF, Session, Language) {
+            function ($routeParams, $document, $sce, ExamRes, Question, Exam, Assessment, Session, Language) {
 
                 const vm = this;
 
                 vm.$onInit = function () {
-
-                    const path = EXAM_CONF.TEMPLATES_PATH + 'review/assessment/print/templates/';
-                    vm.templates = {
-                        section: path + 'section.html',
-                        multiChoice: path + 'multiChoice.html',
-                        essay: path + 'essay.html',
-                        clozeTest: path + 'clozeTest.html'
-                    };
 
                     ExamRes.reviewerExam.get({eid: $routeParams.id},
                         function (exam) { //TODO: Some duplicates here, refactor some more
@@ -108,7 +100,9 @@ angular.module('app.review')
                 };
 
                 vm.getLanguage = function () {
-                    return !vm.exam ? 'N/A' : Language.getLanguageNativeName(Assessment.pickExamLanguage(vm.exam).code);
+                    if (!vm.exam) return 'N/A';
+                    const lang = Assessment.pickExamLanguage(vm.exam);
+                    return !lang ? 'N/A' : Language.getLanguageNativeName(lang.code);
                 };
 
                 vm.getExamMaxPossibleScore = function () {
@@ -129,41 +123,6 @@ angular.module('app.review')
                     return vm.exam.examInspections.length + owners.length;
                 };
 
-                vm.displayQuestionText = function (sq) {
-                    return $sce.trustAsHtml(sq.question.question);
-                };
-
-                vm.getWordCount = function (sq) {
-                    if (!sq.essayAnswer) {
-                        return 0;
-                    }
-                    return Assessment.countWords(sq.essayAnswer.answer);
-                };
-
-                vm.getCharacterCount = function (sq) {
-                    if (!sq.essayAnswer) {
-                        return 0;
-                    }
-                    return Assessment.countCharacters(sq.essayAnswer.answer);
-                };
-
-                vm.scoreWeightedMultipleChoiceAnswer = function (sq) {
-                    if (sq.question.type !== 'WeightedMultipleChoiceQuestion') {
-                        return 0;
-                    }
-                    return Question.scoreWeightedMultipleChoiceAnswer(sq);
-                };
-
-                vm.scoreMultipleChoiceAnswer = function (sq) {
-                    if (sq.question.type !== 'MultipleChoiceQuestion') {
-                        return 0;
-                    }
-                    return Question.scoreMultipleChoiceAnswer(sq);
-                };
-
-                vm.calculateMaxPoints = function (sq) {
-                    return Question.calculateMaxPoints(sq);
-                };
 
             }
         ]

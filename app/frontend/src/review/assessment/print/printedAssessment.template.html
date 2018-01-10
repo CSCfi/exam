@@ -101,8 +101,8 @@
     </div>
 
     <!-- Sections -->
-    <div class="top-margin-1 col-md-12" ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'"
-         ng-include="$ctrl.templates.section">
+    <div class="top-margin-1 col-md-12" ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'">
+        <printed-section section="section"></printed-section>
     </div>
 
 

@@ -12,11 +12,11 @@
                     </a>
                     <!-- grade -->
                     <div class="review-points" ng-if="$ctrl.sectionQuestion.question.type==='MultipleChoiceQuestion'">
-                        {{$ctrl.scoreMultipleChoiceAnswer(sectionQuestion)}} / {{$ctrl.sectionQuestion.maxScore}}
+                        {{$ctrl.scoreMultipleChoiceAnswer()}} / {{$ctrl.sectionQuestion.maxScore}}
                         {{ 'sitnet_unit_points' | translate }}
                     </div>
                     <div class="review-points" ng-if="$ctrl.sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'">
-                        {{$ctrl.scoreWeightedMultipleChoiceAnswer(sectionQuestion)}} / {{$ctrl.calculateMaxPoints(sectionQuestion)}}
+                        {{$ctrl.scoreWeightedMultipleChoiceAnswer()}} / {{$ctrl.calculateMaxPoints(sectionQuestion)}}
                         {{ 'sitnet_unit_points' | translate }}
                     </div>
                 </div>
@@ -36,11 +36,11 @@
             <div class="mart20" ng-show="$ctrl.sectionQuestion.reviewExpanded">
                 <hr>
             </div>
-            <div ng-if="$ctrl.sectionQuestion.question.type==='MultipleChoiceQuestion'"
-                 ng-include="$ctrl.templates.multiChoiceAnswer">
+            <div ng-if="$ctrl.sectionQuestion.question.type==='MultipleChoiceQuestion'">
+                <r-multi-choice-answer section-question="$ctrl.sectionQuestion"></r-multi-choice-answer>
             </div>
-            <div ng-if="$ctrl.sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'"
-                 ng-include="$ctrl.templates.weightedMultiChoiceAnswer">
+            <div ng-if="$ctrl.sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'">
+                 <r-weighted-multi-choice-answer section-question="$ctrl.sectionQuestion"></r-weighted-multi-choice-answer>
             </div>
         </div>
     </div>

@@ -35,9 +35,16 @@ require('./assessment/maturity/toolbar.component');
 require('./assessment/maturity/dialogs/inspectionComment.component');
 
 require('./assessment/print/printedAssessment.component');
+require('./assessment/print/printedSection.component');
+require('./assessment/print/printedClozeTest.component');
+require('./assessment/print/printedEssay.component');
+require('./assessment/print/printedMultiChoice.component');
+
 require('./assessment/questions/clozeTest.component');
 require('./assessment/questions/essayQuestion.component');
 require('./assessment/questions/multiChoiceQuestion.component');
+require('./assessment/questions/multiChoiceAnswer.component');
+require('./assessment/questions/weightedMultiChoiceAnswer.component');
 
 require('./assessment/sections/examSection.component');
 

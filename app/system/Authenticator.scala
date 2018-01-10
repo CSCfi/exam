@@ -45,7 +45,7 @@ trait Authenticator {
 
   def getAuthorizedUser(request: Request[AnyContent], roles: Seq[String]): Option[(Session, User)] =
     getLoggedUser(request) match {
-      case Some(x) if roles.isEmpty || roles.contains(x._1.getLoginRole) => Option(x)
+      case Some(x) if roles.isEmpty || roles.contains(x._1.getLoginRole) => Some(x)
       case _ => None
     }
 
