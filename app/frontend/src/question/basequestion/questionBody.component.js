@@ -24,20 +24,13 @@ angular.module('app.question')
             currentOwners: '<',
             lotteryOn: '<'
         },
-        controller: ['$scope', '$translate', 'Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question', 'EXAM_CONF',
-            function ($scope, $translate, Session, Attachment, UserRes, limitToFilter, Question, EXAM_CONF) {
-
-                const essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/essay_question.html';
-                const multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/multiple_choice_question.html';
+        controller: ['$scope', '$translate', 'Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question',
+            function ($scope, $translate, Session, Attachment, UserRes, limitToFilter, Question) {
 
 
                 const vm = this;
 
                 const init = function () {
-                    // TODO: move these to subcomponents
-                    if (vm.question.type === 'WeightedMultipleChoiceQuestion' || vm.question.defaultEvaluationType === 'Selection') {
-                        delete vm.question.defaultMaxScore; // will screw up validation otherwise
-                    }
                     const sections = vm.question.examSectionQuestions.map(function (esq) {
                         return esq.examSection;
                     });
@@ -60,7 +53,6 @@ angular.module('app.question')
 
                     vm.newOwner = {id: null, name: null};
                     vm.newType = {};
-                    setQuestionTemplates();
                 };
 
                 vm.$onInit = function () {
@@ -72,26 +64,6 @@ angular.module('app.question')
 
                     init();
                 };
-
-                function setQuestionTemplates() {
-                    switch (vm.question.type) {
-                        case 'EssayQuestion':
-                            vm.questionTemplate = essayQuestionTemplate;
-                            vm.question.defaultEvaluationType = vm.question.defaultEvaluationType || 'Points';
-                            break;
-                        case 'ClozeTestQuestion':
-                            // No template needed
-                            break;
-                        case 'MultipleChoiceQuestion':
-                            vm.questionTemplate = multiChoiceQuestionTemplate;
-                            vm.newOptionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/option.html';
-                            break;
-                        case 'WeightedMultipleChoiceQuestion':
-                            vm.questionTemplate = multiChoiceQuestionTemplate;
-                            vm.newOptionTemplate = EXAM_CONF.TEMPLATES_PATH + 'question/basequestion/templates/weighted_option.html';
-                            break;
-                    }
-                }
 
                 vm.setQuestionType = function () {
                     vm.question.type = Question.getQuestionType(vm.newType.type);
@@ -193,58 +165,6 @@ angular.module('app.question')
                         }).indexOf(user.id) > -1
                     );
                 };
-
-                vm.estimateCharacters = function () {
-                    return (vm.question.defaultExpectedWordCount || 0) * 8;
-                };
-
-                vm.calculateDefaultMaxPoints = function () {
-                    return Question.calculateDefaultMaxPoints(vm.question);
-                };
-
-                vm.addNewOption = function () {
-                    if (vm.lotteryOn) {
-                        toast.error($translate.instant('sitnet_action_disabled_lottery_on'));
-                        return;
-                    }
-                    vm.question.options.push({correctOption: false});
-                };
-
-                vm.selectIfDefault = function (value, $event) {
-                    if (value === $translate.instant('sitnet_default_option_description')) {
-                        $event.target.select();
-                    }
-                };
-
-                vm.removeOption = function (option) {
-                    if (vm.lotteryOn) {
-                        toast.error($translate.instant('sitnet_action_disabled_lottery_on'));
-                    } else {
-                        removeOption(option);
-                    }
-                };
-
-                vm.correctAnswerToggled = function (option) {
-                    Question.toggleCorrectOption(option, vm.question.options);
-                };
-
-                vm.optionDisabled = function (option) {
-                    return option.correctOption === true;
-                };
-
-                const removeOption = function (selectedOption) {
-                    const hasCorrectAnswer = vm.question.options.filter(function (o) {
-                        return o.id !== selectedOption.id && (o.correctOption || o.defaultScore > 0);
-                    }).length > 0;
-
-                    // Either not published exam or correct answer exists
-                    if (!vm.isInPublishedExam || hasCorrectAnswer) {
-                        vm.question.options.splice(vm.question.options.indexOf(selectedOption), 1);
-                    } else {
-                        toast.error($translate.instant('sitnet_action_disabled_minimum_options'));
-                    }
-                };
-
 
             }]
     });

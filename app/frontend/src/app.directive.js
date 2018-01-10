@@ -370,7 +370,7 @@ angular.module('app')
         return {
             restrict: 'A',
             template: '<span class="pointer"' +
-            'ng-click="sort()"">{{ text | translate }}&nbsp;' +
+            'ng-click="sort()">{{ text | translate }}&nbsp;' +
             '<i class="fa" ng-class="getSortClass()"></i>' +
             '</span>',
             scope: {

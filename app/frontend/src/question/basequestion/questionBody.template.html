@@ -72,16 +72,16 @@
         </select>
         <span ng-if="$ctrl.question.type == 'EssayQuestion'">
                 {{'sitnet_toolbar_essay_question' | translate}}
-            </span>
+        </span>
         <span ng-if="$ctrl.question.type == 'ClozeTestQuestion'">
                 {{'sitnet_toolbar_cloze_test_question' | translate}}
-            </span>
+        </span>
         <span ng-if="$ctrl.question.type == 'MultipleChoiceQuestion'">
                 {{'sitnet_toolbar_multiplechoice_question' | translate}}
-            </span>
+        </span>
         <span ng-if="$ctrl.question.type == 'WeightedMultipleChoiceQuestion'">
                 {{'sitnet_toolbar_weighted_multiplechoice_question' | translate}}
-            </span>
+        </span>
     </div>
 
     <div class="col-md-12 mart40 padl0 padr0">
@@ -117,7 +117,21 @@
     </div>
 
     <!-- Type specific content -->
-    <div ng-include="$ctrl.questionTemplate"></div>
+    <div ng-switch="$ctrl.question.type">
+        <essay-form ng-switch-when="EssayQuestion" question="$ctrl.question"></essay-form>
+        <multiple-choice-form ng-switch-when="MultipleChoiceQuestion"
+                              question="$ctrl.question"
+                              show-warning="$ctrl.showWarning()"
+                              lottery-on="$ctrl.lotteryOn"
+                              allow-option-removal="!$ctrl.isInPublishedExam">
+        </multiple-choice-form>
+        <multiple-choice-form ng-switch-when="WeightedMultipleChoiceQuestion"
+                              question="$ctrl.question"
+                              show-warning="$ctrl.showWarning()"
+                              lottery-on="$ctrl.lotteryOn"
+                              allow-option-removal="!$ctrl.isInPublishedExam">
+        </multiple-choice-form>
+    </div>
 
     <!-- Evaluation type - not allowed if question is in use in other published exam. -->
     <div class="col-md-12 margin-20 padl0 padr0" ng-show="$ctrl.question.type == 'EssayQuestion'">

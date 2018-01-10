@@ -26,8 +26,8 @@ angular.module('app.exam.editor')
             onPreviousTabSelected: '&',
             onNextTabSelected: '&?'
         },
-        controller: ['$q', '$translate', '$location', '$uibModal', 'Session', 'Exam', 'ExamRes', 'SettingsResource', 'EXAM_CONF',
-            function ($q, $translate, $location, $modal, Session, Exam, ExamRes, SettingsResource, EXAM_CONF) {
+        controller: ['$q', '$translate', '$location', '$uibModal', 'Session', 'Exam', 'ExamRes', 'SettingsResource',
+            function ($q, $translate, $location, $modal, Session, Exam, ExamRes, SettingsResource) {
 
                 const vm = this;
 
