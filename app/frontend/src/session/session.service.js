@@ -17,9 +17,10 @@ import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.session')
-    .service('Session', ['$q', '$interval', '$sessionStorage', '$translate', '$injector', '$location',
-        '$rootScope', '$timeout', 'EXAM_CONF',
-        function ($q, $interval, $sessionStorage, $translate, $injector, $location, $rootScope, $timeout, EXAM_CONF) {
+    .service('Session', ['$http', '$q', '$interval', '$sessionStorage', '$translate', '$injector', '$location',
+        '$rootScope', '$timeout', '$uibModal', '$route', 'UserRes', 'EXAM_CONF',
+        function ($http, $q, $interval, $sessionStorage, $translate, $injector, $location, $rootScope, $timeout, $modal,
+                  $route, UserRes, EXAM_CONF) {
 
             const self = this;
 
@@ -28,28 +29,6 @@ angular.module('app.session')
             let _user;
             let _env;
             let _scheduler;
-
-            // Services need to be accessed like this because of circular dependency issues
-            let $http;
-            const http = function () {
-                $http = $http || $injector.get('$http');
-                return $http;
-            };
-            let $modal;
-            const modal = function () {
-                $modal = $modal || $injector.get('$uibModal');
-                return $modal;
-            };
-            let $route;
-            const route = function () {
-                $route = $route || $injector.get('$route');
-                return $route;
-            };
-            let UserRes;
-            const userRes = function () {
-                UserRes = UserRes || $injector.get('UserRes');
-                return UserRes;
-            };
 
             self.getUser = function () {
                 return _user;
@@ -75,7 +54,7 @@ angular.module('app.session')
             const init = function () {
                 const deferred = $q.defer();
                 if (!_env) {
-                    http().get('/app/settings/environment').then(function (resp) {
+                    $http.get('/app/settings/environment').then(function (resp) {
                         _env = resp.data;
                         deferred.resolve();
                     }).catch(function (e) {
@@ -128,9 +107,9 @@ angular.module('app.session')
                 if (!_user) {
                     return;
                 }
-                http().post('/app/logout').then(function (resp) {
+                $http.post('/app/logout').then(function (resp) {
                     delete $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY];
-                    delete http().defaults.headers.common;
+                    delete $http.defaults.headers.common;
                     _user = undefined;
                     onLogoutSuccess(resp.data);
                 }).catch(function (error) {
@@ -149,13 +128,13 @@ angular.module('app.session')
                     keyboard: true,
                     component: 'eula'
                 }).result.then(function () {
-                    userRes().updateAgreementAccepted.update(function () {
+                    UserRes.updateAgreementAccepted.update(function () {
                         user.userAgreementAccepted = true;
                         self.setUser(user);
                         if ($location.url() === '/login' || $location.url() === '/logout') {
                             $location.path('/');
                         } else {
-                            route().reload();
+                            $route.reload();
                         }
                     }, function (error) {
                         toast.error(error.data);
@@ -172,7 +151,7 @@ angular.module('app.session')
                 const ctrl = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
                     $scope.user = user;
                     $scope.ok = function (role) {
-                        userRes().userRoles.update({id: user.id, role: role.name}, function () {
+                        UserRes.userRoles.update({id: user.id, role: role.name}, function () {
                             user.loginRole = role;
                             user.isAdmin = hasRole(user, 'ADMIN');
                             user.isTeacher = hasRole(user, 'TEACHER');
@@ -186,7 +165,7 @@ angular.module('app.session')
                             } else if ($location.url() === '/login' || $location.url() === '/logout') {
                                 $location.path('/');
                             } else {
-                                route().reload();
+                                $route.reload();
                             }
                         }, function (error) {
                             toast.error(error.data);
@@ -243,7 +222,7 @@ angular.module('app.session')
                     self.openEulaModal(_user);
                 } else {
                     redirect();
-                    route().reload();
+                    $route.reload();
                 }
             };
 
@@ -255,7 +234,7 @@ angular.module('app.session')
             const processLoggedInUser = function (user) {
                 const header = {};
                 header[EXAM_CONF.AUTH_HEADER] = user.token;
-                http().defaults.headers.common = header;
+                $http.defaults.headers.common = header;
                 user.roles.forEach(function (role) {
                     switch (role.name) {
                         case 'ADMIN':
@@ -301,7 +280,7 @@ angular.module('app.session')
                     password: password
                 };
                 const deferred = $q.defer();
-                http().post('/app/login', credentials, {ignoreAuthModule: true}).then(function (resp) {
+                $http.post('/app/login', credentials, {ignoreAuthModule: true}).then(function (resp) {
                     processLoggedInUser(resp.data);
                     onLoginSuccess();
                     deferred.resolve(_user);
@@ -316,7 +295,7 @@ angular.module('app.session')
                 if (!_user) {
                     self.translate(lang);
                 } else {
-                    http().put('/app/user/lang', {lang: lang}).then(function () {
+                    $http.put('/app/user/lang', {lang: lang}).then(function () {
                         _user.lang = lang;
                         self.translate(lang);
                     }).catch(function () {
@@ -326,13 +305,13 @@ angular.module('app.session')
             };
 
             const checkSession = function () {
-                http().get('/app/checkSession').then(function (resp) {
+                $http.get('/app/checkSession').then(function (resp) {
                     if (resp.data === 'alarm') {
                         toast.options = {
                             timeOut: 0,
                             preventDuplicates: true,
                             onclick: function () {
-                                http().put('/app/extendSession', {}).then(function () {
+                                $http.put('/app/extendSession', {}).then(function () {
                                     toast.info($translate.instant('sitnet_session_extended'));
                                     toast.options.timeout = 1000;
                                 });

@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 import impl.ExternalCourseHandler
 import io.ebean.Ebean
-import models.{Course, User}
+import models.{Course, Session, User}
 import play.api.cache.SyncCacheApi
 import play.api.mvc.{Action, AnyContent, InjectedController, Result}
 import play.libs.Json
@@ -35,94 +35,79 @@ import scala.concurrent.Future
 class CourseController @Inject()(externalApi: ExternalCourseHandler, cache: SyncCacheApi)
   extends InjectedController with Authenticator with JsonResponder {
 
-  override val sessionCache: SyncCacheApi = cache
-  val CriteriaLengthLimiter = 2
+  override def sessionCache: SyncCacheApi = cache
+
+  def criteriaLengthLimiter = 2
 
   def listCourses(filterType: Option[String], criteria: Option[String], user: User): Future[Result] = {
     (filterType, criteria) match {
       case (Some("code"), Some(x)) =>
         FutureConverters.toScala(externalApi.getCoursesByCode(user, x)).map(i => java2Response(i))
-      case (Some("name"), Some(x)) if x.length >= CriteriaLengthLimiter =>
+      case (Some("name"), Some(x)) if x.length >= criteriaLengthLimiter =>
         Future {
           Ebean.find(classOf[Course]).where
             .ilike("name", s"%$x%")
             .orderBy("code")
             .findList
-        }.map(i => java2Response(i))
-      case (Some("name"), Some(x)) =>
+        }.map(c => java2Response(c))
+      case (Some("name"), Some(_)) =>
         throw new IllegalArgumentException("Too short criteria")
       case _ =>
         Future {
           Ebean.find(classOf[Course]).where.isNotNull("name").orderBy("code").findList
-        }.map(i => java2Response(i))
+        }.map(c => java2Response(c))
     }
   }
 
-  def getUserCourses(user: User, examIds: Option[List[Long]], sectionIds: Option[List[Long]],
-                     tagIds: Option[List[Long]], token: String): Result = {
+  def getUserCourses(session: Session, user: User, examIds: Option[List[Long]], sectionIds: Option[List[Long]],
+                     tagIds: Option[List[Long]]): Result = {
     var query = Ebean.find(classOf[Course]).where.isNotNull("name")
-    if (!user.hasRole("ADMIN", getSession(token))) {
+    if (!user.hasRole("ADMIN", session)) {
       query = query
         .eq("exams.examOwners", user)
     }
-    if (examIds.isDefined && examIds.get.nonEmpty) {
+    if (examIds.getOrElse(Nil).nonEmpty) {
       query = query.in("exams.id", examIds.get.asJava)
     }
-    if (sectionIds.isDefined && sectionIds.get.nonEmpty) {
+    if (sectionIds.getOrElse(Nil).nonEmpty) {
       query = query.in("exams.examSections.id", sectionIds.get.asJava)
     }
-    if (tagIds.isDefined && tagIds.get.nonEmpty) {
+    if (tagIds.getOrElse(Nil).nonEmpty) {
       query = query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get.asJava)
     }
-    val results = query.orderBy("name desc").findList
-    Ok(Json.toJson(results).toString)
+    Ok(Json.toJson(query.orderBy("name desc").findList).toString)
   }
-
 
   // Actions ->
 
-  def getCourses(filterType: Option[String], criteria: Option[String]): Action[AnyContent] = Action.async {
-    request =>
-      request.headers.get(getAuthHeaderName).map { token =>
-        getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
-          case user: Any =>
-            listCourses(filterType, criteria, user)
-          case _ =>
-            Future.successful(forbid())
-        }
-      }.getOrElse {
+  def getCourses(filterType: Option[String], criteria: Option[String]): Action[AnyContent] = Action.async { request =>
+    getAuthorizedUser(request, Seq("ADMIN", "TEACHER")) match {
+      case Some((_, user)) =>
+        listCourses(filterType, criteria, user)
+      case _ =>
         Future.successful(forbid())
-      }
+    }
   }
 
-  def getCourse(id: Long): Action[AnyContent] = Action {
-    request =>
-      request.headers.get(getAuthHeaderName).map { token =>
-        getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
-          case user: Any =>
-            val results = Ebean.find(classOf[Course], id)
-            Ok(Json.toJson(results).toString)
-          case _ =>
-            forbid()
-        }
-      }.getOrElse {
+
+  def getCourse(id: Long) = Action { request =>
+    getAuthorizedUser(request, Seq("ADMIN", "TEACHER")) match {
+      case Some(_) =>
+        val results = Ebean.find(classOf[Course], id)
+        Ok(Json.toJson(results).toString)
+      case _ =>
         forbid()
-      }
+    }
   }
 
   def listUsersCourses(examIds: Option[List[Long]], sectionIds: Option[List[Long]],
-                       tagIds: Option[List[Long]]): Action[AnyContent] = Action {
-    request =>
-      request.headers.get(getAuthHeaderName).map { token =>
-        getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
-          case user: Any =>
-            getUserCourses(user, examIds, sectionIds, tagIds, token)
-          case _ =>
-            forbid()
-        }
-      }.getOrElse {
+                       tagIds: Option[List[Long]]): Action[AnyContent] = Action { request =>
+    getAuthorizedUser(request, Seq("ADMIN", "TEACHER")) match {
+      case Some((session, user)) =>
+        getUserCourses(session, user, examIds, sectionIds, tagIds)
+      case _ =>
         forbid()
-      }
+    }
   }
 
 }

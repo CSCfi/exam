@@ -19,48 +19,34 @@ import com.typesafe.config.ConfigFactory
 import io.ebean.Ebean
 import models.{Session, User}
 import play.api.cache.SyncCacheApi
-import play.api.mvc.{Result, Results}
+import play.api.mvc.{AnyContent, Request, Result, Results}
 
 
 trait Authenticator {
 
-  val LOGIN_TYPE: String = ConfigFactory.load.getString("sitnet.login")
+  def LOGIN_TYPE: String = ConfigFactory.load.getString("sitnet.login")
 
-  val SITNET_CACHE_KEY = "user.session."
+  def SESSION_CACHE_KEY = "user.session."
 
-  val sessionCache: SyncCacheApi
+  def sessionCache: SyncCacheApi
 
-  def getAuthHeaderName: String = LOGIN_TYPE match {
+  def authHeaderName: String = LOGIN_TYPE match {
     case "HAKA" => "Shib-Session-Id"
     case _ => "x-exam-authentication"
   }
 
-  def getSession(token: String): Session = {
-    sessionCache.getOrElseUpdate[Session](SITNET_CACHE_KEY + token) {
-      null
+  def getSession(token: String): Option[Session] = sessionCache.get[Session](SESSION_CACHE_KEY + token)
+
+  def forbid(): Result = Results.Unauthorized("Unauthorized")
+
+  def getLoggedUser(request: Request[AnyContent]): Option[(Session, User)] =
+    request.headers.get(authHeaderName)
+      .flatMap(token => getSession(token).map(s => (s, Ebean.find(classOf[User], s.getUserId))))
+
+  def getAuthorizedUser(request: Request[AnyContent], roles: Seq[String]): Option[(Session, User)] =
+    getLoggedUser(request) match {
+      case Some(x) if roles.isEmpty || roles.contains(x._1.getLoginRole) => Option(x)
+      case _ => None
     }
-  }
-
-  def forbid(): Result = {
-    Results.Unauthorized("Unauthorized")
-  }
-
-  def getLoggedUser(token: String): User = getSession(token) match {
-    case session: Any =>
-      Ebean.find(classOf[User], getSession(token).getUserId)
-    case _ => null
-  }
-
-  def getAuthorizedUser(token: String, roles: Seq[String]): User = getLoggedUser(token) match {
-    case user: Any =>
-      getSession(token) match {
-        case session: Any => roles.contains(session.getLoginRole) match {
-          case true => user
-          case _ => null
-        }
-        case _ => null
-      }
-    case _ => null
-  }
 
 }
