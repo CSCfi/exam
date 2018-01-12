@@ -28,6 +28,7 @@
     "protractor-jasmine2-screenshot-reporter": "^0.5.0",
     "sql-fixtures": "^1",
     "pg": "^6",
-    "merge-json": "0.1.0-b.3"
+    "merge-json": "0.1.0-b.3",
+    "http-server": "^0.10.0"
   }
 }

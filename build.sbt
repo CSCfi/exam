@@ -97,10 +97,10 @@ webDriverUpdate := {
   baseDirectory.value + "/node_modules/protractor/bin/webdriver-manager update" !
 }
 
-def uiTestTask = Def.taskDyn[PlayRunHook] {
+def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
   if (skipUiTests.equals("true")) {
     Def.task {
-      NoOp()
+      Seq(NoOp())
     }
   } else {
     Def.task {
@@ -110,15 +110,16 @@ def uiTestTask = Def.taskDyn[PlayRunHook] {
         (test in Test).value
       }
 
-      if (protractorConf.equals("protractor.conf") && webDriverUpdate.value == 0)
-        Protractor(baseDirectory.value,
-          Properties.propOrElse("protractor.config", "conf.js"),
-          Properties.propOrElse("protractor.args", " "))
-      else {
-        Karma(baseDirectory.value)
-      }
+      Seq(MockCourseInfo(baseDirectory.value),
+        if (protractorConf.equals("protractor.conf") && webDriverUpdate.value == 0)
+          Protractor(baseDirectory.value,
+            Properties.propOrElse("protractor.config", "conf.js"),
+            Properties.propOrElse("protractor.args", " "))
+        else {
+          Karma(baseDirectory.value)
+        })
     }
   }
 }
 
-PlayKeys.playRunHooks += uiTestTask.value
+PlayKeys.playRunHooks ++= uiTestTask.value
