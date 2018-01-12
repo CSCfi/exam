@@ -36,10 +36,10 @@ angular.module('app.examination')
                     if (resp.data.cloned) {
                         // we came here with a reference to the parent exam so do not render page just yet,
                         // reload with reference to student exam that we just created
-                        $location.path('/student/exam/' + data.hash);
+                        $location.path('/student/exam/' + resp.data.hash);
                     }
-                    _external = data.external;
-                    deferred.resolve(data);
+                    _external = resp.data.external;
+                    deferred.resolve(resp.data);
                 }).catch(function (resp) {
                     deferred.reject(resp.data);
                 });

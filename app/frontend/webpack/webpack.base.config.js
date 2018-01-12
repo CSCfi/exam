@@ -8,11 +8,13 @@ const buildPath = path.resolve(__dirname, '../../../public/bundles/');
  * Base configuration object for Webpack
  */
 const config = {
-    entry: {app: './src/app.module.js'},
+    entry: [
+        './src/app.module.js'
+    ],
     output: {
         path: buildPath,
-        filename: '[name].bundle.js',
-        sourceMapFilename: '[name].bundle.map',
+        filename: 'app.bundle.js',
+        sourceMapFilename: 'app.bundle.map',
         publicPath: '/bundles/'
     },
     externals: {},

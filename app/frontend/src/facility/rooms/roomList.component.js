@@ -14,12 +14,13 @@
  */
 
 import angular from'angular';
+import toast from 'toastr';
 
 angular.module('app.facility.rooms')
     .component('roomList', {
         template: require('./roomList.template.html'),
-        controller: ['$routeParams', 'Session', '$location', 'Room', '$translate', 'toast',
-            function ($routeParams, Session, $location, Room,  $translate, toast) {
+        controller: ['$routeParams', 'Session', '$location', 'Room', '$translate',
+            function ($routeParams, Session, $location, Room,  $translate) {
 
                 const vm = this;
 

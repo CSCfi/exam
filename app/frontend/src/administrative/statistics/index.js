@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -13,14 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
-
-require('./reports');
-require('./statistics');
-require('./settings/settings.module');
-require('./users/users.module');
-
-angular.module('app.administrative',
-    ['app.administrative.reports', 'app.administrative.statistics', 'app.administrative.settings', 'app.administrative.users']
-);
-
+require('./statistics.module');
+require('./statistics.service');
+require('./statistics.component');
+require('./categories/examStatistics.component');
+require('./categories/reservationStatistics.component');
+require('./categories/responseStatistics.component');
+require('./categories/roomStatistics.component');

@@ -45,7 +45,8 @@ angular.module('app.examination')
 
                             vm.exam = exam;
                             setActiveSection({type: 'guide'});
-                        }, function () {
+                        }, function (err) {
+                            console.log(JSON.stringify(err));
                             $location.path('/');
                         });
                 };

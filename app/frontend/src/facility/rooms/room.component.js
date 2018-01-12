@@ -115,6 +115,9 @@ angular.module('app.facility.rooms')
                     InteroperabilityRes.facility.update(vm.room, function (data) {
                         vm.room.externalRef = data.externalRef;
                         vm.room.availableForExternals = data.externalRef !== null;
+                    }, function (err) {
+                        vm.room.availableForExternals = !vm.room.availableForExternals;
+                        toast.error(err.data.message);
                     });
                 };
 

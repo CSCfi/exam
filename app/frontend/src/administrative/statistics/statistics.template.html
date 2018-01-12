@@ -61,7 +61,7 @@
                 <li ng-repeat="department in $ctrl.departments | filter:$ctrl.limitations.department"
                     role="presentation"
                     ng-class="department.filtered ? 'active': ''"
-                    ng-click="department.filtered = !department.filtered">
+                    ng-click="$ctrl.setDepartmentFilter(department)">
                     <a role="menuitem" title="{{department.name}}">{{department.name}}</a>
                 </li>
             </ul>
@@ -80,10 +80,11 @@
     </div>
 
     <!-- TAB CONTENT -->
-    <div ng-if="$ctrl.view === 'ROOMS'" ng-include="$ctrl.templates.rooms" ng-init="$ctrl.listParticipations()"/>
-    <div ng-if="$ctrl.view === 'EXAMS'" ng-include="$ctrl.templates.exams" ng-init="$ctrl.listExams()"/>
-    <div ng-if="$ctrl.view === 'RESERVATIONS'" ng-include="$ctrl.templates.reservations"
-         ng-init="$ctrl.listReservations()"/>
-    <div ng-if="$ctrl.view === 'RESPONSES'" ng-include="$ctrl.templates.responses" ng-init="$ctrl.listResponses()"/>
+    <room-statistics ng-if="$ctrl.view === 'ROOMS'" query-params="$ctrl.queryParams"></room-statistics>
+    <reservation-statistics ng-if="$ctrl.view === 'RESERVATIONS'"
+                            query-params="$ctrl.queryParams">
+    </reservation-statistics>
+    <response-statistics ng-if="$ctrl.view === 'RESPONSES'" query-params="$ctrl.queryParams"></response-statistics>
+    <exam-statistics ng-if="$ctrl.view === 'EXAMS'" query-params="$ctrl.queryParams"></exam-statistics>
 
 </div>
