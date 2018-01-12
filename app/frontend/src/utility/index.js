@@ -20,3 +20,4 @@ require('./date/date.service');
 require('./date/datePicker.component');
 require('./dragndrop/dragndrop.directive');
 require('./file/file.service');
+require('./select/dropDownSelect.component');

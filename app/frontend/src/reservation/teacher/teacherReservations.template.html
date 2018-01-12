@@ -19,28 +19,25 @@
                 <strong>{{'sitnet_end' | translate}}</strong>
                 <date-picker on-update="$ctrl.endDateChanged(date)"></date-picker>
             </div>
-            <div class="col-md-2 reservation-search-titles">
-                <strong>{{'sitnet_student' | translate}}</strong>
-                <input class="wide-select fat-select" ui-select2="$ctrl.studentOptions"
-                       ng-model="$ctrl.selection.studentId" ng-click="$ctrl.query()">
-                </input>
+            <div class="col-md-2">
+                <strong class="reservation-search-titles">{{'sitnet_student' | translate}}</strong>
+                <drop-down-select options="$ctrl.studentOptions" on-select="$ctrl.studentChanged(value)">
+                </drop-down-select>
             </div>
-            <div class="col-md-3 reservation-search-titles">
-                <strong>{{'sitnet_exam' | translate}}</strong>
-                <input class="wide-select fat-select" ui-select2="$ctrl.examOptions"
-                       ng-model="$ctrl.selection.examId" ng-click="$ctrl.query()">
-                </input>
+            <div class="col-md-3">
+                <strong class="reservation-search-titles">{{'sitnet_exam' | translate}}</strong>
+                <drop-down-select options="$ctrl.examOptions" on-select="$ctrl.examChanged(value)">
+                </drop-down-select>
             </div>
-            <div class="col-md-3 reservation-search-titles">
-                <strong>{{'sitnet_exam_state' | translate}}</strong>
-                <input class="wide-select fat-select" ui-select2="$ctrl.stateOptions"
-                       ng-model="$ctrl.selection.state" ng-click="$ctrl.query()">
-                </input>
+            <div class="col-md-3">
+                <strong class="reservation-search-titles">{{'sitnet_exam_state' | translate}}</strong>
+                <drop-down-select options="$ctrl.stateOptions" on-select="$ctrl.stateChanged(value)">
+                </drop-down-select>
             </div>
         </div>
 
 
-        <div ng-init="$ctrl.query()" ng-include="$ctrl.reservationDetails"></div>
+        <reservation-detail ng-if="$ctrl.reservations" reservations="$ctrl.reservations"></reservation-detail>
 
     </div>
 </div>
