@@ -2,13 +2,14 @@
 import toast from "toastr";
 
 const ReservationController = function ($location, ReservationResource, Reservation,
-                                      $routeParams, $translate, $filter) {
+                                      $routeParams, $translate, $filter, Session) {
 
     let _examId = $routeParams.eid ? parseInt($routeParams.eid) : undefined;
 
     const vm = this;
 
     vm.$onInit = function () {
+        vm.user = Session.getUser();
         vm.startDate = vm.endDate = new Date();
 
         vm.examStates = [
@@ -23,7 +24,7 @@ const ReservationController = function ($location, ReservationResource, Reservat
             'ABORTED',
             'NO_SHOW'
         ];
-        if (vm.userRole === 'admin') {
+        if (vm.user.isAdmin) {
             vm.examStates.push('EXTERNAL_UNFINISHED');
             vm.examStates.push('EXTERNAL_FINISHED');
         }
@@ -68,7 +69,7 @@ const ReservationController = function ($location, ReservationResource, Reservat
 
 
     vm.isAdminView = function () {
-        return $location.path() === '/';
+        return vm.user.isAdmin;
     };
 
     function initOptions() {
@@ -296,6 +297,6 @@ const ReservationController = function ($location, ReservationResource, Reservat
 };
 
 ReservationController.$inject = ['$location', 'ReservationResource', 'Reservation',
-    '$routeParams', '$translate', '$filter'];
+    '$routeParams', '$translate', '$filter', 'Session'];
 
 module.exports = ReservationController;

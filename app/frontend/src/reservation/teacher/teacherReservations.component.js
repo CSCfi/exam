@@ -19,9 +19,6 @@ const ReservationController = require('../reservationController');
 angular.module('app.reservation')
     .component('teacherReservations', {
         template: require('./teacherReservations.template.html'),
-        bindings: {
-            'userRole': '@'
-        },
         controller: ReservationController
     });
 
