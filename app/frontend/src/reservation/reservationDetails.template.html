@@ -8,8 +8,8 @@
         <th class="reservation-search" sort by="startAt" text="sitnet_date_time" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
         <th class="reservation-search" sort by="machine.room.name" text="sitnet_exam_machine" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
         <th class="reservation-search" sort by="stateOrd" text="sitnet_exam_state" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
-        <th class="reservation-search" ng-if="isAdminView()">{{'sitnet_remove_reservation' | translate}}</th>
-        <th class="reservation-search" ng-if="isAdminView()">{{'sitnet_change_reservation_machine'  | translate}}</th>
+        <th class="reservation-search" ng-if="$ctrl.isAdminView">{{'sitnet_remove_reservation' | translate}}</th>
+        <th class="reservation-search" ng-if="$ctrl.isAdminView">{{'sitnet_change_reservation_machine'  | translate}}</th>
     </tr>
     </thead>
     <tbody>
@@ -46,7 +46,7 @@
         <td class="reservation-search">{{r.machine.room.name}}<br/>{{r.machine.name}}</td>
         <td class="reservation-search {{$ctrl.getStateclass(r)}}">{{'sitnet_exam_status_' + $ctrl.printExamState(r) | lowercase | translate}}</td>
 
-        <td class="reservation-search" ng-if="$ctrl.isAdminView()">
+        <td class="reservation-search" ng-if="$ctrl.isAdminView">
             <button ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow"
                     ng-click="$ctrl.removeReservation(r)" class="btn btn-primary pull-left">
                 {{'sitnet_remove_reservation' | translate}}
@@ -58,7 +58,7 @@
                 {{'sitnet_permit_retrial' | translate}}
             </button>
         </td>
-        <td class="reservation-search" ng-if="$ctrl.isAdminView()">
+        <td class="reservation-search" ng-if="$ctrl.isAdminView">
             <button ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow"
                     ng-click="$ctrl.changeReservationMachine(r)" class="btn btn-primary pull-left">
                 {{'sitnet_change_reservation_machine' | translate}}
