@@ -13,8 +13,8 @@
         <div class="col-md-10 essay-answer-item">
             <a href="/assessments/{{$ctrl.answer.examSection.exam.id}}" target="_blank">
                 <strong>{{$ctrl.answer.examSection.exam.creator.firstName}}
-                {{$ctrl.answer.examSection.exam.creator.lastName}}
-                <span ng-if="$ctrl.answer.examSection.exam.creator.userIdentifier">
+                    {{$ctrl.answer.examSection.exam.creator.lastName}}
+                    <span ng-if="$ctrl.answer.examSection.exam.creator.userIdentifier">
                     ({{$ctrl.answer.examSection.exam.creator.userIdentifier}})
                 </span>
                 </strong>
@@ -23,9 +23,9 @@
         <div class="col-md-2 essay-answer-item">
             <a class="pull-right" ng-click="$ctrl.answer.expanded = !$ctrl.answer.expanded" class="pointer-hand">
                 <img ng-show="!$ctrl.answer.expanded" src="/assets/assets/images/icon_list_show_right.svg"
-                     alt="exam" onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"/>
+                     alt="exam" onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"/>
                 <img ng-show="$ctrl.answer.expanded" src="/assets/assets/images/icon_list_show_down.svg"
-                     alt="exam" onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"/>
+                     alt="exam" onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"/>
             </a>
         </div>
     </div>
@@ -43,8 +43,26 @@
         <div class="main-row">
             <div class="col-md-12 essay-answer-item" ng-bind-html="$ctrl.answer.essayAnswer.answer" mathjax></div>
         </div>
+
+        <div class="detail-row" ng-if="$ctrl.answer.essayAnswer.attachment">
+            <div class="detail-row">
+                <div class="col-md-12">
+                    <strong>{{'sitnet_answer_attachment' | translate | uppercase }}</strong>
+                </div>
+            </div>
+            <div>
+                <div class="main-row">
+                    <div class="col-md-12 essay-answer-item">
+                        <a class="pointer" ng-click="$ctrl.downloadAttachment()">
+                            {{$ctrl.answer.essayAnswer.attachment.fileName | uppercase}}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="detail-row">
-            <div class="col-md-10 essay-answer-item" >
+            <div class="col-md-10 essay-answer-item">
                 <div class="main-row">
                     <strong>{{'sitnet_answer_length' | translate | uppercase }}</strong>
                 </div>
@@ -63,7 +81,8 @@
             <div class="col-md-2 essay-answer-checkbox-item">
                 <div class="main-row">
                     <strong>{{'sitnet_word_points' | translate | uppercase}}
-                        &nbsp;<small>[{{0}}-{{$ctrl.displayMaxScore()}}]</small></strong>
+                        &nbsp;<small>[{{0}}-{{$ctrl.displayMaxScore()}}]</small>
+                    </strong>
                 </div>
                 <div class="detail-row">
                     <div ng-if="$ctrl.answer.evaluationType === 'Points'">
@@ -71,11 +90,12 @@
                             <input id="score" name="score" type="number" class="form-control"
                                    ng-model="$ctrl.answer.essayAnswer.score" step="1"
                                    size="5"
-                                   onclick="this.focus()"
+                                   onclick="this.focus();"
                                    ng-disabled="!$ctrl.editable"
-                                   min="0" max="{{$ctrl.answer.maxScore}}" />
+                                   min="0" max="{{$ctrl.answer.maxScore}}"/>
                             <small ng-show="essayPoints.$invalid" class="alert-danger">
-                                <i class="fa fa-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}
+                                <i class="fa fa-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate
+                                }}
                             </small>
                         </form>
                     </div>
@@ -97,10 +117,12 @@
         <div class="main-row">
             <span class="col-md-12 checkbox">
                 <label>
-                    <input type="checkbox" ng-model="$ctrl.answer.selected" ng-disabled="!$ctrl.editable || !$ctrl.isAssessed()">
+                    <input type="checkbox" ng-model="$ctrl.answer.selected"
+                           ng-disabled="!$ctrl.editable || !$ctrl.isAssessed()">
                     {{$ctrl.action | translate }}
                 </label>
-                <i ng-if="$ctrl.editable && $ctrl.isAssessed() && $ctrl.answer.selected" class="marl10 pointer fa fa-lg fa-share text-success"
+                <i ng-if="$ctrl.editable && $ctrl.isAssessed() && $ctrl.answer.selected"
+                   class="marl10 pointer fa fa-lg fa-share text-success"
                    ng-click="$ctrl.saveScore()"></i>
             </span>
         </div>
