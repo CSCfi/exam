@@ -31,10 +31,10 @@
         <td class="reservation-search text-primary" ng-if="r.enrolment.exam.external">{{'sitnet_exam_status_external' | translate}}</td>
 
         <td ng-if="r.enrolment.exam.parent" class="width15">
-            <assessment-teacher-list exam="enrolment.exam"/>
+            <assessment-teacher-list exam="r.enrolment.exam"/>
         </td>
         <td class="reservation-search" ng-if="!r.enrolment.exam.external && !r.enrolment.exam.parent" class="width15">
-            <teacher-list exam="enrolment.exam"/>
+            <teacher-list exam="r.enrolment.exam"/>
         </td>
         <td class="reservation-search text-primary" ng-if="r.enrolment.exam.external" class="width15">
             {{'sitnet_exam_status_external' | translate}}
