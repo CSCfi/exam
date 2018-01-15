@@ -109,7 +109,7 @@ public class QuestionReviewController extends BaseController {
         QuestionEntry(Question question, List<ExamSectionQuestion> answers) {
             PathProperties pp = PathProperties.parse(
                     "(*, essayAnswer(attachment(*), *), question(parent(question), attachment(*), *), " +
-                            "examSection(name, exam(id, creator(id, email, userIdentifier, firstName, lastName), "+
+                            "examSection(name, exam(id, hash, creator(id, email, userIdentifier, firstName, lastName), "+
                             "state, examInspections(user(id)))))");
             this.question = Ebean.json().toJson(question, PathProperties.parse("(attachment(*), *)"));
             this.answers = answers.stream().map(a -> Ebean.json().toJson(a, pp)).collect(Collectors.toList());
