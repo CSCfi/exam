@@ -23,8 +23,8 @@ angular.module('app.review')
             action: '@',
             onSelection: '&'
         },
-        controller: ['Assessment',
-            function (Assessment) {
+        controller: ['Assessment', 'Attachment',
+            function (Assessment, Attachment) {
 
                 var vm = this;
 
@@ -52,6 +52,10 @@ angular.module('app.review')
 
                 vm.displayMaxScore = function () {
                     return vm.answer.evaluationType === 'Points' ? vm.answer.maxScore : 1;
+                };
+
+                vm.downloadAttachment = function () {
+                    return Attachment.downloadQuestionAnswerAttachment(vm.answer, vm.answer.examSection.exam.hash);
                 };
 
             }

@@ -104,9 +104,10 @@ angular.module('app.utility')
                 return false;
             };
 
-            var doUpload = function (url, file, params, parent, modal, callback) {
+            var doUpload = function (url, file, params) {
+                var deferred = $q.defer();
                 if (isFileTooBig(file)) {
-                    return;
+                    return deferred.reject({data: 'sitnet_file_too_large'});
                 }
                 var fd = new FormData();
                 fd.append('file', file);
@@ -119,37 +120,33 @@ angular.module('app.utility')
                 $http.post(url, fd, {
                     transformRequest: angular.identity,
                     headers: {'Content-Type': undefined}
-                })
-                    .then(callback)
-                    .catch(function (resp) {
-                        if (modal) {
-                            modal.dismiss();
-                        }
-                        toast.error(resp.data);
-                    });
+                }).then(function (resp) {
+                    deferred.resolve(resp);
+                }).catch(function (resp) {
+                    deferred.reject(resp);
+                });
+                return deferred.promise;
             };
 
-            var upload = function (url, file, params, parent, modal, callback) {
-                doUpload(url, file, params, parent, modal, function (attachment) {
-                    if (modal) {
-                        modal.dismiss();
-                    }
+            var upload = function (url, file, params, parent, callback) {
+                doUpload(url, file, params).then(function (resp) {
                     if (parent) {
-                        parent.attachment = attachment;
+                        parent.attachment = resp.data;
                     }
                     if (callback) {
                         callback();
                     }
+                }).catch(function (resp) {
+                    toast.error($translate.instant(resp.data));
                 });
             };
 
-            var uploadAnswerAttachment = function (url, file, params, parent, modal) {
-                doUpload(url, file, params, parent, modal, function (answer) {
-                    if (modal) {
-                        modal.dismiss();
-                    }
-                    parent.objectVersion = answer.objectVersion;
-                    parent.attachment = answer.attachment;
+            var uploadAnswerAttachment = function (url, file, params, parent) {
+                doUpload(url, file, params, parent).then(function (resp) {
+                    parent.objectVersion = resp.data.objectVersion;
+                    parent.attachment = resp.data.attachment;
+                }).catch(function (resp) {
+                    toast.error($translate.instant(resp.data));
                 });
             };
 
