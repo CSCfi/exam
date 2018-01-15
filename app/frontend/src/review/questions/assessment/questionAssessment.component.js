@@ -24,6 +24,60 @@ angular.module('app.review')
 
                 const vm = this;
 
+                vm.$onInit = function () {
+                    vm.user = Session.getUser();
+                    vm.examId = $routeParams.id;
+                    const ids = $routeParams.q || [];
+                    QuestionReview.questionsApi.query({id: vm.examId, ids: ids}, function (data) {
+                        data.forEach(function (r, i) {
+                            r.selected = i === 0; // select the first in the list
+                        });
+                        vm.reviews = data;
+                        if (vm.reviews.length > 0) {
+                            setSelectedReview(vm.reviews[0]);
+
+                            vm.sanitizeQuestion = function () {
+                                return $sce.trustAsHtml(vm.selectedReview.question.question);
+                            };
+
+                            vm.getAssessedAnswerCount = function () {
+                                return vm.assessedAnswers.length;
+                            };
+
+                            vm.getUnassessedAnswerCount = function () {
+                                return vm.unassessedAnswers.length;
+                            };
+
+                            vm.getLockedAnswerCount = function () {
+                                return vm.lockedAnswers.length;
+                            };
+
+                        }
+                    });
+                };
+
+                vm.questionSelected = function (index) {
+                    setSelectedReview(vm.reviews[index]);
+                };
+
+                vm.saveAssessments = function (answers) {
+                    const promises = [];
+                    answers.forEach(function (a) {
+                        promises.push(saveEvaluation(a));
+                    });
+                    $q.all(promises).then(function () {
+                        vm.reviews = angular.copy(vm.reviews);
+                    });
+                };
+
+                vm.isFinalized = function (review) {
+                    return QuestionReview.isFinalized(review);
+                };
+
+                vm.downloadQuestionAttachment = function () {
+                    Attachment.downloadQuestionAttachment(vm.selectedReview.question);
+                };
+
                 const isLocked = function (answer) {
                     const states = ['REVIEW', 'REVIEW_STARTED'];
                     const exam = answer.examSection.exam;
@@ -49,43 +103,6 @@ angular.module('app.review')
                     });
                 };
 
-                vm.$onInit = function () {
-                    vm.user = Session.getUser();
-                    vm.examId = $routeParams.id;
-                    const ids = $routeParams.q || [];
-                    QuestionReview.questionsApi.query({id: vm.examId, ids: ids}, function (data) {
-                        data.forEach(function (r, i) {
-                            r.selected = i === 0; // select the first in the list
-                        });
-                        vm.reviews = data;
-                        if (vm.reviews.length > 0) {
-                            setSelectedReview(vm.reviews[0]);
-
-                            vm.sanitizeQuestion = function () {
-                                return $sce.trustAsHtml(vm.selectedReview.question.question);
-                            };
-
-                            vm.getAssessedAnswerCount = function () {
-                                return vm.assessedAnswers.length;
-                                ;
-                            };
-
-                            vm.getUnassessedAnswerCount = function () {
-                                return vm.unassessedAnswers.length;
-                            };
-
-                            vm.getLockedAnswerCount = function () {
-                                return vm.lockedAnswers.length;
-                            };
-
-                        }
-                    });
-                };
-
-                vm.questionSelected = function (index) {
-                    setSelectedReview(vm.reviews[index]);
-                };
-
                 const saveEvaluation = function (answer) {
                     const deferred = $q.defer();
                     answer.essayAnswer.evaluatedScore = answer.essayAnswer.score;
@@ -103,24 +120,6 @@ angular.module('app.review')
                         deferred.resolve();
                     });
                     return deferred.promise;
-                };
-
-                vm.saveAssessments = function (answers) {
-                    const promises = [];
-                    answers.forEach(function (a) {
-                        promises.push(saveEvaluation(a));
-                    });
-                    $q.all(promises).then(function () {
-                        vm.reviews = angular.copy(vm.reviews);
-                    });
-                };
-
-                vm.isFinalized = function (review) {
-                    return QuestionReview.isFinalized(review);
-                };
-
-                vm.downloadQuestionAttachment = function () {
-                    Attachment.downloadQuestionAttachment(vm.selectedReview.question);
                 };
             }
 

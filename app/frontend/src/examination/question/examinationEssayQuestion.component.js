@@ -37,7 +37,7 @@ angular.module('app.examination')
                 };
 
                 vm.removeQuestionAnswerAttachment = function () {
-                    Attachment.removeQuestionAnswerAttachment(vm.sq.question, vm.examHash);
+                    Attachment.removeQuestionAnswerAttachment(vm.sq, vm.examHash);
                 };
 
                 vm.selectFile = function () {
