@@ -5,11 +5,11 @@
                 translate}}</div>
         </div>
         <div class="modal-body">
-            <p ng-repeat="error in errors">{{error}}</p>
+            <p ng-repeat="error in $ctrl.errors">{{error}}</p>
         </div>
         <div class="student-message-dialog-footer">
             <div class="student-message-dialog-button-save">
-                <button class="btn btn-sm btn-primary" ng-click="ok()">
+                <button class="btn btn-sm btn-primary" ng-click="$ctrl.ok()">
                     {{'sitnet_button_ok' | translate}}
                 </button>
             </div>

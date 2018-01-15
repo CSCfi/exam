@@ -34,6 +34,9 @@ require('./publication/autoEvaluation.component');
 require('./publication/examParticipantSelector.component');
 require('./publication/examPreParticipantSelector.component');
 require('./publication/examPublication.component');
+require('./publication/publicationErrorDialog.component');
+require('./publication/publicationDialog.component');
+require('./publication/publicationRevokeDialog.component');
 
 require('./sections/section.component');
 require('./sections/sectionQuestion.component');

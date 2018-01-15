@@ -1,22 +1,22 @@
 <div id="sitnet-dialog">
     <div class="student-message-dialog-wrapper-padding">
         <div class="student-enroll-dialog-wrap">
-            <div class="student-enroll-title">{{'sitnet_publish_exam_confirm_dialog_title' |
+            <div class="student-enroll-title">{{'sitnet_unpublish_exam_confirm_dialog_title' |
                 translate}}</div>
         </div>
         <div class="modal-body">
             <p>
-                {{getConfirmationText()}}
+                {{'sitnet_unpublish_exam_confirm' | translate}}
             </p>
         </div>
         <div class="student-message-dialog-footer">
-            <div class="student-message-dialog-button-save">
-                <button class="btn btn-sm btn-primary" ng-click="ok()">
-                    {{'sitnet_button_ok' | translate}}
+            <div class="student-message-dialog-button-save marl10">
+                <button class="btn btn-sm btn-primary nowdt" ng-click="$ctrl.ok()">{{'sitnet_unpublish_exam' | translate}}
                 </button>
             </div>
             <div class="student-message-dialog-button-cancel">
-                <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+                <button class="btn btn-sm btn-danger pull-left" ng-click="$ctrl.cancel()">
+                    {{'sitnet_close' | translate}}
                 </button>
             </div>
         </div>

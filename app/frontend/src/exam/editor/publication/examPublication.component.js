@@ -157,17 +157,10 @@ angular.module('app.exam.editor')
                     const err = readyForPublishing();
 
                     if (Object.getOwnPropertyNames(err) && Object.getOwnPropertyNames(err).length > 0) {
-
                         $modal.open({
-                            template: require('./publication_error_dialog.html'),
+                            component: 'publicationErrorDialog',
                             backdrop: 'static',
                             keyboard: true,
-                            controller: function ($scope, $uibModalInstance) {
-                                $scope.errors = err;
-                                $scope.ok = function () {
-                                    $uibModalInstance.dismiss();
-                                };
-                            },
                             resolve: {
                                 errors: function () {
                                     return err;
@@ -176,23 +169,11 @@ angular.module('app.exam.editor')
                         });
                     } else {
                         $modal.open({
-                            template: require('./publication_dialog.html'),
+                            component: 'publicationDialog',
                             backdrop: 'static',
                             keyboard: true,
-                            controller: function ($scope, $uibModalInstance) {
-                                $scope.getConfirmationText = function () {
-                                    let confirmation = $translate.instant('sitnet_publish_exam_confirm');
-                                    if (vm.exam.executionType.type !== 'PRINTOUT') {
-                                        confirmation += ' ' + $translate.instant('sitnet_publish_exam_confirm_enroll');
-                                    }
-                                    return confirmation;
-                                };
-                                $scope.ok = function () {
-                                    $uibModalInstance.close();
-                                };
-                                $scope.cancel = function () {
-                                    $uibModalInstance.dismiss();
-                                };
+                            resolve: {
+                                exam: vm.exam
                             }
                         }).result.then(function () {
                             // OK button clicked
@@ -200,7 +181,7 @@ angular.module('app.exam.editor')
                                 toast.success($translate.instant('sitnet_exam_saved_and_published'));
                                 $location.path('/');
                             });
-                        });
+                        }).catch(angular.noop);
                     }
                 };
 
@@ -209,25 +190,15 @@ angular.module('app.exam.editor')
                 vm.unpublishExam = function () {
                     if (isAllowedToUnpublishOrRemove()) {
                         $modal.open({
-                            template: require('./publication_revoke_dialog.html'),
+                            component: 'publicationRevokeDialog',
                             backdrop: 'static',
-                            keyboard: true,
-                            controller: function ($scope, $uibModalInstance) {
-                                $scope.ok = function () {
-                                    $uibModalInstance.close();
-                                };
-                                $scope.cancel = function () {
-                                    $uibModalInstance.dismiss();
-                                };
-                            }
+                            keyboard: true
                         }).result.then(function () {
                             vm.updateExam(true, {'state': 'SAVED'}).then(function () {
                                 toast.success($translate.instant('sitnet_exam_unpublished'));
                                 vm.exam.state = 'SAVED';
                             });
-                        }, function (error) {
-                            // Cancel button clicked
-                        });
+                        }).catch(angular.noop);
                     } else {
                         toast.warning($translate.instant('sitnet_unpublish_not_possible'));
                     }
