@@ -14,7 +14,6 @@
  */
 
 import angular from 'angular';
-require('ng-ui-select');
 require('../iop');
 
-angular.module('app.reservation', ['app.iop', 'ui.select']);
+angular.module('app.reservation', ['app.iop' ]);

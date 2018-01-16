@@ -15,7 +15,7 @@
 
 import angular from 'angular';
 import toast from 'toastr';
-import FileSaver from 'filesaver.js';
+import FileSaver from 'file-saver';
 
 angular.module('app.utility')
     .factory('Files', ['$q', '$http', '$translate', '$timeout', 'SettingsResource',
