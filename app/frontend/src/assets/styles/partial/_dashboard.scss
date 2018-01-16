@@ -1,4 +1,4 @@
-@import "lib/bootstrap-sass/assets/stylesheets/bootstrap";
+@import "~bootstrap-sass/assets/stylesheets/_bootstrap.scss";
 
 #dashboard {
 
@@ -529,14 +529,14 @@
       }
 
       .sort-img-down {
-        background: url("../../../assets/assets/images/arrow_down_grey.png") no-repeat;
+        background: url('../images/arrow_down_grey.png') no-repeat;
         height: 9px;
         display: inline-block;
         width: 11px;
       }
 
       .sort-img-up {
-        background: url("../../../assets/assets/images/arrow_up_grey.png") no-repeat;
+        background: url("../images/arrow_up_grey.png") no-repeat;
         height: 9px;
         display: inline-block;
         width: 11px;
@@ -1211,18 +1211,17 @@
     border: 0;
     color: #777777;
     text-transform: uppercase;
-    font-weight: normal;
     //white-space: nowrap;
 
     .sort-img-down {
-      background: url("../../../assets/assets/images/arrow_down_grey.png") no-repeat;
+      background: url("../images/arrow_down_grey.png") no-repeat;
       height: 9px;
       display: inline-block;
       width: 11px;
     }
 
     .sort-img-up {
-      background: url("../../../assets/assets/images/arrow_up_grey.png") no-repeat;
+      background: url("../images/arrow_up_grey.png") no-repeat;
       height: 9px;
       display: inline-block;
       width: 11px;
@@ -1837,9 +1836,9 @@
   }
 
   .scrollable-menu {
-     height: auto;
-     max-height: 400px;
-     overflow-y: scroll;
-   }
+    height: auto;
+    max-height: 400px;
+    overflow-y: scroll;
+  }
 }
 
