@@ -11,12 +11,31 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
  */
+import angular from 'angular';
 
-require('./session.module');
-require('./session.service');
-require('./logout.component');
-require('./devLogin.component');
-require('./session.component');
-require('./role/selectRoleDialog.component');
-require('./eula/eulaDialog.component');
+angular.module('app.session')
+    .component('selectRoleDialog', {
+        template: require('./selectRoleDialog.template.html'),
+        bindings: {
+            resolve: '<',
+            close: '&',
+            dismiss: '&'
+        },
+        controller: function () {
+            const vm = this;
+
+            vm.$onInit = function () {
+                vm.user = vm.resolve.user;
+            };
+
+            vm.ok = function (role) {
+                vm.close({$value: role});
+            };
+
+            vm.cancel = function () {
+                vm.dismiss('cancel');
+            };
+        }
+    });

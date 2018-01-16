@@ -123,10 +123,10 @@ angular.module('app.session')
             };
 
             self.openEulaModal = function (user) {
-                modal().open({
+                $modal.open({
                     backdrop: 'static',
                     keyboard: true,
-                    component: 'eula'
+                    component: 'eulaDialog'
                 }).result.then(function () {
                     UserRes.updateAgreementAccepted.update(function () {
                         user.userAgreementAccepted = true;
@@ -139,61 +139,43 @@ angular.module('app.session')
                     }, function (error) {
                         toast.error(error.data);
                     });
-
-                }, function () {
+                }).catch(function () {
                     $location.path('/logout');
-                }).catch(function (e) {
-                    console.error(e);
                 });
             };
 
             self.openRoleSelectModal = function (user) {
-                const ctrl = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
-                    $scope.user = user;
-                    $scope.ok = function (role) {
-                        UserRes.userRoles.update({id: user.id, role: role.name}, function () {
-                            user.loginRole = role;
-                            user.isAdmin = hasRole(user, 'ADMIN');
-                            user.isTeacher = hasRole(user, 'TEACHER');
-                            user.isStudent = hasRole(user, 'STUDENT');
-                            user.isLanguageInspector = user.isTeacher && hasPermission(user, 'CAN_INSPECT_LANGUAGE');
-                            self.setUser(user);
-                            $modalInstance.close();
-                            $rootScope.$broadcast('userUpdated');
-                            if (user.isStudent && !user.userAgreementAccepted) {
-                                self.openEulaModal(user);
-                            } else if ($location.url() === '/login' || $location.url() === '/logout') {
-                                $location.path('/');
-                            } else {
-                                $route.reload();
-                            }
-                        }, function (error) {
-                            toast.error(error.data);
-                            $location.path('/logout');
-                        });
-
-                    };
-                    $scope.cancel = function () {
-                        $modalInstance.dismiss('cancel');
-                        $location.path('/logout');
-                    };
-                }];
-                const m = modal().open({
-                    templateUrl: EXAM_CONF.TEMPLATES_PATH + 'session/templates/select_role.html',
+                $modal.open({
+                    component: 'selectRoleDialog',
                     backdrop: 'static',
                     keyboard: false,
-                    controller: ctrl,
                     resolve: {
                         user: function () {
                             return user;
                         }
                     }
-                });
-
-                m.result.then(function () {
-                    console.log('Close role dialog.');
-                }).catch(function (e) {
-                    console.error(e);
+                }).result.then(function (role) {
+                    UserRes.userRoles.update({id: user.id, role: role.name}, function () {
+                        user.loginRole = role;
+                        user.isAdmin = hasRole(user, 'ADMIN');
+                        user.isTeacher = hasRole(user, 'TEACHER');
+                        user.isStudent = hasRole(user, 'STUDENT');
+                        user.isLanguageInspector = user.isTeacher && hasPermission(user, 'CAN_INSPECT_LANGUAGE');
+                        self.setUser(user);
+                        $rootScope.$broadcast('userUpdated');
+                        if (user.isStudent && !user.userAgreementAccepted) {
+                            self.openEulaModal(user);
+                        } else if ($location.url() === '/login' || $location.url() === '/logout') {
+                            $location.path('/');
+                        } else {
+                            $route.reload();
+                        }
+                    }, function (error) {
+                        toast.error(error.data);
+                        $location.path('/logout');
+                    });
+                }).catch(function () {
+                    $location.path('/logout');
                 });
             };
 

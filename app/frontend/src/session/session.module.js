@@ -15,5 +15,6 @@
 
 import angular from 'angular';
 require('../common');
+require('../administrative/settings');
 
-angular.module('app.session', ['app.common']);
+angular.module('app.session', ['app.common', 'app.administrative.settings']);
