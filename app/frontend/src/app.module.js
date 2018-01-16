@@ -34,6 +34,7 @@ require('./software/software.module');
 
 require('toastr/toastr.scss');
 require('font-awesome/css/font-awesome.min.css');
+require('./assets/styles/main.scss');
 
 angular.module('app', [
     'ngResource',
