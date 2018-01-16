@@ -16,7 +16,7 @@
 import angular from 'angular';
 import toast from 'toastr';
 import moment from 'moment';
-import FileSaver from 'filesaver.js';
+import FileSaver from 'file-saver';
 
 angular.module('app.review')
     .component('speedReview', {

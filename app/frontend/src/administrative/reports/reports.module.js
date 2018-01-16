@@ -15,5 +15,5 @@
 
 import angular from 'angular';
 
-angular.module('app.administrative.reports', ['ui.select']);
+angular.module('app.administrative.reports', []);
 
