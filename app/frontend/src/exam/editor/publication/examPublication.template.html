@@ -120,7 +120,7 @@
                             <button class="btn btn-publish" ng-class="$ctrl.checkTrialCount(x)" ng-click="$ctrl.setTrialCount(x)">{{x}}
                             </button>&nbsp;
                         </span>
-                        <button ng-if="$ctrl.exam.executionType.type==='PUBLIC'" class="btn btn-publish" ng-class="$ctrl.checkTrialCount()"
+                        <button ng-if="$ctrl.exam.executionType.type==='PUBLIC'" class="btn btn-publish" ng-class="$ctrl.checkTrialCount(null)"
                                 ng-click="$ctrl.setTrialCount()">&infin;
                         </button>
                         <button ng-if="$ctrl.exam.executionType.type==='PRIVATE'" class="btn btn-publish" ng-class="$ctrl.checkTrialCount()"
