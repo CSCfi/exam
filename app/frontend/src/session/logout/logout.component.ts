@@ -21,7 +21,7 @@ export const LogoutComponent: angular.IComponentOptions = {
         constructor(private Session: SessionService) {
         }
 
-        logout() {
+        $onInit() {
             this.Session.logout();
         }
 

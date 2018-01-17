@@ -20,4 +20,4 @@ import {LogoutComponent} from "./logout.component";
 
 export const LogoutModule = angular.module('app.session.logout', [])
     .component('logout', LogoutComponent)
-    .value('Session', SessionService);
+    //.value('Session', SessionService);

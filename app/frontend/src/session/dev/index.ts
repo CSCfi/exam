@@ -20,4 +20,4 @@ import {SessionService} from "../session.service"
 
 export const DevLoginModule = angular.module('app.session.devLogin', [])
     .component('devLogin', DevLoginComponent)
-    .value('SessionService', SessionService);
+    //.value('Session', SessionService);

@@ -52,6 +52,10 @@ angular.module('app.enrolment')
                     Enrolment.addEnrolmentInformation(vm.enrolment);
                 };
 
+                vm.loadImage = function (img) {
+                    return require('../../assets/images/' + img);
+                };
+
                 vm.getRoomInstruction = function () {
                     var reservation = vm.enrolment.reservation;
                     var o;

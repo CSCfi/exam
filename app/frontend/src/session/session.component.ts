@@ -23,12 +23,18 @@ export const SessionComponent: angular.IComponentOptions = {
 
         hideNavBar: boolean;
         user: any;
-        credentials: {username: string, password: string} = {username: null, password: null};
 
         constructor(private $rootScope: angular.IRootScopeService,
+                    private $location: angular.ILocationService,
                     private Session: SessionService) {
-            $rootScope.$on('examStarted', () => this.hideNavBar = true);
-            $rootScope.$on('examEnded', () => this.hideNavBar = false);
+            this.$rootScope.$on('examStarted', () => this.hideNavBar = true);
+            this.$rootScope.$on('examEnded', () => this.hideNavBar = false);
+            this.$rootScope.$on('devLogout', () => {
+                this.$location.url(this.$location.path());
+                this.user = Session.getUser();
+                Session.setLoginEnv(this);
+            });
+
         };
 
         $onInit() {
@@ -41,7 +47,7 @@ export const SessionComponent: angular.IComponentOptions = {
         };
 
         static get $inject() {
-            return ['$rootScope', 'Session'];
+            return ['$rootScope', '$location', 'Session'];
         }
     }
 };

@@ -37,6 +37,10 @@ export interface User {
 
 }
 
+export interface LogoutUrl {
+    logoutUrl: string
+}
+
 export class SessionService {
 
     PING_INTERVAL: number = 60 * 1000;
@@ -145,7 +149,7 @@ export class SessionService {
             this._openEulaModal(this._user);
         } else {
             this._redirect();
-            this.$route.reload();
+            //this.$route.reload();
         }
     };
 
@@ -200,7 +204,7 @@ export class SessionService {
         if (!this._user) {
             return;
         }
-        this.$http.post('/app/logout', {}).then(function (resp) {
+        this.$http.post('/app/logout', {}).then((resp: IHttpResponse<{logoutUrl: string}>) => {
             delete this.$sessionStorage['EXAM_USER'];
             delete this.$http.defaults.headers.common;
             delete this._user;
@@ -253,7 +257,7 @@ export class SessionService {
         if (this._scheduler) {
             this.$interval.cancel(this._scheduler);
         }
-        this._scheduler = this.$interval(this._checkSession, this.PING_INTERVAL);
+        this._scheduler = this.$interval(() => this._checkSession, this.PING_INTERVAL);
     };
 
     private _checkSession() {
