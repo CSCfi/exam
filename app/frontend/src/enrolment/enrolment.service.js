@@ -193,39 +193,24 @@ angular.module('app.enrolment')
             };
 
             self.addEnrolmentInformation = function (enrolment) {
-                const modalController = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
-                    $scope.enrolment = angular.copy(enrolment);
-                    $scope.ok = function () {
-                        $modalInstance.close('Accepted');
-                        enrolment.information = $scope.enrolment.information;
-                        StudentExamRes.enrolment.update({
-                            eid: enrolment.id,
-                            information: $scope.enrolment.information
-                        }, function () {
-                            toast.success($translate.instant('sitnet_saved'));
-                        });
-                    };
-
-                    $scope.cancel = function () {
-                        $modalInstance.close('Canceled');
-                    };
-                }];
-
-                const modalInstance = $modal.open({
-                    template: require('./active/dialogs/add_enrolment_information.html'),
+                $modal.open({
                     backdrop: 'static',
                     keyboard: true,
-                    controller: modalController,
+                    component: 'addEnrolmentInformationDialog',
                     resolve: {
-                        enrolment: function () {
-                            return enrolment;
+                        information: function () {
+                            return enrolment.information
                         }
                     }
-                });
-
-                modalInstance.result.then(function () {
-                    console.log('closed');
-                });
+                }).result.then(function (information) {
+                    StudentExamRes.enrolment.update({
+                        eid: enrolment.id,
+                        information: information
+                    }, function () {
+                        toast.success($translate.instant('sitnet_saved'));
+                        enrolment.information = information;
+                    });
+                }).catch(angular.noop);
             };
 
             self.getRoomInstructions = function (hash) {
@@ -234,64 +219,45 @@ angular.module('app.enrolment')
 
 
             self.showInstructions = function (enrolment) {
-                const modalController = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
-                    $scope.title = 'sitnet_instruction';
-                    $scope.instructions = enrolment.exam.enrollInstruction;
-                    $scope.ok = function () {
-                        $modalInstance.close('Accepted');
-                    };
-                }];
-
-                const modalInstance = $modal.open({
-                    template: require('./active/dialogs/show_instructions.html'),
+                $modal.open({
                     backdrop: 'static',
                     keyboard: true,
-                    controller: modalController,
+                    component: 'showInstructionsDialog',
                     resolve: {
+                        title: function () {
+                            return 'sitnet_instructions';
+                        },
                         instructions: function () {
                             return enrolment.exam.enrollInstruction;
                         }
                     }
-                });
-
-                modalInstance.result.then(function () {
-                    console.log('closed');
-                });
+                }).result.catch(angular.noop);
             };
 
             self.showMaturityInstructions = function (enrolment) {
-                const modalController = ['$scope', '$uibModalInstance', 'SettingsResource', function ($scope, $modalInstance, SettingsResource) {
-                    if (enrolment.exam.examLanguages.length !== 1) {
-                        console.warn('Exam has no exam languages or it has several!');
-                    }
-                    const lang = enrolment.exam.examLanguages && enrolment.exam.examLanguages.length > 0
-                        ? enrolment.exam.examLanguages[0].code : 'fi';
-                    $scope.title = 'sitnet_maturity_instructions';
-                    SettingsResource.maturityInstructions.get({lang: lang}, function (data) {
-                        $scope.instructions = data.value;
-                    });
-                    $scope.ok = function () {
-                        $modalInstance.close('Accepted');
-                    };
-                }];
-
-                const modalInstance = $modal.open({
-                    template: require('./active/dialogs/show_instructions.html'),
-                    backdrop: 'static',
-                    keyboard: true,
-                    controller: modalController,
-                    resolve: {
-                        instructions: function () {
-                            return enrolment.exam.enrollInstruction;
+                if (enrolment.exam.examLanguages.length !== 1) {
+                    console.warn('Exam has no exam languages or it has several!');
+                }
+                const lang = enrolment.exam.examLanguages && enrolment.exam.examLanguages.length > 0
+                    ? enrolment.exam.examLanguages[0].code : 'fi';
+                SettingsResource.maturityInstructions.get({lang: lang}, function (data) {
+                    $modal.open({
+                        backdrop: 'static',
+                        keyboard: true,
+                        component: 'showInstructionsDialog',
+                        resolve: {
+                            title: function () {
+                                return 'sitnet_maturity_instructions';
+                            },
+                            instructions: function () {
+                                return data.value;
+                            }
                         }
-                    }
-                });
-
-                modalInstance.result.then(function () {
-                    console.log('closed');
+                    }).result.catch(angular.noop);
+                }, function (error) {
+                    toast.error(error.data);
                 });
             };
-
 
         }]);
 
