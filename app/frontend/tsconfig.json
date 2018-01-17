@@ -1,10 +1,22 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "allowJs": true,
-    "outDir": "./built"
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "removeComments": true,
+    "noLib": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "noEmitHelpers": true
   },
+  "compileOnSave": false,
   "include": [
-    "./src/**/*"
+    "src/app/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
   ]
 }

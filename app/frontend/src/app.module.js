@@ -21,9 +21,8 @@ require('ngstorage');
 import configs from './app.config';
 import constants from './app.constant';
 import run from './app.run';
-
-require('./utility');
 require('./session');
+require('./utility');
 require('./dashboard');
 require('./navigation');
 require('./reservation');

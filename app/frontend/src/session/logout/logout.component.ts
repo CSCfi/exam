@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Exam Consortium
+ * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -11,31 +11,22 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
- *
  */
-import angular from 'angular';
 
-angular.module('app.session')
-    .component('selectRoleDialog', {
-        template: require('./selectRoleDialog.template.html'),
-        bindings: {
-            resolve: '<',
-            close: '&',
-            dismiss: '&'
-        },
-        controller: function () {
-            const vm = this;
+import * as angular from 'angular';
+import {SessionService} from '../session.service';
 
-            vm.$onInit = function () {
-                vm.user = vm.resolve.user;
-            };
-
-            vm.ok = function (role) {
-                vm.close({$value: role});
-            };
-
-            vm.cancel = function () {
-                vm.dismiss('cancel');
-            };
+export const LogoutComponent: angular.IComponentOptions = {
+    controller: class LogoutController {
+        constructor(private Session: SessionService) {
         }
-    });
+
+        logout() {
+            this.Session.logout();
+        }
+
+        static get $inject() {
+            return ['Session'];
+        }
+    }
+};
