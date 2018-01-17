@@ -1,6 +1,4 @@
 // This overrides the bundled bootstrap glyphicon font path.
-// There's some problem with the original path so we (still) have to serve those from separate location :(
-//$icon-font-path: "../../assets/assets/fonts/bootstrap/" !default;
 $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 
 // responsive
