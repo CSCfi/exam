@@ -45,10 +45,6 @@ angular.module('app.dashboard.student')
                     ctrl.showInst = ctrl.showInst === id ? 0 : id;
                 };
 
-                ctrl.showMaturityInstructions = function (enrolment) {
-                    Enrolment.showMaturityInstructions(enrolment);
-                };
-
                 ctrl.addEnrolmentInformation = function (enrolment) {
                     Enrolment.addEnrolmentInformation(enrolment);
                 };

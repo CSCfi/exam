@@ -210,17 +210,5 @@
                 {{ $ctrl.enrolment.exam.enrollInstruction }}
             </div>
         </div>
-
-        <div class="enrolment-row" ng-show="$ctrl.enrolment.exam.executionType.type !== 'MATURITY'" style="display:none;">
-            <div class="col-md-12 info-column">
-                <div class="col-md-3 header">
-                    {{ 'sitnet_maturity_instructions' | translate }}:
-                </div>
-                <div class="col-md-9">
-                    <a class="pointer" ng-click="$ctrl.showMaturityInstructions()">{{ 'sitnet_view' |
-                        translate }}</a>
-                </div>
-            </div>
-        </div>
     </div>
 </div>

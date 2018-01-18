@@ -173,7 +173,9 @@ angular.module('app.exam.editor')
                             backdrop: 'static',
                             keyboard: true,
                             resolve: {
-                                exam: vm.exam
+                                exam: function () {
+                                    return vm.exam
+                                }
                             }
                         }).result.then(function () {
                             // OK button clicked
