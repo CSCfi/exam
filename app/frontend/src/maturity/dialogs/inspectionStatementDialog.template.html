@@ -3,16 +3,12 @@
         <div class="student-enroll-dialog-wrap">
             <div class="student-enroll-title">{{'sitnet_give_feedback' | translate}}</div>
         </div>
-        <div class="mart20">
-            {{inspection}}
-        </div>
-
         <div class="mart20 student-feedback">
-            <p mathjax ng-bind-html="statement"></p>
+            <p mathjax ng-bind-html="$ctrl.statement"></p>
         </div>
         <div class="student-message-dialog-footer">
             <div class="student-message-dialog-button-save">
-                <button class="btn btn-sm btn-primary" ng-click="ok()">
+                <button class="btn btn-sm btn-primary" ng-click="$ctrl.ok()">
                     {{'sitnet_close' | translate}}
                 </button>
             </div>

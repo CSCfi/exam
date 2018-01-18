@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -11,10 +11,28 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
  */
-
 import angular from 'angular';
 
-angular.module('app.facility', ['app.facility.accessibility', 'app.facility.machines',
-    'app.facility.rooms', 'app.facility.address', 'app.facility.schedule']);
+angular.module('app.enrolment')
+    .component('showInstructionsDialog', {
+        template: require('./showInstructionsDialog.template.html'),
+        bindings: {
+            resolve:'<',
+            close: '&',
+            dismiss: '&'
+        },
+        controller: function () {
+            const vm = this;
 
+            vm.$onInit = function () {
+                vm.title = vm.resolve.title;
+                vm.instructions = vm.resolve.instructions;
+            };
+
+            vm.ok = function () {
+                vm.close();
+            };
+        }
+    });

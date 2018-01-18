@@ -179,14 +179,13 @@ angular.module('app.facility.rooms')
             };
 
             self.openExceptionDialog = function (callBack) {
-                const modalInstance = $modal.open({
-                    component: 'exception',
+                $modal.open({
+                    component: 'exceptionDialog',
                     backdrop: 'static',
                     keyboard: true
-                });
-                modalInstance.result.then(function (exception) {
+                }).result.then(function (exception) {
                     callBack({exception: exception});
-                });
+                }).catch(angular.noop);
             };
 
             self.deleteException = function (roomId, exceptionId) {

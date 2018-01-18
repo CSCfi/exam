@@ -30,24 +30,16 @@ angular.module('app.review')
             };
 
             self.showStatement = function (statement) {
-                const modalController = ['$scope', '$uibModalInstance', function ($scope, $modalInstance) {
-                    $scope.statement = statement.comment;
-                    $scope.ok = function () {
-                        $modalInstance.close('Accepted');
-                    };
-                }];
-
                 $modal.open({
-                    template: require('./dialogs/inspection_statement.html'),
                     backdrop: 'static',
                     keyboard: true,
-                    controller: modalController,
+                    component: 'inspectionStatementDialog',
                     resolve: {
                         statement: function () {
                             return statement.comment;
                         }
                     }
-                });
+                }).result.catch(angular.noop);
             };
 
             self.assignInspection = function (inspection) {

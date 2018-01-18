@@ -28,3 +28,5 @@ require('./exams/examEnrolmentCandidate.component');
 require('./exams/examEnrolmentDetails.component');
 require('./exams/examEnrolments.component');
 require('./active/activeEnrolment.component');
+require('./active/dialogs/addEnrolmentInformationDialog.component');
+require('./active/dialogs/showInstructionsDialog.component');

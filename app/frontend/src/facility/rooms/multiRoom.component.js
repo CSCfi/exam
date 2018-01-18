@@ -14,11 +14,12 @@
  */
 
 import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.facility.rooms')
     .component('multiRoom', {
         template: require('./multiRoom.template.html'),
-        controller: ['Room', 'toast', function (Room, toast) {
+        controller: ['Room', function (Room) {
             const vm = this;
 
             vm.$onInit = function () {

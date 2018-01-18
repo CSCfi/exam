@@ -14,6 +14,7 @@
  */
 
 import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.facility.machines')
     .component('machineList', {
@@ -21,7 +22,7 @@ angular.module('app.facility.machines')
         bindings: {
             room: '<'
         },
-        controller: ['Machines', '$translate', 'toast', function (Machines, $translate, toast) {
+        controller: ['Machines', '$translate', function (Machines, $translate) {
 
             const vm = this;
 
