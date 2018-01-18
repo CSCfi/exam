@@ -23,7 +23,7 @@ export interface User {
     id: number;
     firstName: string;
     lastName: string;
-    lang: object;
+    lang: string;
     loginRole: { name: string };
     roles: { name: string, displayName: string, icon: string }[];
     token: string;
@@ -34,11 +34,10 @@ export interface User {
     isStudent: boolean;
     isTeacher: boolean;
     isLanguageInspector: boolean;
-
 }
 
-export interface LogoutUrl {
-    logoutUrl: string
+interface Env {
+    isProd: boolean
 }
 
 export class SessionService {
@@ -58,11 +57,10 @@ export class SessionService {
                 private $timeout: angular.ITimeoutService,
                 private $modal: uib.IModalService,
                 private $route: angular.route.IRouteService) {
-
     }
 
 
-    getUser(): object {
+    getUser(): User {
         return this._user;
     }
 
@@ -76,11 +74,11 @@ export class SessionService {
         this._user = user;
     };
 
-    private _init(): angular.IPromise<any> {
-        const deferred: IDeferred<any> = this.$q.defer();
+    private _init(): angular.IPromise<Env> {
+        const deferred: IDeferred<Env> = this.$q.defer();
         if (!this._env) {
-            this.$http.get('/app/settings/environment').then((resp: any) => {
-                this._env = {isProd: resp.data.isProd};
+            this.$http.get('/app/settings/environment').then((resp: IHttpResponse<Env>) => {
+                this._env = resp.data;
                 deferred.resolve();
             }).catch(angular.noop);
         } else {
@@ -149,16 +147,15 @@ export class SessionService {
             this._openEulaModal(this._user);
         } else {
             this._redirect();
-            //this.$route.reload();
         }
     };
 
-    private _onLoginFailure(message: any) {
+    private _onLoginFailure(message: any): void {
         this.$location.path('/');
         toastr.error(message);
     };
 
-    private _processLoggedInUser(user: User) {
+    private _processLoggedInUser(user: User): void {
         this.$http.defaults.headers.common = {'x-exam-authentication': user.token};
         user.roles.forEach(role => {
             switch (role.name) {
@@ -204,14 +201,12 @@ export class SessionService {
         if (!this._user) {
             return;
         }
-        this.$http.post('/app/logout', {}).then((resp: IHttpResponse<{logoutUrl: string}>) => {
+        this.$http.post('/app/logout', {}).then((resp: IHttpResponse<{ logoutUrl: string }>) => {
             delete this.$sessionStorage['EXAM_USER'];
             delete this.$http.defaults.headers.common;
             delete this._user;
             this._onLogoutSuccess(resp.data);
-        }).catch(function (error) {
-            toastr.error(error.data);
-        });
+        }).catch(error => toastr.error(error.data));
     };
 
     login(username: string, password: string): IPromise<User> {
@@ -220,7 +215,7 @@ export class SessionService {
             password: password
         };
         const deferred: IDeferred<User> = this.$q.defer();
-        this.$http.post('/app/login', credentials)  //, {ignoreAuthModule: true} ??
+        this.$http.post('/app/login', credentials)
             .then((resp: IHttpResponse<User>) => {
                 this._processLoggedInUser(resp.data);
                 this._onLoginSuccess();
@@ -243,13 +238,13 @@ export class SessionService {
             this.translate(lang);
         } else {
             this.$http.put('/app/user/lang', {lang: lang})
-                .then(function () {
+                .then(() => {
                     this._user.lang = lang;
                     this.translate(lang);
                 })
-                .catch(function () {
-                    toastr.error('failed to switch language');
-                });
+                .catch(() =>
+                    toastr.error('failed to switch language')
+                );
         }
     };
 
@@ -262,15 +257,15 @@ export class SessionService {
 
     private _checkSession() {
         this.$http.get('/app/checkSession')
-            .then(function (resp) {
+            .then((resp) => {
                 if (resp.data === 'alarm') {
                     toastr.warning(this.$translate.instant('sitnet_continue_session'),
                         this.$translate.instant('sitnet_session_will_expire_soon'), {
                             timeOut: 0,
                             preventDuplicates: true,
-                            onclick: function () {
+                            onclick: () => {
                                 this.$http.put('/app/extendSession', {})
-                                    .then(function () {
+                                    .then(() => {
                                         toastr.info(this.$translate.instant('sitnet_session_extended'), null, {timeOut: 1000});
                                     }).catch(angular.noop);
                             }
@@ -291,8 +286,8 @@ export class SessionService {
             backdrop: 'static',
             keyboard: true,
             component: 'eulaDialog'
-        }).result.then(function () {
-            this.$http.put("/app/users/agreement").then(function () {
+        }).result.then(() => {
+            this.$http.put("/app/users/agreement", {}).then(() => {
                 user.userAgreementAccepted = true;
                 this.setUser(user);
                 if (this.$location.url() === '/login' || this.$location.url() === '/logout') {
@@ -300,12 +295,10 @@ export class SessionService {
                 } else {
                     this.$route.reload();
                 }
-            }).catch(function (resp) {
+            }).catch((resp) => {
                 toastr.error(resp.data);
             });
-        }).catch(function () {
-            this.$location.path('/logout');
-        });
+        }).catch(() => this.$location.path('/logout'));
     };
 
     private _openRoleSelectModal(user: User) {
@@ -314,17 +307,15 @@ export class SessionService {
             backdrop: 'static',
             keyboard: false,
             resolve: {
-                user: function () {
-                    return user;
-                }
+                user: () => user
             }
-        }).result.then(function (role: { name: string, icon: string, displayName: string }) {
-            this.$http.put(`/app/users/${user.id}/roles/${role.name}`).then(function () {
+        }).result.then((role: { name: string, icon: string, displayName: string }) => {
+            this.$http.put(`/app/users/${user.id}/roles/${role.name}`, {}).then(() => {
                 user.loginRole = role;
                 user.isAdmin = role.name === 'ADMIN';
                 user.isTeacher = role.name === 'TEACHER';
                 user.isStudent = role.name === 'STUDENT';
-                user.isLanguageInspector = user.isTeacher && this._hasPermission(user, 'CAN_INSPECT_LANGUAGE');
+                user.isLanguageInspector = user.isTeacher && SessionService._hasPermission(user, 'CAN_INSPECT_LANGUAGE');
                 this.setUser(user);
                 this.$rootScope.$broadcast('userUpdated');
                 if (user.isStudent && !user.userAgreementAccepted) {
@@ -334,13 +325,11 @@ export class SessionService {
                 } else {
                     this.$route.reload();
                 }
-            }).catch(function (resp) {
+            }).catch((resp) => {
                 toastr.error(resp.data);
                 this.$location.path('/logout');
             });
-        }).catch(function () {
-            this.$location.path('/logout');
-        });
+        }).catch(() => this.$location.path('/logout'));
     };
 
     static get $inject() {

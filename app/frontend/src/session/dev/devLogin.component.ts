@@ -20,10 +20,38 @@ export const DevLoginComponent: angular.IComponentOptions = {
     bindings: {
         onLoggedIn: '&'
     },
-    template: require('./devLogin.template.html'),
+    template: `
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-details-title-wrap padtop noleft">
+                <div class="student-exam-details-title">{{'sitnet_login' | translate}}</div>
+            </div>
+        </div>
+    </div>
+    <div id="login">
+        <form ng-submit="$ctrl.login()">
+            <p>
+                <label class="control-label">{{'sitnet_username' | translate}}</label>
+                <input class="form-control login" type="text" placeholder="{{'sitnet_username' | translate}}"
+                       ng-model="$ctrl.credentials.username"/>
+            </p>
+                <p>
+                <label class="control-label">{{'sitnet_password' | translate}}</label>
+                <input class="form-control login" type="password" placeholder="{{'sitnet_password' | translate}}"
+                       ng-model="$ctrl.credentials.password"/><br/>
+            </p>
+            <p>
+                <button type="submit" class="btn btn-primary" id="submit">{{'sitnet_login' | translate}}</button>
+            </p>
+        </form>
+    </div>
+    `,
     controller: class DevLoginController {
         onLoggedIn: (x: any) => any;
-        credentials: { username: string, password: string } = {username: null, password: null};
+        credentials: {
+            username: string,
+            password: string
+        } = {username: null, password: null};
 
         constructor(private Session: SessionService) {
         }

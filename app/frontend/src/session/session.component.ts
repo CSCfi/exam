@@ -15,14 +15,25 @@
 
 import * as angular from 'angular';
 import {IComponentController} from 'angular';
-import {SessionService} from './session.service';
+import {SessionService, User} from './session.service';
 
 export const SessionComponent: angular.IComponentOptions = {
-    template: require('./session.template.html'),
+    template: `
+    <div ng-if="!$ctrl.user && $ctrl.devLoginRequired">
+        <dev-login on-logged-in="$ctrl.setUser(user)"></dev-login>
+    </div>
+    <div ng-if="$ctrl.user">
+        <navigation ng-hide="$ctrl.hideNavBar"></navigation>
+        <div id="mainView" class="container-fluid"
+             ng-class="{'vmenu-on': !$ctrl.hideNavBar && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
+            <div ng-view/>
+        </div>
+    </div>
+    `,
     controller: class SessionController implements IComponentController {
 
         hideNavBar: boolean;
-        user: any;
+        user: User;
 
         constructor(private $rootScope: angular.IRootScopeService,
                     private $location: angular.ILocationService,
@@ -42,7 +53,7 @@ export const SessionComponent: angular.IComponentOptions = {
             this.Session.setLoginEnv(this);
         };
 
-        setUser = function (user: object) {
+        setUser = function (user: User) {
             this.user = user;
         };
 

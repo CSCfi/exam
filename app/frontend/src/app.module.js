@@ -21,6 +21,7 @@ require('ngstorage');
 import configs from './app.config';
 import constants from './app.constant';
 import run from './app.run';
+import SessionModule from './session';
 require('./session');
 require('./utility');
 require('./dashboard');
@@ -39,6 +40,7 @@ angular.module('app', [
     'ngResource',
     'ngRoute',
     'ngStorage',
+    SessionModule,
     'app.session',
     'app.navigation',
     'app.enrolment',

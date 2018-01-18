@@ -17,7 +17,31 @@ import * as angular from 'angular';
 import {IComponentController, IHttpResponse} from "angular";
 
 export const EulaDialogComponent: angular.IComponentOptions = {
-    template: require('./eulaDialog.template.html'),
+    template: `
+    <div id="sitnet-dialog">
+        <div class="student-message-dialog-wrapper-padding">
+            <div class="student-enroll-dialog-wrap">
+                <div class="student-enroll-title">{{'sitnet_accept_useragreement' | translate}}</div>
+            </div>
+            <div class="modal-body">
+                <div ng-bind-html="$ctrl.settings.eula.value">
+                </div>
+            </div>
+            <div class="student-message-dialog-footer">
+                <div class="student-message-dialog-button-save">
+                    <button class="btn btn-sm btn-primary" ng-click="$ctrl.ok()">
+                        {{'sitnet_button_accept' | translate}}
+                    </button>
+                </div>
+                <div class="student-message-dialog-button-cancel">
+                    <button class="btn btn-sm btn-danger pull-left" ng-click="$ctrl.cancel()">
+                        {{'sitnet_button_decline' | translate}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `,
     bindings: {
         close: '&',
         dismiss: '&'
@@ -32,9 +56,9 @@ export const EulaDialogComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
-            this.$http.get('/app/settings/agreement').then(function (resp: IHttpResponse<{value: string}>) {
-                this.settings = {eula: {value: resp.data.value}};
-            }).catch(angular.noop);
+            this.$http.get('/app/settings/agreement').then((resp: IHttpResponse<{value: string}>) =>
+                this.settings = {eula: {value: resp.data.value}}
+            ).catch(angular.noop);
         };
 
         cancel() {

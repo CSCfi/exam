@@ -23,7 +23,7 @@ import {EulaDialogComponent} from "./eula/eulaDialog.component";
 import {SelectRoleDialogComponent} from "./role/selectRoleDialog.component";
 import {LogoutComponent} from "./logout/logout.component";
 
-export const SessionModule = angular.module('app.session', [])
+export default angular.module('app.session', [])
     .service('Session', SessionService)
     .component('devLogin', DevLoginComponent)
     .component('logout', LogoutComponent)
