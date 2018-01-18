@@ -19,3 +19,4 @@ require('./listing/unfinishedInspections.component');
 require('./languageInspections.service');
 require('./languageInspections.component');
 require('./reporting/maturityReporting.component');
+require('./dialogs/inspectionStatementDialog.component');

@@ -14,6 +14,7 @@
  */
 
 import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.facility.address')
     .component('examAddress', {
@@ -21,7 +22,7 @@ angular.module('app.facility.address')
         bindings: {
             address: '<'
         },
-        controller: ['Room', 'toast', '$translate', function (Room, toast, $translate) {
+        controller: ['Room', '$translate', function (Room, $translate) {
 
             const vm = this;
 

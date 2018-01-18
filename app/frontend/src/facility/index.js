@@ -14,3 +14,8 @@
  */
 
 require('./facility.module');
+require('./accessibility');
+require('./machines');
+require('./rooms');
+require('./address');
+require('./schedule');

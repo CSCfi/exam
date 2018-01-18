@@ -14,16 +14,18 @@
  */
 
 import angular from'angular';
+import toast from 'toastr';
+import moment from 'moment';
 
 angular.module('app.facility.schedule')
-    .component('exception', {
-        template: require('./exception.template.html'),
+    .component('exceptionDialog', {
+        template: require('./exceptionDialog.template.html'),
         bindings: {
             close: '&',
             dismiss: '&',
             resolve: '<'
         },
-        controller: ['$translate', 'toast', function ($translate, toast) {
+        controller: ['$translate', function ($translate) {
 
             const vm = this;
 
