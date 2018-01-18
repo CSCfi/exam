@@ -22,8 +22,8 @@ angular.module('app.facility.schedule')
             week: '<',
             onSelect: '&'
         },
-        controller: ['Room', 'DateTime', 'toast', '$translate', '$scope',
-            function (Room, DateTime, toast, $translate, $scope) {
+        controller: ['Room', 'DateTime', '$translate', '$scope',
+            function (Room, DateTime, $translate, $scope) {
 
                 const vm = this;
 
