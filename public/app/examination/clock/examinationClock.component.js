@@ -66,11 +66,11 @@ angular.module('app.examination')
                         // Sync time with backend
                         _secondsSinceSync = 0;
                         getRemainingTime();
-                    } else if (vm.remainingTime) {
+                    } else if (angular.isDefined(vm.remainingTime)) {
                         // Decrease seconds
                         vm.remainingTime--;
                     }
-                    if (vm.remainingTime && vm.remainingTime < 0) {
+                    if (angular.isDefined(vm.remainingTime) && vm.remainingTime <= 0) {
                         onTimeout();
                     }
 
