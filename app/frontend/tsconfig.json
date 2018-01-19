@@ -9,11 +9,12 @@
     "experimentalDecorators": true,
     "sourceMap": true,
     "moduleResolution": "node",
-    "noEmitHelpers": true
+    "noEmitHelpers": true,
+    "outDir": "built"
   },
   "compileOnSave": false,
   "include": [
-    "src/app/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",

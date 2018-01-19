@@ -14,7 +14,6 @@
  */
 
 import * as angular from 'angular';
-import {IComponentController} from 'angular';
 import {SessionService, User} from './session.service';
 
 export const SessionComponent: angular.IComponentOptions = {
@@ -30,10 +29,14 @@ export const SessionComponent: angular.IComponentOptions = {
         </div>
     </div>
     `,
-    controller: class SessionController implements IComponentController {
+    controller: class SessionController implements angular.IComponentController {
 
         hideNavBar: boolean;
         user: User;
+
+        static get $inject() {
+            return ['$rootScope', '$location', 'Session'];
+        }
 
         constructor(private $rootScope: angular.IRootScopeService,
                     private $location: angular.ILocationService,
@@ -57,8 +60,5 @@ export const SessionComponent: angular.IComponentOptions = {
             this.user = user;
         };
 
-        static get $inject() {
-            return ['$rootScope', '$location', 'Session'];
-        }
     }
 };

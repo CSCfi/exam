@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -13,15 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from'angular';
+import * as angular from 'angular';
 
-angular
-    .module('app.navigation')
-    .factory('Navigation', ['$resource',
-        function ($resource) {
-            return {
-                appVersion: $resource("/app/settings/appVersion")
-            }
-        }
-    ]);
+import {NavigationService} from './navigation.service';
+import {NavigationComponent} from './navigation.component';
+
+export default angular.module('app.navigation', [])
+    .service('Navigation', NavigationService)
+    .component('navigation', NavigationComponent)
+    .name;
+
 

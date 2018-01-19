@@ -22,10 +22,9 @@ import configs from './app.config';
 import constants from './app.constant';
 import run from './app.run';
 import SessionModule from './session';
-require('./session');
+import NavigationModule from './navigation';
 require('./utility');
 require('./dashboard');
-require('./navigation');
 require('./reservation');
 require('./maturity');
 require('./enrolment/enrolment.module');
@@ -41,8 +40,7 @@ angular.module('app', [
     'ngRoute',
     'ngStorage',
     SessionModule,
-    'app.session',
-    'app.navigation',
+    NavigationModule,
     'app.enrolment',
     'app.dashboard',
     'app.administrative',
