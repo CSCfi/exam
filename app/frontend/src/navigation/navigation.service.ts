@@ -14,15 +14,15 @@
  */
 
 import * as angular from 'angular';
-import {SessionService, User} from '../session/session.service';
+import { SessionService, User } from '../session/session.service';
 
 export interface Link {
-    href: string,
-    visible: boolean,
-    faClass: string,
-    name: string,
-    iconSvg: string,
-    iconPng: string
+    href: string;
+    visible: boolean;
+    faClass: string;
+    name: string;
+    iconSvg: string;
+    iconPng: string;
 }
 
 export class NavigationService {
@@ -32,11 +32,11 @@ export class NavigationService {
     }
 
     constructor(private $http: angular.IHttpService,
-                private $location: angular.ILocationService,
-                private Session: SessionService) {
+        private $location: angular.ILocationService,
+        private Session: SessionService) {
     }
 
-    getAppVersion(): angular.IHttpPromise<{appVersion: string}> {
+    getAppVersion(): angular.IHttpPromise<{ appVersion: string }> {
         return this.$http.get('/app/settings/appVersion');
     }
 
@@ -57,7 +57,6 @@ export class NavigationService {
 
         // Change the menu item title if student
         const nameForDashboard = student ? 'sitnet_user_enrolled_exams_title' : 'sitnet_dashboard';
-
 
         return [
             {
@@ -89,7 +88,7 @@ export class NavigationService {
                 visible: (admin),
                 faClass: 'fa-print',
                 name: 'sitnet_printout_exams',
-                iconSvg: null, //TODO
+                iconSvg: null, // TODO
                 iconPng: null // TODO
             },
             {
@@ -173,7 +172,7 @@ export class NavigationService {
                 iconPng: 'icon_logout.png'
             }
         ];
-    };
+    }
 
 
 }

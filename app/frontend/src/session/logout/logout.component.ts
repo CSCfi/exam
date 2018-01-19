@@ -14,7 +14,7 @@
  */
 
 import * as angular from 'angular';
-import {SessionService} from '../session.service';
+import { SessionService } from '../session.service';
 
 export const LogoutComponent: angular.IComponentOptions = {
     controller: class LogoutController {

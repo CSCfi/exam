@@ -14,7 +14,7 @@
  */
 
 import * as angular from 'angular';
-import {IComponentController, IHttpResponse} from "angular";
+import { IComponentController, IHttpResponse } from 'angular';
 
 export const EulaDialogComponent: angular.IComponentOptions = {
     template: `
@@ -56,13 +56,13 @@ export const EulaDialogComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
-            this.$http.get('/app/settings/agreement').then((resp: IHttpResponse<{value: string}>) =>
-                this.settings = {eula: {value: resp.data.value}}
+            this.$http.get('/app/settings/agreement').then((resp: IHttpResponse<{ value: string }>) =>
+                this.settings = { eula: { value: resp.data.value } }
             ).catch(angular.noop);
-        };
+        }
 
         cancel() {
-            this.dismiss({$value: 'cancel'});
+            this.dismiss({ $value: 'cancel' });
         }
 
         ok() {

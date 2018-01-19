@@ -14,7 +14,7 @@
  */
 
 import * as angular from 'angular';
-import {SessionService, User} from '../session.service';
+import { SessionService, User } from '../session.service';
 
 export const DevLoginComponent: angular.IComponentOptions = {
     bindings: {
@@ -51,15 +51,15 @@ export const DevLoginComponent: angular.IComponentOptions = {
         credentials: {
             username: string,
             password: string
-        } = {username: null, password: null};
+        } = { username: null, password: null };
 
         constructor(private Session: SessionService) {
         }
 
         login() {
             this.Session.login(this.credentials.username, this.credentials.password)
-                .then((user: User) =>{
-                    this.onLoggedIn({user: user});
+                .then((user: User) => {
+                    this.onLoggedIn({ user: user });
                 })
                 .catch((err) => {
                     console.log(JSON.stringify(err));
@@ -70,7 +70,7 @@ export const DevLoginComponent: angular.IComponentOptions = {
         static get $inject() {
             return [
                 'Session'
-            ]
+            ];
         }
     }
 

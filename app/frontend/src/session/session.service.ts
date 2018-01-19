@@ -37,7 +37,7 @@ export interface User {
 }
 
 interface Env {
-    isProd: boolean
+    isProd: boolean;
 }
 
 export class SessionService {
@@ -68,11 +68,11 @@ export class SessionService {
         if (this._user) {
             return this._user.firstName + ' ' + this._user.lastName;
         }
-    };
+    }
 
     setUser(user: User): void {
         this._user = user;
-    };
+    }
 
     private _init(): angular.IPromise<Env> {
         const deferred: IDeferred<Env> = this.$q.defer();
@@ -85,14 +85,14 @@ export class SessionService {
             deferred.resolve();
         }
         return deferred.promise;
-    };
+    }
 
     private static _hasPermission(user: User, permission: string) {
         if (!user) {
             return false;
         }
         return user.permissions.some(p => p.type === permission);
-    };
+    }
 
     static hasRole(user: User, role: string): boolean {
         return user && user.loginRole && user.loginRole.name === role;
@@ -104,7 +104,7 @@ export class SessionService {
                 scope.devLoginRequired = true;
             }
         }).catch(angular.noop);
-    };
+    }
 
     private _onLogoutSuccess(data: { logoutUrl: string }): void {
         this.$rootScope.$broadcast('userUpdated');
@@ -122,7 +122,7 @@ export class SessionService {
             this.$rootScope.$broadcast('devLogout');
         }
         this.$timeout(toastr.clear, 300);
-    };
+    }
 
     private _redirect(): void {
         if (this.$location.path() === '/' && this._user.isLanguageInspector) {
@@ -130,14 +130,16 @@ export class SessionService {
         } else if (this._env && !this._env.isProd) {
             this.$location.path(this._user.isLanguageInspector ? '/inspections' : '/');
         }
-    };
+    }
 
     private _onLoginSuccess(): void {
         this.restartSessionCheck();
         this.$rootScope.$broadcast('userUpdated');
 
         const welcome = () =>
-            toastr.success(`${this.$translate.instant('sitnet_welcome')} ${this._user.firstName} ${this._user.lastName}`);
+            toastr.success(
+                `${this.$translate.instant('sitnet_welcome')} ${this._user.firstName} ${this._user.lastName}`
+            );
 
         this.$timeout(welcome, 2000);
 
@@ -148,12 +150,12 @@ export class SessionService {
         } else {
             this._redirect();
         }
-    };
+    }
 
     private _onLoginFailure(message: any): void {
         this.$location.path('/');
         toastr.error(message);
-    };
+    }
 
     private _processLoggedInUser(user: User): void {
         this.$http.defaults.headers.common = {'x-exam-authentication': user.token};
@@ -195,7 +197,7 @@ export class SessionService {
 
         this.$sessionStorage['EXAM_USER'] = this._user;
         this.translate(this._user.lang);
-    };
+    }
 
     logout(): void {
         if (!this._user) {
@@ -207,7 +209,7 @@ export class SessionService {
             delete this._user;
             this._onLogoutSuccess(resp.data);
         }).catch(error => toastr.error(error.data));
-    };
+    }
 
     login(username: string, password: string): IPromise<User> {
         const credentials = {
@@ -226,12 +228,12 @@ export class SessionService {
                 deferred.reject();
             });
         return deferred.promise;
-    };
+    }
 
     translate(lang) {
         this.$translate.use(lang);
         this.$rootScope.$broadcast('$localeChangeSuccess');
-    };
+    }
 
     switchLanguage(lang: string) {
         if (!this._user) {
@@ -246,14 +248,14 @@ export class SessionService {
                     toastr.error('failed to switch language')
                 );
         }
-    };
+    }
 
     restartSessionCheck(): void {
         if (this._scheduler) {
             this.$interval.cancel(this._scheduler);
         }
         this._scheduler = this.$interval(() => this._checkSession, this.PING_INTERVAL);
-    };
+    }
 
     private _checkSession() {
         this.$http.get('/app/checkSession')
@@ -266,8 +268,10 @@ export class SessionService {
                             onclick: () => {
                                 this.$http.put('/app/extendSession', {})
                                     .then(() => {
-                                        toastr.info(this.$translate.instant('sitnet_session_extended'), null, {timeOut: 1000});
-                                    }).catch(angular.noop);
+                                        toastr.info(this.$translate.instant('sitnet_session_extended'),
+                                            null, {timeOut: 1000});
+                                    })
+                                    .catch(angular.noop);
                             }
                         });
                 } else if (resp.data === 'no_session') {
@@ -278,8 +282,7 @@ export class SessionService {
                 }
             })
             .catch(angular.noop);
-    };
-
+    }
 
     private _openEulaModal(user: User): void {
         this.$modal.open({
@@ -287,7 +290,7 @@ export class SessionService {
             keyboard: true,
             component: 'eulaDialog'
         }).result.then(() => {
-            this.$http.put("/app/users/agreement", {}).then(() => {
+            this.$http.put('/app/users/agreement', {}).then(() => {
                 user.userAgreementAccepted = true;
                 this.setUser(user);
                 if (this.$location.url() === '/login' || this.$location.url() === '/logout') {
@@ -299,7 +302,7 @@ export class SessionService {
                 toastr.error(resp.data);
             });
         }).catch(() => this.$location.path('/logout'));
-    };
+    }
 
     private _openRoleSelectModal(user: User) {
         this.$modal.open({
@@ -315,7 +318,8 @@ export class SessionService {
                 user.isAdmin = role.name === 'ADMIN';
                 user.isTeacher = role.name === 'TEACHER';
                 user.isStudent = role.name === 'STUDENT';
-                user.isLanguageInspector = user.isTeacher && SessionService._hasPermission(user, 'CAN_INSPECT_LANGUAGE');
+                user.isLanguageInspector =
+                    user.isTeacher && SessionService._hasPermission(user, 'CAN_INSPECT_LANGUAGE');
                 this.setUser(user);
                 this.$rootScope.$broadcast('userUpdated');
                 if (user.isStudent && !user.userAgreementAccepted) {
@@ -330,7 +334,7 @@ export class SessionService {
                 this.$location.path('/logout');
             });
         }).catch(() => this.$location.path('/logout'));
-    };
+    }
 
     static get $inject() {
         return ['$http', '$q', '$interval', '$sessionStorage', '$translate', '$location',

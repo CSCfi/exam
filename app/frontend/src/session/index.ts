@@ -16,12 +16,12 @@
 
 import * as angular from 'angular';
 
-import {SessionService} from "./session.service";
-import {SessionComponent} from "./session.component";
-import {DevLoginComponent} from "./dev/devLogin.component";
-import {EulaDialogComponent} from "./eula/eulaDialog.component";
-import {SelectRoleDialogComponent} from "./role/selectRoleDialog.component";
-import {LogoutComponent} from "./logout/logout.component";
+import { SessionService } from './session.service';
+import { SessionComponent } from './session.component';
+import { DevLoginComponent } from './dev/devLogin.component';
+import { EulaDialogComponent } from './eula/eulaDialog.component';
+import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
+import { LogoutComponent } from './logout/logout.component';
 
 export default angular.module('app.session', [])
     .service('Session', SessionService)

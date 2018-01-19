@@ -14,7 +14,7 @@
  */
 
 import * as angular from 'angular';
-import {SessionService, User} from './session.service';
+import { SessionService, User } from './session.service';
 
 export const SessionComponent: angular.IComponentOptions = {
     template: `
@@ -39,8 +39,8 @@ export const SessionComponent: angular.IComponentOptions = {
         }
 
         constructor(private $rootScope: angular.IRootScopeService,
-                    private $location: angular.ILocationService,
-                    private Session: SessionService) {
+            private $location: angular.ILocationService,
+            private Session: SessionService) {
             this.$rootScope.$on('examStarted', () => this.hideNavBar = true);
             this.$rootScope.$on('examEnded', () => this.hideNavBar = false);
             this.$rootScope.$on('devLogout', () => {
@@ -49,12 +49,12 @@ export const SessionComponent: angular.IComponentOptions = {
                 Session.setLoginEnv(this);
             });
 
-        };
+        }
 
         $onInit() {
             this.user = this.Session.getUser();
             this.Session.setLoginEnv(this);
-        };
+        }
 
         setUser = function (user: User) {
             this.user = user;

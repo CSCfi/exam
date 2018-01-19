@@ -14,8 +14,8 @@
  */
 
 import * as angular from 'angular';
-import {SessionService, User} from '../session/session.service';
-import {Link, NavigationService} from './navigation.service';
+import { SessionService, User } from '../session/session.service';
+import { Link, NavigationService } from './navigation.service';
 
 declare function require(name: string): any;
 
@@ -34,10 +34,10 @@ export const NavigationComponent: angular.IComponentOptions = {
         }
 
         constructor(private $rootScope: angular.IRootScopeService,
-                    private $location: angular.ILocationService,
-                    private $window: angular.IWindowService,
-                    private Navigation: NavigationService,
-                    private Session: SessionService) {
+            private $location: angular.ILocationService,
+            private $window: angular.IWindowService,
+            private Navigation: NavigationService,
+            private Session: SessionService) {
             $rootScope.$on('userUpdated', () => this.links = Navigation.getLinks());
             $rootScope.$on('upcomingExam', () => this.links = Navigation.getLinks());
             $rootScope.$on('wrongLocation', () => this.links = Navigation.getLinks());
@@ -52,7 +52,7 @@ export const NavigationComponent: angular.IComponentOptions = {
                     .then((resp) => this.appVersion = resp.data.appVersion)
                     .catch((e) => toastr.error(e.data));
             }
-        };
+        }
 
         isActive(link: Link): boolean {
             return link.href === this.$location.path();
@@ -60,11 +60,11 @@ export const NavigationComponent: angular.IComponentOptions = {
 
         openMenu(): void {
             this.mobileMenuOpen = !this.mobileMenuOpen;
-        };
+        }
 
         switchLanguage(key): void {
             this.Session.switchLanguage(key);
-        };
+        }
 
     }
 };
