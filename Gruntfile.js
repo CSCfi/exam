@@ -7,7 +7,7 @@ module.exports = function (grunt) {
             },
             dist: {
                 src: [
-                    'public/components/vendor/*.js',
+                    'public/components/vendor/truncate.js',
                     'public/app/**/*.module.js',
                     'public/app/**/*.js',
                     '!public/app/exam.*js'],
