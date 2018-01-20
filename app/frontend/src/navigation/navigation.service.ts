@@ -31,7 +31,8 @@ export class NavigationService {
         return ['$http', '$location', 'Session'];
     }
 
-    constructor(private $http: angular.IHttpService,
+    constructor(
+        private $http: angular.IHttpService,
         private $location: angular.ILocationService,
         private Session: SessionService) {
     }

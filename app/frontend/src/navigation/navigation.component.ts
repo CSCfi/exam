@@ -33,7 +33,8 @@ export const NavigationComponent: angular.IComponentOptions = {
             return ['$rootScope', '$location', '$window', 'Navigation', 'Session'];
         }
 
-        constructor(private $rootScope: angular.IRootScopeService,
+        constructor(
+            private $rootScope: angular.IRootScopeService,
             private $location: angular.ILocationService,
             private $window: angular.IWindowService,
             private Navigation: NavigationService,
@@ -49,8 +50,8 @@ export const NavigationComponent: angular.IComponentOptions = {
             this.user = this.Session.getUser();
             if (this.user.isAdmin) {
                 this.Navigation.getAppVersion()
-                    .then((resp) => this.appVersion = resp.data.appVersion)
-                    .catch((e) => toastr.error(e.data));
+                    .then(resp => this.appVersion = resp.data.appVersion)
+                    .catch(e => toastr.error(e.data));
             }
         }
 
