@@ -13,11 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from'angular';
+import angular from 'angular';
 
-require('../utility/utility.module');
 require('angular-sanitize');
 require('angular-dialog-service');
 
-angular.module('app.maturity', ['app.utility', 'ngSanitize', 'dialogs.main']);
+angular.module('app.maturity', ['ngSanitize', 'dialogs.main']);
 

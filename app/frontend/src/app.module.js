@@ -23,6 +23,7 @@ import constants from './app.constant';
 import run from './app.run';
 import SessionModule from './session';
 import NavigationModule from './navigation';
+import UtilityModule from './utility';
 require('./utility');
 require('./dashboard');
 require('./reservation');
@@ -41,6 +42,7 @@ angular.module('app', [
     'ngStorage',
     SessionModule,
     NavigationModule,
+    UtilityModule,
     'app.enrolment',
     'app.dashboard',
     'app.administrative',

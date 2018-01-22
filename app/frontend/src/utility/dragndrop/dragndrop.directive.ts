@@ -15,17 +15,27 @@
 
 import * as angular from 'angular';
 import * as toast from 'toastr';
-import { IScope, IAttributes } from 'angular';
+import { IScope, IAttributes, IAugmentedJQuery } from 'angular';
+require('jquery-ui/ui/widgets/draggable');
+require('jquery-ui/ui/widgets/droppable');
+require('jquery-ui/ui/widgets/sortable');
+require('jquery-ui/ui/disable-selection');
 
 interface SortableScope extends IScope {
     onMove: (x: any) => void;
     objects: any[];
-    selection: any;
+    selection: string;
 }
 
 export class SortableDirective implements angular.IDirective<SortableScope> {
     restrict = 'A';
-    link = (scope: SortableScope, element: angular.IAugmentedJQuery, attrs: IAttributes) => {
+    scope = {
+        onMove: '&',
+        objects: '=',
+        selection: '@selection'
+    };
+    link(scope: SortableScope, element: angular.IAugmentedJQuery, attrs: IAttributes) {
+        console.log('selection = ' + scope.selection);
         let startIndex = -1;
         element.sortable({
             items: scope.selection,
@@ -47,17 +57,23 @@ export class SortableDirective implements angular.IDirective<SortableScope> {
             axis: 'y'
         });
     }
+
+    static factory(): angular.IDirectiveFactory {
+        return () => new SortableDirective();
+    }
 }
 
-export class DraggableModal implements angular.IDirective {
+export class DraggableModalDirective implements angular.IDirective {
     restrict = 'A';
     link = (scope: IScope, element: angular.IAugmentedJQuery, attrs: IAttributes) => {
         element.draggable({
             revert: false,
-            drag: function () {
-                element.css('height', 'auto');
-            }
+            drag: () => element.css('height', 'auto')
         });
+    }
+
+    static factory(): angular.IDirectiveFactory {
+        return () => new DraggableModalDirective();
     }
 }
 
@@ -68,13 +84,16 @@ interface DroppableScope extends angular.IScope {
     onCreate: (x: any) => void;
 }
 
-export class DroppableDirective implements angular.IDirective<DroppableScope> {
+export class DroppableDirective implements angular.IDirective {
 
     restrict = 'A';
+    scope = {
+        objects: '=',
+        identifier: '=',
+        onMove: '&',
+        onCreate: '&'
+    };
 
-    static get $inject() {
-        return ['$parse', '$translate'];
-    }
     constructor(
         private $parse: angular.IParseService,
         private $translate: angular.translate.ITranslateService
@@ -83,21 +102,14 @@ export class DroppableDirective implements angular.IDirective<DroppableScope> {
     link = (scope: DroppableScope, element: angular.IAugmentedJQuery, attrs: IAttributes) => {
         let startIndex = -1;
 
-        const initDroppable = (scope, element, dropDisabled) => {
+        const initDroppable = (scope: DroppableScope, element: IAugmentedJQuery, dropDisabled: boolean) => {
             element.droppable({
-                drop: function (event, ui) {
-                    if (ui.draggable.hasClass('section-handle')) {
-                        event.revert = true;
-                        return;
-                    }
+                drop: (event: Event, ui: JQueryUI.DroppableEventUIParam) => {
                     if (dropDisabled) {
                         toast.error(this.$translate.instant('sitnet_error_drop_disabled_lottery_on'));
-                        event.revert = true;
-                    }
-                    if (!ui.draggable.hasClass('draggable') &&
+                    } else if (!ui.draggable.hasClass('draggable') &&
                         !ui.draggable.hasClass('sortable-' + scope.identifier)) {
                         toast.warning(this.$translate.instant('sitnet_move_between_sections_disabled'));
-                        event.revert = true;
                     }
                 }
             });
@@ -106,14 +118,13 @@ export class DroppableDirective implements angular.IDirective<DroppableScope> {
                 disabled: dropDisabled,
                 items: '.sortable-' + scope.identifier,
                 axis: 'y',
-                start: function (event, ui) {
+                start: (event, ui) => {
                     startIndex = ($(ui.item).index());
                 },
-                stop: function (event, ui) {
+                stop: function (event: JQueryEventObject, ui) {
                     const newIndex = ($(ui.item).index());
                     const toMove = scope.objects[startIndex];
                     if (!toMove) {
-                        event.revert = true;
                         return;
                     }
                     scope.objects.splice(startIndex, 1);
@@ -129,10 +140,19 @@ export class DroppableDirective implements angular.IDirective<DroppableScope> {
 
         };
 
-        attrs.$observe('dropDisabled', function () {
+        attrs.$observe('dropDisabled', () => {
             const dropDisabled = this.$parse(attrs.dropDisabled)(scope);
             initDroppable(scope, element, dropDisabled);
         });
 
+    }
+
+    static factory(): angular.IDirectiveFactory {
+        const directive = (
+            $parse: angular.IParseService,
+            $translate: angular.translate.ITranslateService
+        ) => new DroppableDirective($parse, $translate);
+        directive.$inject = ['$parse', '$translate'];
+        return directive;
     }
 }

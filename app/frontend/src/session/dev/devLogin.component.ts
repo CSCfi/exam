@@ -47,11 +47,11 @@ export const DevLoginComponent: angular.IComponentOptions = {
     </div>
     `,
     controller: class DevLoginController {
-        onLoggedIn: (x: any) => any;
+        onLoggedIn: ({ user: User }) => void;
         credentials: {
             username: string,
             password: string
-        } = { username: null, password: null };
+        } = { username: '', password: '' };
 
         constructor(private Session: SessionService) {
         }
@@ -59,7 +59,7 @@ export const DevLoginComponent: angular.IComponentOptions = {
         login() {
             this.Session.login(this.credentials.username, this.credentials.password)
                 .then((user: User) => {
-                    this.onLoggedIn({ user: user });
+                    this.onLoggedIn({ 'user': user });
                 })
                 .catch((err) => {
                     console.log(JSON.stringify(err));

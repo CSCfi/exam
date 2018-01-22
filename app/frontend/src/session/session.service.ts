@@ -14,18 +14,24 @@
  */
 
 import * as angular from 'angular';
-import {IDeferred, IHttpResponse, IPromise} from 'angular';
+import { IDeferred, IHttpResponse, IPromise } from 'angular';
 import * as toastr from 'toastr';
-import {ngStorage} from 'ngstorage';
+import { ngStorage } from 'ngstorage';
 import * as uib from 'angular-ui-bootstrap';
+
+export interface Role {
+    name: string;
+    displayName: string;
+    icon: string;
+}
 
 export interface User {
     id: number;
     firstName: string;
     lastName: string;
     lang: string;
-    loginRole: { name: string };
-    roles: { name: string, displayName: string, icon: string }[];
+    loginRole: { name: string } | null;
+    roles: Role[];
     token: string;
     userAgreementAccepted: boolean;
     userIdentifier: string;
@@ -48,15 +54,16 @@ export class SessionService {
     _scheduler: IPromise<any>;
 
     constructor(private $http: angular.IHttpService,
-                private $q: angular.IQService,
-                private $interval: angular.IIntervalService,
-                private $sessionStorage: ngStorage.StorageService,
-                private $translate: angular.translate.ITranslateService,
-                private $location: angular.ILocationService,
-                private $rootScope: angular.IRootScopeService,
-                private $timeout: angular.ITimeoutService,
-                private $modal: uib.IModalService,
-                private $route: angular.route.IRouteService) {
+        private $q: angular.IQService,
+        private $interval: angular.IIntervalService,
+        private $sessionStorage: ngStorage.StorageService,
+        private $translate: angular.translate.ITranslateService,
+        private $location: angular.ILocationService,
+        private $rootScope: angular.IRootScopeService,
+        private $timeout: angular.ITimeoutService,
+        private $modal: uib.IModalService,
+        private $route: angular.route.IRouteService,
+        private $window: angular.IWindowService) {
     }
 
 
@@ -65,9 +72,7 @@ export class SessionService {
     }
 
     getUserName(): string {
-        if (this._user) {
-            return this._user.firstName + ' ' + this._user.lastName;
-        }
+        return this._user ? this._user.firstName + ' ' + this._user.lastName : '';
     }
 
     setUser(user: User): void {
@@ -95,7 +100,7 @@ export class SessionService {
     }
 
     static hasRole(user: User, role: string): boolean {
-        return user && user.loginRole && user.loginRole.name === role;
+        return user && user.loginRole !== null && user.loginRole.name === role;
     }
 
     setLoginEnv(scope: any): void {
@@ -109,7 +114,7 @@ export class SessionService {
     private _onLogoutSuccess(data: { logoutUrl: string }): void {
         this.$rootScope.$broadcast('userUpdated');
         toastr.success(this.$translate.instant('sitnet_logout_success'));
-        window.onbeforeunload = null;
+        delete this.$window.onbeforeunload;
         const localLogout: string = window.location.protocol + '//' + window.location.host + '/Shibboleth.sso/Logout';
         if (data && data.logoutUrl) {
             window.location.href = data.logoutUrl + '?return=' + localLogout;
@@ -158,7 +163,8 @@ export class SessionService {
     }
 
     private _processLoggedInUser(user: User): void {
-        this.$http.defaults.headers.common = {'x-exam-authentication': user.token};
+        const headers = this.$http.defaults.headers || {};
+        headers.common = { 'x-exam-authentication': user.token };
         user.roles.forEach(role => {
             switch (role.name) {
                 case 'ADMIN':
@@ -176,8 +182,8 @@ export class SessionService {
             }
         });
 
-        const loginRole = user.roles.length === 1 ? user.roles[0] : undefined;
-        const isTeacher = loginRole && loginRole.name === 'TEACHER';
+        const loginRole = user.roles.length === 1 ? user.roles[0] : null;
+        const isTeacher = loginRole != null && loginRole.name === 'TEACHER';
         this._user = {
             id: user.id,
             firstName: user.firstName,
@@ -189,8 +195,8 @@ export class SessionService {
             userAgreementAccepted: user.userAgreementAccepted,
             userIdentifier: user.userIdentifier,
             permissions: user.permissions,
-            isAdmin: loginRole && loginRole.name === 'ADMIN',
-            isStudent: loginRole && loginRole.name === 'STUDENT',
+            isAdmin: loginRole != null && loginRole.name === 'ADMIN',
+            isStudent: loginRole != null && loginRole.name === 'STUDENT',
             isTeacher: isTeacher,
             isLanguageInspector: isTeacher && SessionService._hasPermission(user, 'CAN_INSPECT_LANGUAGE')
         };
@@ -205,7 +211,9 @@ export class SessionService {
         }
         this.$http.post('/app/logout', {}).then((resp: IHttpResponse<{ logoutUrl: string }>) => {
             delete this.$sessionStorage['EXAM_USER'];
-            delete this.$http.defaults.headers.common;
+            if (this.$http.defaults.headers) {
+                delete this.$http.defaults.headers.common;
+            }
             delete this._user;
             this._onLogoutSuccess(resp.data);
         }).catch(error => toastr.error(error.data));
@@ -239,7 +247,7 @@ export class SessionService {
         if (!this._user) {
             this.translate(lang);
         } else {
-            this.$http.put('/app/user/lang', {lang: lang})
+            this.$http.put('/app/user/lang', { lang: lang })
                 .then(() => {
                     this._user.lang = lang;
                     this.translate(lang);
@@ -269,7 +277,7 @@ export class SessionService {
                                 this.$http.put('/app/extendSession', {})
                                     .then(() => {
                                         toastr.info(this.$translate.instant('sitnet_session_extended'),
-                                            null, {timeOut: 1000});
+                                            '', { timeOut: 1000 });
                                     })
                                     .catch(angular.noop);
                             }

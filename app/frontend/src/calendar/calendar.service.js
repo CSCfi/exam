@@ -13,21 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-
 import angular from 'angular';
-import toast from 'toastr';
 import moment from 'moment';
-require('moment-timezone');
 
 angular.module('app.calendar')
     .service('Calendar', ['$resource', '$uibModal', '$http', '$routeParams', '$translate', '$location',
         'DateTime', 'Session', 'InteroperabilityResource', '$q',
         function ($resource, $modal, $http, $routeParams, $translate, $location, DateTime, Session,
-                  InteroperabilityResource, $q) {
+            InteroperabilityResource, $q) {
 
             const self = this;
 
-            self.slotsApi = $resource('/app/calendar/:eid/:rid', {eid: '@eid', rid: '@rid'});
+            self.slotsApi = $resource('/app/calendar/:eid/:rid', { eid: '@eid', rid: '@rid' });
             self.reservationWindowApi = $resource('/app/settings/reservationWindow');
 
             const adjustBack = function (date, tz) {
@@ -101,16 +98,16 @@ angular.module('app.calendar')
             const getWeekdayNames = function () {
                 const lang = Session.getUser().lang;
                 const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
-                const options = {weekday: 'short'};
+                const options = { weekday: 'short' };
                 const weekday = DateTime.getDateForWeekday;
                 return {
-                    SUNDAY: {ord: 7, name: weekday(0).toLocaleDateString(locale, options)},
-                    MONDAY: {ord: 1, name: weekday(1).toLocaleDateString(locale, options)},
-                    TUESDAY: {ord: 2, name: weekday(2).toLocaleDateString(locale, options)},
-                    WEDNESDAY: {ord: 3, name: weekday(3).toLocaleDateString(locale, options)},
-                    THURSDAY: {ord: 4, name: weekday(4).toLocaleDateString(locale, options)},
-                    FRIDAY: {ord: 5, name: weekday(5).toLocaleDateString(locale, options)},
-                    SATURDAY: {ord: 6, name: weekday(6).toLocaleDateString(locale, options)}
+                    SUNDAY: { ord: 7, name: weekday(0).toLocaleDateString(locale, options) },
+                    MONDAY: { ord: 1, name: weekday(1).toLocaleDateString(locale, options) },
+                    TUESDAY: { ord: 2, name: weekday(2).toLocaleDateString(locale, options) },
+                    WEDNESDAY: { ord: 3, name: weekday(3).toLocaleDateString(locale, options) },
+                    THURSDAY: { ord: 4, name: weekday(4).toLocaleDateString(locale, options) },
+                    FRIDAY: { ord: 5, name: weekday(5).toLocaleDateString(locale, options) },
+                    SATURDAY: { ord: 6, name: weekday(6).toLocaleDateString(locale, options) }
                 };
             };
 

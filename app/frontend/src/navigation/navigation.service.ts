@@ -21,8 +21,8 @@ export interface Link {
     visible: boolean;
     faClass: string;
     name: string;
-    iconSvg: string;
-    iconPng: string;
+    iconSvg?: string;
+    iconPng?: string;
 }
 
 export class NavigationService {
@@ -88,9 +88,7 @@ export class NavigationService {
                 href: '/printouts',
                 visible: (admin),
                 faClass: 'fa-print',
-                name: 'sitnet_printout_exams',
-                iconSvg: null, // TODO
-                iconPng: null // TODO
+                name: 'sitnet_printout_exams'
             },
             {
                 href: '/rooms',

@@ -14,8 +14,8 @@
  *
  */
 import * as angular from 'angular';
-import {IComponentController} from 'angular';
-import {User} from "../session.service";
+import { IComponentController } from 'angular';
+import { User, Role } from '../session.service';
 
 export const SelectRoleDialogComponent: angular.IComponentOptions = {
     template: `
@@ -41,7 +41,8 @@ export const SelectRoleDialogComponent: angular.IComponentOptions = {
         </div>
         <div class="modal-footer">
             <div class="col-md-12">
-                <button class="btn btn-sm btn-danger pull-right" ng-click="$ctrl.cancel()">{{'sitnet_button_decline' | translate}}
+                <button class="btn btn-sm btn-danger pull-right" ng-click="$ctrl.cancel()">
+                    {{'sitnet_button_decline' | translate}}
                 </button>
             </div>
         </div>
@@ -55,20 +56,20 @@ export const SelectRoleDialogComponent: angular.IComponentOptions = {
     controller: class SelectRoleDialogController implements IComponentController {
 
         user: User;
-        resolve: {user: User};
-        close: (x: {$value: any}) => any;
+        resolve: { user: User };
+        close: (x: { $value: Role }) => any;
         dismiss: (x: any) => any;
 
         $onInit() {
             this.user = this.resolve.user;
-        };
+        }
 
-        ok(role) {
-            this.close({$value: role});
-        };
+        ok(role: Role) {
+            this.close({ $value: role });
+        }
 
         cancel() {
             this.dismiss('cancel');
-        };
+        }
     }
 };

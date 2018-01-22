@@ -10,7 +10,8 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "noEmitHelpers": true,
-    "outDir": "built"
+    "outDir": "built",
+    "strictNullChecks": true
   },
   "compileOnSave": false,
   "include": [

@@ -44,7 +44,7 @@ export class FileService {
         img.src = URL.createObjectURL(svg);
     }
 
-    download(url: string, filename: string, params: any, post: boolean) {
+    download(url: string, filename: string, params?: any, post?: boolean) {
         const res = post ? this.$http.post : this.$http.get;
         res(url, { params: params })
             .then((resp: IHttpResponse<string>) => {
@@ -140,11 +140,8 @@ export class FileService {
         this.$http.post(url, fd, {
             transformRequest: angular.identity,
             headers: { 'Content-Type': undefined }
-        }).then(function (resp) {
-            deferred.resolve(resp);
-        }).catch(function (resp) {
-            deferred.reject(resp);
-        });
+        }).then(resp => deferred.resolve(resp))
+            .catch(resp => deferred.reject(resp));
         return deferred.promise;
     }
 
