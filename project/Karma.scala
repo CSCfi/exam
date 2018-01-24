@@ -12,7 +12,7 @@ object Karma {
 
             override def afterStarted(address: InetSocketAddress): Unit = {
                 println("Karma running...")
-                karma = Some(Process("./node_modules/karma/bin/karma start", base).run())
+                karma = Some(Process("./node_modules/karma/bin/karma start ./test/karma.conf.js", base).run())
             }
 
             override def afterStopped(): Unit = {
