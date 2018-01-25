@@ -53,6 +53,7 @@ export const DevLoginComponent: angular.IComponentOptions = {
             password: string
         } = { username: '', password: '' };
 
+        /* @ngInject */
         constructor(private Session: SessionService) {
         }
 
@@ -67,11 +68,6 @@ export const DevLoginComponent: angular.IComponentOptions = {
 
         }
 
-        static get $inject() {
-            return [
-                'Session'
-            ];
-        }
     }
 
 };

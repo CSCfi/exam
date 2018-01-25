@@ -17,6 +17,7 @@ import * as _ from 'lodash';
 
 export class DateTimeService {
 
+    /* @ngInject */
     constructor(private $translate: angular.translate.ITranslateService) { }
 
     printExamDuration(exam: { duration: number }): string {

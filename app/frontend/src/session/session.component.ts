@@ -34,10 +34,7 @@ export const SessionComponent: angular.IComponentOptions = {
         hideNavBar: boolean;
         user: User;
 
-        static get $inject() {
-            return ['$rootScope', '$location', 'Session'];
-        }
-
+        /* @ngInject */
         constructor(private $rootScope: angular.IRootScopeService,
             private $location: angular.ILocationService,
             private Session: SessionService) {

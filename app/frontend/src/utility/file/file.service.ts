@@ -23,10 +23,7 @@ export class FileService {
     private _supportsBlobUrls: boolean;
     private _maxFileSize: number;
 
-    static get $inject() {
-        return ['$q', '$http', '$translate', '$timeout'];
-    }
-
+    /* @ngInject */
     constructor(
         private $q: angular.IQService,
         private $http: angular.IHttpService,

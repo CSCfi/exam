@@ -52,12 +52,7 @@ export class SessionService {
     _env: { isProd: boolean };
     _scheduler: IPromise<any>;
 
-    static get $inject() {
-        return ['$http', '$q', '$interval', '$sessionStorage', '$translate', '$location',
-            '$rootScope', '$timeout', '$uibModal', '$route', '$window'];
-
-    }
-
+    /* @ngInject */
     constructor(private $http: angular.IHttpService,
         private $q: angular.IQService,
         private $interval: angular.IIntervalService,
@@ -66,7 +61,7 @@ export class SessionService {
         private $location: angular.ILocationService,
         private $rootScope: angular.IRootScopeService,
         private $timeout: angular.ITimeoutService,
-        private $modal: uib.IModalService,
+        private $uibModal: uib.IModalService,
         private $route: angular.route.IRouteService,
         private $window: angular.IWindowService) {
     }
@@ -298,7 +293,7 @@ export class SessionService {
     }
 
     private _openEulaModal(user: User): void {
-        this.$modal.open({
+        this.$uibModal.open({
             backdrop: 'static',
             keyboard: true,
             component: 'eulaDialog'
@@ -318,7 +313,7 @@ export class SessionService {
     }
 
     private _openRoleSelectModal(user: User) {
-        this.$modal.open({
+        this.$uibModal.open({
             component: 'selectRoleDialog',
             backdrop: 'static',
             keyboard: false,

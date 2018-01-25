@@ -13,11 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
+import * as angular from 'angular';
+import { SessionService } from './session/session.service';
+import constants from './app.constant';
 
-run.$inject = ['$http', '$sessionStorage', 'Session', 'EXAM_CONF'];
+/* @ngInject */
+export default function run($http: angular.IHttpService, $sessionStorage, Session: SessionService,
+    EXAM_CONF: constants) {
 
-export default function run($http, $sessionStorage, Session, EXAM_CONF) {
     const user = $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY];
     if (user) {
         if (!user.loginRole) {
@@ -25,9 +28,9 @@ export default function run($http, $sessionStorage, Session, EXAM_CONF) {
             // lets just throw him out.
             Session.logout();
         }
-        const header = {};
-        header[EXAM_CONF.AUTH_HEADER] = user.token;
-        $http.defaults.headers.common = header;
+        const headers = { common: {} };
+        headers.common[EXAM_CONF.AUTH_HEADER] = user.token;
+        Object.assign($http.defaults, headers);
         Session.setUser(user);
         Session.translate(user.lang);
         Session.restartSessionCheck();

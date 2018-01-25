@@ -54,10 +54,7 @@ export class AttachmentService {
     private feedbackAttachmentApi: ng.resource.IResourceClass<any>;
     private statementAttachmentApi: ng.resource.IResourceClass<any>;
 
-    static get $inject() {
-        return ['$resource', '$uibModal', 'dialogs', '$translate', 'Files'];
-    }
-
+    /* @ngInject */
     constructor(
         private $resource: ng.resource.IResourceService,
         private $modal: uib.IModalService,

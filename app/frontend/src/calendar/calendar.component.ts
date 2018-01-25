@@ -68,10 +68,7 @@ export const CalendarComponent: angular.IComponentOptions = {
         reservationWindowSize: number;
         selectedOrganisation: { _id: string, name: string, filtered: boolean };
 
-        static get $inject() {
-            return ['$http', '$scope', '$location', '$translate', '$routeParams', 'DateTime',
-                'Calendar', 'uiCalendarConfig'];
-        }
+        /* @ngInject */
         constructor(
             private $http: angular.IHttpService,
             private $scope: angular.IScope,

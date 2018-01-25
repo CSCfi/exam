@@ -52,6 +52,7 @@ export const EulaDialogComponent: angular.IComponentOptions = {
         close: () => any;
         dismiss: (x: any) => any;
 
+        /* @ngInject */
         constructor(private $http: angular.IHttpService) {
         }
 
@@ -68,11 +69,6 @@ export const EulaDialogComponent: angular.IComponentOptions = {
         ok() {
             this.close();
         }
-
-        static get $inject() {
-            return ['$http'];
-        }
-
 
     }
 

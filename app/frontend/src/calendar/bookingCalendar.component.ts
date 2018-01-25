@@ -45,10 +45,7 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
         eventSources: any[] = [];
         calendarConfig: any;
 
-        static get $inject() {
-            return ['$translate', 'Calendar'];
-        }
-
+        /* @ngInject */
         constructor(
             private $translate: angular.translate.ITranslateService,
             private Calendar: CalendarService

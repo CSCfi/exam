@@ -15,7 +15,7 @@
 
 import * as angular from 'angular';
 
-import { run } from './utility.run';
+import runBlock from './utility.run';
 import { AttachmentService } from './attachment/attachment.service';
 import { DateTimeService } from './date/date.service';
 import { FileService } from './file/file.service';
@@ -25,7 +25,7 @@ import { DropDownSelectComponent } from './select/dropDownSelect.component';
 import { DroppableDirective, DraggableModalDirective, SortableDirective } from './dragndrop/dragndrop.directive';
 
 export default angular.module('app.utility', [])
-    .run(run)
+    .run(runBlock)
     .service('Attachment', AttachmentService)
     .service('DateTime', DateTimeService)
     .service('Files', FileService)

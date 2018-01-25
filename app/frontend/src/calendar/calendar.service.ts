@@ -55,11 +55,7 @@ export interface OpeningHours {
 
 export class CalendarService {
 
-    static get $inject() {
-        return ['$q', '$uibModal', '$http', '$routeParams', '$translate', '$location', 'DateTime', 'Session',
-            'uiCalendarConfig'];
-    }
-
+    /* @ngInject */
     constructor(
         private $q: angular.IQService,
         private $modal: IModalService,

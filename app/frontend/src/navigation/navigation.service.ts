@@ -27,10 +27,7 @@ export interface Link {
 
 export class NavigationService {
 
-    static get $inject() {
-        return ['$http', '$location', 'Session'];
-    }
-
+    /* @ngInject */
     constructor(
         private $http: angular.IHttpService,
         private $location: angular.ILocationService,

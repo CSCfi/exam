@@ -29,10 +29,7 @@ export const NavigationComponent: angular.IComponentOptions = {
         mobileMenuOpen: boolean;
         user: User;
 
-        static get $inject() {
-            return ['$rootScope', '$location', '$window', 'Navigation', 'Session'];
-        }
-
+        /* @ngInject */
         constructor(
             private $rootScope: angular.IRootScopeService,
             private $location: angular.ILocationService,

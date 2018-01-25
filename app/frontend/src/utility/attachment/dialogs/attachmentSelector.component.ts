@@ -42,6 +42,7 @@ export const AttachmentSelectorComponent: angular.IComponentOptions = {
         maxFileSize: number;
         attachmentFile: File;
 
+        /* @ngInject */
         constructor(
             private $scope: angular.IScope,
             private Files: FileService

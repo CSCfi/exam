@@ -19,7 +19,7 @@ require('ngstorage');
 
 import configs from './app.config';
 import constants from './app.constant';
-import run from './app.run';
+import runBlock from './app.run';
 import SessionModule from './session';
 import NavigationModule from './navigation';
 import UtilityModule from './utility';
@@ -49,7 +49,7 @@ angular.module('app', [
     'app.dashboard',
     'app.administrative',
     'app.software'
-]).constant('EXAM_CONF', constants).config(configs).run(run);
+]).constant('EXAM_CONF', constants).config(configs).run(runBlock);
 
 require('./app.directive');
 require('./app.filter');

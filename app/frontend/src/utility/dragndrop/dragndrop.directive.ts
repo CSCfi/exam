@@ -95,6 +95,7 @@ export class DroppableDirective implements IDirective {
         onCreate: '&'
     };
 
+    /* @ngInject */
     constructor(
         private $parse: angular.IParseService,
         private $translate: angular.translate.ITranslateService

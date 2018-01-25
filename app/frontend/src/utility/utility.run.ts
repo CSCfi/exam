@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -13,10 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-export default {
-    AUTH_STORAGE_KEY: 'EXAM_USER',
-    AUTH_HEADER: 'x-exam-authentication',
-    CONTEXT_PATH: '/',
-    LANGUAGES_PATH: '/assets/assets/languages/',
-    TEMPLATES_PATH: '/assets/app/'
-};
+import * as angular from 'angular';
+
+/* @ngInject */
+export default function run($templateCache: angular.ITemplateCacheService) {
+    // This is necessary because angular can't find the bundled uib-template unless added to template cache
+    $templateCache.put('uib/template/datepickerPopup/popup.html', require('./date/template/uibPopupOverride.html'));
+}
