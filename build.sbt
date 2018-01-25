@@ -47,6 +47,10 @@ routesGenerator := InjectedRoutesGenerator
 sources in(Compile, doc) := Seq.empty
 publishArtifact in(Compile, packageDoc) := false
 
+lazy val frontendDirectory = baseDirectory {
+  _ / "app/frontend"
+}
+
 /**
   * Webpack dev server task
   */
@@ -58,18 +62,14 @@ def webpackTask = Def.taskDyn[PlayRunHook] {
       NoOp()
     }
   else {
-    val appPath = "./app/frontend"
     val webpackBuild = taskKey[Unit]("Webpack build task.")
 
     webpackBuild := {
-      Process("npm run build", file(appPath)).run
+      Process("npm run build", frontendDirectory.value).run
     }
 
     (packageBin in Universal) := ((packageBin in Universal) dependsOn webpackBuild).value
 
-    lazy val frontendDirectory = baseDirectory {
-      _ / appPath
-    }
     Def.task {
       frontendDirectory.map(WebpackServer(_)).value
     }
@@ -87,37 +87,42 @@ def skipUiTests = Properties.propOrEmpty("skipUiTests")
 
 def protractorConf = Properties.propOrEmpty("config.resource")
 
-lazy val karmaTest = taskKey[Int]("Karma test task")
-karmaTest := {
-  baseDirectory.value + "/node_modules/karma/bin/karma start karma.conf.ci.js" !
+lazy val npmIntall = taskKey[Option[Process]]("Npm intall task")
+npmIntall := {
+  Some(Process("npm install", frontendDirectory.value).run())
 }
 
-lazy val webDriverUpdate = taskKey[Int]("Web driver update task")
+lazy val karmaTest = taskKey[Option[Process]]("Karma test task")
+karmaTest := {
+  Some(Process("node_modules/karma/bin/karma start ./test/karma.conf.ci.js", frontendDirectory.value).run())
+}
+
+lazy val webDriverUpdate = taskKey[Option[Process]]("Web driver update task")
 webDriverUpdate := {
-  baseDirectory.value + "/node_modules/protractor/bin/webdriver-manager update" !
+  Some(Process("node_modules/protractor/bin/webdriver-manager update", frontendDirectory.value).run())
+}
+
+test in Test := {
+  if (karmaTest.value.get.exitValue() != 0 || npmIntall.value.get.exitValue() != 0)
+    sys.error("Karma tests failed!")
+  (test in Test).value
 }
 
 def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
-  if (skipUiTests.equals("true")) {
+  if (!skipUiTests.equals("true") && npmIntall.value.get.exitValue() == 0) {
     Def.task {
-      Seq(NoOp())
-    }
-  } else {
-    Def.task {
-      test in Test := {
-        if (karmaTest.value != 0)
-          sys.error("Karma tests failed!")
-        (test in Test).value
-      }
-
-      Seq(MockCourseInfo(baseDirectory.value),
-        if (protractorConf.equals("protractor.conf") && webDriverUpdate.value == 0)
-          Protractor(baseDirectory.value,
+      Seq(MockCourseInfo(frontendDirectory.value),
+        if (protractorConf.equals("protractor.conf") && webDriverUpdate.value.get.exitValue() == 0)
+          Protractor(frontendDirectory.value,
             Properties.propOrElse("protractor.config", "conf.js"),
             Properties.propOrElse("protractor.args", " "))
         else {
-          Karma(baseDirectory.value)
+          Karma(frontendDirectory.value)
         })
+    }
+  } else {
+    Def.task {
+      Seq(NoOp())
     }
   }
 }

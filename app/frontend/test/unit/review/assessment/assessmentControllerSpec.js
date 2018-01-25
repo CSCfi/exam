@@ -1,11 +1,28 @@
-describe('AssessmentController', function () {
-    beforeEach(module('app.review', 'app.exam', 'ngResource'));
+/*
+ * Copyright (c) 2018 Exam Consortium
+ *
+ * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
+ * versions of the EUPL (the "Licence");
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
+ * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ */
+import angular from 'angular';
 
-    var ctrl;
-    var scope;
-    var mockHttp;
-    var mockUser = {id: 1, isAdmin: true};
-    var mockExam = {id: 1, state: 'REVIEW', examSections: []};
+describe('AssessmentController', function () {
+    beforeEach(angular.mock.module('app.review', 'app.exam', 'ngResource'));
+
+    let ctrl;
+    let scope;
+    let mockHttp;
+    let mockUser = {id: 1, isAdmin: true};
+    let mockExam = {id: 1, state: 'REVIEW', examSections: []};
 
     beforeEach(inject(function ($rootScope, $componentController, $httpBackend) {
         scope = $rootScope.$new();
@@ -17,8 +34,7 @@ describe('AssessmentController', function () {
                 Assessment: createMockAssessment(),
                 Question: createMockQuestion(),
                 Session: createMockSession(),
-                Exam: {},
-                toast: {}
+                Exam: {}
             }
         );
         ctrl.$onInit();
@@ -63,7 +79,7 @@ describe('AssessmentController', function () {
     }
 
     function createMockAssessment() {
-        var mock = jasmine.createSpyObj('Assessment', ['getPayload']);
+        let mock = jasmine.createSpyObj('Assessment', ['getPayload']);
         mock.getPayload.and.callFake(function (exam, state) {
             return {id: 1, state: state};
         });
@@ -71,13 +87,13 @@ describe('AssessmentController', function () {
     }
 
     function createMockSession() {
-        var mock = jasmine.createSpyObj('Session', ['getUser']);
+        let mock = jasmine.createSpyObj('Session', ['getUser']);
         mock.getUser.and.returnValue(mockUser);
         return mock;
     }
 
     function createMockQuestion() {
-        var mock = jasmine.createSpyObj('Question', ['getQuestionAmounts']);
+        let mock = jasmine.createSpyObj('Question', ['getQuestionAmounts']);
         mock.getQuestionAmounts.and.returnValue({accepted: 0, rejected: 0, hasEssays: false});
         return mock;
     }
