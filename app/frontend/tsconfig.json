@@ -11,14 +11,14 @@
     "moduleResolution": "node",
     "noEmitHelpers": true,
     "outDir": "built",
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "skipLibCheck": true
   },
   "compileOnSave": false,
   "include": [
     "src/**/*"
   ],
   "exclude": [
-    "node_modules",
-    "dist"
+    "node_modules"
   ]
 }

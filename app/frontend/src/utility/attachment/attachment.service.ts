@@ -19,7 +19,6 @@ import * as ng from 'angular';
 import * as toast from 'toastr';
 import { IHttpService } from 'angular';
 import * as uib from 'angular-ui-bootstrap';
-import moment from 'moment';
 import { FileService } from '../file/file.service';
 
 interface Exam {

@@ -12,7 +12,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
  */
 const config = {
     entry: [
-        './src/app.module.js'
+        './src/app.module.ts'
     ],
     output: {
         path: buildPath,
@@ -72,8 +72,8 @@ const config = {
             jQuery: 'jquery',
             'window.jQuery': 'jquery'
         }),
-        new CleanWebpackPlugin(['bundles'], {root: path.resolve(__dirname, '../../../public')}),
-        new HtmlWebpackPlugin({title: 'Production'})
+        new CleanWebpackPlugin(['bundles'], { root: path.resolve(__dirname, '../../../public') }),
+        new HtmlWebpackPlugin({ title: 'Production' })
     ],
     resolve: {
         extensions: ['.ts', '.js', '.json', '.css', '.html']

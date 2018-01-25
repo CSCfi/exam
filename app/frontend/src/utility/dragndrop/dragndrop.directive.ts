@@ -15,11 +15,12 @@
 
 import * as angular from 'angular';
 import * as toast from 'toastr';
-import { IScope, IAttributes, IAugmentedJQuery } from 'angular';
-require('jquery-ui/ui/widgets/draggable');
-require('jquery-ui/ui/widgets/droppable');
-require('jquery-ui/ui/widgets/sortable');
-require('jquery-ui/ui/disable-selection');
+import { IDirective, IDirectiveFactory, IScope, IAttributes, IAugmentedJQuery } from 'angular';
+
+import 'jquery-ui/ui/widgets/draggable';
+import 'jquery-ui/ui/widgets/droppable';
+import 'jquery-ui/ui/widgets/sortable';
+import 'jquery-ui/ui/disable-selection';
 
 interface SortableScope extends IScope {
     onMove: (x: any) => void;
@@ -27,14 +28,14 @@ interface SortableScope extends IScope {
     selection: string;
 }
 
-export class SortableDirective implements angular.IDirective<SortableScope> {
+export class SortableDirective implements IDirective<SortableScope> {
     restrict = 'A';
     scope = {
         onMove: '&',
         objects: '=',
         selection: '@selection'
     };
-    link(scope: SortableScope, element: angular.IAugmentedJQuery, attrs: IAttributes) {
+    link(scope: SortableScope, element: IAugmentedJQuery, attrs: IAttributes) {
         console.log('selection = ' + scope.selection);
         let startIndex = -1;
         element.sortable({
@@ -58,33 +59,33 @@ export class SortableDirective implements angular.IDirective<SortableScope> {
         });
     }
 
-    static factory(): angular.IDirectiveFactory {
+    static factory(): IDirectiveFactory {
         return () => new SortableDirective();
     }
 }
 
-export class DraggableModalDirective implements angular.IDirective {
+export class DraggableModalDirective implements IDirective {
     restrict = 'A';
-    link = (scope: IScope, element: angular.IAugmentedJQuery, attrs: IAttributes) => {
+    link = (scope: IScope, element: IAugmentedJQuery, attrs: IAttributes) => {
         element.draggable({
             revert: false,
             drag: () => element.css('height', 'auto')
         });
     }
 
-    static factory(): angular.IDirectiveFactory {
+    static factory(): IDirectiveFactory {
         return () => new DraggableModalDirective();
     }
 }
 
-interface DroppableScope extends angular.IScope {
+interface DroppableScope extends IScope {
     objects: any[];
     identifier: string;
     onMove: (x: any) => void;
     onCreate: (x: any) => void;
 }
 
-export class DroppableDirective implements angular.IDirective {
+export class DroppableDirective implements IDirective {
 
     restrict = 'A';
     scope = {
@@ -99,7 +100,7 @@ export class DroppableDirective implements angular.IDirective {
         private $translate: angular.translate.ITranslateService
     ) { }
 
-    link = (scope: DroppableScope, element: angular.IAugmentedJQuery, attrs: IAttributes) => {
+    link = (scope: DroppableScope, element: IAugmentedJQuery, attrs: IAttributes) => {
         let startIndex = -1;
 
         const initDroppable = (scope: DroppableScope, element: IAugmentedJQuery, dropDisabled: boolean) => {
@@ -147,7 +148,7 @@ export class DroppableDirective implements angular.IDirective {
 
     }
 
-    static factory(): angular.IDirectiveFactory {
+    static factory(): IDirectiveFactory {
         const directive = (
             $parse: angular.IParseService,
             $translate: angular.translate.ITranslateService

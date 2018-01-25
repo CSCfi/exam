@@ -12,8 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-require('angular');
+import * as angular from 'angular';
 require('angular-resource');
 require('angular-route');
 require('ngstorage');
@@ -24,6 +23,8 @@ import run from './app.run';
 import SessionModule from './session';
 import NavigationModule from './navigation';
 import UtilityModule from './utility';
+import CalendarModule from './calendar';
+
 require('./utility');
 require('./dashboard');
 require('./reservation');
@@ -43,6 +44,7 @@ angular.module('app', [
     SessionModule,
     NavigationModule,
     UtilityModule,
+    CalendarModule,
     'app.enrolment',
     'app.dashboard',
     'app.administrative',

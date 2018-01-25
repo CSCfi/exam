@@ -16,7 +16,6 @@
 import * as angular from 'angular';
 import { IDeferred, IHttpResponse, IPromise } from 'angular';
 import * as toastr from 'toastr';
-import { ngStorage } from 'ngstorage';
 import * as uib from 'angular-ui-bootstrap';
 
 export interface Role {
@@ -53,10 +52,16 @@ export class SessionService {
     _env: { isProd: boolean };
     _scheduler: IPromise<any>;
 
+    static get $inject() {
+        return ['$http', '$q', '$interval', '$sessionStorage', '$translate', '$location',
+            '$rootScope', '$timeout', '$uibModal', '$route', '$window'];
+
+    }
+
     constructor(private $http: angular.IHttpService,
         private $q: angular.IQService,
         private $interval: angular.IIntervalService,
-        private $sessionStorage: ngStorage.StorageService,
+        private $sessionStorage: any, // no usable typedef available
         private $translate: angular.translate.ITranslateService,
         private $location: angular.ILocationService,
         private $rootScope: angular.IRootScopeService,
@@ -114,13 +119,13 @@ export class SessionService {
     private _onLogoutSuccess(data: { logoutUrl: string }): void {
         this.$rootScope.$broadcast('userUpdated');
         toastr.success(this.$translate.instant('sitnet_logout_success'));
-        delete this.$window.onbeforeunload;
-        const localLogout: string = window.location.protocol + '//' + window.location.host + '/Shibboleth.sso/Logout';
+        this.$window.onbeforeunload = () => null;
+        const localLogout = `${this.$window.location.protocol}//${this.$window.location.host}/Shibboleth.sso/Logout`;
         if (data && data.logoutUrl) {
-            window.location.href = data.logoutUrl + '?return=' + localLogout;
+            this.$window.location.href = `${data.logoutUrl}?return=${localLogout}`;
         } else if (!this._env || this._env.isProd) {
             // redirect to SP-logout directly
-            window.location.href = localLogout;
+            this.$window.location.href = localLogout;
         } else {
             // DEV logout
             this.$location.path('/');
@@ -342,12 +347,6 @@ export class SessionService {
                 this.$location.path('/logout');
             });
         }).catch(() => this.$location.path('/logout'));
-    }
-
-    static get $inject() {
-        return ['$http', '$q', '$interval', '$sessionStorage', '$translate', '$location',
-            '$rootScope', '$timeout', '$uibModal', '$route'];
-
     }
 
 }

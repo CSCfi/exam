@@ -13,8 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./calendar.module');
-//require('./calendar.directive');
-require('./calendar.service');
-require('./bookingCalendar.component');
-require('./calendar.component');
+import * as angular from 'angular';
+import { CalendarService } from './calendar.service';
+import { BookingCalendarComponent } from './bookingCalendar.component';
+import { CalendarComponent } from './calendar.component';
+
+import 'angular-ui-calendar';
+import 'fullcalendar';
+
+export default angular.module('app.calendar', ['ui.calendar'])
+    .service('Calendar', CalendarService)
+    .component('bookingCalendar', BookingCalendarComponent)
+    .component('calendar', CalendarComponent)
+    .name;
