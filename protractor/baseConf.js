@@ -1,17 +1,16 @@
-var HtmlScreenshotReporter = require('protractor-jasmine2-screenshot-reporter');
-var Fixture = require('./fixtures/Fixture');
+let HtmlScreenshotReporter = require('../app/frontend/node_modules/protractor-jasmine2-screenshot-reporter');
+let Fixture = require('./fixtures/Fixture');
 
 // Take screenshot for every failed test case.
-var reporter = new HtmlScreenshotReporter({
+let reporter = new HtmlScreenshotReporter({
     dest: 'target/screenshots',
     filename: 'protractor-report.html',
     captureOnlyFailedSpecs: true
 });
-var baseUrl = 'http://localhost:9000';
-var fixture = new Fixture();
+let baseUrl = 'http://localhost:9000';
+let fixture = new Fixture();
 module.exports = {
     baseUrl: baseUrl,
-    // seleniumServerJar: '../node_modules/protractor/node_modules/webdriver-manager/selenium/selenium-server-standalone-2.53.1.jar',
     specs: ['e2e/**/*-spec.js'],
     framework: 'jasmine2',
     allScriptsTimeout: 50000,
@@ -29,7 +28,7 @@ module.exports = {
 
         // Disable animations so e2e tests run more quickly
         console.log("Node version " + process.version);
-        var disableNgAnimate = function () {
+        let disableNgAnimate = function () {
             angular.module('disableNgAnimate', []).run(['$animate', function ($animate) {
                 $animate.enabled(false);
             }]);
