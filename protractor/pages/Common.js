@@ -1,11 +1,11 @@
-var LoginPage = require('./LoginPage');
-var Fixture = require('../fixtures/Fixture');
-var Logs = require('protractor-browser-logs');
+let LoginPage = require('./LoginPage');
+let Fixture = require('../fixtures/Fixture');
+let Logs = require('../../app/frontend/node_modules/protractor-browser-logs');
 
-var Common = function () {
-    var loginPage = new LoginPage();
-    var fixture = new Fixture();
-    var logs = Logs(browser);
+let Common = function () {
+    let loginPage = new LoginPage();
+    let fixture = new Fixture();
+    let logs = Logs(browser);
 
     this.beforeAll = function (username, password, role) {
         fixture.clearFixtures().then(function () {
