@@ -19,7 +19,7 @@ import toast from 'toastr';
 
 angular.module('app.review')
     .component('archiveDownload', {
-        templateUrl: '/assets/app/review/listing/dialogs/archiveDownload.template.html',
+        template: require('./archiveDownload.template.html'),
         bindings: {
             close: '&',
             dismiss: '&'
@@ -53,8 +53,8 @@ angular.module('app.review')
                 } else {
                     vm.close({
                         $value: {
-                            'start': start.format('DD.MM.YYYY'),
-                            'end': end.format('DD.MM.YYYY')
+                            start: start.format('DD.MM.YYYY'),
+                            end: end.format('DD.MM.YYYY')
                         }
                     });
                 }

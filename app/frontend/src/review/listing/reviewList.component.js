@@ -94,7 +94,7 @@ angular.module('app.review')
                     }).result.then(function (params) {
                         Files.download(
                             '/app/exam/' + vm.exam.id + '/attachments', vm.exam.id + '.tar.gz', params);
-                    });
+                    }).catch(angular.noop);
                 };
 
                 vm.openAborted = function () {
