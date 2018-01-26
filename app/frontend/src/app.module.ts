@@ -24,6 +24,7 @@ import SessionModule from './session';
 import NavigationModule from './navigation';
 import UtilityModule from './utility';
 import CalendarModule from './calendar';
+import * as filters from './app.filter';
 
 require('./utility');
 require('./dashboard');
@@ -49,7 +50,14 @@ angular.module('app', [
     'app.dashboard',
     'app.administrative',
     'app.software'
-]).constant('EXAM_CONF', constants).config(configs).run(runBlock);
+]).constant('EXAM_CONF', constants)
+    .config(configs)
+    .run(runBlock)
+    .filter('truncate', filters.TruncateFilter)
+    .filter('diffInMinutesTo', filters.DiffInMinutesFilter)
+    .filter('diffInDaysToNow', filters.DiffInDaysFilter)
+    .filter('offset', filters.OffsetFilter)
+    .filter('pagefill', filters.PageFillFilter)
+    .filter('adjustdst', filters.AdjustDstFilter);
 
 require('./app.directive');
-require('./app.filter');
