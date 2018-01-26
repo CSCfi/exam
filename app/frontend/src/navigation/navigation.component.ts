@@ -43,12 +43,13 @@ export const NavigationComponent: angular.IComponentOptions = {
 
         $onInit() {
             this.links = this.Navigation.getLinks();
-            this.minimizeNavigation = this.$window.matchMedia('(min-width: 600px)').matches;
             this.user = this.Session.getUser();
             if (this.user.isAdmin) {
                 this.Navigation.getAppVersion()
                     .then(resp => this.appVersion = resp.data.appVersion)
                     .catch(e => toastr.error(e.data));
+            } else {
+                this.minimizeNavigation = this.$window.matchMedia('(min-width: 600px)').matches;
             }
         }
 

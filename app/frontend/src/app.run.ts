@@ -15,22 +15,19 @@
 
 import * as angular from 'angular';
 import { SessionService } from './session/session.service';
-import constants from './app.constant';
+import * as _ from 'lodash';
 
 /* @ngInject */
-export default function run($http: angular.IHttpService, $sessionStorage, Session: SessionService,
-    EXAM_CONF: constants) {
+export default function run($http: angular.IHttpService, $sessionStorage, Session: SessionService) {
 
-    const user = $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY];
+    const user = $sessionStorage['EXAM_USER'];
     if (user) {
         if (!user.loginRole) {
             // This happens if user refreshes the tab before having selected a login role,
             // lets just throw him out.
             Session.logout();
         }
-        const headers = { common: {} };
-        headers.common[EXAM_CONF.AUTH_HEADER] = user.token;
-        Object.assign($http.defaults, headers);
+        _.merge($http.defaults, { headers: { common: { 'x-exam-authentication': user.token } } });
         Session.setUser(user);
         Session.translate(user.lang);
         Session.restartSessionCheck();

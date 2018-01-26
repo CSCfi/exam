@@ -42,6 +42,14 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
         onSelect: (_?: Selection) => void;
         searchFilter: string;
         selected: Option;
+        labelFilter: (_: Option) => boolean;
+
+        constructor() {
+            this.labelFilter = (option: Option): boolean => {
+                return option.label != null &&
+                    option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
+            };
+        }
 
         $onInit() {
             this.placeholder = this.placeholder || '-';
@@ -51,11 +59,6 @@ export const DropDownSelectComponent: angular.IComponentOptions = {
         selectOption(option: Option) {
             this.selected = option;
             this.onSelect({ value: option.value || option.id });
-        }
-
-        optionFilter(option: Option): boolean {
-            return option.label != null &&
-                option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
         }
 
         getClasses(option: Option): string[] {

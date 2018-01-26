@@ -23,9 +23,9 @@ angular.module('app.review')
             exam: '<'
         },
         controller: ['$filter', '$q', '$translate', '$uibModal', 'dialogs', 'ExamRes', 'DateTime', 'Exam',
-            'ReviewList', 'Files', 'EXAM_CONF', 'diffInMinutesToFilter',
+            'ReviewList', 'Files', 'diffInMinutesToFilter',
             function ($filter, $q, $translate, $modal, dialogs, ExamRes, DateTime, Exam, Review,
-                      Files, EXAM_CONF, diffInMinutesToFilter) {
+                      Files, diffInMinutesToFilter) {
 
                 const vm = this;
 

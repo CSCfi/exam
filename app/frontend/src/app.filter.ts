@@ -16,7 +16,7 @@
 import * as angular from 'angular';
 import * as moment from 'moment';
 import * as _ from 'lodash';
-import truncate from 'truncate-html';
+const truncate = require('truncate-html');
 
 export interface ITruncateFilterService extends angular.IFilterService {
     (name: 'truncate'): (value: string, after: number) => string;
@@ -58,11 +58,14 @@ export class DiffInDaysFilter {
 }
 
 export interface IOffsetFilterService extends angular.IFilterService {
-    (name: 'offset'): (input: string, start: string) => string;
+    (name: 'offset'): (input: string | undefined, start: string) => string;
 }
 export class OffsetFilter {
     constructor() {
-        return (input: string, start: string): string => {
+        return (input: string | undefined, start: string): string => {
+            if (!input) {
+                return '';
+            }
             const offset = parseInt(start);
             return input.slice(offset);
         };

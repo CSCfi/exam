@@ -19,8 +19,8 @@ import toast from 'toastr';
 angular.module('app.administrative.users')
     .component('users', {
         template: require('./users.template.html'),
-        controller: ['$timeout', '$translate', 'UserManagement', 'EXAM_CONF', 'Session',
-            function ($timeout, $translate, UserManagement, EXAM_CONF, Session) {
+        controller: ['$timeout', '$translate', 'UserManagement', 'Session',
+            function ($timeout, $translate, UserManagement, Session) {
 
                 const vm = this;
 

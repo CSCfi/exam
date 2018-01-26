@@ -14,9 +14,10 @@
  */
 
 import * as angular from 'angular';
-import { IDeferred, IHttpResponse, IPromise } from 'angular';
+import { IDeferred, IHttpResponse, IPromise, IHttpProviderDefaults } from 'angular';
 import * as toastr from 'toastr';
 import * as uib from 'angular-ui-bootstrap';
+import * as _ from 'lodash';
 
 export interface Role {
     name: string;
@@ -141,10 +142,13 @@ export class SessionService {
         this.restartSessionCheck();
         this.$rootScope.$broadcast('userUpdated');
 
-        const welcome = () =>
-            toastr.success(
-                `${this.$translate.instant('sitnet_welcome')} ${this._user.firstName} ${this._user.lastName}`
-            );
+        const welcome = () => {
+            if (this._user) {
+                toastr.success(
+                    `${this.$translate.instant('sitnet_welcome')} ${this._user.firstName} ${this._user.lastName}`
+                );
+            }
+        };
 
         this.$timeout(welcome, 2000);
 
@@ -163,8 +167,7 @@ export class SessionService {
     }
 
     private _processLoggedInUser(user: User): void {
-        const headers = this.$http.defaults.headers || {};
-        headers.common = { 'x-exam-authentication': user.token };
+        _.merge(this.$http.defaults, { headers: { common: { 'x-exam-authentication': user.token } } });
         user.roles.forEach(role => {
             switch (role.name) {
                 case 'ADMIN':

@@ -57,7 +57,7 @@ export class AttachmentService {
     /* @ngInject */
     constructor(
         private $resource: ng.resource.IResourceService,
-        private $modal: uib.IModalService,
+        private $uibModal: uib.IModalService,
         private dialogs: angular.dialogservice.IDialogService,
         private $translate: ng.translate.ITranslateService,
         private Files: FileService
@@ -202,7 +202,7 @@ export class AttachmentService {
     selectFile(isTeacherModal, resolve) {
         const resolution = angular.extend({}, resolve);
         resolution.isTeacherModal = isTeacherModal;
-        return this.$modal.open({
+        return this.$uibModal.open({
             backdrop: 'static',
             keyboard: true,
             animation: true,

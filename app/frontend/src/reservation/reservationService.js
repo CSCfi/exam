@@ -18,9 +18,9 @@ import toast from 'toastr';
 
 angular.module('app.reservation')
     .service('Reservation', ['$q', '$uibModal', '$http', '$translate', 'dialogs',
-        'ReservationResource', 'EXAM_CONF', 'InteroperabilityResource',
+        'ReservationResource', 'InteroperabilityResource',
         function ($q, $modal, $http, $translate, dialogs,
-                  ReservationRes, EXAM_CONF, InteroperabilityRes) {
+                  ReservationRes, InteroperabilityRes) {
 
             const self = this;
 

@@ -18,7 +18,6 @@ require('angular-route');
 require('ngstorage');
 
 import configs from './app.config';
-import constants from './app.constant';
 import runBlock from './app.run';
 import SessionModule from './session';
 import NavigationModule from './navigation';
@@ -50,8 +49,7 @@ angular.module('app', [
     'app.dashboard',
     'app.administrative',
     'app.software'
-]).constant('EXAM_CONF', constants)
-    .config(configs)
+]).config(configs)
     .run(runBlock)
     .filter('truncate', filters.TruncateFilter)
     .filter('diffInMinutesTo', filters.DiffInMinutesFilter)

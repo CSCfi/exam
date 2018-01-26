@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from'angular';
+import angular from 'angular';
 import toast from 'toastr';
 import moment from 'moment';
 
@@ -39,7 +39,15 @@ angular.module('app.facility.schedule')
                 };
                 vm.dateFormat = 'dd.MM.yyyy';
 
-                vm.exception = {startDate: now, endDate: angular.copy(now), outOfService: true};
+                vm.exception = { startDate: now, endDate: angular.copy(now), outOfService: true };
+            };
+
+            vm.onStartDateChange = function (date) {
+                vm.exception.startDate = date;
+            };
+
+            vm.onEndDateChange = function (date) {
+                vm.exception.endDate = date;
             };
 
             vm.ok = function () {
@@ -59,7 +67,7 @@ angular.module('app.facility.schedule')
             };
 
             vm.cancel = function () {
-                vm.dismiss({$value: 'cancel'});
+                vm.dismiss({ $value: 'cancel' });
             };
         }]
     });

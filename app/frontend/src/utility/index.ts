@@ -23,6 +23,7 @@ import { AttachmentSelectorComponent } from './attachment/dialogs/attachmentSele
 import { DatePickerComponent } from './date/datePicker.component';
 import { DropDownSelectComponent } from './select/dropDownSelect.component';
 import { DroppableDirective, DraggableModalDirective, SortableDirective } from './dragndrop/dragndrop.directive';
+import { DateTimePickerComponent } from './date/dateTimePicker.component';
 
 export default angular.module('app.utility', [])
     .run(runBlock)
@@ -31,6 +32,7 @@ export default angular.module('app.utility', [])
     .service('Files', FileService)
     .component('attachmentSelector', AttachmentSelectorComponent)
     .component('datePicker', DatePickerComponent)
+    .component('dateTimePicker', DateTimePickerComponent)
     .component('dropDownSelect', DropDownSelectComponent)
     .directive('droppable', DroppableDirective.factory())
     .directive('draggableModal', DraggableModalDirective.factory())

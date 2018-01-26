@@ -74,99 +74,6 @@ angular.module('app')
         };
     })
 
-    .directive('datetimepicker', [
-        function () {
-
-            return {
-                restrict: 'EA',
-                require: 'ngModel',
-                scope: {
-                    ngModel: '=',
-                    datepickerOptions: '=',
-                    dateFormat: '=dateFormat',
-                    hourStep: '=',
-                    minuteStep: '=',
-                    showMeridian: '=',
-                    meredians: '=',
-                    mousewheel: '=',
-                    readonlyTime: '@'
-                },
-                template: function (elem, attrs) {
-                    function dashCase(name, separator) {
-                        return name.replace(/[A-Z]/g, function (letter, pos) {
-                            return (pos ? '-' : '') + letter.toLowerCase();
-                        });
-                    }
-
-                    function createAttr(innerAttr, dateTimeAttrOpt) {
-                        var dateTimeAttr = angular.isDefined(dateTimeAttrOpt) ? dateTimeAttrOpt : innerAttr;
-                        if (attrs[dateTimeAttr]) {
-                            return dashCase(innerAttr) + '="' + dateTimeAttr + '" ';
-                        } else {
-                            return '';
-                        }
-                    }
-
-                    function createEvalAttr(innerAttr, dateTimeAttrOpt) {
-                        const dateTimeAttr = angular.isDefined(dateTimeAttrOpt) ? dateTimeAttrOpt : innerAttr;
-                        if (attrs[dateTimeAttr]) {
-                            return dashCase(innerAttr) + '="' + attrs[dateTimeAttr] + '" ';
-                        } else {
-                            return dashCase(innerAttr);
-                        }
-                    }
-
-                    function createAttrConcat(previousAttrs, attr) {
-                        return previousAttrs + createAttr.apply(null, attr);
-                    }
-
-                    return '<div id="datetimepicker" class="datetimepicker-wrapper">' +
-                        '<input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-click="open($event)" is-open="opened" ng-model="ngModel" ' +
-                        'datepicker-options="datepickerOptions" close-text="{{\'sitnet_close\' | translate}}" ' +
-                        'current-text="{{\'sitnet_today\' | translate}}" date-validator />\n' +
-                        '</div>\n' +
-                        '<div id="datetimepicker" class="datetimepicker-wrapper" ng-model="time" ng-change="timeChange()" style="display:inline-block">\n' +
-                        '<div uib-timepicker ' + [
-                            ['hourStep'],
-                            ['minuteStep'],
-                            ['showMeridian'],
-                            ['meredians'],
-                            ['mousewheel']
-                        ].reduce(createAttrConcat, '') +
-                        createEvalAttr('readonlyInput', 'readonlyTime') +
-                        '></div>\n' +
-                        '</div>';
-                },
-                controller: ['$scope',
-                    function ($scope) {
-                        $scope.timeChange = function () {
-                            if ($scope.ngModel && $scope.time) {
-                                // convert from ISO format to Date
-                                if (typeof $scope.ngModel === 'string') $scope.ngModel = new Date($scope.ngModel);
-                                $scope.ngModel.setHours($scope.time.getHours(), $scope.time.getMinutes());
-                            }
-                        };
-                        $scope.open = function ($event) {
-                            $event.preventDefault();
-                            $event.stopPropagation();
-                            $scope.opened = true;
-                        };
-                    }
-                ],
-                link: function (scope, element) {
-                    scope.$watch(function () {
-                        return scope.ngModel;
-                    }, function (ngModel) {
-                        // if a time element is focused, updating its model will cause hours/minutes to be formatted by padding with leading zeros
-                        if (!element[0].contains(document.activeElement)) {
-                            scope.time = new Date(ngModel);
-                        }
-                    }, true);
-                }
-            };
-        }])
-
-
     .directive('ckEditor', ['$rootScope', function ($rootScope) {
         return {
             require: 'ngModel',
@@ -370,9 +277,9 @@ angular.module('app')
         return {
             restrict: 'A',
             template: '<span class="pointer"' +
-            'ng-click="sort()">{{ text | translate }}&nbsp;' +
-            '<i class="fa" ng-class="getSortClass()"></i>' +
-            '</span>',
+                'ng-click="sort()">{{ text | translate }}&nbsp;' +
+                '<i class="fa" ng-class="getSortClass()"></i>' +
+                '</span>',
             scope: {
                 predicate: '=',
                 by: '@by',
@@ -400,12 +307,12 @@ angular.module('app')
             replace: false,
             transclude: false,
             template: '<div>' +
-            '<span ng-repeat="owner in exam.examOwners">' +
-            '<strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>' +
-            '</span>' +
-            '<span ng-repeat="inspection in exam.examInspections">{{$first ? ", " : "";}}' +
-            '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +
-            '</span></div>',
+                '<span ng-repeat="owner in exam.examOwners">' +
+                '<strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>' +
+                '</span>' +
+                '<span ng-repeat="inspection in exam.examInspections">{{$first ? ", " : "";}}' +
+                '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +
+                '</span></div>',
             scope: {
                 exam: '=exam',
                 addEnrolmentInformation: '&'
@@ -417,12 +324,12 @@ angular.module('app')
             restrict: 'E',
             replace: true,
             template: '<div>' +
-            '<span ng-repeat="owner in exam.parent.examOwners">' +
-            '<strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>' +
-            '</span><br />' +
-            '<span ng-repeat="inspection in exam.examInspections">' +
-            '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +
-            '</span></div>',
+                '<span ng-repeat="owner in exam.parent.examOwners">' +
+                '<strong>{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}</strong>' +
+                '</span><br />' +
+                '<span ng-repeat="inspection in exam.examInspections">' +
+                '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +
+                '</span></div>',
             scope: {
                 exam: '=exam'
             }
@@ -433,10 +340,10 @@ angular.module('app')
             restrict: 'E',
             replace: true,
             template: '<ul class="pagination pagination-sm">' +
-            '<li ng-class="previousPageDisabled()"><a href="" ng-click="previousPage()">&#60;</a></li>' +
-            '<li ng-repeat="n in range()" ng-class="{active: isCurrent(n)}" ng-click="setPage(n)"><a href="">{{ printRange(n) }}</a></li>' +
-            '<li ng-class="nextPageDisabled()"><a target="_blank" ng-click="nextPage()">&#62;</a></li>' +
-            '</ul>',
+                '<li ng-class="previousPageDisabled()"><a href="" ng-click="previousPage()">&#60;</a></li>' +
+                '<li ng-repeat="n in range()" ng-class="{active: isCurrent(n)}" ng-click="setPage(n)"><a href="">{{ printRange(n) }}</a></li>' +
+                '<li ng-class="nextPageDisabled()"><a target="_blank" ng-click="nextPage()">&#62;</a></li>' +
+                '</ul>',
             scope: {
                 items: '=items',
                 pageSize: '=pageSize',
