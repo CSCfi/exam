@@ -80,8 +80,8 @@ export class CkEditor implements IDirective<CkEditorScope> {
         enableClozeTest: '=?'
     };
 
-    link(scope: CkEditorScope, element: any, attributes: IAttributes, ngModel: INgModelController) {
-        const ck = CKEDITOR.replace(element[0]);
+    link(scope: CkEditorScope, element: IAugmentedJQuery, attributes: IAttributes, ngModel: INgModelController) {
+        const ck = CKEDITOR.replace(<HTMLTextAreaElement>element[0]);
         let tmp;
         ck.on('instanceReady', () => {
             ck.setData(tmp);
