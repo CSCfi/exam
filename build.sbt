@@ -1,3 +1,5 @@
+import play.sbt.PlayRunHook
+
 import scala.util.Properties
 
 name := "exam"
@@ -31,49 +33,10 @@ libraryDependencies ++= Seq(javaJdbc, ehcache, ws, evolutions, filters, guice,
   "net.jodah" % "concurrentunit" % "0.4.2" % "test"
 )
 
-// Angular version. Remember to change locale location pattern in app.constant.js when changing this!
-val ngVersion = "1.6.6"
-
 libraryDependencies ++= Seq(
   "org.webjars" %% "webjars-play" % "2.6.2",
-  "org.webjars.npm" % "angular" % ngVersion,
-  "org.webjars.npm" % "angular-animate" %  ngVersion,
-  "org.webjars.npm" % "angular-i18n" %  ngVersion,
-  "org.webjars.npm" % "angular-resource" %  ngVersion,
-  "org.webjars.npm" % "angular-route" %  ngVersion,
-  "org.webjars.npm" % "angular-mocks" %  ngVersion,
-  "org.webjars.npm" % "angular-sanitize" % ngVersion,
-  "org.webjars.bower" % "angular-translate" % "2.16.0",
-  "org.webjars.bower" % "angular-translate-loader-static-files" % "2.15.2",
-  "org.webjars.bower" % "angular-ui-calendar" % "1.0.1",
-  "org.webjars.bower" % "angular-ui-select" % "0.19.8",
-  "org.webjars.bower" % "angular-http-auth" % "1.5.0",
-  "org.webjars.bower" % "angular-dialog-service" % "5.3.0",
-  "org.webjars.bower" % "bootstrap-sass" % "3.3.7",
-  "org.webjars.bower" % "ngstorage" % "0.3.11",
-  "org.webjars.bower" % "momentjs" % "2.10.6",
-  "org.webjars.bower" % "moment-timezone" % "0.5.13",
-  "org.webjars.bower" % "select2" % "4.0.5", // TODO: move away
-  "org.webjars.bower" % "angular-strap" % "2.3.12",
-  "org.webjars.bower" % "FileSaver.js" % "0.0.2",
-  "org.webjars.bower" % "angular-dynamic-locale" % "0.1.32",
-  "org.webjars.bower" % "font-awesome" % "4.7.0",
-  "org.webjars.bower" % "fullcalendar" % "2.7.1",
-  "org.webjars.bower" % "jquery" % "3.2.1",
-  "org.webjars.bower" % "lodash" % "4.17.4",
-  "org.webjars" % "jquery-ui" % "1.12.1",
-  "org.webjars" % "jquery-ui-touch-punch" % "0.2.3-2",
-  "org.webjars" % "toastr" % "2.1.2",
-  "org.webjars" % "angular-ui-bootstrap" % "2.2.0",
-  "org.webjars" % "ui-select2" % "0.0.5-1", // TODO: move away
-  "org.webjars.npm" % "async" % "2.5.0"
+  "org.webjars.bower" % "bootstrap-sass" % "3.3.7" // TODO move all css away from backend
 )
-
-dependencyOverrides += "org.webjars.bower" % "angular" %  ngVersion
-
-dependencyOverrides += "org.webjars.bower" % "angular-sanitize" % ngVersion
-
-dependencyOverrides += "org.webjars.bower" % "jquery" % "2.1.4"
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
 
@@ -81,37 +44,87 @@ routesImport += "util.scala.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 
-/**
- * Karma test task.
- */
-lazy val karmaTest = taskKey[Int]("Karma test task")
-karmaTest := {
-  baseDirectory.value + "/node_modules/karma/bin/karma start karma.conf.ci.js" !
+sources in(Compile, doc) := Seq.empty
+publishArtifact in(Compile, packageDoc) := false
+
+lazy val frontendDirectory = baseDirectory {
+  _ / "app/frontend"
 }
 
 /**
- * Web driver update task.
- */
-lazy val webDriver = taskKey[Int]("Web driver update task")
-webDriver := {
-  baseDirectory.value + "/node_modules/protractor/bin/webdriver-manager update" !
+  * Webpack dev server task
+  */
+def withoutWebpackServer = Properties.propOrEmpty("withoutWebpackServer")
+
+def webpackTask = Def.taskDyn[PlayRunHook] {
+  if (withoutWebpackServer.equals("true"))
+    Def.task {
+      NoOp()
+    }
+  else {
+    val webpackBuild = taskKey[Unit]("Webpack build task.")
+
+    webpackBuild := {
+      Process("npm run build", frontendDirectory.value).run
+    }
+
+    (packageBin in Universal) := ((packageBin in Universal) dependsOn webpackBuild).value
+
+    Def.task {
+      frontendDirectory.map(WebpackServer(_)).value
+    }
+  }
+}
+
+PlayKeys.playRunHooks += webpackTask.value
+
+
+/**
+  * Karma test task.
+  */
+
+def skipUiTests = Properties.propOrEmpty("skipUiTests")
+
+def protractorConf = Properties.propOrEmpty("config.resource")
+
+lazy val npmIntall = taskKey[Option[Process]]("Npm intall task")
+npmIntall := {
+  Some(Process("npm install", frontendDirectory.value).run())
+}
+
+lazy val karmaTest = taskKey[Option[Process]]("Karma test task")
+karmaTest := {
+  Some(Process("node_modules/karma/bin/karma start ./test/karma.conf.ci.js", frontendDirectory.value).run())
+}
+
+lazy val webDriverUpdate = taskKey[Option[Process]]("Web driver update task")
+webDriverUpdate := {
+  Some(Process("node_modules/protractor/bin/webdriver-manager update", frontendDirectory.value).run())
 }
 
 test in Test := {
-  if (karmaTest.value != 0)
+  if (karmaTest.value.get.exitValue() != 0 || npmIntall.value.get.exitValue() != 0)
     sys.error("Karma tests failed!")
   (test in Test).value
 }
 
-val conf = Properties.propOrEmpty("config.resource")
-
-PlayKeys.playRunHooks ++= Seq(MockCourseInfo(baseDirectory.value),
-  {
-    if (conf.equals("protractor.conf") && webDriver.value == 0)
-      Protractor(baseDirectory.value,
-        Properties.propOrElse("protractor.config", "conf.js"),
-        Properties.propOrElse("protractor.args", " "))
-    else
-      Karma(baseDirectory.value)
+def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
+  if (!skipUiTests.equals("true") && npmIntall.value.get.exitValue() == 0) {
+    Def.task {
+      Seq(MockCourseInfo(frontendDirectory.value),
+        if (protractorConf.equals("protractor.conf") && webDriverUpdate.value.get.exitValue() == 0)
+          Protractor(baseDirectory.value,
+            Properties.propOrElse("protractor.config", "conf.js"),
+            Properties.propOrElse("protractor.args", " "))
+        else {
+          Karma(frontendDirectory.value)
+        })
+    }
+  } else {
+    Def.task {
+      Seq(NoOp())
+    }
   }
-)
+}
+
+PlayKeys.playRunHooks ++= uiTestTask.value

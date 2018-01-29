@@ -1,0 +1,59 @@
+<div class="top-padding-2 lightBorderBox">
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <span mathjax ng-bind-html="$ctrl.displayQuestionText()"></span>
+        </div>
+    </div>
+    <!-- question attachment -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:
+        </div>
+        <div class="sub-content-row col-md-9">
+            <span ng-hide="$ctrl.sectionQuestion.question.attachment">N/A</span>
+            <span ng-show="$ctrl.sectionQuestion.question.attachment">
+                {{$ctrl.sectionQuestion.question.attachment.fileName}}&nbsp;
+            </span>
+        </div>
+    </div>
+
+    <!-- question instructions -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow" ng-show="$ctrl.sectionQuestion.answerInstructions">
+            {{ 'sitnet_instructions' | translate}}:
+        </div>
+        <div class="sub-content-row col-md-9" ng-show="$ctrl.sectionQuestion.answerInstructions">
+            <div ng-bind-html="$ctrl.sectionQuestion.answerInstructions"></div>
+            &nbsp;
+        </div>
+    </div>
+    <!-- answer -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <cloze-test content="$ctrl.sectionQuestion.clozeTestAnswer.question"
+                        results="$ctrl.sectionQuestion.clozeTestAnswer.answer" editable="false">
+            </cloze-test>
+        </div>
+    </div>
+
+    <!-- grade -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">
+            {{'sitnet_multiplechoice_question_correct' | translate}}:
+        </div>
+        <div class="sub-content-row col-md-9">
+            {{$ctrl.sectionQuestion.clozeTestAnswer.score.correctAnswers}} /
+            {{$ctrl.sectionQuestion.clozeTestAnswer.score.correctAnswers +
+            $ctrl.sectionQuestion.clozeTestAnswer.score.incorrectAnswers }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">
+            {{'sitnet_word_points' | translate}}:
+        </div>
+        <div class="sub-content-row col-md-9">
+            {{ $ctrl.displayClozeTestScore() }}
+        </div>
+    </div>
+</div>

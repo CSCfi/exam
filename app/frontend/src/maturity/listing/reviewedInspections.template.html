@@ -1,0 +1,151 @@
+<div class="main-row">
+    <div class="col-md-12">
+        <div class="review-list-title">{{ 'sitnet_processed_language_inspections' | translate }}
+            <span>{{ $ctrl.getInspectionAmounts() }}&nbsp;
+                <!-- DISABLED UNTIL REPORT VIEW FIXED -->
+                <a href="/inspections/reports">{{'sitnet_language_inspection_report_link' | translate}}</a>
+            </span>
+            <a ng-if="$ctrl.inspections.length > 0" ng-click="$ctrl.hideItems = !$ctrl.hideItems"
+               class="pointer">
+                <img ng-show="$ctrl.hideItems" src="/assets/assets/images/icon_list_show_right.svg"
+                     alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"/>
+                <img ng-hide="$ctrl.hideItems" src="/assets/assets/images/icon_list_show_down.svg"
+                     alt="exam"
+                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"/>
+            </a>
+        </div>
+    </div>
+</div>
+
+
+<div ng-hide="$ctrl.hideItems">
+
+    <div class="top-row marb20 padt20">
+        <div class="col-md-12">
+            <!-- Start & End time datepickers -->
+            <div class="row">
+                <div class="col-md-6">
+                    <span class="exam-basic-selecttitle">&nbsp;</span>
+                    <div class="input-group">
+                        <input ng-model="$ctrl.filterText"
+                               ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
+                               class="form-control hgt40"
+                               placeholder="{{'sitnet_search' | translate }}" popover-placement="top"
+                               popover-trigger="'mouseenter'"
+                               uib-popover="{{ 'sitnet_maturity_search_description' | translate }}">
+
+                        <div class="input-group-addon search">
+                            <img class="nopad" src="/assets/assets/images/icon_search.png" width="49"
+                                 height="40">
+                        </div>
+
+                    </div>
+                </div>
+
+                <form>
+                    <div class="col-md-2">
+                        <span class="exam-basic-selecttitle">{{'sitnet_begin' | translate}}</span>
+                        <date-picker initial-date="null" optional="true"
+                                     on-update="$ctrl.startDateChanged(date)"></date-picker>
+                    </div>
+                    <div class="col-md-2">
+                        <span class="exam-basic-selecttitle">{{'sitnet_end' | translate}}</span>
+                        <date-picker initial-date="null" optional="true"
+                                     on-update="$ctrl.endDateChanged(date)"></date-picker>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-striped exams-table">
+        <thead>
+        <tr>
+            <th class="with-top" sort by="exam.course.code" text="sitnet_course_code"
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top" sort by="exam.name" text="sitnet_exam_name"
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers"
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top" sort by="arrived" text="sitnet_arrived" predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top" sort by="studentNameAggregate" text="sitnet_student"
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top" sort by="exam.created" text="sitnet_finished"
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top" sort by="inspectorNameAggregate" text="sitnet_language_inspector"
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top" sort by="finishedAt" text="sitnet_inspection_finished"
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top" sort by="approved" text="sitnet_language_inspections"
+                predicate="$ctrl.sorting.predicate"
+                reverse="$ctrl.sorting.reverse"></th>
+            <th class="with-top">{{ 'sitnet_feedback' | translate }}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr ng-repeat="inspection in $ctrl.inspections
+            | orderBy:$ctrl.sorting.predicate:$ctrl.sorting.reverse
+            | limitTo: 20
+            | filter: $ctrl.filterText as rs">
+            <!-- 1 -->
+            <td class="table-column-bold">
+                {{ inspection.exam.course.code }}
+            </td>
+            <!-- 2 -->
+            <td>
+                <a class="table-column-examname" href="/assessments/{{inspection.exam.id}}">
+                    {{ inspection.exam.name }}
+                </a>
+            </td>
+            <!-- 3 -->
+            <td>
+                {{ inspection.ownerAggregate }}
+            </td>
+            <!-- 4 -->
+            <td>{{ inspection.created | date:'dd.MM.yyyy' }}</td>
+            <!-- 5 -->
+            <td>
+                <span>{{ inspection.studentName }}</span>
+                <span ng-if="inspection.exam.creator.userIdentifier">&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
+                <span><br/><a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{ inspection.exam.creator.email }}</a></span>
+            </td>
+            <!-- 6 -->
+            <td>{{ inspection.exam.created | date:'dd.MM.yyyy' }}</td>
+            <!-- 7 -->
+            <td ng-if="inspection.modifier">
+                <span>{{ inspection.inspectorName }} </span>
+                <span><br/><a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{ inspection.modifier.email }}</a></span>
+            </td>
+            <!-- 8 -->
+            <td>{{ inspection.finishedAt | date:'dd.MM.yyyy' }}</td>
+            <!-- 9 -->
+            <td>
+                <span ng-if="inspection.approved" class="approved">
+                    {{ 'sitnet_approved' | translate }}
+                </span>
+                <span ng-if="!inspection.approved" class="rejected">
+                    {{ 'sitnet_rejected' | translate }}
+                </span>
+
+            </td>
+            <!-- 10 -->
+            <td class="table-column-15"><a class="pointer smaller" ng-click="$ctrl.showStatement(inspection.statement)">{{
+                'sitnet_view' | translate }}</a></td>
+        </tr>
+        <tr ng-if="rs.length == 0">
+            <td colspan="6">{{'sitnet_processed_language_inspections_no_results' | translate}}</td>
+        </tr>
+    </table>
+
+</div>
+

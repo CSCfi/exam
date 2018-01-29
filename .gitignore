@@ -10,3 +10,5 @@ test-2.11
 test-2.12
 .DS_STORE
 package-lock.json
+app/frontend/built/
+public/bundles

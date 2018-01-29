@@ -124,7 +124,7 @@ public class SessionController extends BaseController {
 
     private CompletionStage<Result> devLogin() {
         if (!environment.isDev()) {
-            return wrapAsPromise(unauthorized());
+            return wrapAsPromise(unauthorized("Developer login mode not allowed while in production!"));
         }
         Credentials credentials = bindForm(Credentials.class);
         Logger.debug("User login with username: {}", credentials.getUsername() + "@funet.fi");
