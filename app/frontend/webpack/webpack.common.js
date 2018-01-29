@@ -37,7 +37,7 @@ const config = {
             },
             {
                 test: /\.ts$/,
-                use: 'awesome-typescript-loader'
+                loader: ['awesome-typescript-loader', 'tslint-loader'],
             },
             {
                 test: /\.js$/,
