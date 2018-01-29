@@ -1,4 +1,4 @@
-var ExamEditor = function () {
+let ExamEditor = function () {
 
     this.setExamName = function (name) {
         return element(by.model('$ctrl.exam.name')).sendKeys(name);
@@ -13,17 +13,20 @@ var ExamEditor = function () {
     };
 
     this.selectQuestionsFromLibrary = function (indexes) {
-        var questions = element.all(by.css('.questionToUpdate'));
-        var selectedQuestions = [];
-        for (var index = 0; index < indexes.length; index++) {
-            var question = questions.get(index);
-            question.click();
-            var q = {};
-            q.name = question.element(by.xpath('//td[@class="question-table-name"]/span')).getText();
-            console.log("Question: " + q.name);
-            selectedQuestions.push(q);
-        }
-        return selectedQuestions;
+        const table = element(by.css('tbody'));
+        browser.wait(EC.visibilityOf(table), 5000);
+        let questions = table.all(by.model('question.selected'));
+        return questions.filter(function (q, index) {
+            return index in indexes;
+        }).map(function (q) {
+            browser.wait(EC.visibilityOf(q), 5000).then(function () {
+                q.click();
+                browser.wait(EC.elementToBeSelected(q), 5000);
+            });
+            const item = {};
+            item.name = q.element(by.xpath('//td[@class="question-table-name"][1]/span')).getText();
+            return item;
+        })
     };
 
     this.addQuestionsToExam = function () {
@@ -58,21 +61,25 @@ var ExamEditor = function () {
     };
 
     this.openQuestionLibraryForSection = function (section) {
-        section.element(by.css('a[ng-click="$ctrl.openLibrary()"]')).click();
+        section.element(by.css('a[ng-click="$ctrl.openLibrary()"]')).click().then(function () {
+            const addButton = element(by.css('a[ng-click="$ctrl.addQuestions()'));
+            browser.wait(EC.visibilityOf(addButton), 5000);
+        });
     };
 
     this.validateSectionQuestions = function (section, expectedQuestions) {
-        var actualQuestions = section.all(by.xpath('//div[contains(@class, "review-question-title")]'));
-        for (var i = 0; i < expectedQuestions.length; i++) {
+        let actualQuestions = section.all(by.repeater('sectionQuestion in $ctrl.section.sectionQuestions'));
+        expect(actualQuestions.count()).toEqual(expectedQuestions.length);
+        for (let i = 0; i < expectedQuestions.length; i++) {
             expect(actualQuestions.get(i).getText(), expectedQuestions[i].name);
         }
     };
 
     this.publishExam = function () {
         element(by.css('a[ng-click="$ctrl.saveAndPublishExam()"]')).click();
-        var dialog = element(by.id('sitnet-dialog'));
+        let dialog = element(by.id('sitnet-dialog'));
         browser.wait(EC.visibilityOf(dialog), 5000);
-        dialog.element(by.css('button[ng-click="ok()"]')).click();
+        dialog.element(by.css('button[ng-click="$ctrl.ok()"]')).click();
         expect(browser.getCurrentUrl()).toMatch(browser.baseUrl + '\/*');
     };
 

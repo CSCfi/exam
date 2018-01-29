@@ -113,7 +113,7 @@ def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
     Def.task {
       Seq(MockCourseInfo(frontendDirectory.value),
         if (protractorConf.equals("protractor.conf") && webDriverUpdate.value.get.exitValue() == 0)
-          Protractor(frontendDirectory.value,
+          Protractor(baseDirectory.value,
             Properties.propOrElse("protractor.config", "conf.js"),
             Properties.propOrElse("protractor.args", " "))
         else {
