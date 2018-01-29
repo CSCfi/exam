@@ -41,6 +41,7 @@ public class ExamAPIControllerTest extends IntegrationTestCase {
         assertThat(node.isArray()).isTrue();
         ArrayNode records = (ArrayNode) node;
         assertThat(records).hasSize(3);
+        assertThat(records.get(0).get("id")).isNotNull();
 
         String filter = DateTime.now().minusDays(5).toString("yyyy-MM-dd");
         result = get("/integration/exams/active?date=" + filter);
