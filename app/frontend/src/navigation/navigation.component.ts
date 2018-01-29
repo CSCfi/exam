@@ -14,6 +14,7 @@
  */
 
 import * as angular from 'angular';
+import * as toastr from 'toastr';
 import { SessionService, User } from '../session/session.service';
 import { Link, NavigationService } from './navigation.service';
 

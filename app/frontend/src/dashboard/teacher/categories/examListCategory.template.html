@@ -6,7 +6,7 @@
                class="form-control search" placeholder="{{'sitnet_exam_search_description' | translate }}"
                ng-change="$ctrl.search()">
         <div class="input-group-addon search">
-            <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
+            <img class="nopad" src="../../../assets/images/icon_search.png" width="49" height="40">
         </div>
     </div>
     <div>
@@ -71,8 +71,8 @@
                     </td>
                     <td class="text-center">
                         <a ng-if="$ctrl.isOwner(exam)" ng-click="$ctrl.deleteExam(exam)" class="pointer">
-                            <img src="/assets/assets/images/icon_trashcan.svg" alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_trashcan.png'"
+                            <img src="../../../assets/images/icon_trashcan.svg" alt="exam"
+                                 onerror="this.onerror=null;this.src='../../../assets/images/icon_trashcan.png'"
                                  popover-placement="left" popover-trigger="'mouseenter'"
                                  uib-popover="{{'sitnet_exam_remove' | translate}}"
                             />
@@ -81,8 +81,8 @@
                     <td class="text-center">
                         <span ng-if="$ctrl.isOwner(exam)" class="dropdown pointer" uib-dropdown>
                             <a href class="dropdown-toggle" uib-dropdown-toggle>
-                                <img src="/assets/assets/images/icon_copy.svg" alt="exam"
-                                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_copy.png'"
+                                <img src="../../../assets/images/icon_copy.svg" alt="exam"
+                                     onerror="this.onerror=null;this.src='../../../assets/images/icon_copy.png'"
                                      popover-placement="left" popover-trigger="'mouseenter'"
                                      uib-popover="{{'sitnet_copy' | translate}}"
                                 />

@@ -24,6 +24,11 @@ import NavigationModule from './navigation';
 import UtilityModule from './utility';
 import CalendarModule from './calendar';
 import * as filters from './app.filter';
+import * as directives from './app.directive';
+import {
+    CkEditor, FixedPrecision, ClozeTest, UiBlur, UiChange, FileModel, FileSelector, MathJaxLoader, FocusOn,
+    Lowercase, Sort, TeacherList
+} from './app.directive';
 
 require('./utility');
 require('./dashboard');
@@ -56,6 +61,18 @@ angular.module('app', [
     .filter('diffInDaysToNow', filters.DiffInDaysFilter)
     .filter('offset', filters.OffsetFilter)
     .filter('pagefill', filters.PageFillFilter)
-    .filter('adjustdst', filters.AdjustDstFilter);
-
-require('./app.directive');
+    .filter('adjustdst', filters.AdjustDstFilter)
+    .directive('dateValidator', directives.DateValidator.factory())
+    .directive('uniqueValue', directives.UniquenessValidator.factory())
+    .directive('ckEditor', CkEditor.factory())
+    .directive('fixedPrecision', FixedPrecision.factory())
+    .directive('clozeTest', ClozeTest.factory())
+    .directive('uiBlur', UiBlur.factory())
+    .directive('uiChange', UiChange.factory())
+    .directive('fileModel', FileModel.factory())
+    .directive('fileSelector', FileSelector.factory())
+    .directive('mathjax', MathJaxLoader.factory())
+    .directive('focusOn', FocusOn.factory())
+    .directive('lowercase', Lowercase.factory())
+    .directive('sort', Sort.factory())
+    .directive('teacherList', TeacherList.factory());

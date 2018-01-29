@@ -33,7 +33,7 @@ angular.module('app.review')
                     vm.data = ReviewList.prepareView(vm.reviews, handleGradedReviews);
                     vm.data.predicate = 'deadline';
 
-                    vm.selections = {all: false, page: false};
+                    vm.selections = { all: false, page: false };
                 };
 
                 vm.$onInit = function () {
@@ -66,11 +66,15 @@ angular.module('app.review')
                             promises.push(ReviewList.sendToRegistry(r));
                         });
                         $q.all(promises).then(function () {
-                            vm.onRegistered({reviews: selection});
+                            vm.onRegistered({ reviews: selection });
                             toast.info($translate.instant('sitnet_results_send_ok'));
                         });
                     });
                 };
+
+                vm.pageSelected = function (page) {
+                    vm.currentPage = page;
+                }
 
                 vm.selectAll = () =>
                     ReviewList.selectAll(vm.selections, vm.data.filtered);

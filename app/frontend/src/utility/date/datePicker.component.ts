@@ -29,8 +29,8 @@ export const DatePickerComponent: angular.IComponentOptions = {
     controller: class DatePickerController implements angular.IComponentController {
 
         onUpdate: ({ date: Date }) => any;
-        date: Date;
-        initialDate: Date;
+        date: Date |  null;
+        initialDate: Date | null;
         extra: {
             action: ({ date: Date }) => any;
             text: string;

@@ -83,14 +83,14 @@ angular.module('app.question')
                     }).map(function (q) {
                         return q.id;
                     });
-                    vm.onSelection({selections: selections});
+                    vm.onSelection({ selections: selections });
                 };
 
                 vm.deleteQuestion = function (question) {
                     const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                         $translate.instant('sitnet_remove_question_from_library_only'));
                     dialog.result.then(function (btn) {
-                        Question.questionsApi.delete({id: question.id}, function () {
+                        Question.questionsApi.delete({ id: question.id }, function () {
                             vm.questions.splice(vm.questions.indexOf(question), 1);
                             toast.info($translate.instant('sitnet_question_removed'));
                         });
@@ -101,9 +101,9 @@ angular.module('app.question')
                     const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                         $translate.instant('sitnet_copy_question'));
                     dialog.result.then(function (btn) {
-                        Question.questionCopyApi.copy({id: question.id}, function (copy) {
+                        Question.questionCopyApi.copy({ id: question.id }, function (copy) {
                             vm.questions.splice(vm.questions.indexOf(question), 0, copy);
-                            vm.onCopy({copy: copy});
+                            vm.onCopy({ copy: copy });
                         });
                     });
                 };
@@ -132,6 +132,10 @@ angular.module('app.question')
                     }).join(', ');
                 };
 
+                vm.pageSelected = function (page) {
+                    vm.currentPage = page;
+                }
+
                 vm.getQuestionTypeIcon = function (question) {
                     switch (question.type) {
                         case 'EssayQuestion':
@@ -159,7 +163,6 @@ angular.module('app.question')
                     }
                     return '';
                 };
-
 
             }
         ]

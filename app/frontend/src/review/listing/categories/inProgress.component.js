@@ -35,12 +35,16 @@ angular.module('app.review')
 
             };
 
+            vm.pageSelected = function (page) {
+                vm.currentPage = page;
+            }
+
             vm.applyFreeSearchFilter = () =>
                 vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items);
 
             const handleOngoingReviews = (review) => {
                 ReviewList.gradeExam(review.exam);
-                ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
+                ExamRes.inspections.get({ id: review.exam.id }, function (inspections) {
                     review.inspections = inspections;
                 });
             };

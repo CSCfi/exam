@@ -51,6 +51,9 @@ angular.module('app.review')
                 r.displayedCredit = examCredit(r.exam.course.credits, r.exam.customCredit);
             };
 
+            vm.pageSelected = function (page) {
+                vm.currentPage = page;
+            }
 
         }]
     });

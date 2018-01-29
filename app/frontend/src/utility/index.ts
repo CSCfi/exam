@@ -24,6 +24,7 @@ import { DatePickerComponent } from './date/datePicker.component';
 import { DropDownSelectComponent } from './select/dropDownSelect.component';
 import { DroppableDirective, DraggableModalDirective, SortableDirective } from './dragndrop/dragndrop.directive';
 import { DateTimePickerComponent } from './date/dateTimePicker.component';
+import { PaginatorComponent } from './paginator/paginator.component';
 
 export default angular.module('app.utility', [])
     .run(runBlock)
@@ -34,6 +35,7 @@ export default angular.module('app.utility', [])
     .component('datePicker', DatePickerComponent)
     .component('dateTimePicker', DateTimePickerComponent)
     .component('dropDownSelect', DropDownSelectComponent)
+    .component('paginator', PaginatorComponent)
     .directive('droppable', DroppableDirective.factory())
     .directive('draggableModal', DraggableModalDirective.factory())
     .directive('sortable', SortableDirective.factory())
