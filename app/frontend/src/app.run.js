@@ -15,9 +15,9 @@
 
 import angular from 'angular';
 
-run.$inject = ['$http', '$sessionStorage', 'Session', 'EXAM_CONF'];
+run.$inject = ['$http', '$sessionStorage', 'Session', 'EXAM_CONF', '$route', '$location', '$rootScope'];
 
-export default function run($http, $sessionStorage, Session, EXAM_CONF) {
+export default function run($http, $sessionStorage, Session, EXAM_CONF, $route, $location, $rootScope) {
     const user = $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY];
     if (user) {
         if (!user.loginRole) {
@@ -36,4 +36,16 @@ export default function run($http, $sessionStorage, Session, EXAM_CONF) {
         Session.login('', '').catch(angular.noop);
     }
 
+    // Add location reload flag to original $location service.
+    const original = $location.path;
+    $location.path = function (path, reload) {
+        if (reload === false) {
+            const lastRoute = $route.current;
+            const un = $rootScope.$on('$locationChangeSuccess', function () {
+                $route.current = lastRoute;
+                un();
+            });
+        }
+        return original.apply($location, [path]);
+    };
 }

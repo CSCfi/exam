@@ -45,7 +45,7 @@ angular.module('app.exam')
                     function (response) {
                         toast.info($translate.instant('sitnet_exam_added'));
                         //return response.id;
-                        $location.path('/exams/' + response.id + '/select/course');
+                        $location.path('/exams/' + response.id + '/select/course').replace();
                     }, function (error) {
                         toast.error(error.data);
                     });
