@@ -11,10 +11,20 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
  */
 
-require('./common.module');
-require('./language.service');
-require('./settingsResource');
-require('./userResource');
-require('./historyBack.component');
+import angular from 'angular';
+
+angular.module('app.common')
+    .component('historyBack', {
+        template: require('./historyBack.template.html'),
+        controller: ['$window', function ($window) {
+            const vm = this;
+
+            vm.goBack = function (event) {
+                event.preventDefault();
+                $window.history.back();
+            }
+        }]
+    });

@@ -18,8 +18,8 @@ import angular from 'angular';
 angular.module('app.exam.editor')
     .component('examTabs', {
         template: require('./examTabs.template.html'),
-        controller: ['$routeParams', '$translate', 'ExamRes', 'Session', '$window',
-            function ($routeParams, $translate, ExamRes, Session, $window) {
+        controller: ['$routeParams', '$translate', 'ExamRes', 'Session', '$window', '$location',
+            function ($routeParams, $translate, ExamRes, Session, $window, $location) {
 
                 const vm = this;
 
@@ -55,6 +55,10 @@ angular.module('app.exam.editor')
                     return vm.exam.examOwners.some(function (eo) {
                         return eo.id === vm.user.id;
                     });
+                };
+
+                vm.tabChanged = function (index) {
+                    $location.path(`/exams/${vm.exam.id}/${index + 1}`, false).replace();
                 };
 
                 vm.switchToBasicInfo = function () {
