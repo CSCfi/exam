@@ -53,7 +53,7 @@ angular.module('app.enrolment')
                 };
 
                 vm.loadImage = function (img) {
-                    return require('../../assets/images/' + img);
+                    return require('Images/' + img);
                 };
 
                 vm.getRoomInstruction = function () {

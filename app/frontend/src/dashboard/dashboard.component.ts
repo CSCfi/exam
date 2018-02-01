@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Exam Consortium
+ * Copyright (c) 2017 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -13,14 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./student/studentDashboard.module');
-require('./student/studentDashboard.service');
-require('./student/studentDashboard.component');
+import * as angular from 'angular';
+import { SessionService, User } from '../session/session.service';
 
-require('./teacher/teacherDashboard.module');
-require('./teacher/teacherDashboard.service');
-require('./teacher/categories/examListCategory.component');
-require('./teacher/teacherDashboard.component');
+export const DashboardComponent: angular.IComponentOptions = {
+    template: require('./dashboard.template.html'),
+    controller: class DashboardController implements angular.IComponentController {
 
-require('./dashboard.module');
-require('./dashboard.component');
+        user: User;
+
+        /* @ngInject */
+        constructor(private Session: SessionService) { }
+
+        $onInit() {
+            this.user = this.Session.getUser();
+            if (!this.user) {
+                console.log('not logged in');
+            }
+        }
+    }
+};

@@ -80,7 +80,7 @@ export class SessionService {
         this._user = user;
     }
 
-    private _init(): angular.IPromise<Env> {
+    private init(): angular.IPromise<Env> {
         const deferred: IDeferred<Env> = this.$q.defer();
         if (!this._env) {
             this.$http.get('/app/settings/environment').then((resp: IHttpResponse<Env>) => {
@@ -93,7 +93,7 @@ export class SessionService {
         return deferred.promise;
     }
 
-    private static _hasPermission(user: User, permission: string) {
+    private static hasPermission(user: User, permission: string) {
         if (!user) {
             return false;
         }
@@ -105,14 +105,14 @@ export class SessionService {
     }
 
     setLoginEnv(scope: any): void {
-        this._init().then(() => {
+        this.init().then(() => {
             if (!this._env.isProd) {
                 scope.devLoginRequired = true;
             }
         }).catch(angular.noop);
     }
 
-    private _onLogoutSuccess(data: { logoutUrl: string }): void {
+    private onLogoutSuccess(data: { logoutUrl: string }): void {
         this.$rootScope.$broadcast('userUpdated');
         toastr.success(this.$translate.instant('sitnet_logout_success'));
         this.$window.onbeforeunload = () => null;
@@ -130,7 +130,7 @@ export class SessionService {
         this.$timeout(toastr.clear, 300);
     }
 
-    private _redirect(): void {
+    private redirect(): void {
         if (this.$location.path() === '/' && this._user.isLanguageInspector) {
             this.$location.path('/inspections');
         } else if (this._env && !this._env.isProd) {
@@ -138,7 +138,7 @@ export class SessionService {
         }
     }
 
-    private _onLoginSuccess(): void {
+    private onLoginSuccess(): void {
         this.restartSessionCheck();
         this.$rootScope.$broadcast('userUpdated');
 
@@ -153,20 +153,20 @@ export class SessionService {
         this.$timeout(welcome, 2000);
 
         if (!this._user.loginRole) {
-            this._openRoleSelectModal(this._user);
+            this.openRoleSelectModal(this._user);
         } else if (this._user.isStudent && !this._user.userAgreementAccepted) {
-            this._openEulaModal(this._user);
+            this.openEulaModal(this._user);
         } else {
-            this._redirect();
+            this.redirect();
         }
     }
 
-    private _onLoginFailure(message: any): void {
+    private onLoginFailure(message: any): void {
         this.$location.path('/');
         toastr.error(message);
     }
 
-    private _processLoggedInUser(user: User): void {
+    private processLoggedInUser(user: User): void {
         _.merge(this.$http.defaults, { headers: { common: { 'x-exam-authentication': user.token } } });
         user.roles.forEach(role => {
             switch (role.name) {
@@ -201,7 +201,7 @@ export class SessionService {
             isAdmin: loginRole != null && loginRole.name === 'ADMIN',
             isStudent: loginRole != null && loginRole.name === 'STUDENT',
             isTeacher: isTeacher,
-            isLanguageInspector: isTeacher && SessionService._hasPermission(user, 'CAN_INSPECT_LANGUAGE')
+            isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE')
         };
 
         this.$sessionStorage['EXAM_USER'] = this._user;
@@ -218,7 +218,7 @@ export class SessionService {
                 delete this.$http.defaults.headers.common;
             }
             delete this._user;
-            this._onLogoutSuccess(resp.data);
+            this.onLogoutSuccess(resp.data);
         }).catch(error => toastr.error(error.data));
     }
 
@@ -230,12 +230,12 @@ export class SessionService {
         const deferred: IDeferred<User> = this.$q.defer();
         this.$http.post('/app/login', credentials)
             .then((resp: IHttpResponse<User>) => {
-                this._processLoggedInUser(resp.data);
-                this._onLoginSuccess();
+                this.processLoggedInUser(resp.data);
+                this.onLoginSuccess();
                 deferred.resolve(this._user);
             })
             .catch((resp) => {
-                this._onLoginFailure(resp.data);
+                this.onLoginFailure(resp.data);
                 deferred.reject();
             });
         return deferred.promise;
@@ -265,10 +265,10 @@ export class SessionService {
         if (this._scheduler) {
             this.$interval.cancel(this._scheduler);
         }
-        this._scheduler = this.$interval(() => this._checkSession, this.PING_INTERVAL);
+        this._scheduler = this.$interval(this.checkSession, this.PING_INTERVAL);
     }
 
-    private _checkSession() {
+    private checkSession = () => {
         this.$http.get('/app/checkSession')
             .then((resp) => {
                 if (resp.data === 'alarm') {
@@ -295,7 +295,7 @@ export class SessionService {
             .catch(angular.noop);
     }
 
-    private _openEulaModal(user: User): void {
+    private openEulaModal(user: User): void {
         this.$uibModal.open({
             backdrop: 'static',
             keyboard: true,
@@ -315,7 +315,7 @@ export class SessionService {
         }).catch(() => this.$location.path('/logout'));
     }
 
-    private _openRoleSelectModal(user: User) {
+    private openRoleSelectModal(user: User) {
         this.$uibModal.open({
             component: 'selectRoleDialog',
             backdrop: 'static',
@@ -330,11 +330,11 @@ export class SessionService {
                 user.isTeacher = role.name === 'TEACHER';
                 user.isStudent = role.name === 'STUDENT';
                 user.isLanguageInspector =
-                    user.isTeacher && SessionService._hasPermission(user, 'CAN_INSPECT_LANGUAGE');
+                    user.isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
                 this.setUser(user);
                 this.$rootScope.$broadcast('userUpdated');
                 if (user.isStudent && !user.userAgreementAccepted) {
-                    this._openEulaModal(user);
+                    this.openEulaModal(user);
                 } else if (this.$location.url() === '/login' || this.$location.url() === '/logout') {
                     this.$location.path('/');
                 } else {

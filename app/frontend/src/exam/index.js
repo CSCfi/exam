@@ -17,4 +17,4 @@ require('./exam.module');
 require('./student/studentExamResource');
 require('./exam.service');
 require('./examList.component');
-require('./editor/examResource');
+require('./examResource');

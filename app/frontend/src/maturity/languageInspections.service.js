@@ -16,7 +16,7 @@
 import angular from 'angular';
 import toast from 'toastr';
 
-angular.module('app.review')
+angular.module('app.maturity')
     .service('LanguageInspections', ['$resource', '$location', '$uibModal', '$translate', 'dialogs',
         function ($resource, $location, $modal, $translate, dialogs) {
 

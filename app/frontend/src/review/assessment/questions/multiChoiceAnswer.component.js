@@ -23,8 +23,8 @@ angular.module('app.review')
                 <div ng-if="option.answered">
                     <div ng-if="option.option.correctOption" class="exam-answered-correct">
                         <div class="make-inline pull-left">
-                            <img ng-show="option.answered" src="/assets/assets/images/icon_correct_answer_radio.png" alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer_radio.png'" />
+                            <img ng-show="option.answered" src="Images/icon_correct_answer_radio.png" alt="exam"
+                                 onerror="this.onerror=null;this.src='Images/icon_correct_answer_radio.png'" />
                         </div>
                         <div class="make-inline middle-column">
                             <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
@@ -32,8 +32,8 @@ angular.module('app.review')
                     </div>
                     <div ng-if="!option.option.correctOption" class="exam-answered-wrong">
                         <div class="make-inline pull-left">
-                            <img ng-show="option.answered" src="/assets/assets/images/icon_wrong_answer_radio.png" alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer_radio.svg'" />
+                            <img ng-show="option.answered" src="Images/icon_wrong_answer_radio.png" alt="exam"
+                                 onerror="this.onerror=null;this.src='Images/icon_wrong_answer_radio.svg'" />
                         </div>
                         <div class="make-inline middle-column">
                             <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
@@ -43,10 +43,10 @@ angular.module('app.review')
                 <div ng-if="!option.answered">
                     <div class="exam-not-answered">
                         <div class="make-inline pull-left">
-                            <img ng-if="option.option.correctOption" src="/assets/assets/images/icon_correct_answer_radio.png" alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer_radio.svg'" />
-                            <img ng-if="!option.option.correctOption" src="/assets/assets/images/icon_wrong_answer.png" alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.svg'" />
+                            <img ng-if="option.option.correctOption" src="Images/icon_correct_answer_radio.png" alt="exam"
+                                 onerror="this.onerror=null;this.src='Images/icon_correct_answer_radio.svg'" />
+                            <img ng-if="!option.option.correctOption" src="Images/icon_wrong_answer.png" alt="exam"
+                                 onerror="this.onerror=null;this.src='Images/icon_wrong_answer.svg'" />
                         </div>
                         <div class="make-inline middle-column">
                             <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>

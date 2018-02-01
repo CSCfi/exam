@@ -198,8 +198,8 @@ export class UiBlur implements IDirective {
     constructor(private $parse: angular.IParseService) { }
 
     link(scope, element, attributes) {
-        const expr: angular.ICompiledExpression = this.$parse(attributes.uiBlur)(scope);
-        element.bind('blur', () => expr);
+        const expr: angular.ICompiledExpression = this.$parse(attributes.uiBlur);
+        element.bind('blur', () => expr(scope));
     }
 
     static factory(): IDirectiveFactory {
@@ -217,8 +217,8 @@ export class UiChange implements IDirective {
     constructor(private $parse: angular.IParseService) { }
 
     link(scope, element, attributes) {
-        const expr: angular.ICompiledExpression = this.$parse(attributes.uiChange)(scope);
-        element.bind('change', () => expr);
+        const expr: angular.ICompiledExpression = this.$parse(attributes.uiChange);
+        element.bind('change', () => expr(scope));
     }
 
     static factory(): IDirectiveFactory {
@@ -313,6 +313,7 @@ export class Lowercase implements IDirective {
     }
 }
 
+// TOD: turn into a component
 interface SortScope extends IScope {
     predicate: string;
     by: string;
@@ -360,6 +361,7 @@ export class Sort implements IDirective<SortScope> {
     }
 }
 
+// TODO: turn into a component
 interface TeacherListScope extends IScope {
     exam: {
         examOwners: { firstName: string, lastName: string }[],

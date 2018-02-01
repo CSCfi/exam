@@ -25,7 +25,7 @@
                     <span uib-dropdown>
                         <a href id="simple-dropdown" uib-dropdown-toggle>
                             <img class="arrow_icon" alt="{{ 'sitnet_change_enrolment_info' | translate }}"
-                                 src="../../assets/images/settings_dots.png"
+                                 src="Images/settings_dots.png"
                                  popover-placement="left" popover-trigger="'mouseenter'"
                                  uib-popover="{{ 'sitnet_change_enrolment_info' | translate }}"
                             >
@@ -83,11 +83,11 @@
                 <div style="position: absolute; right: 0; display: none;">
                     <a class="message-to-teacher pointer" ng-click="$ctrl.addEnrolmentInformation()">
                         <span ng-if="$ctrl.enrolment.information">
-                            <img class="arrow_icon" src="../../assets/images/icon_message.png">
+                            <img class="arrow_icon" src="Images/icon_message.png">
                             {{ 'sitnet_student_edit' | translate }}
                         </span>
                         <span ng-if="!$ctrl.enrolment.information">
-                            <img class="arrow_icon" src="../../assets/images/icon_message.png">
+                            <img class="arrow_icon" src="Images/icon_message.png">
                              {{ 'sitnet_student_add' | translate }}
                         </span>
                     </a>
@@ -112,11 +112,11 @@
                         <div>
                             <a class="message-to-teacher pointer" ng-click="$ctrl.addEnrolmentInformation()">
                                 <span ng-if="$ctrl.enrolment.information">
-                                    <img class="arrow_icon" src="../../assets/images/icon_message.png">
+                                    <img class="arrow_icon" src="Images/icon_message.png">
                                         {{ 'sitnet_student_edit' | translate }}
                                 </span>
                                 <span ng-if="!$ctrl.enrolment.information">
-                                    <img class="arrow_icon" src="../../assets/images/icon_message.png">
+                                    <img class="arrow_icon" src="Images/icon_message.png">
                                         {{ 'sitnet_student_add' | translate }}
                                 </span>
                             </a>
@@ -177,8 +177,8 @@
             <div class="student-exam-row-infolink">
                 <a class="infolink pointer" ng-click="$ctrl.showGuide = !$ctrl.showGuide">
                     {{ 'sitnet_room_guidance' | translate}}
-                    <img class="arrow_icon" ng-hide="$ctrl.showGuide" src="../../assets/images/arrow_right.png">
-                    <img class="arrow_icon" ng-show="$ctrl.showGuide"  src="../../assets/images/arrow_down.png"></a>
+                    <img class="arrow_icon" ng-hide="$ctrl.showGuide" src="Images/arrow_right.png">
+                    <img class="arrow_icon" ng-show="$ctrl.showGuide"  src="Images/arrow_down.png"></a>
 
             </div>
             <div class="student-exam-row-infobox" ng-show="$ctrl.showGuide">
@@ -192,9 +192,9 @@
                    ng-click="$ctrl.showInstructions = !$ctrl.showInstructions">
                     {{ 'sitnet_view_instructions' | translate}}
                     <img class="arrow_icon" ng-hide="$ctrl.showInstructions"
-                         src="../../assets/images/arrow_right.png">
+                         src="Images/arrow_right.png">
                     <img class="arrow_icon" ng-show="$ctrl.showInstructions"
-                         src="../../assets/images/arrow_down.png"></a>
+                         src="Images/arrow_down.png"></a>
 
                 <div ng-if="!$ctrl.enrolment.reservation" class="student-message-dialog-button-save">
 

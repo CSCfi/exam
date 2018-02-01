@@ -6,7 +6,7 @@
                     <div class="col-md-8">
                         <div class="student-details-title-wrap">
                             <a href="/exams/{{$ctrl.examId}}/5">
-                                <img class="arrow_icon" src="/assets/assets/images/icon_history.png"></a>
+                                <img class="arrow_icon" src="Images/icon_history.png"></a>
                             <div class="student-exam-details-title">{{'sitnet_question_based_review' | translate}}</div>
                         </div>
                     </div>
@@ -39,21 +39,21 @@
                         <a ng-click="$ctrl.selectedReview.expanded = !$ctrl.selectedReview.expanded"
                            class="pointer-hand">
                             <img ng-show="!$ctrl.selectedReview.expanded"
-                                 src="/assets/assets/images/icon_list_show_right.svg"
+                                 src="Images/icon_list_show_right.svg"
                                  alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"/>
+                                 onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';"/>
                             <img ng-show="$ctrl.selectedReview.expanded"
-                                 src="/assets/assets/images/icon_list_show_down.svg"
+                                 src="Images/icon_list_show_down.svg"
                                  alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"/>
+                                 onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';"/>
                         </a>
                     </div>
                 </div>
                 <div class="main-row" ng-show="$ctrl.selectedReview.expanded">
                     <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box">
-                        <img src="/assets/assets/images/icon_info.png"
+                        <img src="Images/icon_info.png"
                              alt="exam"
-                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"/>
+                             onerror="this.onerror=null;this.src='Images/icon_info.png';"/>
                         <span class="padl10">{{$ctrl.selectedReview.question.defaultAnswerInstructions}}</span>
                     </div>
                 </div>

@@ -14,7 +14,6 @@
  */
 
 require('./editor.module');
-require('./examResource');
 require('./examTabs.component');
 
 require('./basic/basicExamInfo.component');

@@ -76,6 +76,7 @@ const config = {
         new HtmlWebpackPlugin({ title: 'Production' })
     ],
     resolve: {
+        alias: { Images: path.resolve(__dirname, '../src/assets/images') },
         extensions: ['.ts', '.js', '.json', '.css', '.html']
     }
 };

@@ -13,47 +13,46 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import * as angular from 'angular';
-require('angular-resource');
-require('angular-route');
-require('ngstorage');
+import 'angular-resource';
+import 'angular-route';
+import 'angular-animate';
+import 'angular-ui-bootstrap';
+import 'ngstorage';
+import 'angular-translate';
+import 'angular-dialog-service';
 
 import configs from './app.config';
 import runBlock from './app.run';
 import SessionModule from './session';
 import NavigationModule from './navigation';
 import UtilityModule from './utility';
-import CalendarModule from './calendar';
+import DashboardModule from './dashboard';
 import * as filters from './app.filter';
 import * as directives from './app.directive';
-import {
-    CkEditor, FixedPrecision, ClozeTest, UiBlur, UiChange, FileModel, FileSelector, MathJaxLoader, FocusOn,
-    Lowercase, Sort, TeacherList
-} from './app.directive';
 
-require('./utility');
-require('./dashboard');
-require('./reservation');
-require('./maturity');
-require('./enrolment/enrolment.module');
-require('./administrative/administrative.module');
-require('./software/software.module');
+import './enrolment'; // TODO: make a proper exportable module
+import './maturity'; // TODO: make a proper exportable module
 
-require('toastr/toastr.scss');
-require('font-awesome/css/font-awesome.min.css');
-require('./assets/styles/main.scss');
+
+import 'toastr/toastr.scss';
+import 'font-awesome/css/font-awesome.min.css';
+import './assets/styles/main.scss';
 
 angular.module('app', [
+    'ngAnimate',
     'ngResource',
     'ngRoute',
     'ngStorage',
+    'ui.bootstrap',
+    'pascalprecht.translate',
+    'dialogs.services',
+    'dialogs.controllers',
     SessionModule,
     NavigationModule,
     UtilityModule,
-    CalendarModule,
+    DashboardModule,
     'app.enrolment',
-    'app.dashboard',
-    'app.administrative',
-    'app.software'
+    'app.maturity'
 ]).config(configs)
     .run(runBlock)
     .filter('truncate', filters.TruncateFilter)
@@ -64,15 +63,15 @@ angular.module('app', [
     .filter('adjustdst', filters.AdjustDstFilter)
     .directive('dateValidator', directives.DateValidator.factory())
     .directive('uniqueValue', directives.UniquenessValidator.factory())
-    .directive('ckEditor', CkEditor.factory())
-    .directive('fixedPrecision', FixedPrecision.factory())
-    .directive('clozeTest', ClozeTest.factory())
-    .directive('uiBlur', UiBlur.factory())
-    .directive('uiChange', UiChange.factory())
-    .directive('fileModel', FileModel.factory())
-    .directive('fileSelector', FileSelector.factory())
-    .directive('mathjax', MathJaxLoader.factory())
-    .directive('focusOn', FocusOn.factory())
-    .directive('lowercase', Lowercase.factory())
-    .directive('sort', Sort.factory())
-    .directive('teacherList', TeacherList.factory());
+    .directive('ckEditor', directives.CkEditor.factory())
+    .directive('fixedPrecision', directives.FixedPrecision.factory())
+    .directive('clozeTest', directives.ClozeTest.factory())
+    .directive('uiBlur', directives.UiBlur.factory())
+    .directive('uiChange', directives.UiChange.factory())
+    .directive('fileModel', directives.FileModel.factory())
+    .directive('fileSelector', directives.FileSelector.factory())
+    .directive('mathjax', directives.MathJaxLoader.factory())
+    .directive('focusOn', directives.FocusOn.factory())
+    .directive('lowercase', directives.Lowercase.factory())
+    .directive('sort', directives.Sort.factory())
+    .directive('teacherList', directives.TeacherList.factory());

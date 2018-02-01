@@ -20,7 +20,6 @@ require('../facility/facility.module');
 require('../review/review.module');
 require('../examination/examination.module');
 require('../question');
-require('angular-animate');
 
-angular.module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.examination', 'app.question', 'ngAnimate']);
+angular.module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.examination', 'app.question']);
 

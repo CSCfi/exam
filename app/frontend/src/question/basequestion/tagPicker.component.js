@@ -54,8 +54,8 @@ angular.module('app.question')
                 const vm = this;
 
                 vm.$onInit = function () {
-                    vm.tooltipIcon = require('../../assets/images/icon_tooltip.svg');
-                    vm.removalIcon = require('../../assets/images/icon_remove.svg');
+                    vm.tooltipIcon = require('Images/icon_tooltip.svg');
+                    vm.removalIcon = require('Images/icon_remove.svg');
                 }
 
                 vm.getTags = function (filter) {

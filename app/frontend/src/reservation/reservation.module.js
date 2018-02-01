@@ -16,4 +16,4 @@
 import angular from 'angular';
 require('../iop');
 
-angular.module('app.reservation', ['app.iop' ]);
+angular.module('app.reservation', ['app.iop']);

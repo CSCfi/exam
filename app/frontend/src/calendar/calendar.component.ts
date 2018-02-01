@@ -75,8 +75,8 @@ export const CalendarComponent: angular.IComponentOptions = {
             private $location: angular.ILocationService,
             private $translate: angular.translate.ITranslateService,
             private $routeParams: angular.route.IRouteParamsService,
-            private dateTime: DateTimeService,
-            private calendar: CalendarService,
+            private DateTime: DateTimeService,
+            private Calendar: CalendarService,
             private uiCalendarConfig: any
         ) { }
 
@@ -84,7 +84,7 @@ export const CalendarComponent: angular.IComponentOptions = {
             this.$scope.$on('$localeChangeSuccess', () => {
                 const optionalRoom = this.selectedRoom();
                 if (optionalRoom !== undefined) {
-                    this.openingHours = this.calendar.processOpeningHours(optionalRoom);
+                    this.openingHours = this.Calendar.processOpeningHours(optionalRoom);
                 }
             });
 
@@ -260,7 +260,7 @@ export const CalendarComponent: angular.IComponentOptions = {
                     }
                 };
                 this.query(successFn, errorFn, date, room, accessibilities);
-                this.exceptionHours = this.calendar.getExceptionHours(room);
+                this.exceptionHours = this.Calendar.getExceptionHours(room);
             }
         }
 
@@ -293,7 +293,7 @@ export const CalendarComponent: angular.IComponentOptions = {
                 return;
             }
             this.confirming = true;
-            this.calendar.reserve(
+            this.Calendar.reserve(
                 this.reservation.start,
                 this.reservation.end,
                 room,
@@ -325,14 +325,14 @@ export const CalendarComponent: angular.IComponentOptions = {
         }
 
         printExamDuration(exam) {
-            return this.dateTime.printExamDuration(exam);
+            return this.DateTime.printExamDuration(exam);
         }
 
         selectRoom(room) {
             if (!room.outOfService) {
                 this.rooms.forEach(r => delete room.filtered);
                 room.filtered = true;
-                this.openingHours = this.calendar.processOpeningHours(room);
+                this.openingHours = this.Calendar.processOpeningHours(room);
             }
         }
     }

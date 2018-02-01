@@ -15,7 +15,6 @@
 
 import * as angular from 'angular';
 import * as toast from 'toastr';
-require('angular-translate');
 
 configs.$inject = ['$translateProvider', '$routeProvider', '$httpProvider', '$locationProvider', '$compileProvider'];
 

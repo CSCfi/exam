@@ -32,8 +32,8 @@ angular.module('app.examination')
         '        </span>\n' +
         '        <span>\n' +
         '            <img ng-click="$ctrl.showRemainingTime = !$ctrl.showRemainingTime"\n' +
-        '                 src="/assets/assets/images/icon_clock.svg" alt="exam"\n' +
-        '                 onerror="this.onerror=null;this.src=\'/assets/assets/images/icon_clock.png\';"/>\n' +
+        '                 src="Images/icon_clock.svg" alt="exam"\n' +
+        '                 onerror="this.onerror=null;this.src=\'Images/icon_clock.png\';"/>\n' +
         '        </span>\n' +
         '    </div>\n' +
         '</div>\n',

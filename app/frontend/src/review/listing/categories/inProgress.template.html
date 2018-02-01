@@ -2,14 +2,14 @@
     <div class="col-md-12">
         <div class="review-list-title">{{ 'sitnet_exam_in_review' | translate }}
             <a ng-click="$ctrl.data.toggle = !$ctrl.data.toggle" class="pointer">
-                <img ng-show="!$ctrl.data.toggle" src="/assets/assets/images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"
+                <img ng-show="!$ctrl.data.toggle" src="Images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';"
                 />
-                <img ng-show="$ctrl.data.toggle" src="/assets/assets/images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"
+                <img ng-show="$ctrl.data.toggle" src="Images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';"
                 />
             </a>
             <sup class="padl05">
                 <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_review_started_description' | translate}}"
-                    src="/assets/assets/images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
+                    src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"
                 />
             </sup>
         </div>
@@ -31,7 +31,7 @@
         <div class="form-group input-group search tab-search review-list-search padl0 marl10">
             <input ng-change="$ctrl.applyFreeSearchFilter()" ng-model="$ctrl.data.filter" class="form-control search" placeholder="{{'sitnet_search' | translate }}">
             <div class="input-group-addon search">
-                <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40">
+                <img class="nopad" src="Images/icon_search.png" width="49" height="40">
             </div>
         </div>
         <div ng-hide="$ctrl.exam.executionType.type==='MATURITY'" class="review-attachment-button review-list-speed-button marr20">
