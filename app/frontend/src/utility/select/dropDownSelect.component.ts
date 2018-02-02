@@ -22,11 +22,11 @@ interface Selection {
     value: any;
 }
 
-interface Option {
-    value: any | null;
+export interface Option {
+    value?: any;
     id: any | null;
     label: string | null;
-    isHeader: boolean;
+    isHeader?: boolean;
 }
 
 export const DropDownSelectComponent: angular.IComponentOptions = {

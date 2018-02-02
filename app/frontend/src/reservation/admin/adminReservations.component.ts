@@ -13,7 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
-require('../iop');
+import * as angular from 'angular';
+import { ReservationController } from '../reservation.controller';
 
-angular.module('app.reservation', ['app.iop']);
+export const AdminReservationComponent: angular.IComponentOptions = {
+    template: require('./adminReservations.template.html'),
+    controller: ReservationController
+};

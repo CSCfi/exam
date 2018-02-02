@@ -15,7 +15,7 @@
 
 import * as angular from 'angular';
 
-import '../reservation'; // TODO: make a proper exportable module
+import ReservationModule from '../reservation'; // TODO: make a proper exportable module
 
 require('../exam/editor'); // TODO: make a proper exportable module
 
@@ -26,9 +26,7 @@ import { ExamListCategoryComponent } from './teacher/categories/examListCategory
 import { TeacherDashboardComponent } from './teacher/teacherDashboard.component';
 import { DashboardComponent } from './dashboard.component';
 
-
-
-export default angular.module('app.dashboard', ['app.reservation', 'app.exam'])
+export default angular.module('app.dashboard', [ReservationModule, 'app.exam'])
     .service('StudentDashboard', StudentDashboardService)
     .service('TeacherDashboard', TeacherDashboardService)
     .component('dashboard', DashboardComponent)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Exam Consortium
+ * Copyright (c) 2017 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -13,11 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./reservation.module');
-require('./reservationService');
-require('./reservationResource');
-require('./admin/adminReservations.component');
-require('./admin/changeMachineDialog.component');
-require('./admin/removeReservationDialog.component');
-require('./teacher/teacherReservations.component');
-require('./reservationDetail.component');
+import * as angular from 'angular';
+import { ReservationController } from '../reservation.controller';
+
+export const TeacherReservationComponent: angular.IComponentOptions = {
+    template: require('./teacherReservations.template.html'),
+    controller: ReservationController
+};
