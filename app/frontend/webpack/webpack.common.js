@@ -41,7 +41,7 @@ const config = {
             },
             {
                 test: /\.js$/,
-                use: ['ng-annotate-loader', 'babel-loader'],
+                use: ['babel-loader'],
                 exclude: /node_modules/
             },
             {
@@ -72,8 +72,8 @@ const config = {
             jQuery: 'jquery',
             'window.jQuery': 'jquery'
         }),
-        new CleanWebpackPlugin(['bundles'], {root: path.resolve(__dirname, '../../../public')}),
-        new HtmlWebpackPlugin({title: 'Production'})
+        new CleanWebpackPlugin(['bundles'], { root: path.resolve(__dirname, '../../../public') }),
+        new HtmlWebpackPlugin({ title: 'Production' })
     ],
     resolve: {
         extensions: ['.ts', '.js', '.json', '.css', '.html']
