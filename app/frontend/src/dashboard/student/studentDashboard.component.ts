@@ -17,6 +17,7 @@ import * as angular from 'angular';
 import { StudentDashboardService } from './studentDashboard.service';
 import { DateTimeService } from '../../utility/date/date.service';
 import { SessionService } from '../../session/session.service';
+import { ReservationService } from '../../reservation/reservationService';
 
 export const StudentDashboardComponent: angular.IComponentOptions = {
     template: require('./studentDashboard.template.html'),
@@ -26,7 +27,7 @@ export const StudentDashboardComponent: angular.IComponentOptions = {
 
         /* @ngInject */
         constructor(private StudentDashboard: StudentDashboardService,
-            private Reservation: any, // TBD
+            private Reservation: ReservationService,
             private Room: any, // TBD
             private DateTime: DateTimeService,
             private Enrolment: any, // TBD
