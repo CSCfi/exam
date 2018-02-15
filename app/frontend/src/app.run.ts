@@ -17,7 +17,13 @@ import * as angular from 'angular';
 import { SessionService } from './session/session.service';
 import * as _ from 'lodash';
 
-export default function run($http: angular.IHttpService, $sessionStorage, Session: SessionService) {
+export default function run(
+    $http: angular.IHttpService,
+    $sessionStorage: any,
+    Session: SessionService,
+    $route: angular.route.IRouteService,
+    $location: any,
+    $rootScope: angular.IRootScopeService) {
     'ngInject';
 
     const user = $sessionStorage['EXAM_USER'];
@@ -36,4 +42,16 @@ export default function run($http: angular.IHttpService, $sessionStorage, Sessio
         Session.login('', '').catch(angular.noop);
     }
 
+    // Add location reload flag to original $location service.
+    const original = $location.path;
+    $location.path = function (path, reload) {
+        if (reload === false) {
+            const lastRoute = $route.current;
+            const un = $rootScope.$on('$locationChangeSuccess', function () {
+                $route.current = lastRoute;
+                un();
+            });
+        }
+        return original.apply($location, [path]);
+    };
 }

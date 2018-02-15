@@ -1,8 +1,7 @@
 <div class="top-row">
     <div class="col-md-12">
         <div class="student-details-title-wrap">
-            <a href="/"><img class="arrow_icon" src="Images/icon_history.png">
-            </a>
+            <history-back></history-back>
             <div class="student-exam-details-title">{{$ctrl.exam.name}}</div>
         </div>
     </div>
@@ -13,8 +12,7 @@
         <div class="student-details-title col-md-9 col-xs-6">
             <span>{{$ctrl.exam.name}}</span>
             <div class="student-details-subtitle">
-                <span ng-if="!$ctrl.exam.reservationMade && $ctrl.exam.alreadyEnrolled && !$ctrl.exam.noTrialsLeft"
-                      class="exam-needs-reservation">
+                <span ng-if="!$ctrl.exam.reservationMade && $ctrl.exam.alreadyEnrolled && !$ctrl.exam.noTrialsLeft" class="exam-needs-reservation">
                     {{'sitnet_state_needs_reservation_title' | translate}}
                 </span>
                 <span ng-if="$ctrl.exam.reservationMade" class="exam-ready">
@@ -46,7 +44,7 @@
                 {{ 'sitnet_teachers' | translate }}:
             </div>
             <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                <teacher-list exam="$ctrl.exam"/>
+                <teacher-list exam="$ctrl.exam" />
             </div>
         </div>
 
@@ -55,8 +53,7 @@
                 {{'sitnet_start_time' | translate}}:
             </div>
             <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}} -
-                {{$ctrl.exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+                {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{$ctrl.exam.examActiveEndDate | date:'dd.MM.yyyy'}}
             </div>
             <div class="clearfix visible-xs"></div>
             <div class="clearfix visible-sm"></div>
@@ -127,10 +124,8 @@
         <div ng-bind-html="$ctrl.exam.maturityInstructions"></div>
     </div>
 
-    <div ng-if="!$ctrl.exam.reservationMade && $ctrl.exam.alreadyEnrolled && !$ctrl.exam.noTrialsLeft"
-         class="student-message-dialog-button-save">
+    <div ng-if="!$ctrl.exam.reservationMade && $ctrl.exam.alreadyEnrolled && !$ctrl.exam.noTrialsLeft" class="student-message-dialog-button-save">
         <a class="link-button" href="/calendar/{{$ctrl.exam.id}}">{{'sitnet_student_new_reservation' | translate}}</a>
     </div>
 
 </div>
-

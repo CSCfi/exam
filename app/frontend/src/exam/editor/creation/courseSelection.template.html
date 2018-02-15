@@ -2,7 +2,7 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-details-title-wrap">
-                <a href="/"><img class="arrow_icon" src="Images/icon_history.png"></a>
+                <history-back></history-back>
                 <div class="student-enroll-title-wrap">
                     <div class="student-enroll-title">{{'sitnet_toolbar_new_exam' | translate}}</div>
                 </div>
@@ -23,10 +23,11 @@
                 <div class="col-md-12 margin-20 padl0 padr0">
                     <div class="col-md-3 exam-basic-title padl0">
                         {{'sitnet_new_exam_type' | translate}}
-                        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                  uib-popover="{{'sitnet_new_exam_type_description' | translate}}"
-                                  src="Images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"/></sup>
+                        <sup>
+                            <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_new_exam_type_description' | translate}}"
+                                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                            />
+                        </sup>
                     </div>
                     <div class="col-md-9">
                         {{ $ctrl.getExecutionTypeTranslation() | translate }}
@@ -76,16 +77,16 @@
                 </div>
                 <div class="row col-md-12 margin-20">
                     <div class="col-md-3 exam-basic-title">{{'sitnet_exam_name' | translate}}
-                        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                  uib-popover="{{'sitnet_exam_title_description' | translate}}"
-                                  src="Images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"/></sup>
+                        <sup>
+                            <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_title_description' | translate}}"
+                                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                            />
+                        </sup>
 
                     </div>
                     <div class="col-md-9">
-                        <input type="text" class="form-control ng-pristine ng-valid wdth-30"
-                               ng-model="$ctrl.exam.name"
-                               ui-change="$ctrl.updateExamName()"/>
+                        <input type="text" class="form-control ng-pristine ng-valid wdth-30" ng-model="$ctrl.exam.name" ui-change="$ctrl.updateExamName()"
+                        />
 
                     </div>
                 </div>
@@ -94,20 +95,19 @@
 
                 <!-- buttons -->
                 <div class="row col-md-12 padr0 mart40">
-                        <span class="pull-right">
-                            <div ng-show="$ctrl.exam.state === 'DRAFT'" class="review-attachment-button make-inline">
-                                <a target="_self" class="pointer cancel padr60 padl60"
-                                   ng-click="$ctrl.cancelNewExam()">
+                    <span class="pull-right">
+                        <div ng-show="$ctrl.exam.state === 'DRAFT'" class="review-attachment-button make-inline">
+                            <a target="_self" class="pointer cancel padr60 padl60" ng-click="$ctrl.cancelNewExam()">
                                 {{'sitnet_button_cancel' | translate}}
-                            </a></div>
-                            <div class="review-attachment-button exam-questions-buttons marl10">
-                                <button class="btn exam-button padr60 padl60"
-                                        ng-disabled="$ctrl.exam.course.id === undefined || $ctrl.exam.course.id < 1"
-                                        ng-click="$ctrl.continueToExam()">
+                            </a>
+                        </div>
+                        <div class="review-attachment-button exam-questions-buttons marl10">
+                            <button class="btn exam-button padr60 padl60" ng-disabled="$ctrl.exam.course.id === undefined || $ctrl.exam.course.id < 1"
+                                ng-click="$ctrl.continueToExam()">
                                 {{'sitnet_save' | translate}}
-                                </button>
-                            </div>
-                        </span>
+                            </button>
+                        </div>
+                    </span>
                 </div>
             </div>
 
