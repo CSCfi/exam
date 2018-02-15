@@ -133,25 +133,20 @@
             </div>
         </div>
         <div class="student-exam-header-row" ng-hide="$ctrl.isExternal">
-            <<<<<<< HEAD <div class="calendar-accessibility-link">
+            <div class="calendar-accessibility-link">
                 <a ng-click="$ctrl.showAccs = !$ctrl.showAccs">
                     {{'sitnet_calendar_room_accessibility_info' | translate}}</a>
                 <img class="arrow_icon" ng-show="!$ctrl.showAccs" src="Images/arrow_right.png">
-                <img class="arrow_icon" ng-show="$ctrl.showAccs" src="Images/arrow_down.png"> =======
-                <div class="calendar-accessibility-link">
-                    <a ng-click="$ctrl.showAccs = !$ctrl.showAccs">
-                        {{'sitnet_calendar_room_accessibility_info' | translate}}</a>
-                    <img class="arrow_icon" ng-show="!$ctrl.showAccs" src="../assets/images/arrow_right.png">
-                    <img class="arrow_icon" ng-show="$ctrl.showAccs" src="../assets/images/arrow_down.png"> >>>>>>> dev
+                <img class="arrow_icon" ng-show="$ctrl.showAccs" src="Images/arrow_down.png">
+            </div>
+            <div class="student-exam-row-infobox" ng-show="$ctrl.showAccs">
+                <div class="calendar-accs-title">Tenttitilan esteettömyysvaatimukset</div>
+                <div class="calendar-accs-checkboxes" style="display:inline-block; padding-right:10px;" ng-repeat="accessibility in $ctrl.accessibilities">
+                    <input type="checkbox" role="presentation" ng-click="$ctrl.selectAccessibility(accessibility)" value="{{accessibility.name | truncate:30}}"> {{accessibility.name | truncate:30}}
                 </div>
-                <div class="student-exam-row-infobox" ng-show="$ctrl.showAccs">
-                    <div class="calendar-accs-title">Tenttitilan esteettömyysvaatimukset</div>
-                    <div class="calendar-accs-checkboxes" style="display:inline-block; padding-right:10px;" ng-repeat="accessibility in $ctrl.accessibilities">
-                        <input type="checkbox" role="presentation" ng-click="$ctrl.selectAccessibility(accessibility)" value="{{accessibility.name | truncate:30}}"> {{accessibility.name | truncate:30}}
-                    </div>
-                    <!-- TBD div class="calendar-accs-title subi">Tenttikoneen esteettömyysvaatimukset</div>
+                <!-- TBD div class="calendar-accs-title subi">Tenttikoneen esteettömyysvaatimukset</div>
                 <div class="calendar-accs-checkboxes">....</div-->
-                </div>
+            </div>
         </div>
 
         <div class="student-exam-row">
