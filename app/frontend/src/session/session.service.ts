@@ -62,7 +62,6 @@ export class SessionService {
         private $rootScope: angular.IRootScopeService,
         private $timeout: angular.ITimeoutService,
         private $uibModal: uib.IModalService,
-        private $route: angular.route.IRouteService,
         private $window: angular.IWindowService) {
         'ngInject';
     }
@@ -304,11 +303,6 @@ export class SessionService {
             this.$http.put('/app/users/agreement', {}).then(() => {
                 user.userAgreementAccepted = true;
                 this.setUser(user);
-                if (this.$location.url() === '/login' || this.$location.url() === '/logout') {
-                    this.$location.path('/');
-                } else {
-                    this.$route.reload();
-                }
             }).catch((resp) => {
                 toastr.error(resp.data);
             });
@@ -335,10 +329,6 @@ export class SessionService {
                 this.$rootScope.$broadcast('userUpdated');
                 if (user.isStudent && !user.userAgreementAccepted) {
                     this.openEulaModal(user);
-                } else if (this.$location.url() === '/login' || this.$location.url() === '/logout') {
-                    this.$location.path('/');
-                } else {
-                    this.$route.reload();
                 }
             }).catch((resp) => {
                 toastr.error(resp.data);

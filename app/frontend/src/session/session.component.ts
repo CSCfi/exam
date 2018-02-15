@@ -14,6 +14,7 @@
  */
 
 import * as angular from 'angular';
+import * as _ from 'lodash';
 import { SessionService, User } from './session.service';
 
 export const SessionComponent: angular.IComponentOptions = {
@@ -34,10 +35,14 @@ export const SessionComponent: angular.IComponentOptions = {
         hideNavBar: boolean;
         user: User;
 
-        constructor(private $rootScope: angular.IRootScopeService,
+        constructor(
+            private $http: angular.IHttpService,
+            private $rootScope: angular.IRootScopeService,
             private $location: angular.ILocationService,
+            private $sessionStorage: any,
             private Session: SessionService) {
             'ngInject';
+
             this.$rootScope.$on('examStarted', () => this.hideNavBar = true);
             this.$rootScope.$on('examEnded', () => this.hideNavBar = false);
             this.$rootScope.$on('devLogout', () => {
@@ -49,7 +54,24 @@ export const SessionComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
-            this.user = this.Session.getUser();
+            const user: User = this.$sessionStorage['EXAM_USER'];
+            if (user) {
+                if (!user.loginRole) {
+                    // This happens if user refreshes the tab before having selected a login role,
+                    // lets just throw him out.
+                    this.Session.logout();
+                }
+                _.merge(this.$http.defaults, { headers: { common: { 'x-exam-authentication': user.token } } });
+                this.Session.setUser(user);
+                this.Session.translate(user.lang);
+                this.Session.restartSessionCheck();
+                this.user = user;
+            } else {
+                this.Session.switchLanguage('en');
+                this.Session.login('', '')
+                    .then((user: User) => this.user = user)
+                    .catch(angular.noop);
+            }
             this.Session.setLoginEnv(this);
         }
 

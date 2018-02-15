@@ -14,33 +14,12 @@
  */
 
 import * as angular from 'angular';
-import { SessionService } from './session/session.service';
-import * as _ from 'lodash';
 
 export default function run(
-    $http: angular.IHttpService,
-    $sessionStorage: any,
-    Session: SessionService,
     $route: angular.route.IRouteService,
     $location: any,
     $rootScope: angular.IRootScopeService) {
     'ngInject';
-
-    const user = $sessionStorage['EXAM_USER'];
-    if (user) {
-        if (!user.loginRole) {
-            // This happens if user refreshes the tab before having selected a login role,
-            // lets just throw him out.
-            Session.logout();
-        }
-        _.merge($http.defaults, { headers: { common: { 'x-exam-authentication': user.token } } });
-        Session.setUser(user);
-        Session.translate(user.lang);
-        Session.restartSessionCheck();
-    } else {
-        Session.switchLanguage('en');
-        Session.login('', '').catch(angular.noop);
-    }
 
     // Add location reload flag to original $location service.
     const original = $location.path;
