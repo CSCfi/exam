@@ -18,8 +18,9 @@ import { SessionService } from '../session.service';
 
 export const LogoutComponent: angular.IComponentOptions = {
     controller: class LogoutController {
-        /* @ngInject */
+
         constructor(private Session: SessionService) {
+            'ngInject';
         }
 
         $onInit() {

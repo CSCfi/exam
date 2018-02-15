@@ -68,7 +68,6 @@ export const CalendarComponent: angular.IComponentOptions = {
         reservationWindowSize: number;
         selectedOrganisation: { _id: string, name: string, filtered: boolean };
 
-        /* @ngInject */
         constructor(
             private $http: angular.IHttpService,
             private $scope: angular.IScope,
@@ -78,7 +77,9 @@ export const CalendarComponent: angular.IComponentOptions = {
             private DateTime: DateTimeService,
             private Calendar: CalendarService,
             private uiCalendarConfig: any
-        ) { }
+        ) {
+            'ngInject';
+        }
 
         $onInit() {
             this.$scope.$on('$localeChangeSuccess', () => {

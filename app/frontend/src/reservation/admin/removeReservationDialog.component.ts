@@ -33,10 +33,11 @@ export const RemoveReservationDialogComponent: angular.IComponentOptions = {
         reservation: { id: number };
         message: { text: string };
 
-        /* @ngInject */
         constructor(
             private $http: angular.IHttpService,
-        ) { }
+        ) {
+            'ngInject';
+        }
 
         ok() {
             this.reservation = this.resolve.reservation;

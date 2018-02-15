@@ -1,6 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es5",
+    "lib": [
+      "es6",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ],
     "module": "commonjs",
     "noImplicitAny": false,
     "removeComments": true,
@@ -10,7 +16,6 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "noEmitHelpers": true,
-    "outDir": "built",
     "strictNullChecks": true,
     "skipLibCheck": true
   },

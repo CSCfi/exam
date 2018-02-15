@@ -37,11 +37,12 @@ export const ChangeMachineDialogComponent: angular.IComponentOptions = {
         availableMachineOptions: Option[];
         reservation: { id: number };
 
-        /* @ngInject */
         constructor(
             private $http: angular.IHttpService,
             private $translate: angular.translate.ITranslateService
-        ) { }
+        ) {
+            'ngInject';
+        }
 
         $onInit() {
             this.reservation = this.resolve.reservation;

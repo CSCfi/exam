@@ -20,13 +20,15 @@ import { IModalService } from 'angular-ui-bootstrap';
 
 export class ReservationService {
 
-    /* @ngInject */
     constructor(
         private $q: ng.IQService,
         private $http: ng.IHttpService,
         private $translate: ng.translate.ITranslateService,
         private $uibModal: IModalService,
-        private dialogs: angular.dialogservice.IDialogService) { }
+        private dialogs: angular.dialogservice.IDialogService) {
+
+        'ngInject';
+    }
 
 
     printExamState = (reservation) =>

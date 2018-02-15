@@ -25,13 +25,14 @@ export const StudentDashboardComponent: angular.IComponentOptions = {
 
         userEnrolments: any[];
 
-        /* @ngInject */
         constructor(private StudentDashboard: StudentDashboardService,
             private Reservation: ReservationService,
             private Room: any, // TBD
             private DateTime: DateTimeService,
             private Enrolment: any, // TBD
-            private Session: SessionService) { }
+            private Session: SessionService) {
+            'ngInject';
+        }
 
         $onInit() {
             this.StudentDashboard.listEnrolments().then(data =>

@@ -56,7 +56,6 @@ export interface OpeningHours {
 
 export class CalendarService {
 
-    /* @ngInject */
     constructor(
         private $q: angular.IQService,
         private $http: angular.IHttpService,
@@ -66,7 +65,9 @@ export class CalendarService {
         private DateTime: DateTimeService,
         private Session: SessionService,
         private uiCalendarConfig: any
-    ) { }
+    ) {
+        'ngInject';
+    }
 
     private adjustBack(date: moment.Moment, tz: string): string {
         const adjusted = moment.tz(date, tz);

@@ -23,13 +23,13 @@ export class FileService {
     private _supportsBlobUrls: boolean;
     private _maxFileSize: number;
 
-    /* @ngInject */
     constructor(
         private $q: angular.IQService,
         private $http: angular.IHttpService,
         private $translate: angular.translate.ITranslateService,
         private $timeout: angular.ITimeoutService,
         private $window: angular.IWindowService) {
+        'ngInject';
 
         const svg = new Blob(
             ['<svg xmlns=\'http://www.w3.org/2000/svg\'></svg>'],

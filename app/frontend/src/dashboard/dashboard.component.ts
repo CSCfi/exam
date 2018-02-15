@@ -22,8 +22,7 @@ export const DashboardComponent: angular.IComponentOptions = {
 
         user: User;
 
-        /* @ngInject */
-        constructor(private Session: SessionService) { }
+        constructor(private Session: SessionService) { 'ngInject'; }
 
         $onInit() {
             this.user = this.Session.getUser();

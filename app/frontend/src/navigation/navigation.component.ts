@@ -30,13 +30,14 @@ export const NavigationComponent: angular.IComponentOptions = {
         mobileMenuOpen: boolean;
         user: User;
 
-        /* @ngInject */
         constructor(
             private $rootScope: angular.IRootScopeService,
             private $location: angular.ILocationService,
             private $window: angular.IWindowService,
             private Navigation: NavigationService,
             private Session: SessionService) {
+            'ngInject';
+
             $rootScope.$on('userUpdated', () => this.links = Navigation.getLinks());
             $rootScope.$on('upcomingExam', () => this.links = Navigation.getLinks());
             $rootScope.$on('wrongLocation', () => this.links = Navigation.getLinks());

@@ -43,14 +43,13 @@ export const TeacherDashboardComponent: angular.IComponentOptions = {
         draftExams: any[];
         filteredDrafts: any[];
 
-
-        /* @ngInject */
         constructor(
             private $location: angular.ILocationService,
             private $filter: angular.IFilterService,
             private TeacherDashboard: TeacherDashboardService,
             private Session: SessionService
         ) {
+            'ngInject';
             this.activeExtraColumns = [
                 {
                     text: 'sitnet_participation_unreviewed',

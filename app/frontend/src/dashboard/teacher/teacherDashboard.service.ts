@@ -18,13 +18,14 @@ import { IHttpResponse } from 'angular';
 
 export class TeacherDashboardService {
 
-    /* @ngInject */
     constructor(
         private $http: angular.IHttpService,
         private $q: angular.IQService,
         private Exam: any, // TBD
         private Reservation: any // TBD
-    ) { }
+    ) {
+        'ngInject';
+    }
 
     // Exam is private and has unfinished participants
     private participationsInFuture = (exam) =>

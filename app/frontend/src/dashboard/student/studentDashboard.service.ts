@@ -35,8 +35,9 @@ interface Reservation {
 
 export class StudentDashboardService {
 
-    /* @ngInject */
-    constructor(private $q: IQService, private $http: IHttpService) { }
+    constructor(private $q: IQService, private $http: IHttpService) {
+        'ngInject';
+    }
 
     listEnrolments(): angular.IPromise<{ result: any[] }> {
         const deferred: angular.IDeferred<{ result: any[] }> = this.$q.defer();

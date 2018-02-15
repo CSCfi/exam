@@ -42,11 +42,12 @@ export const AttachmentSelectorComponent: angular.IComponentOptions = {
         maxFileSize: number;
         attachmentFile: File;
 
-        /* @ngInject */
         constructor(
             private $scope: angular.IScope,
             private Files: FileService
-        ) { }
+        ) {
+            'ngInject';
+        }
 
         $onInit() {
             this.title = this.resolve.title || 'sitnet_attachment_selector';

@@ -95,11 +95,10 @@ export class DroppableDirective implements IDirective {
         onCreate: '&'
     };
 
-    /* @ngInject */
     constructor(
         private $parse: angular.IParseService,
         private $translate: angular.translate.ITranslateService
-    ) { }
+    ) { 'ngInject'; }
 
     link = (scope: DroppableScope, element: IAugmentedJQuery, attrs: IAttributes) => {
         let startIndex = -1;

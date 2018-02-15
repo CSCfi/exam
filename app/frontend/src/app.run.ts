@@ -17,8 +17,8 @@ import * as angular from 'angular';
 import { SessionService } from './session/session.service';
 import * as _ from 'lodash';
 
-/* @ngInject */
 export default function run($http: angular.IHttpService, $sessionStorage, Session: SessionService) {
+    'ngInject';
 
     const user = $sessionStorage['EXAM_USER'];
     if (user) {

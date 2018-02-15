@@ -52,8 +52,8 @@ export const EulaDialogComponent: angular.IComponentOptions = {
         close: () => any;
         dismiss: (x: any) => any;
 
-        /* @ngInject */
         constructor(private $http: angular.IHttpService) {
+            'ngInject';
         }
 
         $onInit() {

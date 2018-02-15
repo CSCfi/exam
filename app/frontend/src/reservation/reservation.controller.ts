@@ -57,7 +57,6 @@ export class ReservationController implements angular.IComponentController {
     machines: any[];
     reservations: any[];
 
-    /* @ngInject */
     constructor(
         private $location: angular.ILocationService,
         private $http: angular.IHttpService,
@@ -67,6 +66,8 @@ export class ReservationController implements angular.IComponentController {
         private Session: SessionService,
         private Reservation: ReservationService
     ) {
+        'ngInject';
+
         this.examId = $routeParams.eid ? parseInt($routeParams.eid) : undefined;
         this.user = Session.getUser();
 

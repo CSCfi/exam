@@ -16,8 +16,6 @@
 import * as angular from 'angular';
 import * as toast from 'toastr';
 
-configs.$inject = ['$translateProvider', '$routeProvider', '$httpProvider', '$locationProvider', '$compileProvider'];
-
 export default function configs(
     $translateProvider: angular.translate.ITranslateProvider,
     $routeProvider: angular.route.IRouteProvider,
@@ -25,7 +23,7 @@ export default function configs(
     $locationProvider: angular.ILocationProvider,
     $compileProvider: angular.ICompileProvider
 ) {
-
+    'ngInject';
     $compileProvider.debugInfoEnabled(false);
     $httpProvider.useApplyAsync(true);
 
@@ -117,8 +115,9 @@ export default function configs(
 
 
     // HTTP INTERCEPTOR
-    $httpProvider.interceptors.push(['$q', '$rootScope', '$location', '$translate', 'WrongLocation',
+    $httpProvider.interceptors.push(
         function ($q, $rootScope, $location, $translate, WrongLocation) {
+            'ngInject';
             return {
                 'response': function (response) {
 
@@ -180,6 +179,5 @@ export default function configs(
                 }
             };
         }
-    ]);
+    );
 }
-

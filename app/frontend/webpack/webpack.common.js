@@ -37,11 +37,11 @@ const config = {
             },
             {
                 test: /\.ts$/,
-                loader: ['awesome-typescript-loader', 'tslint-loader'],
+                loader: ['ng-annotate-loader', 'awesome-typescript-loader', 'tslint-loader'],
             },
             {
                 test: /\.js$/,
-                use: ['ng-annotate-loader', 'babel-loader'],
+                use: ['babel-loader'],
                 exclude: /node_modules/
             },
             {

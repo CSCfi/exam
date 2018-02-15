@@ -54,7 +54,6 @@ export class AttachmentService {
     private feedbackAttachmentApi: ng.resource.IResourceClass<any>;
     private statementAttachmentApi: ng.resource.IResourceClass<any>;
 
-    /* @ngInject */
     constructor(
         private $resource: ng.resource.IResourceService,
         private $uibModal: uib.IModalService,
@@ -62,6 +61,8 @@ export class AttachmentService {
         private $translate: ng.translate.ITranslateService,
         private Files: FileService
     ) {
+        'ngInject';
+
         this.questionAttachmentApi = $resource('/app/attachment/question/:id',
             {
                 id: '@id'

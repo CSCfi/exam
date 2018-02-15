@@ -15,8 +15,8 @@
 
 import * as angular from 'angular';
 
-/* @ngInject */
 export default function run($templateCache: angular.ITemplateCacheService) {
+    'ngInject';
     // This is necessary because angular can't find the bundled uib-template unless added to template cache
     $templateCache.put('uib/template/datepickerPopup/popup.html', require('./date/template/uibPopupOverride.html'));
 }

@@ -28,12 +28,13 @@ export const ReservationDetailComponent: angular.IComponentOptions = {
         reservations: any[];
         isAdminView = false;
 
-        /* @ngInject */
         constructor(
             private $http: angular.IHttpService,
             private $translate: angular.translate.ITranslateService,
             private Reservation: ReservationService
-        ) { }
+        ) {
+            'ngInject';
+        }
 
         printExamState = (reservation) => this.Reservation.printExamState(reservation);
 

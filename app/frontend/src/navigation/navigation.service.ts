@@ -27,11 +27,11 @@ export interface Link {
 
 export class NavigationService {
 
-    /* @ngInject */
     constructor(
         private $http: angular.IHttpService,
         private $location: angular.ILocationService,
         private Session: SessionService) {
+        'ngInject';
     }
 
     getAppVersion(): angular.IHttpPromise<{ appVersion: string }> {

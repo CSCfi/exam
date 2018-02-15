@@ -34,10 +34,10 @@ export const SessionComponent: angular.IComponentOptions = {
         hideNavBar: boolean;
         user: User;
 
-        /* @ngInject */
         constructor(private $rootScope: angular.IRootScopeService,
             private $location: angular.ILocationService,
             private Session: SessionService) {
+            'ngInject';
             this.$rootScope.$on('examStarted', () => this.hideNavBar = true);
             this.$rootScope.$on('examEnded', () => this.hideNavBar = false);
             this.$rootScope.$on('devLogout', () => {

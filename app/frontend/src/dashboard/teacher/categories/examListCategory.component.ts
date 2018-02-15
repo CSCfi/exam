@@ -47,7 +47,6 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
         };
         filterText: string;
 
-        /* @ngInject */
         constructor(
             private $http: ng.IHttpService,
             private $translate: ng.translate.ITranslateService,
@@ -56,7 +55,9 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
             private Exam: any, // TBD
             private DateTime: DateTimeService,
             private Session: SessionService
-        ) { }
+        ) {
+            'ngInject';
+        }
 
         $onInit() {
             this.userId = this.Session.getUser().id;

@@ -53,7 +53,6 @@ export class SessionService {
     _env: { isProd: boolean };
     _scheduler: IPromise<any>;
 
-    /* @ngInject */
     constructor(private $http: angular.IHttpService,
         private $q: angular.IQService,
         private $interval: angular.IIntervalService,
@@ -65,6 +64,7 @@ export class SessionService {
         private $uibModal: uib.IModalService,
         private $route: angular.route.IRouteService,
         private $window: angular.IWindowService) {
+        'ngInject';
     }
 
 
