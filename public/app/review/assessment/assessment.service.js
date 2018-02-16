@@ -300,7 +300,7 @@ angular.module('app.review')
 
             var getErrors = function (exam) {
                 var messages = [];
-                if (!exam.grade.id) {
+                if (!exam.grade.id && !exam.gradeless) {
                     messages.push('sitnet_participation_unreviewed');
                 }
                 if (!exam.creditType.type) {
