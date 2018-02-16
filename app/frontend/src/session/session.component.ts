@@ -22,7 +22,7 @@ export const SessionComponent: angular.IComponentOptions = {
     <div ng-if="!$ctrl.user && $ctrl.devLoginRequired">
         <dev-login on-logged-in="$ctrl.setUser(user)"></dev-login>
     </div>
-    <div ng-if="$ctrl.user">
+    <div ng-if="$ctrl.user.userAgreementAccepted">
         <navigation ng-hide="$ctrl.hideNavBar"></navigation>
         <div id="mainView" class="container-fluid"
              ng-class="{'vmenu-on': !$ctrl.hideNavBar && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
@@ -34,6 +34,7 @@ export const SessionComponent: angular.IComponentOptions = {
 
         hideNavBar: boolean;
         user: User;
+        devLoginRequired: boolean;
 
         constructor(
             private $http: angular.IHttpService,
@@ -48,7 +49,6 @@ export const SessionComponent: angular.IComponentOptions = {
             this.$rootScope.$on('devLogout', () => {
                 this.$location.url(this.$location.path());
                 this.user = Session.getUser();
-                Session.setLoginEnv(this);
             });
 
         }
@@ -68,11 +68,15 @@ export const SessionComponent: angular.IComponentOptions = {
                 this.user = user;
             } else {
                 this.Session.switchLanguage('en');
-                this.Session.login('', '')
-                    .then((user: User) => this.user = user)
-                    .catch(angular.noop);
+                this.Session.getEnv().then((value: string) => {
+                    if (value === 'PROD') {
+                        this.Session.login('', '')
+                            .then((user: User) => this.user = user)
+                            .catch(angular.noop);
+                    }
+                    this.devLoginRequired = value === 'DEV';
+                }).catch(angular.noop);
             }
-            this.Session.setLoginEnv(this);
         }
 
         setUser = function (user: User) {

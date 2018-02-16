@@ -103,12 +103,12 @@ export class SessionService {
         return user && user.loginRole !== null && user.loginRole.name === role;
     }
 
-    setLoginEnv(scope: any): void {
-        this.init().then(() => {
-            if (!this._env.isProd) {
-                scope.devLoginRequired = true;
-            }
-        }).catch(angular.noop);
+    getEnv(): IPromise<'DEV' | 'PROD'> {
+        const deferred: IDeferred<'DEV' |  'PROD'> = this.$q.defer();
+        this.init()
+            .then(() => deferred.resolve(this._env.isProd ? 'PROD' : 'DEV'))
+            .catch(() => deferred.reject());
+        return deferred.promise;
     }
 
     private onLogoutSuccess(data: { logoutUrl: string }): void {
