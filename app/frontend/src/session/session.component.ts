@@ -68,7 +68,7 @@ export const SessionComponent: angular.IComponentOptions = {
                 this.user = user;
             } else {
                 this.Session.switchLanguage('en');
-                this.Session.getEnv().then((value: string) => {
+                this.Session.getEnv().then((value: 'DEV' | 'PROD') => {
                     if (value === 'PROD') {
                         this.Session.login('', '')
                             .then((user: User) => this.user = user)

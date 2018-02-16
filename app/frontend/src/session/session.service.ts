@@ -104,7 +104,7 @@ export class SessionService {
     }
 
     getEnv(): IPromise<'DEV' | 'PROD'> {
-        const deferred: IDeferred<'DEV' |  'PROD'> = this.$q.defer();
+        const deferred: IDeferred<'DEV' | 'PROD'> = this.$q.defer();
         this.init()
             .then(() => deferred.resolve(this._env.isProd ? 'PROD' : 'DEV'))
             .catch(() => deferred.reject());
