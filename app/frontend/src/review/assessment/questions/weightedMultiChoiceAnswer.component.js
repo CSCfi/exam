@@ -23,8 +23,8 @@ angular.module('app.review')
                 <div ng-if="option.answered">
                     <div ng-if="option.score >= 0" class="exam-answered-correct">
                         <div class="make-inline pull-left">
-                            <img src="/assets/assets/images/icon_correct_answer_checkbox_green.png" alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer_checkbox_green.svg'" />
+                            <img src="Images/icon_correct_answer_checkbox_green.png" alt="exam"
+                                 onerror="this.onerror=null;this.src='Images/icon_correct_answer_checkbox_green.svg'" />
                         </div>
                         <div class="make-inline middle-column">
                             <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
@@ -36,8 +36,8 @@ angular.module('app.review')
                     </div>
                     <div ng-if="option.score < 0" class="exam-answered-wrong">
                         <div class="make-inline pull-left">
-                            <img src="/assets/assets/images/icon_wrong_answer_checkbox_red.png" alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer_checkbox_red.svg'" />
+                            <img src="Images/icon_wrong_answer_checkbox_red.png" alt="exam"
+                                 onerror="this.onerror=null;this.src='Images/icon_wrong_answer_checkbox_red.svg'" />
                         </div>
                         <div class="make-inline middle-column">
                             <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>
@@ -51,10 +51,10 @@ angular.module('app.review')
                 <div ng-if="!option.answered">
                     <div class="exam-not-answered">
                         <div class="make-inline pull-left">
-                            <img ng-if="option.score >= 0" src="/assets/assets/images/icon_correct_answer_checkbox_green.png" alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer_checkbox_green.svg'" />
-                            <img ng-if="option.score < 0" src="/assets/assets/images/icon_wrong_answer_checkbox.png" alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer_checkbox.svg'" />
+                            <img ng-if="option.score >= 0" src="Images/icon_correct_answer_checkbox_green.png" alt="exam"
+                                 onerror="this.onerror=null;this.src='Images/icon_correct_answer_checkbox_green.svg'" />
+                            <img ng-if="option.score < 0" src="Images/icon_wrong_answer_checkbox.png" alt="exam"
+                                 onerror="this.onerror=null;this.src='Images/icon_wrong_answer_checkbox.svg'" />
                         </div>
                         <div class="make-inline middle-column">
                             <span class="exam-question-option-text" mathjax ng-bind-html="option.option.option"></span>

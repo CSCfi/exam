@@ -17,17 +17,16 @@
         <div class="col-md-12 question-border padl40 padr40">
 
             <form role="form" class="form-horizontal" name="questionForm" novalidate>
-                <div class="student-enrolment-wrapper review-view exam-view-warning mart40"
-                     ng-if="$ctrl.examNames.length > 0">
+                <div class="student-enrolment-wrapper review-view exam-view-warning mart40" ng-if="$ctrl.examNames.length > 0">
 
                     <!-- Exam contexts -->
                     <div class="row">
                         <div ng-if="$ctrl.showWarning()">
 
                             <div class="col-md-12">
-                                <div class="col-md-1"><img src="/assets/assets/images/icon_warning.png"
-                                                           alt="exam"
-                                                           onerror="this.onerror=null;this.src='/assets/assets/images/icon_warning.svg';"/>
+                                <div class="col-md-1">
+                                    <img src="Images/icon_warning.png" alt="exam" onerror="this.onerror=null;this.src='Images/icon_warning.svg';"
+                                    />
                                 </div>
                                 <div class="col-md-11 warning-text">
                                     {{'sitnet_exam_question_edit_instructions' | translate}}
@@ -47,9 +46,9 @@
                         <div ng-if="!$ctrl.showWarning()">
 
                             <div class="col-md-12">
-                                <div class="col-md-1"><img src="/assets/assets/images/icon_warning.png"
-                                                           alt="exam"
-                                                           onerror="this.onerror=null;this.src='/assets/assets/images/icon_warning.svg';"/>
+                                <div class="col-md-1">
+                                    <img src="Images/icon_warning.png" alt="exam" onerror="this.onerror=null;this.src='Images/icon_warning.svg';"
+                                    />
                                 </div>
                                 {{'sitnet_added_to_exams' | translate}}
                                 <div class="col-md-11 warning-text">
@@ -88,34 +87,31 @@
                 <div class="col-md-12 margin-20 padl0 padr0">
                     <div class="col-md-3 exam-basic-title padl0">
                         {{'sitnet_new_question_type' | translate}}
-                        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                  uib-popover="{{'sitnet_question_type_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
+                        <sup>
+                            <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_question_type_description' | translate}}"
+                                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"
+                            />
+                        </sup>
                     </div>
                     <div class="col-md-9 padr0">
-                        <span ng-if="$ctrl.question.type == 'EssayQuestion'">{{'sitnet_toolbar_essay_question'
-                            | translate}}</span>
-                        <span ng-if="$ctrl.question.type == 'ClozeTestQuestion'">{{'sitnet_toolbar_cloze_test_question'
-                            | translate}}</span>
-                        <span ng-if="$ctrl.question.type == 'MultipleChoiceQuestion'">{{'sitnet_toolbar_multiplechoice_question'
-                            | translate}}</span>
-                        <span ng-if="$ctrl.question.type == 'WeightedMultipleChoiceQuestion'">{{'sitnet_toolbar_weighted_multiplechoice_question'
-                            | translate}}</span>
+                        <span ng-if="$ctrl.question.type == 'EssayQuestion'">{{'sitnet_toolbar_essay_question' | translate}}</span>
+                        <span ng-if="$ctrl.question.type == 'ClozeTestQuestion'">{{'sitnet_toolbar_cloze_test_question' | translate}}</span>
+                        <span ng-if="$ctrl.question.type == 'MultipleChoiceQuestion'">{{'sitnet_toolbar_multiplechoice_question' | translate}}</span>
+                        <span ng-if="$ctrl.question.type == 'WeightedMultipleChoiceQuestion'">{{'sitnet_toolbar_weighted_multiplechoice_question' | translate}}</span>
                     </div>
                 </div>
                 <div class="col-md-12 mart40 padl0 padr0">
                     <div class="col-md-3 exam-basic-title padl0">
                         {{'sitnet_question_text' | translate}}
-                        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                  uib-popover="{{'sitnet_question_text_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
+                        <sup>
+                            <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_question_text_description' | translate}}"
+                                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"
+                            />
+                        </sup>
                     </div>
                     <div class="col-md-9 padr0" ng-show="$ctrl.question.type">
-                        <textarea id="editor" name="editor" ck-editor
-                                  enable-cloze-test="$ctrl.question.type === 'ClozeTestQuestion'" rows="10" cols="60"
-                                  ng-model="$ctrl.question.question" required>
+                        <textarea id="editor" name="editor" ck-editor enable-cloze-test="$ctrl.question.type === 'ClozeTestQuestion'" rows="10" cols="60"
+                            ng-model="$ctrl.question.question" required>
                         </textarea>
                     </div>
                 </div>
@@ -135,14 +131,13 @@
                     </div>
                     <div class="col-lg-5 col-md-7">
                         <div class="input-group" id="expectedWordCount">
-                            <input name="expectedWordCount" type="number" class="form-control"
-                                   ng-model="$ctrl.examQuestion.expectedWordCount" min="1" max="1000000">
+                            <input name="expectedWordCount" type="number" class="form-control" ng-model="$ctrl.examQuestion.expectedWordCount" min="1"
+                                max="1000000">
                             <span class="input-group-addon" title="{{'sitnet_average_word_length_finnish' | translate}}">
                                 {{'sitnet_approximately' | translate}} {{$ctrl.estimateCharacters()}} {{'sitnet_characters' | translate}}
                             </span>
                         </div>
-                        <div ng-hide="questionForm.expectedWordCount.$valid"
-                             class="warning-text-small margin-10">
+                        <div ng-hide="questionForm.expectedWordCount.$valid" class="warning-text-small margin-10">
                             <i class="fa fa-exclamation-circle reddish"></i>
                             {{'sitnet_essay_length_recommendation_bounds' | translate}}
                         </div>
@@ -158,15 +153,14 @@
 
                 <!-- Type specific content - multiple choices table titles -->
 
-                <div class="col-md-12 mart20 marb10"
-                     ng-if="$ctrl.question.type === 'WeightedMultipleChoiceQuestion'">
+                <div class="col-md-12 mart20 marb10" ng-if="$ctrl.question.type === 'WeightedMultipleChoiceQuestion'">
                     <div class="col-md-6 padl0">
                         <span class="question-option-title">{{'sitnet_option' | translate}}</span>
                         <br/>
                         <span ng-if="showWarning()">
-                                <i class="fa fa-exclamation-circle reddish"></i>
-                                <small>{{'sitnet_shared_question_property_info' | translate}}</small>
-                            </span>
+                            <i class="fa fa-exclamation-circle reddish"></i>
+                            <small>{{'sitnet_shared_question_property_info' | translate}}</small>
+                        </span>
                     </div>
                     <div class="col-md-2 question-option-title">
                         {{'sitnet_word_points' | translate | uppercase}}
@@ -175,58 +169,41 @@
 
                 <!-- Type specific content - weighted option -->
                 <div ng-if="$ctrl.question.type === 'WeightedMultipleChoiceQuestion'">
-                    <div class="col-md-12 form-horizontal question-editor-option"
-                         ng-repeat="option in $ctrl.examQuestion.options">
+                    <div class="col-md-12 form-horizontal question-editor-option" ng-repeat="option in $ctrl.examQuestion.options">
 
                         <div class="col-md-6 question-option-empty" ng-class="option.score > 0 ? 'question-correct-option' : ''">
-                            <input id="weightedOptionText" type="text" focus-on="opt{{option.id}}"
-                                   class="question-option-input"
-                                   ng-model="option.option.option"
-                                   ng-click="$ctrl.selectIfDefault(option.option, $event)"
-                                   required="true"/>
+                            <input id="weightedOptionText" type="text" focus-on="opt{{option.id}}" class="question-option-input" ng-model="option.option.option"
+                                ng-click="$ctrl.selectIfDefault(option.option, $event)" required="true" />
                         </div>
                         <div class="col-md-2 question-option-empty-radio" ng-class="option.score > 0 ? 'question-correct-option-radio' : ''">
-                            <input fixed-precision id="optionScore" name="maxScore" class="question-option-input points"
-                                   type="number" step="1"
-                                   ng-model="option.score"
-                                   required="true"
-                                   ng-disabled="$ctrl.lotteryOn"/>
+                            <input fixed-precision id="optionScore" name="maxScore" class="question-option-input points" type="number" step="1" ng-model="option.score"
+                                required="true" ng-disabled="$ctrl.lotteryOn" />
                         </div>
-                        <div class="col-md-1 question-option-trash pointer" ng-hide="$ctrl.lotteryOn"
-                             ng-click="$ctrl.removeOption(option)">
+                        <div class="col-md-1 question-option-trash pointer" ng-hide="$ctrl.lotteryOn" ng-click="$ctrl.removeOption(option)">
                             <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
                         </div>
                         <div class="col-md-3"></div>
                     </div>
                     <div class="col-md-12">
                         <div class="col-md-6">&nbsp;</div>
-                        <div class="col-md-2 question-option-title">{{'sitnet_max_score' | translate | uppercase}}:
-                            {{$ctrl.calculateMaxPoints()}}
+                        <div class="col-md-2 question-option-title">{{'sitnet_max_score' | translate | uppercase}}: {{$ctrl.calculateMaxPoints()}}
                         </div>
                     </div>
                 </div>
 
                 <!-- Type specific content - option -->
-                <div ng-if="$ctrl.question.type === 'MultipleChoiceQuestion'"
-                     ng-repeat="option in $ctrl.examQuestion.options">
+                <div ng-if="$ctrl.question.type === 'MultipleChoiceQuestion'" ng-repeat="option in $ctrl.examQuestion.options">
                     <div class="col-md-12">
-                        <div class="col-md-6 question-option-empty"
-                             ng-class="{'question-correct-option':option.option.correctOption}">
-                            <input id="optionText" type="text" focus-on="opt{{option.id}}"
-                                   class="make-inline question-option-input radiobut"
-                                   ng-model="option.option.option"
-                                   ng-click="$ctrl.selectIfDefault(option.option.option, $event)"
-                                   required="true"/>
+                        <div class="col-md-6 question-option-empty" ng-class="{'question-correct-option':option.option.correctOption}">
+                            <input id="optionText" type="text" focus-on="opt{{option.id}}" class="make-inline question-option-input radiobut" ng-model="option.option.option"
+                                ng-click="$ctrl.selectIfDefault(option.option.option, $event)" required="true" />
                         </div>
-                        <div class="col-md-2 question-option-empty-radio"
-                             ng-class="{'question-correct-option-radio':option.option.correctOption}">
-                            <input name="correctOption" type="radio" ng-model="option.option.correctOption"
-                                   ng-value="true" ng-click="$ctrl.correctAnswerToggled(option)"
-                                   ng-disabled="$ctrl.optionDisabled(option)" class="make-inline question-option-radio">
+                        <div class="col-md-2 question-option-empty-radio" ng-class="{'question-correct-option-radio':option.option.correctOption}">
+                            <input name="correctOption" type="radio" ng-model="option.option.correctOption" ng-value="true" ng-click="$ctrl.correctAnswerToggled(option)"
+                                ng-disabled="$ctrl.optionDisabled(option)" class="make-inline question-option-radio">
                         </div>
 
-                        <div ng-hide="$ctrl.lotteryOn" ng-click="$ctrl.removeOption(option)"
-                             class="col-md-1 question-option-trash">
+                        <div ng-hide="$ctrl.lotteryOn" ng-click="$ctrl.removeOption(option)" class="col-md-1 question-option-trash">
                             <i class="fa fa-trash-o fa-fw" title="{{'sitnet_remove' | translate}}"></i>
                         </div>
                         <div class="col-md-3">
@@ -234,8 +211,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-12 mart20 padl30"
-                     ng-if="$ctrl.question.type === 'MultipleChoiceQuestion' || $ctrl.question.type === 'WeightedMultipleChoiceQuestion'">
+                <div class="col-md-12 mart20 padl30" ng-if="$ctrl.question.type === 'MultipleChoiceQuestion' || $ctrl.question.type === 'WeightedMultipleChoiceQuestion'">
                     <a ng-click="$ctrl.addNewOption()" class="attachment-link pointer">
                         <i class="fa fa-plus"></i>
                         {{'sitnet_question_add_new_option'|translate}}
@@ -249,10 +225,8 @@
                         {{'sitnet_evaluation_type' | translate}}
                     </div>
                     <div class="col-md-9">
-                        <select id="evaluationType" class="form-control wdt240"
-                                ng-model="$ctrl.examQuestion.evaluationType"
-                                ng-change="$ctrl.updateEvaluationType()"
-                                ng-required="$ctrl.question.type == 'EssayQuestion'">
+                        <select id="evaluationType" class="form-control wdt240" ng-model="$ctrl.examQuestion.evaluationType" ng-change="$ctrl.updateEvaluationType()"
+                            ng-required="$ctrl.question.type == 'EssayQuestion'">
                             <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
                             <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
                         </select>
@@ -268,11 +242,8 @@
                         {{'sitnet_max_score' | translate}}
                     </div>
                     <div class="col-md-9">
-                        <input id="maxScore" name="maxScore" type="number" class="form-control wdt100"
-                               ng-model="$ctrl.examQuestion.maxScore" step="1"
-                               min="0" max="1000"
-                               fixed-precision
-                               required ng-disabled="$ctrl.lotteryOn"/>
+                        <input id="maxScore" name="maxScore" type="number" class="form-control wdt100" ng-model="$ctrl.examQuestion.maxScore" step="1"
+                            min="0" max="1000" fixed-precision required ng-disabled="$ctrl.lotteryOn" />
                     </div>
                 </div>
 
@@ -285,10 +256,11 @@
                 <!-- Exam owners -->
                 <div class="col-md-12 margin-20 padl0 padr0">
                     <div class="col-md-3 exam-basic-title padl0">{{'sitnet_question_owners' | translate}}
-                        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                  uib-popover="{{'sitnet_question_owners_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
+                        <sup>
+                            <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_question_owners_description' | translate}}"
+                                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"
+                            />
+                        </sup>
                     </div>
                     <div class="col-md-9">
                         <ul class="list-inline mart10 padl10">
@@ -303,10 +275,11 @@
 
                     <div class="col-md-3 exam-basic-title padl0">
                         {{ 'sitnet_question_attachment' | translate}}
-                        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                  uib-popover="{{'sitnet_attachment_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
+                        <sup>
+                            <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_attachment_description' | translate}}"
+                                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"
+                            />
+                        </sup>
                     </div>
 
                     <div class="col-md-9" id="attachment">
@@ -315,19 +288,19 @@
                         </div>
                         <div ng-show="$ctrl.question.attachment && !$ctrl.question.attachment.removed" class="make-inline padl10">
                             <!-- Uploaded -->
-                            <a ng-if="$ctrl.question.attachment.id" class="pointer attachment-link"
-                               ng-click="$ctrl.downloadQuestionAttachment()">
+                            <a ng-if="$ctrl.question.attachment.id" class="pointer attachment-link" ng-click="$ctrl.downloadQuestionAttachment()">
                                 <i class="fa fa-paperclip fa-fw"></i> {{$ctrl.question.attachment.fileName}}
                             </a>
                             <!-- Not yet uploaded -->
                             <span ng-if="!$ctrl.question.attachment.id" class="attachment-link">
-                        <i class="fa fa-paperclip fa-fw"></i> {{$ctrl.question.attachment.name}} <small>
-                        ({{ $ctrl.getFileSize() }})</small></span>
+                                <i class="fa fa-paperclip fa-fw"></i> {{$ctrl.question.attachment.name}}
+                                <small>
+                                    ({{ $ctrl.getFileSize() }})</small>
+                            </span>
                             <span class="pointer remove-attachment" ng-click="$ctrl.removeQuestionAttachment()">
-                        <img src="/assets/assets/images/icon_remove.svg"
-                             alt="{{'sitnet_remove_attachment' | translate }}"
-                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png';"/>
-                    </span>
+                                <img src="Images/icon_remove.svg" alt="{{'sitnet_remove_attachment' | translate }}" onerror="this.onerror=null;this.src='Images/icon_remove.png';"
+                                />
+                            </span>
                         </div>
                         <div class="mart10" ng-if="$ctrl.showWarning()">
                             <i class="fa fa-exclamation-circle reddish"></i>
@@ -341,15 +314,14 @@
                 <div class="col-md-12 margin-20 padl0 padr0">
                     <div class="col-md-3 exam-basic-title padl0">
                         {{ 'sitnet_question_instruction' | translate}}
-                        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                  uib-popover="{{'sitnet_question_instruction_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
+                        <sup>
+                            <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_question_instruction_description' | translate}}"
+                                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"
+                            />
+                        </sup>
                     </div>
                     <div class="col-md-9 padr0">
-                        <textarea id="instruction" class="form-control" rows="3"
-                                  ng-model="$ctrl.examQuestion.answerInstructions"
-                                  placeholder="{{'sitnet_question_instruction' | translate}}">
+                        <textarea id="instruction" class="form-control" rows="3" ng-model="$ctrl.examQuestion.answerInstructions" placeholder="{{'sitnet_question_instruction' | translate}}">
                         </textarea>
                     </div>
                 </div>
@@ -359,15 +331,14 @@
 
                     <div class="col-md-3 exam-basic-title padl0">
                         {{ 'sitnet_exam_evaluation_criteria' | translate}}
-                        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                  uib-popover="{{'sitnet_question_evaluation_criteria_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
+                        <sup>
+                            <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_question_evaluation_criteria_description' | translate}}"
+                                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"
+                            />
+                        </sup>
                     </div>
                     <div class="col-md-9 padr0">
-                        <textarea id="evaluationCriteria" class="form-control" rows="3"
-                                  ng-model="$ctrl.examQuestion.evaluationCriteria"
-                                  placeholder="{{'sitnet_exam_evaluation_criteria' | translate}}">
+                        <textarea id="evaluationCriteria" class="form-control" rows="3" ng-model="$ctrl.examQuestion.evaluationCriteria" placeholder="{{'sitnet_exam_evaluation_criteria' | translate}}">
                         </textarea>
                     </div>
                 </div>
@@ -377,10 +348,11 @@
                 <div class="col-md-12 margin-20 padl0 padr0">
                     <div class="col-md-3 exam-basic-title padl0">
                         {{ 'sitnet_added_to_categories' | translate}}
-                        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                  uib-popover="{{'sitnet_question_tag_question_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
+                        <sup>
+                            <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_question_tag_question_description' | translate}}"
+                                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"
+                            />
+                        </sup>
                     </div>
                     <div class="col-md-9 padr0">
                         <ul class="list-inline mart10">
@@ -406,14 +378,11 @@
 
             <div class="mart20">
                 <div class="question-cancel">
-                    <button ng-disabled="!questionForm.$valid"
-                            ng-click="$ctrl.save()"
-                            type="submit" class="btn btn-success bigbutton">{{'sitnet_save' | translate}}
+                    <button ng-disabled="!questionForm.$valid" ng-click="$ctrl.save()" type="submit" class="btn btn-success bigbutton">{{'sitnet_save' | translate}}
                     </button>
                 </div>
                 <div class="question-cancel marr20">
-                    <button ng-click="$ctrl.cancel()" type="submit"
-                            class="btn btn-cancel pull-right bigbutton">
+                    <button ng-click="$ctrl.cancel()" type="submit" class="btn btn-cancel pull-right bigbutton">
                         {{'sitnet_button_cancel' | translate}}
                     </button>
                 </div>

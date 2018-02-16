@@ -13,55 +13,45 @@
                         <div class="essay-review-status">
                             <!-- Arvioinnin tila kesken / valmis -->
                             <span class="inspection-title">{{'sitnet_inspection_status' | translate}}:</span>
-                            <span ng-if="$ctrl.isFinalized($ctrl.selectedReview)"
-                                  class="text-success">{{ 'sitnet_exam_status_graded' | translate | lowercase }}
-                        </span>
-                            <span ng-if="!$ctrl.isFinalized($ctrl.selectedReview)"
-                                  class="text-danger">{{ 'sitnet_in_progress' | translate | lowercase }}
-                        </span>
+                            <span ng-if="$ctrl.isFinalized($ctrl.selectedReview)" class="text-success">{{ 'sitnet_exam_status_graded' | translate | lowercase }}
+                            </span>
+                            <span ng-if="!$ctrl.isFinalized($ctrl.selectedReview)" class="text-danger">{{ 'sitnet_in_progress' | translate | lowercase }}
+                            </span>
 
                         </div>
                     </div>
                 </div>
                 <div class="top-row">
                     <div class="col-md-11 col-md-offset-1">
-                        {{$ctrl.getAssessedAnswerCount()}} /
-                        {{$ctrl.selectedReview.answers.length}} {{'sitnet_graded' | translate | lowercase}}
+                        {{$ctrl.getAssessedAnswerCount()}} / {{$ctrl.selectedReview.answers.length}} {{'sitnet_graded' | translate | lowercase}}
                     </div>
                 </div>
                 <div class="detail-row">
-                    <div ng-class="$ctrl.selectedReview.question.defaultAnswerInstructions ? 'col-md-10' : 'col-md-11'"
-                         class="col-md-offset-1">
+                    <div ng-class="$ctrl.selectedReview.question.defaultAnswerInstructions ? 'col-md-10' : 'col-md-11'" class="col-md-offset-1">
                         <div class="review-question-title" ng-bind-html="$ctrl.sanitizeQuestion()" mathjax></div>
                     </div>
                     <div ng-if="$ctrl.selectedReview.question.defaultAnswerInstructions" class="col-md-1">
-                        <a ng-click="$ctrl.selectedReview.expanded = !$ctrl.selectedReview.expanded"
-                           class="pointer-hand">
-                            <img ng-show="!$ctrl.selectedReview.expanded"
-                                 src="/assets/assets/images/icon_list_show_right.svg"
-                                 alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"/>
-                            <img ng-show="$ctrl.selectedReview.expanded"
-                                 src="/assets/assets/images/icon_list_show_down.svg"
-                                 alt="exam"
-                                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"/>
+                        <a ng-click="$ctrl.selectedReview.expanded = !$ctrl.selectedReview.expanded" class="pointer-hand">
+                            <img ng-show="!$ctrl.selectedReview.expanded" src="Images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';"
+                            />
+                            <img ng-show="$ctrl.selectedReview.expanded" src="Images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';"
+                            />
                         </a>
                     </div>
                 </div>
                 <div class="main-row" ng-show="$ctrl.selectedReview.expanded">
                     <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box">
-                        <img src="/assets/assets/images/icon_info.png"
-                             alt="exam"
-                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"/>
+                        <img src="Images/icon_info.png" alt="exam" onerror="this.onerror=null;this.src='Images/icon_info.png';" />
                         <span class="padl10">{{$ctrl.selectedReview.question.defaultAnswerInstructions}}</span>
                     </div>
                 </div>
                 <div class="main-row" ng-if="$ctrl.selectedReview.question.attachment">
                     <div class="col-md-10 col-md-offset-1">
-                    <span><i class="fa fa-lg fa-paperclip text-primary"></i>&nbsp;
-                        <a class="pointer" ng-click="$ctrl.downloadQuestionAttachment()">
-                        {{$ctrl.selectedReview.question.attachment.fileName}}</a>
-                    </span>
+                        <span>
+                            <i class="fa fa-lg fa-paperclip text-primary"></i>&nbsp;
+                            <a class="pointer" ng-click="$ctrl.downloadQuestionAttachment()">
+                                {{$ctrl.selectedReview.question.attachment.fileName}}</a>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -75,24 +65,19 @@
                             <uib-tab-heading>{{'sitnet_unassessed_exams' | translate}}
                                 <span class="badge question-flow-badge">{{$ctrl.getUnassessedAnswerCount()}}</span>
                             </uib-tab-heading>
-                            <essay-answers answers="$ctrl.unassessedAnswers" editable="true"
-                                           action-text="sitnet_move_to_assessed"
-                                           on-assessed="$ctrl.saveAssessments(answers)"></essay-answers>
+                            <essay-answers answers="$ctrl.unassessedAnswers" editable="true" action-text="sitnet_move_to_assessed" on-assessed="$ctrl.saveAssessments(answers)"></essay-answers>
                         </uib-tab>
                         <uib-tab index="2">
                             <uib-tab-heading>{{'sitnet_assessed_exams' | translate}}
                                 <span class="badge question-flow-badge">{{$ctrl.getAssessedAnswerCount()}}</span>
                             </uib-tab-heading>
-                            <essay-answers answers="$ctrl.assessedAnswers" editable="true"
-                                           action-text="sitnet_grade_exams"
-                                           on-assessed="$ctrl.saveAssessments(answers)"></essay-answers>
+                            <essay-answers answers="$ctrl.assessedAnswers" editable="true" action-text="sitnet_grade_exams" on-assessed="$ctrl.saveAssessments(answers)"></essay-answers>
                         </uib-tab>
                         <uib-tab index="3">
                             <uib-tab-heading>{{'sitnet_graded_logged_exams' | translate}}
                                 <span class="badge question-flow-badge">{{$ctrl.getLockedAnswerCount()}}</span>
                             </uib-tab-heading>
-                            <essay-answers answers="$ctrl.lockedAnswers" action-text="sitnet_grade_exams"
-                                           editable="false">
+                            <essay-answers answers="$ctrl.lockedAnswers" action-text="sitnet_grade_exams" editable="false">
                             </essay-answers>
                         </uib-tab>
                     </uib-tabset>
@@ -100,11 +85,11 @@
             </div>
             <div class="ballast"></div>
 
-        </div> <!-- END OF RIGHT COL -->
+        </div>
+        <!-- END OF RIGHT COL -->
 
         <div class="col-md-4">
-            <question-flow ng-if="$ctrl.reviews" reviews="$ctrl.reviews"
-                           on-selection="$ctrl.questionSelected(index)">
+            <question-flow ng-if="$ctrl.reviews" reviews="$ctrl.reviews" on-selection="$ctrl.questionSelected(index)">
             </question-flow>
         </div>
     </div>

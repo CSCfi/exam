@@ -24,8 +24,8 @@
                         <li ng-repeat="ed in $ctrl.exam.examinationDates | orderBy: 'date'">{{ed.date | date:"dd.MM.yyyy" }}
                             <button class="reviewer-remove" ng-click="$ctrl.removeExaminationDate(ed)"
                                     title="{{'sitnet_remove' | translate}}">
-                                <img src="/assets/assets/images/icon_remove.svg" alt="exam"
-                                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'"/>
+                                <img src="Images/icon_remove.svg" alt="exam"
+                                     onerror="this.onerror=null;this.src='Images/icon_remove.png'"/>
                             </button>
                         </li>
                     </ul>
@@ -52,8 +52,8 @@
                             <div class="exam-basic-title">{{'sitnet_exam_validity' | translate}}
                                 <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                           uib-popover="{{'sitnet_exam_validity_description' | translate}}"
-                                          src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                          onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
+                                          src="Images/icon_tooltip.svg" alt="exam"
+                                          onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -72,7 +72,7 @@
                         <div class="col-md-12">
                             <div class="mart10">
                                  <span class="text-info">
-                                    <img class="arrow_icon" src="/assets/assets/images/icon_info.png">
+                                    <img class="arrow_icon" src="Images/icon_info.png">
                                     {{ 'sitnet_restricting_validity_change_disallowed' | translate }}
                                  </span>
                             </div>
@@ -86,8 +86,8 @@
                 <div class="col-md-3 exam-basic-title padl0">{{'sitnet_exam_duration' | translate}} ({{'sitnet_minutes' | translate}}):
                     <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                               uib-popover="{{'sitnet_exam_duration_description' | translate}}"
-                              src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                              onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
+                              src="Images/icon_tooltip.svg" alt="exam"
+                              onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
                 </div>
                 <div class="col-md-9">
                     <span  ng-repeat="duration in $ctrl.examDurations">
@@ -112,8 +112,8 @@
                     <div class="col-md-3 exam-basic-title">{{'sitnet_publish_max_count' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_exam_trial_count_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
+                                  src="Images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
                     </div>
                     <div class="col-md-9">
                         <span ng-show="$ctrl.exam.executionType.type==='PUBLIC'" ng-repeat="x in $ctrl.range(1, 5)">
@@ -142,8 +142,8 @@
                     <div class="review-list-title">{{ 'sitnet_enrolment_url' | translate }}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_enrolment_url_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" />
+                                  src="Images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
                         </sup>
                     </div>
                 </div>

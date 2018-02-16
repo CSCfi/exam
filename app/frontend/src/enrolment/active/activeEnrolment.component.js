@@ -40,8 +40,8 @@ angular.module('app.enrolment')
                             $translate.instant('sitnet_are_you_sure')).result.then(
                             function () {
                                 Enrolment.removeEnrolment(vm.enrolment).then(function () {
-                                        vm.onRemoval({data: vm.enrolment});
-                                    }
+                                    vm.onRemoval({ data: vm.enrolment });
+                                }
                                 );
                             });
                     }
@@ -57,7 +57,7 @@ angular.module('app.enrolment')
                     let o;
                     if (reservation.externalReservation) {
                         o = reservation.externalReservation;
-                    } else if (reservation.machine){
+                    } else if (reservation.machine) {
                         o = reservation.machine.room;
                     }
                     return o['roomInstruction' + $translate.use().toUpperCase()] || o.roomInstruction;

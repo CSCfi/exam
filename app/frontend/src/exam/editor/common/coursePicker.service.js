@@ -15,7 +15,7 @@
 
 import angular from 'angular';
 
-angular.module('app.exam')
+angular.module('app.exam.editor')
     .service('Course', ['$resource',
         function ($resource) {
             this.courseApi = $resource('/app/courses');

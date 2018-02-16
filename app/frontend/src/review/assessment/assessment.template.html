@@ -1,7 +1,7 @@
 <div id="dashboard">
 
     <div class="top-row">
-        <div class="col-md-12" >
+        <div class="col-md-12">
             <div class="student-details-title-wrap">
                 <history-back></history-back>
                 <div class="student-exam-details-title">{{'sitnet_exam_review' | translate}}</div>
@@ -15,11 +15,10 @@
 
             <div class="status-floater">
                 <span class="inspection-title">{{'sitnet_inspection_status' | translate}}:</span>
-                <span ng-if="$ctrl.exam.state === 'ABORTED'"
-                      class="status">{{'sitnet_aborted_exam' | translate}}
+                <span ng-if="$ctrl.exam.state === 'ABORTED'" class="status">{{'sitnet_aborted_exam' | translate}}
                 </span>
                 <span ng-if="$ctrl.exam.state ==='REVIEW' || $ctrl.exam.state === 'REVIEW_STARTED'  || $ctrl.exam.state === 'STUDENT_STARTED'"
-                      class="status">{{'sitnet_exam_status_' + $ctrl.exam.state | lowercase | translate}}
+                    class="status">{{'sitnet_exam_status_' + $ctrl.exam.state | lowercase | translate}}
                 </span>
                 <span ng-if="$ctrl.exam.state === 'GRADED'" class="status">
                     {{'sitnet_exam_status_' + $ctrl.exam.state | lowercase | translate}}
@@ -40,10 +39,10 @@
             <div class="padt50 padl30 padr30">
                 <div class="review-list-title">{{$ctrl.exam.course.code}} - {{$ctrl.exam.name}}
                     <a class="pointer" ng-click="$ctrl.hideGeneralInfo = !$ctrl.hideGeneralInfo">
-                        <img ng-show="hideGeneralInfo" src="/assets/assets/images/icon_list_show_right.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'" />
-                        <img ng-show="!hideGeneralInfo" src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'" />
+                        <img ng-show="hideGeneralInfo" src="Images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png'"
+                        />
+                        <img ng-show="!hideGeneralInfo" src="Images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png'"
+                        />
                     </a>
                 </div>
             </div>
@@ -55,8 +54,7 @@
 
     <!-- Sections -->
     <div ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'">
-        <r-exam-section exam="$ctrl.exam" section="section" on-score="$ctrl.scoreSet()" index="$index + 1"
-                        is-scorable="(!$ctrl.isGraded() || $ctrl.isOwnerOrAdmin()) && !$ctrl.isReadOnly()">
+        <r-exam-section exam="$ctrl.exam" section="section" on-score="$ctrl.scoreSet()" index="$index + 1" is-scorable="(!$ctrl.isGraded() || $ctrl.isOwnerOrAdmin()) && !$ctrl.isReadOnly()">
         </r-exam-section>
     </div>
 
@@ -68,28 +66,26 @@
 
                     <span class="review-question-title">{{ 'sitnet_grading_info' | translate }}</span>
                     <a ng-click="$ctrl.hideGradeInfo = !$ctrl.hideGradeInfo">
-                        <img ng-show="$ctrl.hideGradeInfo" src="/assets/assets/images/icon_list_show_right.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'" />
-                        <img ng-hide="$ctrl.hideGradeInfo" src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'" />
+                        <img ng-show="$ctrl.hideGradeInfo" src="Images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png'"
+                        />
+                        <img ng-hide="$ctrl.hideGradeInfo" src="Images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png'"
+                        />
                     </a>
                 </div>
             </div>
 
             <!-- Grading -->
             <div ng-hide="$ctrl.hideGradeInfo" class="padl15 padr15">
-                <r-grading ng-if="$ctrl.exam && !$ctrl.exam.subjectToLanguageInspection"
-                           on-update="$ctrl.gradingUpdated()" user="$ctrl.user" exam="$ctrl.exam"
-                           question-summary="$ctrl.questionSummary">
+                <r-grading ng-if="$ctrl.exam && !$ctrl.exam.subjectToLanguageInspection" on-update="$ctrl.gradingUpdated()" user="$ctrl.user"
+                    exam="$ctrl.exam" question-summary="$ctrl.questionSummary">
                 </r-grading>
-                <r-maturity-grading ng-if="$ctrl.exam && $ctrl.exam.subjectToLanguageInspection"
-                                    on-update="$ctrl.gradingUpdated()" user="$ctrl.user" exam="$ctrl.exam">
+                <r-maturity-grading ng-if="$ctrl.exam && $ctrl.exam.subjectToLanguageInspection" on-update="$ctrl.gradingUpdated()" user="$ctrl.user"
+                    exam="$ctrl.exam">
                 </r-maturity-grading>
             </div>
 
             <!-- Floating feedback window -->
-            <r-feedback ng-if="$ctrl.exam && !$ctrl.isUnderLanguageInspection()" exam="$ctrl.exam"
-                        ng-hide="($ctrl.isGraded() && !$ctrl.isOwnerOrAdmin()) || $ctrl.isReadOnly()">
+            <r-feedback ng-if="$ctrl.exam && !$ctrl.isUnderLanguageInspection()" exam="$ctrl.exam" ng-hide="($ctrl.isGraded() && !$ctrl.isOwnerOrAdmin()) || $ctrl.isReadOnly()">
             </r-feedback>
             <r-statement ng-if="$ctrl.exam && $ctrl.isUnderLanguageInspection()" exam="$ctrl.exam"></r-statement>
         </div>

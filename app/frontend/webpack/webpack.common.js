@@ -12,7 +12,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
  */
 const config = {
     entry: [
-        './src/app.module.js'
+        './src/app.module.ts'
     ],
     output: {
         path: buildPath,
@@ -37,7 +37,7 @@ const config = {
             },
             {
                 test: /\.ts$/,
-                use: 'awesome-typescript-loader'
+                loader: ['ng-annotate-loader', 'awesome-typescript-loader', 'tslint-loader'],
             },
             {
                 test: /\.js$/,
@@ -76,6 +76,7 @@ const config = {
         new HtmlWebpackPlugin({ title: 'Production' })
     ],
     resolve: {
+        alias: { Images: path.resolve(__dirname, '../src/assets/images') },
         extensions: ['.ts', '.js', '.json', '.css', '.html']
     }
 };

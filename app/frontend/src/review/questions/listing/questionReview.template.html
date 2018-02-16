@@ -2,9 +2,9 @@
 
     <div class="review-points-exam">
         <img ng-if="$ctrl.getAssessedAnswerCount() === $ctrl.review.answers.length"
-             src="/assets/assets/images/icon_question_type_ready.png" />
+             src="Images/icon_question_type_ready.png" />
         <img ng-if="$ctrl.getAssessedAnswerCount() !== $ctrl.review.answers.length"
-             src="/assets/assets/images/icon_question_type_ready_grey.png" />
+             src="Images/icon_question_type_ready_grey.png" />
 
         <span class="vcenter marl10">
             {{$ctrl.getAssessedAnswerCount()}} / {{$ctrl.review.answers.length}} {{'sitnet_graded' | translate | lowercase}}
@@ -30,17 +30,17 @@
              mathjax></div>
         <a ng-click="$ctrl.review.expanded = !$ctrl.review.expanded" class="pointer-hand"
            ng-show="$ctrl.review.question.answerInstructions">
-            <img ng-show="!$ctrl.review.expanded" src="/assets/assets/images/icon_list_show_right.svg"
-                 alt="exam" onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"/>
-            <img ng-show="$ctrl.review.expanded" src="/assets/assets/images/icon_list_show_down.svg"
-                 alt="exam" onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"/>
+            <img ng-show="!$ctrl.review.expanded" src="Images/icon_list_show_right.svg"
+                 alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png'"/>
+            <img ng-show="$ctrl.review.expanded" src="Images/icon_list_show_down.svg"
+                 alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png'"/>
         </a>
     </div>
 
     <div class="col-md-12" ng-show="$ctrl.review.expanded">
-        <img ng-if="$ctrl.review.question.answerInstructions.length > 0" src="/assets/assets/images/icon_info.png"
+        <img ng-if="$ctrl.review.question.answerInstructions.length > 0" src="Images/icon_info.png"
              alt="exam"
-             onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'"/>
+             onerror="this.onerror=null;this.src='Images/icon_info.png'"/>
         <span ng-if="$ctrl.review.question.answerInstructions.length > 0" class="padl10">
             {{$ctrl.review.question.answerInstructions}}</span>
     </div>

@@ -1,7 +1,9 @@
 <div id="sitnet-dialog">
     <div class="terms-dialog-header">
-        <h4><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{'sitnet_exception_time' |
-            translate}}</i></h4>
+        <h4>
+            <i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{'sitnet_exception_time' | translate}}
+            </i>
+        </h4>
     </div>
 
     <div class='modal-body'>
@@ -10,8 +12,7 @@
             <div class="col-md-12">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-model="$ctrl.exception.outOfService">
-                        {{'sitnet_room_out_of_service' | translate}}
+                        <input type="checkbox" ng-model="$ctrl.exception.outOfService"> {{'sitnet_room_out_of_service' | translate}}
                     </label>
                 </div>
             </div>
@@ -27,17 +28,12 @@
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <datetimepicker hour-step="1" minute-step="15" ng-model="$ctrl.exception.startDate"
-                                    show-meridian="false" date-format="dateFormat" datepicker-options="dateOptions"
-                                    readonly-time="false">
-                    </datetimepicker>
+                    <date-time-picker hour-step="1" minute-step="15" on-update="$ctrl.onStartDateChange(date)">
+                    </date-time-picker>
                 </div>
                 <div class="col-md-6">
-                    <datetimepicker hour-step="1" minute-step="15" ng-model="$ctrl.exception.endDate"
-                                    show-meridian="false" date-format="dateFormat" datepicker-options="dateOptions"
-                                    readonly-time="false">
-
-                    </datetimepicker>
+                    <date-time-picker hour-step="1" minute-step="15" on-update="$ctrl.onEndDateChange(date)">
+                    </date-time-picker>
                 </div>
             </div>
         </div>
@@ -55,4 +51,3 @@
     </div>
 
 </div>
-

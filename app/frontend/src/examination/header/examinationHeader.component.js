@@ -21,8 +21,8 @@ angular.module('app.examination')
         '<div class="row">\n' +
         '    <div class="exam-header">\n' +
         '        <div class="exam-header-img-wrap">\n' +
-        '            <img src="/assets/assets/images/exam-logo-mobile.svg" alt="exam"\n' +
-        '                 onerror="this.onerror=null;this.src=\'/assets/assets/images/exam-logo-mobile.png\'"/>\n' +
+        '            <img src="Images/exam-logo-mobile.svg" alt="exam"\n' +
+        '                 onerror="this.onerror=null;this.src=\'Images/exam-logo-mobile.png\'"/>\n' +
         '        </div>\n' +
         '        <div class="exam-header-title divider"></div>\n' +
         '        <div class="exam-header-title">{{ $ctrl.exam.course.name }} <span>{{ $ctrl.exam.course.code }}</span></div>\n' +

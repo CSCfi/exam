@@ -21,8 +21,8 @@
                     <div class="col-md-3 exam-basic-title">{{'sitnet_exam_name' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_exam_title_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
+                                  src="Images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
 
                     </div>
                     <div class="col-md-9">
@@ -62,8 +62,8 @@
                     <div class="col-md-3 exam-basic-title">{{'sitnet_exam_credit_type' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_exam_credit_type_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
+                                  src="Images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
                     </div>
                     <div class="col-md-9">
                         <span ng-repeat="examType in $ctrl.examTypes">
@@ -81,8 +81,8 @@
                     <div class="col-md-3 exam-basic-title">{{'sitnet_grade_scale' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_exam_grade_scale_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
+                                  src="Images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
                     </div>
                     <div class="col-md-9">
                         <span ng-repeat="gradeScale in $ctrl.getSelectableScales()">
@@ -123,8 +123,8 @@
                 <div class="row col-md-12 margin-20">
                     <div class="col-md-3 exam-basic-title">{{'sitnet_exam_attachment' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                  uib-popover="{{'sitnet_attachment_description' | translate}}" src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
+                                  uib-popover="{{'sitnet_attachment_description' | translate}}" src="Images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
                     </div>
                     <div class="col-md-9">
                         <button type="button" class="btn btn-primary green border-green" ng-click="$ctrl.selectAttachmentFile()">{{'sitnet_attach_file' | translate}}
@@ -133,8 +133,8 @@
                             <a class="pointer" ng-click="$ctrl.downloadExamAttachment()">
                                 <i class="fa fa-paperclip padl10"></i> {{$ctrl.exam.attachment.fileName}} </a>
                                 <span class="sitnet-red pointer" ng-click="$ctrl.removeExamAttachment()">
-                                     <img src="/assets/assets/images/icon_remove.svg" alt="exam"
-                                          onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'" /></span>
+                                     <img src="Images/icon_remove.svg" alt="exam"
+                                          onerror="this.onerror=null;this.src='Images/icon_remove.png'" /></span>
                         </div>
                     </div>
                 </div>
@@ -148,8 +148,8 @@
                     <div class="col-md-3 exam-basic-title">{{'sitnet_exam_instruction' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_exam_instruction_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
+                                  src="Images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
                     </div>
                     <div class="col-md-9">
                         <textarea class="form-control" rows="4" cols="150" ng-model="$ctrl.exam.instruction"
@@ -163,8 +163,8 @@
                         {{'sitnet_enroll_instruction' | translate}}
                         <sup><img popover-placement="right" popover-trigger="'mouseenter'"
                                   uib-popover="{{'sitnet_exam_enroll_instruction_description' | translate}}"
-                                  src="/assets/assets/images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'" /></sup>
+                                  src="Images/icon_tooltip.svg" alt="exam"
+                                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
                     </div>
                     <!-- Map these instructions to allowed tools in case of printout -->
                     <div ng-if="$ctrl.exam.executionType.type==='PRINTOUT'" class="col-md-3 exam-basic-title">

@@ -24,7 +24,7 @@ angular.module('app.review')
         controller: ['dialogs', '$q', '$route', '$routeParams', '$translate', 'ExamRes', 'Exam',
             'ReviewList', 'Files', '$uibModal',
             function (dialogs, $q, $route, $routeParams, $translate, ExamRes,
-                      Exam, ReviewList, Files, $modal) {
+                Exam, ReviewList, Files, $modal) {
 
                 const vm = this;
 
@@ -32,12 +32,12 @@ angular.module('app.review')
                     vm.pageSize = 10;
                     vm.eid = $routeParams.id;
 
-                    ExamRes.exams.get({id: $routeParams.id}, function (exam) {
+                    ExamRes.exams.get({ id: $routeParams.id }, function (exam) {
                         vm.examInfo = {
                             examOwners: exam.examOwners,
                             title: exam.course.code + ' ' + exam.name
                         };
-                        ExamRes.examReviews.query({eid: $routeParams.id},
+                        ExamRes.examReviews.query({ eid: $routeParams.id },
                             function (reviews) {
                                 reviews.forEach(function (r) {
                                     r.duration = moment.utc(Date.parse(r.duration)).format('HH:mm');
@@ -117,7 +117,7 @@ angular.module('app.review')
                             'creditType': exam.creditType ? exam.creditType.type : exam.examType.type,
                             'answerLanguage': exam.answerLanguage ? exam.answerLanguage.code : exam.examLanguages[0].code
                         };
-                        ExamRes.review.update({id: exam.id}, data, function () {
+                        ExamRes.review.update({ id: exam.id }, data, function () {
                             vm.examReviews.splice(vm.examReviews.indexOf(review), 1);
                             exam.gradedTime = new Date().getTime();
                             exam.grade = grade;
@@ -146,6 +146,10 @@ angular.module('app.review')
 
                     }
                 };
+
+                vm.pageSelected = function (page) {
+                    vm.currentPage = page;
+                }
 
                 vm.gradeExams = function () {
                     const reviews = vm.examReviews.filter(function (r) {
@@ -177,7 +181,7 @@ angular.module('app.review')
                         keyboard: true,
                         animation: true,
                         component: 'attachmentSelector',
-                        resolve: {title: function () { return 'sitnet_import_grades_from_csv';}}
+                        resolve: { title: function () { return 'sitnet_import_grades_from_csv'; } }
                     }).result.then(function () {
                         $route.reload();
                     });
@@ -189,22 +193,22 @@ angular.module('app.review')
                         return [r.exam.id,
                             '',
                             '',
-                            r.exam.totalScore + ' / ' + r.exam.maxScore,
-                            r.user.firstName + ' ' + r.user.lastName,
-                            r.user.userIdentifier]
+                        r.exam.totalScore + ' / ' + r.exam.maxScore,
+                        r.user.firstName + ' ' + r.user.lastName,
+                        r.user.userIdentifier]
                             .join() + ',\n';
                     }).reduce(function (a, b) {
                         return a + b;
                     }, '');
                     const content = 'exam id,grade,feedback,total score,student,student id\n' + rows;
-                    const blob = new Blob([content], {type: 'text/csv;charset=utf-8'});
+                    const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
                     FileSaver.saveAs(blob, 'grading.csv');
                 };
 
                 const handleOngoingReviews = function (review) {
                     ReviewList.gradeExam(review.exam);
                     // FIXME: Seems evil
-                    ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
+                    ExamRes.inspections.get({ id: review.exam.id }, function (inspections) {
                         review.inspections = inspections;
                     });
                 };

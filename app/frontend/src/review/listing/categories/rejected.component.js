@@ -37,6 +37,10 @@ angular.module('app.review')
             vm.applyFreeSearchFilter = () =>
                 vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items);
 
+            vm.pageSelected = function (page) {
+                vm.currentPage = page;
+            }
+
             const translateGrade = (exam) => {
                 const grade = exam.grade ? exam.grade.name : 'NONE';
                 return Exam.getExamGradeDisplayName(grade);
@@ -50,7 +54,6 @@ angular.module('app.review')
                 r.displayedGrade = translateGrade(r.exam);
                 r.displayedCredit = examCredit(r.exam.course.credits, r.exam.customCredit);
             };
-
 
         }]
     });

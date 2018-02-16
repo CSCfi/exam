@@ -39,8 +39,8 @@ angular.module('app.administrative.statistics')
         bindings: {
             queryParams: '<'
         },
-        controller: ['$translate', 'EXAM_CONF', 'Statistics',
-            function ($translate, EXAM_CONF, Statistics) {
+        controller: ['$translate', 'Statistics',
+            function ($translate, Statistics) {
 
                 const vm = this;
 

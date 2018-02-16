@@ -25,13 +25,13 @@ angular.module('app.enrolment')
                 const vm = this;
 
                 vm.$onInit = function () {
-                    vm.filter = {ordering: '-ended', text: null};
+                    vm.filter = { ordering: '-ended', text: null };
                     vm.pageSize = 10;
                     vm.search();
                 };
 
                 vm.search = function () {
-                    StudentExamRes.finishedExams.query({filter: vm.filter.text},
+                    StudentExamRes.finishedExams.query({ filter: vm.filter.text },
                         function (data) {
                             data.filter(function (t) {
                                 return !t.ended;
@@ -45,6 +45,10 @@ angular.module('app.enrolment')
                             toast.error(error.data);
                         });
                 };
+
+                vm.pageSelected = function (page) {
+                    vm.currentPage = page;
+                }
 
             }
         ]

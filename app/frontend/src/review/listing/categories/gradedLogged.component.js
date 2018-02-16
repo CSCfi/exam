@@ -33,7 +33,7 @@ angular.module('app.review')
                     vm.data = ReviewList.prepareView(vm.reviews, handleGradedReviews);
                     vm.data.predicate = 'displayedGradingTime';
 
-                    vm.selections = {all: false, page: false};
+                    vm.selections = { all: false, page: false };
                 };
 
                 vm.$onInit = function () {
@@ -49,6 +49,9 @@ angular.module('app.review')
                     }
                 };
 
+                vm.pageSelected = function (page) {
+                    vm.currentPage = page;
+                }
 
                 vm.applyFreeSearchFilter = () =>
                     vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items);
@@ -59,8 +62,8 @@ angular.module('app.review')
                         return;
                     }
                     const ids = selection.map(r => r.exam.id);
-                    ExamRes.archive.update({ids: ids.join()}, function () {
-                        vm.onArchive({reviews: selection});
+                    ExamRes.archive.update({ ids: ids.join() }, function () {
+                        vm.onArchive({ reviews: selection });
                         toast.info($translate.instant('sitnet_exams_archived'));
                     });
                 };
@@ -81,7 +84,7 @@ angular.module('app.review')
 
                     Files.download(url + vm.exam.id,
                         $translate.instant('sitnet_grading_info') + '_' + $filter('date')(Date.now(), 'dd-MM-yyyy') + fileType,
-                        {'childIds': ids}, true
+                        { 'childIds': ids }, true
                     );
                 };
 

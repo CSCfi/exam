@@ -23,4 +23,4 @@ require('../../question');
 require('angular-animate');
 
 angular.module('app.exam.editor',
-    ['app.facility', 'app.review', 'app.examination', 'app.question', 'ngAnimate', 'ui.bootstrap']);
+    ['app.facility', 'app.software', 'app.review', 'app.examination', 'app.question']);

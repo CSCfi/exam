@@ -1,69 +1,71 @@
 <table class="table table-striped table-condensed exams-table mar60" ng-init="$ctrl.predicate='reservation.startAt'; $ctrl.reverse=false">
     <thead>
-    <tr>
-        <th class="reservation-search" sort by="userAggregate" text="sitnet_student" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
-        <th class="reservation-search" sort by="enrolment.exam.name" text="sitnet_exam" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
-        <th class="reservation-search" sort by="enrolment.exam.course.code" text="sitnet_examcode" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
-        <th class="reservation-search" sort by="enrolment.teacherAggregate" text="sitnet_teachers" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
-        <th class="reservation-search" sort by="startAt" text="sitnet_date_time" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
-        <th class="reservation-search" sort by="machine.room.name" text="sitnet_exam_machine" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
-        <th class="reservation-search" sort by="stateOrd" text="sitnet_exam_state" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
-        <th class="reservation-search" ng-if="$ctrl.isAdminView">{{'sitnet_remove_reservation' | translate}}</th>
-        <th class="reservation-search" ng-if="$ctrl.isAdminView">{{'sitnet_change_reservation_machine'  | translate}}</th>
-    </tr>
+        <tr>
+            <th class="reservation-search" sort by="userAggregate" text="sitnet_student" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
+            <th class="reservation-search" sort by="enrolment.exam.name" text="sitnet_exam" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
+            <th class="reservation-search" sort by="enrolment.exam.course.code" text="sitnet_examcode" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
+            <th class="reservation-search" sort by="enrolment.teacherAggregate" text="sitnet_teachers" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
+            <th class="reservation-search" sort by="startAt" text="sitnet_date_time" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
+            <th class="reservation-search" sort by="machine.room.name" text="sitnet_exam_machine" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
+            <th class="reservation-search" sort by="stateOrd" text="sitnet_exam_state" predicate="$ctrl.predicate" reverse="$ctrl.reverse"></th>
+            <th class="reservation-search" ng-if="$ctrl.isAdminView">{{'sitnet_remove_reservation' | translate}}</th>
+            <th class="reservation-search" ng-if="$ctrl.isAdminView">{{'sitnet_change_reservation_machine' | translate}}</th>
+        </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="r in $ctrl.reservations | orderBy:$ctrl.predicate:$ctrl.reverse">
-        <td class="reservation-search">
-            <span ng-if="r.user">{{r.user.firstName}} {{r.user.lastName}}</span>
-            <span ng-if="r.user.userIdentifier">&nbsp;({{r.user.userIdentifier}})</span>
-            <span ng-if="r.user"><br/><a class="reservation" href="mailto:{{r.user.email}}">{{r.user.email}}</a></span>
-            <span ng-if="r.externalUserRef"><a class="reservation" href="mailto:{{r.externalUserRef}}">{{r.externalUserRef}}</a></span>
-        </td>
+        <tr ng-repeat="r in $ctrl.reservations | orderBy:$ctrl.predicate:$ctrl.reverse">
+            <td class="reservation-search">
+                <span ng-if="r.user">{{r.user.firstName}} {{r.user.lastName}}</span>
+                <span ng-if="r.user.userIdentifier">&nbsp;({{r.user.userIdentifier}})</span>
+                <span ng-if="r.user">
+                    <br/>
+                    <a class="reservation" href="mailto:{{r.user.email}}">{{r.user.email}}</a>
+                </span>
+                <span ng-if="r.externalUserRef">
+                    <a class="reservation" href="mailto:{{r.externalUserRef}}">{{r.externalUserRef}}</a>
+                </span>
+            </td>
 
-        <td class="reservation-search" ng-if="r.enrolment.exam.state === 'PUBLISHED'">{{ r.enrolment.exam.name }}</td>
-        <td class="reservation-search" ng-if="!r.enrolment.exam.external && r.enrolment.exam.state !== 'PUBLISHED'">
-            <a href="/assessments/{{r.enrolment.exam.id}}">{{r.enrolment.exam.name}}</a>
-        </td>
-        <td class="reservation-search text-primary" ng-if="r.enrolment.exam.external">{{'sitnet_exam_status_external' | translate}}</td>
+            <td class="reservation-search" ng-if="r.enrolment.exam.state === 'PUBLISHED'">{{ r.enrolment.exam.name }}</td>
+            <td class="reservation-search" ng-if="!r.enrolment.exam.external && r.enrolment.exam.state !== 'PUBLISHED'">
+                <a href="/assessments/{{r.enrolment.exam.id}}">{{r.enrolment.exam.name}}</a>
+            </td>
+            <td class="reservation-search text-primary" ng-if="r.enrolment.exam.external">{{'sitnet_exam_status_external' | translate}}</td>
 
-        <td class="reservation-search" ng-if="!r.enrolment.exam.external">{{ r.enrolment.exam.course.code }}</td>
-        <td class="reservation-search text-primary" ng-if="r.enrolment.exam.external">{{'sitnet_exam_status_external' | translate}}</td>
+            <td class="reservation-search" ng-if="!r.enrolment.exam.external">{{ r.enrolment.exam.course.code }}</td>
+            <td class="reservation-search text-primary" ng-if="r.enrolment.exam.external">{{'sitnet_exam_status_external' | translate}}</td>
 
-        <td ng-if="r.enrolment.exam.parent" class="width15">
-            <assessment-teacher-list exam="r.enrolment.exam"/>
-        </td>
-        <td class="reservation-search" ng-if="!r.enrolment.exam.external && !r.enrolment.exam.parent" class="width15">
-            <teacher-list exam="r.enrolment.exam"/>
-        </td>
-        <td class="reservation-search text-primary" ng-if="r.enrolment.exam.external" class="width15">
-            {{'sitnet_exam_status_external' | translate}}
-        </td>
+            <td ng-if="r.enrolment.exam.parent" class="width15">
+                <teacher-list exam="r.enrolment.exam" use-parent="true" />
+            </td>
+            <td class="reservation-search" ng-if="!r.enrolment.exam.external && !r.enrolment.exam.parent" class="width15">
+                <teacher-list exam="r.enrolment.exam" />
+            </td>
+            <td class="reservation-search text-primary" ng-if="r.enrolment.exam.external" class="width15">
+                {{'sitnet_exam_status_external' | translate}}
+            </td>
 
-        <td class="reservation-search">{{r.startAt | adjustdst | date:'dd.MM.yyyy'}}<br/>{{r.startAt | adjustdst |
-            date:'HH:mm'}}-{{r.endAt | adjustdst | date:'HH:mm'}}
-        </td>
-        <td class="reservation-search">{{r.machine.room.name}}<br/>{{r.machine.name}}</td>
-        <td class="reservation-search {{$ctrl.getStateclass(r)}}">{{'sitnet_exam_status_' + $ctrl.printExamState(r) | lowercase | translate}}</td>
+            <td class="reservation-search">{{r.startAt | adjustdst | date:'dd.MM.yyyy'}}
+                <br/>{{r.startAt | adjustdst | date:'HH:mm'}}-{{r.endAt | adjustdst | date:'HH:mm'}}
+            </td>
+            <td class="reservation-search">{{r.machine.room.name}}
+                <br/>{{r.machine.name}}</td>
+            <td class="reservation-search {{$ctrl.getStateclass(r)}}">{{'sitnet_exam_status_' + $ctrl.printExamState(r) | lowercase | translate}}</td>
 
-        <td class="reservation-search" ng-if="$ctrl.isAdminView">
-            <button ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow"
-                    ng-click="$ctrl.removeReservation(r)" class="btn btn-primary pull-left">
-                {{'sitnet_remove_reservation' | translate}}
-            </button>
-            <button ng-if="r.enrolment.exam.state === 'ABORTED' || r.noShow"
-                    ng-click="$ctrl.permitRetrial(r)"
-                    ng-disabled="!r.enrolment.exam.trialCount || r.retrialPermitted"
+            <td class="reservation-search" ng-if="$ctrl.isAdminView">
+                <button ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow" ng-click="$ctrl.removeReservation(r)" class="btn btn-primary pull-left">
+                    {{'sitnet_remove_reservation' | translate}}
+                </button>
+                <button ng-if="r.enrolment.exam.state === 'ABORTED' || r.noShow" ng-click="$ctrl.permitRetrial(r)" ng-disabled="!r.enrolment.exam.trialCount || r.retrialPermitted"
                     class="btn btn-primary pull-left">
-                {{'sitnet_permit_retrial' | translate}}
-            </button>
-        </td>
-        <td class="reservation-search" ng-if="$ctrl.isAdminView">
-            <button ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow"
-                    ng-click="$ctrl.changeReservationMachine(r)" class="btn btn-primary pull-left">
-                {{'sitnet_change_reservation_machine' | translate}}
-            </button>
-        </td>
-    </tr>
+                    {{'sitnet_permit_retrial' | translate}}
+                </button>
+            </td>
+            <td class="reservation-search" ng-if="$ctrl.isAdminView">
+                <button ng-if="r.enrolment.exam.state === 'PUBLISHED' && !r.noShow" ng-click="$ctrl.changeReservationMachine(r)" class="btn btn-primary pull-left">
+                    {{'sitnet_change_reservation_machine' | translate}}
+                </button>
+            </td>
+        </tr>
     </tbody>
 </table>
