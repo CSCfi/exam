@@ -36,8 +36,8 @@ angular.module('app.review')
             self.examAssessmentApi = $resource('/app/review/:id/info', {
                 id: '@id'
             }, {
-                update: {method: 'PUT'}
-            });
+                    update: { method: 'PUT' }
+                });
 
             self.saveFeedback = function (exam, silent) {
                 const deferred = $q.defer();
@@ -90,7 +90,7 @@ angular.module('app.review')
             self.pickExamLanguage = function (exam) {
                 let lang = exam.answerLanguage;
                 if (lang) {
-                    return {code: lang};
+                    return { code: lang };
                 }
                 else if (exam.examLanguages.length === 1) {
                     lang = exam.examLanguages[0];
@@ -154,7 +154,7 @@ angular.module('app.review')
             };
 
             self.getExitUrl = function (exam) {
-                const user = Session.getUser || {isAdmin: false};
+                const user = Session.getUser || { isAdmin: false };
                 return user.isAdmin ? '/' : '/exams/' + exam.parent.id + '/4';
             };
 
@@ -203,7 +203,7 @@ angular.module('app.review')
 
             self.saveAssessmentInfo = function (exam) {
                 if (exam.state === 'GRADED_LOGGED') {
-                    self.examAssessmentApi.update({id: exam.id, assessmentInfo: exam.assessmentInfo}, function () {
+                    self.examAssessmentApi.update({ id: exam.id, assessmentInfo: exam.assessmentInfo }, function () {
                         toast.info($translate.instant('sitnet_saved'));
                     });
                 }
@@ -303,7 +303,7 @@ angular.module('app.review')
 
             const getErrors = function (exam) {
                 const messages = [];
-                if (!exam.grade.id) {
+                if (!exam.grade.id && !exam.gradeless) {
                     messages.push('sitnet_participation_unreviewed');
                 }
                 if (!exam.creditType.type) {
