@@ -15,8 +15,8 @@
 
 'use strict';
 angular.module('app.review')
-    .service('Assessment', ['$q', '$resource', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Question', 'toast',
-        function ($q, $resource, $translate, $location, $timeout, dialogs, ExamRes, Session, Question, toast) {
+    .service('Assessment', ['$q', '$resource', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Question', 'toast', 'lodash',
+        function ($q, $resource, $translate, $location, $timeout, dialogs, ExamRes, Session, Question, toast, lodash) {
 
             var self = this;
 
@@ -300,7 +300,7 @@ angular.module('app.review')
 
             var getErrors = function (exam) {
                 var messages = [];
-                if (!exam.grade.id && !exam.gradeless) {
+                if (!lodash.get(exam.grade, 'id') && !exam.gradeless) {
                     messages.push('sitnet_participation_unreviewed');
                 }
                 if (!exam.creditType.type) {

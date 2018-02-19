@@ -18,9 +18,9 @@ angular.module('app.review')
     .component('speedReview', {
         templateUrl: '/assets/app/review/listing/speedReview.template.html',
         controller: ['dialogs', '$q', '$route', '$routeParams', '$translate', 'ExamRes', 'Exam',
-            'ReviewList', 'Files', '$uibModal', 'EXAM_CONF', 'toast',
+            'ReviewList', 'Files', '$uibModal', 'EXAM_CONF', 'toast', 'lodash',
             function (dialogs, $q, $route, $routeParams, $translate, ExamRes,
-                      Exam, ReviewList, Files, $modal, EXAM_CONF, toast) {
+                      Exam, ReviewList, Files, $modal, EXAM_CONF, toast, lodash) {
 
                 var vm = this;
 
@@ -71,6 +71,10 @@ angular.module('app.review')
                     return Exam.isOwnerOrAdmin(exam);
                 };
 
+                var getAnswerLanguage = function (exam) {
+                    return lodash.get(exam, 'answerLanguage.code') || exam.answerLanguage || exam.examLanguages[0].code;
+                };
+
                 var getErrors = function (exam) {
                     var messages = [];
                     if (!vm.isAllowedToGrade(exam)) {
@@ -111,7 +115,7 @@ angular.module('app.review')
                             'grade': grade ? grade.id : undefined,
                             'customCredit': exam.customCredit,
                             'creditType': exam.creditType ? exam.creditType.type : exam.examType.type,
-                            'answerLanguage': exam.answerLanguage ? exam.answerLanguage.code : exam.examLanguages[0].code
+                            'answerLanguage': getAnswerLanguage(exam)
                         };
                         ExamRes.review.update({id: exam.id}, data, function () {
                             vm.examReviews.splice(vm.examReviews.indexOf(review), 1);
