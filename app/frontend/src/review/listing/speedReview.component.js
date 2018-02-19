@@ -16,6 +16,8 @@
 import angular from 'angular';
 import toast from 'toastr';
 import moment from 'moment';
+import _ from 'lodash';
+
 import FileSaver from 'file-saver';
 
 angular.module('app.review')
@@ -89,6 +91,10 @@ angular.module('app.review')
                     return messages;
                 };
 
+                const getAnswerLanguage = function (exam) {
+                    return _.get(exam, 'answerLanguage.code') || exam.answerLanguage || exam.examLanguages[0].code;
+                }
+
                 const gradeExam = function (review) {
                     const deferred = $q.defer();
                     const exam = review.exam;
@@ -115,7 +121,7 @@ angular.module('app.review')
                             'grade': grade ? grade.id : undefined,
                             'customCredit': exam.customCredit,
                             'creditType': exam.creditType ? exam.creditType.type : exam.examType.type,
-                            'answerLanguage': exam.answerLanguage ? exam.answerLanguage.code : exam.examLanguages[0].code
+                            'answerLanguage': getAnswerLanguage(exam)
                         };
                         ExamRes.review.update({ id: exam.id }, data, function () {
                             vm.examReviews.splice(vm.examReviews.indexOf(review), 1);
