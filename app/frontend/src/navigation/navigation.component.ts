@@ -38,7 +38,10 @@ export const NavigationComponent: angular.IComponentOptions = {
             private Session: SessionService) {
             'ngInject';
 
-            $rootScope.$on('userUpdated', () => this.links = Navigation.getLinks());
+            $rootScope.$on('userUpdated', () => {
+                this.user = this.Session.getUser();
+                this.links = Navigation.getLinks();
+            });
             $rootScope.$on('upcomingExam', () => this.links = Navigation.getLinks());
             $rootScope.$on('wrongLocation', () => this.links = Navigation.getLinks());
         }
@@ -46,7 +49,7 @@ export const NavigationComponent: angular.IComponentOptions = {
         $onInit() {
             this.links = this.Navigation.getLinks();
             this.user = this.Session.getUser();
-            if (this.user.isAdmin) {
+            if (this.user && this.user.isAdmin) {
                 this.Navigation.getAppVersion()
                     .then(resp => this.appVersion = resp.data.appVersion)
                     .catch(e => toastr.error(e.data));
