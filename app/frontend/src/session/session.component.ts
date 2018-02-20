@@ -22,7 +22,7 @@ export const SessionComponent: angular.IComponentOptions = {
     <div ng-if="!$ctrl.user && $ctrl.devLoginRequired">
         <dev-login on-logged-in="$ctrl.setUser(user)"></dev-login>
     </div>
-    <div ng-if="$ctrl.user.userAgreementAccepted">
+    <div ng-if="$ctrl.user && (!$ctrl.user.isStudent || $ctrl.user.userAgreementAccepted)">
         <navigation ng-hide="$ctrl.hideNavBar"></navigation>
         <div id="mainView" class="container-fluid"
              ng-class="{'vmenu-on': !$ctrl.hideNavBar && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
