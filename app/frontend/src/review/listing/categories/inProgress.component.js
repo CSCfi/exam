@@ -44,9 +44,6 @@ angular.module('app.review')
 
             const handleOngoingReviews = (review) => {
                 ReviewList.gradeExam(review.exam);
-                ExamRes.inspections.get({ id: review.exam.id }, function (inspections) {
-                    review.inspections = inspections;
-                });
             };
 
         }]

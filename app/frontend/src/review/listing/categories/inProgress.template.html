@@ -78,7 +78,7 @@
                     <span ng-bind-html="review.deadline | diffInDaysToNow"></span>)
                 </td>
                 <td class="table-column-teachers">
-                    <div ng-repeat="inspection in review.inspections">
+                    <div ng-repeat="inspection in review.exam.examInspections">
                         <span ng-class="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
                             <span ng-class="$ctrl.isOwner(inspection.user) ? 'bold' : ''">
                                 {{inspection.user.firstName}} {{inspection.user.lastName}}

@@ -35,7 +35,7 @@ export interface IDiffInMinutesFilterService extends angular.IFilterService {
 export class DiffInMinutesFilter {
     constructor() {
         return (from: VarDate, to: VarDate): number => {
-            const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 * 60;
+            const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
             return Math.round(diff);
         };
     }

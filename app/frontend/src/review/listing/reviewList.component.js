@@ -23,18 +23,18 @@ angular.module('app.review')
             exam: '<'
         },
         controller: ['$filter', '$q', '$translate', '$uibModal', 'dialogs', 'ExamRes', 'DateTime', 'Exam',
-            'ReviewList', 'Files', 'diffInMinutesToFilter',
+            'ReviewList', 'Files',
             function ($filter, $q, $translate, $modal, dialogs, ExamRes, DateTime, Exam, Review,
-                      Files, diffInMinutesToFilter) {
+                Files) {
 
                 const vm = this;
 
                 vm.$onInit = function () {
 
-                    ExamRes.examReviews.query({eid: vm.exam.id},
+                    ExamRes.examReviews.query({ eid: vm.exam.id },
                         function (reviews) {
                             reviews.forEach(function (r) {
-                                r.duration = diffInMinutesToFilter(r.started, r.ended);
+                                r.duration = $filter('diffInMinutesTo')(r.started, r.ended);
                                 if (r.exam.languageInspection && !r.exam.languageInspection.finishedAt) {
                                     r.isUnderLanguageInspection = true;
                                 }
@@ -60,7 +60,7 @@ angular.module('app.review')
                     );
 
                     // No-shows
-                    ExamRes.noShows.query({eid: vm.exam.id}, function (noShows) {
+                    ExamRes.noShows.query({ eid: vm.exam.id }, function (noShows) {
                         vm.noShows = noShows;
                     });
                 };

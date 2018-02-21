@@ -62,7 +62,7 @@
                                 <span ng-bind-html="review.deadline | diffInDaysToNow"></span>)
                             </td>
                             <td>
-                                <div ng-repeat="inspection in review.inspections">
+                                <div ng-repeat="inspection in review.exam.examInspections">
                                     <span ng-class="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
                                         <span ng-class="$ctrl.isOwner(inspection.user, review.exam.examOwners) ? 'bold' : ''">
                                             {{inspection.user.firstName}} {{inspection.user.lastName}}
@@ -95,14 +95,7 @@
                         <!--Fill if page not full-->
                         <tr ng-repeat="r in [] | pagefill: examReviews.length:$ctrl.currentPage:pageSize">
                             <td class="table-column-examname">&nbsp;</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td colspan="8"></td>
                         </tr>
                     </tbody>
                 </table>
