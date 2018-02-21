@@ -213,10 +213,6 @@ angular.module('app.review')
 
                 const handleOngoingReviews = function (review) {
                     ReviewList.gradeExam(review.exam);
-                    // FIXME: Seems evil
-                    ExamRes.inspections.get({ id: review.exam.id }, function (inspections) {
-                        review.inspections = inspections;
-                    });
                 };
 
             }

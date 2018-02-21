@@ -208,6 +208,8 @@ public class ReviewController extends BaseController {
                 .fetch("exam.examType")
                 .fetch("exam.executionType")
                 .fetch("exam.examFeedback")
+                .fetch("exam.examInspections", "ready")
+                .fetch("exam.examInspections.user", "id, firstName, lastName, email")
                 .fetch("exam.languageInspection")
                 .fetch("exam.examSections.sectionQuestions.clozeTestAnswer") // for getting the scores (see below)
                 .fetch("exam.examSections.sectionQuestions.question") // for getting the scores (see below)
