@@ -17,8 +17,8 @@ import angular from 'angular';
 
 require('./reports');
 require('./statistics');
-require('./settings/settings.module');
-require('./users/users.module');
+require('./settings');
+require('./users');
 
 angular.module('app.administrative',
     ['app.administrative.reports', 'app.administrative.statistics', 'app.administrative.settings', 'app.administrative.users']

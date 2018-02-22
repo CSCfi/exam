@@ -32,6 +32,7 @@ import * as directives from './app.directive';
 
 import './enrolment'; // TODO: make a proper exportable module
 import './maturity'; // TODO: make a proper exportable module
+import './administrative';
 
 
 import 'toastr/toastr.scss';
@@ -52,7 +53,8 @@ angular.module('app', [
     UtilityModule,
     DashboardModule,
     'app.enrolment',
-    'app.maturity'
+    'app.maturity',
+    'app.administrative'
 ]).config(configs)
     .run(runBlock)
     .filter('truncate', filters.TruncateFilter)

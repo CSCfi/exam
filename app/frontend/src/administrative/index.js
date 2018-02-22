@@ -13,9 +13,4 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-angular.module('app.administrative', []);
-
-require('./reports');
-require('./settings');
-require('./statistics');
-require('./users');
+require('./administrative.module');

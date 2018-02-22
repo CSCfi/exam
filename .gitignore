@@ -10,5 +10,6 @@ test-2.11
 test-2.12
 .DS_STORE
 package-lock.json
+yarn.lock
 app/frontend/built/
 public/bundles
