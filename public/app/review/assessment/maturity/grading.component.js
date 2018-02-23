@@ -124,14 +124,14 @@ angular.module('app.review')
 
                 vm.setCreditType = function () {
                     if (vm.selections.type && vm.selections.type.type) {
-                        vm.exam.creditType = {type: vm.selections.type.type};
+                        vm.exam.creditType = { type: vm.selections.type.type };
                     } else {
                         delete vm.exam.creditType;
                     }
                 };
 
                 vm.setLanguage = function () {
-                    vm.exam.answerLanguage = vm.selections.language ? vm.selections.language.name : undefined;
+                    vm.exam.answerLanguage = vm.selections.language ? { code: vm.selections.language.code } : undefined;
                 };
 
                 var initGrade = function () {
@@ -178,6 +178,8 @@ angular.module('app.review')
                     var lang = Assessment.pickExamLanguage(vm.exam);
                     if (!vm.exam.answerLanguage) {
                         vm.exam.answerLanguage = lang;
+                    } else {
+                        vm.exam.answerLanguage = { code: vm.exam.answerLanguage };
                     }
                     Language.languageApi.query(function (languages) {
                         vm.languages = languages.map(function (language) {
