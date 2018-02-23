@@ -17,26 +17,7 @@ import angular from 'angular';
 
 angular.module('app.examination')
     .component('examinationClock', {
-        template:
-        '<div class="floating-clock">\n' +
-        '    <div class="header-wrapper">\n' +
-        '        <span ng-if="$ctrl.showRemainingTime" class="exam-clock-text">\n' +
-        '            <span class="sitnet-white">{{\'sitnet_exam_time_left\' | translate}}: </span>\n' +
-        '        </span>\n' +
-        '        <span class="exam-clock">\n' +
-        '            <span ng-if="$ctrl.showRemainingTime"\n' +
-        '                ng-class="$ctrl.remainingTime <= $ctrl.alarmThreshold ? \'sitnet-text-alarm\' : \'\'">\n' +
-        '                {{$ctrl.formatRemainingTime()}}\n' +
-        '            </span>\n' +
-        '            <span ng-if="!$ctrl.showRemainingTime" class="clock-hide"><i>{{\'sitnet_clock_hidden\' | translate}}</i></span>\n' +
-        '        </span>\n' +
-        '        <span>\n' +
-        '            <img ng-click="$ctrl.showRemainingTime = !$ctrl.showRemainingTime"\n' +
-        '                 src="Images/icon_clock.svg" alt="exam"\n' +
-        '                 onerror="this.onerror=null;this.src=\'Images/icon_clock.png\';"/>\n' +
-        '        </span>\n' +
-        '    </div>\n' +
-        '</div>\n',
+        template: require('./examinationClock.template.html'),
         bindings: {
             examHash: '<',
             onTimeout: '&'

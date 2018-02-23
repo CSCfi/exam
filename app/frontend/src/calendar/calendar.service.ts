@@ -34,6 +34,7 @@ export interface Room {
     roomInstructionSV: string | null;
     roomInstructionEN: string | null;
     accessibility: { id: number, name: string }[];
+    outOfService: boolean;
 }
 
 export interface Slot {
