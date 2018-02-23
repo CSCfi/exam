@@ -23,7 +23,8 @@
                     </div>
                     <!-- exam title n stuff -->
                     <div class="student-enrolment-exam">
-                        {{$ctrl.enrolment.exam.name}}<br/>
+                        {{$ctrl.enrolment.exam.name}}
+                        <br/>
                         <span class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
                     </div>
                 </div>
@@ -45,7 +46,9 @@
                             {{ 'sitnet_teachers' | translate }}:
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                            <div><teacher-list exam="$ctrl.enrolment.exam"/></div>
+                            <div>
+                                <teacher-list exam="$ctrl.enrolment.exam" />
+                            </div>
                         </div>
 
                     </div>
@@ -56,8 +59,8 @@
                             {{ 'sitnet_exam_room' | translate }}:
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ $ctrl.enrolment.reservation.machine.name}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                            {{$ctrl.enrolment.reservation.machine.room.name}} ({{$ctrl.enrolment.reservation.machine.room.roomCode}})
+                            {{ $ctrl.enrolment.reservation.machine.name}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; {{$ctrl.enrolment.reservation.machine.room.name}}
+                            ({{$ctrl.enrolment.reservation.machine.room.roomCode}})
                         </div>
                         <div class="clearfix visible-xs"></div>
                         <div class="clearfix visible-sm"></div>
@@ -65,24 +68,25 @@
                             {{ 'sitnet_reservation' | translate }}:
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                            {{$ctrl.enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}}
-                            {{$ctrl.enrolment.reservation.occasion.startAt}} -
-                            {{$ctrl.enrolment.reservation.occasion.endAt}}
+                            {{$ctrl.enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}} {{$ctrl.enrolment.reservation.occasion.startAt}}
+                            - {{$ctrl.enrolment.reservation.occasion.endAt}}
                         </div>
                     </div>
                 </div>
 
             </div>
 
-            <div class="student-exam-row">
-                <div class="student-exam-row-infolink"><b>{{ 'sitnet_room_guidance' |
-                        translate}}</b>
+            <div class="student-exam-row" ng-show="$ctrl.roomInstructions">
+                <div class="student-exam-row-infolink">
+                    <b>{{ 'sitnet_room_guidance' | translate}}:
+                    </b>
                 </div>
                 <div class="student-exam-row-infobox">{{ $ctrl.roomInstructions }}</div>
             </div>
 
-            <div class="student-exam-row">
-                <div class="student-exam-row-infolink"><b>{{ 'sitnet_view_instructions' | translate}}</b>
+            <div class="student-exam-row" ng-show="$ctrl.enrolment.exam.enrollInstruction">
+                <div class="student-exam-row-infolink">
+                    <b>{{ 'sitnet_view_instructions' | translate}}:</b>
                 </div>
                 <div class="student-exam-row-infobox">{{$ctrl.enrolment.exam.enrollInstruction}}</div>
             </div>

@@ -66,6 +66,7 @@ export const CalendarComponent: angular.IComponentOptions = {
         maxDate: moment.Moment;
         reservationWindowEndDate: moment.Moment;
         reservationWindowSize: number;
+        selectedRoom: FilteredRoom | undefined;
         selectedOrganisation: { _id: string, name: string, filtered: boolean };
 
         constructor(
@@ -83,7 +84,7 @@ export const CalendarComponent: angular.IComponentOptions = {
 
         $onInit() {
             this.$scope.$on('$localeChangeSuccess', () => {
-                const optionalRoom = this.selectedRoom();
+                const optionalRoom = this.selectedRoom;
                 if (optionalRoom !== undefined) {
                     this.openingHours = this.Calendar.processOpeningHours(optionalRoom);
                 }
@@ -134,12 +135,8 @@ export const CalendarComponent: angular.IComponentOptions = {
             return this.accessibilities.filter(a => a.filtered);
         }
 
-        selectedRoom(): FilteredRoom | undefined {
-            return this.rooms.find(r => r.filtered);
-        }
-
         getRoomInstructions(): string | undefined {
-            const optionalRoom = this.selectedRoom();
+            const optionalRoom = this.selectedRoom;
             if (optionalRoom == undefined) {
                 return;
             }
@@ -162,7 +159,7 @@ export const CalendarComponent: angular.IComponentOptions = {
         }
 
         getRoomAccessibility(): string {
-            const room = this.selectedRoom();
+            const room = this.selectedRoom;
             return room ? room.accessibility.map(a => a.name).join(', ') : '';
         }
 
@@ -227,7 +224,7 @@ export const CalendarComponent: angular.IComponentOptions = {
         }
 
         refresh(start: moment.Moment, callback: (_: any[]) => void) {
-            const room = this.selectedRoom();
+            const room = this.selectedRoom;
             if (!room) {
                 // callback([]);
                 return;
@@ -277,7 +274,7 @@ export const CalendarComponent: angular.IComponentOptions = {
         }
 
         createReservation(start: moment.Moment, end: moment.Moment) {
-            const room = this.selectedRoom();
+            const room = this.selectedRoom;
             if (room !== undefined) {
                 this.reservation = {
                     room: room.name,
@@ -289,7 +286,7 @@ export const CalendarComponent: angular.IComponentOptions = {
         }
 
         confirmReservation() {
-            const room = this.selectedRoom();
+            const room = this.selectedRoom;
             if (!room || !this.reservation || this.confirming) {
                 return;
             }
@@ -312,7 +309,7 @@ export const CalendarComponent: angular.IComponentOptions = {
 
         selectAccessibility(accessibility) {
             accessibility.filtered = !accessibility.filtered;
-            if (this.selectedRoom()) {
+            if (this.selectedRoom) {
                 this.uiCalendarConfig.calendars.myCalendar.fullCalendar('refetchEvents');
             }
         }
@@ -329,10 +326,11 @@ export const CalendarComponent: angular.IComponentOptions = {
             return this.DateTime.printExamDuration(exam);
         }
 
-        selectRoom(room) {
+        selectRoom(room: FilteredRoom) {
             if (!room.outOfService) {
                 this.rooms.forEach(r => delete room.filtered);
                 room.filtered = true;
+                this.selectedRoom = room;
                 this.openingHours = this.Calendar.processOpeningHours(room);
             }
         }

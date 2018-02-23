@@ -128,7 +128,7 @@
                     </button>
                 </small>
             </span>
-            <div class="calendar-phase-icon" ng-show="$ctrl.selectedRoom()">
+            <div class="calendar-phase-icon" ng-show="$ctrl.selectedRoom">
                 <img class="arrow_icon" src="Images/icon-phase.png">
             </div>
         </div>
@@ -166,10 +166,6 @@
                             </div>
                         </li>
 
-                        <!-- Fullcalendar cannot render content if it's placed to hidden div, because it does not know the
-                             size of the div. So, as soon as user selects room, make that div visible so that Fullcalendar can render
-                             the associated content and display it to user. Thus the onclick function in A tag.
-                             Little bit hackish workaround, I know.. -JSa //-->
                         <li ng-repeat="room in $ctrl.rooms | filter:$ctrl.limitations.rooms" ng-hide="room.filtered" role="presentation" ng-class="room.outOfService ? 'disabled' : ''"
                             ng-click="$ctrl.selectRoom(room)">
                             <a role="menuitem" popover-trigger="'mouseenter'" uib-popover="{{$ctrl.getDescription(room)}}" ng-click="$ctrl.render()">
@@ -184,20 +180,20 @@
         <div class="student-exam-row">
 
             <!-- SELECTED ROOM  -->
-            <div class="calendar-room-title" ng-show="$ctrl.selectedRoom()">
-                <span>{{ $ctrl.selectedRoom().name }}&nbsp;
-                    <small class="text-muted">{{selectedRoom().mailAddress.street}} {{selectedRoom().mailAddress.zip}} {{selectedRoom().mailAddress.city}}
+            <div class="calendar-room-title" ng-show="$ctrl.selectedRoom">
+                <span>{{ $ctrl.selectedRoom.name }}&nbsp;
+                    <small class="text-muted">{{selectedRoom.mailAddress.street}} {{selectedRoom.mailAddress.zip}} {{selectedRoom.mailAddress.city}}
                     </small>
                 </span>
             </div>
 
-            <div class="calendar-room-info" ng-show="$ctrl.selectedRoom()">
+            <div class="calendar-room-info" ng-show="$ctrl.selectedRoom">
                 <div class="calendar-room-info-title">{{'sitnet_room_default_working_hours' | translate }}:</div>
                 <div class="calendar-room-info-content">
                     <span ng-repeat="oh in $ctrl.openingHours">
                         {{oh.name}}: {{oh.periodText}} {{ $last ? '' : '| ';}}
                     </span>
-                    <span>({{ $ctrl.selectedRoom().localTimezone }})</span>
+                    <span>({{ $ctrl.selectedRoom.localTimezone }})</span>
                 </div>
 
             </div>
@@ -222,7 +218,7 @@
                 <div class="calendar-room-info-content">{{$ctrl.getRoomAccessibility()}}</div>
             </div>
 
-            <hr ng-show="$ctrl.selectedRoom()">
+            <hr ng-show="$ctrl.selectedRoom">
 
         </div>
 
@@ -235,7 +231,7 @@
                     </button>
                 </div>
             </div>
-            <booking-calendar on-refresh="$ctrl.refresh(start, callback)" on-event-selected="$ctrl.createReservation(start, end)" room="$ctrl.selectedRoom()"
+            <booking-calendar on-refresh="$ctrl.refresh(start, callback)" on-event-selected="$ctrl.createReservation(start, end)" room="$ctrl.selectedRoom"
                 min-date="$ctrl.minDate" max-date="$ctrl.maxDate">
             </booking-calendar>
         </div>

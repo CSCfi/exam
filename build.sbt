@@ -33,11 +33,6 @@ libraryDependencies ++= Seq(javaJdbc, ehcache, ws, evolutions, filters, guice,
   "net.jodah" % "concurrentunit" % "0.4.2" % "test"
 )
 
-libraryDependencies ++= Seq(
-  "org.webjars" %% "webjars-play" % "2.6.2",
-  "org.webjars.bower" % "bootstrap-sass" % "3.3.7" // TODO move all css away from backend
-)
-
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
 
 routesImport += "util.scala.Binders._"

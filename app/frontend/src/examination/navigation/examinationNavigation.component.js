@@ -18,19 +18,7 @@ import angular from 'angular';
 
 angular.module('app.examination')
     .component('examinationNavigation', {
-        template: '<!-- SECTION NAVIGATION ARROWS AND LABELS -->' +
-        '<div class="row exam-navigation">' +
-        '    <span class="col-md-12">' +
-        '        <!-- PREVIOUS SECTION BUTTON -->' +
-        '        <a class="green_button previous" ng-show="$ctrl.prev.valid" ng-click="$ctrl.previousPage()">' +
-        '            <img class="arrow_icon" src="Images/icon_left_white.png"> {{ $ctrl.prev.text | translate }}' +
-        '        </a>' +
-        '        <!-- NEXT SECTION BUTTON -->' +
-        '        <a class="green_button" ng-show="$ctrl.next.valid" ng-click="$ctrl.nextPage()">{{ $ctrl.next.text | translate }}' +
-        '            <img class="arrow_icon" src="Images/icon_right_white.png">' +
-        '        </a>' +
-        '    </span>' +
-        '</div>',
+        template: require('./examinationNavigation.template.html'),
         bindings: {
             exam: '<',
             activeSection: '<',
@@ -45,10 +33,10 @@ angular.module('app.examination')
 
                 vm.$onInit = function () {
                     _pages = vm.exam.examSections.map(function (es) {
-                        return {id: es.id, text: es.name, type: 'section', valid: true};
+                        return { id: es.id, text: es.name, type: 'section', valid: true };
                     });
                     // Add guide page
-                    _pages.unshift({text: 'sitnet_exam_guide', type: 'guide', valid: true});
+                    _pages.unshift({ text: 'sitnet_exam_guide', type: 'guide', valid: true });
                     setupNavigation();
                 };
 
@@ -61,12 +49,12 @@ angular.module('app.examination')
                 const setupNavigation = function () {
                     if (angular.isUndefined(vm.activeSection)) {
                         vm.next = _pages[1];
-                        vm.prev = {valid: false};
+                        vm.prev = { valid: false };
                     } else {
                         const nextIndex = nextPageIndex();
-                        vm.next = nextIndex > -1 ? _pages[nextIndex] : {valid: false};
+                        vm.next = nextIndex > -1 ? _pages[nextIndex] : { valid: false };
                         const prevIndex = prevPageIndex();
-                        vm.prev = prevIndex > -1 ? _pages[prevIndex] : {valid: false};
+                        vm.prev = prevIndex > -1 ? _pages[prevIndex] : { valid: false };
                     }
                 };
 
@@ -87,11 +75,11 @@ angular.module('app.examination')
                 };
 
                 vm.nextPage = function () {
-                    vm.onSelect({page: vm.next});
+                    vm.onSelect({ page: vm.next });
                 };
 
                 vm.previousPage = function () {
-                    vm.onSelect({page: vm.prev});
+                    vm.onSelect({ page: vm.prev });
                 };
 
             }

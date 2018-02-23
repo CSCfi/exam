@@ -50,11 +50,9 @@ export const AttachmentSelectorComponent: angular.IComponentOptions = {
         }
 
         $onInit() {
-            this.title = this.resolve.title || 'sitnet_attachment_selector';
+            this.title = this.resolve.title || 'sitnet_attachment_selection';
             this.isTeacherModal = this.resolve.isTeacherModal;
-            this.Files.getMaxFilesize().then(function (data) {
-                this.maxFileSize = data.filesize;
-            });
+            this.Files.getMaxFilesize().then(data => this.maxFileSize = data.filesize);
         }
 
         ok() {
