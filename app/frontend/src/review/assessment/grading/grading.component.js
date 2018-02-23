@@ -109,14 +109,14 @@ angular.module('app.review')
 
                 vm.setCreditType = function () {
                     if (vm.selections.type && vm.selections.type.type) {
-                        vm.exam.creditType = {type: vm.selections.type.type};
+                        vm.exam.creditType = { type: vm.selections.type.type };
                     } else {
                         delete vm.exam.creditType;
                     }
                 };
 
                 vm.setLanguage = function () {
-                    vm.exam.answerLanguage = vm.selections.language ? {code: vm.selections.language.code} : undefined;
+                    vm.exam.answerLanguage = vm.selections.language ? { code: vm.selections.language.code } : undefined;
                 };
 
                 const initGrade = function () {
@@ -136,7 +136,7 @@ angular.module('app.review')
                         return grade;
                     });
                     // The "no grade" option
-                    const noGrade = {type: 'NONE', name: Exam.getExamGradeDisplayName('NONE')};
+                    const noGrade = { type: 'NONE', name: Exam.getExamGradeDisplayName('NONE') };
                     if (vm.exam.gradeless && !vm.selections.grade) {
                         vm.selections.grade = noGrade;
                     }
@@ -164,7 +164,7 @@ angular.module('app.review')
                     if (!vm.exam.answerLanguage) {
                         vm.exam.answerLanguage = lang;
                     } else {
-                        vm.exam.answerLanguage = {code: vm.exam.answerLanguage};
+                        vm.exam.answerLanguage = { code: vm.exam.answerLanguage };
                     }
                     Language.languageApi.query(function (languages) {
                         vm.languages = languages.map(function (language) {
