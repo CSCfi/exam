@@ -64,7 +64,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     private Exam createCopy(Exam src, Exam parent, User user) {
         Exam clone = new Exam();
-        BeanUtils.copyProperties(src, clone, "id", "parent", "examSections", "examEnrolments", "examParticipations",
+        BeanUtils.copyProperties(src, clone, "id", "parent", "examSections", "examEnrolments", "examParticipation",
                 "examInspections", "autoEvaluationConfig", "creator", "created", "examOwners");
         clone.setParent(parent);
         AppUtil.setCreator(clone, user);

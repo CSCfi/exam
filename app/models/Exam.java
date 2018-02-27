@@ -97,9 +97,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @JsonManagedReference
     private List<ExamEnrolment> examEnrolments;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
-    @JsonManagedReference
-    private List<ExamParticipation> examParticipations;
+    @OneToOne(mappedBy = "exam")
+    private ExamParticipation examParticipation;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
@@ -493,12 +492,12 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.examEnrolments = examEnrolments;
     }
 
-    public List<ExamParticipation> getExamParticipations() {
-        return examParticipations;
+    public ExamParticipation getExamParticipation() {
+        return examParticipation;
     }
 
-    public void setExamParticipations(List<ExamParticipation> examParticipations) {
-        this.examParticipations = examParticipations;
+    public void setExamParticipation(ExamParticipation examParticipation) {
+        this.examParticipation = examParticipation;
     }
 
     public List<Exam> getChildren() {
@@ -539,7 +538,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private Exam createCopy(User user, boolean produceStudentExam) {
         Exam clone = new Exam();
-        BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipations",
+        BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipation",
                 "examInspections", "autoEvaluationConfig", "creator", "created", produceStudentExam ? "examOwners" : "none");
         clone.setParent(this);
         AppUtil.setCreator(clone, user);
