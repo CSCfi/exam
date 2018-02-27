@@ -5,13 +5,13 @@ import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Reservation;
-import models.User;
-import models.iop.ExternalReservation;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamMachine;
+import backend.models.ExamRoom;
+import backend.models.Reservation;
+import backend.models.User;
+import backend.models.iop.ExternalReservation;
 import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -20,7 +20,6 @@ import play.libs.Json;
 import play.mvc.Result;
 import static play.test.Helpers.contentAsString;
 
-import java.util.Locale;
 import java.util.TimeZone;
 import java.util.stream.StreamSupport;
 

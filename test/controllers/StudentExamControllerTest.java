@@ -1,5 +1,6 @@
 package controllers;
 
+import backend.models.*;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import io.ebean.Ebean;
@@ -10,10 +11,9 @@ import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
-import models.*;
-import models.questions.ClozeTestAnswer;
-import models.questions.EssayAnswer;
-import models.questions.Question;
+import backend.models.questions.ClozeTestAnswer;
+import backend.models.questions.EssayAnswer;
+import backend.models.questions.Question;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;

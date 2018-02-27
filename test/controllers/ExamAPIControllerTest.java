@@ -4,7 +4,7 @@ import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
-import models.Exam;
+import backend.models.Exam;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;

@@ -35,7 +35,7 @@ libraryDependencies ++= Seq(javaJdbc, ehcache, ws, evolutions, filters, guice,
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
 
-routesImport += "util.scala.Binders._"
+routesImport += "backend.util.scala.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 

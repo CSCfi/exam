@@ -1,5 +1,6 @@
 package controllers.iop;
 
+import backend.models.*;
 import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,8 +9,7 @@ import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetup;
 import helpers.RemoteServerHelper;
 import io.ebean.Ebean;
-import models.*;
-import models.iop.ExternalReservation;
+import backend.models.iop.ExternalReservation;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;

@@ -1,5 +1,6 @@
 package base;
 
+import backend.models.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.Configuration;
@@ -9,9 +10,8 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.config.ServerConfig;
 import io.ebeaninternal.api.SpiEbeanServer;
-import models.*;
-import models.questions.MultipleChoiceOption;
-import models.questions.Question;
+import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.Question;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,7 +26,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import util.JsonDeserializer;
+import backend.util.JsonDeserializer;
 
 import javax.persistence.PersistenceException;
 import java.io.File;

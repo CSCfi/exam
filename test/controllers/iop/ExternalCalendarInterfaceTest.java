@@ -1,5 +1,6 @@
 package controllers.iop;
 
+import backend.models.*;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import io.ebean.Ebean;
@@ -13,8 +14,7 @@ import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
 import helpers.RemoteServerHelper;
-import models.*;
-import models.iop.ExternalReservation;
+import backend.models.iop.ExternalReservation;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
@@ -27,7 +27,7 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import util.JsonDeserializer;
+import backend.util.JsonDeserializer;
 
 import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletOutputStream;

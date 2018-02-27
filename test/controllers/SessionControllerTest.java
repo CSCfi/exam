@@ -2,8 +2,8 @@ package controllers;
 
 import base.IntegrationTestCase;
 import io.ebean.Ebean;
-import models.Role;
-import models.User;
+import backend.models.Role;
+import backend.models.User;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;

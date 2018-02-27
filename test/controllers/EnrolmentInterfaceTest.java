@@ -6,7 +6,7 @@ import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import helpers.RemoteServerHelper;
-import models.Exam;
+import backend.models.Exam;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;

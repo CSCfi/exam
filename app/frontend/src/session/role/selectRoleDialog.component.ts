@@ -58,7 +58,7 @@ export const SelectRoleDialogComponent: angular.IComponentOptions = {
         user: User;
         resolve: { user: User };
         close: (x: { $value: Role }) => any;
-        dismiss: (x: any) => any;
+        dismiss: () => any;
 
         $onInit() {
             this.user = this.resolve.user;
@@ -69,7 +69,7 @@ export const SelectRoleDialogComponent: angular.IComponentOptions = {
         }
 
         cancel() {
-            this.dismiss('cancel');
+            this.dismiss();
         }
     }
 };

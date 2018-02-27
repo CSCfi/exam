@@ -44,7 +44,7 @@ angular.module('app.review')
                             vm.exam = exam;
                             vm.user = Session.getUser();
 
-                            vm.participation = vm.exam.examParticipations[0];
+                            vm.participation = vm.exam.examParticipation;
                             const duration = moment.utc(new Date(vm.participation.duration));
                             if (duration.second() > 29) {
                                 duration.add(1, 'minutes');
