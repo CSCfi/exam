@@ -44,7 +44,7 @@ public class ExamExpirationActor extends AbstractActor {
             DateTime now = DateTime.now();
             for (Exam exam : exams) {
                 DateTime expirationDate = exam.getState() == Exam.State.ABORTED ?
-                        exam.getExamParticipations().get(0).getEnded() : exam.getGradedTime();
+                        exam.getExamParticipation().getEnded() : exam.getGradedTime();
                 if (expirationDate == null) {
                     Logger.error("no grading time for exam #" + exam.getId().toString());
                     continue;

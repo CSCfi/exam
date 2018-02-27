@@ -198,42 +198,37 @@ public class ReviewController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamReviews(Long eid) {
         User user = getLoggedUser();
-        Set<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
-                .fetch("user", "id, firstName, lastName, email, userIdentifier")
-                .fetch("exam", "id, name, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount")
-                .fetch("exam.grade", "id, name")
-                .fetch("exam.gradeScale")
-                .fetch("exam.gradeScale.grades", new FetchConfig().query())
-                .fetch("exam.creditType")
-                .fetch("exam.examType")
-                .fetch("exam.executionType")
-                .fetch("exam.examFeedback")
-                .fetch("exam.languageInspection")
-                .fetch("exam.examSections.sectionQuestions.clozeTestAnswer") // for getting the scores (see below)
-                .fetch("exam.examSections.sectionQuestions.question") // for getting the scores (see below)
-                .fetch("exam.examLanguages", new FetchConfig().query())
-                .fetch("exam.course", "code, credits")
-                .fetch("exam.course.gradeScale")
-                .fetch("exam.course.gradeScale.grades", new FetchConfig().query())
-                .fetch("exam.parent.gradeScale")
-                .fetch("exam.parent.examOwners")
-                .fetch("exam.parent.gradeScale.grades", new FetchConfig().query())
-                .fetch("reservation", "retrialPermitted")
-                .where()
-                .eq("exam.parent.id", eid)
-                .in("exam.state", Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED,
+        PathProperties pp = PathProperties.parse("(" +
+                        "id, name, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, " +
+                "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*)" +
+                "examInspections(ready, user(id, firstName, lastName, email)), " +
+                "examSections(sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
+                "languageInspection(*), examLanguages(*), course(code, credits, gradeScale(grades(*))), " +
+                "parent(gradeScale(*, grades()), examOwners(firstName, lastName, email)), " +
+                "examParticipation(*, user(id, firstName, lastName, email, userIdentifier), reservation(retrialPermitted))" +
+                ")");
+        Query<Exam> query = Ebean.find(Exam.class);
+        pp.apply(query);
+        Set<Exam> exams = query.where()
+                .eq("parent.id", eid)
+                .in("state", Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED,
                         Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED, Exam.State.ARCHIVED)
                 .disjunction()
-                .eq("exam.parent.examOwners", user)
-                .eq("exam.examInspections.user", user)
+                .eq("parent.examOwners", user)
+                .eq("examInspections.user", user)
                 .endJunction()
                 .findSet();
-        participations.stream().map(ExamParticipation::getExam).forEach(exam -> {
-            exam.setMaxScore();
-            exam.setApprovedAnswerCount();
-            exam.setRejectedAnswerCount();
-            exam.setTotalScore();
-        });
+
+        Set<ExamParticipation> participations = exams.stream().map(e -> {
+            e.setMaxScore();
+            e.setApprovedAnswerCount();
+            e.setRejectedAnswerCount();
+            e.setTotalScore();
+            ExamParticipation ep = e.getExamParticipation();
+            ep.setExam(e);
+            return ep;
+        }).collect(Collectors.toSet());
+
         return ok(participations);
     }
 
@@ -692,8 +687,8 @@ public class ReviewController extends BaseController {
                 .fetch("examEnrolments.reservation.machine.room")
                 .fetch("examInspections")
                 .fetch("examInspections.user")
-                .fetch("examParticipations")
-                .fetch("examParticipations.user")
+                .fetch("examParticipation")
+                .fetch("examParticipation.user")
                 .fetch("examType")
                 .fetch("executionType")
                 .fetch("examSections")
