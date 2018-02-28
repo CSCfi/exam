@@ -37,6 +37,12 @@ angular.module('app.exam.editor')
                     initGradeScale();
                 };
 
+                vm.$onChanges = function(props) {
+                    if (props.exam) {
+                        initGradeScale();
+                    }
+                };
+
                 $scope.$on('$localeChangeSuccess', function () {
                     refreshExamTypes();
                     refreshGradeScales();
