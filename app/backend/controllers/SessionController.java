@@ -163,7 +163,7 @@ public class SessionController extends BaseController {
         // Associate pre-enrolment with a real user now that he/she is logged in
         Ebean.find(ExamEnrolment.class)
                 .where()
-                .eq("preEnrolledUserEmail", user.getEmail())
+                .in("preEnrolledUserEmail", user.getEmail(), user.getEppn())
                 .findEach(e -> {
                     e.setPreEnrolledUserEmail(null);
                     e.setUser(user);
