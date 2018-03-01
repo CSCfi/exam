@@ -2,6 +2,7 @@ package controllers;
 
 import base.IntegrationTestCase;
 import base.RunAsStudent;
+import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
@@ -10,6 +11,7 @@ import io.ebean.Ebean;
 import io.ebean.text.json.EJson;
 import models.Exam;
 import models.ExamEnrolment;
+import models.ExamExecutionType;
 import models.ExamMachine;
 import models.ExamRoom;
 import models.Reservation;
@@ -17,7 +19,6 @@ import models.User;
 import models.json.ExternalExam;
 import net.jodah.concurrentunit.Waiter;
 import org.eclipse.jetty.server.Server;
-import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -26,7 +27,6 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import static play.test.Helpers.contentAsString;
 import util.JsonDeserializer;
 
 import javax.servlet.http.HttpServlet;
@@ -37,6 +37,9 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
 
 
 public class EnrolmentControllerTest extends IntegrationTestCase {
@@ -80,6 +83,51 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         reservation = new Reservation();
         reservation.setUser(user);
         room = Ebean.find(ExamRoom.class, 1L);
+    }
+
+    @Test
+    @RunAsTeacher
+    public void testPreEnrollWithEmail() throws Exception {
+        String eppn = "student@uni.org";
+        String email = "student@foo.bar";
+        exam.setExecutionType(Ebean.find(ExamExecutionType.class)
+                .where().eq("type", ExamExecutionType.Type.PRIVATE.toString())
+                .findUnique());
+        exam.update();
+
+        Result result = request(Helpers.POST, "/app/enroll/student/" + exam.getId(), Json.newObject().put("email", email));
+        assertThat(result.status()).isEqualTo(200);
+
+        User user = Ebean.find(User.class).where().eq("eppn", eppn).findUnique();
+        assertThat(user).isNull();
+
+        login(eppn, ImmutableMap.of("mail", email));
+
+        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, exam.getExamEnrolments().get(0).getId());
+        assertThat(ee.getUser().getEmail()).isEqualTo(email);
+        assertThat(ee.getPreEnrolledUserEmail()).isNull();
+    }
+
+    @Test
+    @RunAsTeacher
+    public void testPreEnrollWithEppn() throws Exception {
+        String eppn = "student@uni.org";
+        exam.setExecutionType(Ebean.find(ExamExecutionType.class)
+                .where().eq("type", ExamExecutionType.Type.PRIVATE.toString())
+                .findUnique());
+        exam.update();
+
+        Result result = request(Helpers.POST, "/app/enroll/student/" + exam.getId(), Json.newObject().put("email", eppn));
+        assertThat(result.status()).isEqualTo(200);
+
+        User user = Ebean.find(User.class).where().eq("eppn", eppn).findUnique();
+        assertThat(user).isNull();
+
+        login(eppn);
+
+        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, exam.getExamEnrolments().get(0).getId());
+        assertThat(ee.getUser().getEppn()).isEqualTo(eppn);
+        assertThat(ee.getPreEnrolledUserEmail()).isNull();
     }
 
     @Test
