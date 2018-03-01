@@ -335,7 +335,12 @@ public class EnrolmentController extends BaseController {
         if (uid.isPresent()) {
             user = Ebean.find(User.class, uid.get());
         } else if (email.isPresent()) {
-            List<User> users = Ebean.find(User.class).where().eq("email", email.get()).findList();
+            List<User> users = Ebean.find(User.class).where()
+                    .or()
+                    .eq("email", email.get())
+                    .eq("eppn", email.get()) // CSCEXAM-34
+                    .endOr()
+                    .findList();
             if (users.isEmpty()) {
                 // Pre-enrolment
                 // Check that we will not create duplicate enrolments for same email address

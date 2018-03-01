@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -203,7 +204,11 @@ public class IntegrationTestCase {
     }
 
     protected void login(String eppn) {
+        login(eppn, Collections.emptyMap());
+    }
+    protected void login(String eppn, Map<String, String> overrides) {
         HAKA_HEADERS.put("eppn", eppn);
+        overrides.forEach(HAKA_HEADERS::put);
         Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS, false);
         assertThat(result.status()).isEqualTo(200);
         JsonNode user = Json.parse(contentAsString(result));
