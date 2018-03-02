@@ -59,7 +59,10 @@ public class IntegrationTestCase {
 
     private static final Map<String, String> HAKA_HEADERS = new HashMap<>();
 
-    static {
+    @Rule
+    public TestName currentTest = new TestName();
+
+    public IntegrationTestCase() {
         HAKA_HEADERS.put("displayName", "George%20Lazenby");
         HAKA_HEADERS.put("eppn", "george.lazenby@funet.fi");
         HAKA_HEADERS.put("sn", "Lazenby");
@@ -79,9 +82,6 @@ public class IntegrationTestCase {
         }
         System.setProperty("config.resource", "integrationtest.conf");
     }
-
-    @Rule
-    public TestName currentTest = new TestName();
 
     private Database getDB() {
         return Databases.createFrom("org.postgresql.Driver", "jdbc:postgresql://localhost/sitnet_test",
@@ -206,9 +206,10 @@ public class IntegrationTestCase {
     protected void login(String eppn) {
         login(eppn, Collections.emptyMap());
     }
-    protected void login(String eppn, Map<String, String> overrides) {
+
+    protected void login(String eppn, Map<String, String> headers) {
         HAKA_HEADERS.put("eppn", eppn);
-        overrides.forEach(HAKA_HEADERS::put);
+        headers.forEach(HAKA_HEADERS::put);
         Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS, false);
         assertThat(result.status()).isEqualTo(200);
         JsonNode user = Json.parse(contentAsString(result));
