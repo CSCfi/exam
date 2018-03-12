@@ -39,6 +39,7 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
     private User user;
 
     @OneToOne
+    @JsonBackReference
     private Exam exam;
 
     @OneToOne(cascade = CascadeType.REMOVE)

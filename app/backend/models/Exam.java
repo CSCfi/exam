@@ -98,6 +98,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private List<ExamEnrolment> examEnrolments;
 
     @OneToOne(mappedBy = "exam")
+    @JsonManagedReference
     private ExamParticipation examParticipation;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")

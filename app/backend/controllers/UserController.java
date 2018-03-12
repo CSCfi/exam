@@ -24,6 +24,7 @@ import backend.controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.Query;
+import io.ebean.text.PathProperties;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamInspection;
@@ -104,7 +105,9 @@ public class UserController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
     public Result findUsers(Optional<String> filter) {
-        Query<User> query = Ebean.find(User.class).fetch("roles").fetch("permissions");
+        PathProperties pp = PathProperties.parse("(*, roles(*), permissions(*))");
+        Query<User> query = Ebean.find(User.class);
+        pp.apply(query);
         List<User> results;
         if (filter.isPresent()) {
             ExpressionList<User> el = query.where().disjunction();
@@ -119,7 +122,7 @@ public class UserController extends BaseController {
         } else {
             results = query.orderBy("lastName, firstName").findList();
         }
-        return ok(Json.toJson(results));
+        return ok(results, pp);
     }
 
     @Restrict({@Group("ADMIN")})
