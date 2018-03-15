@@ -44,6 +44,7 @@ class EmailSenderImpl implements EmailSender {
         Logger.info("body: {}", content);
         email.getToAddresses().forEach(a -> Logger.info("to: {}", a));
         email.getReplyToAddresses().forEach(a -> Logger.info("replyTo: {}", a));
+        email.getCcAddresses().forEach(a -> Logger.info("cc: {}", a));
         Stream.of(attachments).forEach(a -> Logger.info("attachment: {}", a.getName()));
     }
 

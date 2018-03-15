@@ -13,24 +13,24 @@ lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 scalaVersion := "2.11.11"
 
 libraryDependencies ++= Seq(javaJdbc, ehcache, ws, evolutions, filters, guice,
-  "org.postgresql" % "postgresql" % "42.1.4",
   "be.objectify" %% "deadbolt-java" % "2.6.0",
+  "com.github.fge" % "json-schema-validator" % "2.2.6",
+  "com.google.code.gson" % "gson" % "2.8.2",
+  "com.opencsv" % "opencsv" % "4.0",
+  "net.sf.biweekly" % "biweekly" % "0.6.1",
+  "org.apache.commons" % "commons-compress" % "1.14",
   "org.apache.commons" % "commons-email" % "1.5",
   "org.apache.poi" % "poi" % "3.17",
   "org.apache.poi" % "poi-ooxml" % "3.17",
-  "org.apache.commons" % "commons-compress" % "1.14",
-  "com.opencsv" % "opencsv" % "4.0",
   "org.jsoup" % "jsoup" % "1.10.3",
-  "net.sf.biweekly" % "biweekly" % "0.6.1",
-  "com.google.code.gson" % "gson" % "2.8.2",
-  "com.github.fge" % "json-schema-validator" % "2.2.6",
-  "com.jayway.jsonpath" % "json-path" % "2.2.0" % "test",
+  "org.postgresql" % "postgresql" % "42.1.4",
   "com.icegreen" % "greenmail" % "1.5.5" % "test",
+  "com.jayway.jsonpath" % "json-path" % "2.2.0" % "test",
+  "net.jodah" % "concurrentunit" % "0.4.2" % "test",
   "org.eclipse.jetty" % "jetty-server" % "9.4.4.v20170414" % "test",
   "org.eclipse.jetty" % "jetty-servlet" % "9.4.4.v20170414" % "test",
   "org.easytesting" % "fest-assert" % "1.4" % "test",
-  "org.yaml" % "snakeyaml" % "1.17" % "test",
-  "net.jodah" % "concurrentunit" % "0.4.2" % "test"
+  "org.yaml" % "snakeyaml" % "1.17" % "test"
 )
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
