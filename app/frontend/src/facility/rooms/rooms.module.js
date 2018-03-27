@@ -15,4 +15,6 @@
 
 import angular from'angular';
 
-angular.module('app.facility.rooms', ['app.facility.accessibility']);
+require('../../iop');
+
+angular.module('app.facility.rooms', ['app.facility.accessibility', 'app.iop']);
