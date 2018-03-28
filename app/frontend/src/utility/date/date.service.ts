@@ -44,7 +44,7 @@ export class DateTimeService {
         const lang = this.$translate.use();
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
         const options = { weekday: 'short' };
-        return _.range(1, 6).concat(0).map(
+        return _.range(1, 7).concat(0).map(
             d => this.getDateForWeekday(d).toLocaleDateString(locale, options)
         );
     }
