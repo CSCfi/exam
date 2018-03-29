@@ -18,6 +18,7 @@ package backend.models;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.calendar.DefaultWorkingHours;
 import backend.models.calendar.ExceptionWorkingHours;
+import backend.util.DateTimeUtils;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.ebean.Finder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -26,13 +27,13 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
-import backend.util.DateTimeUtils;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity
 public class ExamRoom extends GeneratedIdentityModel {
@@ -353,12 +354,10 @@ public class ExamRoom extends GeneratedIdentityModel {
                 DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, DateTimeUtils.RestrictionType.RESTRICTIVE));
         List<OpeningHours> availableHours = new ArrayList<>();
         if (!extensionEvents.isEmpty()) {
-            List<Interval> unifiedIntervals = new ArrayList<>();
-            for (OpeningHours oh : workingHours) {
-                unifiedIntervals.add(oh.getHours());
-            }
-            unifiedIntervals.addAll(extensionEvents);
-            unifiedIntervals = DateTimeUtils.mergeSlots(unifiedIntervals);
+            List<Interval> unifiedIntervals = DateTimeUtils.mergeSlots(
+                    Stream.concat(workingHours.stream().map(OpeningHours::getHours), extensionEvents.stream())
+                            .collect(Collectors.toList())
+            );
             int tzOffset;
             if (workingHours.isEmpty()) {
                 tzOffset = DateTimeZone.forID(localTimezone).getOffset(new DateTime(date));

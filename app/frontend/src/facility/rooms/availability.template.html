@@ -1,0 +1,58 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{'sitnet_reservations_new' | translate}}</span>
+    </div>
+</div>
+<div id="dashboard">
+    <div class="student-exam-row">
+
+        <!-- ROOM  -->
+        <div class="calendar-room-title" ng-show="$ctrl.room">
+            <span>{{ $ctrl.room.name }}&nbsp;
+                <small> ({{ $ctrl.room.localTimezone }})</small>
+                <small class="text-muted">{{room.mailAddress.street}} {{room.mailAddress.zip}} {{room.mailAddress.city}}
+                </small>
+            </span>
+        </div>
+
+        <div class="calendar-room-info" ng-show="$ctrl.room">
+            <div class="calendar-room-info-title">{{'sitnet_room_default_working_hours' | translate }}</div>
+            <div class="calendar-room-info-content">
+                <div ng-repeat="oh in $ctrl.openingHours">
+                    {{oh.name}}: {{oh.periodText}}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="calendar-room-info" ng-show="$ctrl.exceptionHours.length > 0">
+            <div class="calendar-room-info-title">{{'sitnet_exception_datetimes' | translate }}:</div>
+            <div class="calendar-room-info-content">
+                <div ng-repeat="eh in $ctrl.exceptionHours" ng-class="eh.outOfService ? 'text-danger' : 'text-success'" popover-trigger="'mouseenter'"
+                    uib-popover="{{eh.description | translate}}">
+                    {{eh.start}} - {{eh.end}}
+                </div>
+            </div>
+        </div>
+
+        <hr ng-show="$ctrl.room">
+
+    </div>
+
+    <div class="student-exam-row">
+
+        <div class="main-row" ng-show="$ctrl.loader.loading">
+            <div class="col-md-12">
+                <button class="btn btn-success">{{'sitnet_searching' | translate }}...
+                    <i class="fa fa-spinner fa-spin"></i>
+                </button>
+            </div>
+        </div>
+        <booking-calendar on-refresh="$ctrl.refresh(start, callback)" room="$ctrl.room">
+        </booking-calendar>
+    </div>
+
+</div>
+
+</div>

@@ -15,16 +15,7 @@
 
 package backend.controllers;
 
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import backend.controllers.base.BaseController;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.Query;
-import io.ebean.text.PathProperties;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamInspection;
@@ -33,13 +24,22 @@ import backend.models.Permission;
 import backend.models.Role;
 import backend.models.User;
 import backend.models.questions.Question;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.UserLanguageSanitizer;
+import backend.validators.JsonValidator;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.With;
-import backend.sanitizers.Attrs;
-import backend.sanitizers.UserLanguageSanitizer;
-import backend.validators.JsonValidator;
 
 import java.util.HashSet;
 import java.util.List;

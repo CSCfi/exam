@@ -25,25 +25,25 @@ angular.module('app.facility.rooms')
 
             const week = {
                 'MONDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                    return {'index': i, type: ''};
+                    return { 'index': i, type: '' };
                 }),
                 'TUESDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                    return {'index': i, type: ''};
+                    return { 'index': i, type: '' };
                 }),
                 'WEDNESDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                    return {'index': i, type: ''};
+                    return { 'index': i, type: '' };
                 }),
                 'THURSDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                    return {'index': i, type: ''};
+                    return { 'index': i, type: '' };
                 }),
                 'FRIDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                    return {'index': i, type: ''};
+                    return { 'index': i, type: '' };
                 }),
                 'SATURDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                    return {'index': i, type: ''};
+                    return { 'index': i, type: '' };
                 }),
                 'SUNDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                    return {'index': i, type: ''};
+                    return { 'index': i, type: '' };
                 })
             };
 
@@ -63,9 +63,9 @@ angular.module('app.facility.rooms')
                     id: '@id'
                 },
                 {
-                    'update': {method: 'PUT'},
-                    'inactivate': {method: 'DELETE'},
-                    'activate': {method: 'POST'}
+                    'update': { method: 'PUT' },
+                    'inactivate': { method: 'DELETE' },
+                    'activate': { method: 'POST' }
                 });
 
             self.addresses = $resource('/app/address/:id',
@@ -73,22 +73,27 @@ angular.module('app.facility.rooms')
                     id: '@id'
                 },
                 {
-                    'update': {method: 'PUT'}
+                    'update': { method: 'PUT' }
                 });
+
+            self.availability = $resource('/app/availability/:roomId/:date', {
+                roomId: '@roomId',
+                date: '@date'
+            });
 
             self.workingHours = $resource('/app/workinghours/', null,
                 {
-                    'update': {method: 'PUT'}
+                    'update': { method: 'PUT' }
                 });
             self.examStartingHours = $resource('/app/startinghours/', null,
                 {
-                    'update': {method: 'PUT'}
+                    'update': { method: 'PUT' }
                 }
             );
             self.exceptions = $resource('/app/exception',
                 {},
                 {
-                    'update': {method: 'PUT'}
+                    'update': { method: 'PUT' }
                 });
 
             self.exception = $resource('/app/rooms/:roomId/exception/:exceptionId',
@@ -97,7 +102,7 @@ angular.module('app.facility.rooms')
                     exceptionId: '@exceptionId'
                 },
                 {
-                    'remove': {method: 'DELETE'}
+                    'remove': { method: 'DELETE' }
                 });
 
             self.draft = $resource('/app/draft/rooms');
@@ -134,11 +139,15 @@ angular.module('app.facility.rooms')
                 return angular.copy(week);
             };
 
+            self.getAvailability = function (roomId, date) {
+                return self.availability.query({ date: date, roomId: roomId }).$promise;
+            };
+
             self.disableRoom = function (room) {
                 const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                     $translate.instant('sitnet_confirm_room_inactivation'));
                 dialog.result.then(function () {
-                    self.rooms.inactivate({id: room.id},
+                    self.rooms.inactivate({ id: room.id },
                         function () {
                             toast.info($translate.instant('sitnet_room_inactivated'));
                             $route.reload();
@@ -151,7 +160,7 @@ angular.module('app.facility.rooms')
             };
 
             self.enableRoom = function (room) {
-                self.rooms.activate({id: room.id},
+                self.rooms.activate({ id: room.id },
                     function () {
                         toast.info($translate.instant('sitnet_room_activated'));
                         $route.reload();
@@ -165,7 +174,7 @@ angular.module('app.facility.rooms')
 
             self.addException = function (ids, exception) {
                 const d = $q.defer();
-                self.exceptions.update({roomIds: ids, exception: exception},
+                self.exceptions.update({ roomIds: ids, exception: exception },
                     function (data) {
                         toast.info($translate.instant('sitnet_exception_time_added'));
                         d.resolve(data);
@@ -184,13 +193,13 @@ angular.module('app.facility.rooms')
                     backdrop: 'static',
                     keyboard: true
                 }).result.then(function (exception) {
-                    callBack({exception: exception});
+                    callBack({ exception: exception });
                 }).catch(angular.noop);
             };
 
             self.deleteException = function (roomId, exceptionId) {
                 const d = $q.defer();
-                self.exception.remove({roomId: roomId, exceptionId: exceptionId},
+                self.exception.remove({ roomId: roomId, exceptionId: exceptionId },
                     function () {
                         toast.info($translate.instant('sitnet_exception_time_removed'));
                         d.resolve();
@@ -215,7 +224,7 @@ angular.module('app.facility.rooms')
                 }).map(function (hour) {
                     return formatTime(hour.startingHour);
                 });
-                const data = {hours: selected, offset: offset, roomIds: roomIds};
+                const data = { hours: selected, offset: offset, roomIds: roomIds };
 
                 self.examStartingHours.update(data,
                     function () {
@@ -237,12 +246,12 @@ angular.module('app.facility.rooms')
                 for (let day in week) {
                     if (week.hasOwnProperty(day)) {
                         const blocks = blocksForDay(week, day);
-                        const weekdayBlocks = {'weekday': day, 'blocks': []};
+                        const weekdayBlocks = { 'weekday': day, 'blocks': [] };
                         for (let i = 0; i < blocks.length; ++i) {
                             const block = blocks[i];
                             const start = formatTime(times[block[0]] || '0:00');
                             const end = formatTime(times[block[block.length - 1] + 1]);
-                            weekdayBlocks.blocks.push({'start': start, 'end': end});
+                            weekdayBlocks.blocks.push({ 'start': start, 'end': end });
                         }
                         workingHours.push(weekdayBlocks);
                     }

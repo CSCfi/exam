@@ -96,6 +96,7 @@ export default function configs(
     $routeProvider.when('/exams', { template: '<exam-list></exam-list>' });
     $routeProvider.when('/rooms', { template: '<room-list></room-list>' });
     $routeProvider.when('/rooms/:id', { template: '<room></room>' });
+    $routeProvider.when('/rooms/:id/availability', { template: '<availability></availability>' });
     $routeProvider.when('/rooms_edit/edit_multiple', { template: '<multi-room></multi-room>' });
 
     $routeProvider.when('/softwares', { template: '<software></software>' });
