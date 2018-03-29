@@ -29,9 +29,11 @@
         <div class="calendar-room-info" ng-show="$ctrl.exceptionHours.length > 0">
             <div class="calendar-room-info-title">{{'sitnet_exception_datetimes' | translate }}:</div>
             <div class="calendar-room-info-content">
-                <div ng-repeat="eh in $ctrl.exceptionHours" ng-class="eh.outOfService ? 'text-danger' : 'text-success'" popover-trigger="'mouseenter'"
-                    uib-popover="{{eh.description | translate}}">
-                    {{eh.start}} - {{eh.end}}
+                <div ng-repeat="eh in $ctrl.exceptionHours">
+                    <span ng-class="eh.outOfService ? 'text-danger' : 'text-success'">
+                        {{eh.start}} - {{eh.end}}
+                        <small>({{ eh.description | translate }})</small>
+                    </span>
                 </div>
             </div>
         </div>
