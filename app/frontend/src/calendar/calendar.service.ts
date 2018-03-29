@@ -194,15 +194,13 @@ export class CalendarService {
         return openingHours.sort((a, b) => a.ord - b.ord);
     }
 
-    private formatExceptionEvent(event, tz) {
+    private static formatExceptionEvent(event, tz) {
         const startDate = moment.tz(event.startDate, tz);
         const endDate = moment.tz(event.endDate, tz);
-        const offset = moment.tz(tz).isDST() ? -1 : 0;
-        startDate.add(offset, 'hour');
-        endDate.add(offset, 'hour');
         event.start = startDate.format('DD.MM.YYYY HH:mm');
         event.end = endDate.format('DD.MM.YYYY HH:mm');
         event.description = event.outOfService ? 'sitnet_closed' : 'sitnet_open';
+        return event;
     }
 
     getExceptionHours(room: Room) {
@@ -215,7 +213,11 @@ export class CalendarService {
         const events = room.calendarExceptionEvents.filter(function (e) {
             return (moment(e.startDate) > start && moment(e.endDate) < end);
         });
-        return events.map(e => this.formatExceptionEvent(e, room.localTimezone));
+        return events.map(e => CalendarService.formatExceptionEvent(e, room.localTimezone));
+    }
+
+    getExceptionalAvailability(room: Room) {
+        return room.calendarExceptionEvents.map(e => CalendarService.formatExceptionEvent(e, room.localTimezone));
     }
 
     getEarliestOpening(room: Room): moment.Moment {

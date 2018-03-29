@@ -20,10 +20,8 @@ import moment from 'moment';
 angular.module('app.facility.rooms')
     .component('room', {
         template: require('./room.template.html'),
-        controller: ['$translate', '$scope', '$rootScope', '$route', '$location', '$uibModal', '$routeParams', '$http',
-            'dialogs', 'Room', 'SettingsResource', 'InteroperabilityResource',
-            function ($translate, $scope, $rootScope, $route, $location, $modal, $routeParams, $http, dialogs, Room, SettingsRes,
-                      InteroperabilityRes) {
+        controller: ['$translate', '$location', '$routeParams', 'Room', 'SettingsResource', 'InteroperabilityResource',
+            function ($translate, $location, $routeParams, Room, SettingsRes, InteroperabilityRes) {
 
                 const vm = this;
 
@@ -34,7 +32,7 @@ angular.module('app.facility.rooms')
                         vm.isInteroperable = data.isInteroperable;
                     });
 
-                    Room.rooms.get({id: $routeParams.id},
+                    Room.rooms.get({ id: $routeParams.id },
                         function (room) {
                             room.availableForExternals = room.externalRef !== null;
                             vm.room = room;

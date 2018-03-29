@@ -231,35 +231,33 @@ export const CalendarComponent: angular.IComponentOptions = {
             }
             const date = start.format();
             const accessibilities = this.accessibilities.filter(i => i.filtered).map(i => i.id);
-            if (room != null) {
-                this.loader.loading = true;
-                const tz = room.localTimezone;
-                const successFn = (resp: IHttpResponse<AvailableSlot[]>) => {
-                    const events = resp.data.map(slot => {
-                        return {
-                            title: this.getTitle(slot),
-                            color: this.getColor(slot),
-                            start: this.adjust(slot.start, tz),
-                            end: this.adjust(slot.end, tz),
-                            availableMachines: slot.availableMachines
-                        };
-                    });
-                    callback(events);
-                    this.loader.loading = false;
-                };
-                const errorFn = (resp: IHttpResponse<any>) => {
-                    this.loader.loading = false;
-                    if (resp.status === 404) {
-                        toast.error(this.$translate.instant('sitnet_exam_not_active_now'));
-                    } else if (resp.data) {
-                        toast.error(resp.data.message);
-                    } else {
-                        toast.error(this.$translate.instant('sitnet_no_suitable_enrolment_found'));
-                    }
-                };
-                this.query(successFn, errorFn, date, room, accessibilities);
-                this.exceptionHours = this.Calendar.getExceptionHours(room);
-            }
+            this.loader.loading = true;
+            const tz = room.localTimezone;
+            const successFn = (resp: IHttpResponse<AvailableSlot[]>) => {
+                const events = resp.data.map(slot => {
+                    return {
+                        title: this.getTitle(slot),
+                        color: this.getColor(slot),
+                        start: this.adjust(slot.start, tz),
+                        end: this.adjust(slot.end, tz),
+                        availableMachines: slot.availableMachines
+                    };
+                });
+                callback(events);
+                this.loader.loading = false;
+            };
+            const errorFn = (resp: IHttpResponse<any>) => {
+                this.loader.loading = false;
+                if (resp.status === 404) {
+                    toast.error(this.$translate.instant('sitnet_exam_not_active_now'));
+                } else if (resp.data) {
+                    toast.error(resp.data.message);
+                } else {
+                    toast.error(this.$translate.instant('sitnet_no_suitable_enrolment_found'));
+                }
+            };
+            this.query(successFn, errorFn, date, room, accessibilities);
+            this.exceptionHours = this.Calendar.getExceptionHours(room);
         }
 
         private listExternalRooms() {

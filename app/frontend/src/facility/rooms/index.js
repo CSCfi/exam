@@ -18,3 +18,4 @@ require('./room.service');
 require('./room.component');
 require('./roomList.component');
 require('./multiRoom.component');
+require('./availability.component');
