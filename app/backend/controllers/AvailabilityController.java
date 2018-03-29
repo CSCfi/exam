@@ -93,7 +93,6 @@ public class AvailabilityController extends BaseController {
         Set<Interval> allSlots = new LinkedHashSet<>();
         LocalDate window = searchStart.toLocalDate();
         while (!window.isAfter(searchEnd.toLocalDate())) {
-            List<Interval> slutsForDate = room.getWorkingHoursForDate(window).stream().map(ExamRoom.OpeningHours::getHours).collect(Collectors.toList());
             List<Interval> slotsForDate = room.getWorkingHoursForDate(window)
                     .stream()
                     .map(oh -> new Interval(oh.getHours().getStart().minusMillis(oh.getTimezoneOffset()),
