@@ -77,7 +77,7 @@ angular.module('app').config(['$translateProvider', '$routeProvider', '$httpProv
         $routeProvider.when('/student/exams', {template: '<exam-search></exam-search>'});
         $routeProvider.when('/student/participations', {template: '<exam-participations></exam-participations>'});
         $routeProvider.when('/student/logout/:reason?', {template: '<examination-logout></examination-logout>'});
-        $routeProvider.when('/enroll/:code/exam/:id', {template: '<exam-enrolments></exam-enrolments>'});
+        $routeProvider.when('/enroll/exam/:id', {template: '<exam-enrolments></exam-enrolments>'});
 
 
         /* review */
