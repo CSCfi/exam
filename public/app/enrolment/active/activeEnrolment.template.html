@@ -8,8 +8,8 @@
                     <span class="month-name">{{ $ctrl.enrolment.reservation.startAt | date:'MMM' | limitTo:3 | uppercase }}</span>
                 </div>
                 <!-- exam title n stuff -->
-                <div class="student-enrolment-exam">
-                    <a href="/enroll/{{ $ctrl.enrolment.exam.course.code }}/exam/{{ $ctrl.enrolment.exam.id }}">
+                <div class="student-enrolment-exam">git
+                    <a href="/enroll/exam/{{ $ctrl.enrolment.exam.id }}?code={{ $ctrl.enrolment.exam.course.code }}">
                         {{ $ctrl.enrolment.exam.name }}</a><br/>
                     <span ng-if="$ctrl.enrolment.exam.state ==='PUBLISHED' && $ctrl.enrolment.reservation"
                           class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
