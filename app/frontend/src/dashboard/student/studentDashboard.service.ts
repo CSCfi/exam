@@ -44,7 +44,7 @@ export class StudentDashboardService {
 
         this.$http.get('/app/enrolments').then((resp: IHttpResponse<{ reservation: Reservation }[]>) => {
             const enrolments = resp.data;
-            enrolments.forEach(function (e) {
+            enrolments.forEach((e) => {
                 if (e.reservation) {
                     this.setOccasion(e.reservation);
                 }
