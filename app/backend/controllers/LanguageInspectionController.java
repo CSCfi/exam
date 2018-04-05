@@ -15,33 +15,32 @@
 
 package backend.controllers;
 
+import java.util.Date;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
-import backend.controllers.base.BaseController;
 import be.objectify.deadbolt.java.actions.Dynamic;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
-import backend.controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
-import backend.models.Comment;
-import backend.models.Exam;
-import backend.models.LanguageInspection;
-import backend.models.User;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.data.DynamicForm;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
-import backend.util.AppUtil;
-import backend.impl.EmailComposer;
 
-import javax.inject.Inject;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import backend.controllers.base.BaseController;
+import backend.impl.EmailComposer;
+import backend.models.Comment;
+import backend.models.Exam;
+import backend.models.LanguageInspection;
+import backend.models.User;
+import backend.util.AppUtil;
 
 
 public class LanguageInspectionController extends BaseController {
@@ -66,7 +65,6 @@ public class LanguageInspectionController extends BaseController {
                 .ne("exam.state", Exam.State.DELETED);
 
         if (start.isPresent() || end.isPresent()) {
-            long x = 100;
             if (start.isPresent()) {
                 DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
                 query = query.ge("finishedAt", startDate.toDate());
@@ -89,7 +87,7 @@ public class LanguageInspectionController extends BaseController {
                     .endJunction();
         }
 
-        List<LanguageInspection> inspections = query.findList();
+        Set<LanguageInspection> inspections = query.findSet();
         return ok(inspections);
     }
 
