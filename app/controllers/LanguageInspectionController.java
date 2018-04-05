@@ -21,6 +21,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
+import impl.EmailComposer;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import models.Comment;
@@ -33,11 +34,9 @@ import play.data.DynamicForm;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
-import impl.EmailComposer;
 
 import javax.inject.Inject;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +64,6 @@ public class LanguageInspectionController extends BaseController {
                 .ne("exam.state", Exam.State.DELETED);
 
         if (start.isPresent() || end.isPresent()) {
-            long x = 100;
             if (start.isPresent()) {
                 DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
                 query = query.ge("finishedAt", startDate.toDate());
@@ -88,7 +86,7 @@ public class LanguageInspectionController extends BaseController {
                     .endJunction();
         }
 
-        List<LanguageInspection> inspections = query.findList();
+        Set<LanguageInspection> inspections = query.findSet();
         return ok(inspections);
     }
 
