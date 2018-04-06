@@ -433,6 +433,7 @@ courses:
     code: 811386A
     name: Algoritmit
     credits: 5
+    gradeScale: *zerotofive
 
   - &812346A !!models.Course
     institutionName: "Testing Yliopisto"
@@ -692,6 +693,24 @@ exams:
     state: SAVED
     examLanguages:
       - *sv
+
+  - &algoritmit_graded !!models.Exam
+    creator: *olli
+    created: 2015-01-01 12:30:05.123
+    parent: *algoritmit
+    course: *811386A
+    name: Algoritmit, 2013
+    examType:
+    instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja
+    shared: true
+    examActiveStartDate: 2014-05-01 08:00:00.123
+    examActiveEndDate: 2014-12-29 16:00:00.123
+    gradeScale: *approvedrejected
+    examSections:
+    state: GRADED
+    duration: 90
+    examLanguages:
+      - *de
 
 ################################################################
 
@@ -1141,6 +1160,14 @@ exam-participations:
     ended: 2014-05-26 10:00:00.575
     duration: 1970-01-01 02:00:00.000
     deadline: 2014-12-23 10:00:00.575
+
+  - !!models.ExamParticipation
+      user: *sauli
+      exam: *algoritmit_graded
+      started: 2014-05-26 08:00:00.575
+      ended: 2014-05-26 10:00:00.575
+      duration: 1970-01-01 02:00:00.000
+      deadline: 2014-12-23 10:00:00.575
 
 ################################################################
 
