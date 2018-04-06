@@ -203,12 +203,14 @@ public class ReviewController extends BaseController {
                 "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*)" +
                 "examInspections(ready, user(id, firstName, lastName, email)), " +
                 "examSections(sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
-                "languageInspection(*), examLanguages(*), course(code, credits, gradeScale(grades(*))), " +
-                "parent(gradeScale(*, grades()), examOwners(firstName, lastName, email)), " +
+                "languageInspection(*), examLanguages(*)" +
+                "parent(examOwners(firstName, lastName, email)), " +
                 "examParticipation(*, user(id, firstName, lastName, email, userIdentifier), reservation(retrialPermitted))" +
                 ")");
         Query<Exam> query = Ebean.find(Exam.class);
         pp.apply(query);
+        query.fetchQuery("course", "code, credits")
+                .fetch("course.gradeScale.grades");
         Set<Exam> exams = query.where()
                 .eq("parent.id", eid)
                 .in("state", Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED,
