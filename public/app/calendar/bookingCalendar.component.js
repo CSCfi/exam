@@ -28,16 +28,20 @@ angular.module('app.calendar')
             'room': '<',
             'minDate': '<',
             'maxDate': '<'
-        }, controller: ['$translate', 'Calendar',
-            function ($translate, Calendar) {
+        }, controller: ['$translate', 'Calendar', '$rootScope', 'lodash',
+            function ($translate, Calendar, $rootScope, lodash) {
 
                 var vm = this;
 
                 vm.$onInit = function () {
                     vm.eventSources = [];
 
+                    vm.defaultDate = moment();
+
                     var selectedEvent;
                     vm.calendarConfig = {
+                        lang: $translate.use(),
+                        defaultDate: vm.defaultDate,
                         editable: false,
                         selectable: false,
                         selectHelper: false,
@@ -60,7 +64,7 @@ angular.module('app.calendar')
                         },
                         customButtons: {
                             myCustomButton: {
-                                text: moment().format('MMMM YYYY'),
+                                text: lodash.capitalize(moment().locale($translate.use()).format('MMMM YYYY')),
                                 click: function () {
 
                                 }
@@ -69,6 +73,9 @@ angular.module('app.calendar')
                         events: function (start, end, timezone, callback) {
                             Calendar.renderCalendarTitle();
                             vm.onRefresh({start: start, callback: callback});
+                        },
+                        viewRender: function (view) {
+                            vm.defaultDate = view.start;
                         },
                         eventClick: function (event) {
                             //vm.validSelections = false;
@@ -104,8 +111,13 @@ angular.module('app.calendar')
                             var prevButton = $('.fc-prev-button');
                             var nextButton = $('.fc-next-button');
                             var todayButton = $('.fc-today-button');
+                            var customButton = $('.fc-myCustomButton-button');
 
                             var today = moment();
+
+                            customButton.text(
+                                lodash.capitalize(view.start.locale($translate.use()).format('MMMM YYYY'))
+                            );
 
                             if (vm.minDate >= view.start && vm.minDate <= view.end) {
                                 prevButton.prop('disabled', true);
@@ -132,6 +144,15 @@ angular.module('app.calendar')
                         }
                     };
                 };
+
+                $rootScope.$on('$translateChangeSuccess', function () {
+                    vm.calendarConfig.buttonText.today = $translate.instant('sitnet_today');
+                    vm.calendarConfig.customButtons.myCustomButton.text = lodash.capitalize(
+                        moment().locale($translate.use()).format('MMMM YYYY')
+                    );
+                    vm.calendarConfig.lang = $translate.use();
+                    vm.calendarConfig.defaultDate = vm.defaultDate;
+                });
 
                 vm.$onChanges = function (props) {
                     if (props.room && props.room.currentValue) {
