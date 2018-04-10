@@ -152,8 +152,10 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
             }
             if (props.room && props.room.currentValue) {
                 const room = props.room.currentValue;
-                const minTime = this.Calendar.getEarliestOpening(room).add(-1, 'hours');
-                const maxTime = this.Calendar.getLatestClosing(room).add(1, 'hours');
+                const earliestOpening = this.Calendar.getEarliestOpening(room);
+                const minTime = earliestOpening.hours() > 1 ? earliestOpening.add(-1, 'hours') : earliestOpening;
+                const latestClosing = this.Calendar.getLatestClosing(room);
+                const maxTime = latestClosing.hours() < 23 ? latestClosing.add(1, 'hours') : latestClosing;
                 const hiddenDays = this.Calendar.getClosedWeekdays(room);
                 $('#calendar').fullCalendar(
                     $.extend(this.calendarConfig, {
