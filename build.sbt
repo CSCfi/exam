@@ -13,7 +13,7 @@ lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 scalaVersion := "2.11.11"
 
 libraryDependencies ++= Seq(javaJdbc, ehcache, ws, evolutions, filters, guice,
-  "be.objectify" %% "deadbolt-java" % "2.6.0",
+  "be.objectify" %% "deadbolt-java" % "2.6.3",
   "com.github.fge" % "json-schema-validator" % "2.2.6",
   "com.google.code.gson" % "gson" % "2.8.2",
   "com.opencsv" % "opencsv" % "4.0",
