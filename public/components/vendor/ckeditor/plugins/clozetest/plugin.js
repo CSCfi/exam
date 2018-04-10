@@ -22,8 +22,13 @@ CKEDITOR.plugins.add( 'clozetest', {
                 command: 'insertCloze',
                 group: 'clozeGroup'
             });
+
+            var selector = function (el) {
+                return el.getName && el.getName() === 'span' && el.getAttribute('cloze') === 'true';
+            };
+
             editor.contextMenu.addListener( function( element ) {
-                if ( element.getAscendant( 'span', true ) ) {
+                if ( element.getAscendant( selector, true ) ) {
                     return { clozeItem: CKEDITOR.TRISTATE_OFF };
                 }
             });

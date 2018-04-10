@@ -76,7 +76,7 @@ interface CkEditorScope extends IScope {
 }
 export class CkEditor implements IDirective<CkEditorScope> {
     require = 'ngModel';
-    scope: {
+    scope = {
         enableClozeTest: '=?'
     };
 
@@ -85,21 +85,26 @@ export class CkEditor implements IDirective<CkEditorScope> {
         let tmp;
         ck.on('instanceReady', () => {
             ck.setData(tmp);
-            if (!scope.enableClozeTest) {
-                ck.getCommand('insertCloze').disable();
-            }
+            toggleAllowedControls(scope.enableClozeTest);
         });
 
-        scope.$watch('enableClozeTest', (value) => {
-            const cmd = ck.getCommand('insertCloze');
-            if (cmd) {
-                if (!value) {
-                    cmd.disable();
-                } else {
-                    cmd.enable();
-                }
-            }
+        scope.$watch('enableClozeTest', (value: boolean) => {
+            toggleAllowedControls(value);
         });
+
+        const toggleAllowedControls = (enabled: boolean) => {
+            // We need to disable some paste tools when cloze test editing is ongoing. There's a risk that
+            // disfunctional formatting gets pasted which can break the cloze test markup.
+            const pasteCtrls = ['paste', 'pastefromword'].map(cmd => ck.getCommand(cmd)).filter(_.isObject);
+            const clozeCtrls = ['insertCloze'].map(cmd => ck.getCommand(cmd)).filter(_.isObject);
+            if (enabled) {
+                clozeCtrls.forEach(cmd => cmd.enable());
+                pasteCtrls.forEach(cmd => cmd.disable());
+            } else {
+                clozeCtrls.forEach(cmd => cmd.disable());
+                pasteCtrls.forEach(cmd => cmd.enable());
+            }
+        };
 
         const updateModel = () =>
             _.defer(() => scope.$apply(() => ngModel.$setViewValue(ck.getData())));
