@@ -15,6 +15,7 @@
 
 import * as angular from 'angular';
 import * as moment from 'moment';
+import * as _ from 'lodash';
 import * as fullCalendar from 'fullcalendar';
 import { CalendarService, Room } from './calendar.service';
 
@@ -43,9 +44,11 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
         minDate: moment.Moment;
         maxDate: moment.Moment;
         eventSources: any[] = [];
+        defaultDate: moment.Moment;
         calendarConfig: any;
 
         constructor(
+            private $rootScope: angular.IRootScopeService,
             private $translate: angular.translate.ITranslateService,
             private Calendar: CalendarService
         ) {
@@ -55,7 +58,18 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
         $onInit() {
             const self = this;
             let selectedEvent;
+            this.defaultDate = moment();
+            this.$rootScope.$on('$translateChangeSuccess', () => {
+                this.calendarConfig.buttonText.today = this.$translate.instant('sitnet_today');
+                this.calendarConfig.customButtons.myCustomButton.text = _.capitalize(
+                    moment().locale(this.$translate.use()).format('MMMM YYYY')
+                );
+                this.calendarConfig.lang = this.$translate.use();
+                this.calendarConfig.defaultDate = this.defaultDate;
+            });
             this.calendarConfig = {
+                lang: this.$translate.use(),
+                defaultDate: this.defaultDate,
                 editable: false,
                 selectable: false,
                 selectHelper: false,
@@ -68,6 +82,9 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
                 titleFormat: 'D.M.YYYY',
                 slotLabelFormat: 'H:mm',
                 slotEventOverlap: false,
+                buttonText: {
+                    today: this.$translate.instant('sitnet_today')
+                },
                 header: {
                     left: 'myCustomButton',
                     center: 'prev title next',
@@ -75,7 +92,7 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
                 },
                 customButtons: {
                     myCustomButton: {
-                        text: moment().format('MMMM YYYY'),
+                        text: _.capitalize(moment().locale(this.$translate.use()).format('MMMM YYYY')),
                         click: function () {
 
                         }
@@ -84,6 +101,9 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
                 events: (start, end, timezone, callback: () => void) => {
                     this.Calendar.renderCalendarTitle();
                     this.onRefresh({ start: start, callback: callback });
+                },
+                viewRender: (view) => {
+                    this.defaultDate = view.start;
                 },
                 eventClick: function (event) {
                     if (event.availableMachines > 0) {
@@ -118,8 +138,13 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
                     const prevButton = $('.fc-prev-button');
                     const nextButton = $('.fc-next-button');
                     const todayButton = $('.fc-today-button');
+                    const customButton = $('.fc-myCustomButton-button');
 
                     const today = moment();
+
+                    customButton.text(
+                        _.capitalize(view.start.locale(this.$translate.use()).format('MMMM YYYY'))
+                    );
 
                     if (this.minDate >= view.start && this.minDate <= view.end) {
                         prevButton.prop('disabled', true);
