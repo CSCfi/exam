@@ -214,7 +214,6 @@ angular.module('app.calendar')
                 };
 
                 $scope.$on('$localeChangeSuccess', function () {
-                    vm.calendarConfig.buttonText.today = $translate.instant('sitnet_today');
                     vm.openingHours = Calendar.processOpeningHours(vm.selectedRoom());
                 });
 
