@@ -81,30 +81,15 @@ export class CkEditor implements IDirective<CkEditorScope> {
     };
 
     link(scope: CkEditorScope, element: IAugmentedJQuery, attributes: IAttributes, ngModel: INgModelController) {
-        const ck = CKEDITOR.replace(<HTMLTextAreaElement>element[0]);
-        let tmp;
+        // We need to disable some paste tools when cloze test editing is ongoing. There's a risk that
+        // dysfunctional formatting gets pasted which can break the cloze test markup.
+        const removals = scope.enableClozeTest ? 'Underline,Paste,PasteFromWord' : 'Underline,Cloze';
+        const ck = CKEDITOR.replace(<HTMLTextAreaElement>element[0], { removeButtons: removals });
+
+        let modelValue;
         ck.on('instanceReady', () => {
-            ck.setData(tmp);
-            toggleAllowedControls(scope.enableClozeTest);
+            ck.setData(modelValue);
         });
-
-        scope.$watch('enableClozeTest', (value: boolean) => {
-            toggleAllowedControls(value);
-        });
-
-        const toggleAllowedControls = (enabled: boolean) => {
-            // We need to disable some paste tools when cloze test editing is ongoing. There's a risk that
-            // disfunctional formatting gets pasted which can break the cloze test markup.
-            const pasteCtrls = ['paste', 'pastefromword'].map(cmd => ck.getCommand(cmd)).filter(_.isObject);
-            const clozeCtrls = ['insertCloze'].map(cmd => ck.getCommand(cmd)).filter(_.isObject);
-            if (enabled) {
-                clozeCtrls.forEach(cmd => cmd.enable());
-                pasteCtrls.forEach(cmd => cmd.disable());
-            } else {
-                clozeCtrls.forEach(cmd => cmd.disable());
-                pasteCtrls.forEach(cmd => cmd.enable());
-            }
-        };
 
         const updateModel = () =>
             _.defer(() => scope.$apply(() => ngModel.$setViewValue(ck.getData())));
@@ -117,7 +102,7 @@ export class CkEditor implements IDirective<CkEditorScope> {
 
 
         ngModel.$render = () => {
-            tmp = ngModel.$modelValue;
+            modelValue = ngModel.$modelValue;
             ck.setData(ngModel.$viewValue);
         };
 
