@@ -30,17 +30,14 @@
                             ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
                             ng-click="$ctrl.removeParticipant(enrolment.id)"
                             title="{{'sitnet_remove' | translate}}">
-                        <img src="/assets/assets/images/icon_remove.svg" alt="exam"
+                        <img ng-hide="$ctrl.exam.state === 'PUBLISHED'" src="/assets/assets/images/icon_remove.svg" alt="exam"
                              onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'" />
                     </button>
                 </li>
                 <!-- Students that have finished the exam -->
                 <li class="marl10" ng-repeat="participant in $ctrl.exam.participants">
                     {{ participant.user.firstName }} {{ participant.user.lastName }} <span ng-if="participant.user.userIdentifier">({{participant.user.userIdentifier}})</span>
-                    <button class="reviewer-remove"
-                            ng-disabled="$ctrl.exam.state === 'PUBLISHED'">
-                        <img src="/assets/assets/images/icon_remove.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'" />
+                    <button class="reviewer-remove" ng-disabled="true">
                     </button>
                 </li>
             </ul>
