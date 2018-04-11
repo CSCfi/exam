@@ -27,7 +27,7 @@
                             ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
                             ng-click="$ctrl.removeParticipant(enrolment.id)"
                             title="{{'sitnet_remove' | translate}}">
-                        <img src="Images/icon_remove.svg" alt="exam"
+                        <img ng-hide="$ctrl.exam.state === 'PUBLISHED'" src="Images/icon_remove.svg" alt="exam"
                              onerror="this.onerror=null;this.src='Images/icon_remove.png'" />
                     </button>
                 </li>
