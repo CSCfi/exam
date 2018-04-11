@@ -76,7 +76,7 @@
 }
 
 .lightBorderBox {
-  border: 1px solid #ddd;
+  border: 1px solid $sitnet-border-color;
   padding: 5px;
   width: 100%;
   page-break-inside: avoid;
