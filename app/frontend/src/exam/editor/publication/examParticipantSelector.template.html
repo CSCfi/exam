@@ -36,9 +36,8 @@
                 </li>
                 <!-- Students that have finished the exam -->
                 <li class="marl10" ng-repeat="participant in $ctrl.exam.participants">
-                    {{ participant.user.firstName }} {{ participant.user.lastName }} <span ng-if="participant.user.userIdentifier">({{participant.user.userIdentifier}})</span>
-                    <button class="reviewer-remove" ng-disabled="true">
-                    </button>
+                    {{ participant.user.firstName }} {{ participant.user.lastName }}
+                    <span ng-if="participant.user.userIdentifier">({{participant.user.userIdentifier}})</span>
                 </li>
             </ul>
         </div>
