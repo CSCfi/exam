@@ -15,5 +15,5 @@
 
 'use strict';
 
-angular.module('app.maturity', ['app.utility', 'dialogs.main']);
+angular.module('app.maturity', ['app.utility', 'dialogs.main', 'app.common']);
 

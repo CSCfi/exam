@@ -17,8 +17,8 @@
 angular.module('app.maturity')
     .component('languageInspections', {
         templateUrl: '/assets/app/maturity/languageInspections.template.html',
-        controller: ['$translate', 'LanguageInspections', 'Session', 'EXAM_CONF', 'lodash',
-            function ($translate, LanguageInspections, Session, EXAM_CONF, lodash) {
+        controller: ['$translate', 'LanguageInspections', 'Session', 'EXAM_CONF', 'lodash', 'Language',
+            function ($translate, LanguageInspections, Session, EXAM_CONF, lodash, Language) {
 
                 var vm = this;
 
@@ -74,6 +74,7 @@ angular.module('app.maturity')
                                 i.studentNameAggregate = i.exam.creator ? i.exam.creator.lastName + ' ' + i.exam.creator.firstName : '';
                                 i.inspectorName = i.modifier ? i.modifier.firstName + ' ' + i.modifier.lastName : '';
                                 i.inspectorNameAggregate = i.modifier ? i.modifier.lastName + ' ' + i.modifier.firstName : '';
+                                i.answerLanguage = i.exam.answerLanguage ? Language.getLanguageNativeName(i.exam.answerLanguage) : '';
                             });
                             if (refreshAll) {
                                 vm.ongoingInspections = inspections.filter(function (i) {
