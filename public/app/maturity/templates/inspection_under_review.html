@@ -40,7 +40,10 @@
     <table class="table table-striped exams-table">
         <thead ng-init="$ctrl.sorting.ongoing.predicate='arrived'; reverse=true">
         <tr>
-            <th class="with-top" sort by="exam.course.code" text="sitnet_course_code"
+            <th class="with-top" sort by="exam.course.code" text="sitnet_code"
+                predicate="$ctrl.sorting.ongoing.predicate"
+                reverse="$ctrl.sorting.ongoing.reverse"></th>
+            <th class="with-top" sort by="answerLanguage" text="sitnet_language"
                 predicate="$ctrl.sorting.ongoing.predicate"
                 reverse="$ctrl.sorting.ongoing.reverse"></th>
             <th class="with-top" sort by="exam.name" text="sitnet_exam_name" predicate="$ctrl.sorting.ongoing.predicate"
@@ -65,6 +68,9 @@
             | filter:$ctrl.filters.ongoing as rs">
             <td>
                 {{ inspection.exam.course.code }}
+            </td>
+            <td>
+                {{ inspection.answerLanguage }}
             </td>
             <td class="table-column-bold">
                 <span class="exam-basic-title">
