@@ -18,5 +18,5 @@ import angular from 'angular';
 require('angular-sanitize');
 require('angular-dialog-service');
 
-angular.module('app.maturity', ['ngSanitize', 'dialogs.main']);
+angular.module('app.maturity', ['ngSanitize', 'dialogs.main', 'app.common']);
 

@@ -20,8 +20,8 @@ import _ from 'lodash';
 angular.module('app.maturity')
     .component('languageInspections', {
         template: require('./languageInspections.template.html'),
-        controller: ['$translate', 'LanguageInspections', 'Session',
-            function ($translate, LanguageInspections, Session) {
+        controller: ['$translate', 'LanguageInspections', 'Language',
+            function ($translate, LanguageInspections, Language) {
 
                 const vm = this;
 
@@ -58,6 +58,7 @@ angular.module('app.maturity')
                                 i.studentNameAggregate = i.exam.creator ? i.exam.creator.lastName + ' ' + i.exam.creator.firstName : '';
                                 i.inspectorName = i.modifier ? i.modifier.firstName + ' ' + i.modifier.lastName : '';
                                 i.inspectorNameAggregate = i.modifier ? i.modifier.lastName + ' ' + i.modifier.firstName : '';
+                                i.answerLanguage = i.exam.answerLanguage ? Language.getLanguageNativeName(i.exam.answerLanguage) : '';
                             });
                             if (refreshAll) {
                                 vm.ongoingInspections = inspections.filter(i => !i.finishedAt);

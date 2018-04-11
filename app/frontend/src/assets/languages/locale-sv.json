@@ -869,5 +869,7 @@
   "sitnet_exam_time": "Tentamenstid",
   "sitnet_clock_hidden": "Klockan gömd",
   "sitnet_choose_institution": "Välj organisation",
-  "sitnet_question_differs": "Texten för frågan, som studenten har besvarat, avviker från den nuvarande frågan."
+  "sitnet_question_differs": "Texten för frågan, som studenten har besvarat, avviker från den nuvarande frågan.",
+  "sitnet_code": "Kod",
+  "sitnet_language": "Språk"
 }

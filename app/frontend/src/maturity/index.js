@@ -14,6 +14,7 @@
  */
 
 require('./maturity.module');
+require('../common');
 require('./listing/reviewedInspections.component');
 require('./listing/unfinishedInspections.component');
 require('./languageInspections.service');

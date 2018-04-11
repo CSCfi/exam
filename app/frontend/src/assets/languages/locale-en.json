@@ -628,7 +628,7 @@
   "sitnet_processed_language_inspections": "Evaluated maturity tests",
   "sitnet_processed_language_inspections_no_results": "No evaluated maturity tests",
   "sitnet_processed_language_inspections_detail": "({0} exams in {1}, max 20 shown",
-  "sitnet_arrived": "Received maturity test",
+  "sitnet_arrived": "Received",
   "sitnet_finished": "Exam is completed",
   "sitnet_language_inspector": "Language evaluator",
   "sitnet_assign_to_me": "Start evaluation",
@@ -869,5 +869,7 @@
   "sitnet_exam_time": "Exam time",
   "sitnet_clock_hidden": "Clock hidden.",
   "sitnet_choose_institution": "Choose organization",
-  "sitnet_question_differs": "The question that the student has answered has a different wording than the current one."
+  "sitnet_question_differs": "The question that the student has answered has a different wording than the current one.",
+  "sitnet_code": "Code",
+  "sitnet_language": "Language"
 }
