@@ -37,7 +37,8 @@
     <table class="table table-striped exams-table">
         <thead ng-init="$ctrl.sorting.predicate='arrived'; reverse=true">
             <tr>
-                <th class="with-top" sort by="exam.course.code" text="sitnet_course_code" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="exam.course.code" text="sitnet_code" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="answerLanguage" text="sitnet_language" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="exam.name" text="sitnet_exam_name" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="arrived" text="sitnet_arrived" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
@@ -53,6 +54,9 @@
             | filter:$ctrl.filterText as rs">
                     <td>
                         {{ inspection.exam.course.code }}
+                    </td>
+                    <td class="table-column-bold">
+                        {{ inspection.answerLanguage }}
                     </td>
                     <td class="table-column-bold">
                         <span class="exam-basic-title">

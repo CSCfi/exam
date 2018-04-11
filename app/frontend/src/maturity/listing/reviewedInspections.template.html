@@ -53,7 +53,8 @@
     <table class="table table-striped exams-table">
         <thead>
             <tr>
-                <th class="with-top" sort by="exam.course.code" text="sitnet_course_code" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="exam.course.code" text="sitnet_code" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="answerLanguage" text="sitnet_language" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="exam.name" text="sitnet_exam_name" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="arrived" text="sitnet_arrived" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
@@ -77,18 +78,22 @@
                     {{ inspection.exam.course.code }}
                 </td>
                 <!-- 2 -->
+                <td class="table-column-bold">
+                    {{ inspection.answerLanguage }}
+                </td>
+                <!-- 3 -->
                 <td>
                     <a class="table-column-examname" href="/assessments/{{inspection.exam.id}}">
                         {{ inspection.exam.name }}
                     </a>
                 </td>
-                <!-- 3 -->
+                <!-- 4 -->
                 <td>
                     {{ inspection.ownerAggregate }}
                 </td>
-                <!-- 4 -->
-                <td>{{ inspection.created | date:'dd.MM.yyyy' }}</td>
                 <!-- 5 -->
+                <td>{{ inspection.created | date:'dd.MM.yyyy' }}</td>
+                <!-- 6 -->
                 <td>
                     <span>{{ inspection.studentName }}</span>
                     <span ng-if="inspection.exam.creator.userIdentifier">&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
@@ -97,9 +102,9 @@
                         <a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{ inspection.exam.creator.email }}</a>
                     </span>
                 </td>
-                <!-- 6 -->
-                <td>{{ inspection.exam.created | date:'dd.MM.yyyy' }}</td>
                 <!-- 7 -->
+                <td>{{ inspection.exam.created | date:'dd.MM.yyyy' }}</td>
+                <!-- 8 -->
                 <td ng-if="inspection.modifier">
                     <span>{{ inspection.inspectorName }} </span>
                     <span>
@@ -107,9 +112,9 @@
                         <a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{ inspection.modifier.email }}</a>
                     </span>
                 </td>
-                <!-- 8 -->
-                <td>{{ inspection.finishedAt | date:'dd.MM.yyyy' }}</td>
                 <!-- 9 -->
+                <td>{{ inspection.finishedAt | date:'dd.MM.yyyy' }}</td>
+                <!-- 10 -->
                 <td>
                     <span ng-if="inspection.approved" class="approved">
                         {{ 'sitnet_approved' | translate }}
@@ -119,7 +124,7 @@
                     </span>
 
                 </td>
-                <!-- 10 -->
+                <!-- 11 -->
                 <td class="table-column-15">
                     <a class="pointer smaller" ng-click="$ctrl.showStatement(inspection.statement)">{{ 'sitnet_view' | translate }}</a>
                 </td>

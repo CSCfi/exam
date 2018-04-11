@@ -869,5 +869,7 @@
   "sitnet_exam_time": "Tenttiaika",
   "sitnet_clock_hidden": "Kello piilotettu",
   "sitnet_choose_institution": "Valitse oppilaitos",
-  "sitnet_question_differs": "Kysymys, johon opiskelija on vastannut, poikkeaa tekstin osalta tämänhetkisestä kysymyksestä."
+  "sitnet_question_differs": "Kysymys, johon opiskelija on vastannut, poikkeaa tekstin osalta tämänhetkisestä kysymyksestä.",
+  "sitnet_code": "Koodi",
+  "sitnet_language": "Kieli"
 }
