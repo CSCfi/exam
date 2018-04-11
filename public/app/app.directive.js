@@ -188,7 +188,10 @@ angular.module('app')
             link: function (scope, elm, attr, ngModel) {
                 var tmp;
 
-                var ck = CKEDITOR.replace(elm[0]);
+                // We need to disable some paste tools when cloze test editing is ongoing. There's a risk that
+                // dysfunctional formatting gets pasted which can break the cloze test markup.
+                var removals = scope.enableClozeTest ? 'Underline,Paste,PasteFromWord' : 'Underline,Cloze';
+                var ck = CKEDITOR.replace(elm[0], {removeButtons: removals});
 
                 if (!ngModel) {
                     return;
@@ -196,20 +199,6 @@ angular.module('app')
 
                 ck.on('instanceReady', function () {
                     ck.setData(tmp);
-                    if (!scope.enableClozeTest) {
-                        ck.getCommand('insertCloze').disable();
-                    }
-                });
-
-                scope.$watch('enableClozeTest', function (value) {
-                    var cmd = ck.getCommand('insertCloze');
-                    if (cmd) {
-                        if (!value) {
-                            cmd.disable();
-                        } else {
-                            cmd.enable();
-                        }
-                    }
                 });
 
                 function updateModel() {
