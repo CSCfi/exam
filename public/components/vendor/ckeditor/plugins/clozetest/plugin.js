@@ -1,34 +1,37 @@
-CKEDITOR.plugins.add( 'clozetest', {
+CKEDITOR.plugins.add('clozetest', {
     requires: 'dialog,numericinput',
     icons: 'cloze',
 
     // The plugin initialization logic goes inside this method.
-    init: function( editor ) {
+    init: function (editor) {
 
-        editor.addCommand( 'insertCloze', new CKEDITOR.dialogCommand( 'clozeDialog' ));
+        editor.addCommand('insertCloze', new CKEDITOR.dialogCommand('clozeDialog'));
 
         // Create the toolbar button that executes the above command.
-        editor.ui.addButton( 'Cloze', {
+        editor.ui.addButton('Cloze', {
             label: 'Embedded Answer',
             command: 'insertCloze',
             toolbar: 'insert,0'
         });
 
-        if ( editor.contextMenu ) {
-            editor.addMenuGroup( 'clozeGroup' );
-            editor.addMenuItem( 'clozeItem', {
+        if (editor.contextMenu) {
+            editor.addMenuGroup('clozeGroup');
+            editor.addMenuItem('clozeItem', {
                 label: 'Edit embedded answer',
                 icon: this.path + 'icons/cloze.png',
                 command: 'insertCloze',
                 group: 'clozeGroup'
             });
-            editor.contextMenu.addListener( function( element ) {
-                if ( element.getAscendant( 'span', true ) ) {
-                    return { clozeItem: CKEDITOR.TRISTATE_OFF };
+            var selector = function (el) {
+                return el.getName && el.getName() === 'span' && el.getAttribute('cloze') === 'true';
+            };
+            editor.contextMenu.addListener(function (element) {
+                if (element.getAscendant(selector, true)) {
+                    return {clozeItem: CKEDITOR.TRISTATE_OFF};
                 }
             });
         }
 
-        CKEDITOR.dialog.add('clozeDialog', this.path + 'dialogs/cloze.js' );
+        CKEDITOR.dialog.add('clozeDialog', this.path + 'dialogs/cloze.js');
     }
 });
