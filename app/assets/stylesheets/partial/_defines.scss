@@ -37,6 +37,7 @@ $sitnet-black: #000;
 $sitnet-red: #f00;
 $sitnet-rejected: #ED4459;
 $sitnet-approved: #3CA34F;
+$sitnet-border-color: #c3c3c3;
 
 $sitnet-teacher-turquoise-dark-active: #006674;
 $sitnet-teacher-turquoise-dark-inactive: #7ab3bc;
@@ -782,7 +783,7 @@ $sitnet-icon-size: 32px;
 }
 
 .grey-top {
-  border-top: 1px solid #ddd;
+  border-top: 1px solid $sitnet-border-color;
 }
 
 .vbottom {
