@@ -28,14 +28,22 @@ angular.module('app.exam.editor')
                     vm.examInfo = {};
                     ExamRes.exams.get({id: $routeParams.id}, function (exam) {
                         vm.exam = exam;
+                        vm.exam.hasEnrolmentsInEffect = hasEffectiveEnrolments(exam);
                         vm.updateTitle(!exam.course ? undefined : exam.course.code, exam.name);
                     });
                     vm.activeTab = parseInt($routeParams.tab);
                 };
 
+                var hasEffectiveEnrolments = function (exam) {
+                    return exam.examEnrolments.filter(function (ee) {
+                        return ee.reservation && ee.reservation.endAt > new Date().getTime();
+                    }).length > 0;
+                };
+
                 vm.reload = function () {
                     ExamRes.exams.get({id: $routeParams.id}, function (exam) {
                         vm.exam = exam;
+                        vm.exam.hasEnrolmentsInEffect = hasEffectiveEnrolments(exam);
                     });
                 };
 
@@ -80,7 +88,7 @@ angular.module('app.exam.editor')
                 vm.goBack = function (event) {
                     event.preventDefault();
                     $window.history.back();
-                }
+                };
 
             }
         ]
