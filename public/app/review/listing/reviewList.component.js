@@ -63,10 +63,10 @@ angular.module('app.review')
                     vm.data = {
                         started: {predicate: 'deadline'},
                         graded: {predicate: 'deadline'},
-                        finished: {predicate: 'displayedGradingTime'},
+                        finished: {predicate: 'started', reverse: true},
                         inspected: {predicate: 'deadline'},
                         rejected: {predicate: 'displayedGradingTime'},
-                        archived: {predicate: 'displayedGradingTime'}
+                        archived: {predicate: 'started', reverse: true}
                     };
 
                     ExamRes.examReviews.query({eid: vm.exam.id},
