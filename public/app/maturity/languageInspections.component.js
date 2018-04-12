@@ -37,8 +37,8 @@ angular.module('app.maturity')
                             reverse: false
                         },
                         processed: {
-                            predicate: 'finishedAt',
-                            reverse: false
+                            predicate: 'exam.created',
+                            reverse: true
                         }
                     };
                     query();
