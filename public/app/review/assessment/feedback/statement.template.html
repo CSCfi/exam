@@ -1,11 +1,9 @@
-<div id="feedback" draggable-modal ng-hide="$ctrl.hasGoneThroughLanguageInspection()">
+<div id="feedback" ng-hide="$ctrl.hasGoneThroughLanguageInspection()">
 
-    <div id="draggable" data-spy="affix" data-offset-top="50" class="wrapper">
+    <div id="draggable" draggable-modal class="wrapper">
         <div class="row">
-            <div class="col-md-1" popover-placement="right" popover-popup-delay="500" popover-trigger="'mouseenter'"
-                 uib-popover="{{$ctrl.hideEditor ? 'sitnet_show' : 'sitnet_hide' | translate}}">
-                <i ng-click="$ctrl.toggleEditorVisibility()" class="pointer fa fa-2x vcenter"
-                   ng-class="$ctrl.hideEditor ? 'fa-chevron-circle-right sitnet-green' : 'fa-chevron-circle-down sitnet-red'">
+            <div class="col-md-1" popover-placement="right" popover-popup-delay="500" popover-trigger="'mouseenter'" uib-popover="{{$ctrl.hideEditor ? 'sitnet_show' : 'sitnet_hide' | translate}}">
+                <i ng-click="$ctrl.toggleEditorVisibility()" class="pointer fa fa-2x vcenter" ng-class="$ctrl.hideEditor ? 'fa-chevron-circle-right sitnet-green' : 'fa-chevron-circle-down sitnet-red'">
                 </i>
             </div>
             <div class="col-md-11">
@@ -25,14 +23,13 @@
             </div>
             <div class="col-md-10">
                 <div class="pull-right">
-                        <span ng-show="$ctrl.exam.languageInspection.statement.attachment">
-                            <a class="pointer" ng-click="$ctrl.downloadStatementAttachment()">{{$ctrl.exam.languageInspection.statement.attachment.fileName}}</a>
-                            <span class="sitnet-red pointer" ng-click="$ctrl.removeStatementAttachment()">
-                                <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
-                            </span>
+                    <span ng-show="$ctrl.exam.languageInspection.statement.attachment">
+                        <a class="pointer" ng-click="$ctrl.downloadStatementAttachment()">{{$ctrl.exam.languageInspection.statement.attachment.fileName}}</a>
+                        <span class="sitnet-red pointer" ng-click="$ctrl.removeStatementAttachment()">
+                            <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
                         </span>
-                    <button type="button" class="btn btn-default"
-                            ng-click="$ctrl.selectFile()">{{'sitnet_attach_file' | translate}}
+                    </span>
+                    <button type="button" class="btn btn-default" ng-click="$ctrl.selectFile()">{{'sitnet_attach_file' | translate}}
                     </button>
                 </div>
             </div>
