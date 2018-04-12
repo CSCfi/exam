@@ -31,8 +31,8 @@ angular.module('app.maturity')
 
                 vm.$onInit = function () {
                     vm.sorting = {
-                        predicate: 'finishedAt',
-                        reverse: false
+                        predicate: 'exam.created',
+                        reverse: true
                     };
 
                     vm.getInspectionAmounts = function () {

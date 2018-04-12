@@ -31,7 +31,8 @@ angular.module('app.review')
 
                 const init = function () {
                     vm.data = ReviewList.prepareView(vm.reviews, handleGradedReviews);
-                    vm.data.predicate = 'displayedGradingTime';
+                    vm.data.predicate = 'started';
+                    vm.data.reverse = true;
 
                     vm.selections = { all: false, page: false };
                 };

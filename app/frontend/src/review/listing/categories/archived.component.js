@@ -27,7 +27,8 @@ angular.module('app.review')
 
             vm.$onInit = function () {
                 vm.data = ReviewList.prepareView(vm.reviews, handleGradedReviews);
-                vm.data.predicate = 'displayedGradingTime';
+                vm.data.predicate = 'started';
+                vm.data.reverse = true;
 
                 vm.isOwner = (user) =>
                     vm.exam.examOwners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
