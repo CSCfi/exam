@@ -1,5 +1,5 @@
 
-<!-- kielentarkastus - hyväksytty/hylätty -->
+<!-- language inspection - verdict -->
 <div class="detail-row marb20 mart20" ng-show="$ctrl.hasGoneThroughLanguageInspection()">
     <div class="col-md-2 general-info-title">{{'sitnet_language_inspections' | translate }}:</div>
     <div class="col-md-10 general-info-content">
@@ -8,19 +8,28 @@
     </div>
 </div>
 
-<!-- kielentarkastus - kommentit -->
+<!-- inspector comments -->
 <r-inspection-comments exam="$ctrl.exam" adding-disabled="(!$ctrl.isOwnerOrAdmin() || !examForm.valid)"
                        adding-visible="!$ctrl.isMaturityRejection()">
 </r-inspection-comments>
 
-<!-- kielentarkastus - lausunto -->
+<!-- language inspection - inspector -->
+<div class="detail-row mart20" ng-show="$ctrl.hasGoneThroughLanguageInspection()">
+    <div class="col-md-2 general-info-title">{{'sitnet_language_inspector' | translate }}:</div>
+    <div class="col-md-10 general-info-content">
+        {{ $ctrl.exam.languageInspection.modifier.firstName }}
+        {{ $ctrl.exam.languageInspection.modifier.lastName }}
+    </div>
+</div>
+
+<!-- language inspection - statement -->
 <div class="detail-row mart20" ng-show="$ctrl.hasGoneThroughLanguageInspection()">
     <div class="col-md-2 general-info-title">{{'sitnet_inspector_statement' | translate }}:</div>
     <div class="col-md-10 general-info-content">
         <div mathjax ng-bind-html="$ctrl.exam.languageInspection.statement.comment"></div>
     </div>
 </div>
-<!-- kielentarkastus - liite -->
+<!-- language inspection - statement attachment -->
 <div class="detail-row mart20" ng-show="$ctrl.hasGoneThroughLanguageInspection() && $ctrl.exam.languageInspection.statement.attachment">
     <div class="col-md-2 general-info-title">{{'sitnet_statement_attachment' | translate }}:</div>
     <div class="col-md-10 general-info-content">
@@ -30,7 +39,15 @@
     </div>
 </div>
 
-<!-- tentin palaute -->
+<!-- exam owners -->
+<div class="detail-row mart20" ng-show="$ctrl.isReadOnly() || $ctrl.isUnderLanguageInspection()">
+    <div class="col-md-2 general-info-title">{{'sitnet_teachers' | translate }}:</div>
+    <div class="col-md-10 general-info-content">
+        <assessment-teacher-list exam="$ctrl.exam"></assessment-teacher-list>
+    </div>
+</div>
+
+<!-- exam feedback -->
 <div class="detail-row mart20" ng-show="$ctrl.isReadOnly() || $ctrl.isUnderLanguageInspection()">
     <div class="col-md-2 general-info-title">{{'sitnet_teachers_comment' | translate }}:</div>
     <div class="col-md-10 general-info-content">
@@ -41,7 +58,7 @@
 <!-- grading stuff -->
 <form name="examForm" role="form" novalidate>
 
-    <!-- arvioinnin lisätiedot -->
+    <!-- extra info for registry -->
     <div class="detail-row mart20">
         <div class="col-md-2 general-info-title">{{'sitnet_additional_info_for_registry' | translate }}:
             <sup><img popover-placement="right" popover-trigger="'mouseenter'"
