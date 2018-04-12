@@ -15,6 +15,17 @@
 
 package controllers;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -35,19 +46,6 @@ import sanitizers.ExamRecordSanitizer;
 import scala.concurrent.duration.Duration;
 import util.CsvBuilder;
 import util.ExcelBuilder;
-
-import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 
 public class ExamRecordController extends BaseController {
@@ -92,11 +90,8 @@ public class ExamRecordController extends BaseController {
             record.setExamScore(score);
             record.save();
             final User user = getLoggedUser();
-            final Set<User> examinators = exam.getExecutionType().getType().equals(
-                    ExamExecutionType.Type.MATURITY.toString())
-                    ? exam.getParent().getExamOwners() : Collections.emptySet();
             actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composeInspectionReady(exam.getCreator(), user, exam, examinators);
+                emailComposer.composeInspectionReady(exam.getCreator(), user, exam, Collections.emptySet());
                 Logger.info("Inspection ready notification email sent");
             }, actor.dispatcher());
             return ok();
