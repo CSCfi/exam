@@ -39,11 +39,12 @@
     </div>
 </div>
 
-<!-- exam owners -->
+<!-- inspection creator -->
 <div class="detail-row mart20" ng-show="$ctrl.isReadOnly() || $ctrl.isUnderLanguageInspection()">
-    <div class="col-md-2 general-info-title">{{'sitnet_teachers' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{'sitnet_inspector_name' | translate }}:</div>
     <div class="col-md-10 general-info-content">
-        <assessment-teacher-list exam="$ctrl.exam"></assessment-teacher-list>
+        {{ $ctrl.exam.languageInspection.creator.firstName }}
+        {{ $ctrl.exam.languageInspection.creator.lastName }}
     </div>
 </div>
 
