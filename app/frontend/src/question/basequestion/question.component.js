@@ -40,7 +40,7 @@ angular.module('app.question')
         '            <!-- buttons -->\n' +
         '            <div class="mart20">\n' +
         '                <div class="question-cancel">\n' +
-        '                    <button ng-disabled="!questionForm.$valid" ng-click="$ctrl.saveQuestion()"\n' +
+        '                    <button ng-disabled="!questionForm.$valid || !$ctrl.question.type" ng-click="$ctrl.saveQuestion()"\n' +
         '                            type="submit" class="btn btn-success bigbutton">{{\'sitnet_save\' | translate}}\n' +
         '                    </button>\n' +
         '                </div>\n' +
