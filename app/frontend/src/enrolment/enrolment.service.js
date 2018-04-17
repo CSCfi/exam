@@ -129,7 +129,7 @@ angular.module('app.enrolment')
 
             self.listEnrolments = function (code, id) {
                 const deferred = $q.defer();
-                EnrollRes.list.get({code: code},
+                EnrollRes.list.query({code: code},
                     function (data) {
                         // remove duplicate exam, already shown at the detailed info section.
                         var exams = data.filter(function (e) {

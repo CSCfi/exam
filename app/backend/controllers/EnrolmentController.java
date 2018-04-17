@@ -15,33 +15,6 @@
 
 package backend.controllers;
 
-import akka.actor.ActorSystem;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.api.ExternalReservationHandler;
-import backend.impl.EmailComposer;
-import backend.impl.ExternalCourseHandler;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamExecutionType;
-import backend.models.Reservation;
-import backend.models.User;
-import org.joda.time.DateTime;
-import play.Logger;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.With;
-import backend.sanitizers.Attrs;
-import backend.sanitizers.EnrolmentInformationSanitizer;
-import backend.sanitizers.StudentEnrolmentSanitizer;
-import scala.concurrent.duration.Duration;
-import backend.util.AppUtil;
-import backend.validators.JsonValidator;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
@@ -50,6 +23,35 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import javax.inject.Inject;
+
+import akka.actor.ActorSystem;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import org.joda.time.DateTime;
+import play.Logger;
+import play.mvc.Http;
+import play.mvc.Result;
+import play.mvc.With;
+import sanitizers.EnrolmentCourseInformationSanitizer;
+import scala.concurrent.duration.Duration;
+
+import backend.controllers.base.BaseController;
+import backend.controllers.iop.api.ExternalReservationHandler;
+import backend.impl.EmailComposer;
+import backend.impl.ExternalCourseHandler;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamExecutionType;
+import backend.models.Reservation;
+import backend.models.User;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.EnrolmentInformationSanitizer;
+import backend.sanitizers.StudentEnrolmentSanitizer;
+import backend.util.AppUtil;
+import backend.validators.JsonValidator;
 
 public class EnrolmentController extends BaseController {
 
@@ -308,8 +310,10 @@ public class EnrolmentController extends BaseController {
         }
     }
 
+    @With(EnrolmentCourseInformationSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public CompletionStage<Result> createEnrolment(final String code, final Long id) throws IOException {
+    public CompletionStage<Result> createEnrolment(final Long id) throws IOException {
+        String code = request().attrs().get(Attrs.COURSE_CODE);
         User user = getLoggedUser();
         if (!PERM_CHECK_ACTIVE) {
             return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
@@ -345,7 +349,7 @@ public class EnrolmentController extends BaseController {
                 // Pre-enrolment
                 // Check that we will not create duplicate enrolments for same email address
                 ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
-                        .eq("exam.id", eid )
+                        .eq("exam.id", eid)
                         .eq("preEnrolledUserEmail", email.get())
                         .findOne();
                 if (enrolment == null) {
@@ -354,7 +358,7 @@ public class EnrolmentController extends BaseController {
                 } else {
                     return wrapAsPromise(badRequest("already pre-enrolled"));
                 }
-            } else if (users.size() == 1){
+            } else if (users.size() == 1) {
                 // User with email already exists
                 user = users.get(0);
             } else {

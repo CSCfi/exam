@@ -147,16 +147,15 @@ PUT           /app/inspection/:id/statement                            backend.c
 
 ############### Enrolment interface ###############
 
-GET           /app/enroll/:code                                        backend.controllers.EnrolmentController.enrollExamList(code: String)
+GET           /app/enroll                                              backend.controllers.EnrolmentController.enrollExamList(code: String)
 GET           /app/enroll/reservation/:id                              backend.controllers.EnrolmentController.enrolmentsByReservation(id: Long)
-GET           /app/enroll/:code/exam/:id                               backend.controllers.EnrolmentController.enrollExamInfo(code: String, id: Long)
-POST          /app/enroll/:code/exam/:id                               backend.controllers.EnrolmentController.createEnrolment(code: String, id: Long)
+GET           /app/enroll/:id                                          backend.controllers.EnrolmentController.enrollExamInfo(code: String, id: Long)
+POST          /app/enroll/:id                                          backend.controllers.EnrolmentController.createEnrolment(id: Long)
 GET           /app/enroll/exam/:id                                     backend.controllers.EnrolmentController.checkIfEnrolled(id: Long)
 POST          /app/enroll/student/:eid                                 backend.controllers.EnrolmentController.createStudentEnrolment(eid: Long)
 DELETE        /app/enroll/:id                                          backend.controllers.EnrolmentController.removeEnrolment(id: Long)
 DELETE        /app/enroll/student/:id                                  backend.controllers.EnrolmentController.removeStudentEnrolment(id: Long)
 PUT           /app/enrolments/:eid                                     backend.controllers.EnrolmentController.updateEnrolment(eid: Long)
-
 GET           /app/enroll/room/:hash                                   backend.controllers.EnrolmentController.getRoomInfoFromEnrolment(hash: String)
 
 
