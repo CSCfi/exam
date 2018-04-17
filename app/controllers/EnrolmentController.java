@@ -15,6 +15,16 @@
 
 package controllers;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -35,21 +45,12 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import sanitizers.Attrs;
+import sanitizers.EnrolmentCourseInformationSanitizer;
 import sanitizers.EnrolmentInformationSanitizer;
 import sanitizers.StudentEnrolmentSanitizer;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
 import validators.JsonValidator;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 public class EnrolmentController extends BaseController {
 
@@ -308,8 +309,10 @@ public class EnrolmentController extends BaseController {
         }
     }
 
+    @With(EnrolmentCourseInformationSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public CompletionStage<Result> createEnrolment(final String code, final Long id) throws IOException {
+    public CompletionStage<Result> createEnrolment(final Long id) throws IOException {
+        String code = request().attrs().get(Attrs.COURSE_CODE);
         User user = getLoggedUser();
         if (!PERM_CHECK_ACTIVE) {
             return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
