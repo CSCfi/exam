@@ -15,6 +15,14 @@
 
 package controllers.iop;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import javax.inject.Inject;
+
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,6 +42,7 @@ import models.json.ExternalExam;
 import models.questions.Question;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
+import play.Logger;
 import play.db.ebean.Transactional;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -41,14 +50,6 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import util.AppUtil;
 import util.JsonDeserializer;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
 
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {
@@ -172,6 +173,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
     @SubjectNotPresent
     public Result addNoShow(String ref) {
         ExamEnrolment enrolment = getPrototype(ref);
+        if (enrolment == null) {
+            Logger.error("No reservation found with ref {}", ref);
+            return notFound();
+        }
         noShowHandler.handleNoShowAndNotify(enrolment.getReservation());
         return ok();
     }
@@ -197,7 +202,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             document.setHash(ref);
 
             // Shuffle multi-choice options
-            document.getExamSections().stream().flatMap(es -> es.getSectionQuestions().stream()).forEach(esq ->{
+            document.getExamSections().stream().flatMap(es -> es.getSectionQuestions().stream()).forEach(esq -> {
                 List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
                 Collections.shuffle(shuffled);
                 esq.setOptions(new HashSet<>(shuffled));
