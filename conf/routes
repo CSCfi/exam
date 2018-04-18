@@ -147,10 +147,10 @@ PUT           /app/inspection/:id/statement                              control
 
 ############### Enrolment interface ###############
 
-GET           /app/enroll/:code                                          controllers.EnrolmentController.enrollExamList(code: String)
+GET           /app/enroll                                                controllers.EnrolmentController.enrollExamList(code: String)
 GET           /app/enroll/reservation/:id                                controllers.EnrolmentController.enrolmentsByReservation(id: Long)
-GET           /app/enroll/:code/exam/:id                                 controllers.EnrolmentController.enrollExamInfo(code: String, id: Long)
-POST          /app/enroll/:code/exam/:id                                 controllers.EnrolmentController.createEnrolment(code: String, id: Long)
+GET           /app/enroll/:id                                            controllers.EnrolmentController.enrollExamInfo(code: String, id: Long)
+POST          /app/enroll/:id                                            controllers.EnrolmentController.createEnrolment(id: Long)
 GET           /app/enroll/exam/:id                                       controllers.EnrolmentController.checkIfEnrolled(id: Long)
 POST          /app/enroll/student/:eid                                   controllers.EnrolmentController.createStudentEnrolment(eid: Long)
 DELETE        /app/enroll/:id                                            controllers.EnrolmentController.removeEnrolment(id: Long)

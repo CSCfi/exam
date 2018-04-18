@@ -15,13 +15,13 @@
 
 package sanitizers;
 
+import java.util.Collection;
+
 import models.AutoEvaluationConfig;
 import models.Exam;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.libs.typedmap.TypedKey;
-
-import java.util.Collection;
 
 public enum Attrs {
     ;
@@ -49,4 +49,5 @@ public enum Attrs {
     public static final TypedKey<Boolean> LANG_INSPECTION_REQUIRED = TypedKey.create("langInspectionRequired");
     public static final TypedKey<AutoEvaluationConfig> AUTO_EVALUATION_CONFIG = TypedKey.create("autoEvaluationConfig");
     public static final TypedKey<String> COMMENT = TypedKey.create("comment");
+    public static final TypedKey<String> COURSE_CODE = TypedKey.create("code");
 }
