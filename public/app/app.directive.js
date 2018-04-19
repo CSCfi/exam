@@ -179,7 +179,7 @@ angular.module('app')
         }])
 
 
-    .directive('ckEditor', ['$rootScope', 'lodash', function ($rootScope, lodash) {
+    .directive('ckEditor', ['$translate', 'lodash', function ($translate, lodash) {
         return {
             require: 'ngModel',
             scope: {
@@ -188,10 +188,11 @@ angular.module('app')
             link: function (scope, elm, attr, ngModel) {
                 var tmp;
 
+                var lang = $translate.use();
                 // We need to disable some paste tools when cloze test editing is ongoing. There's a risk that
                 // dysfunctional formatting gets pasted which can break the cloze test markup.
                 var removals = scope.enableClozeTest ? 'Underline,Paste,PasteFromWord' : 'Underline,Cloze';
-                var ck = CKEDITOR.replace(elm[0], {removeButtons: removals});
+                var ck = CKEDITOR.replace(elm[0], {language: lang, removeButtons: removals});
 
                 if (!ngModel) {
                     return;
