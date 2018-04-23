@@ -35,7 +35,7 @@ import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import sanitizers.EnrolmentCourseInformationSanitizer;
+import backend.sanitizers.EnrolmentCourseInformationSanitizer;
 import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.BaseController;

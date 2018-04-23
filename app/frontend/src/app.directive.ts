@@ -94,12 +94,11 @@ export class CkEditor implements IDirective<CkEditorScope> {
         const updateModel = () =>
             _.defer(() => scope.$apply(() => ngModel.$setViewValue(ck.getData())));
 
-
-        ck.on('change', _.debounce(updateModel, 100)); // This can bring down the UI if not scaled down
-        ck.on('dataReady', updateModel);
-        ck.on('key', _.debounce(updateModel, 100));
+        // These events can bring down the UI if not debounced
+        ck.on('change', _.debounce(updateModel, 500));
+        ck.on('dataReady', _.debounce(updateModel, 500));
+        ck.on('key', _.debounce(updateModel, 500));
         ck.on('mode', updateModel); // Editing mode change
-
 
         ngModel.$render = () => {
             modelValue = ngModel.$modelValue;
