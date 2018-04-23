@@ -20,8 +20,8 @@ angular.module('app.examination')
         bindings: {
             isPreview: '<'
         },
-        controller: ['$http', '$location', '$routeParams', '$translate', 'Examination',
-            function ($http, $location, $routeParams, $translate, Examination) {
+        controller: ['$http', '$location', '$routeParams', '$translate', 'Examination', 'Enrolment',
+            function ($http, $location, $routeParams, $translate, Examination, Enrolment) {
 
                 var vm = this;
 
@@ -43,6 +43,9 @@ angular.module('app.examination')
 
                             vm.exam = exam;
                             setActiveSection({type: 'guide'});
+                            if (!vm.isPreview && !vm.exam.cloned) {
+                                Enrolment.showMaturityInstructions({exam: vm.exam});
+                            }
                         }, function () {
                             $location.path('/');
                         });
