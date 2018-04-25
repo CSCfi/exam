@@ -14,7 +14,7 @@ scalaVersion := "2.11.11"
 
 libraryDependencies ++= Seq(javaJdbc, ehcache, ws, evolutions, filters, guice,
   "be.objectify" %% "deadbolt-java" % "2.6.3",
-  "com.github.fge" % "json-schema-validator" % "2.2.6",
+  "com.github.fge" % "json-schema-validator" % "2.2.6" exclude("javax.mail", "mailapi"),
   "com.google.code.gson" % "gson" % "2.8.2",
   "com.opencsv" % "opencsv" % "4.0",
   "net.sf.biweekly" % "biweekly" % "0.6.1",

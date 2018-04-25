@@ -167,7 +167,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     public void testCreateEnrolment() throws Exception {
         // Execute
         Result result = request(Helpers.POST,
-                String.format("/app/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
+                String.format("/app/enroll/%d", exam.getId()), Json.newObject().put("code", exam.getCourse().getCode()));
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -184,7 +184,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
 
         IntStream.range(0, callCount).parallel().forEach(i -> new Thread(() -> {
             request(Helpers.POST,
-                    String.format("/app/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
+                    String.format("/app/enroll/%d", exam.getId()), Json.newObject().put("code", exam.getCourse().getCode()));
             waiter.resume();
         }).start());
 
@@ -204,7 +204,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.POST,
-                String.format("/app/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
+                String.format("/app/enroll/%d", exam.getId()), Json.newObject().put("code", exam.getCourse().getCode()));
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualTo("sitnet_error_enrolment_exists");
 
@@ -231,7 +231,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.POST,
-                String.format("/app/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
+                String.format("/app/enroll/%d", exam.getId()), Json.newObject().put("code", exam.getCourse().getCode()));
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -258,7 +258,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.POST,
-                String.format("/app/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
+                String.format("/app/enroll/%d", exam.getId()), Json.newObject().put("code", exam.getCourse().getCode()));
         assertThat(result.status()).isEqualTo(403); // Not found
         assertThat(contentAsString(result)).isEqualTo("sitnet_reservation_in_effect");
 
@@ -284,7 +284,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.POST,
-                String.format("/app/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
+                String.format("/app/enroll/%d", exam.getId()), Json.newObject().put("code", exam.getCourse().getCode()));
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
