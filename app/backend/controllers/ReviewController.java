@@ -211,15 +211,17 @@ public class ReviewController extends BaseController {
         pp.apply(query);
         query.fetchQuery("course", "code, credits")
                 .fetch("course.gradeScale.grades");
-        Set<Exam> exams = query.where()
+        query.where()
                 .eq("parent.id", eid)
                 .in("state", Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED,
-                        Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED, Exam.State.ARCHIVED)
-                .disjunction()
-                .eq("parent.examOwners", user)
-                .eq("examInspections.user", user)
-                .endJunction()
-                .findSet();
+                        Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED, Exam.State.ARCHIVED);
+        if (!user.hasRole(Role.Name.ADMIN.toString(), getSession())) {
+                query.where().disjunction()
+                    .eq("parent.examOwners", user)
+                    .eq("examInspections.user", user)
+                    .endJunction();
+        }
+        Set<Exam> exams = query.findSet();
 
         Set<ExamParticipation> participations = exams.stream().map(e -> {
             e.setMaxScore();
