@@ -82,8 +82,8 @@ def skipUiTests = Properties.propOrEmpty("skipUiTests")
 
 def protractorConf = Properties.propOrEmpty("config.resource")
 
-lazy val npmIntall = taskKey[Option[Process]]("Npm intall task")
-npmIntall := {
+lazy val npmInstall = taskKey[Option[Process]]("Npm intall task")
+npmInstall := {
   Some(Process("npm install", frontendDirectory.value).run())
 }
 
@@ -98,13 +98,13 @@ webDriverUpdate := {
 }
 
 test in Test := {
-  if (karmaTest.value.get.exitValue() != 0 || npmIntall.value.get.exitValue() != 0)
+  if (karmaTest.value.get.exitValue() != 0 || npmInstall.value.get.exitValue() != 0)
     sys.error("Karma tests failed!")
   (test in Test).value
 }
 
 def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
-  if (!skipUiTests.equals("true") && npmIntall.value.get.exitValue() == 0) {
+  if (!skipUiTests.equals("true") && npmInstall.value.get.exitValue() == 0) {
     Def.task {
       Seq(MockCourseInfo(frontendDirectory.value),
         if (protractorConf.equals("protractor.conf") && webDriverUpdate.value.get.exitValue() == 0)
