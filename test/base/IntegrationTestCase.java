@@ -1,34 +1,5 @@
 package base;
 
-import backend.models.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableMap;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.PathNotFoundException;
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
-import io.ebean.config.ServerConfig;
-import io.ebeaninternal.api.SpiEbeanServer;
-import backend.models.questions.MultipleChoiceOption;
-import backend.models.questions.Question;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
-import org.yaml.snakeyaml.Yaml;
-import play.Application;
-import play.db.Database;
-import play.db.Databases;
-import play.db.evolutions.Evolutions;
-import play.libs.Json;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.test.Helpers;
-import backend.util.JsonDeserializer;
-
-import javax.persistence.PersistenceException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -45,6 +16,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import javax.persistence.PersistenceException;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableMap;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
+import io.ebean.config.ServerConfig;
+import io.ebeaninternal.api.SpiEbeanServer;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
+import org.yaml.snakeyaml.Yaml;
+import play.Application;
+import play.db.Database;
+import play.db.Databases;
+import play.db.evolutions.Evolutions;
+import play.libs.Json;
+import play.mvc.Http;
+import play.mvc.Result;
+import play.test.Helpers;
+
+import backend.models.*;
+import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.Question;
+import backend.util.JsonDeserializer;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -80,7 +81,7 @@ public class IntegrationTestCase {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        System.setProperty("config.resource", "integrationtest.conf");
+        System.setProperty("config.file", "conf/integrationtest.conf");
     }
 
     private Database getDB() {

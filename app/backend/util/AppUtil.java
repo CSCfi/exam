@@ -15,126 +15,26 @@
 
 package backend.util;
 
-import com.typesafe.config.ConfigFactory;
-import backend.models.Exam;
-import backend.models.ExamRoom;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.base.OwnedModel;
-import backend.models.iop.ExternalReservation;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Period;
-import play.Logger;
-import backend.impl.EmailComposer;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.joda.time.DateTime;
+import play.Logger;
+
+import backend.impl.EmailComposer;
+import backend.models.Exam;
+import backend.models.User;
+import backend.models.base.OwnedModel;
 
 public final class AppUtil {
 
     private AppUtil() {}
-
-    public static String getHostName() {
-        return ConfigFactory.load().getString("sitnet.application.hostname");
-    }
-
-    public static Integer getMaxFileSize() {
-        return ConfigFactory.load().getInt("sitnet.attachment.maxsize");
-    }
-
-    public static List<Integer> getExamDurations() {
-        String[] durations = ConfigFactory.load().getString("sitnet.exam.durations").split(",");
-        List<Integer> values = new ArrayList<>();
-        for (String d : durations) {
-            values.add(Integer.parseInt(d));
-        }
-        return values;
-    }
-
-    public static Boolean isCourseGradeScaleOverridable() {
-        return ConfigFactory.load().getBoolean("sitnet.course.gradescale.overridable");
-    }
-
-    public static Boolean isEnrolmentPermissionCheckActive() {
-        return ConfigFactory.load().getBoolean("sitnet.integration.enrolmentPermissionCheck.active");
-    }
-
-    public static boolean isInteroperable() {
-        return ConfigFactory.load().getBoolean("sitnet.integration.iop.active");
-    }
-
-    public static DateTimeZone getDefaultTimeZone() {
-        String config = ConfigFactory.load().getString("sitnet.application.timezone");
-        return DateTimeZone.forID(config);
-    }
-
-    public static DateTime getExamExpirationDate(DateTime timeOfSubmission) {
-        String expiresAfter = ConfigFactory.load().getString("sitnet.exam.expiration.period");
-        Period period = Period.parse(expiresAfter);
-        return timeOfSubmission.plus(period);
-    }
-
-    public static String getAppVersion() {
-        return ConfigFactory.load().getString("exam.release.version");
-    }
-
-    public static DateTime adjustDST(DateTime dateTime) {
-        // FIXME: this method should be made unnecessary, DST adjustments should always be done based on reservation data.
-        // Until we get some of the queries rephrased, we have to live with this quick-fix
-        return doAdjustDST(dateTime, null);
-    }
-
-    public static DateTime adjustDST(DateTime dateTime, Reservation reservation) {
-        return reservation.getExternalReservation() != null ?
-                adjustDST(dateTime, reservation.getExternalReservation()) :
-                doAdjustDST(dateTime, reservation.getMachine().getRoom());
-    }
-
-    public static DateTime adjustDST(DateTime dateTime, ExternalReservation externalReservation) {
-        DateTime result = dateTime;
-        DateTimeZone dtz = DateTimeZone.forID(externalReservation.getRoomTz());
-        if (!dtz.isStandardOffset(System.currentTimeMillis())) {
-            result = dateTime.plusHours(1);
-        }
-        return result;
-    }
-
-    public static DateTime adjustDST(DateTime dateTime, ExamRoom room) {
-        return doAdjustDST(dateTime, room);
-    }
-
-    private static DateTime doAdjustDST(DateTime dateTime, ExamRoom room) {
-        DateTimeZone dtz;
-        DateTime result = dateTime;
-        if (room == null) {
-            dtz = getDefaultTimeZone();
-        } else {
-            dtz = DateTimeZone.forID(room.getLocalTimezone());
-        }
-        if (!dtz.isStandardOffset(System.currentTimeMillis())) {
-            result = dateTime.plusHours(1);
-        }
-        return result;
-    }
-
-    public static DateTime withTimeAtStartOfDayConsideringTz(DateTime src) {
-        DateTimeZone dtz = getDefaultTimeZone();
-        return src.withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
-    }
-
-    public static DateTime withTimeAtEndOfDayConsideringTz(DateTime src) {
-        DateTimeZone dtz = getDefaultTimeZone();
-        return src.plusDays(1).withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
-    }
 
     public static OwnedModel setCreator(OwnedModel object, User user) {
         object.setCreator(user);

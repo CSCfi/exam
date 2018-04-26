@@ -15,27 +15,6 @@
 
 package backend.impl;
 
-import backend.models.*;
-import biweekly.Biweekly;
-import biweekly.ICalVersion;
-import biweekly.ICalendar;
-import biweekly.component.VEvent;
-import biweekly.property.Summary;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.Ebean;
-import backend.models.iop.ExternalReservation;
-import org.apache.commons.mail.EmailAttachment;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import play.Environment;
-import play.Logger;
-import play.i18n.Lang;
-import play.i18n.MessagesApi;
-import backend.util.AppUtil;
-
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -45,6 +24,28 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.inject.Inject;
+
+import biweekly.Biweekly;
+import biweekly.ICalVersion;
+import biweekly.ICalendar;
+import biweekly.component.VEvent;
+import biweekly.property.Summary;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
+import org.apache.commons.mail.EmailAttachment;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import play.Environment;
+import play.Logger;
+import play.i18n.Lang;
+import play.i18n.MessagesApi;
+
+import backend.models.*;
+import backend.models.iop.ExternalReservation;
+import backend.util.ConfigUtil;
 
 class EmailComposerImpl implements EmailComposer {
 
@@ -53,11 +54,11 @@ class EmailComposerImpl implements EmailComposer {
     private static final String BASE_SYSTEM_URL = ConfigFactory.load().getString("sitnet.baseSystemURL");
     private static final String SYSTEM_ACCOUNT = ConfigFactory.load().getString("sitnet.email.system.account");
     private static final Charset ENCODING = Charset.defaultCharset();
-    private static final String HOSTNAME = AppUtil.getHostName();
+    private static final String HOSTNAME = ConfigUtil.getHostName();
     private static final DateTimeFormatter DTF = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm ZZZ");
     private static final DateTimeFormatter DF = DateTimeFormat.forPattern("dd.MM.yyyy");
     private static final DateTimeFormatter TF = DateTimeFormat.forPattern("HH:mm");
-    private static final DateTimeZone TZ = AppUtil.getDefaultTimeZone();
+    private static final DateTimeZone TZ = ConfigUtil.getDefaultTimeZone();
     private static final int MINUTES_IN_HOUR = 60;
 
     private EmailSender emailSender;

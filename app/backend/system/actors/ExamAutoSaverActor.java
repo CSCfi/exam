@@ -15,9 +15,20 @@
 
 package backend.system.actors;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+
 import akka.actor.AbstractActor;
-import backend.controllers.SettingsController;
 import io.ebean.Ebean;
+import org.joda.time.DateTime;
+import play.Logger;
+
+import backend.controllers.SettingsController;
+import backend.impl.EmailComposer;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamInspection;
@@ -26,17 +37,8 @@ import backend.models.GeneralSettings;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.json.ExternalExam;
-import org.joda.time.DateTime;
-import play.Logger;
 import backend.util.AppUtil;
-import backend.impl.EmailComposer;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import backend.util.DateTimeUtils;
 
 public class ExamAutoSaverActor extends AbstractActor {
 
@@ -79,7 +81,7 @@ public class ExamAutoSaverActor extends AbstractActor {
             Reservation reservation = participation.getReservation();
             DateTime reservationStart = new DateTime(reservation.getStartAt());
             DateTime participationTimeLimit = reservationStart.plusMinutes(exam.getDuration());
-            DateTime now = AppUtil.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
+            DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
             if (participationTimeLimit.isBefore(now)) {
                 participation.setEnded(now);
                 participation.setDuration(
@@ -132,7 +134,7 @@ public class ExamAutoSaverActor extends AbstractActor {
             Reservation reservation = enrolment.getReservation();
             DateTime reservationStart = new DateTime(reservation.getStartAt());
             DateTime participationTimeLimit = reservationStart.plusMinutes(content.getDuration());
-            DateTime now = AppUtil.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
+            DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
             if (participationTimeLimit.isBefore(now)) {
                 exam.setFinished(now);
                 content.setState(Exam.State.REVIEW);

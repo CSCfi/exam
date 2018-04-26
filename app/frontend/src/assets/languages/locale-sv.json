@@ -871,5 +871,15 @@
   "sitnet_choose_institution": "Välj organisation",
   "sitnet_question_differs": "Texten för frågan, som studenten har besvarat, avviker från den nuvarande frågan.",
   "sitnet_code": "Kod",
-  "sitnet_language": "Språk"
+  "sitnet_language": "Språk",
+  "sitnet_exam_durations": "Tenttien kestot SV",
+  "sitnet_course_integration_support": "Opintojaksointegraatio käytössä SV",
+  "sitnet_enrolment_check_integration_support": "Ilmoittautumisoikeuden tarkistus käytössä SV",
+  "sitnet_grade_scale_overridable": "Arvosana-asteikon pakottavuus SV",
+  "sitnet_supports_maturity": "Kypsyysnäytteiden tuki SV",
+  "sitnet_supports_printouts": "Paperitenttien tuki SV",
+  "sitnet_attachment_max_size": "Liitetiedostojen maksimikoko SV",
+  "sitnet_exam_expiration_period": "Tenttisuoritusten vanhenemisaika SV",
+  "sitnet_default_timezone": "Oletusaikavyöhyke SV",
+  "sitnet_role_mapping": "Käyttäjäroolimääritykset SV"
 }

@@ -15,19 +15,20 @@
 
 package backend.system.actors;
 
+import java.util.Collections;
+import java.util.Optional;
+import javax.inject.Inject;
+
 import akka.actor.AbstractActor;
 import io.ebean.Ebean;
+import org.joda.time.DateTime;
+import play.Logger;
+
+import backend.impl.EmailComposer;
 import backend.models.AutoEvaluationConfig;
 import backend.models.Exam;
 import backend.models.User;
-import org.joda.time.DateTime;
-import play.Logger;
-import backend.util.AppUtil;
-import backend.impl.EmailComposer;
-
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.Optional;
+import backend.util.DateTimeUtils;
 
 public class AutoEvaluationNotifierActor extends AbstractActor {
 
@@ -61,7 +62,7 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
     }
 
     private DateTime adjustReleaseDate(DateTime date) {
-        return AppUtil.adjustDST(date.withHourOfDay(5).withMinuteOfHour(0).withSecondOfMinute(0));
+        return DateTimeUtils.adjustDST(date.withHourOfDay(5).withMinuteOfHour(0).withSecondOfMinute(0));
     }
 
     private boolean isPastReleaseDate(Exam exam) {

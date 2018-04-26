@@ -871,5 +871,15 @@
   "sitnet_choose_institution": "Valitse oppilaitos",
   "sitnet_question_differs": "Kysymys, johon opiskelija on vastannut, poikkeaa tekstin osalta tämänhetkisestä kysymyksestä.",
   "sitnet_code": "Koodi",
-  "sitnet_language": "Kieli"
+  "sitnet_language": "Kieli",
+  "sitnet_exam_durations": "Tenttien kestot",
+  "sitnet_course_integration_support": "Opintojaksointegraatio käytössä",
+  "sitnet_enrolment_check_integration_support": "Ilmoittautumisoikeuden tarkistus käytössä",
+  "sitnet_grade_scale_overridable": "Arvosana-asteikon pakottavuus",
+  "sitnet_supports_maturity": "Kypsyysnäytteiden tuki",
+  "sitnet_supports_printouts": "Paperitenttien tuki",
+  "sitnet_attachment_max_size": "Liitetiedostojen maksimikoko",
+  "sitnet_exam_expiration_period": "Tenttisuoritusten vanhenemisaika",
+  "sitnet_default_timezone": "Oletusaikavyöhyke",
+  "sitnet_role_mapping": "Käyttäjäroolimääritykset"
 }

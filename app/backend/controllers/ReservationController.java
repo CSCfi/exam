@@ -15,20 +15,33 @@
 
 package backend.controllers;
 
-import backend.controllers.base.BaseController;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import javax.inject.Inject;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import backend.controllers.base.BaseController;
-import backend.exceptions.NotFoundException;
-import backend.impl.EmailComposer;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
+import play.data.DynamicForm;
+import play.libs.Json;
+import play.mvc.Result;
+
+import backend.controllers.base.BaseController;
+import backend.exceptions.NotFoundException;
+import backend.impl.EmailComposer;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
@@ -36,20 +49,7 @@ import backend.models.ExamParticipation;
 import backend.models.ExamRoom;
 import backend.models.Reservation;
 import backend.models.User;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
-import play.data.DynamicForm;
-import play.libs.Json;
-import play.mvc.Result;
-import backend.util.AppUtil;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import backend.util.DateTimeUtils;
 
 
 public class ReservationController extends BaseController {
@@ -276,13 +276,13 @@ public class ReservationController extends BaseController {
         }
 
         if (start.isPresent()) {
-            DateTime startDate = AppUtil.withTimeAtStartOfDayConsideringTz(
+            DateTime startDate = DateTimeUtils.withTimeAtStartOfDayConsideringTz(
                     DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser()));
             query = query.ge("startAt", startDate.toDate());
         }
 
         if (end.isPresent()) {
-            DateTime endDate = AppUtil.withTimeAtEndOfDayConsideringTz(
+            DateTime endDate = DateTimeUtils.withTimeAtEndOfDayConsideringTz(
                     DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser()));
             query = query.lt("endAt", endDate.toDate());
         }

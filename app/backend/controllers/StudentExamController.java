@@ -15,35 +15,6 @@
 
 package backend.controllers;
 
-import akka.actor.ActorSystem;
-import backend.controllers.base.ActionMethod;
-import backend.controllers.base.BaseController;
-import backend.models.*;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.Query;
-import io.ebean.text.PathProperties;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import backend.controllers.base.ActionMethod;
-import backend.controllers.base.BaseController;
-import backend.models.questions.ClozeTestAnswer;
-import backend.models.questions.EssayAnswer;
-import backend.models.questions.Question;
-import org.joda.time.DateTime;
-import play.Environment;
-import play.data.DynamicForm;
-import play.db.ebean.Transactional;
-import play.mvc.Result;
-import scala.concurrent.duration.Duration;
-import backend.system.interceptors.ExamActionRouter;
-import backend.system.interceptors.SensitiveDataPolicy;
-import backend.util.AppUtil;
-import backend.impl.AutoEvaluationHandler;
-import backend.impl.EmailComposer;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +23,35 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import javax.inject.Inject;
+
+import akka.actor.ActorSystem;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.Ebean;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
+import org.joda.time.DateTime;
+import play.Environment;
+import play.data.DynamicForm;
+import play.db.ebean.Transactional;
+import play.mvc.Result;
+import scala.concurrent.duration.Duration;
+
+import backend.controllers.base.ActionMethod;
+import backend.controllers.base.BaseController;
+import backend.impl.AutoEvaluationHandler;
+import backend.impl.EmailComposer;
+import backend.models.*;
+import backend.models.questions.ClozeTestAnswer;
+import backend.models.questions.EssayAnswer;
+import backend.models.questions.Question;
+import backend.system.interceptors.ExamActionRouter;
+import backend.system.interceptors.SensitiveDataPolicy;
+import backend.util.AppUtil;
+import backend.util.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
 @Restrict({@Group("STUDENT")})
@@ -128,7 +128,7 @@ public class StudentExamController extends BaseController {
                 .findUnique();
 
         if (p != null) {
-            DateTime now = AppUtil.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
+            DateTime now = DateTimeUtils.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
             p.setEnded(now);
             p.setDuration(new DateTime(p.getEnded().getMillis() - p.getStarted().getMillis()));
 
@@ -165,7 +165,7 @@ public class StudentExamController extends BaseController {
                 .findUnique();
 
         if (p != null) {
-            DateTime now = AppUtil.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
+            DateTime now = DateTimeUtils.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
             p.setEnded(now);
             p.setDuration(new DateTime(p.getEnded().getMillis() - p.getStarted().getMillis()));
             p.save();
@@ -278,7 +278,7 @@ public class StudentExamController extends BaseController {
         examParticipation.setUser(user);
         examParticipation.setExam(studentExam);
         examParticipation.setReservation(enrolment.getReservation());
-        DateTime now = AppUtil.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
         examParticipation.setStarted(now);
         examParticipation.save();
         user.getParticipations().add(examParticipation);
@@ -287,7 +287,7 @@ public class StudentExamController extends BaseController {
     }
 
     private static ExamEnrolment getEnrolment(User user, Exam prototype) {
-        DateTime now = AppUtil.adjustDST(DateTime.now());
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
         return Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")

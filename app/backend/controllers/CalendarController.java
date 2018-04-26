@@ -15,15 +15,14 @@
 
 package backend.controllers;
 
+import java.util.*;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.api.ExternalReservationHandler;
-import backend.exceptions.NotFoundException;
-import backend.impl.EmailComposer;
-import backend.models.*;
-import backend.sanitizers.Attrs;
-import backend.sanitizers.CalendarReservationSanitizer;
-import backend.util.AppUtil;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
@@ -41,12 +40,15 @@ import play.mvc.Result;
 import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
-import javax.inject.Inject;
-import java.util.*;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import backend.controllers.base.BaseController;
+import backend.controllers.iop.api.ExternalReservationHandler;
+import backend.exceptions.NotFoundException;
+import backend.impl.EmailComposer;
+import backend.models.*;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.CalendarReservationSanitizer;
+import backend.util.ConfigUtil;
+import backend.util.DateTimeUtils;
 
 
 public class CalendarController extends BaseController {
@@ -78,7 +80,7 @@ public class CalendarController extends BaseController {
         }
         // Removal not permitted if reservation is in the past or ongoing
         final Reservation reservation = enrolment.getReservation();
-        DateTime now = AppUtil.adjustDST(DateTime.now(), reservation);
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
@@ -125,7 +127,7 @@ public class CalendarController extends BaseController {
         Collection<Integer> aids = request().attrs().get(Attrs.ACCESSABILITES);
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
-        DateTime now = AppUtil.adjustDST(DateTime.now(), room);
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), room);
         final User user = getLoggedUser();
         // Start manual transaction.
         Ebean.beginTransaction();
@@ -310,7 +312,7 @@ public class CalendarController extends BaseController {
         }
         int offset = room != null ?
                 DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()) :
-                AppUtil.getDefaultTimeZone().getOffset(DateTime.now());
+                ConfigUtil.getDefaultTimeZone().getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
         LocalDate examEndDate = new DateTime(exam.getExamActiveEndDate()).plusMillis(offset).toLocalDate();
@@ -351,7 +353,7 @@ public class CalendarController extends BaseController {
     }
 
     protected Exam getEnrolledExam(Long examId, User user) {
-        DateTime now = AppUtil.adjustDST(DateTime.now());
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .where()

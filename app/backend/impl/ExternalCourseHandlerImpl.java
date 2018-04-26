@@ -15,22 +15,6 @@
 
 package backend.impl;
 
-import io.ebean.Ebean;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
-import com.typesafe.config.ConfigFactory;
-import backend.models.Course;
-import backend.models.Grade;
-import backend.models.GradeScale;
-import backend.models.Organisation;
-import backend.models.User;
-import play.Logger;
-import play.libs.ws.WSClient;
-import play.libs.ws.WSRequest;
-import play.libs.ws.WSResponse;
-
-import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -43,6 +27,23 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.inject.Inject;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
+import play.Logger;
+import play.libs.ws.WSClient;
+import play.libs.ws.WSRequest;
+import play.libs.ws.WSResponse;
+
+import backend.models.Course;
+import backend.models.Grade;
+import backend.models.GradeScale;
+import backend.models.Organisation;
+import backend.models.User;
+import backend.util.ConfigUtil;
 
 
 public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
@@ -99,7 +100,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
 
     @Override
     public CompletionStage<Set<Course>> getCoursesByCode(User user, String code) throws MalformedURLException {
-        if (!isCourseSearchActive()) {
+        if (!ConfigUtil.isCourseSearchActive()) {
             return CompletableFuture.supplyAsync(() -> getLocalCourses(code));
         }
         // Hit the remote end for a possible match. Update local records with matching remote records.
@@ -216,14 +217,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         return new URL(url);
     }
 
-    private static boolean isCourseSearchActive() {
-        try {
-            return ConfigFactory.load().getBoolean("sitnet.integration.courseUnitInfo.active");
-        } catch (ConfigException e) {
-            Logger.error("Failed to load config", e);
-            return false;
-        }
-    }
+
 
     private List<GradeScale> getGradeScales(JsonNode src) {
         JsonNode node = src;

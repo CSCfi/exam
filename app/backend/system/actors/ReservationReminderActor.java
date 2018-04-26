@@ -15,15 +15,16 @@
 
 package backend.system.actors;
 
+import javax.inject.Inject;
+
 import akka.actor.AbstractActor;
 import io.ebean.Ebean;
-import backend.models.Reservation;
 import org.joda.time.DateTime;
 import play.Logger;
-import backend.util.AppUtil;
-import backend.impl.EmailComposer;
 
-import javax.inject.Inject;
+import backend.impl.EmailComposer;
+import backend.models.Reservation;
+import backend.util.DateTimeUtils;
 
 public class ReservationReminderActor extends AbstractActor {
 
@@ -45,7 +46,7 @@ public class ReservationReminderActor extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
             Logger.debug("{}: Running reservation reminder task ...", getClass().getCanonicalName());
-            DateTime now = AppUtil.adjustDST(DateTime.now());
+            DateTime now = DateTimeUtils.adjustDST(DateTime.now());
             DateTime tomorrow = now.plusDays(1);
             Ebean.find(Reservation.class)
                     .where()

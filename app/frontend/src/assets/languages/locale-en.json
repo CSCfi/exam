@@ -871,5 +871,15 @@
   "sitnet_choose_institution": "Choose organization",
   "sitnet_question_differs": "The question that the student has answered has a different wording than the current one.",
   "sitnet_code": "Code",
-  "sitnet_language": "Language"
+  "sitnet_language": "Language",
+  "sitnet_exam_durations": "Tenttien kestot EN",
+  "sitnet_course_integration_support": "Opintojaksointegraatio käytössä EN",
+  "sitnet_enrolment_check_integration_support": "Ilmoittautumisoikeuden tarkistus käytössä EN",
+  "sitnet_grade_scale_overridable": "Arvosana-asteikon pakottavuus EN",
+  "sitnet_supports_maturity": "Kypsyysnäytteiden tuki EN",
+  "sitnet_supports_printouts": "Paperitenttien tuki EN",
+  "sitnet_attachment_max_size": "Liitetiedostojen maksimikoko EN",
+  "sitnet_exam_expiration_period": "Tenttisuoritusten vanhenemisaika EN",
+  "sitnet_default_timezone": "Oletusaikavyöhyke EN",
+  "sitnet_role_mapping": "Käyttäjäroolimääritykset EN"
 }
