@@ -15,26 +15,27 @@
 
 package backend.controllers;
 
+import java.util.stream.Collectors;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.Update;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
-import backend.controllers.base.ActionMethod;
-import backend.controllers.base.BaseController;
-import backend.models.GeneralSettings;
-import backend.models.User;
+import io.ebean.Ebean;
+import io.ebean.Update;
 import play.Environment;
 import play.data.DynamicForm;
 import play.i18n.Lang;
 import play.i18n.Langs;
 import play.libs.Json;
 import play.mvc.Result;
-import backend.util.AppUtil;
 
-import java.util.stream.Collectors;
+import backend.controllers.base.ActionMethod;
+import backend.controllers.base.BaseController;
+import backend.models.GeneralSettings;
+import backend.models.User;
+import backend.util.ConfigUtil;
 
 public class SettingsController  extends BaseController {
 
@@ -123,14 +124,14 @@ public class SettingsController  extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
     public Result getHostname() {
         ObjectNode node = Json.newObject();
-        node.put("hostname", AppUtil.getHostName());
+        node.put("hostname", ConfigUtil.getHostName());
         return ok(Json.toJson(node));
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
     public Result getMaxFilesize() {
         ObjectNode node = Json.newObject();
-        node.put("filesize", AppUtil.getMaxFileSize());
+        node.put("filesize", ConfigUtil.getMaxFileSize());
         return ok(Json.toJson(node));
     }
 
@@ -138,28 +139,28 @@ public class SettingsController  extends BaseController {
     public Result getExamDurations() {
         ObjectNode node = Json.newObject();
         ArrayNode durations = node.putArray("examDurations");
-        AppUtil.getExamDurations().forEach(durations::add);
+        ConfigUtil.getExamDurations().forEach(durations::add);
         return ok(Json.toJson(node));
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result isExamGradeScaleOverridable() {
         ObjectNode node = Json.newObject();
-        node.put("overridable", AppUtil.isCourseGradeScaleOverridable());
+        node.put("overridable", ConfigUtil.isCourseGradeScaleOverridable());
         return ok(Json.toJson(node));
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
     public Result isEnrolmentPermissionCheckActive() {
         ObjectNode node = Json.newObject();
-        node.put("active", AppUtil.isEnrolmentPermissionCheckActive());
+        node.put("active", ConfigUtil.isEnrolmentPermissionCheckActive());
         return ok(Json.toJson(node));
     }
 
     @Restrict({ @Group("ADMIN") })
     public Result getAppVersion() {
         ObjectNode node = Json.newObject();
-        node.put("appVersion", AppUtil.getAppVersion());
+        node.put("appVersion", ConfigUtil.getAppVersion());
         return ok(Json.toJson(node));
     }
 
@@ -173,8 +174,51 @@ public class SettingsController  extends BaseController {
     @ActionMethod
     public Result isInteroperable() {
         ObjectNode node = Json.newObject();
-        node.put("isInteroperable", AppUtil.isInteroperable());
+        node.put("isInteroperable", ConfigUtil.isInteroperable());
         return ok(Json.toJson(node));
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public Result getConfig() {
+        ObjectNode node = Json.newObject();
+
+        node.put("hasCourseSearchIntegration", ConfigUtil.isCourseSearchActive());
+        ObjectNode courseIntegrationUrls = Json.newObject();
+        ConfigUtil.getCourseIntegrationUrls().forEach(courseIntegrationUrls::put);
+        node.set("courseSearchIntegrationUrls", courseIntegrationUrls);
+
+        ArrayNode durations = Json.newArray();
+        ConfigUtil.getExamDurations().forEach(durations::add);
+        node.set("examDurations", durations);
+
+        ObjectNode roles = Json.newObject();
+        ConfigUtil.getRoleMapping().forEach((k, v) -> {
+            ArrayNode role = Json.newArray();
+            v.forEach(role::add);
+            roles.set(k.getName(), role);
+        });
+        node.set("roles", roles);
+
+        GeneralSettings eula = getOrCreateSettings("eula", null , null);
+        node.put("eula", eula.getValue());
+        GeneralSettings reservationWindowSize =
+                getOrCreateSettings("reservation_window_size", null, "30");
+        node.put("reservationWindowSize", Integer.parseInt(reservationWindowSize.getValue()));
+        GeneralSettings reviewDeadline =
+                getOrCreateSettings("review_deadline", null, "14");
+        node.put("reviewDeadline", Integer.parseInt(reviewDeadline.getValue()));
+
+        node.put("isInteroperable", ConfigUtil.isInteroperable());
+        node.put("hasEnrolmentCheckIntegration", ConfigUtil.isEnrolmentPermissionCheckActive());
+        node.put("isGradeScaleOverridable", ConfigUtil.isCourseGradeScaleOverridable());
+        node.put("supportsMaturity", ConfigUtil.isMaturitySupported());
+        node.put("supportsPrintouts", ConfigUtil.isPrintoutSupported());
+        node.put("maxFileSize", ConfigUtil.getMaxFileSize());
+        node.put("expirationPeriod", ConfigUtil.getExamExpirationPeriod());
+        node.put("defaultTimeZone", ConfigUtil.getDefaultTimeZone().getID());
+
+        return ok(Json.toJson(node));
+
     }
 
 }

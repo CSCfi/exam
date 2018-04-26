@@ -15,15 +15,13 @@
 
 package backend.controllers;
 
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
-import backend.controllers.base.BaseController;
-import backend.impl.EmailComposer;
-import backend.models.*;
-import backend.models.questions.ClozeTestAnswer;
-import backend.models.questions.Question;
-import backend.sanitizers.Attrs;
-import backend.sanitizers.ExamUpdateSanitizer;
-import backend.util.AppUtil;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -40,11 +38,15 @@ import play.mvc.Result;
 import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
-import javax.inject.Inject;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import backend.controllers.base.BaseController;
+import backend.impl.EmailComposer;
+import backend.models.*;
+import backend.models.questions.ClozeTestAnswer;
+import backend.models.questions.Question;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.ExamUpdateSanitizer;
+import backend.util.AppUtil;
+import backend.util.ConfigUtil;
 
 
 public class ExamController extends BaseController {
@@ -550,7 +552,7 @@ public class ExamController extends BaseController {
 
     private static boolean updateGrading(Exam exam, int grading) {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
-        boolean canOverrideGrading = AppUtil.isCourseGradeScaleOverridable();
+        boolean canOverrideGrading = ConfigUtil.isCourseGradeScaleOverridable();
         boolean changed = false;
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
             GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findUnique();
@@ -692,8 +694,8 @@ public class ExamController extends BaseController {
             exam.setExamActiveStartDate(start);
             exam.setExamActiveEndDate(start.plusDays(1));
         }
-        exam.setDuration(AppUtil.getExamDurations().get(0));
-        if (AppUtil.isCourseGradeScaleOverridable()) {
+        exam.setDuration(ConfigUtil.getExamDurations().get(0));
+        if (ConfigUtil.isCourseGradeScaleOverridable()) {
             exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0));
         }
 

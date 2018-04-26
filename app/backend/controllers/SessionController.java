@@ -15,19 +15,20 @@
 
 package backend.controllers;
 
-import backend.controllers.base.ActionMethod;
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.api.ExternalExamAPI;
-import backend.exceptions.NotFoundException;
-import backend.models.ExamEnrolment;
-import backend.models.Language;
-import backend.models.Organisation;
-import backend.models.Reservation;
-import backend.models.Role;
-import backend.models.Session;
-import backend.models.User;
-import backend.models.dto.Credentials;
-import backend.util.AppUtil;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URLDecoder;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectPresent;
@@ -43,20 +44,21 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import javax.inject.Inject;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URLDecoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletionStage;
+import backend.controllers.base.ActionMethod;
+import backend.controllers.base.BaseController;
+import backend.controllers.iop.api.ExternalExamAPI;
+import backend.exceptions.NotFoundException;
+import backend.models.ExamEnrolment;
+import backend.models.Language;
+import backend.models.Organisation;
+import backend.models.Reservation;
+import backend.models.Role;
+import backend.models.Session;
+import backend.models.User;
+import backend.models.dto.Credentials;
+import backend.util.AppUtil;
+import backend.util.ConfigUtil;
+import backend.util.DateTimeUtils;
 
 public class SessionController extends BaseController {
 
@@ -172,7 +174,7 @@ public class SessionController extends BaseController {
     }
 
     private Reservation getUpcomingExternalReservation(String eppn) {
-        DateTime now = AppUtil.adjustDST(new DateTime());
+        DateTime now = DateTimeUtils.adjustDST(new DateTime());
         int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
         DateTime future = now.plusMinutes(lookAheadMinutes);
         List<Reservation> reservations = Ebean.find(Reservation.class).where()
@@ -307,7 +309,7 @@ public class SessionController extends BaseController {
     }
 
     private static Set<Role> parseRoles(String attribute, boolean ignoreRoleNotFound) throws NotFoundException {
-        Map<Role, List<String>> roleMapping = getConfiguredRoleMapping();
+        Map<Role, List<String>> roleMapping = ConfigUtil.getRoleMapping();
         Set<Role> userRoles = new HashSet<>();
         for (String affiliation : attribute.split(";")) {
             for (Map.Entry<Role, List<String>> entry : roleMapping.entrySet()) {
@@ -321,17 +323,6 @@ public class SessionController extends BaseController {
             throw new NotFoundException("sitnet_error_role_not_found " + attribute);
         }
         return userRoles;
-    }
-
-    private static Map<Role, List<String>> getConfiguredRoleMapping() {
-        Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findUnique();
-        Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findUnique();
-        Role admin = Ebean.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findUnique();
-        Map<Role, List<String>> roles = new HashMap<>();
-        roles.put(student, ConfigFactory.load().getStringList("sitnet.roles.student"));
-        roles.put(teacher, ConfigFactory.load().getStringList("sitnet.roles.teacher"));
-        roles.put(admin, ConfigFactory.load().getStringList("sitnet.roles.admin"));
-        return roles;
     }
 
     @ActionMethod

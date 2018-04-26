@@ -15,15 +15,16 @@
 
 package backend.system.actors;
 
+import java.util.List;
+
 import akka.actor.AbstractActor;
 import io.ebean.Ebean;
-import backend.models.Exam;
-import backend.models.ExamRecord;
 import org.joda.time.DateTime;
 import play.Logger;
-import backend.util.AppUtil;
 
-import java.util.List;
+import backend.models.Exam;
+import backend.models.ExamRecord;
+import backend.util.ConfigUtil;
 
 public class ExamExpirationActor extends AbstractActor {
 
@@ -49,7 +50,7 @@ public class ExamExpirationActor extends AbstractActor {
                     Logger.error("no grading time for exam #" + exam.getId().toString());
                     continue;
                 }
-                if (AppUtil.getExamExpirationDate(expirationDate).isBefore(now)) {
+                if (ConfigUtil.getExamExpirationDate(expirationDate).isBefore(now)) {
                     cleanExamData(exam);
                     Logger.info("{}: ... Marked exam {} as expired", getClass().getCanonicalName(), exam.getId());
                 }

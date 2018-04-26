@@ -15,15 +15,19 @@
 
 package backend.controllers.iop;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
-import backend.controllers.iop.api.ExternalReservationHandler;
 import io.ebean.Ebean;
-import backend.models.ExamEnrolment;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.iop.ExternalReservation;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.ws.WSClient;
@@ -32,17 +36,14 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
-import backend.util.AppUtil;
-import backend.impl.EmailComposer;
 
-import javax.inject.Inject;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import backend.controllers.iop.api.ExternalReservationHandler;
+import backend.impl.EmailComposer;
+import backend.models.ExamEnrolment;
+import backend.models.Reservation;
+import backend.models.User;
+import backend.models.iop.ExternalReservation;
+import backend.util.DateTimeUtils;
 
 public class ExternalReservationHandlerImpl implements ExternalReservationHandler {
 
@@ -80,7 +81,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         }
         // Removal not permitted if reservation is in the past or ongoing
         final Reservation reservation = enrolment.getReservation();
-        DateTime now = AppUtil.adjustDST(DateTime.now(), reservation.getExternalReservation());
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation.getExternalReservation());
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return CompletableFuture.supplyAsync(() -> Results.forbidden("sitnet_reservation_in_effect"));
         }

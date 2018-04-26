@@ -15,36 +15,28 @@
 
 package backend.controllers;
 
+import java.io.IOException;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
+import org.joda.time.DateTime;
+import org.joda.time.Seconds;
+import play.mvc.Result;
+
 import backend.controllers.base.BaseController;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.User;
-import org.joda.time.DateTime;
-import org.joda.time.Seconds;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import play.mvc.Result;
-import backend.util.AppUtil;
-
-import java.io.IOException;
+import backend.util.DateTimeUtils;
 
 
 public class TimeController extends BaseController {
-
-    private static DateTimeFormatter format = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
-
 
     @Restrict({@Group("STUDENT")})
     public Result getExamRemainingTime(String hash) throws IOException {
 
         User user = getLoggedUser();
-        if (user == null) {
-            return forbidden("sitnet_error_invalid_session");
-        }
-
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
@@ -65,7 +57,7 @@ public class TimeController extends BaseController {
 
         final DateTime reservationStart = new DateTime(enrolment.getReservation().getStartAt());
         final int durationMinutes = getDuration(enrolment);
-        DateTime now = AppUtil.adjustDST(DateTime.now(), enrolment.getReservation());
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation());
         final Seconds timeLeft = Seconds.secondsBetween(now, reservationStart.plusMinutes(durationMinutes));
 
         return ok(String.valueOf(timeLeft.getSeconds()));

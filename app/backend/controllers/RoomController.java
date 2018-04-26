@@ -15,25 +15,24 @@
 
 package backend.controllers;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.api.ExternalFacilityAPI;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.api.ExternalFacilityAPI;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
-import backend.models.Accessibility;
-import backend.models.ExamMachine;
-import backend.models.ExamRoom;
-import backend.models.ExamStartingHour;
-import backend.models.MailAddress;
-import backend.models.calendar.DefaultWorkingHours;
-import backend.models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -44,18 +43,18 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
-import backend.util.AppUtil;
-import backend.util.DateTimeUtils;
 
-import javax.inject.Inject;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import backend.controllers.base.BaseController;
+import backend.controllers.iop.api.ExternalFacilityAPI;
+import backend.models.Accessibility;
+import backend.models.ExamMachine;
+import backend.models.ExamRoom;
+import backend.models.ExamStartingHour;
+import backend.models.MailAddress;
+import backend.models.calendar.DefaultWorkingHours;
+import backend.models.calendar.ExceptionWorkingHours;
+import backend.util.ConfigUtil;
+import backend.util.DateTimeUtils;
 
 public class RoomController extends BaseController {
 
@@ -124,9 +123,8 @@ public class RoomController extends BaseController {
     @Restrict(@Group({"ADMIN"}))
     public Result createExamRoomDraft() {
         ExamRoom examRoom = new ExamRoom();
-        examRoom.setName("Kirjoita tenttitilan nimi tähän"); // TODO: i18n
         examRoom.setState("SAVED");
-        examRoom.setLocalTimezone(AppUtil.getDefaultTimeZone().getID());
+        examRoom.setLocalTimezone(ConfigUtil.getDefaultTimeZone().getID());
         examRoom.save();
         return ok(Json.toJson(examRoom));
     }

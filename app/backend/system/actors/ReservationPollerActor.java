@@ -15,16 +15,17 @@
 
 package backend.system.actors;
 
+import java.util.List;
+import javax.inject.Inject;
+
 import akka.actor.AbstractActor;
 import io.ebean.Ebean;
-import backend.models.Reservation;
 import org.joda.time.DateTime;
 import play.Logger;
-import backend.util.AppUtil;
-import backend.impl.NoShowHandler;
 
-import javax.inject.Inject;
-import java.util.List;
+import backend.impl.NoShowHandler;
+import backend.models.Reservation;
+import backend.util.DateTimeUtils;
 
 public class ReservationPollerActor extends AbstractActor {
 
@@ -39,7 +40,7 @@ public class ReservationPollerActor extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
             Logger.debug("{}: Running no-show check ...", getClass().getCanonicalName());
-            DateTime now = AppUtil.adjustDST(DateTime.now());
+            DateTime now = DateTimeUtils.adjustDST(DateTime.now());
             List<Reservation> reservations = Ebean.find(Reservation.class)
                     .fetch("enrolment")
                     .fetch("enrolment.exam")

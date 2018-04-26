@@ -15,18 +15,32 @@
 
 package backend.controllers.iop;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
-import backend.controllers.base.ActionMethod;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.Ebean;
+import io.ebean.text.PathProperties;
+import org.joda.time.DateTime;
+import play.Environment;
+import play.data.DynamicForm;
+import play.mvc.Result;
+import play.mvc.Results;
+
 import backend.controllers.StudentExamController;
 import backend.controllers.base.ActionMethod;
 import backend.impl.AutoEvaluationHandler;
 import backend.impl.EmailComposer;
-import io.ebean.Ebean;
-import io.ebean.text.PathProperties;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamSectionQuestion;
@@ -35,22 +49,8 @@ import backend.models.json.ExternalExam;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
-import org.joda.time.DateTime;
-import play.Environment;
-import play.data.DynamicForm;
-import play.mvc.Result;
-import play.mvc.Results;
 import backend.system.interceptors.SensitiveDataPolicy;
-import backend.util.AppUtil;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import backend.util.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
 @Restrict({@Group("STUDENT")})
@@ -85,7 +85,7 @@ public class ExternalStudentExamController extends StudentExamController {
                 } catch (IOException e) {
                     return internalServerError();
                 }
-                DateTime now = AppUtil.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
+                DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
                 externalExam.setStarted(now);
                 externalExam.update();
             }
@@ -274,7 +274,7 @@ public class ExternalStudentExamController extends StudentExamController {
     }
 
     private Optional<ExamEnrolment> getEnrolment(User user, ExternalExam prototype) {
-        DateTime now = AppUtil.adjustDST(DateTime.now());
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
@@ -312,7 +312,7 @@ public class ExternalStudentExamController extends StudentExamController {
             return forbidden();
         }
         ExamEnrolment enrolment = optionalEnrolment.get();
-        DateTime now = AppUtil.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
         ee.setFinished(now);
         try {
             Exam content = ee.deserialize();

@@ -16,15 +16,18 @@
 package backend.system;
 
 
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import javax.xml.bind.DatatypeConverter;
+
 import com.google.inject.Inject;
-import backend.controllers.base.BaseController;
 import io.ebean.Ebean;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamMachine;
-import backend.models.ExamRoom;
-import backend.models.Session;
-import backend.models.User;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.ISODateTimeFormat;
@@ -35,21 +38,17 @@ import play.http.ActionCreator;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
-import backend.util.AppUtil;
 
-import javax.xml.bind.DatatypeConverter;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamMachine;
+import backend.models.ExamRoom;
+import backend.models.Session;
+import backend.models.User;
+import backend.util.DateTimeUtils;
 
 public class SystemRequestHandler implements ActionCreator {
-
-    private static final String SITNET_FAILURE_HEADER_KEY = "x-exam-token-failure";
 
     protected SyncCacheApi cache;
     protected Environment environment;
@@ -98,10 +97,8 @@ public class SystemRequestHandler implements ActionCreator {
             return Optional.of(new Action.Simple() {
                 @Override
                 public CompletionStage<Result> call(final Http.Context ctx) {
-                    return CompletableFuture.supplyAsync(() -> {
-                                ctx.response().getHeaders().put(SITNET_FAILURE_HEADER_KEY, "Invalid token");
-                                return Action.badRequest("Token has expired / You have logged out, please close all browser windows and login again.");
-                            }
+                    return CompletableFuture.supplyAsync(() ->
+                            Action.badRequest("Token has expired / You have logged out, please close all browser windows and login again.")
                     );
                 }
             });
@@ -228,7 +225,7 @@ public class SystemRequestHandler implements ActionCreator {
     }
 
     private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {
-        DateTime now = AppUtil.adjustDST(new DateTime());
+        DateTime now = DateTimeUtils.adjustDST(new DateTime());
         DateTime future = now.plusMinutes(minutesToFuture);
         List<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")

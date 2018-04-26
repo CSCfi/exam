@@ -35,7 +35,6 @@ import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import backend.sanitizers.EnrolmentCourseInformationSanitizer;
 import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.BaseController;
@@ -48,14 +47,16 @@ import backend.models.ExamExecutionType;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.sanitizers.Attrs;
+import backend.sanitizers.EnrolmentCourseInformationSanitizer;
 import backend.sanitizers.EnrolmentInformationSanitizer;
 import backend.sanitizers.StudentEnrolmentSanitizer;
-import backend.util.AppUtil;
+import backend.util.ConfigUtil;
+import backend.util.DateTimeUtils;
 import backend.validators.JsonValidator;
 
 public class EnrolmentController extends BaseController {
 
-    private static final boolean PERM_CHECK_ACTIVE = AppUtil.isEnrolmentPermissionCheckActive();
+    private static final boolean PERM_CHECK_ACTIVE = ConfigUtil.isEnrolmentPermissionCheckActive();
 
     protected final EmailComposer emailComposer;
 
@@ -156,7 +157,7 @@ public class EnrolmentController extends BaseController {
             return badRequest();
         }
         if (isAllowedToParticipate(exam, getLoggedUser(), emailComposer)) {
-            DateTime now = AppUtil.adjustDST(new DateTime());
+            DateTime now = DateTimeUtils.adjustDST(new DateTime());
             List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                     .where()
                     .eq("user", getLoggedUser())
@@ -273,7 +274,7 @@ public class EnrolmentController extends BaseController {
                 if (reservation == null) {
                     // enrolment without reservation already exists, no need to create a new one
                     return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));
-                } else if (reservation.toInterval().contains(AppUtil.adjustDST(DateTime.now(), reservation))) {
+                } else if (reservation.toInterval().contains(DateTimeUtils.adjustDST(DateTime.now(), reservation))) {
                     // reservation in effect
                     if (exam.getState() == Exam.State.STUDENT_STARTED) {
                         // exam for reservation is ongoing

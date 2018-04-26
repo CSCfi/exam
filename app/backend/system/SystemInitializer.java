@@ -16,11 +16,20 @@
 package backend.system;
 
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
 import io.ebean.Ebean;
-import backend.models.User;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
@@ -29,18 +38,10 @@ import play.Logger;
 import play.inject.ApplicationLifecycle;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
-import backend.util.AppUtil;
-import backend.impl.EmailComposer;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
+import backend.impl.EmailComposer;
+import backend.models.User;
+import backend.util.ConfigUtil;
 
 @Singleton
 class SystemInitializer {
@@ -135,7 +136,7 @@ class SystemInitializer {
         DateTime now = DateTime.now();
         // Every Monday at 5AM UTC
         int adjustedHours = 5;
-        if (!AppUtil.getDefaultTimeZone().isStandardOffset(now.getMillis())) {
+        if (!ConfigUtil.getDefaultTimeZone().isStandardOffset(now.getMillis())) {
             // Have the run happen an hour earlier to take care of DST offset
             adjustedHours -= 1;
         }
@@ -150,11 +151,11 @@ class SystemInitializer {
             nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
         }
         // Case for: now there's no DST but by next run there will be.
-        if (adjustedHours == 5 && !AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
+        if (adjustedHours == 5 && !ConfigUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
             nextRun = nextRun.minusHours(1);
         }
         // Case for: now there's DST but by next run there won't be
-        else if (adjustedHours != 5 && AppUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
+        else if (adjustedHours != 5 && ConfigUtil.getDefaultTimeZone().isStandardOffset(nextRun.getMillis())) {
             nextRun = nextRun.plusHours(1);
         }
 

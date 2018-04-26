@@ -15,26 +15,26 @@
 
 package backend.controllers.iop;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import javax.inject.Inject;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
-import io.ebean.Ebean;
-import io.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
-import backend.controllers.CalendarController;
-import backend.controllers.SettingsController;
-import backend.exceptions.NotFoundException;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamMachine;
-import backend.models.ExamRoom;
-import backend.models.MailAddress;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.iop.ExternalReservation;
+import io.ebean.Ebean;
+import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -48,18 +48,20 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
-import backend.util.AppUtil;
 
-import javax.inject.Inject;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import backend.controllers.CalendarController;
+import backend.controllers.SettingsController;
+import backend.exceptions.NotFoundException;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamMachine;
+import backend.models.ExamRoom;
+import backend.models.MailAddress;
+import backend.models.Reservation;
+import backend.models.User;
+import backend.models.iop.ExternalReservation;
+import backend.util.ConfigUtil;
+import backend.util.DateTimeUtils;
 
 
 public class ExternalCalendarController extends CalendarController {
@@ -156,7 +158,7 @@ public class ExternalCalendarController extends CalendarController {
             return notFound("reservation not found");
         }
         // TODO: might need additional checks
-        DateTime now = AppUtil.adjustDST(DateTime.now(), reservation);
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
@@ -217,7 +219,7 @@ public class ExternalCalendarController extends CalendarController {
             return wrapAsPromise(badRequest("invalid dates"));
         }
         //TODO: See if this offset thing works as intended
-        DateTime now = AppUtil.adjustDST(DateTime.now());
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .where()
@@ -406,7 +408,7 @@ public class ExternalCalendarController extends CalendarController {
         }
         int offset = room != null ?
                 DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()) :
-                AppUtil.getDefaultTimeZone().getOffset(DateTime.now());
+                ConfigUtil.getDefaultTimeZone().getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
         LocalDate examEndDate = DateTime.parse(endDate, ISODateTimeFormat.dateTimeParser()).plusMillis(offset).toLocalDate();

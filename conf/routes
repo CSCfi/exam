@@ -304,6 +304,7 @@ GET           /app/tags                                                backend.c
 
 ################# General Settings interface ##################
 
+GET           /app/config                                              backend.controllers.SettingsController.getConfig
 GET           /app/settings/agreement                                  backend.controllers.SettingsController.getUserAgreement
 PUT           /app/settings/agreement                                  backend.controllers.SettingsController.updateUserAgreement()
 GET           /app/settings/deadline                                   backend.controllers.SettingsController.getDeadline

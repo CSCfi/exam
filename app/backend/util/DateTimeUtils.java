@@ -15,16 +15,21 @@
 
 package backend.util;
 
-import backend.models.calendar.ExceptionWorkingHours;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
-import org.joda.time.LocalDate;
-import org.joda.time.base.AbstractInterval;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Interval;
+import org.joda.time.LocalDate;
+import org.joda.time.base.AbstractInterval;
+
+import backend.models.ExamRoom;
+import backend.models.Reservation;
+import backend.models.calendar.ExceptionWorkingHours;
+import backend.models.iop.ExternalReservation;
 
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 
@@ -145,6 +150,55 @@ public class DateTimeUtils {
     public static int resolveEndWorkingHourMillis(DateTime endTime, int timeZoneOffset) {
         int millis = resolveMillisOfDay(endTime, timeZoneOffset);
         return millis == 0 ? MILLIS_PER_DAY - 1 : millis;
+    }
+
+    public static DateTime adjustDST(DateTime dateTime) {
+        // FIXME: this method should be made unnecessary, DST adjustments should always be done based on reservation data.
+        // Until we get some of the queries rephrased, we have to live with this quick-fix
+        return doAdjustDST(dateTime, null);
+    }
+
+    public static DateTime adjustDST(DateTime dateTime, Reservation reservation) {
+        return reservation.getExternalReservation() != null ?
+                adjustDST(dateTime, reservation.getExternalReservation()) :
+                doAdjustDST(dateTime, reservation.getMachine().getRoom());
+    }
+
+    public static DateTime adjustDST(DateTime dateTime, ExternalReservation externalReservation) {
+        DateTime result = dateTime;
+        DateTimeZone dtz = DateTimeZone.forID(externalReservation.getRoomTz());
+        if (!dtz.isStandardOffset(System.currentTimeMillis())) {
+            result = dateTime.plusHours(1);
+        }
+        return result;
+    }
+
+    public static DateTime adjustDST(DateTime dateTime, ExamRoom room) {
+        return doAdjustDST(dateTime, room);
+    }
+
+    private static DateTime doAdjustDST(DateTime dateTime, ExamRoom room) {
+        DateTimeZone dtz;
+        DateTime result = dateTime;
+        if (room == null) {
+            dtz = ConfigUtil.getDefaultTimeZone();
+        } else {
+            dtz = DateTimeZone.forID(room.getLocalTimezone());
+        }
+        if (!dtz.isStandardOffset(System.currentTimeMillis())) {
+            result = dateTime.plusHours(1);
+        }
+        return result;
+    }
+
+    public static DateTime withTimeAtStartOfDayConsideringTz(DateTime src) {
+        DateTimeZone dtz = ConfigUtil.getDefaultTimeZone();
+        return src.withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
+    }
+
+    public static DateTime withTimeAtEndOfDayConsideringTz(DateTime src) {
+        DateTimeZone dtz = ConfigUtil.getDefaultTimeZone();
+        return src.plusDays(1).withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
     }
 
     private static int resolveMillisOfDay(DateTime date, long offset) {

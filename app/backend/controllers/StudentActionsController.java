@@ -16,32 +16,6 @@
 package backend.controllers;
 
 
-import backend.controllers.base.ActionMethod;
-import backend.controllers.base.BaseController;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import backend.controllers.base.ActionMethod;
-import backend.controllers.base.BaseController;
-import backend.impl.ExternalCourseHandler;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.FetchConfig;
-import io.ebean.text.PathProperties;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamExecutionType;
-import backend.models.ExamInspection;
-import backend.models.ExamParticipation;
-import backend.models.User;
-import backend.models.api.CountsAsTrial;
-import org.joda.time.DateTime;
-import play.libs.Json;
-import play.mvc.Result;
-import backend.system.interceptors.SensitiveDataPolicy;
-import backend.util.AppUtil;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,12 +24,38 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.FetchConfig;
+import io.ebean.text.PathProperties;
+import org.joda.time.DateTime;
+import play.libs.Json;
+import play.mvc.Result;
+
+import backend.controllers.base.ActionMethod;
+import backend.controllers.base.BaseController;
+import backend.impl.ExternalCourseHandler;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamExecutionType;
+import backend.models.ExamInspection;
+import backend.models.ExamParticipation;
+import backend.models.User;
+import backend.models.api.CountsAsTrial;
+import backend.system.interceptors.SensitiveDataPolicy;
+import backend.util.ConfigUtil;
+import backend.util.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
 @Restrict({@Group("STUDENT")})
 public class StudentActionsController extends BaseController {
 
-    private static final boolean PERM_CHECK_ACTIVE = AppUtil.isEnrolmentPermissionCheckActive();
+    private static final boolean PERM_CHECK_ACTIVE = ConfigUtil.isEnrolmentPermissionCheckActive();
 
     @Inject
     private ExternalCourseHandler externalCourseHandler;
@@ -226,7 +226,7 @@ public class StudentActionsController extends BaseController {
 
     @ActionMethod
     public Result getEnrolmentsForUser() {
-        DateTime now = AppUtil.adjustDST(new DateTime());
+        DateTime now = DateTimeUtils.adjustDST(new DateTime());
         User user = getLoggedUser();
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")

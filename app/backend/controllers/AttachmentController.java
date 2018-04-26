@@ -16,13 +16,25 @@
 package backend.controllers;
 
 
-import backend.controllers.base.BaseController;
+import java.io.File;
+import java.io.IOException;
+import java.util.Base64;
+import java.util.Map;
+import java.util.UUID;
+import javax.inject.Inject;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
+import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
-import com.typesafe.config.ConfigFactory;
+import play.Environment;
+import play.Logger;
+import play.mvc.Http.MultipartFormData;
+import play.mvc.Http.MultipartFormData.FilePart;
+import play.mvc.Result;
+
 import backend.controllers.base.BaseController;
 import backend.models.Attachment;
 import backend.models.Comment;
@@ -34,25 +46,14 @@ import backend.models.User;
 import backend.models.api.AttachmentContainer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
-import play.Environment;
-import play.Logger;
-import play.mvc.Http.MultipartFormData;
-import play.mvc.Http.MultipartFormData.FilePart;
-import play.mvc.Result;
 import backend.util.AppUtil;
-
-import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.Map;
-import java.util.UUID;
+import backend.util.ConfigUtil;
 
 
 public class AttachmentController extends BaseController {
 
     @Inject
-    Environment environment;
+    private Environment environment;
 
     private static void removePrevious(AttachmentContainer container) {
         if (container.getAttachment() != null) {
@@ -90,7 +91,7 @@ public class AttachmentController extends BaseController {
             return notFound();
         }
         File file = filePart.getFile();
-        if (file.length() > AppUtil.getMaxFileSize()) {
+        if (file.length() > ConfigUtil.getMaxFileSize()) {
             return forbidden("sitnet_file_too_large");
         }
         Map<String, String[]> m = body.asFormUrlEncoded();
@@ -136,7 +137,7 @@ public class AttachmentController extends BaseController {
             return notFound();
         }
         File file = filePart.getFile();
-        if (file.length() > AppUtil.getMaxFileSize()) {
+        if (file.length() > ConfigUtil.getMaxFileSize()) {
             return forbidden("sitnet_file_too_large");
         }
         Map<String, String[]> m = body.asFormUrlEncoded();
@@ -243,7 +244,7 @@ public class AttachmentController extends BaseController {
             return notFound();
         }
         File file = filePart.getFile();
-        if (file.length() > AppUtil.getMaxFileSize()) {
+        if (file.length() > ConfigUtil.getMaxFileSize()) {
             return forbidden("sitnet_file_too_large");
         }
         Map<String, String[]> m = body.asFormUrlEncoded();
@@ -279,7 +280,7 @@ public class AttachmentController extends BaseController {
             return notFound();
         }
         File file = filePart.getFile();
-        if (file.length() > AppUtil.getMaxFileSize()) {
+        if (file.length() > ConfigUtil.getMaxFileSize()) {
             return forbidden("sitnet_file_too_large");
         }
         Exam exam = Ebean.find(Exam.class, id);
@@ -316,7 +317,7 @@ public class AttachmentController extends BaseController {
             return notFound();
         }
         File file = filePart.getFile();
-        if (file.length() > AppUtil.getMaxFileSize()) {
+        if (file.length() > ConfigUtil.getMaxFileSize()) {
             return forbidden("sitnet_file_too_large");
         }
         LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findUnique();
