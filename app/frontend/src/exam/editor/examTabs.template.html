@@ -27,7 +27,7 @@
                 deselect="$ctrl.tabChanged($selectedIndex)">
                 <exam-publication exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToQuestions()"></exam-publication>
             </uib-tab>
-            <uib-tab ng-if="$ctrl.exam && !$ctrl.user.isAdmin && $ctrl.exam.executionType.type !== 'PRINTOUT'" index="4" heading="{{ 'sitnet_exam_responses' | translate }}"
+            <uib-tab ng-if="$ctrl.exam && $ctrl.exam.executionType.type !== 'PRINTOUT'" index="4" heading="{{ 'sitnet_exam_responses' | translate }}"
                 deselect="$ctrl.tabChanged($selectedIndex)">
                 <review-list exam="$ctrl.exam"></review-list>
             </uib-tab>
