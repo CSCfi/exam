@@ -22,6 +22,7 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.yaml.snakeyaml.Yaml;
 import play.Application;
+import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -89,6 +90,7 @@ public class IntegrationTestCase {
         // Unfortunately we need to restart for each test because there is some weird issue with question id sequence.
         // Ebean allocates us duplicate PKs eventually unless server is recreated in between. This is either a bug with
         // Ebean (batching) or an issue with our question entity JPA mappings.
+        Logger.info("*********** Starting to execute test " + currentTest.getMethodName() + " ***********");
         app = Helpers.fakeApplication();
         Helpers.start(app);
 
