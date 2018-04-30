@@ -3,7 +3,7 @@ before_script:
   - psql -c 'CREATE DATABASE sitnet_test WITH OWNER 'sitnet';' -U postgres
   - sudo mkdir -p /var/log/exam
   - sudo touch /var/log/exam/application.log
-  - sudo chmod 755 /var/log/exam/application.log
+  - sudo chmod a+w /var/log/exam/application.log
   - nvm install 8.9.1
   - nvm use 8.9.1
 
@@ -13,6 +13,9 @@ script:
 
 services:
   - postgresql
+
+addons:
+  postgresql: "9.6"
 
 language:
   - scala
