@@ -1,4 +1,4 @@
-before-script:
+before_script:
   - psql -c "CREATE USER sitnet WITH PASSWORD 'sitnetsitnet';" -U postgres
   - psql -c 'CREATE DATABASE sitnet_test WITH OWNER 'sitnet';' -U postgres
   - sudo mkdir -p /var/log/exam
