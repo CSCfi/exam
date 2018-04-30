@@ -9,6 +9,7 @@ before_script:
 
 script:
   - npm install
+  - sbt package
   - sbt test
 
 services:
