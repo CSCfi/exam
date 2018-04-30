@@ -13,3 +13,4 @@ package-lock.json
 public/app/exam.js
 public/app/exam.min.js
 public/app/exam.min.js.map
+*.iml
