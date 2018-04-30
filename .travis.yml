@@ -8,7 +8,7 @@ before_script:
   - nvm use 8.9.1
 
 script:
-  - npm install --prefix app/frontend
+  - npm install
   - sbt test
 
 services:
