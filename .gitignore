@@ -1,6 +1,6 @@
 node_modules
 project/project
 target
-.idea
+*.idea
 public/bundles
-.iml
+*.iml
