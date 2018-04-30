@@ -15,63 +15,66 @@
 
 package backend.models.base;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import backend.models.User;
-import org.joda.time.DateTime;
 import backend.util.DateTimeAdapter;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.joda.time.DateTime;
 
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @MappedSuperclass
 public class OwnedModel extends GeneratedIdentityModel {
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@JsonSerialize(using = DateTimeAdapter.class)
-	protected DateTime created;
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonSerialize(using = DateTimeAdapter.class)
+    protected DateTime created;
 
-	@OneToOne
+    @ManyToOne
+    @JoinColumn(name = "creator_id")
     protected User creator;
 
     @Temporal(TemporalType.TIMESTAMP)
-	@JsonSerialize(using = DateTimeAdapter.class)
-	protected DateTime modified;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    protected DateTime modified;
 
-	@OneToOne
+    @ManyToOne
+    @JoinColumn(name = "modifier_id")
     protected User modifier;
 
-	public DateTime getCreated() {
-		return created;
-	}
+    public DateTime getCreated() {
+        return created;
+    }
 
     public void setCreated(DateTime created) {
-		this.created = created;
-	}
+        this.created = created;
+    }
 
     public User getCreator() {
-		return creator;
-	}
+        return creator;
+    }
 
     public void setCreator(User creator) {
-		this.creator = creator;
-	}
+        this.creator = creator;
+    }
 
     public DateTime getModified() {
-		return modified;
-	}
+        return modified;
+    }
 
     public void setModified(DateTime modified) {
-		this.modified = modified;
-	}
+        this.modified = modified;
+    }
 
     public User getModifier() {
-		return modifier;
-	}
+        return modifier;
+    }
 
     public void setModifier(User modifier) {
-		this.modifier = modifier;
-	}
+        this.modifier = modifier;
+    }
 
 }

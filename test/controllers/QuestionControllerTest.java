@@ -18,6 +18,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -196,6 +197,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assertThat(saved.getMinDefaultScore()).isEqualTo(minDefaultScore);
 
         List<Double> defaultScores = saved.getOptions().stream()
+                .sorted(Comparator.comparing(MultipleChoiceOption::getId))
                 .map(MultipleChoiceOption::getDefaultScore)
                 .collect(Collectors.toList());
         assertThat(defaultScores).isEqualTo(Arrays.asList(expectedDefaultScores));
