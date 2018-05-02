@@ -37,10 +37,9 @@ describe('StatisticsComponent', function () {
     });
 
     it('should have load participation statistics', function () {
-        $httpBackend.expectGET('/app/reports/participations?end=Tue+Mar+01+2016+00:00:00+GMT%2B0200&start=Tue+Dec+01+2015+00:00:00+GMT%2B0200')
+        $httpBackend.expectGET(/\/app\/reports\/participations\?end=[\w:+^&]/)
             .respond(readFixtures('participations.json'));
-        ctrl.startDate = 'Tue Dec 01 2015 00:00:00 GMT+0200';
-        ctrl.endDate = 'Tue Mar 01 2016 00:00:00 GMT+0200';
+        ctrl.endDate = 'Tue Mar 01 2016 12:00:00 GMT';
         ctrl.listParticipations();
         $httpBackend.flush();
 
@@ -53,7 +52,7 @@ describe('StatisticsComponent', function () {
         console.info('Min date: ' + new Date(ctrl.minDate));
         expect(ctrl.minDate).toEqual(1449493200134);
         console.info('Max date: ' + new Date(ctrl.maxDate));
-        expect(ctrl.maxDate).toEqual(1456783200000);
+        expect(ctrl.maxDate).toEqual(1456833600000);
 
         // Check months
         expect(ctrl.months.length).toEqual(4);
