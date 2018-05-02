@@ -23,6 +23,7 @@ export interface Link {
     name: string;
     iconSvg?: string;
     iconPng?: string;
+    submenu?: any[];
 }
 
 export class NavigationService {
@@ -62,78 +63,92 @@ export class NavigationService {
                 visible: !hideDashboard,
                 faClass: 'fa-home',
                 name: nameForDashboard,
-                iconSvg: 'icon_enrols.svg',
-                iconPng: 'icon_enrols.png'
+                iconPng: 'icon_desktop.png'
             },
             {
                 href: '/inspections',
-                visible: (languageInspector || admin),
+                visible: (languageInspector),
                 faClass: 'fa-language',
                 name: 'sitnet_language_inspections',
-                iconSvg: 'icon_language_inspection.svg',
-                iconPng: 'icon_language_inspection.png'
+                iconPng: 'icon_admin_lang_inspection.png'
             },
             {
                 href: '/exams',
                 visible: (admin),
                 faClass: 'fa-paste',
                 name: 'sitnet_exams',
-                iconSvg: 'icon_enrols.svg',
-                iconPng: 'icon_enrols.png'
-            },
-            {
-                href: '/printouts',
-                visible: (admin),
-                faClass: 'fa-print',
-                name: 'sitnet_printout_exams'
+                iconPng: 'icon_admin_exams.png',
+
+                submenu: [
+
+                    {
+                        href: '/inspections',
+                        visible: (admin),
+                        faClass: 'fa-language',
+                        name: 'sitnet_language_inspections',
+                        iconPng: 'icon_admin_lang_inspection.png'
+                    },
+                    {
+                        href: '/printouts',
+                        visible: (admin),
+                        faClass: 'fa-print',
+                        name: 'sitnet_printout_exams',
+                        iconPng: 'icon_printouts.png'
+                    },
+                    {
+                        href: '/questions',
+                        visible: (admin),
+                        faClass: 'fa-list-ol',
+                        name: 'sitnet_library_new',
+                        iconPng: 'icon_questions.png'
+                    }
+                ]
             },
             {
                 href: '/rooms',
                 visible: (admin),
                 faClass: 'fa-building-o',
                 name: 'sitnet_exam_rooms',
-                iconSvg: 'icon_enrols.svg',
-                iconPng: 'icon_enrols.png'
-            },
-            {
-                href: '/reports',
-                visible: (admin),
-                faClass: 'fa-files-o',
-                name: 'sitnet_reports',
-                iconSvg: 'icon_enrols.svg',
-                iconPng: 'icon_enrols.png'
-            },
-            {
-                href: '/statistics',
-                visible: (admin),
-                faClass: 'fa-line-chart',
-                name: 'sitnet_statistics',
-                iconSvg: 'icon_enrols.svg',
-                iconPng: 'icon_enrols.png'
-            },
-            {
-                href: '/settings',
-                visible: (admin),
-                faClass: 'fa-wrench',
-                name: 'sitnet_settings',
-                iconSvg: 'icon_enrols.svg',
-                iconPng: 'icon_enrols.png'
+                iconPng: 'icon_administration.png',
+
+                submenu: [
+
+                    {
+                        href: '/reports',
+                        visible: (admin),
+                        faClass: 'fa-files-o',
+                        name: 'sitnet_reports',
+                        iconPng: 'icon_reports.png'
+                    },
+                    {
+                        href: '/statistics',
+                        visible: (admin),
+                        faClass: 'fa-line-chart',
+                        name: 'sitnet_statistics',
+                        iconPng: 'icon_statistics.png'
+                    },
+                    {
+                        href: '/settings',
+                        visible: (admin),
+                        faClass: 'fa-wrench',
+                        name: 'sitnet_settings',
+                        iconPng: 'icon_settings.png'
+                    }
+                ]
             },
             {
                 href: '/users',
                 visible: (admin),
                 faClass: 'fa-users',
                 name: 'sitnet_users',
-                iconSvg: 'icon_reservations.svg',
-                iconPng: 'icon_reservations.png'
+                iconPng: 'icon_users.png'
             },
             {
                 href: '/questions',
-                visible: (admin || teacher),
+                visible: (teacher),
                 faClass: 'fa-list-ol',
                 name: 'sitnet_library_new',
-                iconSvg: 'icon_pencil.svg',
-                iconPng: 'icon_pencil.png'
+                iconPng: 'icon_questions.png'
             },
             {
                 href: '/reservations',
@@ -148,7 +163,6 @@ export class NavigationService {
                 visible: (student && !hideDashboard),
                 faClass: 'fa-search',
                 name: 'sitnet_exams',
-                iconSvg: 'icon_exams.svg',
                 iconPng: 'icon_exams.png'
             },
             {
@@ -156,7 +170,6 @@ export class NavigationService {
                 visible: (student && !hideDashboard),
                 faClass: 'fa-search',
                 name: 'sitnet_exam_responses',
-                iconSvg: 'icon_finished.svg',
                 iconPng: 'icon_finished.png'
             },
             {
@@ -164,11 +177,8 @@ export class NavigationService {
                 visible: (student || admin || teacher),
                 faClass: 'fa-sign-out',
                 name: 'sitnet_logout',
-                iconSvg: 'icon_logout.svg',
-                iconPng: 'icon_logout.png'
+                iconPng: 'icon_admin_logout.png'
             }
         ];
     }
-
-
 }

@@ -16,7 +16,7 @@
 import * as angular from 'angular';
 import * as toastr from 'toastr';
 import { SessionService, User } from '../session/session.service';
-import { Link, NavigationService } from './navigation.service';
+import {Link, NavigationService} from './navigation.service';
 
 declare function require(name: string): any;
 
@@ -40,7 +40,6 @@ export const NavigationComponent: angular.IComponentOptions = {
 
             $rootScope.$on('userUpdated', () => {
                 this.user = this.Session.getUser();
-                this.links = Navigation.getLinks();
             });
             $rootScope.$on('upcomingExam', () => this.links = Navigation.getLinks());
             $rootScope.$on('wrongLocation', () => this.links = Navigation.getLinks());
