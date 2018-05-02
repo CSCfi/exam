@@ -16,18 +16,20 @@
 package backend.models;
 
 import backend.models.base.GeneratedIdentityModel;
+import backend.models.iop.ExternalReservation;
+import backend.util.DateTimeAdapter;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import backend.models.iop.ExternalReservation;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import backend.util.DateTimeAdapter;
 
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -54,11 +56,13 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
     @JsonBackReference
     private ExamEnrolment enrolment;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "machine_id")
     @JsonBackReference
     private ExamMachine machine;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
 

@@ -1,32 +1,20 @@
 package base;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
-import java.net.URLEncoder;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-import javax.persistence.PersistenceException;
-
+import backend.models.Exam;
+import backend.models.ExamInspection;
+import backend.models.ExamSectionQuestionOption;
+import backend.models.Grade;
+import backend.models.GradeScale;
+import backend.models.Language;
+import backend.models.User;
+import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.Question;
+import backend.util.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import io.ebean.Ebean;
-import io.ebean.EbeanServer;
-import io.ebean.config.ServerConfig;
-import io.ebeaninternal.api.SpiEbeanServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,18 +23,25 @@ import org.junit.rules.TestName;
 import org.yaml.snakeyaml.Yaml;
 import play.Application;
 import play.Logger;
-import play.db.Database;
-import play.db.Databases;
-import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import backend.models.*;
-import backend.models.questions.MultipleChoiceOption;
-import backend.models.questions.Question;
-import backend.util.JsonDeserializer;
+import javax.persistence.PersistenceException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -82,21 +77,7 @@ public class IntegrationTestCase {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        System.setProperty("config.file", "conf/integrationtest.conf");
-    }
-
-    private Database getDB() {
-        return Databases.createFrom("org.postgresql.Driver", "jdbc:postgresql://localhost/sitnet_test",
-                ImmutableMap.of("username", "sitnet", "password", "sitnetsitnet"));
-    }
-
-    private void cleanEvolvedTables(Database db) throws SQLException {
-        String[] tables = {"language", "grade", "grade_scale"};
-        for (String table : tables) {
-            Statement stmt = db.getConnection().createStatement();
-            stmt.execute("delete from " + table);
-            stmt.close();
-        }
+        System.setProperty("config.resource", "integrationtest.conf");
     }
 
     // Hook for having stuff done just before logging in a user.
@@ -112,14 +93,8 @@ public class IntegrationTestCase {
         Logger.info("*********** Starting to execute test " + currentTest.getMethodName() + " ***********");
         app = Helpers.fakeApplication();
         Helpers.start(app);
-        cleanDB();
-        Database db = getDB();
-        Evolutions.applyEvolutions(db);
-        cleanEvolvedTables(db);
-        db.shutdown();
 
         addTestData();
-
         onBeforeLogin();
 
         Method testMethod = getClass().getDeclaredMethod(currentTest.getMethodName());
@@ -132,31 +107,13 @@ public class IntegrationTestCase {
         }
     }
 
-    private void cleanDB() throws SQLException {
-        EbeanServer server = Ebean.getServer("default");
-        DropAllDdlGenerator generator = new DropAllDdlGenerator((SpiEbeanServer)server, new ServerConfig());
-        // Drop
-        Database db = getDB();
-
-        Statement statement = db.getConnection().createStatement();
-        try {
-            statement.executeUpdate("delete from play_evolutions");
-            statement.close();
-        } catch (SQLException e) {
-            // OK
-        }
-        db.shutdown();
-        generator.runScript(false, generator.generateDropDdl(), "drop all");
-    }
-
     @After
-    public void tearDown() throws SQLException {
+    public void tearDown() {
         if (sessionToken != null) {
             logout();
             sessionToken = null;
             userId = null;
         }
-        //cleanDB();
         Helpers.stop(app);
     }
 
@@ -305,29 +262,6 @@ public class IntegrationTestCase {
         return path.contains("..") || path.contains("?(") || path.matches(".*(\\d+ *,)+.*");
     }
 
-    private static void addTestUsers(Map<String, List<Object>> sources) {
-        sources.get("users").stream().map(User.class::cast).collect(Collectors.toList()).forEach(u -> {
-            String uname = u.getEppn().split("@")[0];
-            Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findUnique();
-            Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findUnique();
-            Role admin = Ebean.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findUnique();
-            switch (uname) {
-                case "student":
-                    u.getRoles().add(student);
-                    break;
-                case "teacher":
-                    u.getRoles().add(teacher);
-                    break;
-                case "admin":
-                    u.getRoles().add(admin);
-                    break;
-            }
-            u.save();
-        });
-    }
-
-
-
     @SuppressWarnings("unchecked")
     private void addTestData() throws Exception {
         int userCount;
@@ -343,13 +277,16 @@ public class IntegrationTestCase {
             InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
             Map<String, List<Object>> all = (Map<String, List<Object>>) yaml.load(is);
             is.close();
+            Ebean.saveAll(all.get("role"));
+            Ebean.saveAll(all.get("exam-type"));
+            Ebean.saveAll(all.get("exam-execution-type"));
             if (Ebean.find(Language.class).findCount() == 0) { // Might already be inserted by evolution
                 Ebean.saveAll(all.get("languages"));
             }
             Ebean.saveAll(all.get("organisations"));
             Ebean.saveAll(all.get("attachments"));
 
-            addTestUsers(all);
+            Ebean.saveAll(all.get("users"));
 
             if (Ebean.find(GradeScale.class).findCount() == 0) { // Might already be inserted by evolution
                 Ebean.saveAll(all.get("grade-scales"));
@@ -366,7 +303,6 @@ public class IntegrationTestCase {
             Ebean.saveAll(all.get("comments"));
             for (Object o : all.get("exams")) {
                 Exam e = (Exam) o;
-                e.setExecutionType(Ebean.find(ExamExecutionType.class, 1));
                 e.generateHash();
                 e.save();
             }

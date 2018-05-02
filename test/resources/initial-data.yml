@@ -1,9 +1,38 @@
+role:
+
+    - &admin !!backend.models.Role
+      name: ADMIN
+    - &student !!backend.models.Role
+      name: STUDENT
+    - &teacher !!backend.models.Role
+      name: TEACHER
+
 organisations:
 
     - &OulunYliopisto !!backend.models.Organisation
       name: Oulun Yliopisto
       nameAbbreviation: OY
       code: oulu.fi
+
+exam-type:
+
+    - &partial !!backend.models.ExamType
+      type: PARTIAL
+      deprecated: false
+    - &final !!backend.models.ExamType
+      type: FINAL
+      deprecated: false
+
+exam-execution-type:
+
+    - &public !!backend.models.ExamExecutionType
+      type: PUBLIC
+    - &private !!backend.models.ExamExecutionType
+      type: PRIVATE
+    - &maturity !!backend.models.ExamExecutionType
+      type: MATURITY
+    - &printout !!backend.models.ExamExecutionType
+      type: PRINTOUT
 
 ################################################################
 
@@ -22,14 +51,16 @@ languages:
 
 users:
 
-    - !!backend.models.User
+    - &admin !!backend.models.User
       email:      admin@funet.fi
       eppn:       admin@funet.fi
       firstName:  Admin
       lastName:   Instrator
       password:   c74626d3eca0613f356cd34ecd1301c5  #sitnetad
-      language: *fi
+      language:   *fi
       organisation: *OulunYliopisto
+      roles:
+         - *admin
 
     - &olli !!backend.models.User
       email:      teacher@funet.fi
@@ -37,7 +68,9 @@ users:
       firstName:  Olli
       lastName:   Opettaja
       password:   1d0ebf168b86f79a0c34e81eb1fd70cd  # maikaope
-      language: *fi
+      language:   *fi
+      roles:
+          - *teacher
 
     - &sauli !!backend.models.User
       email:      student@funet.fi
@@ -45,8 +78,10 @@ users:
       firstName:  Sauli
       lastName:   Student
       password:   72e6570dbfeb95d5df59e08f1fa6302f   # saulistu
-      language: *fi
+      language:   *fi
       organisation: *OulunYliopisto
+      roles:
+          - *student
 
     - &arvo !!backend.models.User
       email:      teacher@b.funet.fi
@@ -54,8 +89,10 @@ users:
       firstName:  Arvon
       lastName:   Penaali
       password:   f9ba22fb1ff25fd8f83d48f361aea0a4  # arvo
-      language: *fi
+      language:   *fi
       organisation: *OulunYliopisto
+      roles:
+          - *teacher
 
 
 ################################################################
@@ -568,15 +605,15 @@ exams:
     created: 2014-01-01 12:30:05.123
     course: *alkeet
     name: Johdatus alkeiden perusteisiin
-    examType:
+    examType: *final
     instruction: Vastaa kolmeen tehtävään neljästä
     shared: false
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
     gradeScale: *zerotofive
     examSections:
+    executionType: *public
     state: PUBLISHED
-    examFeedback: *comment_sauli
     grade:
     duration: 90
     gradedTime: 2014-08-29 16:00:00.123
@@ -594,12 +631,13 @@ exams:
     created: 2014-01-01 12:30:05.123
     course: *alkeet
     name: Johdatus alkeiden perusteisiin
-    examType:
+    examType: *final
     instruction: Vastaa kolmeen tehtävään neljästä
     shared: false
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-08-01 16:00:00.123
     gradeScale: *zerotofive
+    executionType: *public
     examSections:
     state: REVIEW
     grade:
@@ -614,12 +652,13 @@ exams:
     created: 2014-01-01 12:30:05.123
     course: *765104P
     name: Astronomian perusteet
-    examType:
+    examType: *final
     instruction:
     shared: false
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
     gradeScale: *zerotofive
+    executionType: *public
     examSections:
     state: PUBLISHED
     duration: 90
@@ -632,12 +671,13 @@ exams:
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
     name: Tietokantojen perusteet, syksy 2013
-    examType:
+    examType: *final
     instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
     gradeScale: *zerotofive
+    executionType: *public
     examSections:
     state: PUBLISHED
     duration: 90
@@ -649,12 +689,13 @@ exams:
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
     name: Tietokantojen perusteet, kevät 2014
-    examType:
+    examType: *final
     instruction: Vastaa kaikkiin tenttikysymyksiin
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
     gradeScale: *latin
+    executionType: *public
     examSections:
     state: PUBLISHED
     duration: 90
@@ -666,12 +707,13 @@ exams:
     created: 2014-01-01 12:30:05.123
     course: *811386A
     name: Algoritmit, 2013
-    examType:
+    examType: *final
     instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
     gradeScale: *approvedrejected
+    executionType: *public
     examSections:
     state: SAVED
     duration: 90
@@ -683,12 +725,13 @@ exams:
     created: 2014-01-01 12:30:05.123
     course: *812346A
     name: OOAD, 2013
-    examType:
+    examType: *final
     instruction: Tentissä saa käyttää vain tilakoneita.
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
     gradeScale: *zerotofive
+    executionType: *public
     examSections:
     state: SAVED
     examLanguages:
@@ -700,12 +743,13 @@ exams:
     parent: *algoritmit
     course: *811386A
     name: Algoritmit, 2013
-    examType:
+    examType: *final
     instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
     gradeScale: *approvedrejected
+    executionType: *public
     examSections:
     state: GRADED
     duration: 90

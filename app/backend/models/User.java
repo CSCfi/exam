@@ -59,7 +59,8 @@ public class User extends GeneratedIdentityModel implements Subject {
     @JoinColumn(name="language_id")
     private Language language;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name="organisation_id")
     private Organisation organisation;
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
