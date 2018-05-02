@@ -32,3 +32,4 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
+    - $TRAVIS_BUILD_DIR/app/frontend/node_modules
