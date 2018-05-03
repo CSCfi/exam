@@ -1,9 +1,23 @@
+dist: trusty
+
+sudo: false
+
+language:
+  - scala
+
+jdk:
+  - oraclejdk8
+
+services:
+  - postgresql
+
+addons:
+  postgresql: "9.6"
+
 before_script:
   - psql -c "CREATE USER sitnet WITH PASSWORD 'sitnetsitnet';" -U postgres
   - psql -c 'CREATE DATABASE sitnet_test WITH OWNER 'sitnet';' -U postgres
-  - sudo mkdir -p /var/log/exam
-  - sudo touch /var/log/exam/application.log
-  - sudo chmod a+w /var/log/exam/application.log
+  - sed -i 's/\/var\/log\/exam/logs/g' $TRAVIS_BUILD_DIR/conf/logback.xml
   - nvm install 8.9.1
   - nvm use 8.9.1
 
@@ -12,17 +26,6 @@ script:
   - sbt package
   - sbt test
 
-services:
-  - postgresql
-
-addons:
-  postgresql: "9.6"
-
-language:
-  - scala
-
-jdk:
-  - oraclejdk8
 
 before_cache:
   # Tricks to avoid unnecessary cache updates
@@ -33,5 +36,5 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
-    - $TRAVIS_BUILD_DIR/app/frontend/node_modules
+    - $TRAVIS_BUILD_DIR/node_modules
 
