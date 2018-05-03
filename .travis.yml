@@ -1,15 +1,12 @@
-before_script:
-  - psql -c "CREATE USER sitnet WITH PASSWORD 'sitnetsitnet';" -U postgres
-  - psql -c 'CREATE DATABASE sitnet_test WITH OWNER 'sitnet';' -U postgres
-  - sudo mkdir -p /var/log/exam
-  - sudo touch /var/log/exam/application.log
-  - sudo chmod a+w /var/log/exam/application.log
-  - nvm install 8.9.1
-  - nvm use 8.9.1
+dist: trusty
 
-script:
-  - npm install --prefix app/frontend
-  - sbt test
+sudo: false
+
+language:
+  - scala
+
+jdk:
+  - oraclejdk8
 
 services:
   - postgresql
@@ -17,11 +14,17 @@ services:
 addons:
   postgresql: "9.6"
 
-language:
-  - scala
+before_script:
+  - psql -c "CREATE USER sitnet WITH PASSWORD 'sitnetsitnet';" -U postgres
+  - psql -c 'CREATE DATABASE sitnet_test WITH OWNER 'sitnet';' -U postgres
+  - sed -i 's/\/var\/log\/exam/logs/g' $TRAVIS_BUILD_DIR/conf/logback.xml
+  - nvm install 8.9.1
+  - nvm use 8.9.1
 
-jdk:
-  - oraclejdk8
+script:
+  - npm install --prefix app/frontend
+  - sbt test
+
 
 before_cache:
   # Tricks to avoid unnecessary cache updates
