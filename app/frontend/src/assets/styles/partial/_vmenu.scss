@@ -63,7 +63,6 @@
   }
 
   .selected {
-    a {
       background-color: $sitnet-light-grey_new;
       border-left:3px solid #3CA34F;
       text-decoration: none;
@@ -78,8 +77,6 @@
       @media (max-width: $sitnet-mobile) {
         margin-left: 1.5em;
       }
-
-    }
   }
 
   li {
@@ -336,7 +333,6 @@
 
     margin: 0px;
     margin-top: 20px;
-    margin-left: 15px;
     border-top: 15px;
     padding: 0px;
     border: 0px;
@@ -358,16 +354,16 @@
 
     div {
 
-      width: 160px;
-      font-family:$sitnet-family-helvetica;
-      font-size:16px;
-      color:#e7e7e7 !important;
-      letter-spacing:0.27px;
-      line-height:18px;
-      text-align:left;
-      padding-left: 42px;
-      text-indent: -48px;
-      margin: 0;
+      width: 175px;
+      font-family: Helvetica-Neue, Helvetica;
+      font-size: 16px;
+      color: #e7e7e7 !important;
+      letter-spacing: 0.27px;
+      line-height: 18px;
+      text-align: left;
+      padding-left: 48px;
+      text-indent: -35px;
+      margin: 0px;
     }
 
     img {
@@ -400,6 +396,25 @@
     width: 50px;
 
     a {
+    }
+  }
+
+  .selectedsub {
+    a {
+      background-color: $sitnet-light-grey_new;
+      border-left:3px solid #3CA34F;
+      text-decoration: none;
+      padding-left: 1.5em;
+      font-family:$sitnet-family-helvetica;
+      font-size:16px;
+      color:#e7e7e7;
+      letter-spacing:0.27px;
+      line-height:18px;
+      text-align:left;
+      font-weight: bold;
+      @media (max-width: $sitnet-mobile) {
+        margin-left: 1.5em;
+      }
     }
   }
 }
