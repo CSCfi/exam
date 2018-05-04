@@ -33,7 +33,7 @@ angular.module('app.maturity')
                     };
                     vm.sorting = {
                         ongoing: {
-                            predicate: 'arrived',
+                            predicate: 'created',
                             reverse: false
                         },
                         processed: {
