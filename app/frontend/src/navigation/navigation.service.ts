@@ -23,7 +23,7 @@ export interface Link {
     name: string;
     iconSvg?: string;
     iconPng?: string;
-    submenu?: any[];
+    submenu?: { hidden: boolean, items: any[] };
 }
 
 export class NavigationService {
@@ -78,31 +78,32 @@ export class NavigationService {
                 faClass: 'fa-paste',
                 name: 'sitnet_exams',
                 iconPng: 'icon_admin_exams.png',
-
-                submenu: [
-
-                    {
-                        href: '/inspections',
-                        visible: (admin),
-                        faClass: 'fa-language',
-                        name: 'sitnet_language_inspections',
-                        iconPng: 'icon_admin_lang_inspection.png'
-                    },
-                    {
-                        href: '/printouts',
-                        visible: (admin),
-                        faClass: 'fa-print',
-                        name: 'sitnet_printout_exams',
-                        iconPng: 'icon_printouts.png'
-                    },
-                    {
-                        href: '/questions',
-                        visible: (admin),
-                        faClass: 'fa-list-ol',
-                        name: 'sitnet_library_new',
-                        iconPng: 'icon_questions.png'
-                    }
-                ]
+                submenu: {
+                    hidden: true,
+                    items: [
+                        {
+                            href: '/inspections',
+                            visible: (admin),
+                            faClass: 'fa-language',
+                            name: 'sitnet_language_inspections',
+                            iconPng: 'icon_admin_lang_inspection.png'
+                        },
+                        {
+                            href: '/printouts',
+                            visible: (admin),
+                            faClass: 'fa-print',
+                            name: 'sitnet_printout_exams',
+                            iconPng: 'icon_printouts.png'
+                        },
+                        {
+                            href: '/questions',
+                            visible: (admin),
+                            faClass: 'fa-list-ol',
+                            name: 'sitnet_library_new',
+                            iconPng: 'icon_questions.png'
+                        }
+                    ]
+                }
             },
             {
                 href: '/rooms',
@@ -110,31 +111,32 @@ export class NavigationService {
                 faClass: 'fa-building-o',
                 name: 'sitnet_exam_rooms',
                 iconPng: 'icon_administration.png',
-
-                submenu: [
-
-                    {
-                        href: '/reports',
-                        visible: (admin),
-                        faClass: 'fa-files-o',
-                        name: 'sitnet_reports',
-                        iconPng: 'icon_reports.png'
-                    },
-                    {
-                        href: '/statistics',
-                        visible: (admin),
-                        faClass: 'fa-line-chart',
-                        name: 'sitnet_statistics',
-                        iconPng: 'icon_statistics.png'
-                    },
-                    {
-                        href: '/settings',
-                        visible: (admin),
-                        faClass: 'fa-wrench',
-                        name: 'sitnet_settings',
-                        iconPng: 'icon_settings.png'
-                    }
-                ]
+                submenu: {
+                    hidden: true,
+                    items: [
+                        {
+                            href: '/reports',
+                            visible: (admin),
+                            faClass: 'fa-files-o',
+                            name: 'sitnet_reports',
+                            iconPng: 'icon_reports.png'
+                        },
+                        {
+                            href: '/statistics',
+                            visible: (admin),
+                            faClass: 'fa-line-chart',
+                            name: 'sitnet_statistics',
+                            iconPng: 'icon_statistics.png'
+                        },
+                        {
+                            href: '/settings',
+                            visible: (admin),
+                            faClass: 'fa-wrench',
+                            name: 'sitnet_settings',
+                            iconPng: 'icon_settings.png'
+                        }
+                    ]
+                }
             },
             {
                 href: '/users',

@@ -17,18 +17,9 @@ import * as angular from 'angular';
 import * as toastr from 'toastr';
 import * as $ from 'jquery';
 import { SessionService, User } from '../session/session.service';
-import {Link, NavigationService} from './navigation.service';
+import { Link, NavigationService } from './navigation.service';
 
 declare function require(name: string): any;
-
-$(function() {
-
-    $('.submenu').hide();
-
-    $('.links > li > a').click(function(){
-        $(this).siblings('.submenu').toggle();
-    });
-});
 
 export const NavigationComponent: angular.IComponentOptions = {
     template: require('./navigation.template.html'),
