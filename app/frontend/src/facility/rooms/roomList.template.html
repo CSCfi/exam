@@ -1,4 +1,43 @@
 <div id="dashboard">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-details-title-wrap">
+               <!-- <history-back></history-back> -->
+                <div class="student-exam-details-title">{{'sitnet_exam_rooms_administration' | translate}}</div>
+            </div>
+    <!--        <span ng-show="$ctrl.exam.state" class="exam-status">{{'sitnet_' + $ctrl.exam.state | lowercase | translate}}</span> -->
+        </div>
+    </div>
+
+    <div class="tab-wrapper-exams">
+        <uib-tabset active="$ctrl.activeTab">
+            <uib-tab index="1" heading="{{ 'sitnet_exam_all_rooms' | translate }}"
+                     deselect="$ctrl.tabChanged($selectedIndex)">
+                <basic-exam-info exam="$ctrl.exam" on-next-tab-selected="$ctrl.switchToQuestions()" on-update="$ctrl.titleUpdated(props)">
+
+                </basic-exam-info>
+            </uib-tab>
+            <uib-tab index="2" heading="{{ 'sitnet_exception_datetimes' | translate }}"
+                     deselect="$ctrl.tabChanged($selectedIndex)">
+                <sections exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToBasicInfo()" on-next-tab-selected="$ctrl.switchToPublishSettings()"
+                          on-new-library-question="$ctrl.reload()">
+                </sections>
+            </uib-tab>
+            <uib-tab index="3" heading="{{ 'sitnet_exam_machine_softwares' | translate }}"
+                     deselect="$ctrl.tabChanged($selectedIndex)">
+                <exam-publication exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToQuestions()"></exam-publication>
+            </uib-tab>
+            <uib-tab index="4" heading="{{ 'sitnet_room_accessibility_info' | translate }}"
+                     deselect="$ctrl.tabChanged($selectedIndex)">
+                <review-list exam="$ctrl.exam"></review-list>
+            </uib-tab>
+        </uib-tabset>
+    </div>
+</div>
+
+<!--
+
+<div id="dashboard">
 
     <div class="top-row">
         <div class="col-md-12">
@@ -20,20 +59,20 @@
                     </uib-tab-heading>
                 </uib-tab>
                 <uib-tab index="2">
-                    <uib-tab-heading><div class="make-inline">{{ 'sitnet_exams' | translate }}</div>
+                    <uib-tab-heading><div class="make-inline">{{ 'sitnet_exception_datetimes' | translate }}</div>
                         <div role="presentation" ng-class="{'active' : $ctrl.view === 'EXAMS'}">
                             <a class="pointer" target="_self" ng-click="$ctrl.view='EXAMS'"></a>
                         </div>
                     </uib-tab-heading>
                 </uib-tab>
                 <uib-tab index="3">
-                    <uib-tab-heading><div class="make-inline">{{ 'sitnet_softwares' | translate }}</div>
+                    <uib-tab-heading><div class="make-inline">{{ 'sitnet_exam_machine_softwares' | translate }}</div>
                         <div role="presentation" ng-class="{'active' : $ctrl.view === 'RESERVATIONS'}">
                             <a class="pointer" target="_self" ng-click="$ctrl.view='RESERVATIONS'"></a>
                         </div>
                     </uib-tab-heading>
                 </uib-tab>
-                <uib-tab index="4"> <!-- select="$ctrl.changeTab(4)"> -->
+                <uib-tab index="4"> <!- select="$ctrl.changeTab(4)"> ->
                     <uib-tab-heading><div class="make-inline">{{ 'sitnet_room_accessibility_info' | translate }}</div>
                         <div role="presentation" ng-class="{'active' : $ctrl.view === 'RESPONSES'}">
                             <a class="pointer" target="_self" ng-click="$ctrl.view='RESPONSES'"></a>
@@ -65,7 +104,7 @@
 
 <div id="dashboard">
 
-    <!--
+    <!-- --
     <div class="main-row">
         <div class="col-md-3">
              <span class="pull-left fa-stack fa-lg header-top-icon">
@@ -196,4 +235,4 @@
         <machine-list room="room"></machine-list>
     </div>
 </div>
--->
+<!---->
