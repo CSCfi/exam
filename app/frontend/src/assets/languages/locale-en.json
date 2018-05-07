@@ -102,6 +102,7 @@
   "sitnet_examcode": "Code",
   "sitnet_examcode_and_name": "Exam code and name",
   "sitnet_examination_location": "Exam room",
+  "sitnet_examination_location_and_machine":"Tenttitila ja -kone EN",
   "sitnet_exams": "Exams",
   "sitnet_student_exams": "Course exams",
   "sitnet_exams_to_be_reviewed": "Submissions",
