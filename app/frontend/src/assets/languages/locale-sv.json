@@ -102,7 +102,7 @@
   "sitnet_examcode": "Kod",
   "sitnet_examcode_and_name": "Kursens kod och tentamens namn",
   "sitnet_examination_location": "Tentamens utrymme",
-  "sitnet_examination_location_and_machine": "Tentamens utrymme och dator",
+  "sitnet_examination_location_and_machine": "Tenttitila ja -kone SV",
   "sitnet_exams": "Tentamina",
   "sitnet_student_exams": "Tentamina",
   "sitnet_exams_to_be_reviewed": "Prestationer",
