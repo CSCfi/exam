@@ -48,7 +48,6 @@ public class ExamAPIController extends BaseController {
         query.apply(pp);
         List<Exam> exams = query.where()
                 .eq("state", Exam.State.PUBLISHED)
-                .lt("examActiveStartDate", dateTime)
                 .ge("examActiveEndDate", dateTime)
                 .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
                 .findList();
