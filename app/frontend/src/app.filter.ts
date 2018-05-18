@@ -16,7 +16,7 @@
 import * as angular from 'angular';
 import * as moment from 'moment';
 import * as _ from 'lodash';
-const truncate = require('truncate-html');
+const truncate = require('truncate-html').default;
 
 export interface ITruncateFilterService extends angular.IFilterService {
     (name: 'truncate'): (value: string, after: number) => string;

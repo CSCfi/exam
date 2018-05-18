@@ -589,6 +589,11 @@ class EmailComposerImpl implements EmailComposer {
         emailSender.send(toUser.getEmail(), inspector.getEmail(), subject, template);
     }
 
+    @Override
+    public void composeCollaborativeExamAnnouncement(List<String> emails, Exam exam) {
+        // TODO
+    }
+
     private static List<ExamEnrolment> getEnrolments(Exam exam) {
         List<ExamEnrolment> enrolments = exam.getExamEnrolments();
         Collections.sort(enrolments);

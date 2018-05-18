@@ -13,19 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.controllers.iop;
+package backend.controllers.iop.transfer.impl;
 
-import backend.controllers.SettingsController;
-import backend.controllers.StudentExamController;
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.api.ExternalExamAPI;
-import backend.impl.AutoEvaluationHandler;
-import backend.impl.NoShowHandler;
-import backend.models.*;
-import backend.models.json.ExternalExam;
-import backend.models.questions.Question;
-import backend.util.AppUtil;
-import backend.util.JsonDeserializer;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import javax.inject.Inject;
+
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,13 +39,17 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 
-import javax.inject.Inject;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
+import backend.controllers.SettingsController;
+import backend.controllers.StudentExamController;
+import backend.controllers.base.BaseController;
+import backend.controllers.iop.transfer.api.ExternalExamAPI;
+import backend.impl.AutoEvaluationHandler;
+import backend.impl.NoShowHandler;
+import backend.models.*;
+import backend.models.json.ExternalExam;
+import backend.models.questions.Question;
+import backend.util.AppUtil;
+import backend.util.JsonDeserializer;
 
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {

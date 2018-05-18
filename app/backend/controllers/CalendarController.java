@@ -41,7 +41,7 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.BaseController;
-import backend.controllers.iop.api.ExternalReservationHandler;
+import backend.controllers.iop.transfer.api.ExternalReservationHandler;
 import backend.exceptions.NotFoundException;
 import backend.impl.EmailComposer;
 import backend.models.*;

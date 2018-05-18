@@ -32,11 +32,10 @@ angular.module('app.exam.editor')
                     toggleLoadingIcon(filter, true);
                     const tmp = criteria;
                     if (vm.exam && vm.exam.course && vm.exam.course.id) {
-                        const course = vm.exam.course;
-                        vm.exam.course = undefined;
+                        delete vm.exam.course;
                         setInputValue(filter, tmp);
 
-                        ExamRes.course.delete({eid: vm.exam.id, cid: course.id}, function (updated_exam) {
+                        ExamRes.course.delete({eid: vm.exam.id}, function (updated_exam) {
                             vm.exam = updated_exam;
                             setInputValue(filter, tmp);
                         });
