@@ -28,7 +28,7 @@
     "file-saver": "^1.3.3",
     "font-awesome": "^4.7.0",
     "fullcalendar": "^2.8.0",
-    "jquery": "~2.1.4",
+    "jquery": "^3.3.1",
     "jquery-ui": "^1.12.1",
     "jquery-ui-touch-punch": "^0.2.3",
     "lodash": "^4.17.4",
@@ -36,7 +36,7 @@
     "moment-timezone": "^0.5.14",
     "ngstorage": "^0.3.11",
     "toastr": "^2.1.4",
-    "truncate-html": "^0.1.4"
+    "truncate-html": "^1.0.0"
   },
   "devDependencies": {
     "@types/angular": "^1.6.40",
@@ -84,7 +84,7 @@
     "node-sass": "^4.7.2",
     "pg": "^6",
     "phantomjs-prebuilt": "^2.1.16",
-    "protractor": "^5.2.0",
+    "protractor": "^5.3.2",
     "protractor-browser-logs": "^1.0.351",
     "protractor-jasmine2-screenshot-reporter": "^0.5.0",
     "sass-loader": "^6.0.6",

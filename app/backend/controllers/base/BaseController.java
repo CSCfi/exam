@@ -15,28 +15,6 @@
 
 package backend.controllers.base;
 
-import com.google.inject.Inject;
-import com.typesafe.config.ConfigFactory;
-import backend.exceptions.MalformedDataException;
-import backend.impl.EmailComposer;
-import backend.impl.NoShowHandler;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.text.PathProperties;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamParticipation;
-import backend.models.Reservation;
-import backend.models.Session;
-import backend.models.User;
-import backend.models.api.CountsAsTrial;
-import play.cache.SyncCacheApi;
-import play.data.Form;
-import play.data.FormFactory;
-import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Result;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,6 +27,29 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+
+import com.google.inject.Inject;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.text.PathProperties;
+import play.cache.SyncCacheApi;
+import play.data.Form;
+import play.data.FormFactory;
+import play.mvc.Controller;
+import play.mvc.Http;
+import play.mvc.Result;
+
+import backend.exceptions.MalformedDataException;
+import backend.impl.EmailComposer;
+import backend.impl.NoShowHandler;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamParticipation;
+import backend.models.Reservation;
+import backend.models.Session;
+import backend.models.User;
+import backend.models.api.CountsAsTrial;
 
 public class BaseController extends Controller {
 
@@ -84,6 +85,11 @@ public class BaseController extends Controller {
     protected Result ok(Object object, PathProperties props) {
         String body = Ebean.json().toJson(object, props);
         return ok(body).as("application/json");
+    }
+
+    protected Result created(Object object) {
+        String body = Ebean.json().toJson(object);
+        return created(body).as("application/json");
     }
 
     protected Result created(Object object, PathProperties props) {

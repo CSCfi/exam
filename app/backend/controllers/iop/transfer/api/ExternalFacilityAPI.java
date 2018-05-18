@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.controllers.iop.api;
+package backend.controllers.iop.transfer.api;
 
-import backend.controllers.iop.FacilityController;
+import backend.controllers.iop.transfer.impl.FacilityController;
 import com.google.inject.ImplementedBy;
-import backend.controllers.iop.FacilityController;
+
 import backend.models.ExamRoom;
 import play.mvc.Result;
 

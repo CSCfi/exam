@@ -15,15 +15,17 @@
 
 package backend.impl;
 
+import java.util.List;
+import java.util.Set;
+
 import com.google.inject.ImplementedBy;
+
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
 import backend.models.LanguageInspection;
 import backend.models.Reservation;
 import backend.models.User;
-
-import java.util.Set;
 
 @ImplementedBy(value = EmailComposerImpl.class)
 public interface EmailComposer {
@@ -89,5 +91,10 @@ public interface EmailComposer {
      * Message sent to teacher when language inspection is finished.
      */
     void composeLanguageInspectionFinishedMessage(User toUser, User inspector, LanguageInspection inspection);
+
+    /**
+     * Message sent to teacher when collaborative exam is created in the system.
+     */
+    void composeCollaborativeExamAnnouncement(List<String> emails, Exam exam);
 
 }

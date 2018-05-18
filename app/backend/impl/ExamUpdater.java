@@ -13,19 +13,30 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.controllers.iop.api;
+package backend.impl;
 
-import backend.controllers.iop.ExternalReservationHandlerImpl;
+import java.util.Optional;
+
 import com.google.inject.ImplementedBy;
-import backend.controllers.iop.ExternalReservationHandlerImpl;
-import backend.models.Reservation;
-import backend.models.User;
+import play.mvc.Http;
 import play.mvc.Result;
 
-import java.util.concurrent.CompletionStage;
+import backend.models.AutoEvaluationConfig;
+import backend.models.Exam;
+import backend.models.Session;
+import backend.models.User;
 
-@FunctionalInterface
-@ImplementedBy(ExternalReservationHandlerImpl.class)
-public interface ExternalReservationHandler {
-    CompletionStage<Result> removeReservation(Reservation reservation, User user);
+@ImplementedBy(ExamUpdaterImpl.class)
+public interface ExamUpdater {
+
+    Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Http.Request request, Session session);
+    Optional<Result> updateStateAndValidate(Exam exam, User user, Http.Request request);
+    boolean isPermittedToUpdate(Exam exam, User user, Session session);
+    boolean isAllowedToUpdate(Exam exam, User user, Session session);
+    boolean isAllowedToRemove(Exam exam);
+    void update(Exam exam, Http.Request request);
+    void updateAutoEvaluationConfig(Exam exam, AutoEvaluationConfig newConfig);
+
+
+
 }
