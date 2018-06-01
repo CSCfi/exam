@@ -94,7 +94,12 @@ export default function configs(
 
     /* Admin */
     $routeProvider.when('/exams', { template: '<exam-list></exam-list>' });
-    $routeProvider.when('/rooms', { template: '<room-list></room-list>' });
+   // $routeProvider.when('/rooms', { template: '<room-list></room-list>' });
+    $routeProvider.when('/rooms', { template: '<admin-tabs></admin-tabs>' });
+  //  $routeProvider.when('/rooms', { template: '<room-list></room-list>' });
+    $routeProvider.when('/roomslist', { template: '<room-list></room-list>' });
+  //  $routeProvider.when('/rooms/:id:tab', { template: '<admin-tabs></admin-tabs>' });
+    $routeProvider.when('/schedule', { template: '<exception-list></exception-list>' });
     $routeProvider.when('/rooms/:id', { template: '<room></room>' });
     $routeProvider.when('/rooms/:id/availability', { template: '<availability></availability>' });
     $routeProvider.when('/rooms_edit/edit_multiple', { template: '<multi-room></multi-room>' });
