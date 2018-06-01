@@ -26,7 +26,6 @@ angular.module('app.facility')
                 vm.$onInit = function () {
                     vm.user = Session.getUser();
                     vm.activeTab = 1;
-                 //   vm.activeTab = parseInt($routeParams.tab);
                 };
 
                 vm.tabChanged = function (index) {
