@@ -1,7 +1,9 @@
 package base;
 
+import backend.models.Attachment;
 import backend.models.Exam;
 import backend.models.ExamInspection;
+import backend.models.ExamSectionQuestion;
 import backend.models.ExamSectionQuestionOption;
 import backend.models.Grade;
 import backend.models.GradeScale;
@@ -14,7 +16,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
+import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
+import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,6 +36,7 @@ import play.test.Helpers;
 import javax.persistence.PersistenceException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
@@ -41,6 +47,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeSet;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -115,6 +122,13 @@ public class IntegrationTestCase {
             userId = null;
         }
         Helpers.stop(app);
+        // Clear exam upload directory
+        String uploadPath = ConfigFactory.load().getString(("sitnet.attachments.path"));
+        try {
+            FileUtils.deleteDirectory(new File(uploadPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Common helper methods -->
@@ -136,10 +150,7 @@ public class IntegrationTestCase {
     }
 
     protected Result request(String method, String path, JsonNode body, Map<String, String> headers, boolean followRedirects) {
-        Http.RequestBuilder request = fakeRequest(method, path);
-        for (Map.Entry<String, String> header : headers.entrySet()) {
-            request = request.header(header.getKey(), header.getValue());
-        }
+        Http.RequestBuilder request = getRequestBuilder(method, path, headers);
         if (body != null && !method.equals(Helpers.GET)) {
             request = request.bodyJson(body);
         }
@@ -149,6 +160,18 @@ public class IntegrationTestCase {
         } else {
             return result;
         }
+    }
+
+    protected Http.RequestBuilder getRequestBuilder(String method, String path) {
+        return getRequestBuilder(method, path, HAKA_HEADERS);
+    }
+
+    protected Http.RequestBuilder getRequestBuilder(String method, String path, Map<String, String> headers) {
+        Http.RequestBuilder request = fakeRequest(method, path);
+        for (Map.Entry<String, String> header : headers.entrySet()) {
+            request = request.header(header.getKey(), header.getValue());
+        }
+        return request;
     }
 
     protected void loginAsStudent() {
@@ -319,4 +342,36 @@ public class IntegrationTestCase {
         }
     }
 
+    @NotNull
+    protected static File getTestFile(String s) {
+        final ClassLoader classLoader = IntegrationTestCase.class.getClassLoader();
+        return new File(Objects.requireNonNull(classLoader.getResource(s)).getFile());
+    }
+
+    @NotNull
+    protected Attachment createAttachment(String fileName, String filePath, String mimeType) {
+        final Attachment attachment = new Attachment();
+        attachment.setFileName(fileName);
+        attachment.setFilePath(filePath);
+        attachment.setMimeType(mimeType);
+        attachment.save();
+        return attachment;
+    }
+
+    protected User getLoggerUser() {
+        return Ebean.find(User.class, userId);
+    }
+
+    @NotNull
+    protected ExamSectionQuestion getExamSectionQuestion(Exam exam) throws Exception {
+        return getExamSectionQuestion(exam, null);
+    }
+
+    @NotNull
+    protected ExamSectionQuestion getExamSectionQuestion(Exam exam, Long id) throws Exception {
+        return exam.getExamSections().stream()
+                .flatMap(examSection -> examSection.getSectionQuestions().stream())
+                .filter(sq -> id == null || sq.getId().equals(id))
+                .findFirst().orElseThrow(() -> new Exception("Null section question"));
+    }
 }

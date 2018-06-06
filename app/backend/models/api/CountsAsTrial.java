@@ -16,11 +16,14 @@
 package backend.models.api;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 
 public interface CountsAsTrial {
 
+    @JsonIgnore
     DateTime getTrialTime();
 
+    @JsonIgnore
     boolean isProcessed();
 }

@@ -18,24 +18,25 @@ package backend.controllers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
 import java.util.Map;
-import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 
+import akka.stream.IOResult;
+import akka.stream.javadsl.FileIO;
+import akka.stream.javadsl.Source;
+import akka.util.ByteString;
+import backend.controllers.base.BaseAttachmentController;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import play.Environment;
-import play.Logger;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 
-import backend.controllers.base.BaseController;
 import backend.models.Attachment;
 import backend.models.Comment;
 import backend.models.Exam;
@@ -50,7 +51,7 @@ import backend.util.AppUtil;
 import backend.util.ConfigUtil;
 
 
-public class AttachmentController extends BaseController {
+public class AttachmentController extends BaseAttachmentController<Long> {
 
     @Inject
     private Environment environment;
@@ -82,18 +83,17 @@ public class AttachmentController extends BaseController {
         return attachment;
     }
 
-    @Restrict({@Group("STUDENT")})
-    public Result addAttachmentToQuestionAnswer() {
-
+    @Override
+    public CompletionStage<Result> addAttachmentToQuestionAnswer() {
         MultipartFormData<File> body = request().body().asMultipartFormData();
         FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
+        }
+        if (filePart.getFile().length() > ConfigUtil.getMaxFileSize()) {
+            return wrapAsPromise(forbidden("sitnet_file_too_large"));
         }
         File file = filePart.getFile();
-        if (file.length() > ConfigUtil.getMaxFileSize()) {
-            return forbidden("sitnet_file_too_large");
-        }
         Map<String, String[]> m = body.asFormUrlEncoded();
         Long qid = Long.parseLong(m.get("questionId")[0]);
 
@@ -104,7 +104,7 @@ public class AttachmentController extends BaseController {
                 .eq("examSection.exam.creator", getLoggedUser())
                 .findUnique();
         if (question == null) {
-            return forbidden();
+            return wrapAsPromise(forbidden());
         }
         if (question.getEssayAnswer() == null) {
             EssayAnswer answer = new EssayAnswer();
@@ -116,7 +116,7 @@ public class AttachmentController extends BaseController {
         try {
             newFilePath = copyFile(file, "question", qid.toString(), "answer", question.getEssayAnswer().getId().toString());
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_attachment");
+            return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
         // Remove existing one if found
         EssayAnswer answer = question.getEssayAnswer();
@@ -125,7 +125,7 @@ public class AttachmentController extends BaseController {
         Attachment attachment = createNew(filePart, newFilePath);
         answer.setAttachment(attachment);
         answer.save();
-        return ok(answer);
+        return wrapAsPromise(ok(answer));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -175,8 +175,8 @@ public class AttachmentController extends BaseController {
         return redirect("/#/questions/" + String.valueOf(id));
     }
 
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public Result deleteQuestionAnswerAttachment(Long qid, String hash) {
+    @Override
+    public CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid, String hash) {
         User user = getLoggedUser();
         ExamSectionQuestion question;
         if (user.hasRole("STUDENT", getSession())) {
@@ -194,9 +194,9 @@ public class AttachmentController extends BaseController {
             answer.save();
             AppUtil.removeAttachmentFile(aa.getFilePath());
             aa.delete();
-            return ok(answer);
+            return wrapAsPromise(ok(answer));
         }
-        return notFound();
+        return wrapAsPromise(notFound());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -346,18 +346,8 @@ public class AttachmentController extends BaseController {
         return ok(attachment);
     }
 
-    private Result serveAttachment(Attachment attachment) {
-        File file = new File(attachment.getFilePath());
-        if (!file.exists()) {
-            return internalServerError("Requested file does not exist on disk even though referenced from database!");
-        }
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFileName() + "\"");
-        String body = Base64.getEncoder().encodeToString(setData(file).toByteArray());
-        return ok(body).as(attachment.getMimeType());
-    }
-
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public Result downloadQuestionAttachment(Long id) {
+    public CompletionStage<Result> downloadQuestionAttachment(Long id) {
         User user = getLoggedUser();
         Question question;
         if (user.hasRole("STUDENT", getSession())) {
@@ -369,13 +359,13 @@ public class AttachmentController extends BaseController {
             question = Ebean.find(Question.class, id);
         }
         if (question == null || question.getAttachment() == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         return serveAttachment(question.getAttachment());
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public Result downloadQuestionAnswerAttachment(Long qid, String hash) {
+    @Override
+    public CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid, String hash) {
         User user = getLoggedUser();
         ExamSectionQuestion question;
         if (user.hasRole("STUDENT", getSession())) {
@@ -387,22 +377,22 @@ public class AttachmentController extends BaseController {
             question = Ebean.find(ExamSectionQuestion.class, qid);
         }
         if (question == null || question.getEssayAnswer() == null || question.getEssayAnswer().getAttachment() == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         return serveAttachment(question.getEssayAnswer().getAttachment());
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public Result downloadExamAttachment(Long id) {
+    @Override
+    public CompletionStage<Result> downloadExamAttachment(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null || exam.getAttachment() == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         return serveAttachment(exam.getAttachment());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public Result downloadFeedbackAttachment(Long id) {
+    public CompletionStage<Result> downloadFeedbackAttachment(Long id) {
         User user = getLoggedUser();
         Exam exam;
         if (user.hasRole("STUDENT", getSession())) {
@@ -411,13 +401,13 @@ public class AttachmentController extends BaseController {
             exam = Ebean.find(Exam.class, id);
         }
         if (exam == null || exam.getExamFeedback() == null || exam.getExamFeedback().getAttachment() == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         return serveAttachment(exam.getExamFeedback().getAttachment());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public Result downloadStatementAttachment(Long id) {
+    public CompletionStage<Result> downloadStatementAttachment(Long id) {
         User user = getLoggedUser();
         ExpressionList<Exam> query = Ebean.find(Exam.class).where().idEq(id)
                 .isNotNull("languageInspection.statement.attachment");
@@ -426,30 +416,22 @@ public class AttachmentController extends BaseController {
         }
         Exam exam = query.findUnique();
         if (exam == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         return serveAttachment(exam.getLanguageInspection().getStatement().getAttachment());
     }
 
-    private String copyFile(File srcFile, String... pathParams) throws IOException {
-        String uploadPath = ConfigFactory.load().getString(("sitnet.attachments.path"));
-        StringBuilder path = new StringBuilder();
-        // Following does not work on windows, but we hopefully aren't using it anyway :)
-        if (!uploadPath.startsWith(File.separator)) {
-            // relative path
-            path.append(environment.rootPath().getAbsolutePath()).append(File.separator);
+    private CompletionStage<Result> serveAttachment(Attachment attachment) {
+        File file = new File(attachment.getFilePath());
+        if (!file.exists()) {
+            return wrapAsPromise(internalServerError("Requested file does not exist on disk even though referenced from database!"));
         }
-        path.append(uploadPath).append(File.separator);
-        for (String param : pathParams) {
-            path.append(File.separator).append(param);
-        }
+        final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromFile(file);
+        return serveAsBase64Stream(attachment, source);
+    }
 
-        File dir = new File(path.toString());
-        if (dir.mkdirs()) {
-            Logger.info("Created attachment directory");
-        }
-        String rndFileName = UUID.randomUUID().toString();
-        String newFilePath = path.append(File.separator).append(rndFileName).toString();
+    private String copyFile(File srcFile, String... pathParams) throws IOException {
+        String newFilePath = AppUtil.createFilePath(environment, pathParams);
         AppUtil.copyFile(srcFile, new File(newFilePath));
         return newFilePath;
     }

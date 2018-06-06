@@ -19,7 +19,7 @@ angular.module('app.examination')
     .component('examinationQuestion', {
         template: require('./examinationQuestion.template.html'),
         bindings: {
-            examHash: '<',
+            exam: '<',
             sq: '<',
             isPreview: '<'
         },
@@ -42,6 +42,10 @@ angular.module('app.examination')
                 };
 
                 vm.downloadQuestionAttachment = function () {
+                    if (vm.exam.external) {
+                        Attachment.downloadExternalQuestionAttachment(vm.exam, vm.sq);
+                        return;
+                    }
                     Attachment.downloadQuestionAttachment(vm.sq.question);
                 };
 

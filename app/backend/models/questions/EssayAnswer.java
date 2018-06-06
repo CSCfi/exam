@@ -68,6 +68,11 @@ public class EssayAnswer extends OwnedModel implements AttachmentContainer {
         EssayAnswer essayAnswer = new EssayAnswer();
         essayAnswer.setAnswer(answer);
         essayAnswer.save();
+        if (attachment != null) {
+            final Attachment copy = attachment.copy();
+            copy.save();
+            essayAnswer.setAttachment(copy);
+        }
         return essayAnswer;
     }
 }

@@ -22,6 +22,11 @@ import * as uib from 'angular-ui-bootstrap';
 import { FileService } from '../file/file.service';
 import { Exam } from '../../exam/editor/examTabs.component';
 
+interface SectionQuestion {
+    id: number,
+    question: Question
+}
+
 interface ExamWithFeedback {
     id: number;
     examFeedback: { attachment: any };
@@ -46,6 +51,7 @@ export class AttachmentService {
 
     private questionAttachmentApi: ng.resource.IResourceClass<any>;
     private answerAttachmentApi: ng.resource.IResourceClass<any>;
+    private externalAnswerAttachmentApi: ng.resource.IResourceClass<any>;
     private examAttachmentApi: ng.resource.IResourceClass<any>;
     private feedbackAttachmentApi: ng.resource.IResourceClass<any>;
     private statementAttachmentApi: ng.resource.IResourceClass<any>;
@@ -68,6 +74,15 @@ export class AttachmentService {
             });
         this.answerAttachmentApi = $resource(
             '/app/attachment/question/:qid/answer/:hash',
+            {
+                qid: '@qid',
+                hash: '@hash'
+            },
+            {
+                'remove': { method: 'DELETE', params: { qid: '@qid', hash: '@hash' } }
+            });
+        this.externalAnswerAttachmentApi = $resource(
+            '/app/iop/attachment/question/:qid/answer/:hash',
             {
                 qid: '@qid',
                 hash: '@hash'
@@ -101,6 +116,10 @@ export class AttachmentService {
             });
     }
 
+    private getResource (url, external) {
+        return external ? url.replace('/app/', '/app/iop/') : url;
+    }
+
     removeQuestionAttachment(question: { attachment: { removed: boolean } }) {
         question.attachment.removed = true;
     }
@@ -110,11 +129,18 @@ export class AttachmentService {
     }
 
     removeQuestionAnswerAttachment(question: AnsweredQuestion, hash: string) {
+        this.removeAnswerAttachment(this.answerAttachmentApi, question, hash);
+    }
 
+    removeExternalQuestionAnswerAttachment(question: AnsweredQuestion, hash: string) {
+        this.removeAnswerAttachment(this.externalAnswerAttachmentApi, question, hash);
+    }
+
+    private removeAnswerAttachment(resource: ng.resource.IResourceClass<any>, question: AnsweredQuestion, hash: string) {
         const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
             this.$translate.instant('sitnet_are_you_sure'));
         dialog.result.then(() => {
-            this.answerAttachmentApi.remove({ qid: question.id, hash: hash },
+            resource.remove({qid: question.id, hash: hash},
                 (answer: { objectVersion: number }) => {
                     toast.info(this.$translate.instant('sitnet_attachment_removed'));
                     question.essayAnswer.objectVersion = answer.objectVersion;
@@ -168,6 +194,13 @@ export class AttachmentService {
         });
     }
 
+    downloadExternalQuestionAttachment(exam: Exam, sq: SectionQuestion) {
+        if (sq.question.attachment.id) {
+            this.Files.download(`/app/iop/attachment/exam/${exam.id}/question/${sq.id}`,
+                sq.question.attachment.fileName);
+        }
+    }
+
     downloadQuestionAttachment(question: Question) {
         if (question.attachment.id) {
             this.Files.download('/app/attachment/question/' + question.id, question.attachment.fileName);
@@ -183,7 +216,9 @@ export class AttachmentService {
         if (!exam.attachment) {
             return;
         }
-        this.Files.download('/app/attachment/exam/' + exam.id, exam.attachment.fileName);
+        this.Files.download(this.getResource(`/app/attachment/exam/${exam.external ? exam.hash : exam.id}`,
+            exam.external),
+            exam.attachment.fileName);
     }
 
     downloadFeedbackAttachment(exam: ExamWithFeedback) {

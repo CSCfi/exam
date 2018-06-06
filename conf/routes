@@ -254,6 +254,12 @@ POST          /app/attachment/exam/:id/statement                       backend.c
 DELETE        /app/attachment/exam/:id/statement                       backend.controllers.AttachmentController.deleteStatementAttachment(id: Long)
 GET           /app/attachment/exam/:id/statement                       backend.controllers.AttachmentController.downloadStatementAttachment(id: Long)
 
+############### External Attachment ##################
+GET           /app/iop/attachment/exam/:hash                           backend.controllers.iop.transfer.impl.ExternalAttachmentController.downloadExamAttachment(hash: String)
+GET           /app/iop/attachment/exam/:hash/question/:qid             backend.controllers.iop.transfer.impl.ExternalAttachmentController.downloadQuestionAttachment(hash: String, qid: Long)
+POST          /app/iop/attachment/question/answer                      backend.controllers.iop.transfer.impl.ExternalAttachmentController.addAttachmentToQuestionAnswer()
+DELETE        /app/iop/attachment/question/:qid/answer/:hash           backend.controllers.iop.transfer.impl.ExternalAttachmentController.deleteQuestionAnswerAttachment(qid: Long, hash: String)
+GET           /app/iop/attachment/question/:qid/answer/:hash           backend.controllers.iop.transfer.impl.ExternalAttachmentController.downloadQuestionAnswerAttachment(qid: Long, hash: String)
 
 #### integration ####
 # records

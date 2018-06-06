@@ -19,7 +19,7 @@
                     </div>
 
                     <div ng-repeat="sq in $ctrl.section.sectionQuestions | orderBy: 'sequenceNumber'">
-                        <examination-question sq="sq" exam-hash="$ctrl.examHash" is-preview="$ctrl.isPreview"></examination-question>
+                        <examination-question sq="sq" exam="$ctrl.exam" section="$ctrl.section" is-preview="$ctrl.isPreview"></examination-question>
                     </div>
                 </div>
             </form>

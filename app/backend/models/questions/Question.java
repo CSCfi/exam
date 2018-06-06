@@ -387,8 +387,8 @@ public class Question extends OwnedModel implements AttachmentContainer {
             }
         }
         if (attachment != null) {
-            Attachment copy = new Attachment();
-            BeanUtils.copyProperties(attachment, copy, "id");
+            Attachment copy = attachment.copy();
+            copy.save();
             question.setAttachment(copy);
         }
         return question;

@@ -1,9 +1,19 @@
 package controllers.iop;
 
-import backend.models.*;
+import backend.models.AutoEvaluationConfig;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamRoom;
+import backend.models.GeneralSettings;
+import backend.models.GradeEvaluation;
+import backend.models.Language;
+import backend.models.Reservation;
+import backend.models.Role;
+import backend.models.User;
+import backend.models.iop.ExternalReservation;
+import backend.util.JsonDeserializer;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
-import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -13,8 +23,9 @@ import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
+import helpers.AttachmentServlet;
 import helpers.RemoteServerHelper;
-import backend.models.iop.ExternalReservation;
+import io.ebean.Ebean;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
@@ -27,7 +38,6 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import backend.util.JsonDeserializer;
 
 import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletOutputStream;
@@ -144,7 +154,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
                         SlotServlet.class, String.format("%s/slots", baseUrl),
                         ReservationServlet.class, String.format("%s/reservations", baseUrl),
                         ReservationRemovalServlet.class, String.format("%s/reservations/%s", baseUrl, RESERVATION_REF),
-                        EnrolmentServlet.class, String.format("/api/enrolments/%s", RESERVATION_REF)
+                        EnrolmentServlet.class, String.format("/api/enrolments/%s", RESERVATION_REF),
+                        AttachmentServlet.class, "/api/attachments/*"
                 )
         );
     }

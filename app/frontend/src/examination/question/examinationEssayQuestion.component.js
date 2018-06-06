@@ -20,7 +20,7 @@ angular.module('app.examination')
         template: require('./examinationEssayQuestion.template.html'),
         bindings: {
             sq: '<',
-            examHash: '<',
+            exam: '<',
             isPreview: '<'
         },
         controller: ['Examination', 'Attachment', 'Files',
@@ -33,11 +33,15 @@ angular.module('app.examination')
                 };
 
                 vm.saveAnswer = function () {
-                    Examination.saveTextualAnswer(vm.sq, vm.examHash, false);
+                    Examination.saveTextualAnswer(vm.sq, vm.exam.hash, false);
                 };
 
                 vm.removeQuestionAnswerAttachment = function () {
-                    Attachment.removeQuestionAnswerAttachment(vm.sq, vm.examHash);
+                    if (vm.exam.external) {
+                        Attachment.removeExternalQuestionAnswerAttachment(vm.sq, vm.exam.hash);
+                        return;
+                    }
+                    Attachment.removeQuestionAnswerAttachment(vm.sq, vm.exam.hash);
                 };
 
                 vm.selectFile = function () {
@@ -45,6 +49,11 @@ angular.module('app.examination')
                         return;
                     }
                     Attachment.selectFile(false).then(function (data) {
+                        if (vm.exam.external) {
+                            Files.uploadAnswerAttachment('/app/iop/attachment/question/answer', data.attachmentFile,
+                                {questionId: vm.sq.id, hash: vm.exam.hash}, vm.sq.essayAnswer);
+                            return;
+                        }
                         Files.uploadAnswerAttachment('/app/attachment/question/answer', data.attachmentFile,
                             {questionId: vm.sq.id, answerId: vm.sq.essayAnswer.id}, vm.sq.essayAnswer);
                     });
