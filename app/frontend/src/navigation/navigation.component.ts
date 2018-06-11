@@ -30,8 +30,10 @@ export const NavigationComponent: angular.IComponentOptions = {
         minimizeNavigation: boolean;
         mobileMenuOpen: boolean;
         user: User;
+        isInteroperable: boolean;
 
         constructor(
+            private $http: angular.IHttpService,
             private $rootScope: angular.IRootScopeService,
             private $location: angular.ILocationService,
             private $window: angular.IWindowService,
@@ -42,19 +44,25 @@ export const NavigationComponent: angular.IComponentOptions = {
             $rootScope.$on('userUpdated', () => {
                 this.user = this.Session.getUser();
             });
-            $rootScope.$on('upcomingExam', () => this.links = Navigation.getLinks());
-            $rootScope.$on('wrongLocation', () => this.links = Navigation.getLinks());
+            $rootScope.$on('upcomingExam', () => this.links = Navigation.getLinks(this.isInteroperable));
+            $rootScope.$on('wrongLocation', () => this.links = Navigation.getLinks(this.isInteroperable));
         }
 
         $onInit() {
-            this.links = this.Navigation.getLinks();
             this.user = this.Session.getUser();
             if (this.user && this.user.isAdmin) {
                 this.Navigation.getAppVersion()
                     .then(resp => this.appVersion = resp.data.appVersion)
                     .catch(e => toastr.error(e.data));
+                this.$http.get('/app/settings/iop')
+                    .then((resp: angular.IHttpResponse<{ isInteroperable: boolean }>) => {
+                        this.isInteroperable = resp.data.isInteroperable;
+                        this.links = this.Navigation.getLinks(this.isInteroperable);
+                    })
+                    .catch(angular.noop);
             } else {
                 this.minimizeNavigation = this.$window.matchMedia('(min-width: 600px)').matches;
+                this.links = this.Navigation.getLinks(false);
             }
         }
 

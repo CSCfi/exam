@@ -27,12 +27,14 @@ import SessionModule from './session';
 import NavigationModule from './navigation';
 import UtilityModule from './utility';
 import DashboardModule from './dashboard';
+import CollaborativeExamModule from './exam/collaborative';
 import * as filters from './app.filter';
 import * as directives from './app.directive';
 
 import './enrolment'; // TODO: make a proper exportable module
 import './maturity'; // TODO: make a proper exportable module
 import './administrative';
+import './exam/printout';
 
 
 import 'toastr/toastr.scss';
@@ -52,6 +54,7 @@ angular.module('app', [
     NavigationModule,
     UtilityModule,
     DashboardModule,
+    CollaborativeExamModule,
     'app.enrolment',
     'app.maturity',
     'app.administrative'

@@ -20,11 +20,7 @@ import * as toast from 'toastr';
 import { IHttpService } from 'angular';
 import * as uib from 'angular-ui-bootstrap';
 import { FileService } from '../file/file.service';
-
-interface Exam {
-    id: number;
-    attachment: any;
-}
+import { Exam } from '../../exam/editor/examTabs.component';
 
 interface ExamWithFeedback {
     id: number;
@@ -184,6 +180,9 @@ export class AttachmentService {
     }
 
     downloadExamAttachment(exam: Exam) {
+        if (!exam.attachment) {
+            return;
+        }
         this.Files.download('/app/attachment/exam/' + exam.id, exam.attachment.fileName);
     }
 

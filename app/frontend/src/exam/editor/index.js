@@ -14,9 +14,9 @@
  */
 
 require('./editor.module');
-require('./examTabs.component');
+require('./examTabs.component.ts');
 
-require('./basic/basicExamInfo.component');
+require('./basic/basicExamInfo.component.ts');
 require('./basic/examCourse.component');
 require('./basic/examInspectorSelector.component');
 require('./basic/examOwnerSelector.component');

@@ -882,5 +882,6 @@
   "sitnet_attachment_max_size": "Liitetiedostojen maksimikoko",
   "sitnet_exam_expiration_period": "Tenttisuoritusten vanhenemisaika",
   "sitnet_default_timezone": "Oletusaikavyöhyke",
-  "sitnet_role_mapping": "Käyttäjäroolimääritykset"
+  "sitnet_role_mapping": "Käyttäjäroolimääritykset",
+  "sitnet_collaborative_exams": "Yhteistentit"
 }

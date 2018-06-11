@@ -15,6 +15,7 @@
 
 package backend.controllers.iop.collaboration;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -22,7 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,16 +33,17 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import org.joda.time.DateTime;
 import play.Logger;
+import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.With;
-import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.BaseController;
 import backend.impl.EmailComposer;
@@ -103,12 +104,12 @@ public class CollaborativeExamController extends BaseController {
                 }
                 return ok();
             };
-            return request.put(Ebean.json().toJson(content)).thenApplyAsync(onSuccess);
+            return request.put(serialize(content)).thenApplyAsync(onSuccess);
         }
         return wrapAsPromise(internalServerError());
     }
 
-    private Optional<Exam> prepareDraft() {
+    private Exam prepareDraft() {
         ExamExecutionType examExecutionType = Ebean.find(ExamExecutionType.class)
                 .where()
                 .eq("type", ExamExecutionType.Type.PUBLIC.toString())
@@ -140,12 +141,27 @@ public class CollaborativeExamController extends BaseController {
         exam.setTrialCount(1);
         exam.setExpanded(true);
 
-        return Optional.of(exam);
+        return exam;
     }
+
+    private JsonNode serialize(Exam exam) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String json = mapper.writeValueAsString(exam);
+            return mapper.readTree(json);
+        } catch (IOException e) {
+            Logger.error("unable to serialize");
+            throw new RuntimeException(e);
+        }
+   }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public CompletionStage<Result> listExams() {
-        WSRequest request = wsClient.url(parseUrl(null).toString());
+        Optional<URL> url = parseUrl(null);
+        if (!url.isPresent()) {
+            return wrapAsPromise(internalServerError());
+        }
+        WSRequest request = wsClient.url(url.get().toString());
         Function<WSResponse, Result> onSuccess = response -> {
             JsonNode root = response.asJson();
             if (response.getStatus() != OK) {
@@ -157,9 +173,9 @@ public class CollaborativeExamController extends BaseController {
 
             // Store references to all exams locally if not already done so
             StreamSupport.stream(root.spliterator(), false)
-                    .filter(node -> !locals.keySet().contains(node.get("id").asText()))
+                    .filter(node -> !locals.keySet().contains(node.get("_id").asText()))
                     .forEach(node -> {
-                        String ref = node.get("id").asText();
+                        String ref = node.get("_id").asText();
                         CollaborativeExam ce = new CollaborativeExam();
                         ce.setExternalRef(ref);
                         ce.setCreated(DateTime.now());
@@ -168,9 +184,13 @@ public class CollaborativeExamController extends BaseController {
                     });
 
             Map<CollaborativeExam, JsonNode> localToExternal = StreamSupport.stream(root.spliterator(), false)
-                    .collect(Collectors.toMap(node -> locals.get(node.get("id").asText()), Function.identity()));
+                    .collect(Collectors.toMap(node -> locals.get(node.get("_id").asText()), Function.identity()));
+            List<JsonNode> exams = localToExternal.entrySet().stream()
+                    .map(e -> e.getKey().getExam(e.getValue()))
+                    .map(this::serialize)
+                    .collect(Collectors.toList());
 
-            return ok(localToExternal.entrySet().stream().map(e -> e.getKey().getExam(e.getValue())));
+            return ok(Json.newArray().addAll(exams));
         };
         return request.get().thenApplyAsync(onSuccess);
     }
@@ -181,19 +201,18 @@ public class CollaborativeExamController extends BaseController {
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
-        return downloadExam(ce).thenApplyAsync(result -> {
-            result.ifPresent(this::ok);
-            return notFound("sitnet_error_exam_not_found");
-        });
+        return downloadExam(ce).thenApplyAsync(
+                result -> result.isPresent() ? ok(serialize(result.get())) : notFound("sitnet_error_exam_not_found")
+        );
     }
 
     @Restrict({@Group("ADMIN")})
-    public CompletionStage<Result> createExam() {
-        Optional<Exam> body = prepareDraft();
-        if (!body.isPresent()) {
-            return wrapAsPromise(badRequest("Unsupported execution type"));
+    public CompletionStage<Result> createExam() throws IOException {
+        Optional<URL> url = parseUrl(null);
+        if (!url.isPresent()) {
+            return wrapAsPromise(internalServerError());
         }
-        WSRequest request = wsClient.url(parseUrl(null).toString());
+        WSRequest request = wsClient.url(url.get().toString());
         Function<WSResponse, Result> onSuccess = response -> {
             JsonNode root = response.asJson();
             if (response.getStatus() != CREATED) {
@@ -204,14 +223,10 @@ public class CollaborativeExamController extends BaseController {
             ce.setExternalRef(externalRef);
             ce.setCreated(DateTime.now());
             ce.save();
-            Exam exam = ce.getExam(root);
-            List<String> emails = exam.getExamOwners().stream().map(User::getEmail).collect(Collectors.toList());
-            actorSystem.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
-                    () -> composer.composeCollaborativeExamAnnouncement(emails, exam),
-                    actorSystem.dispatcher());
-            return created(ce.getId());
+            return created(Json.newObject().put("id", ce.getId()));
         };
-        return request.post(Ebean.json().toJson(body.get())).thenApplyAsync(onSuccess);
+        Exam body = prepareDraft();
+        return request.post(serialize(body)).thenApplyAsync(onSuccess);
     }
 
     @Restrict({@Group("ADMIN")})
