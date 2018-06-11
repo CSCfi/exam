@@ -19,7 +19,7 @@ import * as toast from 'toastr';
 import { IModalService } from 'angular-ui-bootstrap';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Exam, ExamExecutionType } from '../examTabs.component';
+import { Exam, ExamExecutionType, GradeScale, Course } from '../examTabs.component';
 
 export const BasicExamInfoComponent: ng.IComponentOptions = {
     template: require('./basicExamInfo.template.html'),
@@ -33,11 +33,12 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
 
         exam: Exam;
         collaborative: boolean;
-        onUpdate: (props: { code: string, name: string }) => any;
+        onUpdate: (_: { props: { code: string | null, name: string | null } }) => any;
         onNextTabSelected: () => any;
 
-        gradeScaleSetting: {};
+        gradeScaleSetting: { overridable: boolean };
         examTypes: ExamExecutionType[];
+        gradeScales: GradeScale[];
 
         constructor(
             private $location: ng.ILocationService,
@@ -75,6 +76,117 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             }
         }
 
+        updateExam = (resetAutoEvaluationConfig: boolean) => {
+            this.Exam.updateExam(this.exam).then(() => {
+                toast.info(this.$translate.instant('sitnet_exam_saved'));
+                if (resetAutoEvaluationConfig) {
+                    delete this.exam.autoEvaluationConfig;
+                }
+                const code = this.exam.course ? this.exam.course.code : null;
+                this.onUpdate({ props: { name: this.exam.name, code: code } });
+            }, (error) => {
+                if (error.data) {
+                    const msg = error.data.message || error.data;
+                    toast.error(this.$translate.instant(msg));
+                }
+            });
+        }
+
+        onCourseChange = (course: Course) => {
+            this.exam.course = course;
+            this.initGradeScale(); //  Grade scale might need changing based on new course
+            const code = this.exam.course ? this.exam.course.code : null;
+            this.onUpdate({ props: { name: this.exam.name, code: code } });
+        }
+
+        getExecutionTypeTranslation = () =>
+            !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType.type)
+
+
+        checkExamType = (type: string) =>
+            this.exam.examType.type === type ? 'btn-primary' : ''
+
+        setExamType = (type: string) => {
+            this.exam.examType.type = type;
+            this.updateExam(false);
+        }
+
+        getSelectableScales = () => {
+            if (!this.gradeScales || !this.exam || !this.exam.course || angular.isUndefined(this.gradeScaleSetting)) {
+                return [];
+            }
+
+            return this.gradeScales.filter((scale: GradeScale) => {
+                if (this.gradeScaleSetting.overridable) {
+                    return true;
+                } else if (this.exam.course && this.exam.course.gradeScale) {
+                    return this.exam.course.gradeScale.id === scale.id;
+                } else {
+                    return true;
+                }
+            });
+        }
+
+        checkScale = (scale: GradeScale) => {
+            if (!this.exam.gradeScale) {
+                return '';
+            }
+            return this.exam.gradeScale.id === scale.id ? 'btn-primary' : '';
+        }
+
+        checkScaleDisabled = (scale: GradeScale) => {
+            if (!scale || !this.exam.course || !this.exam.course.gradeScale) {
+                return false;
+            }
+            return !this.gradeScaleSetting.overridable && this.exam.course.gradeScale.id === scale.id;
+        }
+
+        setScale = (grading: GradeScale) => {
+            this.exam.gradeScale = grading;
+            this.updateExam(true);
+        }
+
+        selectAttachmentFile = () => {
+            this.$uibModal.open({
+                backdrop: 'static',
+                keyboard: true,
+                animation: true,
+                component: 'attachmentSelector',
+                resolve: {
+                    isTeacherModal: () => true
+                }
+            }).result.then((data) => {
+                this.Files.upload('/app/attachment/exam',
+                    data.attachmentFile, { examId: this.exam.id }, this.exam);
+            });
+        }
+
+        downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam);
+
+        removeExamAttachment = () => this.Attachment.removeExamAttachment(this.exam);
+
+        removeExam = (canRemoveWithoutConfirmation: boolean) => {
+            if (this.isAllowedToUnpublishOrRemove()) {
+                const fn = () => {
+                    this.ExamRes.exams.remove({ id: this.exam.id }, () => {
+                        toast.success(this.$translate.instant('sitnet_exam_removed'));
+                        this.$location.path('/');
+                    }, error => toast.error(error.data));
+                };
+                if (canRemoveWithoutConfirmation) {
+                    fn();
+                } else {
+                    const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
+                        this.$translate.instant('sitnet_remove_exam'));
+                    dialog.result.then(() => fn());
+                }
+            } else {
+                toast.warning(this.$translate.instant('sitnet_exam_removal_not_possible'));
+            }
+        }
+
+        nextTab = () => this.onNextTabSelected();
+
         private refreshExamTypes = () => {
             this.Exam.refreshExamTypes().then((types: ExamExecutionType[]) => {
                 // Maturity can only have a FINAL type
@@ -85,168 +197,24 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             });
         }
 
-        private refreshGradeScales = function () {
-            Exam.refreshGradeScales().then(function (scales) {
-                vm.gradeScales = scales;
+        private refreshGradeScales = () => {
+            this.Exam.refreshGradeScales().then((scales: GradeScale[]) => {
+                this.gradeScales = scales;
             });
-        };
+        }
 
-        private initGradeScale = function () {
+        private initGradeScale = () => {
             // Set exam grade scale from course default if not specifically set for exam
-            if (!vm.exam.gradeScale && vm.exam.course && vm.exam.course.gradeScale) {
-                vm.exam.gradeScale = vm.exam.course.gradeScale;
+            if (!this.exam.gradeScale && this.exam.course && this.exam.course.gradeScale) {
+                this.exam.gradeScale = this.exam.course.gradeScale;
             }
-        };
+        }
 
+        private isAllowedToUnpublishOrRemove = () =>
+            // allowed if no upcoming reservations and if no one has taken this yet
+            !this.exam.hasEnrolmentsInEffect && this.exam.children.length === 0
 
     }
 };
 
-angular.module('app.exam.editor')
-    .component('basicExamInfo', {
-        template: require('./basicExamInfo.template.html'),
-        bindings: {
-            exam: '<',
-            collaborative: '<',
-            onUpdate: '&',
-            onNextTabSelected: '&'
-        },
-        controller: ['$location', '$scope', '$translate', '$uibModal', 'dialogs', 'Exam', 'ExamRes', 'SettingsResource',
-            'Attachment', 'Files',
-            function ($location, $scope, $translate, $modal, dialogs, Exam, ExamRes, SettingsResource,
-                Attachment, Files) {
-
-                const vm = this;
-
-                vm.$onInit = function () {
-
-                };
-
-
-
-
-                vm.updateExam = function (resetAutoEvaluationConfig) {
-                    Exam.updateExam(vm.exam).then(function () {
-                        toast.info($translate.instant('sitnet_exam_saved'));
-                        if (resetAutoEvaluationConfig) {
-                            delete vm.exam.autoEvaluationConfig;
-                        }
-                        vm.onUpdate({ props: { name: vm.exam.name, code: vm.exam.course.code } });
-                    }, function (error) {
-                        if (error.data) {
-                            var msg = error.data.message || error.data;
-                            toast.error($translate.instant(msg));
-                        }
-                    });
-                };
-
-                vm.onCourseChange = function (course) {
-                    vm.exam.course = course;
-                    initGradeScale(); //  Grade scale might need changing based on new course
-                    vm.onUpdate({ props: { name: vm.exam.name, code: vm.exam.course.code } });
-                };
-
-                vm.getExecutionTypeTranslation = function () {
-                    return !vm.exam || Exam.getExecutionTypeTranslation(vm.exam.executionType.type);
-                };
-
-                vm.checkExamType = function (type) {
-                    return vm.exam.examType.type === type ? 'btn-primary' : '';
-                };
-
-                vm.setExamType = function (type) {
-                    vm.exam.examType.type = type;
-                    vm.updateExam();
-                };
-
-                vm.getSelectableScales = function () {
-                    if (!vm.gradeScales || !vm.exam || !vm.exam.course || angular.isUndefined(vm.gradeScaleSetting)) {
-                        return [];
-                    }
-                    return vm.gradeScales.filter(function (scale) {
-                        return vm.gradeScaleSetting.overridable || !vm.exam.course.gradeScale ||
-                            vm.exam.course.gradeScale.id === scale.id;
-                    });
-                };
-
-                vm.checkScale = function (scale) {
-                    if (!vm.exam.gradeScale) {
-                        return '';
-                    }
-                    return vm.exam.gradeScale.id === scale.id ? 'btn-primary' : '';
-                };
-
-                vm.checkScaleDisabled = function (scale) {
-                    if (!scale || !vm.exam.course || !vm.exam.course.gradeScale) {
-                        return false;
-                    }
-                    return !vm.gradeScaleSetting.overridable && vm.exam.course.gradeScale.id === scale.id;
-                };
-
-                vm.setScale = function (grading) {
-                    vm.exam.gradeScale = grading;
-                    vm.updateExam(true);
-                };
-
-                vm.selectAttachmentFile = function () {
-                    $modal.open({
-                        backdrop: 'static',
-                        keyboard: true,
-                        animation: true,
-                        component: 'attachmentSelector',
-                        resolve: {
-                            isTeacherModal: function () {
-                                return true;
-                            }
-                        }
-                    }).result.then(function (data) {
-                        Files.upload('/app/attachment/exam',
-                            data.attachmentFile, { examId: vm.exam.id }, vm.exam);
-                    });
-                };
-
-                vm.downloadExamAttachment = function () {
-                    Attachment.downloadExamAttachment(vm.exam);
-                };
-
-                vm.removeExamAttachment = function () {
-                    Attachment.removeExamAttachment(vm.exam);
-                };
-
-                vm.removeExam = function (canRemoveWithoutConfirmation) {
-                    if (isAllowedToUnpublishOrRemove()) {
-                        const fn = function () {
-                            ExamRes.exams.remove({ id: vm.exam.id }, function () {
-                                toast.success($translate.instant('sitnet_exam_removed'));
-                                $location.path('/');
-                            }, function (error) {
-                                toast.error(error.data);
-                            });
-                        };
-                        if (canRemoveWithoutConfirmation) {
-                            fn();
-                        } else {
-                            const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
-                                $translate.instant('sitnet_remove_exam'));
-                            dialog.result.then(function () {
-                                fn();
-                            });
-                        }
-                    } else {
-                        toast.warning($translate.instant('sitnet_exam_removal_not_possible'));
-                    }
-                };
-
-                vm.nextTab = function () {
-                    vm.onNextTabSelected();
-                };
-
-                const isAllowedToUnpublishOrRemove = function () {
-                    // allowed if no upcoming reservations and if no one has taken this yet
-                    return !vm.exam.hasEnrolmentsInEffect && vm.exam.children.length === 0;
-                };
-
-
-            }
-        ]
-    });
+angular.module('app.exam.editor').component('basicExamInfo', BasicExamInfoComponent);

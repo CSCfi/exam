@@ -18,19 +18,43 @@ import * as _ from 'lodash';
 
 import { SessionService, User } from '../../session/session.service';
 
+export interface AutoEvaluationConfig {
+    id: number;
+    releaseDate: VarDate | null;
+    amountDays: number | null;
+    releaseType: string;
+}
+
+export interface Course {
+    id: number;
+    name: string;
+    code: string;
+    gradeScale: GradeScale | null;
+}
+
 export interface ExamExecutionType {
     type: string;
     id: number;
 }
 
+export interface GradeScale {
+    id: number;
+    displayName: string;
+}
+
 export interface Exam {
     id: number;
+    attachment: { id: number, fileName: string } | null;
     hasEnrolmentsInEffect: boolean;
     name: string | null;
-    course: { code: string } | null;
+    course: Course | null;
     examOwners: User[];
+    examType: { type: string };
     executionType: ExamExecutionType;
     examEnrolments: { reservation?: { endAt: number } }[];
+    gradeScale: GradeScale | null;
+    autoEvaluationConfig: AutoEvaluationConfig | null;
+    children: Exam[];
 }
 
 export const ExamTabsComponent: angular.IComponentOptions = {

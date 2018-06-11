@@ -36,7 +36,6 @@ export class SortableDirective implements IDirective<SortableScope> {
         selection: '@selection'
     };
     link(scope: SortableScope, element: IAugmentedJQuery, attrs: IAttributes) {
-        console.log('selection = ' + scope.selection);
         let startIndex = -1;
         element.sortable({
             items: scope.selection,
