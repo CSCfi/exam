@@ -153,7 +153,7 @@ public class CollaborativeExamController extends BaseController {
             Logger.error("unable to serialize");
             throw new RuntimeException(e);
         }
-    }
+   }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public CompletionStage<Result> listExams() {
