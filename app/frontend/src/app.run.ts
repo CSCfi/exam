@@ -23,7 +23,7 @@ export default function run(
 
     // Add location reload flag to original $location service.
     const original = $location.path;
-    $location.path = function (path, reload) {
+    $location.path = (path, reload) => {
         if (reload === false) {
             const lastRoute = $route.current;
             const un = $rootScope.$on('$locationChangeSuccess', function () {

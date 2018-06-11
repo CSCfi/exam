@@ -35,7 +35,7 @@ export interface AppConfig {
 
 export const SettingsComponent: angular.IComponentOptions = {
     template: require('./settings.template.html'),
-    controller: class SettingsController {
+    controller: class SettingsController implements angular.IComponentController {
 
         config: AppConfig;
         attributes: string[];

@@ -59,6 +59,11 @@ export default function configs(
     $routeProvider.when('/exams/:id/view/printout/:tab?', { template: '<printout></printout>' });
     $routeProvider.when('/printouts', { template: '<printout-listing></printout-listing>' });
 
+    /* collaborative exams */
+    $routeProvider.when('/exams/collaborative',
+        { template: '<collaborative-exam-listing>></collaborative-exam-listing>' });
+    $routeProvider.when('/exams/collaborative/:id/:tab', { template: '<exam-tabs collaborative="true"></exam-tabs>' });
+
     /* calendar */
     $routeProvider.when('/calendar/:id', { template: '<calendar is-external="false"></calendar>' });
     $routeProvider.when('/iop/calendar/:id', { template: '<calendar is-external="true"></calendar>' });

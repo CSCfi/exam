@@ -6,6 +6,7 @@ CREATE TABLE collaborative_exam (
   object_version BIGINT NOT NULL,
   CONSTRAINT PK_COLLABORATIVE_EXAM PRIMARY KEY (id)
 );
+CREATE SEQUENCE collaborative_exam_seq;
 
 # --- !Downs
 DROP TABLE collaborative_exam CASCADE;

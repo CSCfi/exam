@@ -235,9 +235,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private boolean cloned;
     @Transient
     private boolean external;
-    @Transient
-    private String externalRef;
-
 
     public Double getTotalScore() {
         return examSections.stream()
@@ -294,14 +291,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setExternal(boolean external) {
         this.external = external;
-    }
-
-    public String getExternalRef() {
-        return externalRef;
-    }
-
-    public void setExternalRef(String externalRef) {
-        this.externalRef = externalRef;
     }
 
     public DateTime getGradedTime() {

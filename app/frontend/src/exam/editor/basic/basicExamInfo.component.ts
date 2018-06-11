@@ -12,44 +12,118 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+/// <reference types="angular-dialog-service" />
 
-import angular from 'angular';
-import toast from 'toastr';
+import * as ng from 'angular';
+import * as toast from 'toastr';
+import { IModalService } from 'angular-ui-bootstrap';
+import { AttachmentService } from '../../../utility/attachment/attachment.service';
+import { FileService } from '../../../utility/file/file.service';
+import { Exam, ExamExecutionType } from '../examTabs.component';
+
+export const BasicExamInfoComponent: ng.IComponentOptions = {
+    template: require('./basicExamInfo.template.html'),
+    bindings: {
+        exam: '<',
+        collaborative: '<',
+        onUpdate: '&',
+        onNextTabSelected: '&'
+    },
+    controller: class BasicExamInfoController implements ng.IComponentController {
+
+        exam: Exam;
+        collaborative: boolean;
+        onUpdate: (props: { code: string, name: string }) => any;
+        onNextTabSelected: () => any;
+
+        gradeScaleSetting: {};
+        examTypes: ExamExecutionType[];
+
+        constructor(
+            private $location: ng.ILocationService,
+            private $scope: ng.IScope,
+            private $translate: ng.translate.ITranslateService,
+            private $uibModal: IModalService,
+            private dialogs: angular.dialogservice.IDialogService,
+            private Exam: any,
+            private ExamRes: any,
+            private SettingsResource: any,
+            private Attachment: AttachmentService,
+            private Files: FileService
+        ) {
+            'ngInject';
+
+            $scope.$on('$localeChangeSuccess', () => {
+                this.refreshExamTypes();
+                this.refreshGradeScales();
+            });
+
+        }
+
+        $onInit = () => {
+            this.refreshExamTypes();
+            this.refreshGradeScales();
+            this.SettingsResource.gradeScale.get((data) => {
+                this.gradeScaleSetting = data;
+            });
+            this.initGradeScale();
+        }
+
+        $onChanges = (props: { exam?: Exam }) => {
+            if (props.exam) {
+                this.initGradeScale();
+            }
+        }
+
+        private refreshExamTypes = () => {
+            this.Exam.refreshExamTypes().then((types: ExamExecutionType[]) => {
+                // Maturity can only have a FINAL type
+                if (this.exam.executionType.type === 'MATURITY') {
+                    types = types.filter(t => t.type === 'FINAL');
+                }
+                this.examTypes = types;
+            });
+        }
+
+        private refreshGradeScales = function () {
+            Exam.refreshGradeScales().then(function (scales) {
+                vm.gradeScales = scales;
+            });
+        };
+
+        private initGradeScale = function () {
+            // Set exam grade scale from course default if not specifically set for exam
+            if (!vm.exam.gradeScale && vm.exam.course && vm.exam.course.gradeScale) {
+                vm.exam.gradeScale = vm.exam.course.gradeScale;
+            }
+        };
+
+
+    }
+};
 
 angular.module('app.exam.editor')
     .component('basicExamInfo', {
         template: require('./basicExamInfo.template.html'),
         bindings: {
             exam: '<',
+            collaborative: '<',
             onUpdate: '&',
             onNextTabSelected: '&'
         },
         controller: ['$location', '$scope', '$translate', '$uibModal', 'dialogs', 'Exam', 'ExamRes', 'SettingsResource',
             'Attachment', 'Files',
             function ($location, $scope, $translate, $modal, dialogs, Exam, ExamRes, SettingsResource,
-                      Attachment, Files) {
+                Attachment, Files) {
 
                 const vm = this;
 
                 vm.$onInit = function () {
-                    refreshExamTypes();
-                    refreshGradeScales();
-                    SettingsResource.gradeScale.get(function (data) {
-                        vm.gradeScaleSetting = data;
-                    });
-                    initGradeScale();
+
                 };
 
-                vm.$onChanges = function(props) {
-                    if (props.exam) {
-                        initGradeScale();
-                    }
-                };
 
-                $scope.$on('$localeChangeSuccess', function () {
-                    refreshExamTypes();
-                    refreshGradeScales();
-                });
+
 
                 vm.updateExam = function (resetAutoEvaluationConfig) {
                     Exam.updateExam(vm.exam).then(function () {
@@ -57,7 +131,7 @@ angular.module('app.exam.editor')
                         if (resetAutoEvaluationConfig) {
                             delete vm.exam.autoEvaluationConfig;
                         }
-                        vm.onUpdate({props: {name: vm.exam.name, code: vm.exam.course.code}});
+                        vm.onUpdate({ props: { name: vm.exam.name, code: vm.exam.course.code } });
                     }, function (error) {
                         if (error.data) {
                             var msg = error.data.message || error.data;
@@ -69,7 +143,7 @@ angular.module('app.exam.editor')
                 vm.onCourseChange = function (course) {
                     vm.exam.course = course;
                     initGradeScale(); //  Grade scale might need changing based on new course
-                    vm.onUpdate({props: {name: vm.exam.name, code: vm.exam.course.code}});
+                    vm.onUpdate({ props: { name: vm.exam.name, code: vm.exam.course.code } });
                 };
 
                 vm.getExecutionTypeTranslation = function () {
@@ -127,7 +201,7 @@ angular.module('app.exam.editor')
                         }
                     }).result.then(function (data) {
                         Files.upload('/app/attachment/exam',
-                            data.attachmentFile, {examId: vm.exam.id}, vm.exam);
+                            data.attachmentFile, { examId: vm.exam.id }, vm.exam);
                     });
                 };
 
@@ -142,7 +216,7 @@ angular.module('app.exam.editor')
                 vm.removeExam = function (canRemoveWithoutConfirmation) {
                     if (isAllowedToUnpublishOrRemove()) {
                         const fn = function () {
-                            ExamRes.exams.remove({id: vm.exam.id}, function () {
+                            ExamRes.exams.remove({ id: vm.exam.id }, function () {
                                 toast.success($translate.instant('sitnet_exam_removed'));
                                 $location.path('/');
                             }, function (error) {
@@ -172,30 +246,7 @@ angular.module('app.exam.editor')
                     return !vm.exam.hasEnrolmentsInEffect && vm.exam.children.length === 0;
                 };
 
-                const refreshExamTypes = function () {
-                    Exam.refreshExamTypes().then(function (types) {
-                        // Maturity can only have a FINAL type
-                        if (vm.exam.executionType.type === 'MATURITY') {
-                            types = types.filter(function (t) {
-                                return t.type === 'FINAL';
-                            });
-                        }
-                        vm.examTypes = types;
-                    });
-                };
 
-                const refreshGradeScales = function () {
-                    Exam.refreshGradeScales().then(function (scales) {
-                        vm.gradeScales = scales;
-                    });
-                };
-
-                const initGradeScale = function () {
-                    // Set exam grade scale from course default if not specifically set for exam
-                    if (!vm.exam.gradeScale && vm.exam.course && vm.exam.course.gradeScale) {
-                        vm.exam.gradeScale = vm.exam.course.gradeScale;
-                    }
-                };
             }
         ]
     });
