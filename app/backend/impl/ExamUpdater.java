@@ -36,6 +36,7 @@ public interface ExamUpdater {
     boolean isAllowedToRemove(Exam exam);
     void update(Exam exam, Http.Request request);
     void updateAutoEvaluationConfig(Exam exam, AutoEvaluationConfig newConfig);
+    Optional<Result> updateLanguage(Exam exam, String code, User user, Session session);
 
 
 

@@ -205,6 +205,22 @@ public class ExamUpdaterImpl implements ExamUpdater {
         }
     }
 
+    @Override
+    public Optional<Result> updateLanguage(Exam exam, String code, User user, Session session) {
+        if (!isPermittedToUpdate(exam, user, session)) {
+            return Optional.of(forbidden("sitnet_error_access_forbidden"));
+        }
+        Language language = Ebean.find(Language.class, code);
+        if (exam.getExamLanguages().contains(language)) {
+            exam.getExamLanguages().remove(language);
+        } else {
+            exam.getExamLanguages().add(language);
+        }
+        return Optional.empty();
+    }
+
+
+
     private void updateGradeEvaluations(Exam exam, AutoEvaluationConfig newConfig) {
         AutoEvaluationConfig config = exam.getAutoEvaluationConfig();
 

@@ -19,7 +19,7 @@ import * as toast from 'toastr';
 import { IModalService } from 'angular-ui-bootstrap';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Exam, ExamExecutionType, GradeScale, Course } from '../examTabs.component';
+import { Exam, ExamExecutionType, GradeScale, Course } from '../../exam.model';
 
 export const BasicExamInfoComponent: ng.IComponentOptions = {
     template: require('./basicExamInfo.template.html'),
@@ -77,7 +77,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         }
 
         updateExam = (resetAutoEvaluationConfig: boolean) => {
-            this.Exam.updateExam(this.exam).then(() => {
+            this.Exam.updateExam(this.exam, {}, this.collaborative).then(() => {
                 toast.info(this.$translate.instant('sitnet_exam_saved'));
                 if (resetAutoEvaluationConfig) {
                     delete this.exam.autoEvaluationConfig;
@@ -112,7 +112,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         }
 
         getSelectableScales = () => {
-            if (!this.gradeScales || !this.exam || !this.exam.course || angular.isUndefined(this.gradeScaleSetting)) {
+            if (!this.gradeScales || !this.exam || angular.isUndefined(this.gradeScaleSetting)) {
                 return [];
             }
 

@@ -41,7 +41,7 @@ GET           /app/examsearch                                          backend.c
 
 PUT           /app/exam/:eid/software/:sid                             backend.controllers.ExamController.updateExamSoftware(eid: Long, sid: Long)
 
-PUT           /app/exam/:eid/language/:code                            backend.controllers.ExamController.updateExamLanguage(eid: Long, code: String)
+PUT           /app/exams/:eid/language/:code                            backend.controllers.ExamController.updateExamLanguage(eid: Long, code: String)
 
 GET           /app/examtypes                                           backend.controllers.ExamController.getExamTypes
 GET           /app/executiontypes                                      backend.controllers.ExamController.getExamExecutionTypes
@@ -292,6 +292,7 @@ POST          /integration/iop/exams                                   backend.c
 GET           /integration/iop/exams/:id                               backend.controllers.iop.collaboration.CollaborativeExamController.getExam(id: Long)
 PUT           /integration/iop/exams/:id                               backend.controllers.iop.collaboration.CollaborativeExamController.updateExam(id: Long)
 DELETE        /integration/iop/exams/:id                               backend.controllers.iop.collaboration.CollaborativeExamController.deleteExam(id: Long)
+PUT           /integration/iop/exams/:id/language/:code                backend.controllers.iop.collaboration.CollaborativeExamController.updateLanguage(id: Long, code: String)
 
 
 

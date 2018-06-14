@@ -17,8 +17,8 @@ import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.exam')
-    .service('Exam', ['$translate', '$q', '$location', 'ExamRes', 'Question', 'Session',
-        function ($translate, $q, $location, ExamRes, Question, Session) {
+    .service('Exam', ['$translate', '$q', '$location', '$http', 'ExamRes', 'Question', 'Session',
+        function ($translate, $q, $location, $http, ExamRes, Question, Session) {
 
             const self = this;
 
@@ -41,7 +41,7 @@ angular.module('app.exam')
             };
 
             self.createExam = function (executionType) {
-                ExamRes.draft.create({executionType: executionType},
+                ExamRes.draft.create({ executionType: executionType },
                     function (response) {
                         toast.info($translate.instant('sitnet_exam_added'));
                         //return response.id;
@@ -51,7 +51,7 @@ angular.module('app.exam')
                     });
             };
 
-            self.updateExam = function (exam, overrides) {
+            self.updateExam = function (exam, overrides, collaborative) {
                 const data = {
                     'id': exam.id,
                     'name': exam.name || '',
@@ -77,13 +77,13 @@ angular.module('app.exam')
                         data[k] = overrides[k];
                     }
                 }
+                const url = collaborative ? '/integration/iop/exams' : '/app/exams'
                 const deferred = $q.defer();
-                ExamRes.exams.update(data,
-                    function (exam) {
-                        deferred.resolve(exam);
-                    }, function (error) {
-                        deferred.reject(error);
-                    });
+                $http.put(`${url}/${exam.id}`, data).then(function (response) {
+                    deferred.resolve(response.data);
+                }).catch(function (response) {
+                    deferred.reject(response.data);
+                });
                 return deferred.promise;
             };
 

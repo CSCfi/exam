@@ -20,7 +20,7 @@ import * as toast from 'toastr';
 import { IHttpService } from 'angular';
 import * as uib from 'angular-ui-bootstrap';
 import { FileService } from '../file/file.service';
-import { Exam } from '../../exam/editor/examTabs.component';
+import { Exam } from '../../exam/exam.model';
 
 interface ExamWithFeedback {
     id: number;

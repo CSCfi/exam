@@ -13,7 +13,8 @@
         <uib-tabset active="$ctrl.activeTab">
             <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner || $ctrl.user.isAdmin)" index="1" heading="{{ 'sitnet_exam_basic_information_tab' | translate }}"
                 deselect="$ctrl.tabChanged($selectedIndex)">
-                <basic-exam-info exam="$ctrl.exam" on-next-tab-selected="$ctrl.switchToQuestions()" on-update="$ctrl.titleUpdated(props)">
+                <basic-exam-info exam="$ctrl.exam" on-next-tab-selected="$ctrl.switchToQuestions()" on-update="$ctrl.titleUpdated(props)"
+                    collaborative="$ctrl.collaborative">
 
                 </basic-exam-info>
             </uib-tab>

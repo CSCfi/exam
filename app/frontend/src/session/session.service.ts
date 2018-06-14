@@ -29,6 +29,7 @@ export interface User {
     id: number;
     firstName: string;
     lastName: string;
+    email: string;
     lang: string;
     loginRole: { name: string } | null;
     roles: Role[];

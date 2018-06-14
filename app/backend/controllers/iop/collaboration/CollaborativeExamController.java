@@ -39,6 +39,7 @@ import io.ebean.Ebean;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.Json;
+import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
@@ -75,6 +76,9 @@ public class CollaborativeExamController extends BaseController {
     @Inject
     private ExamUpdater examUpdater;
 
+    @Inject
+    private HttpExecutionContext ec;
+
 
     private CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce) {
         Optional<URL> url = parseUrl(ce.getExternalRef());
@@ -96,7 +100,8 @@ public class CollaborativeExamController extends BaseController {
     private CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content) {
         Optional<URL> url = parseUrl(ce.getExternalRef());
         if (url.isPresent()) {
-            WSRequest request = wsClient.url(url.toString());
+            examUpdater.update(content, request());
+            WSRequest request = wsClient.url(url.get().toString());
             Function<WSResponse, Result> onSuccess = response -> {
                 JsonNode root = response.asJson();
                 if (response.getStatus() != OK) {
@@ -256,7 +261,7 @@ public class CollaborativeExamController extends BaseController {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
         User user = getLoggedUser();
-        return downloadExam(ce).thenCompose(result -> {
+        return downloadExam(ce).thenComposeAsync(result -> {
             if (result.isPresent()) {
                 Exam exam = result.get();
                 if (exam.isOwnedOrCreatedBy(user)) {
@@ -271,7 +276,23 @@ public class CollaborativeExamController extends BaseController {
                 return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
             }
             return wrapAsPromise(notFound());
-        });
+        }, ec.current());
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public CompletionStage<Result> updateLanguage(Long id, String code) {
+        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
+        if (ce == null) {
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+        }
+        return downloadExam(ce).thenComposeAsync(result -> {
+            if (result.isPresent()) {
+                Exam exam = result.get();
+                Optional<Result> error = examUpdater.updateLanguage(exam, code, getLoggedUser(), getSession());
+                return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam);
+            }
+            return wrapAsPromise(notFound());
+        }, ec.current());
     }
 
     private static Optional<URL> parseUrl(String examRef) {
