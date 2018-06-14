@@ -24,7 +24,7 @@ require('./basic/softwareSelector.component');
 
 require('./common/coursePicker.service');
 require('./common/coursePicker.component');
-require('./common/languageSelector.component');
+require('./common/languageSelector.component.ts');
 
 require('./creation/courseSelection.component');
 require('./creation/newExam.component');
@@ -32,7 +32,7 @@ require('./creation/newExam.component');
 require('./publication/autoEvaluation.component');
 require('./publication/examParticipantSelector.component');
 require('./publication/examPreParticipantSelector.component');
-require('./publication/examPublication.component');
+require('./publication/examPublication.component.ts');
 require('./publication/publicationErrorDialog.component');
 require('./publication/publicationDialog.component');
 require('./publication/publicationRevokeDialog.component');
