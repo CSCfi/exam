@@ -2,11 +2,14 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title marl20">{{'sitnet_exam_rooms_administration' | translate}}</div>
+                <div class="student-enroll-title marl20">{{'sitnet_exam_rooms_administration' | translate}}
+                    <a ng-click="$ctrl.createExamRoom()">
+                        <img class="plus_icon" src="Images/icon_plus.png">
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-   <!-- <div class="tab-wrapper-exams"> -->
         <div class="tab-wrapper">
         <uib-tabset active="$ctrl.activeTab">
             <uib-tab ng-if="$ctrl.user.isAdmin" index="1" heading="{{ 'sitnet_exam_all_rooms' | translate }}"

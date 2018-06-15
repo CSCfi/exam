@@ -18,14 +18,25 @@ import angular from 'angular';
 angular.module('app.facility')
     .component('adminTabs', {
         template: require('./adminTabs.template.html'),
-        controller: ['$routeParams', '$translate', 'Session', '$window', '$location',
-            function ($routeParams, $translate, Session, $window, $location) {
+        controller: ['$routeParams', '$translate', 'Session', '$window', '$location', 'Room',
+            function ($routeParams, $translate, Session, $window, $location, Room) {
 
                 const vm = this;
 
                 vm.$onInit = function () {
                     vm.user = Session.getUser();
                     vm.activeTab = 1;
+                };
+
+                vm.createExamRoom = function () {
+                    Room.draft.get(
+                        function (room) {
+                            toast.info($translate.instant("sitnet_room_draft_created"));
+                            $location.path("/rooms/" + room.id);
+                        }, function (error) {
+                            toast.error(error.data);
+                        }
+                    );
                 };
 
                 vm.tabChanged = function (index) {
