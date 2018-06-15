@@ -23,9 +23,9 @@ angular.module('app.exam')
                     id: '@id'
                 },
                 {
-                    'copy': {method: 'POST'},
-                    'update': {method: 'PUT'},
-                    'remove': {method: 'DELETE'}
+                    'copy': { method: 'POST' },
+                    'update': { method: 'PUT' },
+                    'remove': { method: 'DELETE' }
                 }),
             examsearch: $resource('/app/examsearch'),
             examowner: $resource('/app/exam/:eid/owner/:uid',
@@ -33,8 +33,8 @@ angular.module('app.exam')
                     eid: '@eid', uid: '@uid'
                 },
                 {
-                    'insert': {method: 'PUT'},
-                    'remove': {method: 'DELETE'}
+                    'insert': { method: 'POST' },
+                    'remove': { method: 'DELETE' }
                 }),
 
             questions: $resource('/app/exams/:eid/section/:sid/question/:qid',
@@ -42,25 +42,25 @@ angular.module('app.exam')
                     eid: '@eid', sid: '@sid', qid: '@qid'
                 },
                 {
-                    'remove': {method: 'DELETE', params: {eid: '@eid', sid: '@sid', qid: '@qid'}}
+                    'remove': { method: 'DELETE', params: { eid: '@eid', sid: '@sid', qid: '@qid' } }
                 }),
             sections: $resource('/app/exams/:eid/section/:sid',
                 {
                     eid: '@eid', sid: '@sid'
                 },
                 {
-                    'insert': {method: 'POST', params: {eid: '@eid', sid: '@sid'}},
-                    'remove': {method: 'DELETE', params: {eid: '@eid', sid: '@sid'}},
-                    'update': {method: 'PUT', params: {eid: '@eid', sid: '@sid'}}
+                    'insert': { method: 'POST', params: { eid: '@eid', sid: '@sid' } },
+                    'remove': { method: 'DELETE', params: { eid: '@eid', sid: '@sid' } },
+                    'update': { method: 'PUT', params: { eid: '@eid', sid: '@sid' } }
 
                 }),
-            questionDistribution: $resource('/app/exams/question/:id/distribution', {id: '@id'}),
+            questionDistribution: $resource('/app/exams/question/:id/distribution', { id: '@id' }),
             sectionquestions: $resource('/app/exams/:eid/section/:sid/:seq/question/:qid',
                 {
                     eid: '@eid', sid: '@sid', seq: '@seq', qid: '@qid'
                 },
                 {
-                    'insert': {method: 'POST', params: {eid: '@eid', sid: '@sid', seq: '@seq', qid: '@qid'}}
+                    'insert': { method: 'POST', params: { eid: '@eid', sid: '@sid', seq: '@seq', qid: '@qid' } }
 
                 }),
             sectionquestionsmultiple: $resource('/app/exams/:eid/section/:sid/:seq/questions',
@@ -70,7 +70,7 @@ angular.module('app.exam')
                 {
                     'insert': {
                         method: 'POST',
-                        params: {eid: '@eid', sid: '@sid', seq: '@seq', questions: '@questions'}
+                        params: { eid: '@eid', sid: '@sid', seq: '@seq', questions: '@questions' }
                     }
 
                 }),
@@ -79,14 +79,14 @@ angular.module('app.exam')
                     eid: '@eid', sid: '@sid'
                 },
                 {
-                    'update': {method: 'PUT', params: {eid: '@eid', sid: '@sid'}}
+                    'update': { method: 'PUT', params: { eid: '@eid', sid: '@sid' } }
                 }),
             sectionOrder: $resource('/app/exams/:eid/reorder',
                 {
                     eid: '@eid'
                 },
                 {
-                    'update': {method: 'PUT', params: {eid: '@eid'}}
+                    'update': { method: 'PUT', params: { eid: '@eid' } }
                 }),
 
             clearsection: $resource('/app/exams/:eid/section/:sid/clear',
@@ -94,7 +94,7 @@ angular.module('app.exam')
                     eid: '@eid', sid: '@sid'
                 },
                 {
-                    'clear': {method: 'DELETE', params: {eid: '@eid', sid: '@sid'}}
+                    'clear': { method: 'DELETE', params: { eid: '@eid', sid: '@sid' } }
                 }),
 
             course: $resource('/app/exams/:eid/course/:cid',
@@ -102,34 +102,34 @@ angular.module('app.exam')
                     eid: '@eid', sid: '@cid'
                 },
                 {
-                    'update': {method: 'PUT', params: {eid: '@eid', cid: '@cid'}},
-                    'delete': {method: 'DELETE', params: {eid: '@eid'}}
+                    'update': { method: 'PUT', params: { eid: '@eid', cid: '@cid' } },
+                    'delete': { method: 'DELETE', params: { eid: '@eid' } }
                 }),
             reviewerExams: $resource('/app/reviewerexams'),
-            reviewerExam: $resource('/app/review/:eid', {eid: '@eid'}),
-            draft: $resource('/app/exams', null, {'create': {method: 'POST'}}),
-            review: $resource('/app/review/:id', {id: '@id'}, {'update': {method: 'PUT'}}),
-            inspectionComment: $resource('/app/review/:id/inspection', {id: '@id'}, {'create': {method: 'POST'}}),
-            examReviews: $resource('/app/reviews/:eid', {eid: '@eid'},
+            reviewerExam: $resource('/app/review/:eid', { eid: '@eid' }),
+            draft: $resource('/app/exams', null, { 'create': { method: 'POST' } }),
+            review: $resource('/app/review/:id', { id: '@id' }, { 'update': { method: 'PUT' } }),
+            inspectionComment: $resource('/app/review/:id/inspection', { id: '@id' }, { 'create': { method: 'POST' } }),
+            examReviews: $resource('/app/reviews/:eid', { eid: '@eid' },
                 {
-                    'get': {method: 'GET', params: {eid: '@eid'}}
+                    'get': { method: 'GET', params: { eid: '@eid' } }
                 }),
-            noShows: $resource('/app/noshows/:eid', {eid: '@eid'}),
-            archive: $resource('/app/reviews/archive', {}, {'update': {method: 'PUT'}}),
+            noShows: $resource('/app/noshows/:eid', { eid: '@eid' }),
+            archive: $resource('/app/reviews/archive', {}, { 'update': { method: 'PUT' } }),
             comment: $resource('/app/review/:eid/comment/:cid',
                 {
                     id: '@eid', cid: '@cid'
                 },
                 {
-                    'insert': {method: 'POST', params: {eid: '@eid'}},
-                    'update': {method: 'PUT', params: {eid: '@eid', sid: '@cid'}}
+                    'insert': { method: 'POST', params: { eid: '@eid' } },
+                    'update': { method: 'PUT', params: { eid: '@eid', sid: '@cid' } }
                 }),
             inspections: $resource('/app/exam/:id/inspections',
                 {
                     id: '@id'
                 },
                 {
-                    'get': {method: 'GET', isArray: true, params: {id: '@id'}}
+                    'get': { method: 'GET', isArray: true, params: { id: '@id' } }
                 }),
 
             owners: $resource('/app/exam/:id/owners',
@@ -141,7 +141,7 @@ angular.module('app.exam')
                     eid: '@eid', uid: '@uid'
                 },
                 {
-                    'insert': {method: 'POST', params: {eid: '@eid', uid: '@uid'}}
+                    'insert': { method: 'POST', params: { eid: '@eid', uid: '@uid' } }
                 }),
 
             inspectionReady: $resource('/app/exams/inspection/:id',
@@ -149,7 +149,7 @@ angular.module('app.exam')
                     id: '@id'
                 },
                 {
-                    'update': {method: 'PUT', params: {id: '@id'}}
+                    'update': { method: 'PUT', params: { id: '@id' } }
                 }),
 
             inspector: $resource('/app/exams/inspector/:id',
@@ -157,7 +157,7 @@ angular.module('app.exam')
                     id: '@id'
                 },
                 {
-                    'remove': {method: 'DELETE', params: {id: '@id'}}
+                    'remove': { method: 'DELETE', params: { id: '@id' } }
                 }),
 
             examEnrolments: $resource('/app/examenrolments/:eid',
@@ -165,7 +165,7 @@ angular.module('app.exam')
                     eid: '@eid'
                 },
                 {
-                    'get': {method: 'GET', params: {eid: '@eid'}}
+                    'get': { method: 'GET', params: { eid: '@eid' } }
                 }),
 
             examParticipations: $resource('/app/examparticipations/:eid',
@@ -173,7 +173,7 @@ angular.module('app.exam')
                     eid: '@eid'
                 },
                 {
-                    'get': {method: 'GET', params: {eid: '@eid'}}
+                    'get': { method: 'GET', params: { eid: '@eid' } }
                 }),
             examParticipationsOfUser: $resource('/app/examparticipations/:eid/:uid',
                 {
@@ -181,7 +181,7 @@ angular.module('app.exam')
                     uid: '@uid'
                 },
                 {
-                    'get': {method: 'GET', params: {eid: '@eid', uid: '@uid'}}
+                    'get': { method: 'GET', params: { eid: '@eid', uid: '@uid' } }
                 }),
             studentInfo: $resource('/app/review/info/:id',
                 {
@@ -192,23 +192,23 @@ angular.module('app.exam')
                     eid: '@eid'
                 },
                 {
-                    inspection: {method: 'POST', params: {eid: '@eid'}}
+                    inspection: { method: 'POST', params: { eid: '@eid' } }
                 }),
 
             saveRecord: $resource('/app/exam/record', null,
                 {
-                    'add': {method: 'POST'}
+                    'add': { method: 'POST' }
                 }),
             register: $resource('/app/exam/register', null,
                 {
-                    'add': {method: 'POST'}
+                    'add': { method: 'POST' }
                 }),
             record: $resource('/app/exam/record/export/:id',
                 {
                     id: '@id'
                 },
                 {
-                    'export': {method: 'GET', params: {id: '@id'}}
+                    'export': { method: 'GET', params: { id: '@id' } }
                 }),
             language: $resource('/app/exam/:eid/language/:code',
                 {
@@ -216,14 +216,14 @@ angular.module('app.exam')
                     code: '@code'
                 },
                 {
-                    'update': {method: 'PUT'}
+                    'update': { method: 'PUT' }
                 }),
             languages: $resource('/app/exam/:eid/languages',
                 {
                     eid: '@eid'
                 },
                 {
-                    'reset': {method: 'DELETE'}
+                    'reset': { method: 'DELETE' }
                 }),
             examTypes: $resource('/app/examtypes'),
             executionTypes: $resource('/app/executiontypes'),
@@ -234,20 +234,20 @@ angular.module('app.exam')
                     sid: '@sid'
                 },
                 {
-                    'update': {method: 'PUT'}
+                    'update': { method: 'PUT' }
                 }),
             reservation: $resource('/app/reservations/:id',
                 {
                     id: '@id'
                 },
                 {
-                    'update': {method: 'PUT'}
+                    'update': { method: 'PUT' }
                 }),
-            reservationInfo: $resource('/app/exams/:eid/reservation', {eid: '@eid'}),
-            examinationDate: $resource('/app/exam/:eid/examinationdate/:edid', {eid: '@eid', edid: '@edid'},
+            reservationInfo: $resource('/app/exams/:eid/reservation', { eid: '@eid' }),
+            examinationDate: $resource('/app/exam/:eid/examinationdate/:edid', { eid: '@eid', edid: '@edid' },
                 {
-                    'create': {method: 'POST', params: {eid: '@eid'}},
-                    'delete': {method: 'DELETE'}
+                    'create': { method: 'POST', params: { eid: '@eid' } },
+                    'delete': { method: 'DELETE' }
                 })
         };
     }]);

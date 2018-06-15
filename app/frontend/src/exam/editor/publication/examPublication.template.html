@@ -122,10 +122,14 @@
         </div>
 
         <!-- Exam participants -->
-        <exam-participant-selector ng-if="!$ctrl.collaborative" exam="$ctrl.exam"></exam-participant-selector>
+        <exam-participant-selector ng-if="$ctrl.collaborative===false" exam="$ctrl.exam"></exam-participant-selector>
 
         <!-- Exam pre-participants -->
-        <exam-pre-participant-selector ng-if="!$ctrl.collaborative" exam="$ctrl.exam"></exam-pre-participant-selector>
+        <exam-pre-participant-selector ng-if="$ctrl.collaborative===false" exam="$ctrl.exam"></exam-pre-participant-selector>
+
+        <!-- Collaborative exam owners -->
+        <collaborative-exam-owner-selector ng-if="$ctrl.collaborative===true" exam="$ctrl.exam">
+        </collaborative-exam-owner-selector>
 
         <!-- Link to enrolment -->
         <div class="col-md-12 mart40">

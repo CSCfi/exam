@@ -191,6 +191,7 @@ export class SessionService {
             id: user.id,
             firstName: user.firstName,
             lastName: user.lastName,
+            email: user.email,
             lang: user.lang,
             loginRole: loginRole,
             roles: user.roles,

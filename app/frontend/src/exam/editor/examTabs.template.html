@@ -26,7 +26,8 @@
             </uib-tab>
             <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner || $ctrl.user.isAdmin)" index="3" heading="{{ 'sitnet_exam_publish_tab' | translate }}"
                 deselect="$ctrl.tabChanged($selectedIndex)">
-                <exam-publication exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToQuestions()"></exam-publication>
+                <exam-publication exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToQuestions()" collaborative="$ctrl.collaborative">
+                </exam-publication>
             </uib-tab>
             <uib-tab ng-if="$ctrl.exam && $ctrl.exam.executionType.type !== 'PRINTOUT'" index="4" heading="{{ 'sitnet_exam_responses' | translate }}"
                 deselect="$ctrl.tabChanged($selectedIndex)">

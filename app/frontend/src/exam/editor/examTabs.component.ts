@@ -70,7 +70,10 @@ export const ExamTabsComponent: angular.IComponentOptions = {
 
         isOwner = () => this.exam.examOwners.map(eo => eo.id).some(x => x === this.user.id);
 
-        tabChanged = (index: number) => this.$location.path(`/exams/${this.exam.id}/${index + 1}`, false).replace();
+        tabChanged = (index: number) => {
+            const path = this.collaborative ? '/exams/collaborative' : '/exams';
+            this.$location.path(`${path}/${this.exam.id}/${index + 1}`, false).replace();
+        }
 
         switchToBasicInfo = () => this.activeTab = 1;
 
