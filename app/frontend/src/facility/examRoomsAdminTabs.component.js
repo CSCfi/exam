@@ -16,8 +16,8 @@
 import angular from 'angular';
 
 angular.module('app.facility')
-    .component('adminTabs', {
-        template: require('./adminTabs.template.html'),
+    .component('examRoomsAdminTabs', {
+        template: require('./examRoomsAdminTabs.template.html'),
         controller: ['$routeParams', '$translate', 'Session', '$window', '$location', 'Room',
             function ($routeParams, $translate, Session, $window, $location, Room) {
 

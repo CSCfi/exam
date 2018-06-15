@@ -14,10 +14,10 @@
  */
 
 require('./facility.module');
-require('./adminTabs.component');
 require('./accessibility');
 require('./machines');
 require('./rooms');
 require('./address');
 require('./schedule');
 require('./../software');
+require('./examRoomsAdminTabs.component');
