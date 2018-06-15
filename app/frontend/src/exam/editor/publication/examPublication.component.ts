@@ -118,7 +118,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                 } : null
             };
             angular.extend(config, overrides);
-            this.Exam.updateExam(this.exam, config).then(() => {
+            this.Exam.updateExam(this.exam, config, this.collaborative).then(() => {
                 if (!silent) {
                     toast.info(this.$translate.instant('sitnet_exam_saved'));
                 }

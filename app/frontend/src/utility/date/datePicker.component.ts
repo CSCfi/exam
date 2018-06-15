@@ -14,6 +14,8 @@
  */
 
 import * as angular from 'angular';
+import * as _ from 'lodash';
+import * as moment from 'moment';
 
 declare function require(name: string): any;
 
@@ -29,8 +31,8 @@ export const DatePickerComponent: angular.IComponentOptions = {
     controller: class DatePickerController implements angular.IComponentController {
 
         onUpdate: ({ date: Date }) => any;
-        date: Date |  null;
-        initialDate: Date | null;
+        date: Date | null;
+        initialDate: Date | string | null;
         extra: {
             action: ({ date: Date }) => any;
             text: string;
@@ -49,7 +51,11 @@ export const DatePickerComponent: angular.IComponentOptions = {
             if (angular.isUndefined(this.modelOptions)) {
                 this.modelOptions = {};
             }
-            this.date = angular.isUndefined(this.initialDate) ? new Date() : this.initialDate;
+            if (_.isString(this.initialDate)) {
+                this.date = moment(this.initialDate).toDate();
+            } else {
+                this.date = angular.isUndefined(this.initialDate) ? new Date() : this.initialDate;
+            }
         }
 
         openPicker(event) {

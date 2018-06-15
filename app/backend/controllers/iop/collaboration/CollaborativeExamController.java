@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -29,13 +30,13 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
+import io.ebean.Model;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.Json;
@@ -47,7 +48,6 @@ import play.mvc.Result;
 import play.mvc.With;
 
 import backend.controllers.base.BaseController;
-import backend.impl.EmailComposer;
 import backend.impl.ExamUpdater;
 import backend.models.Exam;
 import backend.models.ExamExecutionType;
@@ -57,6 +57,8 @@ import backend.models.GradeScale;
 import backend.models.Language;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.EmailSanitizer;
 import backend.sanitizers.ExamUpdateSanitizer;
 import backend.util.AppUtil;
 import backend.util.ConfigUtil;
@@ -66,12 +68,6 @@ public class CollaborativeExamController extends BaseController {
 
     @Inject
     private WSClient wsClient;
-
-    @Inject
-    private EmailComposer composer;
-
-    @Inject
-    private ActorSystem actorSystem;
 
     @Inject
     private ExamUpdater examUpdater;
@@ -97,7 +93,7 @@ public class CollaborativeExamController extends BaseController {
         return CompletableFuture.supplyAsync(Optional::empty);
     }
 
-    private CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content) {
+    private CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, Model resultModel) {
         Optional<URL> url = parseUrl(ce.getExternalRef());
         if (url.isPresent()) {
             examUpdater.update(content, request());
@@ -107,7 +103,7 @@ public class CollaborativeExamController extends BaseController {
                 if (response.getStatus() != OK) {
                     return internalServerError(root.get("message").asText());
                 }
-                return ok();
+                return resultModel == null ? ok() : ok(resultModel);
             };
             return request.put(serialize(content)).thenApplyAsync(onSuccess);
         }
@@ -142,7 +138,6 @@ public class CollaborativeExamController extends BaseController {
         exam.setDuration(ConfigUtil.getExamDurations().get(0)); // check
         exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0)); // check
 
-        exam.getExamOwners().add(getLoggedUser());
         exam.setTrialCount(1);
         exam.setExpanded(true);
 
@@ -271,7 +266,7 @@ public class CollaborativeExamController extends BaseController {
                             .filter(Optional::isPresent)
                             .map(Optional::get)
                             .findFirst();
-                    return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam);
+                    return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, null);
                 }
                 return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
             }
@@ -289,10 +284,53 @@ public class CollaborativeExamController extends BaseController {
             if (result.isPresent()) {
                 Exam exam = result.get();
                 Optional<Result> error = examUpdater.updateLanguage(exam, code, getLoggedUser(), getSession());
-                return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam);
+                return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, null);
             }
             return wrapAsPromise(notFound());
         }, ec.current());
+    }
+
+    @With(EmailSanitizer.class)
+    @Restrict({@Group("ADMIN")})
+    public CompletionStage<Result> addOwner(Long id) {
+        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
+        if (ce == null) {
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+        }
+        return downloadExam(ce).thenComposeAsync(result -> {
+            if (result.isPresent()) {
+                Exam exam = result.get();
+                User user = createOwner(request().attrs().get(Attrs.EMAIL));
+                exam.getExamOwners().add(user);
+                return uploadExam(ce, exam, user);
+            }
+            return wrapAsPromise(notFound());
+        }, ec.current());
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public CompletionStage<Result> removeOwner(Long id, Long oid) {
+        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
+        if (ce == null) {
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+        }
+        return downloadExam(ce).thenComposeAsync(result -> {
+            if (result.isPresent()) {
+                Exam exam = result.get();
+                User user = new User();
+                user.setId(oid);
+                exam.getExamOwners().remove(user);
+                return uploadExam(ce, exam, null);
+            }
+            return wrapAsPromise(notFound());
+        }, ec.current());
+    }
+
+    private User createOwner(String email) {
+        User user = new User();
+        user.setId(new Random().nextLong());
+        user.setEmail(email);
+        return user;
     }
 
     private static Optional<URL> parseUrl(String examRef) {

@@ -57,7 +57,7 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
                                 </a>
                             </td>
                             <td>
-                                <teacher-list exam="exam"/>
+                                <span ng-repeat="o in exam.examOwners">{{ o.email }}&nbsp;</span>
                             </td>
                         </tr>
                         </tbody>

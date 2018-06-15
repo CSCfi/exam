@@ -15,18 +15,18 @@
 
 package backend.controllers;
 
-import backend.controllers.base.BaseController;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.ebean.Ebean;
+import play.libs.Json;
+import play.mvc.Result;
+
 import backend.controllers.base.BaseController;
 import backend.models.Exam;
 import backend.models.Role;
 import backend.models.User;
-import play.libs.Json;
-import play.mvc.Result;
 
 
 public class ExamOwnerController extends BaseController {
@@ -53,19 +53,16 @@ public class ExamOwnerController extends BaseController {
 
         final User owner = Ebean.find(User.class, uid);
         final Exam exam = Ebean.find(Exam.class, eid);
-        if (exam == null) {
+        if (exam == null || owner == null) {
             return notFound();
         }
         User user = getLoggedUser();
         if (!user.hasRole(Role.Name.ADMIN.toString(), getSession()) && !exam.isOwnedOrCreatedBy(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        if (owner != null) {
-            exam.getExamOwners().add(owner);
-            exam.update();
-            return ok();
-        }
-        return notFound();
+        exam.getExamOwners().add(owner);
+        exam.update();
+        return ok();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

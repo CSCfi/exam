@@ -16,92 +16,52 @@
 import * as angular from 'angular';
 import * as toast from 'toastr';
 import { Exam } from '../../exam.model';
+import { User, SessionService } from '../../../session/session.service';
 
 export const CollaborativeExamOwnerSelectorComponent: angular.IComponentOptions = {
-    template: require('./examPreParticipantSelector.template.html'),
+    template: require('./collaborativeExamOwnerSelector.template.html'),
     bindings: {
         exam: '<'
     },
     controller: class CollaborativeExamOwnerSelectorController implements angular.IComponentController {
         exam: Exam;
-        newOwner: { 'email': string | null };
+        user: User;
+        newOwner: { email: string | null };
 
         constructor(
             private $http: angular.IHttpService,
             private $translate: angular.translate.ITranslateService,
-            private Enrolment: any) {
+            private Session: SessionService) {
             'ngInject';
 
             this.newOwner = { email: null };
         }
 
+        $onInit = () => {
+            this.user = this.Session.getUser();
+        }
+
         addOwner = () => {
             const exists = this.exam.examOwners.some(o => o.email === this.newOwner.email);
             if (!exists) {
-                Enrolment.enrollStudent(vm.exam, vm.newPreParticipant).then(
-                    function (enrolment) {
-                        vm.exam.examEnrolments.push(enrolment);
-                        delete vm.newPreParticipant.email;
-                    }, function (error) {
-                        toast.error(error.data);
-
-                    });
+                this.$http.post(`/integration/iop/exams/${this.exam.id}/owners`, this.newOwner).then(
+                    (response: angular.IHttpResponse<User>) => {
+                        this.exam.examOwners.push(response.data);
+                        delete this.newOwner.email;
+                    }
+                ).catch(resp => toast.error(resp.data));
             }
-        };
+        }
 
-
+        removeOwner = (id: number) => {
+            this.$http.delete(`/integration/iop/exams/${this.exam.id}/owners/${id}`).then(
+                () => this.exam.examOwners = this.exam.examOwners.filter(o => o.id !== id)
+            ).catch(resp => toast.error(resp.data));
+        }
 
     }
 
-}
+};
 
-angular.module('app.exam.editor')
-    .component('examPreParticipantSelector', {
-        template: require('./examPreParticipantSelector.template.html'),
-        bindings: {
-            exam: '<'
-        },
-        controller: ['$translate', 'Enrolment', 'EnrollRes',
-            function ($translate, Enrolment, EnrollRes) {
+angular.module('app.exam.editor').component('collaborativeExamOwnerSelector', CollaborativeExamOwnerSelectorComponent);
 
-                const vm = this;
-
-                vm.$onInit = function () {
-                    vm.newPreParticipant = {
-                        'email': null
-                    };
-                };
-
-                vm.addPreParticipant = function () {
-                    const exists = vm.exam.examEnrolments.map(function (e) {
-                        return e.preEnrolledUserEmail;
-                    }).indexOf(vm.newPreParticipant.email) > -1;
-                    if (!exists) {
-                        Enrolment.enrollStudent(vm.exam, vm.newPreParticipant).then(
-                            function (enrolment) {
-                                vm.exam.examEnrolments.push(enrolment);
-                                delete vm.newPreParticipant.email;
-                            }, function (error) {
-                                toast.error(error.data);
-
-                            });
-                    }
-                };
-
-                vm.removeParticipant = function (id) {
-                    EnrollRes.unenrollStudent.remove({ id: id }, function () {
-                        vm.exam.examEnrolments = vm.exam.examEnrolments.filter(function (ee) {
-                            return ee.id !== id;
-                        });
-                        toast.info($translate.instant('sitnet_participant_removed'));
-                    }, function (error) {
-                        toast.error(error.data);
-                    });
-                };
-
-                vm.isPreEnrolment = function (enrolment) {
-                    return enrolment.preEnrolledUserEmail;
-                };
-
-            }]
-    });

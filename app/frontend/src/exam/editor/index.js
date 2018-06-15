@@ -20,6 +20,7 @@ require('./basic/basicExamInfo.component.ts');
 require('./basic/examCourse.component');
 require('./basic/examInspectorSelector.component');
 require('./basic/examOwnerSelector.component');
+
 require('./basic/softwareSelector.component');
 
 require('./common/coursePicker.service');
@@ -36,6 +37,7 @@ require('./publication/examPublication.component.ts');
 require('./publication/publicationErrorDialog.component');
 require('./publication/publicationDialog.component');
 require('./publication/publicationRevokeDialog.component');
+require('./publication/collaborativeExamOwnerSelector.component.ts');
 
 require('./sections/section.component');
 require('./sections/sectionQuestion.component');
