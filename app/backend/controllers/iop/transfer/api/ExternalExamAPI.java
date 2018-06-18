@@ -13,18 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.controllers.iop.api;
+package backend.controllers.iop.transfer.api;
 
-
-import backend.controllers.iop.ExternalExamController;
-import com.google.inject.ImplementedBy;
-import backend.controllers.iop.ExternalExamController;
-import backend.models.ExamEnrolment;
-import backend.models.Reservation;
-import backend.models.User;
 
 import java.net.MalformedURLException;
 import java.util.concurrent.CompletionStage;
+
+import com.google.inject.ImplementedBy;
+
+import backend.controllers.iop.transfer.impl.ExternalExamController;
+import backend.models.ExamEnrolment;
+import backend.models.Reservation;
+import backend.models.User;
 
 @FunctionalInterface
 @ImplementedBy(ExternalExamController.class)

@@ -15,26 +15,24 @@
 
 package backend.models;
 
-import backend.models.api.AttachmentContainer;
-import backend.models.base.OwnedModel;
-import backend.models.questions.Question;
+import java.util.*;
+import javax.annotation.Nonnull;
+import javax.persistence.*;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.ebean.Ebean;
-import io.ebean.FetchConfig;
-import io.ebean.Query;
 import io.ebean.annotation.EnumValue;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
+
+import backend.models.api.AttachmentContainer;
+import backend.models.base.OwnedModel;
+import backend.models.questions.Question;
 import backend.util.AppUtil;
 import backend.util.DateTimeAdapter;
-
-import javax.annotation.Nonnull;
-import javax.persistence.*;
-import java.util.*;
 
 
 @Entity
@@ -237,6 +235,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private boolean cloned;
     @Transient
     private boolean external;
+    @Transient
+    private String externalRef;
+
 
     public Double getTotalScore() {
         return examSections.stream()
@@ -293,6 +294,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setExternal(boolean external) {
         this.external = external;
+    }
+
+    public String getExternalRef() {
+        return externalRef;
+    }
+
+    public void setExternalRef(String externalRef) {
+        this.externalRef = externalRef;
     }
 
     public DateTime getGradedTime() {
@@ -777,39 +786,5 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return created.compareTo(other.created);
     }
 
-    private static Query<Exam> createQuery() {
-        return Ebean.find(Exam.class)
-                .fetch("course")
-                .fetch("course.organisation")
-                .fetch("course.gradeScale")
-                .fetch("course.gradeScale.grades", new FetchConfig().query())
-                .fetch("parent")
-                .fetch("parent.creator")
-                .fetch("parent.gradeScale")
-                .fetch("parent.gradeScale.grades", new FetchConfig().query())
-                .fetch("parent.examOwners", new FetchConfig().query())
-                .fetch("examType")
-                .fetch("executionType")
-                .fetch("examSections")
-                .fetch("examSections.sectionQuestions", "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType")
-                .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
-                .fetch("examSections.sectionQuestions.question.attachment", "fileName")
-                .fetch("examSections.sectionQuestions.options")
-                .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption")
-                .fetch("examSections.sectionQuestions.essayAnswer", "id, answer, evaluatedScore")
-                .fetch("examSections.sectionQuestions.essayAnswer.attachment", "fileName")
-                .fetch("gradeScale")
-                .fetch("gradeScale.grades")
-                .fetch("grade")
-                .fetch("languageInspection")
-                .fetch("languageInspection.assignee", "firstName, lastName, email")
-                .fetch("languageInspection.statement")
-                .fetch("languageInspection.statement.attachment")
-                .fetch("examFeedback")
-                .fetch("examFeedback.attachment")
-                .fetch("creditType")
-                .fetch("attachment")
-                .fetch("examLanguages")
-                .fetch("examOwners");
-    }
+
 }

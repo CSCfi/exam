@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.controllers.iop;
+package backend.controllers.iop.transfer.impl;
 
 
 import be.objectify.deadbolt.java.actions.Group;
@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.typesafe.config.ConfigFactory;
 import backend.controllers.base.BaseController;
-import backend.controllers.iop.api.ExternalFacilityAPI;
+import backend.controllers.iop.transfer.api.ExternalFacilityAPI;
 import backend.models.ExamRoom;
 import play.libs.Json;
 import play.libs.ws.WSClient;

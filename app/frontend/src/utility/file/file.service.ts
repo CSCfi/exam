@@ -73,7 +73,7 @@ export class FileService {
         return deferred.promise;
     }
 
-    upload(url: string, file: File, params: any, parent: any, callback: () => void): void {
+    upload(url: string, file: File, params: any, parent: any, callback?: () => void): void {
         this._doUpload(url, file, params)
             .then(resp => {
                 if (parent) {

@@ -38,7 +38,7 @@ import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.BaseController;
-import backend.controllers.iop.api.ExternalReservationHandler;
+import backend.controllers.iop.transfer.api.ExternalReservationHandler;
 import backend.impl.EmailComposer;
 import backend.impl.ExternalCourseHandler;
 import backend.models.Exam;

@@ -103,7 +103,7 @@ angular.module('app.exam')
                 },
                 {
                     'update': {method: 'PUT', params: {eid: '@eid', cid: '@cid'}},
-                    'delete': {method: 'DELETE', params: {eid: '@eid', cid: '@cid'}}
+                    'delete': {method: 'DELETE', params: {eid: '@eid'}}
                 }),
             reviewerExams: $resource('/app/reviewerexams'),
             reviewerExam: $resource('/app/review/:eid', {eid: '@eid'}),

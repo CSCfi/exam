@@ -13,20 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.controllers.assets
+package backend.controllers.iop.transfer.api;
 
-import com.google.inject.Inject
-import controllers.Assets
-import play.api.mvc.{EssentialAction, InjectedController}
+import backend.controllers.iop.transfer.impl.ExternalReservationHandlerImpl;
+import com.google.inject.ImplementedBy;
 
-class NavbarAssets @Inject()(assets: Assets) extends InjectedController {
+import backend.models.Reservation;
+import backend.models.User;
+import play.mvc.Result;
 
-  def at(path: String, file: String) = EssentialAction { request =>
-    val Pattern = "(.*%7B%7B.*iconPng%7D%7D)".r
-    file match {
-      case Pattern(_) => assets.at(path, "assets/images/1x1.png")(request)
-      case _ => assets.at(path, "assets/images/nav/".concat(file))(request)
-    }
-  }
+import java.util.concurrent.CompletionStage;
 
+@FunctionalInterface
+@ImplementedBy(ExternalReservationHandlerImpl.class)
+public interface ExternalReservationHandler {
+    CompletionStage<Result> removeReservation(Reservation reservation, User user);
 }

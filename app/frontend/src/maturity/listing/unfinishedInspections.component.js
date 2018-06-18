@@ -29,7 +29,7 @@ angular.module('app.maturity')
                 vm.$onInit = () => {
                     vm.user = Session.getUser();
                     vm.sorting = {
-                        predicate: 'arrived',
+                        predicate: 'created',
                         reverse: false
                     };
 

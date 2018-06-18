@@ -45,7 +45,7 @@ import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.BaseController;
-import backend.controllers.iop.api.ExternalFacilityAPI;
+import backend.controllers.iop.transfer.api.ExternalFacilityAPI;
 import backend.models.Accessibility;
 import backend.models.ExamMachine;
 import backend.models.ExamRoom;

@@ -19,11 +19,10 @@ import { SessionService, User } from '../session/session.service';
 export interface Link {
     href: string;
     visible: boolean;
-    faClass: string;
     name: string;
     iconSvg?: string;
     iconPng?: string;
-    submenu?: { hidden: boolean, items: any[] };
+    submenu?: { hidden: boolean, items: Link[] };
 }
 
 export class NavigationService {
@@ -39,7 +38,7 @@ export class NavigationService {
         return this.$http.get('/app/settings/appVersion');
     }
 
-    getLinks(): Link[] {
+    getLinks(interoperable: boolean): Link[] {
         const user: User = this.Session.getUser();
 
         if (!user) {
@@ -61,21 +60,18 @@ export class NavigationService {
             {
                 href: '/',
                 visible: !hideDashboard,
-                faClass: 'fa-home',
                 name: nameForDashboard,
                 iconPng: 'icon_desktop.png'
             },
             {
                 href: '/inspections',
                 visible: (languageInspector),
-                faClass: 'fa-language',
                 name: 'sitnet_language_inspections',
                 iconPng: 'icon_admin_lang_inspection.png'
             },
             {
                 href: '/exams',
                 visible: (admin),
-                faClass: 'fa-paste',
                 name: 'sitnet_exams',
                 iconPng: 'icon_admin_exams.png',
                 submenu: {
@@ -84,21 +80,24 @@ export class NavigationService {
                         {
                             href: '/inspections',
                             visible: (admin),
-                            faClass: 'fa-language',
                             name: 'sitnet_language_inspections',
                             iconPng: 'icon_admin_lang_inspection.png'
                         },
                         {
                             href: '/printouts',
                             visible: (admin),
-                            faClass: 'fa-print',
                             name: 'sitnet_printout_exams',
                             iconPng: 'icon_printouts.png'
                         },
                         {
+                            href: '/exams/collaborative',
+                            visible: (admin && interoperable),
+                            name: 'sitnet_collaborative_exams',
+                            iconPng: 'icon_admin_exams.png'
+                        },
+                        {
                             href: '/questions',
                             visible: (admin),
-                            faClass: 'fa-list-ol',
                             name: 'sitnet_library_new',
                             iconPng: 'icon_questions.png'
                         }
@@ -108,7 +107,6 @@ export class NavigationService {
             {
                 href: '/rooms',
                 visible: (admin),
-                faClass: 'fa-building-o',
                 name: 'sitnet_exam_rooms',
                 iconPng: 'icon_administration.png',
                 submenu: {
@@ -117,21 +115,18 @@ export class NavigationService {
                         {
                             href: '/reports',
                             visible: (admin),
-                            faClass: 'fa-files-o',
                             name: 'sitnet_reports',
                             iconPng: 'icon_reports.png'
                         },
                         {
                             href: '/statistics',
                             visible: (admin),
-                            faClass: 'fa-line-chart',
                             name: 'sitnet_statistics',
                             iconPng: 'icon_statistics.png'
                         },
                         {
                             href: '/settings',
                             visible: (admin),
-                            faClass: 'fa-wrench',
                             name: 'sitnet_settings',
                             iconPng: 'icon_settings.png'
                         }
@@ -141,21 +136,18 @@ export class NavigationService {
             {
                 href: '/users',
                 visible: (admin),
-                faClass: 'fa-users',
                 name: 'sitnet_users',
                 iconPng: 'icon_users.png'
             },
             {
                 href: '/questions',
                 visible: (teacher),
-                faClass: 'fa-list-ol',
                 name: 'sitnet_library_new',
                 iconPng: 'icon_questions.png'
             },
             {
                 href: '/reservations',
                 visible: (teacher),
-                faClass: 'fa-clock-o',
                 name: 'sitnet_reservations_new',
                 iconSvg: 'icon_reservations.svg',
                 iconPng: 'icon_reservations.png'
@@ -163,21 +155,18 @@ export class NavigationService {
             {
                 href: '/student/exams',
                 visible: (student && !hideDashboard),
-                faClass: 'fa-search',
                 name: 'sitnet_exams',
                 iconPng: 'icon_exams.png'
             },
             {
                 href: '/student/participations',
                 visible: (student && !hideDashboard),
-                faClass: 'fa-search',
                 name: 'sitnet_exam_responses',
                 iconPng: 'icon_finished.png'
             },
             {
                 href: '/logout',
                 visible: (student || admin || teacher),
-                faClass: 'fa-sign-out',
                 name: 'sitnet_logout',
                 iconPng: 'icon_admin_logout.png'
             }

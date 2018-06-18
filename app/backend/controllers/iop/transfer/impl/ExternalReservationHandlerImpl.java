@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.controllers.iop;
+package backend.controllers.iop.transfer.impl;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -37,7 +37,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 
-import backend.controllers.iop.api.ExternalReservationHandler;
+import backend.controllers.iop.transfer.api.ExternalReservationHandler;
 import backend.impl.EmailComposer;
 import backend.models.ExamEnrolment;
 import backend.models.Reservation;

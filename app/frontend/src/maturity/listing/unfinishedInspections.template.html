@@ -35,13 +35,13 @@
     </div>
 
     <table class="table table-striped exams-table">
-        <thead ng-init="$ctrl.sorting.predicate='arrived'; reverse=true">
+        <thead>
             <tr>
                 <th class="with-top" sort by="exam.course.code" text="sitnet_code" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="answerLanguage" text="sitnet_language" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="exam.name" text="sitnet_exam_name" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
-                <th class="with-top" sort by="arrived" text="sitnet_arrived" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="created" text="sitnet_arrived" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="studentNameAggregate" text="sitnet_student" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="exam.created" text="sitnet_finished" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="inspectorNameAggregate" text="sitnet_language_inspector" predicate="$ctrl.sorting.predicate"

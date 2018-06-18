@@ -24,10 +24,10 @@
 
         <div class="nav-body">
             <ul class="links">
-                <li ng-repeat="link in $ctrl.links" ng-show="link.visible" ng-click="link.submenu.hidden = !link.submenu.hidden">
+                <li ng-repeat="link in $ctrl.links" ng-show="link.visible">
                     <a ng-class="{selected: $ctrl.isActive(link)}" href="{{link.href}}">
                         <img width="18" src="/assets/assets/images/nav/{{link.iconPng}}" alt="{{ link.name | translate }}" />
-                        <span class="menu-item">{{ link.name | translate }}</span>
+                        <span class="menu-item" ng-click="link.submenu.hidden = !link.submenu.hidden">{{ link.name | translate }}</span>
                     </a>
                     <ul class="submenu" ng-hide="link.submenu.hidden">
                         <li ng-repeat="subitem in link.submenu.items" ng-class="{selectedsub: $ctrl.isActive(subitem)}">

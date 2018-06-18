@@ -46,7 +46,7 @@ import play.mvc.Result;
 
 import backend.controllers.base.ActionMethod;
 import backend.controllers.base.BaseController;
-import backend.controllers.iop.api.ExternalExamAPI;
+import backend.controllers.iop.transfer.api.ExternalExamAPI;
 import backend.exceptions.NotFoundException;
 import backend.models.ExamEnrolment;
 import backend.models.Language;

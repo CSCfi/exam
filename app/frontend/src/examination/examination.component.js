@@ -45,7 +45,7 @@ angular.module('app.examination')
 
                             vm.exam = exam;
                             setActiveSection({type: 'guide'});
-                            if (!vm.isPreview && !vm.exam.cloned) {
+                            if (!vm.isPreview && !vm.exam.cloned && vm.exam.executionType.type === 'MATURITY') {
                                 Enrolment.showMaturityInstructions({exam: vm.exam});
                             }
                         }, function (err) {
