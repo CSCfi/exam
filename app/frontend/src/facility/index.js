@@ -19,3 +19,5 @@ require('./machines');
 require('./rooms');
 require('./address');
 require('./schedule');
+require('./../software');
+require('./examRoomsAdminTabs.component');
