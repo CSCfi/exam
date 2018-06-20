@@ -22,14 +22,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -46,8 +49,10 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.With;
+import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.BaseController;
+import backend.impl.EmailComposer;
 import backend.impl.ExamUpdater;
 import backend.models.Exam;
 import backend.models.ExamExecutionType;
@@ -75,6 +80,12 @@ public class CollaborativeExamController extends BaseController {
     @Inject
     private HttpExecutionContext ec;
 
+    @Inject
+    private ActorSystem as;
+
+    @Inject
+    private EmailComposer composer;
+
 
     private CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce) {
         Optional<URL> url = parseUrl(ce.getExternalRef());
@@ -93,8 +104,10 @@ public class CollaborativeExamController extends BaseController {
         return CompletableFuture.supplyAsync(Optional::empty);
     }
 
-    private CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, Model resultModel) {
+    private CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, boolean isPrePublication,
+                                               Model resultModel) {
         Optional<URL> url = parseUrl(ce.getExternalRef());
+        User sender = getLoggedUser();
         if (url.isPresent()) {
             examUpdater.update(content, request());
             WSRequest request = wsClient.url(url.get().toString());
@@ -102,6 +115,12 @@ public class CollaborativeExamController extends BaseController {
                 JsonNode root = response.asJson();
                 if (response.getStatus() != OK) {
                     return internalServerError(root.get("message").asText());
+                }
+                if (isPrePublication) {
+                    Set<String> receivers = content.getExamOwners().stream().map(User::getEmail).collect(Collectors.toSet());
+                    as.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+                        composer.composeCollaborativeExamAnnouncement(receivers, sender, content, ce.getId());
+                    }, as.dispatcher());
                 }
                 return resultModel == null ? ok() : ok(resultModel);
             };
@@ -260,13 +279,20 @@ public class CollaborativeExamController extends BaseController {
             if (result.isPresent()) {
                 Exam exam = result.get();
                 if (exam.isOwnedOrCreatedBy(user)) {
+                    Exam.State previousState = exam.getState();
                     Optional<Result> error = Stream.of(
                             examUpdater.updateTemporalFieldsAndValidate(exam, user, request(), getSession()),
                             examUpdater.updateStateAndValidate(exam, user, request()))
                             .filter(Optional::isPresent)
                             .map(Optional::get)
                             .findFirst();
-                    return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, null);
+                    if (error.isPresent()) {
+                        return wrapAsPromise(error.get());
+                    }
+                    Exam.State nextState = exam.getState();
+                    boolean isPrePublication =
+                            previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED;
+                    return uploadExam(ce, exam, isPrePublication, null);
                 }
                 return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
             }
@@ -284,7 +310,7 @@ public class CollaborativeExamController extends BaseController {
             if (result.isPresent()) {
                 Exam exam = result.get();
                 Optional<Result> error = examUpdater.updateLanguage(exam, code, getLoggedUser(), getSession());
-                return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, null);
+                return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, false, null);
             }
             return wrapAsPromise(notFound());
         }, ec.current());
@@ -302,7 +328,7 @@ public class CollaborativeExamController extends BaseController {
                 Exam exam = result.get();
                 User user = createOwner(request().attrs().get(Attrs.EMAIL));
                 exam.getExamOwners().add(user);
-                return uploadExam(ce, exam, user);
+                return uploadExam(ce, exam, false, user);
             }
             return wrapAsPromise(notFound());
         }, ec.current());
@@ -320,7 +346,7 @@ public class CollaborativeExamController extends BaseController {
                 User user = new User();
                 user.setId(oid);
                 exam.getExamOwners().remove(user);
-                return uploadExam(ce, exam, null);
+                return uploadExam(ce, exam, false, null);
             }
             return wrapAsPromise(notFound());
         }, ec.current());

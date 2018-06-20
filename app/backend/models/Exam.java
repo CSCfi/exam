@@ -46,12 +46,13 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         @EnumValue("5") REVIEW,          // EXAM RETURNED BY STUDENT AND READY FOR REVIEW
         @EnumValue("6") REVIEW_STARTED,  // REVIEW STARTED BY TEACHERS
         @EnumValue("7") GRADED,          // GRADE GIVEN
+        @EnumValue("13") PRE_PUBLISHED,  // COLLABORATIVE EXAM READY FOR TEACHERS FOR EDITING
         /* FINAL STATES */
         @EnumValue("8") GRADED_LOGGED,   // EXAM PROCESSED AND READY FOR REGISTRATION
         @EnumValue("9") ARCHIVED,        // EXAM ARCHIVED FOR CERTAIN PERIOD AFTER WHICH IT GETS DELETED
-        @EnumValue("10") ABORTED,         // EXAM ABORTED BY STUDENT WHILST TAKING
-        @EnumValue("11") DELETED,         // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
-        @EnumValue("12") REJECTED         // EXAM NOT QUALIFIED FOR REGISTRATION
+        @EnumValue("10") ABORTED,        // EXAM ABORTED BY STUDENT WHILST TAKING
+        @EnumValue("11") DELETED,        // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
+        @EnumValue("12") REJECTED        // EXAM NOT QUALIFIED FOR REGISTRATION
     }
 
     private String name;
