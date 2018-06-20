@@ -165,7 +165,8 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
 
         saveAndPublishExam = () => {
 
-            const errors: string[] = this.errorsPreventingPublication();
+            const errors: string[] = this.collaborative ?
+                this.errorsPreventingPrePublication() : this.errorsPreventingPublication();
 
             if (errors.length > 0) {
                 this.$uibModal.open({
@@ -182,11 +183,13 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                     backdrop: 'static',
                     keyboard: true,
                     resolve: {
-                        exam: () => this.exam
+                        exam: () => this.exam,
+                        collaborative: () => this.collaborative
                     }
                 }).result.then(() => {
+                    const state = { 'state': this.collaborative ? 'PRE_PUBLISHED' : 'PUBLISHED' };
                     // OK button clicked
-                    this.updateExam(true, { 'state': 'PUBLISHED' }).then(function () {
+                    this.updateExam(true, state).then(() => {
                         toast.success(this.$translate.instant('sitnet_exam_saved_and_published'));
                         this.$location.path('/');
                     });
@@ -233,13 +236,8 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             return false;
         }
 
-        private errorsPreventingPublication(): string[] {
-
+        private errorsPreventingPrePublication(): string[] {
             const errors: string[] = [];
-
-            if (!this.exam.course) {
-                errors.push('sitnet_course_missing');
-            }
 
             if (!this.exam.name || this.exam.name.length < 2) {
                 errors.push('sitnet_exam_name_missing_or_too_short');
@@ -260,11 +258,6 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             if (isPrintout && this.exam.examinationDates.length === 0) {
                 errors.push('sitnet_examination_date_missing');
             }
-
-            if (this.countQuestions() === 0) {
-                errors.push('sitnet_exam_has_no_questions');
-            }
-
             if (!this.exam.duration) {
                 errors.push('sitnet_exam_duration_missing');
             }
@@ -275,6 +268,22 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
 
             if (!this.exam.examType) {
                 errors.push('sitnet_exam_credit_type_missing');
+            }
+
+            return errors;
+
+        }
+
+        private errorsPreventingPublication(): string[] {
+
+            const errors: string[] = this.errorsPreventingPrePublication();
+
+            if (!this.exam.course) {
+                errors.push('sitnet_course_missing');
+            }
+
+            if (this.countQuestions() === 0) {
+                errors.push('sitnet_exam_has_no_questions');
             }
 
             const allSectionsNamed = this.exam.examSections.every((section) => {
