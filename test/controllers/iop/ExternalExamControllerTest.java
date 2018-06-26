@@ -226,12 +226,14 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
 
         String uploadPath = AppUtil.getAttachmentPath(Play.current().environment().asJava()).toString();
         final Path path = FileSystems.getDefault().getPath(uploadPath);
-        assertThat(path.toFile().mkdirs()).isTrue();
 
         long start = System.currentTimeMillis();
         int expectedFileCount = 3;
         Collection<File> files = new ArrayList<>();
         while (System.currentTimeMillis() < start + 10000) {
+            if (!path.toFile().exists()) {
+                Thread.sleep(100);
+            }
             files = FileUtils.listFiles(path.toFile(), null, true);
             if (files.size() >= expectedFileCount) {
                 break;
