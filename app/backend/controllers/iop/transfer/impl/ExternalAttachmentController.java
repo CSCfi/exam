@@ -198,7 +198,7 @@ public class ExternalAttachmentController extends BaseAttachmentController<Strin
     private CompletionStage<Result> sendEssayAnswerAttachment(ExternalExam externalExam, Exam exam,
                                                               EssayAnswer essayAnswer, WSResponse wsResponse) {
         if (wsResponse.getStatus() != 200 && wsResponse.getStatus() != 201) {
-            Logger.error("Could not create external exam to XM server!");
+            Logger.error("Could not create external attachment to XM server!");
             return wrapAsPromise(new Result(wsResponse.getStatus()));
         }
         final JsonNode json = wsResponse.asJson();
