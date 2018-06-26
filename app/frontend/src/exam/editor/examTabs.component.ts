@@ -55,6 +55,8 @@ export interface Exam {
     gradeScale: GradeScale | null;
     autoEvaluationConfig: AutoEvaluationConfig | null;
     children: Exam[];
+    external: boolean;
+    hash: string;
 }
 
 export const ExamTabsComponent: angular.IComponentOptions = {

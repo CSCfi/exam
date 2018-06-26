@@ -19,7 +19,7 @@ angular.module('app.examination')
     .component('examinationSection', {
         template: require('./examinationSection.template.html'),
         bindings: {
-            examHash: '<',
+            exam: '<',
             isPreview: '<',
             section: '<'
         },
@@ -49,7 +49,7 @@ angular.module('app.examination')
                     cancelAutosaver();
                     if (vm.section) {
                         _autosaver = $interval(function () {
-                            Examination.saveAllTextualAnswersOfSection(vm.section, vm.examHash, true);
+                            Examination.saveAllTextualAnswersOfSection(vm.section, vm.exam.hash, true);
                         }, 1000 * 60);
                     }
                 };

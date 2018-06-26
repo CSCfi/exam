@@ -15,14 +15,34 @@
 
 package backend.controllers.iop.transfer.impl;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
-import javax.inject.Inject;
-
+import akka.actor.ActorSystem;
+import akka.stream.ActorMaterializer;
+import akka.stream.IOResult;
+import akka.stream.javadsl.FileIO;
+import akka.stream.javadsl.Source;
+import akka.util.ByteString;
+import backend.controllers.SettingsController;
+import backend.controllers.StudentExamController;
+import backend.controllers.base.BaseController;
+import backend.controllers.iop.transfer.api.ExternalExamAPI;
+import backend.impl.AutoEvaluationHandler;
+import backend.impl.NoShowHandler;
+import backend.models.Attachment;
+import backend.models.AutoEvaluationConfig;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamInspection;
+import backend.models.ExamParticipation;
+import backend.models.ExamSection;
+import backend.models.ExamSectionQuestion;
+import backend.models.ExamSectionQuestionOption;
+import backend.models.GeneralSettings;
+import backend.models.Reservation;
+import backend.models.User;
+import backend.models.json.ExternalExam;
+import backend.models.questions.Question;
+import backend.util.AppUtil;
+import backend.util.JsonDeserializer;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,23 +53,35 @@ import io.ebean.text.PathProperties;
 import io.ebean.text.json.EJson;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.StringUtils;
+import play.Environment;
+import play.Logger;
 import play.db.ebean.Transactional;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 
-import backend.controllers.SettingsController;
-import backend.controllers.StudentExamController;
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.transfer.api.ExternalExamAPI;
-import backend.impl.AutoEvaluationHandler;
-import backend.impl.NoShowHandler;
-import backend.models.*;
-import backend.models.json.ExternalExam;
-import backend.models.questions.Question;
-import backend.util.AppUtil;
-import backend.util.JsonDeserializer;
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {
@@ -63,11 +95,22 @@ public class ExternalExamController extends BaseController implements ExternalEx
     @Inject
     private NoShowHandler noShowHandler;
 
+    @Inject
+    private ActorSystem actor;
+
+    @Inject
+    private Environment environment;
+
     private Exam createCopy(Exam src, Exam parent, User user) {
         Exam clone = new Exam();
-        BeanUtils.copyProperties(src, clone, "id", "parent", "examSections", "examEnrolments", "examParticipation",
+        BeanUtils.copyProperties(src, clone, "id", "parent", "attachment", "examSections", "examEnrolments", "examParticipation",
                 "examInspections", "autoEvaluationConfig", "creator", "created", "examOwners");
         clone.setParent(parent);
+        if (src.getAttachment() != null) {
+            final Attachment copy = src.getAttachment().copy();
+            copy.save();
+            clone.setAttachment(copy);
+        }
         AppUtil.setCreator(clone, user);
         AppUtil.setModifier(clone, user);
         clone.generateHash();
@@ -108,19 +151,19 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @SubjectNotPresent
     @Transactional
-    public Result addExamForAssessment(String ref) throws IOException {
+    public CompletionStage<Result> addExamForAssessment(String ref) throws IOException {
         ExamEnrolment enrolment = getPrototype(ref);
         if (enrolment == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         JsonNode body = request().body().asJson();
         ExternalExam ee = JsonDeserializer.deserialize(ExternalExam.class, body);
         if (ee == null) {
-            return badRequest();
+            return wrapAsPromise(badRequest());
         }
         Exam parent = Ebean.find(Exam.class).where().eq("hash", ee.getExternalRef()).findUnique();
         if (parent == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         Exam clone = createCopy(ee.deserialize(), parent, enrolment.getUser());
         enrolment.setExam(clone);
@@ -142,32 +185,138 @@ public class ExternalExamController extends BaseController implements ExternalEx
             autoEvaluationHandler.autoEvaluate(clone);
         }
         ep.save();
-        return created();
+
+        // Fetch external attachments to local exam.
+        if (clone.getAttachment() != null) {
+            createFromExternalAttachment(clone.getAttachment(), "exam", clone.getId().toString());
+        }
+        clone.getExamSections().stream()
+                .flatMap(examSection -> examSection.getSectionQuestions().stream())
+                .map(sectionQuestion -> {
+                    if (sectionQuestion.getEssayAnswer() != null &&
+                            sectionQuestion.getEssayAnswer().getAttachment() != null) {
+                        createFromExternalAttachment(sectionQuestion.getEssayAnswer().getAttachment(),
+                                "question", sectionQuestion.getId().toString(),
+                                "answer", sectionQuestion.getEssayAnswer().getId().toString());
+                    }
+                    return sectionQuestion.getQuestion();
+                })
+                .filter(question -> question.getAttachment() != null)
+                .distinct()
+                .forEach(question -> createFromExternalAttachment(question.getAttachment(),
+                        "question", question.getId().toString()));
+        return wrapAsPromise(created());
+    }
+
+    private void createFromExternalAttachment(Attachment attachment, String... pathParams) {
+        if (StringUtils.isEmpty(attachment.getExternalId())) {
+            return;
+        }
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            final URL attachmentUrl;
+            try {
+                attachmentUrl = parseUrl("/api/attachments/%s/download", attachment.getExternalId());
+            } catch (MalformedURLException e) {
+                Logger.error("Invalid URL!", e);
+                return;
+            }
+            final WSRequest request = wsClient.url(attachmentUrl.toString());
+            request.stream()
+                    .thenAccept(response -> {
+                        final String filePath = AppUtil.createFilePath(environment, pathParams);
+                        response.getBodyAsSource()
+                                .runWith(FileIO.toFile(new File(filePath)), ActorMaterializer.create(actor))
+                                .thenAccept(ioResult -> {
+                                    if (!ioResult.wasSuccessful()) {
+                                        Logger.error("Could not write file " + filePath + " to disk!");
+                                        return;
+                                    }
+                                    attachment.setFilePath(filePath);
+                                    attachment.save();
+                                });
+                    });
+        }, actor.dispatcher());
     }
 
     private PathProperties getPath() {
         String path = "(id, name, state, instruction, hash, duration, cloned, course(id, code, name), executionType(id, type), " + // (
                 "autoEvaluationConfig(releaseType, releaseDate, amountDays, gradeEvaluations(percentage, grade(id, gradeScale(id)))), " +
-                "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
+                "examLanguages(code), attachment(*), examOwners(firstName, lastName)" +
                 "examInspections(*, user(id, firstName, lastName)), " +
                 "examType(id, type), creditType(id, type), gradeScale(id, displayName, grades(id, name)), " +
                 "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
                 "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
-                "question(id, type, question, attachment(id, fileName), options(id, option, correctOption, defaultScore)), " +
+                "question(id, type, question, attachment(*), options(id, option, correctOption, defaultScore)), " +
                 "options(id, answered, score, option(id, option)), " +
-                "essayAnswer(id, answer, objectVersion, attachment(fileName)), " +
+                "essayAnswer(id, answer, objectVersion, attachment(*)), " +
                 "clozeTestAnswer(id, question, answer, objectVersion)" +
                 ")))";
         return PathProperties.parse(path);
     }
 
     @SubjectNotPresent
-    public Result provideEnrolment(String ref) {
+    public CompletionStage<Result> provideEnrolment(String ref) throws MalformedURLException {
         ExamEnrolment enrolment = getPrototype(ref);
         if (enrolment == null) {
-            return notFound();
+            return CompletableFuture.completedFuture(notFound());
         }
-        return ok(enrolment.getExam(), getPath());
+        final URL attachmentUrl = parseUrl("/api/attachments/");
+        final Exam exam = enrolment.getExam();
+        final List<CompletableFuture<Void>> futures = new ArrayList<>();
+        final WSRequest request = wsClient.url(attachmentUrl.toString());
+        if (exam.getAttachment() != null) {
+            futures.add(createExternalAttachment(request, exam.getAttachment()));
+        }
+        exam.getExamSections().stream()
+                .flatMap(examSection -> examSection.getSectionQuestions().stream())
+                .map(ExamSectionQuestion::getQuestion)
+                .filter(question -> question.getAttachment() != null)
+                .distinct()
+                .forEach(question -> futures.add(
+                        createExternalAttachment(request, question.getAttachment())
+                ));
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenComposeAsync(aVoid ->
+                        wrapAsPromise(ok(exam, getPath())));
+    }
+
+    private CompletableFuture<Void> createExternalAttachment(WSRequest request, Attachment attachment) {
+        return request.post("")
+                .thenAcceptAsync(response -> {
+                    final JsonNode json = response.asJson();
+                    final String externalId = json.get("id").asText();
+                    attachment.setExternalId(externalId);
+                    actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+                        File file = new File(attachment.getFilePath());
+                        if (!file.exists()) {
+                            Logger.warn("Could not find file {} for attachment id {}.",
+                                    file.getAbsoluteFile(), attachment.getId());
+                            return;
+                        }
+                        final WSRequest updateRequest;
+                        try {
+                            updateRequest = wsClient.url(parseUrl("/api/attachments/%s",
+                                    attachment.getExternalId()).toString());
+                        } catch (MalformedURLException e) {
+                            Logger.error("Invalid URL!", e);
+                            return;
+                        }
+                        final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromFile(file);
+                        final Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart =
+                                new Http.MultipartFormData.FilePart<>("file",
+                                        attachment.getFileName(), attachment.getMimeType(), source);
+                        Http.MultipartFormData.DataPart dp = new Http.MultipartFormData.DataPart("key", "value");
+
+                        updateRequest.put(Source.from(Arrays.asList(filePart, dp)))
+                                .thenAccept(wsResponse -> {
+                                    if (wsResponse.getStatus() != 200) {
+                                        Logger.warn("File upload {} failed!", file.getAbsoluteFile());
+                                        return;
+                                    }
+                                    Logger.info("Uploaded file {} for external exam.", file.getAbsoluteFile());
+                                });
+                    }, actor.dispatcher());
+                }).toCompletableFuture();
     }
 
     @SubjectNotPresent
@@ -179,7 +328,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @Override
     public CompletionStage<ExamEnrolment> requestEnrolment(User user, Reservation reservation) throws MalformedURLException {
-        URL url = parseUrl(reservation.getExternalRef());
+        URL url = parseUrl("/api/enrolments/%s", reservation.getExternalRef());
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, ExamEnrolment> onSuccess = response -> {
             JsonNode root = response.asJson();
@@ -198,7 +347,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             document.setHash(ref);
 
             // Shuffle multi-choice options
-            document.getExamSections().stream().flatMap(es -> es.getSectionQuestions().stream()).forEach(esq ->{
+            document.getExamSections().stream().flatMap(es -> es.getSectionQuestions().stream()).forEach(esq -> {
                 List<ExamSectionQuestionOption> shuffled = new ArrayList<>(esq.getOptions());
                 Collections.shuffle(shuffled);
                 esq.setOptions(new HashSet<>(shuffled));
@@ -252,9 +401,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .findUnique();
     }
 
-    private static URL parseUrl(String reservationRef) throws MalformedURLException {
+    private static URL parseUrl(String format, Object... args) throws MalformedURLException {
+        final String path = args.length < 1 ? format : String.format(format, args);
         return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host")
-                + String.format("/api/enrolments/%s", reservationRef));
+                + path);
     }
 
 

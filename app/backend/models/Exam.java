@@ -159,6 +159,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private User gradedByUser;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime gradedTime;
 
     @OneToOne

@@ -14,9 +14,9 @@
  */
 
 import * as angular from 'angular';
+import {IDeferred, IHttpResponse, IPromise} from 'angular';
 import * as toast from 'toastr';
 import * as FileSaver from 'file-saver';
-import { IDeferred, IHttpResponse, IPromise } from 'angular';
 
 export class FileService {
 
@@ -33,7 +33,7 @@ export class FileService {
 
         const svg = new Blob(
             ['<svg xmlns=\'http://www.w3.org/2000/svg\'></svg>'],
-            { type: 'image/svg+xml;charset=utf-8' }
+            {type: 'image/svg+xml;charset=utf-8'}
         );
         const img = new Image();
         img.onload = () => this._supportsBlobUrls = true;
@@ -63,7 +63,7 @@ export class FileService {
     getMaxFilesize(): IPromise<{ filesize: number }> {
         const deferred: IDeferred<{ filesize: number }> = this.$q.defer();
         if (this._maxFileSize) {
-            this.$timeout(() => deferred.resolve({ 'filesize': this._maxFileSize }), 10);
+            this.$timeout(() => deferred.resolve({'filesize': this._maxFileSize}), 10);
         }
         this.$http.get('/app/settings/maxfilesize')
             .then((resp: IHttpResponse<{ filesize: number }>) => {
@@ -83,8 +83,8 @@ export class FileService {
                     callback();
                 }
             }).catch(resp =>
-                toast.error(this.$translate.instant(resp.data))
-            );
+            toast.error(this.$translate.instant(resp.data))
+        );
     }
 
     uploadAnswerAttachment(url: string, file: File, params: any, parent: any): void {
@@ -108,7 +108,7 @@ export class FileService {
             for (let i = 0; i < byteString.length; i++) {
                 ia[i] = byteString.charCodeAt(i);
             }
-            const blob = new Blob([ia], { type: contentType });
+            const blob = new Blob([ia], {type: contentType});
             FileSaver.saveAs(blob, fileName);
         }
     }
@@ -124,7 +124,7 @@ export class FileService {
     private _doUpload(url: string, file: File, params: any): IPromise<any> {
         const deferred = this.$q.defer();
         if (this._isFileTooBig(file)) {
-            this.$timeout(() => deferred.reject({ data: 'sitnet_file_too_large' }), 10);
+            this.$timeout(() => deferred.reject({data: 'sitnet_file_too_large'}), 10);
         }
         const fd = new FormData();
         fd.append('file', file);
@@ -136,7 +136,7 @@ export class FileService {
 
         this.$http.post(url, fd, {
             transformRequest: angular.identity,
-            headers: { 'Content-Type': undefined }
+            headers: {'Content-Type': undefined}
         }).then(resp => deferred.resolve(resp))
             .catch(resp => deferred.reject(resp));
         return deferred.promise;

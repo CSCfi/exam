@@ -22,9 +22,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
+import java.util.UUID;
 
+import com.typesafe.config.ConfigFactory;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
+import play.Environment;
 import play.Logger;
 
 import backend.impl.EmailComposer;
@@ -76,4 +80,31 @@ public final class AppUtil {
         }
     }
 
+    @NotNull
+    public static  String createFilePath(Environment environment, String... pathParams) {
+        StringBuilder path = getAttachmentPath(environment);
+        for (String param : pathParams) {
+            path.append(File.separator).append(param);
+        }
+
+        File dir = new File(path.toString());
+        if (dir.mkdirs()) {
+            Logger.info("Created attachment directory");
+        }
+        String rndFileName = UUID.randomUUID().toString();
+        return path.append(File.separator).append(rndFileName).toString();
+    }
+
+    @NotNull
+    public static StringBuilder getAttachmentPath(Environment environment) {
+        String uploadPath = ConfigFactory.load().getString(("sitnet.attachments.path"));
+        StringBuilder path = new StringBuilder();
+        // Following does not work on windows, but we hopefully aren't using it anyway :)
+        if (!uploadPath.startsWith(File.separator)) {
+            // relative path
+            path.append(environment.rootPath().getAbsolutePath()).append(File.separator);
+        }
+        path.append(uploadPath).append(File.separator);
+        return path;
+    }
 }
