@@ -14,6 +14,7 @@
  */
 
 import angular from 'angular';
+import toast from 'toastr';
 
 angular.module('app.facility')
     .component('examRoomsAdminTabs', {

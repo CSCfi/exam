@@ -37,14 +37,14 @@ angular.module('app.exam')
                     'remove': { method: 'DELETE' }
                 }),
 
-            questions: $resource('/app/exams/:eid/section/:sid/question/:qid',
+            questions: $resource('/app/exams/:eid/sections/:sid/question/:qid',
                 {
                     eid: '@eid', sid: '@sid', qid: '@qid'
                 },
                 {
                     'remove': { method: 'DELETE', params: { eid: '@eid', sid: '@sid', qid: '@qid' } }
                 }),
-            sections: $resource('/app/exams/:eid/section/:sid',
+            sections: $resource('/app/exams/:eid/sections/:sid',
                 {
                     eid: '@eid', sid: '@sid'
                 },
@@ -55,7 +55,7 @@ angular.module('app.exam')
 
                 }),
             questionDistribution: $resource('/app/exams/question/:id/distribution', { id: '@id' }),
-            sectionquestions: $resource('/app/exams/:eid/section/:sid/:seq/question/:qid',
+            sectionquestions: $resource('/app/exams/:eid/sections/:sid/:seq/question/:qid',
                 {
                     eid: '@eid', sid: '@sid', seq: '@seq', qid: '@qid'
                 },
@@ -63,7 +63,7 @@ angular.module('app.exam')
                     'insert': { method: 'POST', params: { eid: '@eid', sid: '@sid', seq: '@seq', qid: '@qid' } }
 
                 }),
-            sectionquestionsmultiple: $resource('/app/exams/:eid/section/:sid/:seq/questions',
+            sectionquestionsmultiple: $resource('/app/exams/:eid/sections/:sid/:seq/questions',
                 {
                     eid: '@eid', sid: '@sid', seq: '@seq', questions: '@questions'
                 },
@@ -74,7 +74,7 @@ angular.module('app.exam')
                     }
 
                 }),
-            questionOrder: $resource('/app/exams/:eid/section/:sid/reorder',
+            questionOrder: $resource('/app/exams/:eid/sections/:sid/reorder',
                 {
                     eid: '@eid', sid: '@sid'
                 },
@@ -89,7 +89,7 @@ angular.module('app.exam')
                     'update': { method: 'PUT', params: { eid: '@eid' } }
                 }),
 
-            clearsection: $resource('/app/exams/:eid/section/:sid/clear',
+            clearsection: $resource('/app/exams/:eid/sections/:sid/clear',
                 {
                     eid: '@eid', sid: '@sid'
                 },
