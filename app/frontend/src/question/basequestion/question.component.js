@@ -19,40 +19,40 @@ import toast from 'toastr';
 angular.module('app.question')
     .component('question', {
         template:
-        '<div id="dashboard">\n' +
-        '    <div class="top-row">\n' +
-        '        <div class="col-md-12">\n' +
-        '            <div class="student-details-title-wrap">\n' +
-        '                <div class="student-enroll-title-wrap">\n' +
-        '                    <div ng-if="!$ctrl.newQuestion" class="student-enroll-title">{{\'sitnet_questions_edit\' | translate}}</div>\n' +
-        '                    <div ng-if="$ctrl.newQuestion" class="student-enroll-title">{{\'sitnet_toolbar_new_question\' | translate}}</div>\n' +
-        '                </div>\n' +
-        '            </div>\n' +
-        '        </div>\n' +
-        '    </div>\n' +
-        '    <div class="marl50 marr50">\n' +
-        '        <!-- Question body //-->\n' +
-        '        <div class="col-md-12 question-border padl40 padr40">\n' +
-        '            <form role="form" class="form-horizontal" name="questionForm" novalidate>\n' +
-        '                <question-body ng-if="$ctrl.question" question="$ctrl.question" ' +
-        '                       current-owners="$ctrl.currentOwners" lottery-on="$ctrl.lotteryOn"></question-body>\n' +
-        '            </form>\n' +
-        '            <!-- buttons -->\n' +
-        '            <div class="mart20">\n' +
-        '                <div class="question-cancel">\n' +
-        '                    <button ng-disabled="!questionForm.$valid || !$ctrl.question.type" ng-click="$ctrl.saveQuestion()"\n' +
-        '                            type="submit" class="btn btn-success bigbutton">{{\'sitnet_save\' | translate}}\n' +
-        '                    </button>\n' +
-        '                </div>\n' +
-        '                <div class="question-cancel marr20">\n' +
-        '                    <button ng-click="$ctrl.cancel()" type="submit" class="btn btn-cancel pull-right bigbutton">\n' +
-        '                        {{\'sitnet_button_cancel\' | translate}}\n' +
-        '                    </button>\n' +
-        '                </div>\n' +
-        '            </div>\n' +
-        '        </div>\n' +
-        '    </div>\n' +
-        '</div>\n',
+            '<div id="dashboard">\n' +
+            '    <div class="top-row">\n' +
+            '        <div class="col-md-12">\n' +
+            '            <div class="student-details-title-wrap">\n' +
+            '                <div class="student-enroll-title-wrap">\n' +
+            '                    <div ng-if="!$ctrl.newQuestion" class="student-enroll-title">{{\'sitnet_questions_edit\' | translate}}</div>\n' +
+            '                    <div ng-if="$ctrl.newQuestion" class="student-enroll-title">{{\'sitnet_toolbar_new_question\' | translate}}</div>\n' +
+            '                </div>\n' +
+            '            </div>\n' +
+            '        </div>\n' +
+            '    </div>\n' +
+            '    <div class="marl50 marr50">\n' +
+            '        <!-- Question body //-->\n' +
+            '        <div class="col-md-12 question-border padl40 padr40">\n' +
+            '            <form role="form" class="form-horizontal" name="questionForm" novalidate>\n' +
+            '                <question-body ng-if="$ctrl.question" question="$ctrl.question" ' +
+            '                       current-owners="$ctrl.currentOwners" lottery-on="$ctrl.lotteryOn"></question-body>\n' +
+            '            </form>\n' +
+            '            <!-- buttons -->\n' +
+            '            <div class="mart20">\n' +
+            '                <div class="question-cancel">\n' +
+            '                    <button ng-disabled="!questionForm.$valid || !$ctrl.question.type" ng-click="$ctrl.saveQuestion()"\n' +
+            '                            type="submit" class="btn btn-success bigbutton">{{\'sitnet_save\' | translate}}\n' +
+            '                    </button>\n' +
+            '                </div>\n' +
+            '                <div class="question-cancel marr20">\n' +
+            '                    <button ng-click="$ctrl.cancel()" type="submit" class="btn btn-cancel pull-right bigbutton">\n' +
+            '                        {{\'sitnet_button_cancel\' | translate}}\n' +
+            '                    </button>\n' +
+            '                </div>\n' +
+            '            </div>\n' +
+            '        </div>\n' +
+            '    </div>\n' +
+            '</div>\n',
         bindings: {
             newQuestion: '<',
             questionId: '<',
@@ -71,7 +71,7 @@ angular.module('app.question')
                         vm.question = Question.getQuestionDraft();
                         vm.currentOwners = angular.copy(vm.question.questionOwners);
                     } else {
-                        Question.questionsApi.get({id: vm.questionId || $routeParams.id},
+                        Question.questionsApi.get({ id: vm.questionId || $routeParams.id },
                             function (question) {
                                 vm.question = question;
                                 vm.currentOwners = angular.copy(vm.question.questionOwners);
@@ -86,14 +86,14 @@ angular.module('app.question')
                     }
                 };
 
-                vm.saveQuestion = function () {
+                vm.saveQuestion = function () { // Need to change so that if collab edit, do not save to backend. Just pass the question json object forward
                     vm.question.questionOwners = vm.currentOwners;
                     if (vm.newQuestion) {
                         Question.createQuestion(vm.question).then(
                             function (question) {
                                 clearListeners();
                                 if (vm.onSave) {
-                                    vm.onSave({question: question});
+                                    vm.onSave({ question: question });
                                 } else {
                                     $location.path('/questions');
                                 }
@@ -105,7 +105,7 @@ angular.module('app.question')
                             function () {
                                 clearListeners();
                                 if (vm.onSave) {
-                                    vm.onSave({question: vm.question});
+                                    vm.onSave({ question: vm.question });
                                 } else {
                                     $location.path('/questions');
                                 }

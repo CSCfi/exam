@@ -41,4 +41,4 @@ require('./publication/collaborativeExamOwnerSelector.component.ts');
 
 require('./sections/section.component');
 require('./sections/sectionQuestion.component');
-require('./sections/sectionsList.component');
+require('./sections/sectionsList.component.ts');
