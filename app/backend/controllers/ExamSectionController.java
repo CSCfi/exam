@@ -264,7 +264,7 @@ public class ExamSectionController extends QuestionController implements Section
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result insertQuestion(Long eid, Long sid, Integer seq, Long qid) {
+    public Result insertQuestion(Long eid, Long sid, Long qid) {
         Exam exam = Ebean.find(Exam.class, eid);
         ExamSection section = Ebean.find(ExamSection.class, sid);
         Question question = Ebean.find(Question.class, qid);
@@ -279,13 +279,14 @@ public class ExamSectionController extends QuestionController implements Section
             return forbidden("sitnet_error_access_forbidden");
         }
         // TODO: response payload should be trimmed down (use path properties)
+        Integer seq = request().body().asJson().get("sequenceNumber").asInt();
         return insertQuestion(exam, section, question, user, seq)
                 .orElse(ok(Json.toJson(section)));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Transactional
-    public Result insertMultipleQuestions(Long eid, Long sid, Integer seq, String questions) {
+    public Result insertMultipleQuestions(Long eid, Long sid, String questions) {
 
         Exam exam = Ebean.find(Exam.class, eid);
         ExamSection section = Ebean.find(ExamSection.class, sid);
@@ -296,7 +297,7 @@ public class ExamSectionController extends QuestionController implements Section
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        int sequence = seq;
+        Integer sequence = request().body().asJson().get("sequenceNumber").asInt();
         for (String s : questions.split(",")) {
             Question question = Ebean.find(Question.class, Long.parseLong(s));
             if (question == null) {
@@ -379,25 +380,6 @@ public class ExamSectionController extends QuestionController implements Section
         }
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getExamQuestion(Long id) {
-        User user = getLoggedUser();
-        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class)
-                .fetch("question")
-                .fetch("options")
-                .fetch("examSection")
-                .where().idEq(id);
-        if (user.hasRole("TEACHER", getSession())) {
-            query = query.eq("examSection.exam.examOwners", user);
-        }
-        ExamSectionQuestion examQuestion = query.findUnique();
-        if (examQuestion == null) {
-            return forbidden("sitnet_error_access_forbidden");
-        }
-        Collections.sort(examQuestion.getQuestion().getOptions());
-        return ok(examQuestion);
-    }
-
     private void processExamQuestionOptions(Question question, ExamSectionQuestion esq, ArrayNode node) { // esq.options
         Set<Long> persistedIds = question.getOptions().stream()
                 .map(MultipleChoiceOption::getId)
@@ -440,9 +422,9 @@ public class ExamSectionController extends QuestionController implements Section
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateDistributedExamQuestion(Long esqId) {
+    public Result updateDistributedExamQuestion(Long eid, Long sid, Long qid) {
         User user = getLoggedUser();
-        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(esqId);
+        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(qid);
         if (user.hasRole("TEACHER", getSession())) {
             query = query.eq("examSection.exam.examOwners", user);
         }
@@ -482,9 +464,9 @@ public class ExamSectionController extends QuestionController implements Section
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateUndistributedExamQuestion(Long esqId) {
+    public Result updateUndistributedExamQuestion(Long sid, Long qid, Long eid) {
         User user = getLoggedUser();
-        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(esqId);
+        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(qid);
         if (user.hasRole("TEACHER", getSession())) {
             query = query.eq("examSection.exam.examOwners", user);
         }

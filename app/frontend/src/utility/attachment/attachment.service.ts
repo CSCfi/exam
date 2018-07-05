@@ -20,7 +20,7 @@ import * as toast from 'toastr';
 import { IHttpService } from 'angular';
 import * as uib from 'angular-ui-bootstrap';
 import { FileService } from '../file/file.service';
-import { Exam } from '../../exam/exam.model';
+import { Exam, Question } from '../../exam/exam.model';
 
 interface SectionQuestion {
     id: number;
@@ -35,11 +35,6 @@ interface ExamWithFeedback {
 interface ExamWithStatement {
     id: number;
     languageInspection: { statement: { attachment: any } };
-}
-
-interface Question {
-    id: number;
-    attachment: { id?: number, fileName: string, removed: boolean };
 }
 
 interface AnsweredQuestion {

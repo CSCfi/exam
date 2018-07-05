@@ -66,7 +66,7 @@ export const ExamTabsComponent: angular.IComponentOptions = {
             }
         }
 
-        reload = () => this.downloadExam();
+        reload = () => this.collaborative ? this.downloadCollaborativeExam() : this.downloadExam();
 
         isOwner = () => this.exam.examOwners.map(eo => eo.id).some(x => x === this.user.id);
 

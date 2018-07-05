@@ -20,20 +20,22 @@ angular.module('app.question')
 
         const self = this;
 
-        self.undistributionApi = $resource('/app/examquestions/undistributed/:id',
+        self.undistributionApi = $resource('/app/exams/:eid/sections/:sid/questions/:qid',
             {
-                id: '@id'
+                eid: '@eid', sid: '@sid', qid: '@qid'
+
             },
             {
-                'update': {method: 'PUT', params: {id: '@id'}}
+                'update': { method: 'PUT', params: { eid: '@eid', sid: '@sid', qid: '@qid' } }
             });
 
-        self.distributionApi = $resource('/app/examquestions/distributed/:id',
+        self.distributionApi = $resource('/app/exams/:eid/sections/:sid/questions/:qid/distributed',
             {
-                id: '@id'
+                eid: '@eid', sid: '@sid', qid: '@qid'
+
             },
             {
-                'update': {method: 'PUT', params: {id: '@id'}}
+                'update': { method: 'PUT', params: { eid: '@eid', sid: '@sid', qid: '@qid' } }
             });
 
     }]);

@@ -20,7 +20,7 @@ angular.module('app.question')
     .service('Question', ['$q', '$resource', '$translate', '$location', '$sessionStorage',
         'ExamQuestion', 'Session', 'Files', 'Attachment',
         function ($q, $resource, $translate, $location, $sessionStorage, ExamQuestion, Session,
-                  Files, Attachment) {
+            Files, Attachment) {
 
             const self = this;
 
@@ -29,9 +29,9 @@ angular.module('app.question')
                     id: '@id'
                 },
                 {
-                    'update': {method: 'PUT'},
-                    'delete': {method: 'DELETE', params: {id: '@id'}},
-                    'create': {method: 'POST'}
+                    'update': { method: 'PUT' },
+                    'delete': { method: 'DELETE', params: { id: '@id' } },
+                    'create': { method: 'POST' }
 
                 });
 
@@ -40,7 +40,7 @@ angular.module('app.question')
                     uid: '@uid'
                 },
                 {
-                    'update': {method: 'POST'}
+                    'update': { method: 'POST' }
                 });
 
             self.essayScoreApi = $resource('/app/review/examquestion/:id/score',
@@ -48,7 +48,7 @@ angular.module('app.question')
                     id: '@id'
                 },
                 {
-                    'update': {method: 'PUT', params: {id: '@id'}}
+                    'update': { method: 'PUT', params: { id: '@id' } }
                 });
 
             self.questionCopyApi = $resource('/app/question/:id',
@@ -56,7 +56,7 @@ angular.module('app.question')
                     id: '@id'
                 },
                 {
-                    'copy': {method: 'POST'}
+                    'copy': { method: 'POST' }
                 });
 
 
@@ -90,7 +90,7 @@ angular.module('app.question')
             };
 
             self.getQuestionAmounts = function (exam) {
-                const data = {accepted: 0, rejected: 0, hasEssays: false};
+                const data = { accepted: 0, rejected: 0, hasEssays: false };
                 angular.forEach(exam.examSections, function (section) {
                     angular.forEach(section.sectionQuestions, function (sectionQuestion) {
                         const question = sectionQuestion.question;
@@ -217,7 +217,7 @@ angular.module('app.question')
             };
 
             self.storeFilters = function (filters, category) {
-                const data = {filters: filters};
+                const data = { filters: filters };
                 if (!$sessionStorage.questionFilters) {
                     $sessionStorage.questionFilters = {};
                 }
@@ -272,7 +272,7 @@ angular.module('app.question')
                         toast.info($translate.instant('sitnet_question_added'));
                         if (question.attachment && question.attachment.modified) {
                             Files.upload('/app/attachment/question', question.attachment,
-                                {questionId: response.id}, question, function () {
+                                { questionId: response.id }, question, function () {
                                     deferred.resolve(response);
                                 });
                         } else {
@@ -293,7 +293,7 @@ angular.module('app.question')
                         toast.info($translate.instant('sitnet_question_saved'));
                         if (question.attachment && question.attachment.modified) {
                             Files.upload('/app/attachment/question', question.attachment,
-                                {questionId: question.id}, question, function () {
+                                { questionId: question.id }, question, function () {
                                     deferred.resolve();
                                 });
                         }
@@ -314,7 +314,7 @@ angular.module('app.question')
                 return deferred.promise;
             };
 
-            self.updateDistributedExamQuestion = function (question, sectionQuestion) {
+            self.updateDistributedExamQuestion = function (question, sectionQuestion, examId, sectionId) {
                 const data = {
                     'id': sectionQuestion.id,
                     'maxScore': sectionQuestion.maxScore,
@@ -332,12 +332,12 @@ angular.module('app.question')
                         break;
                 }
                 const deferred = $q.defer();
-                ExamQuestion.distributionApi.update({id: sectionQuestion.id}, data,
+                ExamQuestion.distributionApi.update({ qid: sectionQuestion.id, eid: examId, sid: sectionId }, data,
                     function (esq) {
                         angular.extend(esq.question, question);
                         if (question.attachment && question.attachment.modified) {
                             Files.upload('/app/attachment/question', question.attachment,
-                                {questionId: question.id}, question, function () {
+                                { questionId: question.id }, question, function () {
                                     esq.question.attachment = question.attachment;
                                     deferred.resolve(esq);
                                 });
