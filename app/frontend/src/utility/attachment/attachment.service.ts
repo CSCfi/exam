@@ -20,12 +20,7 @@ import * as toast from 'toastr';
 import { IHttpService } from 'angular';
 import * as uib from 'angular-ui-bootstrap';
 import { FileService } from '../file/file.service';
-import { Exam, Question } from '../../exam/exam.model';
-
-interface SectionQuestion {
-    id: number;
-    question: Question;
-}
+import { Exam, Question, ExamSectionQuestion } from '../../exam/exam.model';
 
 interface ExamWithFeedback {
     id: number;
@@ -191,7 +186,7 @@ export class AttachmentService {
         });
     }
 
-    downloadExternalQuestionAttachment(exam: Exam, sq: SectionQuestion) {
+    downloadExternalQuestionAttachment(exam: Exam, sq: ExamSectionQuestion) {
         if (sq.question.attachment.id) {
             this.Files.download(`/app/iop/attachment/exam/${exam.id}/question/${sq.id}`,
                 sq.question.attachment.fileName);
