@@ -48,6 +48,20 @@ export interface ExamLanguage {
     name: string;
 }
 
+export interface Question {
+    id: number;
+    question: string;
+    type: string;
+    attachment: { id?: number, fileName: string, removed: boolean };
+}
+
+export interface ExamSectionQuestion {
+    id: number;
+    question: Question;
+    evaluationType: string;
+    maxScore: number;
+}
+
 export interface ExamSection {
     id: number;
     name: string;
@@ -56,8 +70,11 @@ export interface ExamSection {
     lotteryOn: boolean;
     lotteryItemCount: number;
     sequenceNumber: number;
-    sectionQuestions: any[]; // TBD
+    expanded: boolean;
+    sectionQuestions: ExamSectionQuestion[];
 }
+
+
 
 export interface Exam {
     id: number;

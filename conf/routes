@@ -110,13 +110,18 @@ GET           /app/enrolments/:eid                                     backend.c
 POST          /app/exams/:eid/sections                                 backend.controllers.ExamSectionController.insertSection(eid: Long)
 DELETE        /app/exams/:eid/sections/:sid                            backend.controllers.ExamSectionController.removeSection(eid: Long, sid: Long)
 PUT           /app/exams/:eid/sections/:sid                            backend.controllers.ExamSectionController.updateSection(eid: Long, sid: Long)
-DELETE        /app/exams/:eid/sections/:sid/clear                      backend.controllers.ExamSectionController.clearQuestions(eid: Long, sid: Long)
-POST          /app/exams/:eid/sections/:sid/:seq/question/:qid         backend.controllers.ExamSectionController.insertQuestion(eid: Long, sid: Long, seq: Int, qid: Long)
-POST          /app/exams/:eid/sections/:sid/:seq/questions             backend.controllers.ExamSectionController.insertMultipleQuestions(eid: Long, sid: Long, seq: Int, questions: String)
-DELETE        /app/exams/:eid/sections/:sid/question/:qid              backend.controllers.ExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long)
+DELETE        /app/exams/:eid/sections/:sid/questions                  backend.controllers.ExamSectionController.clearQuestions(eid: Long, sid: Long)
+POST          /app/exams/:eid/sections/:sid/questions/:qid             backend.controllers.ExamSectionController.insertQuestion(eid: Long, sid: Long, qid: Long)
+POST          /app/exams/:eid/sections/:sid/questions                  backend.controllers.ExamSectionController.insertMultipleQuestions(eid: Long, sid: Long, questions: String)
+DELETE        /app/exams/:eid/sections/:sid/questions/:qid             backend.controllers.ExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long)
 PUT           /app/exams/:eid/sections/:sid/reorder                    backend.controllers.ExamSectionController.reorderSectionQuestions(eid: Long, sid: Long)
 PUT           /app/exams/:eid/reorder                                  backend.controllers.ExamSectionController.reorderSections(eid: Long)
 GET           /app/exams/question/:id/distribution                     backend.controllers.ExamSectionController.getQuestionDistribution(id: Long)
+
+############### Section question interface ##########
+
+PUT           /app/exams/:eid/sections/:sid/questions/:qid             backend.controllers.ExamSectionController.updateUndistributedExamQuestion(eid: Long, sid: Long, qid: Long)
+PUT           /app/exams/:eid/sections/:sid/questions/:qid/distributed backend.controllers.ExamSectionController.updateDistributedExamQuestion(eid: Long, sid: Long, qid: Long)
 
 ############### Review interface ###############
 GET           /app/reviews/:id                                         backend.controllers.ReviewController.getExamReviews(id: Long)
@@ -174,12 +179,6 @@ POST          /app/questions                                           backend.c
 POST          /app/question/:id                                        backend.controllers.QuestionController.copyQuestion(id: Long)
 DELETE        /app/questions/:id                                       backend.controllers.QuestionController.deleteQuestion(id: Long)
 POST          /app/questions/owner/:uid                                backend.controllers.QuestionController.addOwner(uid: Long)
-
-############### Section question interface ##########
-
-GET           /app/examquestions/:id                                   backend.controllers.ExamSectionController.getExamQuestion(id: Long)
-PUT           /app/examquestions/undistributed/:id                     backend.controllers.ExamSectionController.updateUndistributedExamQuestion(id: Long)
-PUT           /app/examquestions/distributed/:id                       backend.controllers.ExamSectionController.updateDistributedExamQuestion(id: Long)
 
 ############### Reservation interface ###############
 
@@ -300,11 +299,12 @@ DELETE        /integration/iop/exams/:id/owners/:oid                   backend.c
 POST          /integration/iop/exams/:eid/sections                     backend.controllers.iop.collaboration.CollaborativeExamSectionController.addSection(eid: Long)
 DELETE        /integration/iop/exams/:eid/sections/:sid                backend.controllers.iop.collaboration.CollaborativeExamSectionController.removeSection(eid: Long, sid: Long)
 PUT           /integration/iop/exams/:eid/sections/:sid                backend.controllers.iop.collaboration.CollaborativeExamSectionController.updateSection(eid: Long, sid: Long)
-DELETE        /integration/iop/exams/:eid/sections/:sid/clear          backend.controllers.iop.collaboration.CollaborativeExamSectionController.clearQuestions(eid: Long, sid: Long)
-POST          /integration/iop/exams/:eid/sections/:sid/:seq/question  backend.controllers.iop.collaboration.CollaborativeExamSectionController.addQuestion(eid: Long, sid: Long, seq: Int)
-DELETE        /integration/iop/exams/:eid/sections/:sid/question/:qid  backend.controllers.iop.collaboration.CollaborativeExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long)
+DELETE        /integration/iop/exams/:eid/sections/:sid/questions      backend.controllers.iop.collaboration.CollaborativeExamSectionController.clearQuestions(eid: Long, sid: Long)
+POST          /integration/iop/exams/:eid/sections/:sid/questions      backend.controllers.iop.collaboration.CollaborativeExamSectionController.addQuestion(eid: Long, sid: Long)
+DELETE        /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.controllers.iop.collaboration.CollaborativeExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long)
 PUT           /integration/iop/exams/:eid/sections/:sid/reorder        backend.controllers.iop.collaboration.CollaborativeExamSectionController.reorderSectionQuestions(eid: Long, sid: Long)
 PUT           /integration/iop/exams/:eid/reorder                      backend.controllers.iop.collaboration.CollaborativeExamSectionController.reorderSections(eid: Long)
+PUT           /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.controllers.iop.collaboration.CollaborativeExamSectionController.updateQuestion(eid: Long, sid: Long, qid: Long)
 
 
 

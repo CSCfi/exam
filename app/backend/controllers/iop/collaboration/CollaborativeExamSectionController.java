@@ -218,7 +218,8 @@ public class CollaborativeExamSectionController extends CollaborationController 
 
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public CompletionStage<Result> addQuestion(Long examId, Long sectionId, Integer seq) {
+    public CompletionStage<Result> addQuestion(Long examId, Long sectionId) {
+        Integer seq = request().body().asJson().get("sequenceNumber").asInt();
         BiFunction<Exam, User, Optional<Result>> updater = (exam, user) -> {
             Optional<ExamSection> section = exam.getExamSections().stream()
                     .filter(es -> es.getId().equals(sectionId))
@@ -227,8 +228,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 ExamSection es = section.get();
                 Question question = JsonDeserializer.deserialize(Question.class,
                         request().body().asJson().get("question"));
-                ExamSectionQuestion esq = JsonDeserializer.deserialize(ExamSectionQuestion.class,
-                        request().body().asJson().get("sectionQuestion"));
+                ExamSectionQuestion esq = new ExamSectionQuestion();
                 question.setId(newId());
                 esq.setId(newId());
                 esq.setQuestion(question);
@@ -273,7 +273,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
             if (section.isPresent()) {
                 ExamSection es = section.get();
                 Optional<ExamSectionQuestion> question = es.getSectionQuestions().stream()
-                        .filter(esq -> esq.getId().equals(questionId))
+                        .filter(esq -> esq.getQuestion().getId().equals(questionId))
                         .findFirst();
                 if (question.isPresent()) {
                     ExamSectionQuestion esq = question.get();
@@ -344,14 +344,11 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                 .filter(esq -> esq.getId().equals(questionId))
                                 .findFirst();
                         if (question.isPresent()) {
+                            ExamSectionQuestion esq = question.get();
                             Question questionBody = JsonDeserializer.deserialize(Question.class,
                                     request().body().asJson().get("question"));
-                            ExamSectionQuestion esqBody = JsonDeserializer.deserialize(ExamSectionQuestion.class,
-                                    request().body().asJson().get("sectionQuestion"));
-                            updateExamQuestion(esqBody, questionBody);
-
-                            es.getSectionQuestions().remove(question.get());
-                            es.getSectionQuestions().add(esqBody);
+                            ExamSectionQuestion esqBody = new ExamSectionQuestion();
+                            updateExamQuestion(esq, questionBody);
                             return uploadExam(ce, exam, false, esqBody);
                         } else {
                             return wrapAsPromise(notFound("sitnet_error_not_found"));

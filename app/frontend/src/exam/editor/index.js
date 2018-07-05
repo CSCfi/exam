@@ -39,6 +39,6 @@ require('./publication/publicationDialog.component');
 require('./publication/publicationRevokeDialog.component');
 require('./publication/collaborativeExamOwnerSelector.component.ts');
 
-require('./sections/section.component');
-require('./sections/sectionQuestion.component');
+require('./sections/section.component.ts');
+require('./sections/sectionQuestion.component.ts');
 require('./sections/sectionsList.component.ts');

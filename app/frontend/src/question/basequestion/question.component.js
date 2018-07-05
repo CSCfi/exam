@@ -56,7 +56,9 @@ angular.module('app.question')
         bindings: {
             newQuestion: '<',
             questionId: '<',
+            questionDraft: '<?',
             lotteryOn: '<',
+            collaborative: '<',
             onSave: '&?',
             onCancel: '&?'
         },
@@ -70,7 +72,14 @@ angular.module('app.question')
                     if (vm.newQuestion) {
                         vm.question = Question.getQuestionDraft();
                         vm.currentOwners = angular.copy(vm.question.questionOwners);
+                    } else if (vm.questionDraft) {
+                        vm.question = vm.questionDraft;
+                        vm.currentOwners = angular.copy(vm.question.questionOwners);
+                        window.onbeforeunload = function () {
+                            return $translate.instant('sitnet_unsaved_data_may_be_lost');
+                        };
                     } else {
+                        // TODO: Wont work with collab exam
                         Question.questionsApi.get({ id: vm.questionId || $routeParams.id },
                             function (question) {
                                 vm.question = question;
@@ -88,27 +97,28 @@ angular.module('app.question')
 
                 vm.saveQuestion = function () { // Need to change so that if collab edit, do not save to backend. Just pass the question json object forward
                     vm.question.questionOwners = vm.currentOwners;
+                    const fn = function (q) {
+                        clearListeners();
+                        if (vm.onSave) {
+                            vm.onSave({ question: q });
+                        } else {
+                            $location.path('/questions');
+                        }
+                    }
                     if (vm.newQuestion) {
                         Question.createQuestion(vm.question).then(
                             function (question) {
-                                clearListeners();
-                                if (vm.onSave) {
-                                    vm.onSave({ question: question });
-                                } else {
-                                    $location.path('/questions');
-                                }
+                                fn(question);
                             }, function (error) {
                                 toast.error(error.data);
                             });
+                    } else if (vm.collaborative) {
+                        // TODO: ATTACHMENTS, how to upload
+                        fn(vm.question);
                     } else {
                         Question.updateQuestion(vm.question, true).then(
                             function () {
-                                clearListeners();
-                                if (vm.onSave) {
-                                    vm.onSave({ question: vm.question });
-                                } else {
-                                    $location.path('/questions');
-                                }
+                                fn(vm.question);
                             }, function (error) {
                                 toast.error(error.data);
                             });
