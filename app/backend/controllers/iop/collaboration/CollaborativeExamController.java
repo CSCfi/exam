@@ -61,6 +61,7 @@ public class CollaborativeExamController extends CollaborationController {
         ExamSection examSection = new ExamSection();
         AppUtil.setCreator(examSection, user);
 
+        examSection.setId(newId());
         examSection.setExam(exam);
         examSection.setExpanded(true);
         examSection.setSequenceNumber(0);
@@ -99,13 +100,15 @@ public class CollaborativeExamController extends CollaborationController {
             Map<String, CollaborativeExam> locals = Ebean.find(CollaborativeExam.class).findSet().stream()
                     .collect(Collectors.toMap(CollaborativeExam::getExternalRef, Function.identity()));
 
-            // Store references to all exams locally if not already done so
+            // Save references to documents that we don't have locally yet
             StreamSupport.stream(root.spliterator(), false)
                     .filter(node -> !locals.keySet().contains(node.get("_id").asText()))
                     .forEach(node -> {
                         String ref = node.get("_id").asText();
+                        String rev = node.get("_rev").asText();
                         CollaborativeExam ce = new CollaborativeExam();
                         ce.setExternalRef(ref);
+                        ce.setRevision(rev);
                         ce.setCreated(DateTime.now());
                         ce.save();
                         locals.put(ref, ce);
@@ -148,8 +151,10 @@ public class CollaborativeExamController extends CollaborationController {
                 return internalServerError(root.get("message").asText("Connection refused"));
             }
             String externalRef = root.get("id").asText();
+            String revision = root.get("rev").asText();
             CollaborativeExam ce = new CollaborativeExam();
             ce.setExternalRef(externalRef);
+            ce.setRevision(revision);
             ce.setCreated(DateTime.now());
             ce.save();
             return created(Json.newObject().put("id", ce.getId()));
