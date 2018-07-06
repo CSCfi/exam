@@ -15,36 +15,42 @@
 
 package backend.controllers;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.text.PathProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import backend.models.Exam;
-import backend.models.ExamSection;
-import backend.models.ExamSectionQuestion;
-import backend.models.ExamSectionQuestionOption;
-import backend.models.User;
-import backend.models.api.Sortable;
-import backend.models.questions.MultipleChoiceOption;
-import backend.models.questions.Question;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
 import play.data.DynamicForm;
 import play.db.ebean.Transactional;
 import play.libs.Json;
 import play.mvc.Result;
+
+import backend.controllers.base.SectionQuestionHandler;
+import backend.models.Exam;
+import backend.models.ExamSection;
+import backend.models.ExamSectionQuestion;
+import backend.models.ExamSectionQuestionOption;
+import backend.models.User;
+import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.Question;
 import backend.sanitizers.SanitizingHelper;
 import backend.util.AppUtil;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-
-public class ExamSectionController extends QuestionController {
+public class ExamSectionController extends QuestionController implements SectionQuestionHandler {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertSection(Long id) {
@@ -209,35 +215,6 @@ public class ExamSectionController extends QuestionController {
 
     }
 
-    private void updateSequences(Collection<? extends Sortable> sortables, int ordinal) {
-        // Increase sequences for the entries above the inserted one
-        for (Sortable s : sortables) {
-            int sequenceNumber = s.getOrdinal();
-            if (sequenceNumber >= ordinal) {
-                s.setOrdinal(sequenceNumber + 1);
-            }
-        }
-    }
-
-    private void updateOptions(ExamSectionQuestion sectionQuestion, Question question) {
-        sectionQuestion.getOptions().clear();
-        for (MultipleChoiceOption option : question.getOptions()) {
-            ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
-            esqo.setOption(option);
-            esqo.setScore(option.getDefaultScore());
-            sectionQuestion.getOptions().add(esqo);
-        }
-    }
-
-    private void updateExamQuestion(ExamSectionQuestion sectionQuestion, Question question) {
-        sectionQuestion.setQuestion(question);
-        sectionQuestion.setMaxScore(question.getDefaultMaxScore());
-        sectionQuestion.setAnswerInstructions(question.getDefaultAnswerInstructions());
-        sectionQuestion.setEvaluationCriteria(question.getDefaultEvaluationCriteria());
-        sectionQuestion.setEvaluationType(question.getDefaultEvaluationType());
-        sectionQuestion.setExpectedWordCount(question.getDefaultExpectedWordCount());
-        updateOptions(sectionQuestion, question);
-    }
 
     private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body) {
         sectionQuestion.setMaxScore(round(SanitizingHelper.parse("maxScore", body, Double.class).orElse(null)));
@@ -287,7 +264,7 @@ public class ExamSectionController extends QuestionController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result insertQuestion(Long eid, Long sid, Integer seq, Long qid) {
+    public Result insertQuestion(Long eid, Long sid, Long qid) {
         Exam exam = Ebean.find(Exam.class, eid);
         ExamSection section = Ebean.find(ExamSection.class, sid);
         Question question = Ebean.find(Question.class, qid);
@@ -302,13 +279,14 @@ public class ExamSectionController extends QuestionController {
             return forbidden("sitnet_error_access_forbidden");
         }
         // TODO: response payload should be trimmed down (use path properties)
+        Integer seq = request().body().asJson().get("sequenceNumber").asInt();
         return insertQuestion(exam, section, question, user, seq)
                 .orElse(ok(Json.toJson(section)));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Transactional
-    public Result insertMultipleQuestions(Long eid, Long sid, Integer seq, String questions) {
+    public Result insertMultipleQuestions(Long eid, Long sid, String questions) {
 
         Exam exam = Ebean.find(Exam.class, eid);
         ExamSection section = Ebean.find(ExamSection.class, sid);
@@ -319,7 +297,7 @@ public class ExamSectionController extends QuestionController {
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        int sequence = seq;
+        Integer sequence = request().body().asJson().get("sequenceNumber").asInt();
         for (String s : questions.split(",")) {
             Question question = Ebean.find(Question.class, Long.parseLong(s));
             if (question == null) {
@@ -402,25 +380,6 @@ public class ExamSectionController extends QuestionController {
         }
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getExamQuestion(Long id) {
-        User user = getLoggedUser();
-        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class)
-                .fetch("question")
-                .fetch("options")
-                .fetch("examSection")
-                .where().idEq(id);
-        if (user.hasRole("TEACHER", getSession())) {
-            query = query.eq("examSection.exam.examOwners", user);
-        }
-        ExamSectionQuestion examQuestion = query.findUnique();
-        if (examQuestion == null) {
-            return forbidden("sitnet_error_access_forbidden");
-        }
-        Collections.sort(examQuestion.getQuestion().getOptions());
-        return ok(examQuestion);
-    }
-
     private void processExamQuestionOptions(Question question, ExamSectionQuestion esq, ArrayNode node) { // esq.options
         Set<Long> persistedIds = question.getOptions().stream()
                 .map(MultipleChoiceOption::getId)
@@ -463,9 +422,9 @@ public class ExamSectionController extends QuestionController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateDistributedExamQuestion(Long esqId) {
+    public Result updateDistributedExamQuestion(Long eid, Long sid, Long qid) {
         User user = getLoggedUser();
-        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(esqId);
+        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(qid);
         if (user.hasRole("TEACHER", getSession())) {
             query = query.eq("examSection.exam.examOwners", user);
         }
@@ -505,9 +464,9 @@ public class ExamSectionController extends QuestionController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateUndistributedExamQuestion(Long esqId) {
+    public Result updateUndistributedExamQuestion(Long sid, Long qid, Long eid) {
         User user = getLoggedUser();
-        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(esqId);
+        ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(qid);
         if (user.hasRole("TEACHER", getSession())) {
             query = query.eq("examSection.exam.examOwners", user);
         }
@@ -524,16 +483,6 @@ public class ExamSectionController extends QuestionController {
         return ok(examSectionQuestion);
     }
 
-    private Optional<Result> checkBounds(Integer from, Integer to) {
-        if (from < 0 || to < 0) {
-            return Optional.of(badRequest());
-        }
-        if (from.equals(to)) {
-            return Optional.of(ok());
-        }
-        return Optional.empty();
-    }
-
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getQuestionDistribution(Long id) {
         ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, id);
@@ -542,10 +491,11 @@ public class ExamSectionController extends QuestionController {
         }
         Question question = esq.getQuestion();
         // ATM it is enough that question is bound to multiple exams
-        Set<Exam> boundExams = question.getExamSectionQuestions().stream()
+        boolean isDistributed = question.getExamSectionQuestions().stream()
                 .map(eq -> eq.getExamSection().getExam())
-                .collect(Collectors.toSet());
-        boolean isDistributed = boundExams.size() > 1;
+                .distinct()
+                .count() > 1;
+
         ObjectNode node = Json.newObject();
         node.put("distributed", isDistributed);
         return ok(Json.toJson(node));

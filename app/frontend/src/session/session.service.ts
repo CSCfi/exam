@@ -29,6 +29,7 @@ export interface User {
     id: number;
     firstName: string;
     lastName: string;
+    email: string;
     lang: string;
     loginRole: { name: string } | null;
     roles: Role[];
@@ -190,6 +191,7 @@ export class SessionService {
             id: user.id,
             firstName: user.firstName,
             lastName: user.lastName,
+            email: user.email,
             lang: user.lang,
             loginRole: loginRole,
             roles: user.roles,

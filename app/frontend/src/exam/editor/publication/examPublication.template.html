@@ -1,192 +1,187 @@
 <!-- Publish settings container -->
-    <div class="col-md-12 exam-border">
+<div class="col-md-12 exam-border">
 
-            <div class="col-md-12 mart40">
-                <div class="review-list-title">{{ 'sitnet_publish_timetable' | translate }}</div>
-            </div>
+    <div class="col-md-12 mart40">
+        <div class="review-list-title">{{ 'sitnet_publish_timetable' | translate }}</div>
+    </div>
 
-            <!-- examination dates -->
-            <div class="col-md-12 margin-20" ng-show="$ctrl.exam.executionType.type === 'PRINTOUT'">
-                <div class="col-md-3 exam-basic-title padl0">{{'sitnet_examination_dates' | translate}}</div>
-                <div class="col-md-4">
+    <!-- examination dates -->
+    <div class="col-md-12 margin-20" ng-show="$ctrl.exam.executionType.type === 'PRINTOUT'">
+        <div class="col-md-3 exam-basic-title padl0">{{'sitnet_examination_dates' | translate}}</div>
+        <div class="col-md-4">
 
-                    <date-picker on-update="$ctrl.examinationDateChanged(date)"
-                                 extra="true"
-                                 extra-text="sitnet_add"
-                                 on-extra-action="$ctrl.addExaminationDate(date)">
-                    </date-picker>
+            <date-picker on-update="$ctrl.examinationDateChanged(date)" extra="true" extra-text="sitnet_add" on-extra-action="$ctrl.addExaminationDate(date)">
+            </date-picker>
+        </div>
+    </div>
+    <div class="col-md-12" ng-show="$ctrl.exam.executionType.type === 'PRINTOUT'">
+        <div class="col-md-3 exam-basic-title"></div>
+        <div class="col-md-9">
+            <ul class="list-inline mart10">
+                <li ng-repeat="ed in $ctrl.exam.examinationDates | orderBy: 'date'">{{ed.date | date:"dd.MM.yyyy" }}
+                    <button class="reviewer-remove" ng-click="$ctrl.removeExaminationDate(ed)" title="{{'sitnet_remove' | translate}}">
+                        <img src="Images/icon_remove.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_remove.png'" />
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-12 padl0" ng-show="$ctrl.exam.executionType.type !== 'PRINTOUT'">
+        <form role="form">
+            <!-- Start & End time datepickers -->
+
+            <div class="col-md-12 mart20">
+                <div class="col-md-3">
                 </div>
-            </div>
-            <div class="col-md-12" ng-show="$ctrl.exam.executionType.type === 'PRINTOUT'">
-                <div class="col-md-3 exam-basic-title"></div>
-                <div class="col-md-9">
-                    <ul class="list-inline mart10">
-                        <li ng-repeat="ed in $ctrl.exam.examinationDates | orderBy: 'date'">{{ed.date | date:"dd.MM.yyyy" }}
-                            <button class="reviewer-remove" ng-click="$ctrl.removeExaminationDate(ed)"
-                                    title="{{'sitnet_remove' | translate}}">
-                                <img src="Images/icon_remove.svg" alt="exam"
-                                     onerror="this.onerror=null;this.src='Images/icon_remove.png'"/>
-                            </button>
-                        </li>
-                    </ul>
+                <div class="col-md-3">
+                    <div class="exam-basic-selecttitle">{{'sitnet_begin' | translate | uppercase}}</div>
                 </div>
-            </div>
-
-            <div class="col-md-12 padl0" ng-show="$ctrl.exam.executionType.type !== 'PRINTOUT'">
-                <form role="form">
-                    <!-- Start & End time datepickers -->
-
-                    <div class="col-md-12 mart20">
-                        <div class="col-md-3">
-                        </div>
-                        <div class="col-md-3">
-                            <div class="exam-basic-selecttitle">{{'sitnet_begin' | translate | uppercase}}</div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="exam-basic-selecttitle">{{'sitnet_end' | translate | uppercase}}</div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="col-md-3 padl0">
-                            <div class="exam-basic-title">{{'sitnet_exam_validity' | translate}}
-                                <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                          uib-popover="{{'sitnet_exam_validity_description' | translate}}"
-                                          src="Images/icon_tooltip.svg" alt="exam"
-                                          onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <date-picker initial-date="$ctrl.exam.examActiveStartDate"
-                                         on-update="$ctrl.startDateChanged(date)">
-                            </date-picker>
-                        </div>
-                        <div class="col-md-3">
-                            <date-picker initial-date="$ctrl.exam.examActiveEndDate"
-                                         on-update="$ctrl.endDateChanged(date)">
-                            </date-picker>
-                        </div>
-                    </div>
-
-                    <div ng-show="$ctrl.exam.hasEnrolmentsInEffect" class="row">
-                        <div class="col-md-12">
-                            <div class="mart10">
-                                 <span class="text-info">
-                                    <img class="arrow_icon" src="Images/icon_info.png">
-                                    {{ 'sitnet_restricting_validity_change_disallowed' | translate }}
-                                 </span>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Exam length -->
-            <div class="col-md-12 margin-20">
-                <div class="col-md-3 exam-basic-title padl0">{{'sitnet_exam_duration' | translate}} ({{'sitnet_minutes' | translate}}):
-                    <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                              uib-popover="{{'sitnet_exam_duration_description' | translate}}"
-                              src="Images/icon_tooltip.svg" alt="exam"
-                              onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
-                </div>
-                <div class="col-md-9">
-                    <span  ng-repeat="duration in $ctrl.examDurations">
-                        <button class="btn btn-publish"
-                                ng-class="$ctrl.checkDuration(duration)" ng-click="$ctrl.setExamDuration(duration)"
-                                ng-disabled="!$ctrl.user.isAdmin && $ctrl.exam.hasEnrolmentsInEffect">{{duration}}
-                        </button>
-                    </span>
+                <div class="col-md-3">
+                    <div class="exam-basic-selecttitle">{{'sitnet_end' | translate | uppercase}}</div>
                 </div>
             </div>
 
-            <div ng-hide="$ctrl.exam.executionType.type === 'PRINTOUT'">
-
-                <!-- Exam type and trial count input elements -->
-                <div class="col-md-12 margin-20">
-                    <div class="review-list-title">{{ 'sitnet_publish_settings' | translate }}
-                    </div>
-                </div>
-
-                <div class="col-md-12 padl0 margin-20" ng-hide="$ctrl.exam.executionType.type==='MATURITY'">
-
-                    <div class="col-md-3 exam-basic-title">{{'sitnet_publish_max_count' | translate}}
-                        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                  uib-popover="{{'sitnet_exam_trial_count_description' | translate}}"
-                                  src="Images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
-                    </div>
-                    <div class="col-md-9">
-                        <span ng-show="$ctrl.exam.executionType.type==='PUBLIC'" ng-repeat="x in $ctrl.range(1, 5)">
-                            <button class="btn btn-publish" ng-class="$ctrl.checkTrialCount(x)" ng-click="$ctrl.setTrialCount(x)">{{x}}
-                            </button>&nbsp;
-                        </span>
-                        <button ng-if="$ctrl.exam.executionType.type==='PUBLIC'" class="btn btn-publish" ng-class="$ctrl.checkTrialCount(null)"
-                                ng-click="$ctrl.setTrialCount()">&infin;
-                        </button>
-                        <button ng-if="$ctrl.exam.executionType.type==='PRIVATE'" class="btn btn-publish" ng-class="$ctrl.checkTrialCount()"
-                                ng-disabled="true">1
-                        </button>
-                        <span ng-if="$ctrl.exam.executionType.type==='PRIVATE'" class="text-muted">
-                            ({{'sitnet_private_exam_trial_count_description' | translate}})</span>
-                    </div>
-                </div>
-
-                <!-- Exam participants -->
-                <exam-participant-selector exam="$ctrl.exam"></exam-participant-selector>
-
-                <!-- Exam pre-participants -->
-                <exam-pre-participant-selector exam="$ctrl.exam"></exam-pre-participant-selector>
-
-                <!-- Link to enrolment -->
-                <div class="col-md-12 mart40">
-                    <div class="review-list-title">{{ 'sitnet_enrolment_url' | translate }}
-                        <sup><img popover-placement="right" popover-trigger="'mouseenter'"
-                                  uib-popover="{{'sitnet_enrolment_url_description' | translate}}"
-                                  src="Images/icon_tooltip.svg" alt="exam"
-                                  onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+            <div class="col-md-12">
+                <div class="col-md-3 padl0">
+                    <div class="exam-basic-title">{{'sitnet_exam_validity' | translate}}
+                        <sup>
+                            <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_validity_description' | translate}}"
+                                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                            />
                         </sup>
                     </div>
                 </div>
+                <div class="col-md-3">
+                    <date-picker initial-date="$ctrl.exam.examActiveStartDate" on-update="$ctrl.startDateChanged(date)">
+                    </date-picker>
+                </div>
+                <div class="col-md-3">
+                    <date-picker initial-date="$ctrl.exam.examActiveEndDate" on-update="$ctrl.endDateChanged(date)">
+                    </date-picker>
+                </div>
+            </div>
 
-                <div class="col-md-12 padl0 margin-20">
-                    <div class="col-md-12">
-                        <div class=""><a href="{{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}">
-                            {{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}</a></div>
+            <div ng-show="$ctrl.exam.hasEnrolmentsInEffect" class="row">
+                <div class="col-md-12">
+                    <div class="mart10">
+                        <span class="text-info">
+                            <img class="arrow_icon" src="Images/icon_info.png"> {{ 'sitnet_restricting_validity_change_disallowed' | translate }}
+                        </span>
                     </div>
                 </div>
+            </div>
+        </form>
+    </div>
 
-                <!-- Autoevaluation -->
-                <div class="bottom-padding-2" ng-show="$ctrl.canBeAutoEvaluated()">
-                    <auto-evaluation exam="$ctrl.exam"
-                                     on-disabled="$ctrl.autoEvaluationDisabled()"
-                                     on-enabled="$ctrl.autoEvaluationEnabled()"
-                                     on-update="$ctrl.autoEvaluationConfigChanged(config)">
-                    </auto-evaluation>
+    <!-- Exam length -->
+    <div class="col-md-12 margin-20">
+        <div class="col-md-3 exam-basic-title padl0">{{'sitnet_exam_duration' | translate}} ({{'sitnet_minutes' | translate}}):
+            <sup>
+                <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_duration_description' | translate}}"
+                    src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+            </sup>
+        </div>
+        <div class="col-md-9">
+            <span ng-repeat="duration in $ctrl.examDurations">
+                <button class="btn btn-publish" ng-class="$ctrl.checkDuration(duration)" ng-click="$ctrl.setExamDuration(duration)" ng-disabled="!$ctrl.user.isAdmin && $ctrl.exam.hasEnrolmentsInEffect">{{duration}}
+                </button>
+            </span>
+        </div>
+    </div>
+
+    <div ng-hide="$ctrl.exam.executionType.type === 'PRINTOUT'">
+
+        <!-- Exam type and trial count input elements -->
+        <div class="col-md-12 margin-20">
+            <div class="review-list-title">{{ 'sitnet_publish_settings' | translate }}
+            </div>
+        </div>
+
+        <div class="col-md-12 padl0 margin-20" ng-hide="$ctrl.exam.executionType.type==='MATURITY'">
+
+            <div class="col-md-3 exam-basic-title">{{'sitnet_publish_max_count' | translate}}
+                <sup>
+                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_trial_count_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
+                </sup>
+            </div>
+            <div class="col-md-9">
+                <span ng-show="$ctrl.exam.executionType.type==='PUBLIC'" ng-repeat="x in $ctrl.range(1, 5)">
+                    <button class="btn btn-publish" ng-class="$ctrl.checkTrialCount(x)" ng-click="$ctrl.setTrialCount(x)">{{x}}
+                    </button>&nbsp;
+                </span>
+                <button ng-if="$ctrl.exam.executionType.type==='PUBLIC'" class="btn btn-publish" ng-class="$ctrl.checkTrialCount(null)" ng-click="$ctrl.setTrialCount()">&infin;
+                </button>
+                <button ng-if="$ctrl.exam.executionType.type==='PRIVATE'" class="btn btn-publish" ng-class="$ctrl.checkTrialCount()" ng-disabled="true">1
+                </button>
+                <span ng-if="$ctrl.exam.executionType.type==='PRIVATE'" class="text-muted">
+                    ({{'sitnet_private_exam_trial_count_description' | translate}})</span>
+            </div>
+        </div>
+
+        <!-- Exam participants -->
+        <exam-participant-selector ng-if="$ctrl.collaborative===false" exam="$ctrl.exam"></exam-participant-selector>
+
+        <!-- Exam pre-participants -->
+        <exam-pre-participant-selector ng-if="$ctrl.collaborative===false" exam="$ctrl.exam"></exam-pre-participant-selector>
+
+        <!-- Collaborative exam owners -->
+        <collaborative-exam-owner-selector ng-if="$ctrl.collaborative===true" exam="$ctrl.exam">
+        </collaborative-exam-owner-selector>
+
+        <!-- Link to enrolment -->
+        <div class="col-md-12 mart40">
+            <div class="review-list-title">{{ 'sitnet_enrolment_url' | translate }}
+                <sup>
+                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_enrolment_url_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
+                    />
+                </sup>
+            </div>
+        </div>
+
+        <div class="col-md-12 padl0 margin-20">
+            <div class="col-md-12">
+                <div class="">
+                    <a href="{{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}">
+                        {{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}</a>
                 </div>
             </div>
-     </div>
+        </div>
 
-    <!-- Buttons -->
-    <div class="col-md-12 padl0 padr0 marb20">
-        <span class="pull-right">
-            <div class="review-attachment-button exam-questions-buttons"><a target="_self" class="pointer preview" ng-click="$ctrl.previewExam(3)">
-                {{'sitnet_preview' | translate}}</a>
-            </div>
-            <div class="review-attachment-button exam-questions-buttons marl10"><a target="_self" class="pointer" ng-click="$ctrl.updateExam()">
-                {{'sitnet_save' | translate}}</a>
-            </div>
-            <div ng-hide="$ctrl.exam.state === 'PUBLISHED'" class="review-attachment-button exam-questions-buttons marl10">
-                <a target="_self" class="pointer" ng-click="$ctrl.saveAndPublishExam()">
-                    {{'sitnet_save_and_publish' | translate}}</a>
-            </div>
-            <div ng-show="$ctrl.exam.state === 'PUBLISHED' && $ctrl.exam.executionType.type==='PUBLIC'"
-                 class="review-attachment-button exam-questions-buttons marl10">
-                <a target="_self" class="pointer warning" ng-click="$ctrl.unpublishExam()">
-                    {{'sitnet_unpublish_exam' | translate}}
-                </a>
-            </div>
-        </span>
+        <!-- Autoevaluation -->
+        <div class="bottom-padding-2" ng-show="$ctrl.canBeAutoEvaluated()">
+            <auto-evaluation exam="$ctrl.exam" on-disabled="$ctrl.autoEvaluationDisabled()" on-enabled="$ctrl.autoEvaluationEnabled()"
+                on-update="$ctrl.autoEvaluationConfigChanged(config)">
+            </auto-evaluation>
+        </div>
     </div>
+</div>
+
+<!-- Buttons -->
+<div class="col-md-12 padl0 padr0 marb20">
+    <span class="pull-right">
+        <div class="review-attachment-button exam-questions-buttons">
+            <a target="_self" class="pointer preview" ng-click="$ctrl.previewExam(3)">
+                {{'sitnet_preview' | translate}}</a>
+        </div>
+        <div class="review-attachment-button exam-questions-buttons marl10">
+            <a target="_self" class="pointer" ng-click="$ctrl.updateExam()">
+                {{'sitnet_save' | translate}}</a>
+        </div>
+        <div ng-hide="$ctrl.exam.state === 'PUBLISHED'" class="review-attachment-button exam-questions-buttons marl10">
+            <a target="_self" class="pointer" ng-click="$ctrl.saveAndPublishExam()">
+                {{'sitnet_save_and_publish' | translate}}</a>
+        </div>
+        <div ng-show="$ctrl.exam.state === 'PUBLISHED' && $ctrl.exam.executionType.type==='PUBLIC'" class="review-attachment-button exam-questions-buttons marl10">
+            <a target="_self" class="pointer warning" ng-click="$ctrl.unpublishExam()">
+                {{'sitnet_unpublish_exam' | translate}}
+            </a>
+        </div>
+    </span>
+</div>
 <div class="col-md-12 padl0 padr0 marb20 padt20 grey-top">
     <span class="pull-left">
         <div class="review-attachment-button exam-questions-buttons">

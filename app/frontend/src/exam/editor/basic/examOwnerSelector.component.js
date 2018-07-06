@@ -34,7 +34,7 @@ angular.module('app.exam.editor')
                     };
                     vm.examOwners = getExamOwners();
                 };
-
+                // TODO: collaborative exam case, need to be able to add by email, check the pre-enrolment case?
                 vm.allExamOwners = function (filter, criteria) {
 
                     return UserRes.filterOwnersByExam.query({
@@ -48,7 +48,7 @@ angular.module('app.exam.editor')
                         function (error) {
                             toast.error(error.data);
                         }
-                    );
+                        );
                 };
 
                 vm.setExamOwner = function ($item, $model, $label) {
@@ -74,7 +74,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.removeOwner = function (id) {
-                    ExamRes.examowner.remove({eid: vm.exam.id, uid: id},
+                    ExamRes.examowner.remove({ eid: vm.exam.id, uid: id },
                         function () {
                             getExamOwners();
                         },
@@ -84,7 +84,7 @@ angular.module('app.exam.editor')
                 };
 
                 function getExamOwners() {
-                    ExamRes.owners.query({id: vm.exam.id},
+                    ExamRes.owners.query({ id: vm.exam.id },
                         function (examOwners) {
                             vm.examOwners = examOwners;
                         },

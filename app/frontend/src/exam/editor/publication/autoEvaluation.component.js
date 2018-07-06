@@ -29,6 +29,7 @@ angular.module('app.exam.editor')
             function (Exam) {
 
                 const vm = this;
+                // TODO: Collaborative exam case, is this needed?
 
                 vm.$onInit = function () {
                     vm.autoevaluation = {
@@ -38,13 +39,13 @@ angular.module('app.exam.editor')
                                 translation: 'sitnet_autoevaluation_release_type_immediate',
                                 filtered: true
                             },
-                            {name: 'GIVEN_DATE', translation: 'sitnet_autoevaluation_release_type_given_date'},
-                            {name: 'GIVEN_AMOUNT_DAYS', translation: 'sitnet_autoevaluation_release_type_given_days'},
-                            {name: 'AFTER_EXAM_PERIOD', translation: 'sitnet_autoevaluation_release_type_period'},
-                            {name: 'NEVER', translation: 'sitnet_autoevaluation_release_type_never'}
+                            { name: 'GIVEN_DATE', translation: 'sitnet_autoevaluation_release_type_given_date' },
+                            { name: 'GIVEN_AMOUNT_DAYS', translation: 'sitnet_autoevaluation_release_type_given_days' },
+                            { name: 'AFTER_EXAM_PERIOD', translation: 'sitnet_autoevaluation_release_type_period' },
+                            { name: 'NEVER', translation: 'sitnet_autoevaluation_release_type_never' }
                         ]
                     };
-                    vm.autoevaluationDisplay = {visible: false};
+                    vm.autoevaluationDisplay = { visible: false };
                     prepareAutoEvaluationConfig();
                 };
 
@@ -63,7 +64,7 @@ angular.module('app.exam.editor')
                             releaseType: vm.selectedReleaseType().name || vm.autoevaluation.releaseTypes[0].name,
                             releaseDate: null,
                             gradeEvaluations: vm.exam.gradeScale.grades.map(function (g) {
-                                return {grade: angular.copy(g), percentage: 0};
+                                return { grade: angular.copy(g), percentage: 0 };
                             })
                         };
                     }
@@ -109,16 +110,16 @@ angular.module('app.exam.editor')
                     });
                     type.filtered = !type.filtered;
                     vm.exam.autoEvaluationConfig.releaseType = vm.selectedReleaseType();
-                    vm.onUpdate({config: vm.exam.autoEvaluationConfig});
+                    vm.onUpdate({ config: vm.exam.autoEvaluationConfig });
                 };
 
                 vm.releaseDateChanged = function (date) {
                     vm.exam.autoEvaluationConfig.releaseDate = date;
-                    vm.onUpdate({config: vm.exam.autoEvaluationConfig});
+                    vm.onUpdate({ config: vm.exam.autoEvaluationConfig });
                 };
 
                 vm.propertyChanged = function () {
-                    vm.onUpdate({config: vm.exam.autoEvaluationConfig});
+                    vm.onUpdate({ config: vm.exam.autoEvaluationConfig });
                 };
 
             }

@@ -36,6 +36,7 @@ angular.module('app.exam.editor')
                     };
                     getInspectors();
                 };
+                // TODO: collaborative exam case, need to be able to add by email, check the pre-enrolment case?
 
                 vm.allInspectors = function (filter, criteria) {
 
@@ -56,12 +57,13 @@ angular.module('app.exam.editor')
                     vm.newInspector.id = $item.id;
                 };
 
+                // TODO: Collaborative exam case or save together with exam, not instantly?
                 vm.addInspector = function () {
                     if (vm.newInspector.id > 0) {
                         ExamRes.inspection.insert({
                             eid: vm.exam.id,
                             uid: vm.newInspector.id,
-                            comment: vm.newInspector.comment || ''
+                            comment: vm.newInspector.comment || ''
                         }, function () {
                             // reload the list
                             getInspectors();
@@ -76,8 +78,9 @@ angular.module('app.exam.editor')
                     }
                 };
 
+                // TODO: Collaborative exam case
                 vm.removeInspector = function (id) {
-                    ExamRes.inspector.remove({id: id},
+                    ExamRes.inspector.remove({ id: id },
                         function () {
                             getInspectors();
                         },
@@ -86,8 +89,9 @@ angular.module('app.exam.editor')
                         });
                 };
 
+                // TODO: Collaborative exam case
                 function getInspectors() {
-                    ExamRes.inspections.get({id: vm.exam.id},
+                    ExamRes.inspections.get({ id: vm.exam.id },
                         function (inspections) {
                             vm.examInspections = inspections;
                         },

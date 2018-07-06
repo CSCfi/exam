@@ -76,6 +76,18 @@ public class ExamUpdaterImpl implements ExamUpdater {
     public Optional<Result> updateStateAndValidate(Exam exam, User user, Http.Request request) {
         Optional<Exam.State> state = request.attrs().getOptional(Attrs.EXAM_STATE);
         if (state.isPresent()) {
+            if (state.get() == Exam.State.PRE_PUBLISHED) {
+                // Exam is pre-published or about to be pre-published
+                // Exam is published or about to be published
+                Optional<Result> err = getFormValidationError(!exam.isPrintout(), request);
+                // invalid data
+                if (err.isPresent()) {
+                    return err;
+                }
+                if (exam.getExamLanguages().isEmpty()) {
+                    return Optional.of(badRequest("no exam languages specified"));
+                }
+            }
             if (state.get() == Exam.State.PUBLISHED) {
                 // Exam is published or about to be published
                 Optional<Result> err = getFormValidationError(!exam.isPrintout(), request);
@@ -204,6 +216,22 @@ public class ExamUpdaterImpl implements ExamUpdater {
             exam.setAutoEvaluationConfig(config);
         }
     }
+
+    @Override
+    public Optional<Result> updateLanguage(Exam exam, String code, User user, Session session) {
+        if (!isPermittedToUpdate(exam, user, session)) {
+            return Optional.of(forbidden("sitnet_error_access_forbidden"));
+        }
+        Language language = Ebean.find(Language.class, code);
+        if (exam.getExamLanguages().contains(language)) {
+            exam.getExamLanguages().remove(language);
+        } else {
+            exam.getExamLanguages().add(language);
+        }
+        return Optional.empty();
+    }
+
+
 
     private void updateGradeEvaluations(Exam exam, AutoEvaluationConfig newConfig) {
         AutoEvaluationConfig config = exam.getAutoEvaluationConfig();

@@ -375,19 +375,10 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        User user = getLoggedUser();
-        if (!examUpdater.isPermittedToUpdate(exam, user, getSession())) {
-            return forbidden("sitnet_error_access_forbidden");
-        }
-
-        Language language = Ebean.find(Language.class, code);
-        if (exam.getExamLanguages().contains(language)) {
-            exam.getExamLanguages().remove(language);
-        } else {
-            exam.getExamLanguages().add(language);
-        }
-        exam.update();
-        return ok();
+        return examUpdater.updateLanguage(exam, code, getLoggedUser(), getSession()).orElseGet(() -> {
+            exam.update();
+            return ok();
+        });
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

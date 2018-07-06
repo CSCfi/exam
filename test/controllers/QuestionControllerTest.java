@@ -1,27 +1,28 @@
 package controllers;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import base.IntegrationTestCase;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Ebean;
-import backend.models.ExamSection;
-import backend.models.ExamSectionQuestion;
-import backend.models.ExamSectionQuestionOption;
-import backend.models.User;
-import backend.models.questions.MultipleChoiceOption;
-import backend.models.questions.Question;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import backend.models.ExamSection;
+import backend.models.ExamSectionQuestion;
+import backend.models.ExamSectionQuestionOption;
+import backend.models.User;
+import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.Question;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -70,8 +71,8 @@ public class QuestionControllerTest extends IntegrationTestCase {
         question = deserialize(Question.class, node);
 
         // Add to exam
-        result = request(Helpers.POST, String.format("/app/exams/%d/section/%d/0/question/%d",
-                examId, sectionId, question.getId()), null);
+        result = request(Helpers.POST, String.format("/app/exams/%d/sections/%d/questions/%d",
+                examId, sectionId, question.getId()), Json.newObject().put("sequenceNumber", 0));
         assertThat(result.status()).isEqualTo(200);
         node = Json.parse(contentAsString(result));
         ExamSection deserialized = deserialize(ExamSection.class, node);

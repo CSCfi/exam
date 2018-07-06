@@ -15,7 +15,6 @@
 
 package backend.impl;
 
-import java.util.List;
 import java.util.Set;
 
 import com.google.inject.ImplementedBy;
@@ -95,6 +94,6 @@ public interface EmailComposer {
     /**
      * Message sent to teacher when collaborative exam is created in the system.
      */
-    void composeCollaborativeExamAnnouncement(List<String> emails, Exam exam);
+    void composeCollaborativeExamAnnouncement(Set<String> emails, User sender, Exam exam, Long ref);
 
 }

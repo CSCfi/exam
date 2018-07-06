@@ -18,14 +18,14 @@ import angular from 'angular';
 angular.module('app.question')
     .component('baseQuestionEditor', {
         template:
-        '<div id="sitnet-dialog">\n' +
-        '    <div class="modal-body">\n' +
-        '        <question new-question="$ctrl.resolve.newQuestion" question-id="$ctrl.resolve.questionId" on-save="$ctrl.onSave(question)" on-cancel="$ctrl.cancel()"\n' +
-        '                  lottery-on="$ctrl.resolve.lotteryOn"></question>\n' +
-        '    </div>\n' +
-        '    <div class="modal-footer">\n' +
-        '    </div>\n' +
-        '</div>',
+            '<div id="sitnet-dialog">\n' +
+            '    <div class="modal-body">\n' +
+            '        <question new-question="$ctrl.resolve.newQuestion" question-id="$ctrl.resolve.questionId" on-save="$ctrl.onSave(question)" on-cancel="$ctrl.cancel()"\n' +
+            '                  question-draft="$ctrl.resolve.questionDraft" collaborative="$ctrl.resolve.collaborative" lottery-on="$ctrl.resolve.lotteryOn"></question>\n' +
+            '    </div>\n' +
+            '    <div class="modal-footer">\n' +
+            '    </div>\n' +
+            '</div>',
         bindings: {
             close: '&',
             dismiss: '&',
@@ -39,12 +39,12 @@ angular.module('app.question')
 
                 vm.onSave = function (question) {
                     vm.close({
-                        $value: {'question': question}
+                        $value: { 'question': question }
                     });
                 };
 
                 vm.cancel = function () {
-                    vm.dismiss({$value: 'cancel'});
+                    vm.dismiss({ $value: 'cancel' });
                 };
 
                 // Close modal if user clicked the back button and no changes made

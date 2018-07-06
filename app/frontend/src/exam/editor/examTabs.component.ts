@@ -17,47 +17,8 @@ import * as angular from 'angular';
 import * as _ from 'lodash';
 
 import { SessionService, User } from '../../session/session.service';
+import { Exam } from '../exam.model';
 
-export interface AutoEvaluationConfig {
-    id: number;
-    releaseDate: VarDate | null;
-    amountDays: number | null;
-    releaseType: string;
-}
-
-export interface Course {
-    id: number;
-    name: string;
-    code: string;
-    gradeScale: GradeScale | null;
-}
-
-export interface ExamExecutionType {
-    type: string;
-    id: number;
-}
-
-export interface GradeScale {
-    id: number;
-    displayName: string;
-}
-
-export interface Exam {
-    id: number;
-    attachment: { id: number, fileName: string } | null;
-    hasEnrolmentsInEffect: boolean;
-    name: string | null;
-    course: Course | null;
-    examOwners: User[];
-    examType: { type: string };
-    executionType: ExamExecutionType;
-    examEnrolments: { reservation?: { endAt: number } }[];
-    gradeScale: GradeScale | null;
-    autoEvaluationConfig: AutoEvaluationConfig | null;
-    children: Exam[];
-    external: boolean;
-    hash: string;
-}
 
 export const ExamTabsComponent: angular.IComponentOptions = {
     template: require('./examTabs.template.html'),
@@ -105,11 +66,14 @@ export const ExamTabsComponent: angular.IComponentOptions = {
             }
         }
 
-        reload = () => this.downloadExam();
+        reload = () => this.collaborative ? this.downloadCollaborativeExam() : this.downloadExam();
 
         isOwner = () => this.exam.examOwners.map(eo => eo.id).some(x => x === this.user.id);
 
-        tabChanged = (index: number) => this.$location.path(`/exams/${this.exam.id}/${index + 1}`, false).replace();
+        tabChanged = (index: number) => {
+            const path = this.collaborative ? '/exams/collaborative' : '/exams';
+            this.$location.path(`${path}/${this.exam.id}/${index + 1}`, false).replace();
+        }
 
         switchToBasicInfo = () => this.activeTab = 1;
 

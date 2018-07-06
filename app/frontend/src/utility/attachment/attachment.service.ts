@@ -20,12 +20,7 @@ import * as toast from 'toastr';
 import { IHttpService } from 'angular';
 import * as uib from 'angular-ui-bootstrap';
 import { FileService } from '../file/file.service';
-import { Exam } from '../../exam/editor/examTabs.component';
-
-interface SectionQuestion {
-    id: number,
-    question: Question
-}
+import { Exam, Question, ExamSectionQuestion } from '../../exam/exam.model';
 
 interface ExamWithFeedback {
     id: number;
@@ -35,11 +30,6 @@ interface ExamWithFeedback {
 interface ExamWithStatement {
     id: number;
     languageInspection: { statement: { attachment: any } };
-}
-
-interface Question {
-    id: number;
-    attachment: { id?: number, fileName: string, removed: boolean };
 }
 
 interface AnsweredQuestion {
@@ -116,7 +106,7 @@ export class AttachmentService {
             });
     }
 
-    private getResource (url, external) {
+    private getResource(url, external) {
         return external ? url.replace('/app/', '/app/iop/') : url;
     }
 
@@ -136,11 +126,13 @@ export class AttachmentService {
         this.removeAnswerAttachment(this.externalAnswerAttachmentApi, question, hash);
     }
 
-    private removeAnswerAttachment(resource: ng.resource.IResourceClass<any>, question: AnsweredQuestion, hash: string) {
+    private removeAnswerAttachment(resource: ng.resource.IResourceClass<any>,
+        question: AnsweredQuestion, hash: string) {
+
         const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
             this.$translate.instant('sitnet_are_you_sure'));
         dialog.result.then(() => {
-            resource.remove({qid: question.id, hash: hash},
+            resource.remove({ qid: question.id, hash: hash },
                 (answer: { objectVersion: number }) => {
                     toast.info(this.$translate.instant('sitnet_attachment_removed'));
                     question.essayAnswer.objectVersion = answer.objectVersion;
@@ -194,7 +186,7 @@ export class AttachmentService {
         });
     }
 
-    downloadExternalQuestionAttachment(exam: Exam, sq: SectionQuestion) {
+    downloadExternalQuestionAttachment(exam: Exam, sq: ExamSectionQuestion) {
         if (sq.question.attachment.id) {
             this.Files.download(`/app/iop/attachment/exam/${exam.id}/question/${sq.id}`,
                 sq.question.attachment.fileName);

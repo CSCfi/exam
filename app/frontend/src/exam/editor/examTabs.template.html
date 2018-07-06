@@ -11,21 +11,22 @@
 
     <div class="tab-wrapper-exams">
         <uib-tabset active="$ctrl.activeTab">
-            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner || $ctrl.user.isAdmin)" index="1" heading="{{ 'sitnet_exam_basic_information_tab' | translate }}"
+            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner() || $ctrl.user.isAdmin)" index="1" heading="{{ 'sitnet_exam_basic_information_tab' | translate }}"
                 deselect="$ctrl.tabChanged($selectedIndex)">
-                <basic-exam-info exam="$ctrl.exam" on-next-tab-selected="$ctrl.switchToQuestions()" on-update="$ctrl.titleUpdated(props)">
-
+                <basic-exam-info exam="$ctrl.exam" on-next-tab-selected="$ctrl.switchToQuestions()" on-update="$ctrl.titleUpdated(props)"
+                    collaborative="$ctrl.collaborative">
                 </basic-exam-info>
             </uib-tab>
-            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner || $ctrl.user.isAdmin)" index="2" heading="{{ 'sitnet_exam_question_tab' | translate }}"
+            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner() || $ctrl.user.isAdmin)" index="2" heading="{{ 'sitnet_exam_question_tab' | translate }}"
                 deselect="$ctrl.tabChanged($selectedIndex)">
                 <sections exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToBasicInfo()" on-next-tab-selected="$ctrl.switchToPublishSettings()"
-                    on-new-library-question="$ctrl.reload()">
+                    collaborative="$ctrl.collaborative" on-new-library-question="$ctrl.reload()">
                 </sections>
             </uib-tab>
-            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner || $ctrl.user.isAdmin)" index="3" heading="{{ 'sitnet_exam_publish_tab' | translate }}"
+            <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner() || $ctrl.user.isAdmin)" index="3" heading="{{ 'sitnet_exam_publish_tab' | translate }}"
                 deselect="$ctrl.tabChanged($selectedIndex)">
-                <exam-publication exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToQuestions()"></exam-publication>
+                <exam-publication exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToQuestions()" collaborative="$ctrl.collaborative">
+                </exam-publication>
             </uib-tab>
             <uib-tab ng-if="$ctrl.exam && $ctrl.exam.executionType.type !== 'PRINTOUT'" index="4" heading="{{ 'sitnet_exam_responses' | translate }}"
                 deselect="$ctrl.tabChanged($selectedIndex)">
