@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import akka.actor.ActorSystem;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Model;
 import play.Logger;
@@ -80,6 +81,8 @@ class CollaborationController extends BaseController {
                     Logger.warn("non-ok response from XM: {}", root.get("message").asText());
                     return Optional.empty();
                 }
+                ce.setRevision(root.get("_rev").asText());
+                ce.update();
                 return Optional.of(ce.getExam(root));
             };
             return request.get().thenApplyAsync(onSuccess);
@@ -107,9 +110,21 @@ class CollaborationController extends BaseController {
                 }
                 return resultModel == null ? ok() : ok(resultModel);
             };
-            return request.put(serialize(content)).thenApplyAsync(onSuccess);
+            return request.put(serializeForUpdate(content, ce.getRevision())).thenApplyAsync(onSuccess);
         }
         return wrapAsPromise(internalServerError());
+    }
+
+    JsonNode serializeForUpdate(Exam exam, String revision) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String json = mapper.writeValueAsString(exam);
+            JsonNode node = mapper.readTree(json);
+            return ((ObjectNode) node).put("rev", revision);
+        } catch (IOException e) {
+            Logger.error("unable to serialize");
+            throw new RuntimeException(e);
+        }
     }
 
     JsonNode serialize(Exam exam) {

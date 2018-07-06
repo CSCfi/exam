@@ -33,7 +33,10 @@ import backend.util.JsonDeserializer;
 public class CollaborativeExam extends GeneratedIdentityModel {
 
     @Column
-    private String externalRef; // REFERENCE TO PARENT EXAM ELSEWHERE
+    private String externalRef; // REFERENCE TO EXAM ELSEWHERE
+
+    @Column
+    private String revision; // REFERENCE TO EXAM REVISION ELSEWHERE
 
     @Temporal(TemporalType.TIMESTAMP)
     private DateTime created;
@@ -44,6 +47,14 @@ public class CollaborativeExam extends GeneratedIdentityModel {
 
     public void setExternalRef(String externalRef) {
         this.externalRef = externalRef;
+    }
+
+    public String getRevision() {
+        return revision;
+    }
+
+    public void setRevision(String revision) {
+        this.revision = revision;
     }
 
     public DateTime getCreated() {
@@ -59,7 +70,6 @@ public class CollaborativeExam extends GeneratedIdentityModel {
         JsonNode formatted = ((ObjectNode) node).put("id", id);
         return JsonDeserializer.deserialize(Exam.class, formatted);
     }
-
 
 
 }
