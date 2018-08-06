@@ -16,131 +16,32 @@
 
 package controllers.iop;
 
-import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
 import backend.models.Attachment;
 import backend.models.Exam;
-import backend.models.ExamExecutionType;
 import backend.models.ExamSectionQuestion;
 import backend.models.json.ExternalExam;
 import backend.models.questions.EssayAnswer;
-import backend.models.questions.Question;
-import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
-import helpers.AttachmentServlet;
-import helpers.RemoteServerHelper;
 import io.ebean.Ebean;
-import net.jodah.concurrentunit.Waiter;
-import org.apache.commons.io.FileUtils;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.jetbrains.annotations.NotNull;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import javax.servlet.MultipartConfigElement;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Base64;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ExternalAttachmentControllerTest extends IntegrationTestCase {
-
-    private static final String EXAM_HASH = "0e6d16c51f857a20ab578f57f105032e";
-    private static Server server;
-    private static Path testUpload;
-    private static File testImage = getTestFile("test_files/test_image.png");
-    private static AttachmentServlet attachmentServlet;
-    private ExternalExam externalExam;
-    private ExamSectionQuestion examSectionQuestion;
-    private Exam exam;
-
-    @BeforeClass
-    public static void startServer() throws Exception {
-        server = new Server(31247);
-
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath("/api");
-
-        testUpload = Files.createTempDirectory("test_upload");
-        attachmentServlet = new AttachmentServlet(testImage);
-        ServletHolder fileUploadServletHolder = new ServletHolder(
-                attachmentServlet);
-        fileUploadServletHolder.getRegistration().setMultipartConfig(new MultipartConfigElement(testUpload.toString()));
-        context.addServlet(fileUploadServletHolder, "/*");
-
-        server.setHandler(context);
-        server.start();
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        exam = Ebean.find(Exam.class, 1L);
-        assert exam != null;
-        exam.setExecutionType(Ebean.find(ExamExecutionType.class, 1L));
-        exam.setExternal(true);
-        final Attachment examAttachment = createAttachment("test_image.png", testImage.getAbsolutePath(),
-                "image/png");
-        examAttachment.setExternalId("ab123fcdgkk");
-        exam.setAttachment(examAttachment);
-        exam.save();
-
-        examSectionQuestion = getExamSectionQuestion(exam);
-        final EssayAnswer answer = new EssayAnswer();
-        answer.setAnswer("Answer content");
-        answer.save();
-        examSectionQuestion.setEssayAnswer(answer);
-
-        Question question = examSectionQuestion.getQuestion();
-        final Attachment questionAttachment = createAttachment("test_image.png", testImage.getAbsolutePath(),
-                "image/png");
-        questionAttachment.setExternalId("9284774jdfjdfk");
-        question.setAttachment(questionAttachment);
-        question.save();
-
-        externalExam = new ExternalExam();
-        externalExam.setHash(EXAM_HASH);
-        externalExam.save();
-        externalExam.serialize(exam);
-
-        attachmentServlet.setWaiter(new Waiter());
-    }
-
-    @After
-    public void tearDown() {
-        try {
-            Logger.info("Cleaning test upload directory: {}", testUpload.toString());
-            FileUtils.deleteDirectory(testUpload.toFile());
-        } catch (IOException e) {
-            Logger.error("Test upload directory delete failed!", e);
-        }
-        super.tearDown();
-    }
-
-    @AfterClass
-    public static void shutdownServer() throws Exception {
-        RemoteServerHelper.shutdownServer(server);
-    }
+public class ExternalAttachmentControllerTest extends BaseCollaborativeAttachmentControllerTest<ExternalExam> {
 
     @Test
     @RunAsTeacher
@@ -183,7 +84,7 @@ public class ExternalAttachmentControllerTest extends IntegrationTestCase {
 
         Materializer mat = app.injector().instanceOf(Materializer.class);
 
-        Http.MultipartFormData.DataPart hash = new Http.MultipartFormData.DataPart("hash", EXAM_HASH);
+        Http.MultipartFormData.DataPart examId = new Http.MultipartFormData.DataPart("examId", EXAM_HASH);
         Http.MultipartFormData.DataPart questionId =
                 new Http.MultipartFormData.DataPart("questionId", examSectionQuestion.getId().toString());
 
@@ -191,7 +92,7 @@ public class ExternalAttachmentControllerTest extends IntegrationTestCase {
         Http.MultipartFormData.FilePart<Source<ByteString, ?>> fp =
                 new Http.MultipartFormData.FilePart<>("file", "test_image.png", "image/png", src);
 
-        requestBuilder.bodyMultipart(Arrays.asList(hash, questionId, fp),
+        requestBuilder.bodyMultipart(Arrays.asList(examId, questionId, fp),
                 new play.libs.Files.SingletonTemporaryFileCreator(), mat);
         Result result = Helpers.route(app, requestBuilder);
         assertThat(result.status()).isEqualTo(201);
@@ -235,18 +136,6 @@ public class ExternalAttachmentControllerTest extends IntegrationTestCase {
         assertThat(sq.getEssayAnswer().getAttachment()).isNull();
     }
 
-    private void assertDownloadResult(Result result) throws IOException {
-        assertThat(result.header("Content-Disposition").orElse(null))
-                .isEqualTo("attachment; filename=\"test_image.png\"");
-        ActorSystem actorSystem = ActorSystem.create("TestSystem");
-        Materializer mat = ActorMaterializer.create(actorSystem);
-        final String content = Helpers.contentAsString(result, mat);
-        final byte[] decoded = Base64.getDecoder().decode(content);
-        File f = new File(testUpload + "/image.png");
-        FileUtils.writeByteArrayToFile(f, decoded);
-        assertThat(FileUtils.contentEquals(f, testImage)).isTrue();
-    }
-
     @NotNull
     private Result requestExamAttachment(int status) {
         Result result = request(Helpers.GET, "/app/iop/attachment/exam/" + EXAM_HASH, null);
@@ -256,5 +145,17 @@ public class ExternalAttachmentControllerTest extends IntegrationTestCase {
 
     private void assertLastCall(String method) {
         assertThat(attachmentServlet.getLastCallMethod()).isEqualTo(method);
+    }
+
+    @Override
+    void createExam() {
+        externalExam = new ExternalExam();
+        externalExam.setHash(EXAM_HASH);
+        externalExam.save();
+        try {
+            externalExam.serialize(exam);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

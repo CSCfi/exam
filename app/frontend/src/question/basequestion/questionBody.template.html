@@ -232,13 +232,13 @@
             </div>
             <div ng-show="$ctrl.question.attachment && !$ctrl.question.attachment.removed" class="make-inline padl10">
                 <!-- Uploaded -->
-                <a ng-if="$ctrl.question.attachment.id" class="pointer attachment-link"
+                <a ng-if="$ctrl.hasUploadedAttachment()" class="pointer attachment-link"
                    ng-click="$ctrl.downloadQuestionAttachment()">
                     <i class="fa fa-paperclip fa-fw"></i> {{$ctrl.question.attachment.fileName}}
                 </a>
                 <!-- Not yet uploaded -->
-                <span ng-if="!$ctrl.question.attachment.id" class="attachment-link">
-                    <i class="fa fa-paperclip fa-fw"></i> {{$ctrl.question.attachment.name}}
+                <span ng-if="!$ctrl.hasUploadedAttachment()" class="attachment-link">
+                    <i class="fa fa-paperclip fa-fw"></i> {{$ctrl.question.attachment.fileName}}
                     <small ng-if="$ctrl.question.attachment">
                         ({{ $ctrl.getFileSize() }})</small>
                 </span>

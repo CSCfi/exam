@@ -48,11 +48,21 @@ export interface ExamLanguage {
     name: string;
 }
 
+export interface Attachment {
+    id?: number;
+    externalId?: number;
+    fileName: string;
+    removed: boolean;
+    modified: boolean;
+    size: number;
+    file?: File;
+}
+
 export interface Question {
     id: number;
     question: string;
     type: string;
-    attachment: { id?: number, fileName: string, removed: boolean };
+    attachment:  Attachment;
 }
 
 export interface ExamSectionQuestion {
@@ -76,7 +86,7 @@ export interface ExamSection {
 
 export interface Exam {
     id: number;
-    attachment: { id: number, fileName: string } | null;
+    attachment: Attachment | null;
     hasEnrolmentsInEffect: boolean;
     name: string | null;
     examActiveStartDate: VarDate;
@@ -84,6 +94,7 @@ export interface Exam {
     duration: number;
     course: Course | null;
     external: boolean;
+    collaborative: boolean;
     hash: string;
     examOwners: User[];
     examType: { type: string };

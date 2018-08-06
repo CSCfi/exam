@@ -16,13 +16,11 @@
 
 package helpers;
 
-import base.IntegrationTestCase;
 import net.jodah.concurrentunit.Waiter;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
@@ -31,11 +29,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Objects;
 
-public class AttachmentServlet extends HttpServlet {
+public class AttachmentServlet extends BaseServlet {
 
-    private static String calledMethod;
     private File testFile;
-    private Waiter waiter;
 
     public AttachmentServlet() {
         final ClassLoader classLoader = AttachmentServlet.class.getClassLoader();
@@ -70,7 +66,10 @@ public class AttachmentServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        if (req.getHeader("Content-Type").toLowerCase().startsWith("multipart/form-data")) {
+            req.getPart("file");
+        }
         resp.setStatus(HttpServletResponse.SC_CREATED);
         resp.getWriter().write("{\"id\": \"abcdefg123456\", \"displayName\": \"test_image.png\", \"mimeType\": \"image/png\"}");
         resp.getWriter().flush();
@@ -89,17 +88,4 @@ public class AttachmentServlet extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_OK);
     }
 
-    public String getLastCallMethod() {
-        String call = calledMethod;
-        calledMethod = null;
-        return call;
-    }
-
-    public void setWaiter(Waiter waiter) {
-        this.waiter = waiter;
-    }
-
-    public Waiter getWaiter() {
-        return waiter;
-    }
 }

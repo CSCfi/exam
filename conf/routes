@@ -239,8 +239,8 @@ POST          /app/attachment/question                                 backend.c
 DELETE        /app/attachment/question/:id                             backend.controllers.AttachmentController.deleteQuestionAttachment(id: Long)
 GET           /app/attachment/question/:id                             backend.controllers.AttachmentController.downloadQuestionAttachment(id: Long)
 POST          /app/attachment/question/answer                          backend.controllers.AttachmentController.addAttachmentToQuestionAnswer()
-DELETE        /app/attachment/question/:qid/answer/:hash               backend.controllers.AttachmentController.deleteQuestionAnswerAttachment(qid: Long, hash: String)
-GET           /app/attachment/question/:qid/answer/:hash               backend.controllers.AttachmentController.downloadQuestionAnswerAttachment(qid: Long, hash: String)
+DELETE        /app/attachment/question/:qid/answer                     backend.controllers.AttachmentController.deleteQuestionAnswerAttachment(qid: Long)
+GET           /app/attachment/question/:qid/answer                     backend.controllers.AttachmentController.downloadQuestionAnswerAttachment(qid: Long)
 POST          /app/attachment/exam                                     backend.controllers.AttachmentController.addAttachmentToExam()
 DELETE        /app/attachment/exam/:id                                 backend.controllers.AttachmentController.deleteExamAttachment(id: Long)
 GET           /app/attachment/exam/:id                                 backend.controllers.AttachmentController.downloadExamAttachment(id: Long)
@@ -312,7 +312,24 @@ PUT           /integration/iop/exams/:eid/sections/:sid/reorder        backend.c
 PUT           /integration/iop/exams/:eid/reorder                      backend.controllers.iop.collaboration.CollaborativeExamSectionController.reorderSections(eid: Long)
 PUT           /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.controllers.iop.collaboration.CollaborativeExamSectionController.updateQuestion(eid: Long, sid: Long, qid: Long)
 
+############# Integration attachments #################
+POST          /integration/iop/attachment/question                     backend.controllers.iop.collaboration.CollaborativeAttachmentController.addAttachmentToQuestion()
+DELETE        /integration/iop/attachment/exam/:eid/question/:qid      backend.controllers.iop.collaboration.CollaborativeAttachmentController.deleteQuestionAttachment(eid: Long, qid: Long)
+GET           /integration/iop/attachment/exam/:eid/question/:qid      backend.controllers.iop.collaboration.CollaborativeAttachmentController.downloadQuestionAttachment(eid: Long, qid: Long)
+POST          /integration/iop/attachment/question/answer              backend.controllers.iop.collaboration.CollaborativeAttachmentController.addAttachmentToQuestionAnswer()
+DELETE        /integration/iop/attachment/question/:qid/answer/:eid    backend.controllers.iop.collaboration.CollaborativeAttachmentController.deleteQuestionAnswerAttachment(qid: Long, eid: Long)
+GET           /integration/iop/attachment/question/:qid/answer/:eid    backend.controllers.iop.collaboration.CollaborativeAttachmentController.downloadQuestionAnswerAttachment(qid: Long, eid: Long)
+POST          /integration/iop/attachment/exam                         backend.controllers.iop.collaboration.CollaborativeAttachmentController.addAttachmentToExam()
+DELETE        /integration/iop/attachment/exam/:id                     backend.controllers.iop.collaboration.CollaborativeAttachmentController.deleteExamAttachment(id: Long)
+GET           /integration/iop/attachment/exam/:id                     backend.controllers.iop.collaboration.CollaborativeAttachmentController.downloadExamAttachment(id: Long)
 
+POST          /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.CollaborativeAttachmentController.addFeedbackAttachment(id: Long)
+DELETE        /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.CollaborativeAttachmentController.deleteFeedbackAttachment(id: Long)
+GET           /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.CollaborativeAttachmentController.downloadFeedbackAttachment(id: Long)
+
+POST          /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.CollaborativeAttachmentController.addStatementAttachment(id: Long)
+DELETE        /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.CollaborativeAttachmentController.deleteStatementAttachment(id: Long)
+GET           /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.CollaborativeAttachmentController.downloadStatementAttachment(id: Long)
 
 ################# Time interface ######################
 GET           /app/time/:hash                                          backend.controllers.TimeController.getExamRemainingTime(hash: String)

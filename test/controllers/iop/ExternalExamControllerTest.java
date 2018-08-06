@@ -70,7 +70,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     private static File testImage = getTestFile("test_files/test_image.png");
     private static AttachmentServlet attachmentServlet;
 
-    private Exam exam;
+    private static Exam exam;
     private ExamEnrolment enrolment;
     private Reservation reservation = new Reservation();
 

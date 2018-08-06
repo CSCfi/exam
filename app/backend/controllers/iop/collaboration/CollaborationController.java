@@ -1,19 +1,14 @@
 package backend.controllers.iop.collaboration;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
-
 import akka.actor.ActorSystem;
+import backend.controllers.base.BaseController;
+import backend.impl.EmailComposer;
+import backend.impl.ExamUpdater;
+import backend.models.Exam;
+import backend.models.Role;
+import backend.models.Session;
+import backend.models.User;
+import backend.models.json.CollaborativeExam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -27,14 +22,18 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
-import backend.controllers.base.BaseController;
-import backend.impl.EmailComposer;
-import backend.impl.ExamUpdater;
-import backend.models.Exam;
-import backend.models.Role;
-import backend.models.Session;
-import backend.models.User;
-import backend.models.json.CollaborativeExam;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 class CollaborationController extends BaseController {
 
@@ -42,7 +41,7 @@ class CollaborationController extends BaseController {
     WSClient wsClient;
 
     @Inject
-    ExamUpdater examUpdater;
+    protected ExamUpdater examUpdater;
 
     @Inject
     protected HttpExecutionContext ec;
@@ -70,7 +69,6 @@ class CollaborationController extends BaseController {
         }
     }
 
-
     CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce) {
         Optional<URL> url = parseUrl(ce.getExternalRef());
         if (url.isPresent()) {
@@ -91,15 +89,13 @@ class CollaborationController extends BaseController {
     }
 
     CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, boolean isPrePublication,
-                                       Model resultModel) {
+                                       Model resultModel, User sender) {
         Optional<URL> url = parseUrl(ce.getExternalRef());
-        User sender = getLoggedUser();
         if (url.isPresent()) {
-            examUpdater.update(content, request());
             WSRequest request = wsClient.url(url.get().toString());
             Function<WSResponse, Result> onSuccess = response -> {
-                JsonNode root = response.asJson();
                 if (response.getStatus() != OK) {
+                    JsonNode root = response.asJson();
                     return internalServerError(root.get("message").asText());
                 }
                 if (isPrePublication) {
@@ -148,9 +144,4 @@ class CollaborationController extends BaseController {
     long newId() {
         return Math.abs(random.nextLong());
     }
-
-
-
-
-
 }

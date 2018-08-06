@@ -15,16 +15,20 @@
 
 package backend.controllers.iop.collaboration;
 
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
+import backend.models.Exam;
+import backend.models.ExamExecutionType;
+import backend.models.ExamSection;
+import backend.models.ExamType;
+import backend.models.GradeScale;
+import backend.models.Language;
+import backend.models.Session;
+import backend.models.User;
+import backend.models.json.CollaborativeExam;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.EmailSanitizer;
+import backend.sanitizers.ExamUpdateSanitizer;
+import backend.util.AppUtil;
+import backend.util.ConfigUtil;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,14 +40,15 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.With;
 
-import backend.models.*;
-import backend.models.json.CollaborativeExam;
-import backend.sanitizers.Attrs;
-import backend.sanitizers.EmailSanitizer;
-import backend.sanitizers.ExamUpdateSanitizer;
-import backend.util.AppUtil;
-import backend.util.ConfigUtil;
-
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class CollaborativeExamController extends CollaborationController {
 
@@ -207,7 +212,8 @@ public class CollaborativeExamController extends CollaborationController {
                     Exam.State nextState = exam.getState();
                     boolean isPrePublication =
                             previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED;
-                    return uploadExam(ce, exam, isPrePublication, null);
+                    examUpdater.update(exam, request());
+                    return uploadExam(ce, exam, isPrePublication, null, getLoggedUser());
                 }
                 return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
             }
@@ -225,7 +231,9 @@ public class CollaborativeExamController extends CollaborationController {
             if (result.isPresent()) {
                 Exam exam = result.get();
                 Optional<Result> error = examUpdater.updateLanguage(exam, code, getLoggedUser(), getSession());
-                return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, false, null);
+                examUpdater.update(exam, request());
+                return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, false,
+                        null, getLoggedUser());
             }
             return wrapAsPromise(notFound());
         }, ec.current());
@@ -243,7 +251,8 @@ public class CollaborativeExamController extends CollaborationController {
                 Exam exam = result.get();
                 User user = createOwner(request().attrs().get(Attrs.EMAIL));
                 exam.getExamOwners().add(user);
-                return uploadExam(ce, exam, false, user);
+                examUpdater.update(exam, request());
+                return uploadExam(ce, exam, false, user, getLoggedUser());
             }
             return wrapAsPromise(notFound());
         }, ec.current());
@@ -261,7 +270,8 @@ public class CollaborativeExamController extends CollaborationController {
                 User user = new User();
                 user.setId(oid);
                 exam.getExamOwners().remove(user);
-                return uploadExam(ce, exam, false, null);
+                examUpdater.update(exam, request());
+                return uploadExam(ce, exam, false, null, getLoggedUser());
             }
             return wrapAsPromise(notFound());
         }, ec.current());
@@ -273,6 +283,4 @@ public class CollaborativeExamController extends CollaborationController {
         user.setEmail(email);
         return user;
     }
-
-
 }

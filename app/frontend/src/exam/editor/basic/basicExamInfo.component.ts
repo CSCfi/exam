@@ -16,10 +16,10 @@
 
 import * as ng from 'angular';
 import * as toast from 'toastr';
-import { IModalService } from 'angular-ui-bootstrap';
-import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { FileService } from '../../../utility/file/file.service';
-import { Exam, ExamExecutionType, GradeScale, Course } from '../../exam.model';
+import {IModalService} from 'angular-ui-bootstrap';
+import {AttachmentService} from '../../../utility/attachment/attachment.service';
+import {FileService} from '../../../utility/file/file.service';
+import {Course, Exam, ExamExecutionType, GradeScale} from '../../exam.model';
 
 export const BasicExamInfoComponent: ng.IComponentOptions = {
     template: require('./basicExamInfo.template.html'),
@@ -83,7 +83,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                     delete this.exam.autoEvaluationConfig;
                 }
                 const code = this.exam.course ? this.exam.course.code : null;
-                this.onUpdate({ props: { name: this.exam.name, code: code } });
+                this.onUpdate({props: {name: this.exam.name, code: code}});
             }, (error) => {
                 if (error.data) {
                     const msg = error.data.message || error.data;
@@ -96,7 +96,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             this.exam.course = course;
             this.initGradeScale(); //  Grade scale might need changing based on new course
             const code = this.exam.course ? this.exam.course.code : null;
-            this.onUpdate({ props: { name: this.exam.name, code: code } });
+            this.onUpdate({props: {name: this.exam.name, code: code}});
         }
 
         getExecutionTypeTranslation = () =>
@@ -156,19 +156,24 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                     isTeacherModal: () => true
                 }
             }).result.then((data) => {
-                this.Files.upload('/app/attachment/exam',
-                    data.attachmentFile, { examId: this.exam.id }, this.exam);
+                let url = this.collaborative ? '/integration/iop/attachment/exam' : '/app/attachment/exam';
+                this.Files.upload(url,
+                    data.attachmentFile, {examId: this.exam.id}, this.exam);
             });
-        }
+        };
 
-        downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam);
+        downloadExamAttachment = () => {
+            this.Attachment.downloadExamAttachment(this.exam, this.collaborative);
+        };
 
-        removeExamAttachment = () => this.Attachment.removeExamAttachment(this.exam);
+        removeExamAttachment = () => {
+            this.Attachment.removeExamAttachment(this.exam, this.collaborative);
+        };
 
         removeExam = (canRemoveWithoutConfirmation: boolean) => {
             if (this.isAllowedToUnpublishOrRemove()) {
                 const fn = () => {
-                    this.ExamRes.exams.remove({ id: this.exam.id }, () => {
+                    this.ExamRes.exams.remove({id: this.exam.id}, () => {
                         toast.success(this.$translate.instant('sitnet_exam_removed'));
                         this.$location.path('/');
                     }, error => toast.error(error.data));
