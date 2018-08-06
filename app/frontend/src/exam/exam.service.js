@@ -70,14 +70,15 @@ angular.module('app.exam')
                     'trialCount': exam.trialCount || undefined,
                     'subjectToLanguageInspection': exam.subjectToLanguageInspection,
                     'internalRef': exam.internalRef,
-                    'objectVersion': exam.objectVersion
+                    'objectVersion': exam.objectVersion,
+                    'attachment': exam.attachment
                 };
                 for (let k in overrides) {
                     if (overrides.hasOwnProperty(k)) {
                         data[k] = overrides[k];
                     }
                 }
-                const url = collaborative ? '/integration/iop/exams' : '/app/exams'
+                const url = collaborative ? '/integration/iop/exams' : '/app/exams';
                 const deferred = $q.defer();
                 $http.put(`${url}/${exam.id}`, data).then(function (response) {
                     deferred.resolve(response.data);

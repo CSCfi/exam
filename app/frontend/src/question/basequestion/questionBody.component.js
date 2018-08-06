@@ -22,7 +22,9 @@ angular.module('app.question')
         bindings: {
             question: '<',
             currentOwners: '<',
-            lotteryOn: '<'
+            lotteryOn: '<',
+            examId: '<',
+            sectionQuestion: '<',
         },
         controller: ['$scope', '$translate', 'Session', 'Attachment', 'UserRes', 'limitToFilter', 'Question',
             function ($scope, $translate, Session, Attachment, UserRes, limitToFilter, Question) {
@@ -130,12 +132,21 @@ angular.module('app.question')
 
                 vm.selectFile = function () {
                     Attachment.selectFile(true).then(function (data) {
-                        data.attachmentFile.modified = true;
-                        vm.question.attachment = data.attachmentFile;
+                        if (!vm.question.attachment) {
+                            vm.question.attachment = {};
+                        }
+                        vm.question.attachment.modified = true;
+                        vm.question.attachment.fileName = data.attachmentFile.name;
+                        vm.question.attachment.size = data.attachmentFile.size;
+                        vm.question.attachment.file = data.attachmentFile;
                     });
                 };
 
                 vm.downloadQuestionAttachment = function () {
+                    if (vm.question.attachment.externalId) {
+                        Attachment.downloadCollaborativeQuestionAttachment(vm.examId, vm.sectionQuestion);
+                        return;
+                    }
                     Attachment.downloadQuestionAttachment(vm.question);
                 };
 
@@ -145,6 +156,11 @@ angular.module('app.question')
 
                 vm.getFileSize = function () {
                     return Attachment.getFileSize(vm.question.attachment);
+                };
+
+                vm.hasUploadedAttachment = function () {
+                    const a = vm.question.attachment;
+                    return a && (a.id || a.externalId);
                 };
 
                 vm.updateEvaluationType = function () {

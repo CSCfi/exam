@@ -41,7 +41,7 @@ angular.module('app.examination')
                         Attachment.removeExternalQuestionAnswerAttachment(vm.sq, vm.exam.hash);
                         return;
                     }
-                    Attachment.removeQuestionAnswerAttachment(vm.sq, vm.exam.hash);
+                    Attachment.removeQuestionAnswerAttachment(vm.sq);
                 };
 
                 vm.selectFile = function () {
@@ -51,7 +51,7 @@ angular.module('app.examination')
                     Attachment.selectFile(false).then(function (data) {
                         if (vm.exam.external) {
                             Files.uploadAnswerAttachment('/app/iop/attachment/question/answer', data.attachmentFile,
-                                {questionId: vm.sq.id, hash: vm.exam.hash}, vm.sq.essayAnswer);
+                                {questionId: vm.sq.id, examId: vm.exam.hash}, vm.sq.essayAnswer);
                             return;
                         }
                         Files.uploadAnswerAttachment('/app/attachment/question/answer', data.attachmentFile,

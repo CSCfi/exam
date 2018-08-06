@@ -17,10 +17,9 @@
 
 import * as ng from 'angular';
 import * as toast from 'toastr';
-import { IHttpService } from 'angular';
 import * as uib from 'angular-ui-bootstrap';
-import { FileService } from '../file/file.service';
-import { Exam, Question, ExamSectionQuestion } from '../../exam/exam.model';
+import {FileService} from '../file/file.service';
+import {Attachment, Exam, ExamSectionQuestion, Question} from '../../exam/exam.model';
 
 interface ExamWithFeedback {
     id: number;
@@ -40,9 +39,11 @@ interface AnsweredQuestion {
 export class AttachmentService {
 
     private questionAttachmentApi: ng.resource.IResourceClass<any>;
+    private collaborativeQuestionAttachmentApi: ng.resource.IResourceClass<any>;
     private answerAttachmentApi: ng.resource.IResourceClass<any>;
     private externalAnswerAttachmentApi: ng.resource.IResourceClass<any>;
     private examAttachmentApi: ng.resource.IResourceClass<any>;
+    private collaborativeExamAttachmentApi: ng.resource.IResourceClass<any>;
     private feedbackAttachmentApi: ng.resource.IResourceClass<any>;
     private statementAttachmentApi: ng.resource.IResourceClass<any>;
 
@@ -51,7 +52,7 @@ export class AttachmentService {
         private $uibModal: uib.IModalService,
         private dialogs: angular.dialogservice.IDialogService,
         private $translate: ng.translate.ITranslateService,
-        private Files: FileService
+        private Files: FileService,
     ) {
         'ngInject';
 
@@ -60,16 +61,23 @@ export class AttachmentService {
                 id: '@id'
             },
             {
-                'remove': { method: 'DELETE', params: { id: '@id' } }
+                'remove': {method: 'DELETE', params: {id: '@id'}}
             });
-        this.answerAttachmentApi = $resource(
-            '/app/attachment/question/:qid/answer/:hash',
+        this.collaborativeQuestionAttachmentApi = $resource('/integration/iop/attachment/exam/:eid/question/:qid',
             {
-                qid: '@qid',
-                hash: '@hash'
+                eid: '@eid',
+                qid: '@qid'
             },
             {
-                'remove': { method: 'DELETE', params: { qid: '@qid', hash: '@hash' } }
+                'remove': {method: 'DELETE', params: {id: '@id'}}
+            });
+        this.answerAttachmentApi = $resource(
+            '/app/attachment/question/:qid/answer',
+            {
+                qid: '@qid'
+            },
+            {
+                'remove': {method: 'DELETE', params: {qid: '@qid'}}
             });
         this.externalAnswerAttachmentApi = $resource(
             '/app/iop/attachment/question/:qid/answer/:hash',
@@ -78,7 +86,7 @@ export class AttachmentService {
                 hash: '@hash'
             },
             {
-                'remove': { method: 'DELETE', params: { qid: '@qid', hash: '@hash' } }
+                'remove': {method: 'DELETE', params: {qid: '@qid', hash: '@hash'}}
             });
         this.examAttachmentApi = $resource(
             '/app/attachment/exam/:id',
@@ -86,7 +94,15 @@ export class AttachmentService {
                 id: '@id'
             },
             {
-                'remove': { method: 'DELETE', params: { id: '@id' } }
+                'remove': {method: 'DELETE', params: {id: '@id'}}
+            });
+        this.collaborativeExamAttachmentApi = $resource(
+            '/integration/iop/attachment/exam/:id ',
+            {
+                id: '@id'
+            },
+            {
+                'remove': {method: 'DELETE', params: {id: '@id'}}
             });
         this.feedbackAttachmentApi = $resource(
             '/app/attachment/exam/:id/feedback',
@@ -94,7 +110,7 @@ export class AttachmentService {
                 id: '@id'
             },
             {
-                'remove': { method: 'DELETE', params: { eid: '@id' } }
+                'remove': {method: 'DELETE', params: {eid: '@id'}}
             });
         this.statementAttachmentApi = $resource(
             '/app/attachment/exam/:id/statement',
@@ -102,12 +118,13 @@ export class AttachmentService {
                 id: '@id'
             },
             {
-                'remove': { method: 'DELETE', params: { eid: '@id' } }
+                'remove': {method: 'DELETE', params: {eid: '@id'}}
             });
     }
 
-    private getResource(url, external) {
-        return external ? url.replace('/app/', '/app/iop/') : url;
+    private getResource(url, external = false, collaborative = false) {
+        return external ? url.replace('/app/', '/app/iop/') :
+            collaborative ? url.replace('/app/', '/integration/iop/') : url;
     }
 
     removeQuestionAttachment(question: { attachment: { removed: boolean } }) {
@@ -115,24 +132,26 @@ export class AttachmentService {
     }
 
     eraseQuestionAttachment(question: { id: number }): ng.IPromise<any> {
-        return this.questionAttachmentApi.remove({ id: question.id }).$promise;
+        return this.questionAttachmentApi.remove({id: question.id}).$promise;
     }
 
-    removeQuestionAnswerAttachment(question: AnsweredQuestion, hash: string) {
-        this.removeAnswerAttachment(this.answerAttachmentApi, question, hash);
+    eraseCollaborativeQuestionAttachment(examId: number, questionId: number): ng.IPromise<any> {
+        return this.collaborativeQuestionAttachmentApi.remove({eid: examId, qid: questionId}).$promise;
+    }
+
+    removeQuestionAnswerAttachment(question: AnsweredQuestion) {
+        this.removeAnswerAttachment(this.answerAttachmentApi, question);
     }
 
     removeExternalQuestionAnswerAttachment(question: AnsweredQuestion, hash: string) {
         this.removeAnswerAttachment(this.externalAnswerAttachmentApi, question, hash);
     }
 
-    private removeAnswerAttachment(resource: ng.resource.IResourceClass<any>,
-        question: AnsweredQuestion, hash: string) {
-
+    private removeAnswerAttachment(resource: ng.resource.IResourceClass<any>, question: AnsweredQuestion, hash?: string) {
         const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
             this.$translate.instant('sitnet_are_you_sure'));
         dialog.result.then(() => {
-            resource.remove({ qid: question.id, hash: hash },
+            resource.remove({qid: question.id, hash: hash},
                 (answer: { objectVersion: number }) => {
                     toast.info(this.$translate.instant('sitnet_attachment_removed'));
                     question.essayAnswer.objectVersion = answer.objectVersion;
@@ -143,11 +162,12 @@ export class AttachmentService {
         });
     }
 
-    removeExamAttachment(exam: Exam) {
+    removeExamAttachment(exam: Exam, collaborative = false) {
         const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
             this.$translate.instant('sitnet_are_you_sure'));
         dialog.result.then(() => {
-            this.examAttachmentApi.remove({ id: exam.id },
+            let api = collaborative ? this.collaborativeExamAttachmentApi : this.examAttachmentApi;
+            api.remove({id: exam.id},
                 () => {
                     toast.info(this.$translate.instant('sitnet_attachment_removed'));
                     delete exam.attachment;
@@ -161,7 +181,7 @@ export class AttachmentService {
         const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
             this.$translate.instant('sitnet_are_you_sure'));
         dialog.result.then(() => {
-            this.feedbackAttachmentApi.remove({ id: exam.id },
+            this.feedbackAttachmentApi.remove({id: exam.id},
                 () => {
                     toast.info(this.$translate.instant('sitnet_attachment_removed'));
                     exam.examFeedback.attachment = null;
@@ -176,7 +196,7 @@ export class AttachmentService {
         const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
             this.$translate.instant('sitnet_are_you_sure'));
         dialog.result.then(function (btn) {
-            this.statementAttachmentApi.remove({ id: exam.id },
+            this.statementAttachmentApi.remove({id: exam.id},
                 () => {
                     toast.info(this.$translate.instant('sitnet_attachment_removed'));
                     delete exam.languageInspection.statement.attachment;
@@ -199,17 +219,24 @@ export class AttachmentService {
         }
     }
 
+    downloadCollaborativeQuestionAttachment(examId: Number, sq: ExamSectionQuestion) {
+        if (sq.question.attachment.externalId) {
+            this.Files.download(`/integration/iop/attachment/exam/${examId}/question/${sq.id}`,
+                sq.question.attachment.fileName);
+        }
+    }
+
     downloadQuestionAnswerAttachment(question: AnsweredQuestion, hash: string) {
         this.Files.download(`/app/attachment/question/${question.id}/answer/${hash}`,
             question.essayAnswer.attachment.fileName);
     }
 
-    downloadExamAttachment(exam: Exam) {
+    downloadExamAttachment(exam: Exam, collaborative = false) {
         if (!exam.attachment) {
             return;
         }
         this.Files.download(this.getResource(`/app/attachment/exam/${exam.external ? exam.hash : exam.id}`,
-            exam.external),
+            exam.external, collaborative),
             exam.attachment.fileName);
     }
 
@@ -222,7 +249,7 @@ export class AttachmentService {
             exam.languageInspection.statement.attachment.fileName);
     }
 
-    getFileSize(attachment: File): string {
+    getFileSize(attachment: Attachment): string {
         return Math.round(attachment.size / 1000) + ' kB';
     }
 

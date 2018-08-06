@@ -21,7 +21,8 @@ angular.module('app.question')
             '<div id="sitnet-dialog">\n' +
             '    <div class="modal-body">\n' +
             '        <question new-question="$ctrl.resolve.newQuestion" question-id="$ctrl.resolve.questionId" on-save="$ctrl.onSave(question)" on-cancel="$ctrl.cancel()"\n' +
-            '                  question-draft="$ctrl.resolve.questionDraft" collaborative="$ctrl.resolve.collaborative" lottery-on="$ctrl.resolve.lotteryOn"></question>\n' +
+            '                  question-draft="$ctrl.resolve.questionDraft" collaborative="$ctrl.resolve.collaborative" lottery-on="$ctrl.resolve.lotteryOn"' +
+            '                  exam-id="$ctrl.resolve.examId" section-question="$ctrl.resolve.sectionQuestion"></question>\n' +
             '    </div>\n' +
             '    <div class="modal-footer">\n' +
             '    </div>\n' +

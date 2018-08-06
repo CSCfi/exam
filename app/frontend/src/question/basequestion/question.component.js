@@ -35,7 +35,8 @@ angular.module('app.question')
             '        <div class="col-md-12 question-border padl40 padr40">\n' +
             '            <form role="form" class="form-horizontal" name="questionForm" novalidate>\n' +
             '                <question-body ng-if="$ctrl.question" question="$ctrl.question" ' +
-            '                       current-owners="$ctrl.currentOwners" lottery-on="$ctrl.lotteryOn"></question-body>\n' +
+            '                       current-owners="$ctrl.currentOwners" lottery-on="$ctrl.lotteryOn"' +
+            '                       exam-id="$ctrl.examId" section-question="$ctrl.sectionQuestion"></question-body>\n' +
             '            </form>\n' +
             '            <!-- buttons -->\n' +
             '            <div class="mart20">\n' +
@@ -59,6 +60,8 @@ angular.module('app.question')
             questionDraft: '<?',
             lotteryOn: '<',
             collaborative: '<',
+            examId: '<',
+            sectionQuestion: '<',
             onSave: '&?',
             onCancel: '&?'
         },
@@ -104,7 +107,7 @@ angular.module('app.question')
                         } else {
                             $location.path('/questions');
                         }
-                    }
+                    };
                     if (vm.newQuestion) {
                         Question.createQuestion(vm.question).then(
                             function (question) {
@@ -113,7 +116,6 @@ angular.module('app.question')
                                 toast.error(error.data);
                             });
                     } else if (vm.collaborative) {
-                        // TODO: ATTACHMENTS, how to upload
                         fn(vm.question);
                     } else {
                         Question.updateQuestion(vm.question, true).then(

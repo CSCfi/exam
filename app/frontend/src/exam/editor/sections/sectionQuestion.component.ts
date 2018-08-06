@@ -22,6 +22,7 @@ import { IModalService } from 'angular-ui-bootstrap';
 import { ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { IDeferred } from 'angular';
+import { FileService } from "../../../utility/file/file.service";
 
 export const SectionQuestionComponent: ng.IComponentOptions = {
     template: require('./sectionQuestion.template.html'),
@@ -49,6 +50,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
             private dialogs: angular.dialogservice.IDialogService,
             private Question: any,
             private Attachment: AttachmentService,
+            private Files: FileService
         ) {
             'ngInject';
         }
@@ -95,7 +97,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
         }
 
         private getResource = (url: string) => this.parentCtrl.collaborative ?
-            url.replace('/app/exams/', '/integration/iop/exams/') : url
+            url.replace('/app/exams/', '/integration/iop/exams/') : url;
 
         private openBaseQuestionEditor = () => {
             this.$uibModal.open({
@@ -107,16 +109,36 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                     lotteryOn: this.lotteryOn,
                     questionDraft: ng.extend(this.sectionQuestion.question,
                         { examSectionQuestions: [] }),
-                    collaborative: this.parentCtrl.collaborative
+                    collaborative: this.parentCtrl.collaborative,
+                    examId: this.parentCtrl.examId,
+                    sectionQuestion: this.sectionQuestion
                 }
             }).result.then((data: { question: Question }) => {
                 const resource = `/app/exams/${this.parentCtrl.examId}/sections/` +
                     `${this.parentCtrl.section.id}/questions/${this.sectionQuestion.id}`;
                 this.$http.put(this.getResource(resource), { question: data.question })
-                    .then((resp: ng.IHttpResponse<ExamSectionQuestion>) => ng.extend(this.sectionQuestion, resp.data))
+                    .then((resp: ng.IHttpResponse<ExamSectionQuestion>) => {
+                        ng.extend(this.sectionQuestion, resp.data);
+                        // Collaborative exam question handling.
+                        if (!this.parentCtrl.collaborative) {
+                            return;
+                        }
+                        const attachment = data.question.attachment;
+                        if (!attachment) {
+                            return;
+                        }
+                        if (attachment.modified && attachment.file) {
+                            this.Files.upload('/integration/iop/attachment/question', attachment.file,
+                                { examId: this.parentCtrl.examId, questionId: this.sectionQuestion.id },
+                                data.question);
+                        } else if (attachment.removed) {
+                            this.Attachment.eraseCollaborativeQuestionAttachment(this.parentCtrl.examId,
+                                this.sectionQuestion.id);
+                        }
+                    })
                     .catch(resp => toast.error(resp.data));
             });
-        }
+        };
 
         private openDistributedQuestionEditor = () => {
             this.$uibModal.open({

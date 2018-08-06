@@ -26,9 +26,8 @@ import akka.stream.IOResult;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import backend.controllers.base.BaseAttachmentController;
+import backend.controllers.base.BaseController;
 import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
@@ -51,7 +50,7 @@ import backend.util.AppUtil;
 import backend.util.ConfigUtil;
 
 
-public class AttachmentController extends BaseAttachmentController<Long> {
+public class AttachmentController extends BaseController implements LocalAttachmentInterface {
 
     @Inject
     private Environment environment;
@@ -128,17 +127,17 @@ public class AttachmentController extends BaseAttachmentController<Long> {
         return wrapAsPromise(ok(answer));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addAttachmentToQuestion() {
+    @Override
+    public CompletionStage<Result> addAttachmentToQuestion() {
 
         MultipartFormData<File> body = request().body().asMultipartFormData();
         FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         File file = filePart.getFile();
         if (file.length() > ConfigUtil.getMaxFileSize()) {
-            return forbidden("sitnet_file_too_large");
+            return wrapAsPromise(forbidden("sitnet_file_too_large"));
         }
         Map<String, String[]> m = body.asFormUrlEncoded();
         Long qid = Long.parseLong(m.get("questionId")[0]);
@@ -148,13 +147,13 @@ public class AttachmentController extends BaseAttachmentController<Long> {
                 .idEq(qid)
                 .findUnique();
         if (question == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         String newFilePath;
         try {
             newFilePath = copyFile(file, "question", qid.toString());
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_attachment");
+            return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
         // Remove existing one if found
         removePrevious(question);
@@ -164,10 +163,10 @@ public class AttachmentController extends BaseAttachmentController<Long> {
         question.setAttachment(attachment);
         question.save();
 
-        return ok(attachment);
+        return wrapAsPromise(ok(attachment));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Override
     public Result deleteQuestionAttachment(Long id) {
 
         Question question = Ebean.find(Question.class, id);
@@ -176,7 +175,7 @@ public class AttachmentController extends BaseAttachmentController<Long> {
     }
 
     @Override
-    public CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid, String hash) {
+    public CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid) {
         User user = getLoggedUser();
         ExamSectionQuestion question;
         if (user.hasRole("STUDENT", getSession())) {
@@ -199,69 +198,69 @@ public class AttachmentController extends BaseAttachmentController<Long> {
         return wrapAsPromise(notFound());
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result deleteExamAttachment(Long id) {
+    @Override
+    public CompletionStage<Result> deleteExamAttachment(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
         User user = getLoggedUser();
         if (exam == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         if (!user.hasRole(Role.Name.ADMIN.toString(), getSession()) && !exam.isOwnedOrCreatedBy(user)) {
-            return forbidden("sitnet_error_access_forbidden");
+            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
         }
 
         removePrevious(exam);
-        return redirect("/#/exams/" + String.valueOf(id));
+        return wrapAsPromise(redirect("/#/exams/" + String.valueOf(id)));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result deleteFeedbackAttachment(Long id) {
+    @Override
+    public CompletionStage<Result> deleteFeedbackAttachment(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
-            return notFound("sitnet_exam_not_found");
+            return wrapAsPromise(notFound("sitnet_exam_not_found"));
         }
         Comment comment = exam.getExamFeedback();
         removePrevious(comment);
-        return ok();
+        return wrapAsPromise(ok());
     }
 
-    @Pattern(value = "CAN_INSPECT_LANGUAGE")
-    public Result deleteStatementAttachment(Long id) {
+    @Override
+    public CompletionStage<Result> deleteStatementAttachment(Long id) {
         LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findUnique();
         if (inspection == null || inspection.getStatement() == null) {
-            return notFound("sitnet_exam_not_found");
+            return wrapAsPromise(notFound("sitnet_exam_not_found"));
         }
         Comment comment = inspection.getStatement();
         removePrevious(comment);
-        return ok();
+        return wrapAsPromise(ok());
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addAttachmentToExam() {
+    @Override
+    public CompletionStage<Result> addAttachmentToExam() {
         MultipartFormData<File> body = request().body().asMultipartFormData();
         FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         File file = filePart.getFile();
         if (file.length() > ConfigUtil.getMaxFileSize()) {
-            return forbidden("sitnet_file_too_large");
+            return wrapAsPromise(forbidden("sitnet_file_too_large"));
         }
         Map<String, String[]> m = body.asFormUrlEncoded();
         Long eid = Long.parseLong(m.get("examId")[0]);
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         User user = getLoggedUser();
         if (!user.hasRole(Role.Name.ADMIN.toString(), getSession()) && !exam.isOwnedOrCreatedBy(user)) {
-            return forbidden("sitnet_error_access_forbidden");
+            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
         }
         String newFilePath;
         try {
             newFilePath = copyFile(file, "exam", eid.toString());
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_attachment");
+            return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
         // Delete existing if exists
         removePrevious(exam);
@@ -269,23 +268,23 @@ public class AttachmentController extends BaseAttachmentController<Long> {
         Attachment attachment = createNew(filePart, newFilePath);
         exam.setAttachment(attachment);
         exam.save();
-        return ok(attachment);
+        return wrapAsPromise(ok(attachment));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addFeedbackAttachment(Long id) {
+    @Override
+    public CompletionStage<Result> addFeedbackAttachment(Long id) {
         MultipartFormData<File> body = request().body().asMultipartFormData();
         FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         File file = filePart.getFile();
         if (file.length() > ConfigUtil.getMaxFileSize()) {
-            return forbidden("sitnet_file_too_large");
+            return wrapAsPromise(forbidden("sitnet_file_too_large"));
         }
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         if (exam.getExamFeedback() == null) {
             Comment comment = new Comment();
@@ -298,7 +297,7 @@ public class AttachmentController extends BaseAttachmentController<Long> {
         try {
             newFilePath = copyFile(file, "exam", id.toString(), "feedback");
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_attachment");
+            return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
         Comment comment = exam.getExamFeedback();
         removePrevious(comment);
@@ -306,23 +305,23 @@ public class AttachmentController extends BaseAttachmentController<Long> {
         Attachment attachment = createNew(filePart, newFilePath);
         comment.setAttachment(attachment);
         comment.save();
-        return ok(attachment);
+        return wrapAsPromise(ok(attachment));
     }
 
-    @Pattern(value = "CAN_INSPECT_LANGUAGE")
-    public Result addStatementAttachment(Long id) {
+    @Override
+    public CompletionStage<Result> addStatementAttachment(Long id) {
         MultipartFormData<File> body = request().body().asMultipartFormData();
         FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         File file = filePart.getFile();
         if (file.length() > ConfigUtil.getMaxFileSize()) {
-            return forbidden("sitnet_file_too_large");
+            return wrapAsPromise(forbidden("sitnet_file_too_large"));
         }
         LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findUnique();
         if (inspection == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         if (inspection.getStatement() == null) {
             Comment comment = new Comment();
@@ -335,7 +334,7 @@ public class AttachmentController extends BaseAttachmentController<Long> {
         try {
             newFilePath = copyFile(file, "exam", id.toString(), "inspectionstatement");
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_attachment");
+            return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
         Comment comment = inspection.getStatement();
         removePrevious(comment);
@@ -343,7 +342,7 @@ public class AttachmentController extends BaseAttachmentController<Long> {
         Attachment attachment = createNew(filePart, newFilePath);
         comment.setAttachment(attachment);
         comment.save();
-        return ok(attachment);
+        return wrapAsPromise(ok(attachment));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -365,7 +364,7 @@ public class AttachmentController extends BaseAttachmentController<Long> {
     }
 
     @Override
-    public CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid, String hash) {
+    public CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid) {
         User user = getLoggedUser();
         ExamSectionQuestion question;
         if (user.hasRole("STUDENT", getSession())) {
@@ -391,7 +390,7 @@ public class AttachmentController extends BaseAttachmentController<Long> {
         return serveAttachment(exam.getAttachment());
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Override
     public CompletionStage<Result> downloadFeedbackAttachment(Long id) {
         User user = getLoggedUser();
         Exam exam;
@@ -406,7 +405,7 @@ public class AttachmentController extends BaseAttachmentController<Long> {
         return serveAttachment(exam.getExamFeedback().getAttachment());
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Override
     public CompletionStage<Result> downloadStatementAttachment(Long id) {
         User user = getLoggedUser();
         ExpressionList<Exam> query = Ebean.find(Exam.class).where().idEq(id)
