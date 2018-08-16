@@ -84,6 +84,12 @@ export interface ExamSection {
     sectionQuestions: ExamSectionQuestion[];
 }
 
+export interface CollaborativeExam {
+    id: number;
+    name: string;
+    examLanguages: ExamLanguage[];
+}
+
 export interface Exam {
     id: number;
     attachment: Attachment | null;
@@ -109,4 +115,5 @@ export interface Exam {
     examSections: ExamSection[];
     examLanguages: ExamLanguage[];
     subjectToLanguageInspection: boolean | null;
+    enrollInstruction: string;
 }

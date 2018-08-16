@@ -26,7 +26,6 @@ import akka.stream.IOResult;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import backend.controllers.base.BaseController;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
@@ -36,6 +35,7 @@ import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 
+import backend.controllers.base.BaseController;
 import backend.models.Attachment;
 import backend.models.Comment;
 import backend.models.Exam;
@@ -171,7 +171,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
 
         Question question = Ebean.find(Question.class, id);
         removePrevious(question);
-        return redirect("/#/questions/" + String.valueOf(id));
+        return ok();
     }
 
     @Override
@@ -210,7 +210,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         }
 
         removePrevious(exam);
-        return wrapAsPromise(redirect("/#/exams/" + String.valueOf(id)));
+        return wrapAsPromise(ok());
     }
 
     @Override

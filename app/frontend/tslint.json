@@ -1,4 +1,7 @@
 {
+    "extends": [
+        "tslint-eslint-rules"
+    ],
     "rules": {
         "max-line-length": [
             true,
@@ -15,10 +18,12 @@
             "spaces"
         ],
         "eofline": true,
+        "object-curly-spacing": true,
         "no-duplicate-variable": true,
         "no-eval": true,
         "no-arg": true,
         "no-internal-module": true,
+        "no-irregular-whitespace": true,
         "no-trailing-whitespace": true,
         "no-bitwise": true,
         "no-unused-expression": true,
@@ -60,6 +65,7 @@
         "whitespace": [
             true,
             "check-branch",
+            "check-preblock",
             "check-decl",
             "check-operator",
             "check-separator",

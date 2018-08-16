@@ -25,7 +25,9 @@ export const StudentDashboardComponent: angular.IComponentOptions = {
 
         userEnrolments: any[];
 
-        constructor(private StudentDashboard: StudentDashboardService,
+        constructor(
+            private $http: angular.IHttpService,
+            private StudentDashboard: StudentDashboardService,
             private Reservation: ReservationService,
             private Room: any, // TBD
             private DateTime: DateTimeService,

@@ -26,12 +26,17 @@ angular.module('app.exam.editor')
             const vm = this;
 
             vm.getConfirmationText = function () {
-                let confirmation = $translate.instant('sitnet_publish_exam_confirm');
+                let confirmation = vm.resolve.collaborative ? $translate.instant('sitnet_pre_publish_exam_confirm') :
+                    $translate.instant('sitnet_publish_exam_confirm');
                 if (vm.resolve.exam.executionType.type !== 'PRINTOUT') {
                     confirmation += ' ' + $translate.instant('sitnet_publish_exam_confirm_enroll');
                 }
                 return confirmation;
             };
+
+            vm.getTitle = function () {
+                return vm.resolve.collaborative ? 'sitnet_pre_publish_exam_confirm_dialog_title' : 'sitnet_publish_exam_confirm_dialog_title';
+            }
 
             vm.ok = function () {
                 vm.close();

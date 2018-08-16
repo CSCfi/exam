@@ -19,5 +19,5 @@ require('./machines');
 require('./rooms');
 require('./address');
 require('./schedule');
-require('./../software');
+require('../software');
 require('./examRoomsAdminTabs.component');

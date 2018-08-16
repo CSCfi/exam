@@ -68,7 +68,9 @@ export const ExamTabsComponent: angular.IComponentOptions = {
 
         reload = () => this.collaborative ? this.downloadCollaborativeExam() : this.downloadExam();
 
-        isOwner = () => this.exam.examOwners.map(eo => eo.id).some(x => x === this.user.id);
+        isOwner = () => {
+            return this.exam.examOwners.some(x => x.id === this.user.id || x.email == this.user.email);
+        }
 
         tabChanged = (index: number) => {
             const path = this.collaborative ? '/exams/collaborative' : '/exams';

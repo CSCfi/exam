@@ -311,6 +311,8 @@ DELETE        /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.c
 PUT           /integration/iop/exams/:eid/sections/:sid/reorder        backend.controllers.iop.collaboration.CollaborativeExamSectionController.reorderSectionQuestions(eid: Long, sid: Long)
 PUT           /integration/iop/exams/:eid/reorder                      backend.controllers.iop.collaboration.CollaborativeExamSectionController.reorderSections(eid: Long)
 PUT           /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.controllers.iop.collaboration.CollaborativeExamSectionController.updateQuestion(eid: Long, sid: Long, qid: Long)
+################# Collaborative Exam enrolment interface #########
+GET           /integration/iop/enrolments                              backend.controllers.iop.collaboration.CollaborativeEnrolmentController.listExams
 
 ############# Integration attachments #################
 POST          /integration/iop/attachment/question                     backend.controllers.iop.collaboration.CollaborativeAttachmentController.addAttachmentToQuestion()

@@ -27,7 +27,6 @@ export const NavigationComponent: angular.IComponentOptions = {
 
         appVersion: string;
         links: Link[];
-        minimizeNavigation: boolean;
         mobileMenuOpen: boolean;
         user: User;
         isInteroperable: boolean;
@@ -36,16 +35,15 @@ export const NavigationComponent: angular.IComponentOptions = {
             private $http: angular.IHttpService,
             private $rootScope: angular.IRootScopeService,
             private $location: angular.ILocationService,
-            private $window: angular.IWindowService,
             private Navigation: NavigationService,
             private Session: SessionService) {
             'ngInject';
 
-            $rootScope.$on('userUpdated', () => {
+            this.$rootScope.$on('userUpdated', () => {
                 this.user = this.Session.getUser();
             });
-            $rootScope.$on('upcomingExam', () => this.links = Navigation.getLinks(this.isInteroperable));
-            $rootScope.$on('wrongLocation', () => this.links = Navigation.getLinks(this.isInteroperable));
+            this.$rootScope.$on('upcomingExam', () => this.getLinks(false));
+            this.$rootScope.$on('wrongLocation', () => this.getLinks(false));
         }
 
         $onInit() {
@@ -54,15 +52,11 @@ export const NavigationComponent: angular.IComponentOptions = {
                 this.Navigation.getAppVersion()
                     .then(resp => this.appVersion = resp.data.appVersion)
                     .catch(e => toastr.error(e.data));
-                this.$http.get('/app/settings/iop')
-                    .then((resp: angular.IHttpResponse<{ isInteroperable: boolean }>) => {
-                        this.isInteroperable = resp.data.isInteroperable;
-                        this.links = this.Navigation.getLinks(this.isInteroperable);
-                    })
-                    .catch(angular.noop);
+                this.getLinks(true);
+            } else if (this.user) {
+                this.getLinks(true);
             } else {
-                this.minimizeNavigation = this.$window.matchMedia('(min-width: 600px)').matches;
-                this.links = this.Navigation.getLinks(false);
+                this.getLinks(false);
             }
         }
 
@@ -76,6 +70,19 @@ export const NavigationComponent: angular.IComponentOptions = {
 
         switchLanguage(key): void {
             this.Session.switchLanguage(key);
+        }
+
+        private getLinks = (checkInteroperability: boolean) => {
+            if (checkInteroperability) {
+                this.$http.get('/app/settings/iop')
+                    .then((resp: angular.IHttpResponse<{ isInteroperable: boolean }>) => {
+                        this.isInteroperable = resp.data.isInteroperable;
+                        this.links = this.Navigation.getLinks(this.isInteroperable);
+                    })
+                    .catch(angular.noop);
+            } else {
+                this.links = this.Navigation.getLinks(false);
+            }
         }
 
     }

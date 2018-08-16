@@ -14,13 +14,14 @@
  */
 
 require('./enrolment.module');
-require('./enrolment.service');
+require('./enrolment.service.ts');
 require('./enrollResource');
 require('./wrong-location/wrongLocation.service');
 require('./wrong-location/wrongLocation.component');
 require('./waiting-room/waitingRoom.component');
 require('./search/examSearch.component');
-require('./search/examSearchResult.component');
+require('./search/examSearchResult.component.ts');
+require('./search/collaborativeExamSearch.component.ts');
 require('./finished/examFeedback.component');
 require('./finished/examParticipation.component');
 require('./finished/examParticipations.component');

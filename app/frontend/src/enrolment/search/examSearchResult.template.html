@@ -2,9 +2,10 @@
     <div class="row">
         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
             <span class="student-exam-row-title-blue">
-                <a href="/enroll/exam/{{$ctrl.exam.id}}?code={{$ctrl.exam.course.code}}">{{$ctrl.exam.name}}</a></span><br/>
-            <span ng-if="$ctrl.exam.enrolled && !$ctrl.exam.reservationMade"
-                  class="student-exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
+                <a href="/enroll/exam/{{$ctrl.exam.id}}?code={{$ctrl.exam.course.code}}">{{$ctrl.exam.name}}</a>
+            </span>
+            <br/>
+            <span ng-if="$ctrl.exam.enrolled && !$ctrl.exam.reservationMade" class="student-exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
 
         </div>
         <div class="clearfix visible-xs"></div>
@@ -14,34 +15,37 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                        {{ 'sitnet_course_name' | translate }}:
+                    <div ng-hide="$ctrl.collaborative">
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ 'sitnet_course_name' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{$ctrl.exam.course.code}} {{ $ctrl.exam.course.name }}
+                        </div>
+                        <div class="clearfix visible-xs"></div>
+                        <div class="clearfix visible-sm"></div>
                     </div>
-                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                        {{$ctrl.exam.course.code}} {{ $ctrl.exam.course.name }}
-                    </div>
-                    <div class="clearfix visible-xs"></div>
-                    <div class="clearfix visible-sm"></div>
-
                     <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
                         {{'sitnet_exam_validity' | translate}}:
                     </div>
                     <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                        {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}}
-                        &ndash;
-                        {{$ctrl.exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+                        {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}} &ndash; {{$ctrl.exam.examActiveEndDate | date:'dd.MM.yyyy'}}
                     </div>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-12">
-                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                        {{ 'sitnet_teachers' | translate }}:
+                    <div ng-hide="$ctrl.collaborative">
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            {{ 'sitnet_teachers' | translate }}:
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                            <teacher-list exam="$ctrl.exam" />
+                        </div>
+                        <div class="clearfix visible-xs"></div>
+                        <div class="clearfix visible-sm"></div>
                     </div>
-                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3"><teacher-list exam="$ctrl.exam" /></div>
-                    <div class="clearfix visible-xs"></div>
-                    <div class="clearfix visible-sm"></div>
                     <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
                         {{'sitnet_exam_language' | translate}}:
                     </div>

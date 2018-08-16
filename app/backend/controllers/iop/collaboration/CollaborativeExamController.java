@@ -15,20 +15,16 @@
 
 package backend.controllers.iop.collaboration;
 
-import backend.models.Exam;
-import backend.models.ExamExecutionType;
-import backend.models.ExamSection;
-import backend.models.ExamType;
-import backend.models.GradeScale;
-import backend.models.Language;
-import backend.models.Session;
-import backend.models.User;
-import backend.models.json.CollaborativeExam;
-import backend.sanitizers.Attrs;
-import backend.sanitizers.EmailSanitizer;
-import backend.sanitizers.ExamUpdateSanitizer;
-import backend.util.AppUtil;
-import backend.util.ConfigUtil;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -40,15 +36,13 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.With;
 
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import backend.models.*;
+import backend.models.json.CollaborativeExam;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.EmailSanitizer;
+import backend.sanitizers.ExamUpdateSanitizer;
+import backend.util.AppUtil;
+import backend.util.ConfigUtil;
 
 public class CollaborativeExamController extends CollaborationController {
 
@@ -94,7 +88,8 @@ public class CollaborativeExamController extends CollaborationController {
             return wrapAsPromise(internalServerError());
         }
         User user = getLoggedUser();
-        Session session = getSession();
+        Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
+
         WSRequest request = wsClient.url(url.get().toString());
         Function<WSResponse, Result> onSuccess = response -> {
             JsonNode root = response.asJson();
@@ -106,24 +101,13 @@ public class CollaborativeExamController extends CollaborationController {
                     .collect(Collectors.toMap(CollaborativeExam::getExternalRef, Function.identity()));
 
             // Save references to documents that we don't have locally yet
-            StreamSupport.stream(root.spliterator(), false)
-                    .filter(node -> !locals.keySet().contains(node.get("_id").asText()))
-                    .forEach(node -> {
-                        String ref = node.get("_id").asText();
-                        String rev = node.get("_rev").asText();
-                        CollaborativeExam ce = new CollaborativeExam();
-                        ce.setExternalRef(ref);
-                        ce.setRevision(rev);
-                        ce.setCreated(DateTime.now());
-                        ce.save();
-                        locals.put(ref, ce);
-                    });
+            updateLocalReferences(root, locals);
 
             Map<CollaborativeExam, JsonNode> localToExternal = StreamSupport.stream(root.spliterator(), false)
                     .collect(Collectors.toMap(node -> locals.get(node.get("_id").asText()), Function.identity()));
             List<JsonNode> exams = localToExternal.entrySet().stream()
                     .map(e -> e.getKey().getExam(e.getValue()))
-                    .filter(e -> isAuthorizedToView(e, user, session))
+                    .filter(e -> isAuthorizedToView(e, user, loginRole))
                     .map(this::serialize)
                     .collect(Collectors.toList());
 
@@ -132,14 +116,25 @@ public class CollaborativeExamController extends CollaborationController {
         return request.get().thenApplyAsync(onSuccess);
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public CompletionStage<Result> getExam(Long id) {
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
+        User user = getLoggedUser();
+        Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
         return downloadExam(ce).thenApplyAsync(
-                result -> result.isPresent() ? ok(serialize(result.get())) : notFound("sitnet_error_exam_not_found")
+                result -> {
+                    if (!result.isPresent()) {
+                        return notFound("sitnet_error_exam_not_found");
+                    }
+                    Exam exam  = result.get();
+                    if (!isAuthorizedToView(exam, user, loginRole)) {
+                        return notFound("sitnet_error_exam_not_found");
+                    }
+                    return ok(serialize(exam));
+                }
         );
     }
 
@@ -195,10 +190,11 @@ public class CollaborativeExamController extends CollaborationController {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
         User user = getLoggedUser();
+        Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
         return downloadExam(ce).thenComposeAsync(result -> {
             if (result.isPresent()) {
                 Exam exam = result.get();
-                if (exam.isOwnedOrCreatedBy(user)) {
+                if (isAuthorizedToView(exam, user, loginRole)) {
                     Exam.State previousState = exam.getState();
                     Optional<Result> error = Stream.of(
                             examUpdater.updateTemporalFieldsAndValidate(exam, user, request(), getSession()),

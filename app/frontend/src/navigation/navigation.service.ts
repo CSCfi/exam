@@ -56,22 +56,38 @@ export class NavigationService {
         // Change the menu item title if student
         const nameForDashboard = student ? 'sitnet_user_enrolled_exams_title' : 'sitnet_dashboard';
 
+        const collaborativeExamsSubmenu = {
+            hidden: true,
+            items: [
+                {
+                    href: student ? '/student/exams/collaborative' : '/exams/collaborative',
+                    visible: true,
+                    name: 'sitnet_collaborative_exams',
+                    iconPng: 'icon_admin_exams.png'
+                }
+            ]
+        };
+
+        const teacherCollaborativeExamsSubmenu = teacher && interoperable ? collaborativeExamsSubmenu : undefined;
+        const studentCollaborativeExamsSubmenu = student && interoperable ? collaborativeExamsSubmenu : undefined;
+
         return [
             {
                 href: '/',
                 visible: !hideDashboard,
                 name: nameForDashboard,
-                iconPng: 'icon_desktop.png'
+                iconPng: 'icon_desktop.png',
+                submenu: teacherCollaborativeExamsSubmenu
             },
             {
                 href: '/inspections',
-                visible: (languageInspector),
+                visible: languageInspector,
                 name: 'sitnet_language_inspections',
                 iconPng: 'icon_admin_lang_inspection.png'
             },
             {
                 href: '/exams',
-                visible: (admin),
+                visible: admin,
                 name: 'sitnet_exams',
                 iconPng: 'icon_admin_exams.png',
                 submenu: {
@@ -79,25 +95,25 @@ export class NavigationService {
                     items: [
                         {
                             href: '/inspections',
-                            visible: (admin),
+                            visible: true,
                             name: 'sitnet_language_inspections',
                             iconPng: 'icon_admin_lang_inspection.png'
                         },
                         {
                             href: '/printouts',
-                            visible: (admin),
+                            visible: true,
                             name: 'sitnet_printout_exams',
                             iconPng: 'icon_printouts.png'
                         },
                         {
                             href: '/exams/collaborative',
-                            visible: (admin && interoperable),
+                            visible: interoperable,
                             name: 'sitnet_collaborative_exams',
                             iconPng: 'icon_admin_exams.png'
                         },
                         {
                             href: '/questions',
-                            visible: (admin),
+                            visible: true,
                             name: 'sitnet_library_new',
                             iconPng: 'icon_questions.png'
                         }
@@ -106,7 +122,7 @@ export class NavigationService {
             },
             {
                 href: '/rooms',
-                visible: (admin),
+                visible: admin,
                 name: 'sitnet_exam_rooms',
                 iconPng: 'icon_administration.png',
                 submenu: {
@@ -114,19 +130,19 @@ export class NavigationService {
                     items: [
                         {
                             href: '/reports',
-                            visible: (admin),
+                            visible: true,
                             name: 'sitnet_reports',
                             iconPng: 'icon_reports.png'
                         },
                         {
                             href: '/statistics',
-                            visible: (admin),
+                            visible: true,
                             name: 'sitnet_statistics',
                             iconPng: 'icon_statistics.png'
                         },
                         {
                             href: '/settings',
-                            visible: (admin),
+                            visible: true,
                             name: 'sitnet_settings',
                             iconPng: 'icon_settings.png'
                         }
@@ -135,38 +151,39 @@ export class NavigationService {
             },
             {
                 href: '/users',
-                visible: (admin),
+                visible: admin,
                 name: 'sitnet_users',
                 iconPng: 'icon_users.png'
             },
             {
                 href: '/questions',
-                visible: (teacher),
+                visible: teacher,
                 name: 'sitnet_library_new',
                 iconPng: 'icon_questions.png'
             },
             {
                 href: '/reservations',
-                visible: (teacher),
+                visible: teacher,
                 name: 'sitnet_reservations_new',
                 iconSvg: 'icon_reservations.svg',
                 iconPng: 'icon_reservations.png'
             },
             {
                 href: '/student/exams',
-                visible: (student && !hideDashboard),
+                visible: student && !hideDashboard,
                 name: 'sitnet_exams',
-                iconPng: 'icon_exams.png'
+                iconPng: 'icon_exams.png',
+                submenu: studentCollaborativeExamsSubmenu
             },
             {
                 href: '/student/participations',
-                visible: (student && !hideDashboard),
+                visible: student && !hideDashboard,
                 name: 'sitnet_exam_responses',
                 iconPng: 'icon_finished.png'
             },
             {
                 href: '/logout',
-                visible: (student || admin || teacher),
+                visible: true,
                 name: 'sitnet_logout',
                 iconPng: 'icon_admin_logout.png'
             }

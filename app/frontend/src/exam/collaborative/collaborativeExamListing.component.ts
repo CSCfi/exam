@@ -14,9 +14,10 @@
  */
 
 import * as angular from 'angular';
-import * as moment from 'moment';
 import * as toast from 'toastr';
-import { CollaborativeExamService, CollaborativeExam } from './collaborativeExam.service';
+import { CollaborativeExamService } from './collaborativeExam.service';
+import { CollaborativeExam } from '../exam.model';
+import { User, SessionService } from '../../session/session.service';
 
 export const CollaborativeExamListingComponent: angular.IComponentOptions = {
     template: `
@@ -27,7 +28,7 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
         </div>
         <div id="dashboard">
             <!-- toolbar -->
-            <div class="top-row">
+            <div class="top-row" ng-if="$ctrl.user.isAdmin">
                 <div class="col-md-12">
                     <button class=" pull-right btn btn-info" ng-click="$ctrl.createExam()">
                         {{'sitnet_toolbar_new_exam' | translate}}
@@ -52,7 +53,7 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
                                     href="/exams/collaborative/{{exam.id}}/1">
                                     <span ng-if="exam.name">{{exam.name}}</span>
                                     <span ng-if="!exam.name" class="text-danger">
-                                        {{'sitnet_no_name' | translate | uppercase }}
+                                        {{'sitnet_no_name' | translate | uppercase }}
                                     </span>
                                 </a>
                             </td>
@@ -68,16 +69,18 @@ export const CollaborativeExamListingComponent: angular.IComponentOptions = {
     controller: class CollaborativeExamListingController implements angular.IComponentController {
 
         exams: CollaborativeExam[];
+        user: User;
 
         constructor(
             private $location: angular.ILocationService,
             private $translate: angular.translate.ITranslateService,
+            private Session: SessionService,
             private CollaborativeExam: CollaborativeExamService) {
             'ngInject';
         }
 
         $onInit() {
-
+            this.user = this.Session.getUser();
             this.CollaborativeExam.listExams().then((exams: CollaborativeExam[]) => {
                 this.exams = exams;
             }).catch(angular.noop);

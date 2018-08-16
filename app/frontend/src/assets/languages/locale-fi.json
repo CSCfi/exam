@@ -887,5 +887,8 @@
   "sitnet_exam_machine_softwares": "Tarvittavat ohjelmistot",
   "sitnet_exam_all_rooms": "Kaikki tenttitilat",
   "sitnet_openinghours_exception_datetimes": "Aukioloajat ja poikkeusaukioloajat",
-  "sitnet_collaborative_exams": "Yhteistentit"
+  "sitnet_collaborative_exams": "Yhteistentit",
+  "sitnet_pre_published": "Esijulkaistu",
+  "sitnet_pre_publish_exam_confirm": "Oletko varma, että haluat esijulkaista tentin? Tämän jälkeen opettajat pääsevät muokkaamaan tenttiä",
+  "sitnet_pre_publish_exam_confirm_dialog_title": "Tentin esijulkaisu"
 }

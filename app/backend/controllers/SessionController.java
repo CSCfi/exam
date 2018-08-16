@@ -293,6 +293,7 @@ public class SessionController extends BaseController {
         result.set("permissions", Json.toJson(user.getPermissions()));
         result.put("userAgreementAccepted", user.isUserAgreementAccepted());
         result.put("userIdentifier", user.getUserIdentifier());
+        result.put("email", user.getEmail());
         return ok(result);
     }
 

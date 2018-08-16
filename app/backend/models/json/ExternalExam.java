@@ -15,30 +15,31 @@
 
 package backend.models.json;
 
-import io.ebean.annotation.DbJsonB;
-import io.ebean.text.json.EJson;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import backend.models.Exam;
-import backend.models.User;
-import backend.models.base.GeneratedIdentityModel;
-import org.joda.time.DateTime;
-import backend.util.JsonDeserializer;
-
+import java.io.IOException;
+import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-import java.io.IOException;
-import java.util.Map;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.ebean.annotation.DbJsonB;
+import io.ebean.text.json.EJson;
+import org.joda.time.DateTime;
+
+import backend.models.Exam;
+import backend.models.User;
+import backend.models.base.GeneratedIdentityModel;
+import backend.util.JsonDeserializer;
 
 @Entity
 public class ExternalExam extends GeneratedIdentityModel {
 
     @Column
-    private String externalRef; // REFERENCE TO PARENT EXAM ELSEWHERE
+    private String externalRef; // exam.hash of the remote parent exam
 
     @Column
     private String hash; // LOCAL EXAM REFERENCE

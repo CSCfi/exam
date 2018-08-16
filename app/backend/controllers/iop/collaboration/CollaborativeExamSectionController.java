@@ -36,7 +36,7 @@ import backend.controllers.base.SectionQuestionHandler;
 import backend.models.Exam;
 import backend.models.ExamSection;
 import backend.models.ExamSectionQuestion;
-import backend.models.Session;
+import backend.models.Role;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.questions.Question;
@@ -53,11 +53,12 @@ public class CollaborativeExamSectionController extends CollaborationController 
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
         User user = getLoggedUser();
-        Session session = getSession();
+        Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
+
         return downloadExam(ce).thenComposeAsync(result -> {
             if (result.isPresent()) {
                 Exam exam = result.get();
-                if (isAuthorizedToView(exam, user, session)) {
+                if (isAuthorizedToView(exam, user, loginRole)) {
                     ExamSection section = createDraft(exam, user);
                     exam.getExamSections().add(section);
                     examUpdater.update(exam, request());
@@ -76,11 +77,12 @@ public class CollaborativeExamSectionController extends CollaborationController 
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
         User user = getLoggedUser();
-        Session session = getSession();
+        Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
+
         return downloadExam(ce).thenComposeAsync(result -> {
             if (result.isPresent()) {
                 Exam exam = result.get();
-                if (isAuthorizedToView(exam, user, session)) {
+                if (isAuthorizedToView(exam, user, loginRole)) {
                     Optional<Result> err = updater.apply(exam, user);
                     if (err.isPresent()) {
                         return wrapAsPromise(err.get());
@@ -333,11 +335,12 @@ public class CollaborativeExamSectionController extends CollaborationController 
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
         User user = getLoggedUser();
-        Session session = getSession();
+        Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
+
         return downloadExam(ce).thenComposeAsync(result -> {
             if (result.isPresent()) {
                 Exam exam = result.get();
-                if (isAuthorizedToView(exam, user, session)) {
+                if (isAuthorizedToView(exam, user, loginRole)) {
                     Optional<ExamSection> section = exam.getExamSections().stream()
                             .filter(es -> es.getId().equals(sectionId))
                             .findFirst();

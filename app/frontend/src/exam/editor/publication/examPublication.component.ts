@@ -148,7 +148,9 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             return input;
         }
 
-        checkTrialCount = (x: number) => this.exam.trialCount === x ? 'btn-primary' : '';
+        checkTrialCount = (x: number) => {
+            return this.exam.trialCount === x ? 'btn-primary' : '';
+        }
 
         setTrialCount = (x: number) => {
             this.exam.trialCount = x;
@@ -187,7 +189,10 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                         collaborative: () => this.collaborative
                     }
                 }).result.then(() => {
-                    const state = { 'state': this.collaborative ? 'PRE_PUBLISHED' : 'PUBLISHED' };
+                    const state = {
+                        'state': this.collaborative && this.exam.state === 'DRAFT' ?
+                            'PRE_PUBLISHED' : 'PUBLISHED'
+                    };
                     // OK button clicked
                     this.updateExam(true, state).then(() => {
                         toast.success(this.$translate.instant('sitnet_exam_saved_and_published'));
@@ -205,9 +210,9 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                     backdrop: 'static',
                     keyboard: true
                 }).result.then(() => {
-                    this.updateExam(true, { 'state': 'SAVED' }).then(() => {
+                    this.updateExam(true, { 'state': this.collaborative ? 'PRE_PUBLISHED' : 'DRAFT' }).then(() => {
                         toast.success(this.$translate.instant('sitnet_exam_unpublished'));
-                        this.exam.state = 'SAVED';
+                        this.exam.state = 'DRAFT';
                     });
                 }).catch(angular.noop);
             } else {

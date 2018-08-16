@@ -26,7 +26,7 @@ angular.module('app.enrolment')
 
                 vm.$onInit = function () {
                     vm.filter = {};
-                    vm.loader = {loading: false};
+                    vm.loader = { loading: false };
                     SettingsResource.enrolmentPermissions.get(function (setting) {
                         vm.permissionCheck = setting;
                         if (setting.active === true) {
@@ -48,7 +48,7 @@ angular.module('app.enrolment')
                 };
 
                 const search = function () {
-                    StudentExamRes.exams.query({filter: vm.filter.text}, function (exams) {
+                    StudentExamRes.exams.query({ filter: vm.filter.text }, function (exams) {
                         exams.forEach(function (exam) {
                             if (!exam.examLanguages) {
                                 console.warn('No languages for exam #' + exam.id);
@@ -72,21 +72,21 @@ angular.module('app.enrolment')
 
                 const checkEnrolment = function () {
                     vm.exams.forEach(function (exam) {
-                        EnrollRes.check.get({id: exam.id}, function (enrolments) {
-                                // check if student has reserved aquarium
-                                enrolments.forEach(function (enrolment) {
-                                    if (enrolment.reservation) {
-                                        exam.reservationMade = true;
-                                    }
-                                });
+                        EnrollRes.check.get({ id: exam.id }, function (enrolments) {
+                            // check if student has reserved aquarium
+                            enrolments.forEach(function (enrolment) {
+                                if (enrolment.reservation) {
+                                    exam.reservationMade = true;
+                                }
+                            });
 
-                                // enrolled to exam
-                                exam.enrolled = true;
-                            }, function (err) {
-                                // not enrolled or made reservations
-                                exam.enrolled = false;
-                                exam.reservationMade = false;
-                            }
+                            // enrolled to exam
+                            exam.enrolled = true;
+                        }, function (err) {
+                            // not enrolled or made reservations
+                            exam.enrolled = false;
+                            exam.reservationMade = false;
+                        }
                         );
 
                     });

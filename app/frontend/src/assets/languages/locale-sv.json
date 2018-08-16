@@ -883,5 +883,8 @@
   "sitnet_exam_expiration_period": "Tenttisuoritusten vanhenemisaika SV",
   "sitnet_default_timezone": "Oletusaikavyöhyke SV",
   "sitnet_role_mapping": "Käyttäjäroolimääritykset SV",
-  "sitnet_collaborative_exams": "Yhteistentit SV"
+  "sitnet_collaborative_exams": "Yhteistentit SV",
+  "sitnet_pre_published": "Esijulkaistu SV",
+  "sitnet_pre_publish_exam_confirm": "Oletko varma, että haluat esijulkaista tentin? Tämän jälkeen opettajat pääsevät muokkaamaan tenttiä SV",
+  "sitnet_pre_publish_exam_confirm_dialog_title": "Tentin esijulkaisu SV"
 }

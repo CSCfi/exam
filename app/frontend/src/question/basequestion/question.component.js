@@ -82,7 +82,6 @@ angular.module('app.question')
                             return $translate.instant('sitnet_unsaved_data_may_be_lost');
                         };
                     } else {
-                        // TODO: Wont work with collab exam
                         Question.questionsApi.get({ id: vm.questionId || $routeParams.id },
                             function (question) {
                                 vm.question = question;
@@ -98,7 +97,7 @@ angular.module('app.question')
                     }
                 };
 
-                vm.saveQuestion = function () { // Need to change so that if collab edit, do not save to backend. Just pass the question json object forward
+                vm.saveQuestion = function () {
                     vm.question.questionOwners = vm.currentOwners;
                     const fn = function (q) {
                         clearListeners();
