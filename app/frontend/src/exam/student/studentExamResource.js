@@ -21,8 +21,8 @@ angular.module('app.exam')
             exams: $resource('/app/student/exams'),
             examInfo: $resource('/app/student/exam/:eid/info', {eid: '@eid'}),
             finishedExams: $resource('/app/student/finishedexams'),
-            enrolments: $resource('/app/enrolments'),
-            enrolment: $resource('/app/enrolments/:eid',
+            enrolments: $resource('/app/student/enrolments'),
+            enrolment: $resource('/app/student/enrolments/:eid',
                 {
                     eid: '@eid'
                 },

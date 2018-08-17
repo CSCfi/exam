@@ -42,7 +42,7 @@ export class StudentDashboardService {
     listEnrolments(): angular.IPromise<{ result: any[] }> {
         const deferred: angular.IDeferred<{ result: any[] }> = this.$q.defer();
 
-        this.$http.get('/app/enrolments').then((resp: IHttpResponse<{ reservation: Reservation }[]>) => {
+        this.$http.get('/app/student/enrolments').then((resp: IHttpResponse<{ reservation: Reservation }[]>) => {
             const enrolments = resp.data;
             enrolments.forEach((e) => {
                 if (e.reservation) {

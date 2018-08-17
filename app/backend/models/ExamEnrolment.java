@@ -15,18 +15,26 @@
 
 package backend.models;
 
-import backend.models.api.CountsAsTrial;
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.json.ExternalExam;
+import javax.annotation.Nonnull;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
-import backend.util.DateTimeAdapter;
 
-import javax.annotation.Nonnull;
-import javax.persistence.*;
+import backend.models.api.CountsAsTrial;
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.json.CollaborativeExam;
+import backend.models.json.ExternalExam;
+import backend.util.DateTimeAdapter;
 
 
 @Entity
@@ -39,6 +47,10 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     @ManyToOne
     @JsonBackReference
     private Exam exam;
+
+    @ManyToOne
+    @JsonBackReference
+    private CollaborativeExam collaborativeExam;
 
     @OneToOne(cascade = CascadeType.ALL)
     private ExternalExam externalExam;
@@ -78,6 +90,14 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
 
     public void setExam(Exam exam) {
         this.exam = exam;
+    }
+
+    public CollaborativeExam getCollaborativeExam() {
+        return collaborativeExam;
+    }
+
+    public void setCollaborativeExam(CollaborativeExam collaborativeExam) {
+        this.collaborativeExam = collaborativeExam;
     }
 
     public ExternalExam getExternalExam() {

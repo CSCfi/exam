@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import akka.actor.ActorSystem;
@@ -222,76 +223,73 @@ public class EnrolmentController extends BaseController {
         return ok();
     }
 
+    private Optional<Exam> getExam(Long eid, ExamExecutionType.Type type) {
+        return Ebean.find(Exam.class)
+                .where()
+                .eq("id", eid)
+                .disjunction()
+                .eq("state", Exam.State.PUBLISHED)
+                .ne("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
+                .endJunction()
+                .eq("executionType.type", type.toString())
+                .findOneOrEmpty();
+    }
+
+
     private CompletionStage<Result> doCreateEnrolment(Long eid, ExamExecutionType.Type type, User user) {
         // Begin manual transaction
         Ebean.beginTransaction();
         try {
             // Take pessimistic lock for user to prevent multiple enrolments creating.
             Ebean.find(User.class).setForUpdate(true).where().eq("id", user.getId()).findUnique();
-            Exam exam = Ebean.find(Exam.class)
-                    .where()
-                    .eq("id", eid)
-                    .disjunction()
-                    .eq("state", Exam.State.PUBLISHED)
-                    .ne("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
-                    .endJunction()
-                    .eq("executionType.type", type.toString())
-                    .findUnique();
-            if (exam == null) {
+            Optional<Exam> possibleExam = getExam(eid, type);
+            if (!possibleExam.isPresent()) {
                 return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
             }
+            Exam exam = possibleExam.get();
 
+            // Find existing enrolments for exam and user
             List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")
-                    .fetch("reservation.machine")
-                    .fetch("reservation.machine.room")
                     .where()
-                    // Either user's id matches or email matches
+                    // either user ID or pre-enrolment email address matches
                     .or()
-                    .and()
-                    .isNotNull("user.id")
                     .eq("user.id", user.getId())
-                    .endAnd()
-                    .and()
-                    .isNull("user.id")
-                    .eq("user.email", user.getEmail())
-                    .endAnd()
+                    .eq("preEnrolledUserEmail", user.getEmail())
                     .endOr()
-                    // either exam ID matches OR (exam parent ID matches AND exam is started by student)
-                    .disjunction()
+                    // either exam id matches or parent exam's id matches
+                    .or()
                     .eq("exam.id", exam.getId())
-                    .disjunction()
-                    .conjunction()
                     .eq("exam.parent.id", exam.getId())
-                    .eq("exam.state", Exam.State.STUDENT_STARTED)
-                    .endJunction()
-                    .endJunction()
-                    .endJunction()
+                    .endOr()
                     .findList();
 
-            for (ExamEnrolment enrolment : enrolments) {
+            // already enrolled
+            if (enrolments.stream().anyMatch(e -> e.getReservation() == null)) {
+                return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));
+            }
+            // reservation in effect
+            if (enrolments.stream().map(ExamEnrolment::getReservation).anyMatch(r ->
+                    r.toInterval().contains(DateTimeUtils.adjustDST(DateTime.now(), r)))) {
+                return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
+            }
+            List<ExamEnrolment> enrolmentsWithFutureReservations = enrolments.stream()
+                    .filter(ee -> ee.getReservation().toInterval().isAfterNow())
+                            .collect(Collectors.toList());
+            if (enrolmentsWithFutureReservations.size() > 1) {
+                Logger.error("Several enrolments with future reservations found for user {} and exam {}",
+                        user, exam.getId());
+                return wrapAsPromise(internalServerError()); // Lets fail right here
+            }
+            // reservation in the future, replace it
+            if (!enrolmentsWithFutureReservations.isEmpty()) {
+                ExamEnrolment enrolment = enrolmentsWithFutureReservations.get(0);
                 Reservation reservation = enrolment.getReservation();
-                if (reservation == null) {
-                    // enrolment without reservation already exists, no need to create a new one
-                    return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));
-                } else if (reservation.toInterval().contains(DateTimeUtils.adjustDST(DateTime.now(), reservation))) {
-                    // reservation in effect
-                    if (exam.getState() == Exam.State.STUDENT_STARTED) {
-                        // exam for reservation is ongoing
-                        return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
-                    } else if (exam.getState() == Exam.State.PUBLISHED) {
-                        // exam for reservation not started (yet?)
-                        return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
-                    }
-                } else if (reservation.toInterval().isAfterNow()) {
-                    // reservation in the future, replace it
-                    // pass this through externalAPI to see if there's something to remove externally also
-                    return externalReservationHandler.removeReservation(reservation, user).thenApplyAsync(result -> {
-                        enrolment.delete();
-                        ExamEnrolment newEnrolment = makeEnrolment(exam, user);
-                        return ok(newEnrolment);
-                    });
-                }
+                return externalReservationHandler.removeReservation(reservation, user).thenApplyAsync(result -> {
+                    enrolment.delete();
+                    ExamEnrolment newEnrolment = makeEnrolment(exam, user);
+                    return ok(newEnrolment);
+                });
             }
             ExamEnrolment newEnrolment = makeEnrolment(exam, user);
             Ebean.commitTransaction();

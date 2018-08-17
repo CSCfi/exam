@@ -51,23 +51,29 @@ export class EnrolmentService {
         return deferred.promise;
     }
 
-    enroll(exam: Exam): ng.IPromise<any> {
+    private getResource = (path: string, collaborative: boolean) =>
+        (collaborative ? '/integration/iop/enrolments/' : '/app/enrolments/') + path
+
+
+    enroll(exam: Exam, collaborative = false): ng.IPromise<any> {
         const deferred = this.$q.defer();
-        this.$http.post(`/app/enroll/${exam.id}`, { code: exam.course ? exam.course.code : undefined }).then(() => {
-            toast.success(this.$translate.instant('sitnet_you_have_enrolled_to_exam') + '<br/>' +
-                this.$translate.instant('sitnet_remember_exam_machine_reservation'));
-            this.$location.path('/calendar/' + exam.id);
-            deferred.resolve();
-        }).catch(error => {
-            toast.error(error.data);
-            deferred.reject(error);
-        });
+        this.$http.post(this.getResource(`${exam.id}`, collaborative),
+            { code: exam.course ? exam.course.code : undefined })
+            .then(() => {
+                toast.success(this.$translate.instant('sitnet_you_have_enrolled_to_exam') + '<br/>' +
+                    this.$translate.instant('sitnet_remember_exam_machine_reservation'));
+                this.$location.path((collaborative ? '/calendar/collaborative/' : '/calendar/') + exam.id);
+                deferred.resolve();
+            }).catch(error => {
+                toast.error(error.data);
+                deferred.reject(error);
+            });
         return deferred.promise;
     }
 
     checkAndEnroll(exam: Exam, collaborative = false): ng.IPromise<any> {
         const deferred = this.$q.defer();
-        this.$http.get(`/app/enroll/exam/${exam.id}`).then(() => {
+        this.$http.get(this.getResource(`exam/${exam.id}`, collaborative)).then(() => {
             toast.error(this.$translate.instant('sitnet_already_enrolled'));
             deferred.reject();
         }).catch((err: ng.IHttpResponse<any>) => {
@@ -75,7 +81,7 @@ export class EnrolmentService {
                 toast.error(err.data);
                 deferred.reject(err);
             } else if (err.status === 404) {
-                this.enroll(exam)
+                this.enroll(exam, collaborative)
                     .then(() => deferred.resolve())
                     .catch(error => deferred.reject(error));
             } else {
@@ -88,7 +94,7 @@ export class EnrolmentService {
     enrollStudent(exam: Exam, student: User): ng.IPromise<ExamEnrolment> {
         const deferred: ng.IDeferred<ExamEnrolment> = this.$q.defer();
         const data = { uid: student.id, email: student.email };
-        this.$http.post(`/app/enroll/student/${exam.id}`, data).then((resp: ng.IHttpResponse<ExamEnrolment>) => {
+        this.$http.post(`/app/enrolments/student/${exam.id}`, data).then((resp: ng.IHttpResponse<ExamEnrolment>) => {
             toast.success(this.$translate.instant('sitnet_student_enrolled_to_exam'));
             deferred.resolve(resp.data);
         }).catch(err => deferred.reject(err));
@@ -97,7 +103,7 @@ export class EnrolmentService {
 
     getEnrolmentInfo(code: string, id: number): ng.IPromise<EnrolmentInfo> {
         const deferred: ng.IDeferred<EnrolmentInfo> = this.$q.defer();
-        this.$http.get(`/app/enroll/${id}`).then((resp: ng.IHttpResponse<Exam>) => {
+        this.$http.get(`/app/enrolments/${id}`).then((resp: ng.IHttpResponse<Exam>) => {
             const exam = resp.data;
             this.getMaturityInstructions(exam).then(data => {
                 const info: EnrolmentInfo =
@@ -109,7 +115,7 @@ export class EnrolmentService {
                             reservationMade: false,
                             noTrialsLeft: false
                         });
-                this.$http.get(`/app/enroll/exam/${exam.id}`).then((resp: ng.IHttpResponse<ExamEnrolment[]>) => {
+                this.$http.get(`/app/enrolments/exam/${exam.id}`).then((resp: ng.IHttpResponse<ExamEnrolment[]>) => {
                     info.alreadyEnrolled = true;
                     info.reservationMade = resp.data.some(e => e.reservation);
                     deferred.resolve(info);
@@ -130,7 +136,7 @@ export class EnrolmentService {
 
     private check(info: EnrolmentInfo): ng.IPromise<EnrolmentInfo> {
         const deferred: ng.IDeferred<EnrolmentInfo> = this.$q.defer();
-        this.$http.get(`/app/enroll/exam/${info.id}`).then((resp: ng.IHttpResponse<ExamEnrolment[]>) => {
+        this.$http.get(`/app/enrolments/exam/${info.id}`).then((resp: ng.IHttpResponse<ExamEnrolment[]>) => {
             // check if student has reservation
             info.reservationMade = resp.data.some(e => e.reservation);
             // enrolled to exam
@@ -155,7 +161,7 @@ export class EnrolmentService {
 
     listEnrolments(code: string, id: number): ng.IPromise<EnrolmentInfo[]> {
         const deferred: ng.IDeferred<EnrolmentInfo[]> = this.$q.defer();
-        this.$http.get(`/app/enroll?code=${code}`).then((resp: ng.IHttpResponse<Exam[]>) => {
+        this.$http.get(`/app/enrolments?code=${code}`).then((resp: ng.IHttpResponse<Exam[]>) => {
             const exams = resp.data.filter(e => e.id !== id);
             const infos: EnrolmentInfo[] = exams.map(e => _.assign(e,
                 {
@@ -176,7 +182,7 @@ export class EnrolmentService {
         return deferred.promise;
     }
 
-    removeEnrolment = (enrolment: ExamEnrolment) => this.$http.delete(`/app/enroll/${enrolment.id}`);
+    removeEnrolment = (enrolment: ExamEnrolment) => this.$http.delete(`/app/enrolments/${enrolment.id}`);
 
     addEnrolmentInformation(enrolment: ExamEnrolment): void {
         this.$uibModal.open({
@@ -194,7 +200,7 @@ export class EnrolmentService {
         }).catch(angular.noop);
     }
 
-    getRoomInstructions = (hash: string) => this.$http.get(`/app/enroll/room/${hash}`);
+    getRoomInstructions = (hash: string) => this.$http.get(`/app/enrolments/room/${hash}`);
 
     showInstructions = (enrolment: ExamEnrolment) => {
         this.$uibModal.open({

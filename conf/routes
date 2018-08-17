@@ -99,10 +99,10 @@ GET           /app/feedback/exams/:eid                                 backend.c
 GET           /app/feedback/exams/:eid/score                           backend.controllers.StudentActionsController.getExamScore(eid: Long)
 GET           /app/student/inspectors/exam/:id                         backend.controllers.StudentActionsController.getExamInspectors(id: Long)
 GET           /app/student/finishedexams                               backend.controllers.StudentActionsController.getFinishedExams(filter: java.util.Optional[String])
-GET           /app/enrolments                                          backend.controllers.StudentActionsController.getEnrolmentsForUser
+GET           /app/student/enrolments                                  backend.controllers.StudentActionsController.getEnrolmentsForUser
 GET           /app/student/exam/:eid/info                              backend.controllers.StudentActionsController.getExamInfo(eid: Long)
 GET           /app/student/exams                                       backend.controllers.StudentActionsController.listAvailableExams(filter: java.util.Optional[String])
-GET           /app/enrolments/:eid                                     backend.controllers.StudentActionsController.getEnrolment(eid: Long)
+GET           /app/student/enrolments/:eid                             backend.controllers.StudentActionsController.getEnrolment(eid: Long)
 
 
 ############### Section interface ###############
@@ -152,16 +152,16 @@ PUT           /app/inspection/:id/statement                            backend.c
 
 ############### Enrolment interface ###############
 
-GET           /app/enroll                                              backend.controllers.EnrolmentController.enrollExamList(code: String)
-GET           /app/enroll/reservation/:id                              backend.controllers.EnrolmentController.enrolmentsByReservation(id: Long)
-GET           /app/enroll/:id                                          backend.controllers.EnrolmentController.enrollExamInfo(code: String, id: Long)
-POST          /app/enroll/:id                                          backend.controllers.EnrolmentController.createEnrolment(id: Long)
-GET           /app/enroll/exam/:id                                     backend.controllers.EnrolmentController.checkIfEnrolled(id: Long)
-POST          /app/enroll/student/:eid                                 backend.controllers.EnrolmentController.createStudentEnrolment(eid: Long)
-DELETE        /app/enroll/:id                                          backend.controllers.EnrolmentController.removeEnrolment(id: Long)
-DELETE        /app/enroll/student/:id                                  backend.controllers.EnrolmentController.removeStudentEnrolment(id: Long)
+GET           /app/enrolments                                          backend.controllers.EnrolmentController.enrollExamList(code: String)
+GET           /app/enrolments/reservation/:id                          backend.controllers.EnrolmentController.enrolmentsByReservation(id: Long)
+GET           /app/enrolments/:id                                      backend.controllers.EnrolmentController.enrollExamInfo(code: String, id: Long)
+POST          /app/enrolments/:id                                      backend.controllers.EnrolmentController.createEnrolment(id: Long)
+GET           /app/enrolments/exam/:id                                 backend.controllers.EnrolmentController.checkIfEnrolled(id: Long)
+POST          /app/enrolments/student/:eid                             backend.controllers.EnrolmentController.createStudentEnrolment(eid: Long)
+DELETE        /app/enrolments/:id                                      backend.controllers.EnrolmentController.removeEnrolment(id: Long)
+DELETE        /app/enrolments/student/:id                              backend.controllers.EnrolmentController.removeStudentEnrolment(id: Long)
 PUT           /app/enrolments/:eid                                     backend.controllers.EnrolmentController.updateEnrolment(eid: Long)
-GET           /app/enroll/room/:hash                                   backend.controllers.EnrolmentController.getRoomInfoFromEnrolment(hash: String)
+GET           /app/enrolments/room/:hash                               backend.controllers.EnrolmentController.getRoomInfoFromEnrolment(hash: String)
 
 
 ############### Courses interface ###############
@@ -313,6 +313,8 @@ PUT           /integration/iop/exams/:eid/reorder                      backend.c
 PUT           /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.controllers.iop.collaboration.CollaborativeExamSectionController.updateQuestion(eid: Long, sid: Long, qid: Long)
 ################# Collaborative Exam enrolment interface #########
 GET           /integration/iop/enrolments                              backend.controllers.iop.collaboration.CollaborativeEnrolmentController.listExams
+GET           /integration/iop/enrolments/exam/:eid                    backend.controllers.iop.collaboration.CollaborativeEnrolmentController.checkIfEnrolled(eid: Long)
+POST          /integration/iop/enrolments/:eid                         backend.controllers.iop.collaboration.CollaborativeEnrolmentController.createEnrolment(eid: Long)
 
 ############# Integration attachments #################
 POST          /integration/iop/attachment/question                     backend.controllers.iop.collaboration.CollaborativeAttachmentController.addAttachmentToQuestion()

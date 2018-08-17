@@ -15,17 +15,22 @@
 
 package backend.models.json;
 
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joda.time.DateTime;
 
 import backend.models.Exam;
+import backend.models.ExamEnrolment;
 import backend.models.base.GeneratedIdentityModel;
 import backend.util.JsonDeserializer;
 
@@ -40,6 +45,10 @@ public class CollaborativeExam extends GeneratedIdentityModel {
 
     @Temporal(TemporalType.TIMESTAMP)
     private DateTime created;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "collaborativeExam")
+    @JsonManagedReference
+    private List<ExamEnrolment> examEnrolments;
 
     public String getExternalRef() {
         return externalRef;
@@ -63,6 +72,14 @@ public class CollaborativeExam extends GeneratedIdentityModel {
 
     public void setCreated(DateTime created) {
         this.created = created;
+    }
+
+    public List<ExamEnrolment> getExamEnrolments() {
+        return examEnrolments;
+    }
+
+    public void setExamEnrolments(List<ExamEnrolment> examEnrolments) {
+        this.examEnrolments = examEnrolments;
     }
 
     @Transient

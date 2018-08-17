@@ -28,13 +28,13 @@ angular.module('app.examination')
         controller: ['$http', '$location', '$routeParams', '$translate', 'dialogs', 'Session', 'Examination',
             'Attachment', 'Enrolment',
             function ($http, $location, $routeParams, $translate, dialogs, Session, Examination, Attachment,
-                      Enrolment) {
+                Enrolment) {
 
                 const vm = this;
 
                 vm.$onInit = function () {
                     if (!vm.isPreview) {
-                        $http.get('/app/enroll/room/' + vm.exam.hash).then(function (resp) {
+                        $http.get('/app/enrolments/room/' + vm.exam.hash).then(function (resp) {
                             vm.room = resp.data;
                         });
                     }
@@ -66,7 +66,7 @@ angular.module('app.examination')
                     const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
                     dialog.result.then(function () {
                         Examination.abort(vm.exam.hash).then(function () {
-                            toast.info($translate.instant('sitnet_exam_aborted'), {timeOut: 5000});
+                            toast.info($translate.instant('sitnet_exam_aborted'), { timeOut: 5000 });
                             window.onbeforeunload = null;
                             $location.path('/student/logout/aborted');
                         }).catch(function (err) {
@@ -80,11 +80,11 @@ angular.module('app.examination')
                 };
 
                 vm.selectGuidePage = function () {
-                    vm.onPageSelect({page: {type: 'guide'}});
+                    vm.onPageSelect({ page: { type: 'guide' } });
                 };
 
                 vm.selectSection = function (section) {
-                    vm.onPageSelect({page: {id: section.id, type: 'section'}});
+                    vm.onPageSelect({ page: { id: section.id, type: 'section' } });
                 };
 
                 vm.getQuestionAmount = function (section, type) {
@@ -117,7 +117,7 @@ angular.module('app.examination')
                 };
 
                 vm.showMaturityInstructions = function () {
-                    Enrolment.showMaturityInstructions({exam: vm.exam});
+                    Enrolment.showMaturityInstructions({ exam: vm.exam });
                 };
 
                 vm.exitPreview = function () {

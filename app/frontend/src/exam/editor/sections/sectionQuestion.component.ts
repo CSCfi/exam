@@ -22,7 +22,7 @@ import { IModalService } from 'angular-ui-bootstrap';
 import { ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { IDeferred } from 'angular';
-import { FileService } from "../../../utility/file/file.service";
+import { FileService } from '../../../utility/file/file.service';
 
 export const SectionQuestionComponent: ng.IComponentOptions = {
     template: require('./sectionQuestion.template.html'),
@@ -66,7 +66,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
         removeQuestion = () =>
             this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
                 this.$translate.instant('sitnet_remove_question')).result.then(
-                () => this.onDelete({ sectionQuestion: this.sectionQuestion }))
+                    () => this.onDelete({ sectionQuestion: this.sectionQuestion }))
 
 
         getQuestionDistribution(): ng.IPromise<{ distributed: boolean }> {
@@ -97,7 +97,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
         }
 
         private getResource = (url: string) => this.parentCtrl.collaborative ?
-            url.replace('/app/exams/', '/integration/iop/exams/') : url;
+            url.replace('/app/exams/', '/integration/iop/exams/') : url
 
         private openBaseQuestionEditor = () => {
             this.$uibModal.open({
@@ -138,7 +138,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                     })
                     .catch(resp => toast.error(resp.data));
             });
-        };
+        }
 
         private openDistributedQuestionEditor = () => {
             this.$uibModal.open({
@@ -153,11 +153,11 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
             }).result.then(data => {
                 this.Question.updateDistributedExamQuestion(data.question, data.examQuestion,
                     this.parentCtrl.examId, this.parentCtrl.section.id).then(
-                    esq => {
-                        toast.info(this.$translate.instant('sitnet_question_saved'));
-                        // apply changes back to scope
-                        ng.extend(this.sectionQuestion, esq);
-                    });
+                        esq => {
+                            toast.info(this.$translate.instant('sitnet_question_saved'));
+                            // apply changes back to scope
+                            ng.extend(this.sectionQuestion, esq);
+                        });
 
             });
         }
