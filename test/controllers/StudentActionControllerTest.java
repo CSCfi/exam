@@ -1,10 +1,19 @@
 package controllers;
 
+import java.util.TimeZone;
+import java.util.stream.StreamSupport;
+
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
+import org.joda.time.DateTime;
+import org.junit.Before;
+import org.junit.Test;
+import play.libs.Json;
+import play.mvc.Result;
+
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
@@ -12,16 +21,9 @@ import backend.models.ExamRoom;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
-import static org.fest.assertions.Assertions.assertThat;
-import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import play.libs.Json;
-import play.mvc.Result;
-import static play.test.Helpers.contentAsString;
 
-import java.util.TimeZone;
-import java.util.stream.StreamSupport;
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
 
 public class StudentActionControllerTest extends IntegrationTestCase {
 
@@ -43,7 +45,7 @@ public class StudentActionControllerTest extends IntegrationTestCase {
         reservation.save();
 
         // Execute
-        Result result = get("/app/enrolments");
+        Result result = get("/app/student/enrolments");
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
