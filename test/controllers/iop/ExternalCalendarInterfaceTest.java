@@ -1,17 +1,16 @@
 package controllers.iop;
 
-import backend.models.AutoEvaluationConfig;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamRoom;
-import backend.models.GeneralSettings;
-import backend.models.GradeEvaluation;
-import backend.models.Language;
-import backend.models.Reservation;
-import backend.models.Role;
-import backend.models.User;
-import backend.models.iop.ExternalReservation;
-import backend.util.JsonDeserializer;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.stream.Collectors;
+import javax.mail.internet.MimeMessage;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,16 +38,9 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import javax.mail.internet.MimeMessage;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.stream.Collectors;
+import backend.models.*;
+import backend.models.iop.ExternalReservation;
+import backend.util.JsonDeserializer;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -390,7 +382,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Result result = get("/app/reviewerexams");
         assertThat(result.status()).isEqualTo(403);
         // See that user is directed to waiting room
-        result = get("/app/enrolments");
+        result = get("/app/student/enrolments");
         assertThat(result.headers().containsKey("x-exam-upcoming-exam")).isTrue();
 
         // see that enrolment was created for the user
