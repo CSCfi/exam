@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import be.objectify.deadbolt.java.actions.Group;
@@ -47,6 +48,7 @@ import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
 import backend.models.User;
 import backend.models.api.CountsAsTrial;
+import backend.models.json.CollaborativeExam;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.ConfigUtil;
 import backend.util.DateTimeUtils;
@@ -230,6 +232,7 @@ public class StudentActionsController extends BaseController {
         User user = getLoggedUser();
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
+                .fetch("collaborativeExam")
                 .fetch("exam.executionType")
                 .fetch("exam.course", "name, code")
                 .fetch("exam.examLanguages")
@@ -242,17 +245,19 @@ public class StudentActionsController extends BaseController {
                         "roomInstruction, roomInstructionEN, roomInstructionSV")
                 .where()
                 .eq("user", user)
-                .gt("exam.examActiveEndDate", now.toDate())
                 .disjunction()
                 .gt("reservation.endAt", now.toDate())
                 .isNull("reservation")
                 .endJunction()
-                .disjunction()
-                .eq("exam.state", Exam.State.PUBLISHED)
-                .eq("exam.state", Exam.State.STUDENT_STARTED)
-                .endJunction()
                 .findList();
-        return ok(enrolments);
+        return ok(enrolments.stream().filter(ee -> {
+            Exam exam = ee.getExam();
+            if (exam != null) {
+                return exam.getExamActiveEndDate().isAfterNow() && exam.hasState(Exam.State.PUBLISHED, Exam.State.STUDENT_STARTED);
+            }
+            CollaborativeExam ce = ee.getCollaborativeExam();
+            return ce != null && ce.getExamActiveEndDate().isAfterNow();
+        }).collect(Collectors.toList()));
     }
 
     @ActionMethod

@@ -38,15 +38,21 @@ angular.module('app.enrolment')
                     } else {
                         dialogs.confirm($translate.instant('sitnet_confirm'),
                             $translate.instant('sitnet_are_you_sure')).result.then(
-                            function () {
-                                Enrolment.removeEnrolment(vm.enrolment).then(function () {
-                                    vm.onRemoval({ data: vm.enrolment });
-                                }
-                                );
-                            });
+                                function () {
+                                    Enrolment.removeEnrolment(vm.enrolment).then(function () {
+                                        vm.onRemoval({ data: vm.enrolment });
+                                    }
+                                    );
+                                });
                     }
 
                 };
+
+                vm.getLinkToCalendar = function () {
+                    return vm.enrolment.collaborativeExam ?
+                        '/calendar/collaborative/' + vm.enrolment.collaborativeExam.id :
+                        '/calendar/' + vm.enrolment.exam.id;
+                }
 
                 vm.addEnrolmentInformation = function () {
                     Enrolment.addEnrolmentInformation(vm.enrolment);

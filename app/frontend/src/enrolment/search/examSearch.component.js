@@ -86,9 +86,7 @@ angular.module('app.enrolment')
                             // not enrolled or made reservations
                             exam.enrolled = false;
                             exam.reservationMade = false;
-                        }
-                        );
-
+                        });
                     });
 
                 };

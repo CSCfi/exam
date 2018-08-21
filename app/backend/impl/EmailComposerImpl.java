@@ -222,7 +222,8 @@ class EmailComposerImpl implements EmailComposer {
         String subject = String.format("%s: \"%s\"", messaging.get(lang, isReminder ?
                 "email.machine.reservation.reminder.subject" :
                 "email.machine.reservation.subject"), exam.getName());
-        String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getCode());
+        String examInfo = String.format("%s %s", exam.getName(), exam.getCourse() != null ?
+                String.format("(%s)", exam.getCourse().getCode()) : "");
         String teacherName;
 
         if (!exam.getExamOwners().isEmpty()) {

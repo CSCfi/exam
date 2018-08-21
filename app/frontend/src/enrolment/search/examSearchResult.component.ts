@@ -44,7 +44,9 @@ export const ExamSearchResultComponent: angular.IComponentOptions = {
                 .catch(angular.noop);
         }
 
-        makeReservation = () => this.$location.path('/calendar/' + this.exam.id);
+        makeReservation = () =>
+            this.$location.path((this.collaborative ? '/calendar/collaborative/' : '/calendar/') + this.exam.id)
+
 
     }
 };

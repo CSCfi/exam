@@ -71,6 +71,15 @@ export class EnrolmentService {
         return deferred.promise;
     }
 
+    getEnrolments(examId: number, collaborative = false): ng.IPromise<ExamEnrolment[]> {
+        const deferred: ng.IDeferred<ExamEnrolment[]> = this.$q.defer();
+        this.$http.get(this.getResource(`exam/${examId}`, collaborative)).then(
+            (resp: ng.IHttpResponse<ExamEnrolment[]>) => {
+                deferred.resolve(resp.data);
+            }).catch((err: ng.IHttpResponse<any>) => deferred.reject());
+        return deferred.promise;
+    }
+
     checkAndEnroll(exam: Exam, collaborative = false): ng.IPromise<any> {
         const deferred = this.$q.defer();
         this.$http.get(this.getResource(`exam/${exam.id}`, collaborative)).then(() => {

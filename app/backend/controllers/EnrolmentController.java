@@ -196,7 +196,7 @@ public class EnrolmentController extends BaseController {
             return notFound("enrolment not found");
         }
         // Disallow removing enrolments to private exams created automatically for student
-        if (enrolment.getExam().isPrivate()) {
+        if (enrolment.getExam() != null && enrolment.getExam().isPrivate()) {
             return forbidden();
         }
         if (enrolment.getReservation() != null) {

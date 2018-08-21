@@ -16,7 +16,6 @@
 import * as angular from 'angular';
 import * as toast from 'toastr';
 import * as moment from 'moment';
-import * as mtz from 'moment-timezone';
 import { Room, Slot, CalendarService } from './calendar.service';
 import { DateTimeService } from '../utility/date/date.service';
 import { IHttpResponse } from 'angular';
@@ -43,11 +42,13 @@ interface FilteredRoom extends Room {
 export const CalendarComponent: angular.IComponentOptions = {
     template: require('./calendar.template.html'),
     bindings: {
-        'isExternal': '<'
+        isExternal: '<',
+        isCollaborative: '<'
     },
     controller: class CalendarController implements angular.IComponentController {
 
         isExternal: boolean;
+        isCollaborative: boolean;
 
         accessibilities: Accessibility[] = [];
         isInteroperable: boolean;
@@ -93,13 +94,17 @@ export const CalendarComponent: angular.IComponentOptions = {
             this.$http.get('/app/settings/iop')
                 .then((resp: IHttpResponse<{ isInteroperable: boolean }>) => {
                     this.isInteroperable = resp.data.isInteroperable;
-                    if (this.isInteroperable && this.isExternal) {
+                    // TODO: allow making external reservations to collaborative exams in the future
+                    if (this.isInteroperable && this.isExternal && !this.isCollaborative) {
                         this.$http.get('/integration/iop/organisations').then((resp: IHttpResponse<any[]>) => {
                             this.organisations = resp.data.filter(org => !org.homeOrg);
                         });
                     }
                 }).catch(resp => angular.noop);
-            this.$http.get(`/app/student/exam/${this.$routeParams.id}/info`).then((resp: IHttpResponse<ExamInfo>) => {
+            const url = this.isCollaborative ?
+                `/integration/iop/exams/${this.$routeParams.id}/info` :
+                `/app/student/exam/${this.$routeParams.id}/info`;
+            this.$http.get(url).then((resp: IHttpResponse<ExamInfo>) => {
                 this.examInfo = resp.data;
                 this.$http.get('/app/settings/reservationWindow').then((resp: IHttpResponse<{ value: number }>) => {
                     this.reservationWindowSize = resp.data.value;
@@ -208,7 +213,10 @@ export const CalendarComponent: angular.IComponentOptions = {
                     }
                 }).then(success).catch(error);
             } else {
-                this.$http.get(`/app/calendar/${this.$routeParams.id}/${room.id}`, {
+                const url = this.isCollaborative ?
+                    `/integration/iop/exams/${this.$routeParams.id}/calendar/${room.id}` :
+                    `/app/calendar/${this.$routeParams.id}/${room.id}`;
+                this.$http.get(url, {
                     params: {
                         day: date,
                         aids: accessibility
@@ -294,7 +302,8 @@ export const CalendarComponent: angular.IComponentOptions = {
                 this.reservation.end,
                 room,
                 this.accessibilities,
-                { _id: this.selectedOrganisation ? this.selectedOrganisation._id : null }
+                { _id: this.selectedOrganisation ? this.selectedOrganisation._id : null },
+                this.isCollaborative
             ).then(() => this.confirming = false);
         }
 

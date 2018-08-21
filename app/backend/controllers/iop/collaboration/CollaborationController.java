@@ -83,8 +83,15 @@ class CollaborationController extends BaseController {
                     return Optional.empty();
                 }
                 ce.setRevision(root.get("_rev").asText());
+                Exam exam = ce.getExam(root);
+                // Save certain informative properties locally so we can display them right away in some cases
+                ce.setName(exam.getName());
+                ce.setExamActiveStartDate(exam.getExamActiveStartDate());
+                ce.setExamActiveEndDate(exam.getExamActiveEndDate());
+                ce.setEnrollInstruction(exam.getEnrollInstruction());
+                ce.setDuration(exam.getDuration());
                 ce.update();
-                return Optional.of(ce.getExam(root));
+                return Optional.of(exam);
             };
             return request.get().thenApplyAsync(onSuccess);
         }
