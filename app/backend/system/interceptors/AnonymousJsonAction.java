@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
+ * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -11,29 +11,36 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
  */
 
 package backend.system.interceptors;
 
-
 import akka.stream.Materializer;
-import com.google.inject.Inject;
 import play.mvc.Http;
 import play.mvc.Result;
 
+import javax.inject.Inject;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-// Action composition to ensure that no data classed as sensitive shall be sent to client.
-class SensitiveDataAction extends JsonFilterAction<SensitiveDataPolicy> {
+public class AnonymousJsonAction extends JsonFilterAction<Anonymous> {
+
+    public static final String ANONYMOUS_HEADER = "Anonymous";
 
     @Inject
-    public SensitiveDataAction(Materializer materializer) {
+    public AnonymousJsonAction(Materializer materializer) {
         super(materializer);
     }
 
     @Override
     public CompletionStage<Result> call(Http.Context ctx) {
-        return delegate.call(ctx)
-                .thenCompose(result -> filterJsonResponse(result, configuration.sensitiveFieldNames()));
+        return delegate.call(ctx).thenCompose(result -> {
+            if (result.header(ANONYMOUS_HEADER).isPresent()) {
+                return filterJsonResponse(result, configuration.filteredProperties());
+            }
+            return CompletableFuture.supplyAsync(() -> result);
+        });
     }
+
 }
