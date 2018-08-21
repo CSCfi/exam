@@ -58,10 +58,8 @@ export class ReservationController implements angular.IComponentController {
     reservations: any[];
 
     constructor(
-        private $location: angular.ILocationService,
         private $http: angular.IHttpService,
         private $routeParams: angular.route.IRouteParamsService,
-        private $translate: angular.translate.ITranslateService,
         private $filter: angular.IFilterService,
         private Session: SessionService,
         private Reservation: ReservationService

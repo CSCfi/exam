@@ -26,12 +26,14 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joda.time.DateTime;
 
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.base.GeneratedIdentityModel;
+import backend.util.DateTimeAdapter;
 import backend.util.JsonDeserializer;
 
 @Entity
@@ -42,6 +44,25 @@ public class CollaborativeExam extends GeneratedIdentityModel {
 
     @Column
     private String revision; // REFERENCE TO EXAM REVISION ELSEWHERE
+
+    @Column
+    private String name;
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime examActiveStartDate;
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime examActiveEndDate;
+
+    @Column
+    private Integer duration;
+
+    @Column(columnDefinition = "TEXT")
+    private String enrollInstruction;
 
     @Temporal(TemporalType.TIMESTAMP)
     private DateTime created;
@@ -66,6 +87,46 @@ public class CollaborativeExam extends GeneratedIdentityModel {
         this.revision = revision;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public DateTime getExamActiveStartDate() {
+        return examActiveStartDate;
+    }
+
+    public void setExamActiveStartDate(DateTime examActiveStartDate) {
+        this.examActiveStartDate = examActiveStartDate;
+    }
+
+    public DateTime getExamActiveEndDate() {
+        return examActiveEndDate;
+    }
+
+    public void setExamActiveEndDate(DateTime examActiveEndDate) {
+        this.examActiveEndDate = examActiveEndDate;
+    }
+
+    public Integer getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
+
+    public String getEnrollInstruction() {
+        return enrollInstruction;
+    }
+
+    public void setEnrollInstruction(String enrollInstruction) {
+        this.enrollInstruction = enrollInstruction;
+    }
+
     public DateTime getCreated() {
         return created;
     }
@@ -87,6 +148,5 @@ public class CollaborativeExam extends GeneratedIdentityModel {
         JsonNode formatted = ((ObjectNode) node).put("id", id);
         return JsonDeserializer.deserialize(Exam.class, formatted);
     }
-
 
 }

@@ -67,6 +67,9 @@ export default function configs(
     /* calendar */
     $routeProvider.when('/calendar/:id', { template: '<calendar is-external="false"></calendar>' });
     $routeProvider.when('/iop/calendar/:id', { template: '<calendar is-external="true"></calendar>' });
+    $routeProvider.when('/calendar/collaborative/:id',
+        { template: '<calendar is-external="false" is-collaborative="true"></calendar>' });
+
 
     /* logout */
     $routeProvider.when('/logout', { template: '<logout></logout>' });

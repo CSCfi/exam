@@ -76,7 +76,9 @@ export class CalendarService {
         return moment.utc(adjusted.add(offset, 'hour')).format();
     }
 
-    private reserveInternal(slot: Slot, accs: { filtered: boolean; id: number }[], promise: IDeferred<any>) {
+    private reserveInternal(slot: Slot, accs: { filtered: boolean; id: number }[], promise: IDeferred<any>,
+        collaborative: boolean) {
+
         slot.aids = accs.filter(
             function (item) {
                 return item.filtered;
@@ -84,7 +86,8 @@ export class CalendarService {
             .map(function (item) {
                 return item.id;
             });
-        this.$http.post('/app/calendar/reservation', slot).then(() => {
+        const url = collaborative ? '/integration/iop/calendar/reservation' : '/app/calendar/reservation';
+        this.$http.post(url, slot).then(() => {
             this.$location.path('/');
             promise.resolve();
         }).catch((resp) => {
@@ -92,6 +95,8 @@ export class CalendarService {
             promise.reject(resp);
         });
     }
+
+
 
     private reserveExternal(slot: Slot, promise: IDeferred<any>) {
         this.$http.post('/integration/iop/reservations/external', slot).then(() => {
@@ -104,7 +109,7 @@ export class CalendarService {
     }
 
     reserve(start: moment.Moment, end: moment.Moment, room: Room,
-        accs: { filtered: boolean; id: number }[], org: { _id: string | null }) {
+        accs: { filtered: boolean; id: number }[], org: { _id: string | null }, collaborative = false) {
 
         const deferred = this.$q.defer();
         const tz = room.localTimezone;
@@ -115,11 +120,10 @@ export class CalendarService {
             roomId: room._id != null ? room._id : room.id,
             orgId: org._id
         };
-
         if (org._id !== null) {
             this.reserveExternal(slot, deferred);
         } else {
-            this.reserveInternal(slot, accs, deferred);
+            this.reserveInternal(slot, accs, deferred, collaborative);
         }
         return deferred.promise;
     }

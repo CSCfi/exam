@@ -18,9 +18,12 @@ import * as _ from 'lodash';
 
 import { CollaborativeExam } from '../../exam/exam.model';
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
+import { EnrolmentService } from '../enrolment.service';
 
 interface CollaborativeExamInfo extends CollaborativeExam {
     languages: string[];
+    reservationMade: boolean;
+    enrolled: boolean;
 }
 
 export const CollaborativeExamSearchComponent: angular.IComponentOptions = {
@@ -41,7 +44,7 @@ export const CollaborativeExamSearchComponent: angular.IComponentOptions = {
         exams: CollaborativeExamInfo[];
 
         constructor(
-            private $location: angular.ILocationService,
+            private Enrolment: EnrolmentService,
             private Language: any,
             private CollaborativeExam: CollaborativeExamService) {
             'ngInject';
@@ -50,7 +53,17 @@ export const CollaborativeExamSearchComponent: angular.IComponentOptions = {
         $onInit() {
             this.CollaborativeExam.listExams().then((exams: CollaborativeExam[]) => {
                 this.exams = exams.map(e =>
-                    _.assign(e, { languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code)) }));
+                    _.assign(e, {
+                        reservationMade: false,
+                        enrolled: false,
+                        languages: e.examLanguages.map(l => this.Language.getLanguageNativeName(l.code))
+                    }));
+                this.exams.forEach(e => {
+                    this.Enrolment.getEnrolments(e.id, true).then(enrolments => {
+                        e.reservationMade = enrolments.some(e => _.isObject(e.reservation));
+                        e.enrolled = enrolments.length > 0;
+                    }).catch(angular.noop);
+                });
             }).catch(angular.noop);
         }
 

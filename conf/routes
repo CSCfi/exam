@@ -315,6 +315,10 @@ PUT           /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.c
 GET           /integration/iop/enrolments                              backend.controllers.iop.collaboration.CollaborativeEnrolmentController.listExams
 GET           /integration/iop/enrolments/exam/:eid                    backend.controllers.iop.collaboration.CollaborativeEnrolmentController.checkIfEnrolled(eid: Long)
 POST          /integration/iop/enrolments/:eid                         backend.controllers.iop.collaboration.CollaborativeEnrolmentController.createEnrolment(eid: Long)
+################# Collaborative Exam reservation interface #########
+GET           /integration/iop/exams/:eid/info                         backend.controllers.iop.collaboration.CollaborativeCalendarController.getExamInfo(eid: Long)
+GET           /integration/iop/exams/:eid/calendar/:roomId             backend.controllers.iop.collaboration.CollaborativeCalendarController.getSlots(eid: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer])
+POST          /integration/iop/calendar/reservation                    backend.controllers.iop.collaboration.CollaborativeCalendarController.createReservation
 
 ############# Integration attachments #################
 POST          /integration/iop/attachment/question                     backend.controllers.iop.collaboration.CollaborativeAttachmentController.addAttachmentToQuestion()

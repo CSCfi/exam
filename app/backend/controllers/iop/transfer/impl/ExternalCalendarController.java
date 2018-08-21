@@ -52,6 +52,7 @@ import scala.concurrent.duration.Duration;
 import backend.controllers.CalendarController;
 import backend.controllers.SettingsController;
 import backend.exceptions.NotFoundException;
+import backend.impl.CalendarHandler;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
@@ -83,7 +84,7 @@ public class ExternalCalendarController extends CalendarController {
                 + String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
     }
 
-    private Set<TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user) {
+    private Set<CalendarHandler.TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user) {
         // Filter out slots that user has a conflicting reservation with
         if (node.isArray()) {
             ArrayNode root = (ArrayNode) node;
@@ -106,7 +107,7 @@ public class ExternalCalendarController extends CalendarController {
                         throw new IllegalStateException(String.format("Duplicate key %s", u));
                     },
                     LinkedHashMap::new));
-            return handleReservations(map, reservations, exam, null, user);
+            return calendarHandler.handleReservations(map, reservations, exam, null, user);
         }
         return Collections.emptySet();
     }
@@ -129,7 +130,8 @@ public class ExternalCalendarController extends CalendarController {
         if (room == null) {
             return notFound("room not found");
         }
-        Optional<ExamMachine> machine = getRandomMachine(room, null, start, end, Collections.emptyList());
+        Optional<ExamMachine> machine =
+                calendarHandler.getRandomMachine(room, null, start, end, Collections.emptyList());
         if (!machine.isPresent()) {
             return forbidden("sitnet_no_machines_available");
         }
@@ -174,7 +176,7 @@ public class ExternalCalendarController extends CalendarController {
             if (room == null) {
                 return forbidden(String.format("No room with ref: (%s)", roomId.get()));
             }
-            Collection<TimeSlot> slots = new ArrayList<>();
+            Collection<CalendarHandler.TimeSlot> slots = new ArrayList<>();
             if (!room.getOutOfService() && !room.getState().equals(ExamRoom.State.INACTIVE.toString())) {
                 LocalDate searchDate;
                 try {
@@ -190,7 +192,7 @@ public class ExternalCalendarController extends CalendarController {
                         .findList();
                 LocalDate endOfSearch = getEndSearchDate(end.get(), searchDate);
                 while (!searchDate.isAfter(endOfSearch)) {
-                    Set<TimeSlot> timeSlots = getExamSlots(room, duration.get(), searchDate, machines);
+                    Set<CalendarHandler.TimeSlot> timeSlots = getExamSlots(room, duration.get(), searchDate, machines);
                     if (!timeSlots.isEmpty()) {
                         slots.addAll(timeSlots);
                     }
@@ -274,7 +276,7 @@ public class ExternalCalendarController extends CalendarController {
 
             // Also sanity check the provided search date
             try {
-                parseSearchDate(date.get(), exam, null);
+                calendarHandler.parseSearchDate(date.get(), exam, null);
             } catch (NotFoundException e) {
                 return wrapAsPromise(notFound());
             }
@@ -289,7 +291,7 @@ public class ExternalCalendarController extends CalendarController {
                 if (response.getStatus() != 200) {
                     return internalServerError(root.get("message").asText("Connection refused"));
                 }
-                Set<TimeSlot> slots = postProcessSlots(root, date.get(), exam, user);
+                Set<CalendarHandler.TimeSlot> slots = postProcessSlots(root, date.get(), exam, user);
                 return ok(Json.toJson(slots));
             };
             return request.get().thenApplyAsync(onSuccess);
@@ -380,9 +382,9 @@ public class ExternalCalendarController extends CalendarController {
     }
 
 
-    private Set<TimeSlot> getExamSlots(ExamRoom room, Integer examDuration, LocalDate date, Collection<ExamMachine> machines) {
-        Set<TimeSlot> slots = new LinkedHashSet<>();
-        Collection<Interval> examSlots = gatherSuitableSlots(room, date, examDuration);
+    private Set<CalendarHandler.TimeSlot> getExamSlots(ExamRoom room, Integer examDuration, LocalDate date, Collection<ExamMachine> machines) {
+        Set<CalendarHandler.TimeSlot> slots = new LinkedHashSet<>();
+        Collection<Interval> examSlots = calendarHandler.gatherSuitableSlots(room, date, examDuration);
         // Check machine availability for each slot
         for (Interval slot : examSlots) {
             // Check machine availability
@@ -390,7 +392,7 @@ public class ExternalCalendarController extends CalendarController {
                     .filter(m -> !isReservedDuring(m, slot))
                     .collect(Collectors.toList())
                     .size();
-            slots.add(new TimeSlot(slot, availableMachineCount, null));
+            slots.add(new CalendarHandler.TimeSlot(slot, availableMachineCount, null));
         }
         return slots;
     }
