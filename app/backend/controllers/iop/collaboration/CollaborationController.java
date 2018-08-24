@@ -90,6 +90,8 @@ class CollaborationController extends BaseController {
                 ce.setExamActiveEndDate(exam.getExamActiveEndDate());
                 ce.setEnrollInstruction(exam.getEnrollInstruction());
                 ce.setDuration(exam.getDuration());
+                ce.setHash(exam.getHash());
+                ce.setState(exam.getState());
                 ce.update();
                 return Optional.of(exam);
             };

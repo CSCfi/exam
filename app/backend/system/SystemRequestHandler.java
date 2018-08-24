@@ -206,7 +206,13 @@ public class SystemRequestHandler implements ActionCreator {
     }
 
     private String getExamHash(ExamEnrolment enrolment) {
-        return enrolment.getExternalExam() != null ? enrolment.getExternalExam().getHash() : enrolment.getExam().getHash();
+        if (enrolment.getExternalExam() != null) {
+            return enrolment.getExternalExam().getHash();
+        } else if (enrolment.getCollaborativeExam() != null && enrolment.getExam() == null) {
+            return enrolment.getCollaborativeExam().getHash();
+        } else {
+            return enrolment.getExam().getHash();
+        }
     }
 
     private void handleOngoingEnrolment(ExamEnrolment enrolment, Http.RequestHeader request, Map<String, String> headers) {
@@ -233,11 +239,13 @@ public class SystemRequestHandler implements ActionCreator {
                 .fetch("reservation.machine.room")
                 .fetch("exam")
                 .fetch("externalExam")
+                .fetch("collaborativeExam")
                 .where()
                 .eq("user.id", userId)
                 .disjunction()
                 .eq("exam.state", Exam.State.PUBLISHED)
                 .eq("exam.state", Exam.State.STUDENT_STARTED)
+                .eq("collaborativeExam.state", Exam.State.PUBLISHED)
                 .jsonEqualTo("externalExam.content", "state", Exam.State.PUBLISHED.toString())
                 .jsonEqualTo("externalExam.content", "state", Exam.State.STUDENT_STARTED.toString())
                 .endJunction()

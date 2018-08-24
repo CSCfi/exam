@@ -155,7 +155,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
             }
         });
         exam.setTrialCount(trialCount);
-        exam.generateHash();
+        // exam.generateHash();
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);

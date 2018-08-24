@@ -165,7 +165,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         }
         CollaborativeExam ce = r.getEnrolment().getCollaborativeExam();
         if (ce != null) {
-            return ce.getName().equals(e.getName()); // TODO: better way to identify without having to download the whole thing? Store id / hash locally?
+            return ce.getHash().equals(e.getHash());
         }
         return false;
     }
