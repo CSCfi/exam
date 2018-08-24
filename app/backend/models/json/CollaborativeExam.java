@@ -48,15 +48,12 @@ public class CollaborativeExam extends GeneratedIdentityModel {
     @Column
     private String name;
 
-<<<<<<< HEAD
-=======
     @Column(length = 32, unique = true)
     private String hash;
 
     @Column
     private Exam.State state;
 
->>>>>>> CSCEXAM-127
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
