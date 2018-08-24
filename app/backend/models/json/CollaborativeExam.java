@@ -48,6 +48,15 @@ public class CollaborativeExam extends GeneratedIdentityModel {
     @Column
     private String name;
 
+<<<<<<< HEAD
+=======
+    @Column(length = 32, unique = true)
+    private String hash;
+
+    @Column
+    private Exam.State state;
+
+>>>>>>> CSCEXAM-127
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
@@ -125,6 +134,22 @@ public class CollaborativeExam extends GeneratedIdentityModel {
 
     public void setEnrollInstruction(String enrollInstruction) {
         this.enrollInstruction = enrollInstruction;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
+    public Exam.State getState() {
+        return state;
+    }
+
+    public void setState(Exam.State state) {
+        this.state = state;
     }
 
     public DateTime getCreated() {

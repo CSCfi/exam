@@ -53,6 +53,7 @@ public class CollaborativeExamController extends CollaborationController {
                 .findUnique();
         User user = getLoggedUser();
         Exam exam = new Exam();
+        exam.generateHash();
         exam.setState(Exam.State.DRAFT);
         exam.setExecutionType(examExecutionType);
         AppUtil.setCreator(exam, user);

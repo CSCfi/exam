@@ -13,6 +13,8 @@ ALTER TABLE collaborative_exam ADD COLUMN exam_active_start_date TIMESTAMP WITH 
 ALTER TABLE collaborative_exam ADD COLUMN exam_active_end_date TIMESTAMP WITH TIME ZONE;
 ALTER TABLE collaborative_exam ADD COLUMN enroll_instruction TEXT;
 ALTER TABLE collaborative_exam ADD COLUMN duration INTEGER;
+ALTER TABLE collaborative_exam ADD COLUMN hash VARCHAR(32);
+ALTER TABLE collaborative_exam ADD COLUMN state INTEGER;
 
 # --- !Downs
 ALTER TABLE collaborative_exam DROP COLUMN name;
@@ -20,6 +22,8 @@ ALTER TABLE collaborative_exam DROP COLUMN exam_active_start_date;
 ALTER TABLE collaborative_exam DROP COLUMN exam_active_end_date;
 ALTER TABLE collaborative_exam DROP COLUMN enroll_instruction;
 ALTER TABLE collaborative_exam DROP COLUMN duration;
+ALTER TABLE collaborative_exam DROP COLUMN hash;
+ALTER TABLE collaborative_exam DROP COLUMN state;
 
 ALTER TABLE exam_enrolment
   DROP COLUMN collaborative_exam_id CASCADE;
