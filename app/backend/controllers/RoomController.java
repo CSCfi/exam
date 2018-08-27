@@ -58,7 +58,7 @@ import backend.util.DateTimeUtils;
 
 public class RoomController extends BaseController {
 
-    private static final boolean IOP_ACTIVATED = ConfigFactory.load().getBoolean("sitnet.integration.iop.active");
+    private static final boolean IOP_ACTIVATED = ConfigUtil.isInteroperable();
 
     @Inject
     private ExternalFacilityAPI externalApi;

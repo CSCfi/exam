@@ -369,6 +369,7 @@ GET           /app/settings/gradescale                                 backend.c
 GET           /app/settings/enrolmentPermissionCheck                   backend.controllers.SettingsController.isEnrolmentPermissionCheckActive
 GET           /app/settings/environment                                backend.controllers.SettingsController.isProd
 GET           /app/settings/iop                                        backend.controllers.SettingsController.isInteroperable
+GET           /app/settings/anonymousReviewEnabled                     backend.controllers.SettingsController.isAnonymousReviewEnabled
 GET           /app/settings/maxfilesize                                backend.controllers.SettingsController.getMaxFilesize
 GET           /app/settings/appVersion                                 backend.controllers.SettingsController.getAppVersion
 GET           /app/settings/maturityInstructions                       backend.controllers.SettingsController.getMaturityInstructions(lang: String)

@@ -124,7 +124,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
     }
 
     @Override
-    public void update(Exam exam, Http.Request request) {
+    public void update(Exam exam, Http.Request request, Role.Name loginRole) {
         Optional<String> examName = request.attrs().getOptional(Attrs.NAME);
         Boolean shared = request.attrs().getOptional(Attrs.SHARED).orElse(false);
         Optional<Integer> grading = request.attrs().getOptional(Attrs.GRADE_ID);
@@ -136,6 +136,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         Boolean expanded = request.attrs().getOptional(Attrs.EXPANDED).orElse(false);
         Boolean requiresLanguageInspection = request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).orElse(null);
         String internalRef = request.attrs().getOptional(Attrs.REFERENCE).orElse(null);
+        Boolean anonymous = request.attrs().getOptional(Attrs.ANONYMOUS).orElse(false);
         examName.ifPresent(exam::setName);
         exam.setShared(shared);
 
@@ -159,6 +160,10 @@ public class ExamUpdaterImpl implements ExamUpdater {
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
+        if (loginRole == Role.Name.ADMIN &&
+                ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType())) {
+            exam.setAnonymous(anonymous);
+        }
     }
 
     @Override

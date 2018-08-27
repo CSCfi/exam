@@ -71,7 +71,8 @@ angular.module('app.exam')
                     'subjectToLanguageInspection': exam.subjectToLanguageInspection,
                     'internalRef': exam.internalRef,
                     'objectVersion': exam.objectVersion,
-                    'attachment': exam.attachment
+                    'attachment': exam.attachment,
+                    'anonymous': exam.anonymous
                 };
                 for (let k in overrides) {
                     if (overrides.hasOwnProperty(k)) {
