@@ -116,5 +116,8 @@ public class ConfigUtil {
         return ConfigFactory.load().getString("exam.release.version");
     }
 
+    public static boolean isAnonymousReviewEnabled() {
+        return ConfigFactory.load().getBoolean("sitnet.exam.anonymousReview");
+    }
 
 }

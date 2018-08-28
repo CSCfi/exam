@@ -116,4 +116,5 @@ export interface Exam {
     examLanguages: ExamLanguage[];
     subjectToLanguageInspection: boolean | null;
     enrollInstruction: string;
+    anonymous: boolean;
 }

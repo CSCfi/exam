@@ -20,6 +20,7 @@ import { IModalService } from 'angular-ui-bootstrap';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
 import { Course, Exam, ExamExecutionType, GradeScale } from '../../exam.model';
+import { SessionService } from "../../../session/session.service";
 
 export const BasicExamInfoComponent: ng.IComponentOptions = {
     template: require('./basicExamInfo.template.html'),
@@ -33,6 +34,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
 
         exam: Exam;
         collaborative: boolean;
+        anonymousReviewEnabled: boolean;
         onUpdate: (_: { props: { code: string | null, name: string | null } }) => any;
         onNextTabSelected: () => any;
 
@@ -50,7 +52,8 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             private ExamRes: any,
             private SettingsResource: any,
             private Attachment: AttachmentService,
-            private Files: FileService
+            private Files: FileService,
+            private Session: SessionService
         ) {
             'ngInject';
 
@@ -67,14 +70,17 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             this.SettingsResource.gradeScale.get((data) => {
                 this.gradeScaleSetting = data;
             });
+            this.SettingsResource.anonymousReviewEnabled.get((data) => {
+                this.anonymousReviewEnabled = data.anonymousReviewEnabled;
+            });
             this.initGradeScale();
-        }
+        };
 
         $onChanges = (props: { exam?: Exam }) => {
             if (props.exam) {
                 this.initGradeScale();
             }
-        }
+        };
 
         updateExam = (resetAutoEvaluationConfig: boolean) => {
             this.Exam.updateExam(this.exam, {}, this.collaborative).then(() => {
@@ -83,33 +89,33 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                     delete this.exam.autoEvaluationConfig;
                 }
                 const code = this.exam.course ? this.exam.course.code : null;
-                this.onUpdate({ props: { name: this.exam.name, code: code } });
+                this.onUpdate({props: {name: this.exam.name, code: code}});
             }, (error) => {
                 if (error.data) {
                     const msg = error.data.message || error.data;
                     toast.error(this.$translate.instant(msg));
                 }
             });
-        }
+        };
 
         onCourseChange = (course: Course) => {
             this.exam.course = course;
             this.initGradeScale(); //  Grade scale might need changing based on new course
             const code = this.exam.course ? this.exam.course.code : null;
-            this.onUpdate({ props: { name: this.exam.name, code: code } });
-        }
+            this.onUpdate({props: {name: this.exam.name, code: code}});
+        };
 
         getExecutionTypeTranslation = () =>
-            !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType.type)
+            !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType.type);
 
 
         checkExamType = (type: string) =>
-            this.exam.examType.type === type ? 'btn-primary' : ''
+            this.exam.examType.type === type ? 'btn-primary' : '';
 
         setExamType = (type: string) => {
             this.exam.examType.type = type;
             this.updateExam(false);
-        }
+        };
 
         getSelectableScales = () => {
             if (!this.gradeScales || !this.exam || angular.isUndefined(this.gradeScaleSetting)) {
@@ -125,26 +131,35 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                     return true;
                 }
             });
-        }
+        };
 
         checkScale = (scale: GradeScale) => {
             if (!this.exam.gradeScale) {
                 return '';
             }
             return this.exam.gradeScale.id === scale.id ? 'btn-primary' : '';
-        }
+        };
 
         checkScaleDisabled = (scale: GradeScale) => {
             if (!scale || !this.exam.course || !this.exam.course.gradeScale) {
                 return false;
             }
             return !this.gradeScaleSetting.overridable && this.exam.course.gradeScale.id === scale.id;
-        }
+        };
 
         setScale = (grading: GradeScale) => {
             this.exam.gradeScale = grading;
             this.updateExam(true);
-        }
+        };
+
+        toggleAnonymous = () => {
+            this.updateExam(false);
+        };
+
+        toggleAnonymousDisabled = () => {
+            return !this.Session.getUser().isAdmin ||
+                !this.isAllowedToUnpublishOrRemove();
+        };
 
         selectAttachmentFile = () => {
             this.$uibModal.open({
@@ -158,22 +173,22 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             }).result.then((data) => {
                 let url = this.collaborative ? '/integration/iop/attachment/exam' : '/app/attachment/exam';
                 this.Files.upload(url,
-                    data.attachmentFile, { examId: this.exam.id }, this.exam);
+                    data.attachmentFile, {examId: this.exam.id}, this.exam);
             });
-        }
+        };
 
         downloadExamAttachment = () => {
             this.Attachment.downloadExamAttachment(this.exam, this.collaborative);
-        }
+        };
 
         removeExamAttachment = () => {
             this.Attachment.removeExamAttachment(this.exam, this.collaborative);
-        }
+        };
 
         removeExam = (canRemoveWithoutConfirmation: boolean) => {
             if (this.isAllowedToUnpublishOrRemove()) {
                 const fn = () => {
-                    this.ExamRes.exams.remove({ id: this.exam.id }, () => {
+                    this.ExamRes.exams.remove({id: this.exam.id}, () => {
                         toast.success(this.$translate.instant('sitnet_exam_removed'));
                         this.$location.path('/');
                     }, error => toast.error(error.data));
@@ -188,7 +203,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             } else {
                 toast.warning(this.$translate.instant('sitnet_exam_removal_not_possible'));
             }
-        }
+        };
 
         nextTab = () => this.onNextTabSelected();
 
@@ -200,20 +215,20 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                 }
                 this.examTypes = types;
             });
-        }
+        };
 
         private refreshGradeScales = () => {
             this.Exam.refreshGradeScales().then((scales: GradeScale[]) => {
                 this.gradeScales = scales;
             });
-        }
+        };
 
         private initGradeScale = () => {
             // Set exam grade scale from course default if not specifically set for exam
             if (!this.exam.gradeScale && this.exam.course && this.exam.course.gradeScale) {
                 this.exam.gradeScale = this.exam.course.gradeScale;
             }
-        }
+        };
 
         private isAllowedToUnpublishOrRemove = () =>
             // allowed if no upcoming reservations and if no one has taken this yet

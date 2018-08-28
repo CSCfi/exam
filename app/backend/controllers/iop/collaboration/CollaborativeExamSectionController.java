@@ -61,7 +61,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 if (isAuthorizedToView(exam, user, loginRole)) {
                     ExamSection section = createDraft(exam, user);
                     exam.getExamSections().add(section);
-                    examUpdater.update(exam, request());
+                    examUpdater.update(exam, request(), loginRole);
                     return uploadExam(ce, exam, false, section, getLoggedUser());
                 }
                 return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
@@ -87,7 +87,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                     if (err.isPresent()) {
                         return wrapAsPromise(err.get());
                     }
-                    examUpdater.update(exam, request());
+                    examUpdater.update(exam, request(), loginRole);
                     return uploadExam(ce, exam, false, resultProvider.apply(exam).orElse(null),
                             getLoggedUser());
                 }
@@ -355,7 +355,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                     request().body().asJson().get("question"));
                             ExamSectionQuestion esqBody = new ExamSectionQuestion();
                             updateExamQuestion(esq, questionBody);
-                            examUpdater.update(exam, request());
+                            examUpdater.update(exam, request(), loginRole);
                             return uploadExam(ce, exam, false, esqBody, getLoggedUser());
                         } else {
                             return wrapAsPromise(notFound("sitnet_error_not_found"));

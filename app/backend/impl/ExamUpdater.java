@@ -17,6 +17,7 @@ package backend.impl;
 
 import java.util.Optional;
 
+import backend.models.Role;
 import com.google.inject.ImplementedBy;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -34,10 +35,8 @@ public interface ExamUpdater {
     boolean isPermittedToUpdate(Exam exam, User user, Session session);
     boolean isAllowedToUpdate(Exam exam, User user, Session session);
     boolean isAllowedToRemove(Exam exam);
-    void update(Exam exam, Http.Request request);
+    void update(Exam exam, Http.Request request, Role.Name loginRole);
     void updateAutoEvaluationConfig(Exam exam, AutoEvaluationConfig newConfig);
     Optional<Result> updateLanguage(Exam exam, String code, User user, Session session);
-
-
 
 }

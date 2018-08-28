@@ -55,6 +55,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         @EnumValue("12") REJECTED        // EXAM NOT QUALIFIED FOR REGISTRATION
     }
 
+    private boolean anonymous;
+
     private String name;
 
     @ManyToOne
@@ -689,6 +691,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setInternalRef(String internalRef) {
         this.internalRef = internalRef;
+    }
+
+    public boolean isAnonymous() {
+        return anonymous;
+    }
+
+    public void setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
     }
 
     @Transient

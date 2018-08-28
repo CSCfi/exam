@@ -25,6 +25,7 @@ angular.module('app.common')
                 enrolmentPermissions: $resource('/app/settings/enrolmentPermissionCheck'),
                 environment: $resource('/app/settings/environment'),
                 iop: $resource('/app/settings/iop'),
+                anonymousReviewEnabled: $resource('/app/settings/anonymousReviewEnabled'),
                 maxFilesize: $resource('/app/settings/maxfilesize'),
                 appVersion: $resource('/app/settings/appVersion'),
                 maturityInstructions: $resource('/app/settings/maturityInstructions')

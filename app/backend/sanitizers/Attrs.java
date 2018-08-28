@@ -51,4 +51,5 @@ public enum Attrs {
     public static final TypedKey<AutoEvaluationConfig> AUTO_EVALUATION_CONFIG = TypedKey.create("autoEvaluationConfig");
     public static final TypedKey<String> COMMENT = TypedKey.create("comment");
     public static final TypedKey<String> COURSE_CODE = TypedKey.create("code");
+    public static final TypedKey<Boolean> ANONYMOUS = TypedKey.create("anonymous");
 }

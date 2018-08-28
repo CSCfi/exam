@@ -105,6 +105,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(draft.getExamLanguages().get(0).getCode()).isEqualTo("fi");
         assertThat(draft.getExamType().getId()).isEqualTo(2);
         assertThat(draft.getExpanded()).isTrue();
+        assertThat(draft.isAnonymous()).isTrue();
         int rowCount = Ebean.find(Exam.class).findCount();
         assertThat(rowCount).isEqualTo(originalRowCount + 1);
     }

@@ -178,11 +178,19 @@ public class SettingsController  extends BaseController {
         return ok(Json.toJson(node));
     }
 
+    @ActionMethod
+    public Result isAnonymousReviewEnabled() {
+        ObjectNode node = Json.newObject();
+        node.put("anonymousReviewEnabled", ConfigUtil.isAnonymousReviewEnabled());
+        return ok(Json.toJson(node));
+    }
+
     @Restrict({@Group("ADMIN")})
     public Result getConfig() {
         ObjectNode node = Json.newObject();
 
         node.put("hasCourseSearchIntegration", ConfigUtil.isCourseSearchActive());
+        node.put("anonymousReviewEnabled", ConfigUtil.isAnonymousReviewEnabled());
         ObjectNode courseIntegrationUrls = Json.newObject();
         ConfigUtil.getCourseIntegrationUrls().forEach(courseIntegrationUrls::put);
         node.set("courseSearchIntegrationUrls", courseIntegrationUrls);

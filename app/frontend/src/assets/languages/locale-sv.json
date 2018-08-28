@@ -886,5 +886,6 @@
   "sitnet_collaborative_exams": "Yhteistentit SV",
   "sitnet_pre_published": "Esijulkaistu SV",
   "sitnet_pre_publish_exam_confirm": "Oletko varma, että haluat esijulkaista tentin? Tämän jälkeen opettajat pääsevät muokkaamaan tenttiä SV",
-  "sitnet_pre_publish_exam_confirm_dialog_title": "Tentin esijulkaisu SV"
+  "sitnet_pre_publish_exam_confirm_dialog_title": "Tentin esijulkaisu SV",
+  "sitnet_anonymous_review": "Anonyymi arviointi SV"
 }

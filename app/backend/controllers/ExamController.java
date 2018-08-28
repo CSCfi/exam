@@ -15,16 +15,27 @@
 
 package backend.controllers;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import javax.inject.Inject;
-
 import akka.actor.ActorSystem;
+import backend.controllers.base.BaseController;
+import backend.impl.EmailComposer;
+import backend.impl.ExamUpdater;
+import backend.models.Course;
+import backend.models.Exam;
+import backend.models.ExamExecutionType;
+import backend.models.ExamMachine;
+import backend.models.ExamSection;
+import backend.models.ExamType;
+import backend.models.GradeScale;
+import backend.models.Language;
+import backend.models.Role;
+import backend.models.Software;
+import backend.models.User;
+import backend.models.questions.ClozeTestAnswer;
+import backend.models.questions.Question;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.ExamUpdateSanitizer;
+import backend.util.AppUtil;
+import backend.util.ConfigUtil;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -39,16 +50,14 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.With;
 
-import backend.controllers.base.BaseController;
-import backend.impl.EmailComposer;
-import backend.impl.ExamUpdater;
-import backend.models.*;
-import backend.models.questions.ClozeTestAnswer;
-import backend.models.questions.Question;
-import backend.sanitizers.Attrs;
-import backend.sanitizers.ExamUpdateSanitizer;
-import backend.util.AppUtil;
-import backend.util.ConfigUtil;
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 public class ExamController extends BaseController {
@@ -293,7 +302,8 @@ public class ExamController extends BaseController {
         if (grading.isPresent()) {
             gradeScaleChanged = didGradeChange(exam, grading.get());
         }
-        examUpdater.update(exam, request());
+        final Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
+        examUpdater.update(exam, request(), loginRole);
         if (gradeScaleChanged) {
             if (exam.getAutoEvaluationConfig() != null) {
                 exam.getAutoEvaluationConfig().delete();
@@ -437,6 +447,9 @@ public class ExamController extends BaseController {
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
         exam.setExecutionType(examExecutionType);
+        if (ExamExecutionType.Type.PUBLIC.toString().equals(examExecutionType.getType())) {
+            exam.setAnonymous(ConfigUtil.isAnonymousReviewEnabled());
+        }
         AppUtil.setCreator(exam, user);
         exam.save();
 

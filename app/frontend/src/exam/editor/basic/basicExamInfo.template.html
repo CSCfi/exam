@@ -41,6 +41,17 @@
             <div class="col-md-9">{{ $ctrl.getExecutionTypeTranslation() | translate}}</div>
         </div>
 
+        <!-- ANONYMOUS REVIEW -->
+        <div class="row col-md-12 margin-20" ng-show="$ctrl.exam.executionType.type==='PUBLIC'">
+            <div class="col-md-3 exam-basic-title">{{'sitnet_anonymous_review' | translate}}
+            </div>
+            <div class="col-md-9">
+                <input type="checkbox" title="anonymous" name="anonymous"
+                       ng-click="$ctrl.toggleAnonymous()" ng-model="$ctrl.exam.anonymous"
+                       ng-disabled="$ctrl.toggleAnonymousDisabled()"/>
+            </div>
+        </div>
+
         <!-- INTERNAL REF -->
         <div ng-show="$ctrl.exam.executionType.type==='PRINTOUT'" class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">{{'sitnet_internal_exam_reference' | translate}}</div>
