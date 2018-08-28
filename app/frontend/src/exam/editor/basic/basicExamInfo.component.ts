@@ -157,7 +157,8 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         };
 
         toggleAnonymousDisabled = () => {
-            return !this.Session.getUser().isAdmin;
+            return !this.Session.getUser().isAdmin ||
+                !this.isAllowedToUnpublishOrRemove();
         };
 
         selectAttachmentFile = () => {

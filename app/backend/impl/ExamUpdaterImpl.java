@@ -161,7 +161,8 @@ public class ExamUpdaterImpl implements ExamUpdater {
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
         if (loginRole == Role.Name.ADMIN &&
-                ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType())) {
+                ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType()) &&
+                !hasFutureReservations(exam)) {
             exam.setAnonymous(anonymous);
         }
     }
