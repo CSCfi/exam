@@ -158,7 +158,7 @@ public class StudentActionsController extends BaseController {
         User user = getLoggedUser();
         ExpressionList<ExamParticipation> query = Ebean.find(ExamParticipation.class)
                 .select("ended")
-                .fetch("exam", "id, state, name, autoEvaluationNotified")
+                .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous")
                 .fetch("exam.creator", "id")
                 .fetch("exam.course", "code, name")
                 .fetch("exam.parent.examOwners", "firstName, lastName, id")
