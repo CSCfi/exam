@@ -18,6 +18,7 @@
         <div class="student-exam-header-row">
             <div class="calendar-titles">
                 <span class="calendar-course-title">{{ $ctrl.examInfo.name }}</span>
+                <span ng-if="$ctrl.examInfo.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
             </div>
         </div>
 
