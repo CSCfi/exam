@@ -227,8 +227,9 @@ export const CalendarComponent: angular.IComponentOptions = {
 
         render() {
             $('#calendarBlock').css({ display: 'block' });
-            $('#calendar').css({ position: 'relative', visibility: 'visible', display: 'block' })
-                .fullCalendar('render');
+            $('#calendar').css({ position: 'relative', visibility: 'visible', display: 'block' });
+            $('#calendar').fullCalendar('destroy');
+            $('#calendar').fullCalendar('render');
         }
 
         refresh(start: moment.Moment, callback: (_: any[]) => void) {
@@ -335,10 +336,11 @@ export const CalendarComponent: angular.IComponentOptions = {
 
         selectRoom(room: FilteredRoom) {
             if (!room.outOfService) {
-                this.rooms.forEach(r => delete room.filtered);
+                this.rooms.forEach(r => r.filtered = false);
                 room.filtered = true;
                 this.selectedRoom = room;
                 this.openingHours = this.Calendar.processOpeningHours(room);
+                this.render();
             }
         }
     }

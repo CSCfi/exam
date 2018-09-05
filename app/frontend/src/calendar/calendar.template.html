@@ -169,7 +169,7 @@
 
                         <li ng-repeat="room in $ctrl.rooms | filter:$ctrl.limitations.rooms" ng-hide="room.filtered" role="presentation" ng-class="room.outOfService ? 'disabled' : ''"
                             ng-click="$ctrl.selectRoom(room)">
-                            <a role="menuitem" popover-trigger="'mouseenter'" uib-popover="{{$ctrl.getDescription(room)}}" ng-click="$ctrl.render()">
+                            <a role="menuitem" popover-trigger="'mouseenter'" uib-popover="{{$ctrl.getDescription(room)}}">
                                 {{room.name | truncate:30}}</a>
                         </li>
                     </ul>
