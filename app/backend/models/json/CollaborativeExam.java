@@ -16,13 +16,7 @@
 package backend.models.json;
 
 import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,6 +26,7 @@ import org.joda.time.DateTime;
 
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
+import backend.models.ExamParticipation;
 import backend.models.base.GeneratedIdentityModel;
 import backend.util.DateTimeAdapter;
 import backend.util.JsonDeserializer;
@@ -76,6 +71,10 @@ public class CollaborativeExam extends GeneratedIdentityModel {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "collaborativeExam")
     @JsonManagedReference
     private List<ExamEnrolment> examEnrolments;
+
+    @OneToOne(mappedBy = "collaborativeExam")
+    @JsonManagedReference
+    private ExamParticipation examParticipation;
 
     public String getExternalRef() {
         return externalRef;
@@ -163,6 +162,14 @@ public class CollaborativeExam extends GeneratedIdentityModel {
 
     public void setExamEnrolments(List<ExamEnrolment> examEnrolments) {
         this.examEnrolments = examEnrolments;
+    }
+
+    public ExamParticipation getExamParticipation() {
+        return examParticipation;
+    }
+
+    public void setExamParticipation(ExamParticipation examParticipation) {
+        this.examParticipation = examParticipation;
     }
 
     @Transient

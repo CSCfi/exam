@@ -15,21 +15,23 @@
 
 package backend.models;
 
-import backend.models.api.CountsAsTrial;
-import backend.models.base.GeneratedIdentityModel;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.joda.time.DateTime;
-import backend.util.DateTimeAdapter;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.joda.time.DateTime;
+
+import backend.models.api.CountsAsTrial;
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.json.CollaborativeExam;
+import backend.util.DateTimeAdapter;
 
 @Entity
 public class ExamParticipation extends GeneratedIdentityModel implements CountsAsTrial {
@@ -41,6 +43,10 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
     @OneToOne
     @JsonBackReference
     private Exam exam;
+
+    @OneToOne
+    @JsonBackReference
+    private CollaborativeExam collaborativeExam;
 
     @OneToOne(cascade = CascadeType.REMOVE)
     private Reservation reservation;
@@ -83,6 +89,14 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
 
     public void setExam(Exam exam) {
         this.exam = exam;
+    }
+
+    public CollaborativeExam getCollaborativeExam() {
+        return collaborativeExam;
+    }
+
+    public void setCollaborativeExam(CollaborativeExam collaborativeExam) {
+        this.collaborativeExam = collaborativeExam;
     }
 
     public Reservation getReservation() {

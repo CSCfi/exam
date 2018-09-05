@@ -190,9 +190,11 @@ public class StudentActionsController extends BaseController {
 
     @ActionMethod
     public Result getEnrolment(Long eid) throws IOException {
+        // TODO: Collab exam download
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .fetch("externalExam")
+                .fetch("collaborativeExam")
                 .fetch("exam.course", "name, code")
                 .fetch("exam.examOwners", "firstName, lastName", new FetchConfig().query())
                 .fetch("exam.examInspections", new FetchConfig().query())
