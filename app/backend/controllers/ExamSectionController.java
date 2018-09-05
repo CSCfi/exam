@@ -233,7 +233,7 @@ public class ExamSectionController extends QuestionController implements Section
         sectionQuestion.setExamSection(section);
         sectionQuestion.setQuestion(question);
         // Assert that the sequence number provided is within limits
-        Integer sequence = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
+        int sequence = Math.min(Math.max(0, seq), section.getSectionQuestions().size());
         updateSequences(section.getSectionQuestions(), sequence);
         sectionQuestion.setSequenceNumber(sequence);
         if (section.getSectionQuestions().contains(sectionQuestion) || section.hasQuestion(question)) {
