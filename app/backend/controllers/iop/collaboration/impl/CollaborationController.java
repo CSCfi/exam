@@ -46,10 +46,9 @@ public class CollaborationController extends BaseController {
 
 
     Optional<URL> parseUrl() {
-        StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"))
-                .append("/api/exams");
+        String url = String.format("%s/api/exams", ConfigFactory.load().getString("sitnet.integration.iop.host"));
         try {
-            return Optional.of(new URL(sb.toString()));
+            return Optional.of(new URL(url));
         } catch (MalformedURLException e) {
             Logger.error("Malformed URL {}", e);
             return Optional.empty();
