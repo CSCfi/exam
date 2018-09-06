@@ -167,20 +167,6 @@ public class SessionController extends BaseController {
                 });
     }
 
-    private Reservation getUpcomingCollaborativeExamReservation(String eppn) {
-        DateTime now = DateTimeUtils.adjustDST(new DateTime());
-        int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
-        DateTime future = now.plusMinutes(lookAheadMinutes);
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).where()
-                .eq("user.eppn", eppn)
-                .isNotNull("collaborativeExam")
-                .le("reservation.startAt", future)
-                .gt("reservation.endAt", now)
-                .orderBy("reservation.startAt")
-                .findList();
-        return enrolments.isEmpty() ? null : enrolments.get(0).getReservation();
-    }
-
     private Reservation getUpcomingExternalReservation(String eppn) {
         DateTime now = DateTimeUtils.adjustDST(new DateTime());
         int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
@@ -287,8 +273,6 @@ public class SessionController extends BaseController {
             session.setLoginRole(user.getRoles().get(0).getName());
         }
         session.setTemporalStudent(isTemporaryVisitor);
-        Reservation collaborativeExamReservation = getUpcomingCollaborativeExamReservation(user.getEppn());
-        session.setCollaborativeExamInEffect(collaborativeExamReservation != null);
         String token = createSession(session);
         List<Role> roles = isTemporaryVisitor ?
                 Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList() : user.getRoles();
