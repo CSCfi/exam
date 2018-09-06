@@ -2,7 +2,8 @@ import java.io.File
 import java.net.InetSocketAddress
 
 import play.sbt.PlayRunHook
-import sbt._
+
+import scala.sys.process._
 
 object WebpackServer {
   def apply(base: File): PlayRunHook = {

@@ -1,5 +1,6 @@
 import play.sbt.PlayRunHook
 
+import scala.sys.process.Process
 import scala.util.Properties
 
 name := "exam"
@@ -8,39 +9,45 @@ version := "4.1.0"
 
 licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
-lazy val `exam` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
+scalaVersion := "2.12.4"
 
-scalaVersion := "2.11.11"
+lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
-libraryDependencies ++= Seq(javaJdbc, ehcache, ws, evolutions, filters, guice,
-  "be.objectify" %% "deadbolt-java" % "2.6.3",
-  "com.github.fge" % "json-schema-validator" % "2.2.6" exclude("javax.mail", "mailapi"),
-  "com.google.code.gson" % "gson" % "2.8.2",
-  "com.opencsv" % "opencsv" % "4.0",
-  "net.sf.biweekly" % "biweekly" % "0.6.1",
-  "org.apache.commons" % "commons-compress" % "1.14",
-  "org.apache.commons" % "commons-email" % "1.5",
-  "org.apache.poi" % "poi" % "3.17",
-  "org.apache.poi" % "poi-ooxml" % "3.17",
-  "org.jsoup" % "jsoup" % "1.10.3",
-  "org.postgresql" % "postgresql" % "42.1.4",
-  "com.icegreen" % "greenmail" % "1.5.7" % "test",
-  "com.jayway.jsonpath" % "json-path" % "2.2.0" % "test",
-  "net.jodah" % "concurrentunit" % "0.4.2" % "test",
-  "org.eclipse.jetty" % "jetty-server" % "9.4.4.v20170414" % "test",
-  "org.eclipse.jetty" % "jetty-servlet" % "9.4.4.v20170414" % "test",
-  "org.easytesting" % "fest-assert" % "1.4" % "test",
-  "org.yaml" % "snakeyaml" % "1.17" % "test"
-)
+libraryDependencies += javaJdbc
+libraryDependencies += ehcache
+libraryDependencies += ws
+libraryDependencies += evolutions
+libraryDependencies += filters
+libraryDependencies += guice
 
-javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
+libraryDependencies += "be.objectify" %% "deadbolt-java" % "2.6.3"
+libraryDependencies += "com.github.fge" % "json-schema-validator" % "2.2.6" exclude("javax.mail", "mailapi")
+libraryDependencies += "com.google.code.gson" % "gson" % "2.8.2"
+libraryDependencies += "com.opencsv" % "opencsv" % "4.0"
+libraryDependencies += "net.sf.biweekly" % "biweekly" % "0.6.1"
+libraryDependencies += "org.apache.commons" % "commons-compress" % "1.14"
+libraryDependencies += "org.apache.commons" % "commons-email" % "1.5"
+libraryDependencies += "org.apache.poi" % "poi" % "3.17"
+libraryDependencies += "org.apache.poi" % "poi-ooxml" % "3.17"
+libraryDependencies += "org.jsoup" % "jsoup" % "1.10.3"
+libraryDependencies += "org.postgresql" % "postgresql" % "42.1.4"
+libraryDependencies += "com.icegreen" % "greenmail" % "1.5.7" % "test"
+libraryDependencies += "com.jayway.jsonpath" % "json-path" % "2.2.0" % "test"
+libraryDependencies += "net.jodah" % "concurrentunit" % "0.4.2" % "test"
+libraryDependencies += "org.eclipse.jetty" % "jetty-server" % "9.4.4.v20170414" % "test"
+libraryDependencies += "org.eclipse.jetty" % "jetty-servlet" % "9.4.4.v20170414" % "test"
+libraryDependencies += "org.easytesting" % "fest-assert" % "1.4" % "test"
+libraryDependencies += "org.yaml" % "snakeyaml" % "1.17" % "test"
+
+
+javacOptions += "-Xlint:unchecked"
+javacOptions += "-Xlint:deprecation"
 
 routesImport += "backend.util.scala.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 
-sources in(Compile, doc) := Seq.empty
-publishArtifact in(Compile, packageDoc) := false
+testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
 
 lazy val frontendDirectory = baseDirectory {
   _ / "app/frontend"
@@ -49,6 +56,7 @@ lazy val frontendDirectory = baseDirectory {
 /**
   * Webpack dev server task
   */
+
 def withoutWebpackServer = Properties.propOrEmpty("withoutWebpackServer")
 
 def webpackTask = Def.taskDyn[PlayRunHook] {
@@ -105,14 +113,17 @@ test in Test := {
 
 def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
   if (!skipUiTests.equals("true") && npmInstall.value.get.exitValue() == 0) {
+    def bdval = baseDirectory.value
+    def fdval = frontendDirectory.value
+
     Def.task {
-      Seq(MockCourseInfo(frontendDirectory.value),
+      Seq(MockCourseInfo(fdval),
         if (protractorConf.equals("protractor.conf") && webDriverUpdate.value.get.exitValue() == 0)
-          Protractor(baseDirectory.value,
+          Protractor(bdval,
             Properties.propOrElse("protractor.config", "conf.js"),
             Properties.propOrElse("protractor.args", " "))
         else {
-          Karma(frontendDirectory.value)
+          Karma(fdval)
         })
     }
   } else {
@@ -123,3 +134,4 @@ def uiTestTask = Def.taskDyn[Seq[PlayRunHook]] {
 }
 
 PlayKeys.playRunHooks ++= uiTestTask.value
+
