@@ -101,7 +101,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
                 .where()
                 .idEq(qid)
                 .eq("examSection.exam.creator", getLoggedUser())
-                .findUnique();
+                .findOne();
         if (question == null) {
             return wrapAsPromise(forbidden());
         }
@@ -145,7 +145,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
                 .fetch("examSectionQuestions.examSection.exam.parent")
                 .where()
                 .idEq(qid)
-                .findUnique();
+                .findOne();
         if (question == null) {
             return wrapAsPromise(notFound());
         }
@@ -182,7 +182,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             question = Ebean.find(ExamSectionQuestion.class).where()
                     .idEq(qid)
                     .eq("examSection.exam.creator", getLoggedUser())
-                    .findUnique();
+                    .findOne();
         } else {
             question = Ebean.find(ExamSectionQuestion.class, qid);
         }
@@ -226,7 +226,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
 
     @Override
     public CompletionStage<Result> deleteStatementAttachment(Long id) {
-        LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findUnique();
+        LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findOne();
         if (inspection == null || inspection.getStatement() == null) {
             return wrapAsPromise(notFound("sitnet_exam_not_found"));
         }
@@ -319,7 +319,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         if (file.length() > ConfigUtil.getMaxFileSize()) {
             return wrapAsPromise(forbidden("sitnet_file_too_large"));
         }
-        LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findUnique();
+        LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findOne();
         if (inspection == null) {
             return wrapAsPromise(notFound());
         }
@@ -353,7 +353,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             question = Ebean.find(Question.class).where()
                     .idEq(id)
                     .eq("examSectionQuestions.examSection.exam.creator", getLoggedUser())
-                    .findUnique();
+                    .findOne();
         } else {
             question = Ebean.find(Question.class, id);
         }
@@ -371,7 +371,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             question = Ebean.find(ExamSectionQuestion.class).where()
                     .idEq(qid)
                     .eq("examSection.exam.creator", getLoggedUser())
-                    .findUnique();
+                    .findOne();
         } else {
             question = Ebean.find(ExamSectionQuestion.class, qid);
         }
@@ -395,7 +395,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         User user = getLoggedUser();
         Exam exam;
         if (user.hasRole("STUDENT", getSession())) {
-            exam = Ebean.find(Exam.class).where().idEq(id).eq("creator", user).findUnique();
+            exam = Ebean.find(Exam.class).where().idEq(id).eq("creator", user).findOne();
         } else {
             exam = Ebean.find(Exam.class, id);
         }
@@ -413,7 +413,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         if (user.hasRole("STUDENT", getSession())) {
             query = query.eq("creator", user);
         }
-        Exam exam = query.findUnique();
+        Exam exam = query.findOne();
         if (exam == null) {
             return wrapAsPromise(notFound());
         }

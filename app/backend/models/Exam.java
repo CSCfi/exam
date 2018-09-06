@@ -550,11 +550,13 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         this.assessmentInfo = assessmentInfo;
     }
 
-    private Exam createCopy(User user, boolean produceStudentExam) {
+    private Exam createCopy(User user, boolean produceStudentExam, boolean setParent) {
         Exam clone = new Exam();
         BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipation",
                 "examInspections", "autoEvaluationConfig", "creator", "created", produceStudentExam ? "examOwners" : "none");
-        clone.setParent(this);
+        if (setParent) {
+            clone.setParent(this);
+        }
         AppUtil.setCreator(clone, user);
         AppUtil.setModifier(clone, user);
         clone.generateHash();
@@ -573,10 +575,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             inspection.setExam(clone);
             inspection.save();
         }
-        Set<ExamSection> sections = new TreeSet<>();
-        sections.addAll(examSections);
+        Set<ExamSection> sections = new TreeSet<>(examSections);
         for (ExamSection es : sections) {
-            ExamSection esCopy = es.copy(clone, produceStudentExam);
+            ExamSection esCopy = es.copy(clone, produceStudentExam, setParent);
             AppUtil.setCreator(esCopy, user);
             AppUtil.setModifier(esCopy, user);
             // Shuffle question options before saving
@@ -605,12 +606,12 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return clone;
     }
 
-    public Exam copyForStudent(User student) {
-        return createCopy(student, true);
+    public Exam copyForStudent(User student, boolean isCollaborative) {
+        return createCopy(student, true, !isCollaborative);
     }
 
     public Exam copy(User user) {
-        return createCopy(user, false);
+        return createCopy(user, false, true);
     }
 
     public DateTime getExamActiveStartDate() {

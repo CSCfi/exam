@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -42,9 +44,11 @@ import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.ActionMethod;
 import backend.controllers.base.BaseController;
+import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.impl.AutoEvaluationHandler;
 import backend.impl.EmailComposer;
 import backend.models.*;
+import backend.models.json.CollaborativeExam;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
@@ -60,50 +64,59 @@ public class StudentExamController extends BaseController {
     protected final EmailComposer emailComposer;
     protected final ActorSystem actor;
     private final AutoEvaluationHandler autoEvaluationHandler;
+    private final CollaborativeExamLoader collaborativeExamLoader;
     protected final Environment environment;
 
     @Inject
     public StudentExamController(EmailComposer emailComposer, ActorSystem actor,
+                                 CollaborativeExamLoader collaborativeExamLoader,
                                  AutoEvaluationHandler autoEvaluationHandler, Environment environment) {
         this.emailComposer = emailComposer;
         this.actor = actor;
+        this.collaborativeExamLoader = collaborativeExamLoader;
         this.autoEvaluationHandler = autoEvaluationHandler;
         this.environment = environment;
     }
 
-
     @ActionMethod
     @Transactional
     @ExamActionRouter
-    public Result startExam(String hash) throws IOException {
+    public CompletionStage<Result> startExam(String hash) throws IOException {
         User user = getLoggedUser();
-        Exam prototype = getPrototype(hash);
-        Exam possibleClone = getPossibleClone(hash, user);
-        // no exam found for hash
-        if (prototype == null && possibleClone == null) {
-            return notFound();
-        }
-        // Exam not started yet, create new exam for student
-        if (possibleClone == null) {
-            ExamEnrolment enrolment = getEnrolment(user, prototype);
-            return getEnrolmentError(enrolment).orElseGet(() -> {
+        String clientIp = request().remoteAddress();
+        CollaborativeExam ce = Ebean.find(CollaborativeExam.class).where().eq("hash", hash).findOne();
+
+        return getPrototype(hash, ce).thenApplyAsync(optionalPrototype -> {
+            Exam possibleClone = getPossibleClone(hash, user);
+            // no exam found for hash
+            if (!optionalPrototype.isPresent() && possibleClone == null) {
+                return notFound();
+            }
+            // Exam not started yet, create new exam for student
+            if (possibleClone == null) {
+                Exam prototype = optionalPrototype.get();
+                ExamEnrolment enrolment = getEnrolment(user, prototype, ce);
+                Optional<Result> error = getEnrolmentError(enrolment, clientIp);
+                if (error.isPresent()) {
+                    return error.get();
+                }
                 Exam newExam = createNewExam(prototype, user, enrolment);
                 newExam.setCloned(true);
                 newExam.setDerivedMaxScores();
                 processClozeTestQuestions(newExam);
                 return ok(newExam, getPath(false));
-            });
-        } else {
-            // Exam started already
-            // sanity check
-            if (possibleClone.getState() != Exam.State.STUDENT_STARTED) {
-                return forbidden();
+            } else {
+                // Exam started already
+                // sanity check
+                if (possibleClone.getState() != Exam.State.STUDENT_STARTED) {
+                    return forbidden();
+                }
+                possibleClone.setCloned(false);
+                possibleClone.setDerivedMaxScores();
+                processClozeTestQuestions(possibleClone);
+                return ok(possibleClone, getPath(false));
             }
-            possibleClone.setCloned(false);
-            possibleClone.setDerivedMaxScores();
-            processClozeTestQuestions(possibleClone);
-            return ok(possibleClone, getPath(false));
-        }
+        });
     }
 
     @ActionMethod
@@ -116,7 +129,7 @@ public class StudentExamController extends BaseController {
                 .where()
                 .eq("creator", user)
                 .eq("hash", hash)
-                .findUnique();
+                .findOne();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
@@ -125,7 +138,7 @@ public class StudentExamController extends BaseController {
                 .eq("exam.id", exam.getId())
                 .eq("user", user)
                 .isNull("ended")
-                .findUnique();
+                .findOne();
 
         if (p != null) {
             DateTime now = DateTimeUtils.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
@@ -153,7 +166,10 @@ public class StudentExamController extends BaseController {
     @Transactional
     public Result abortExam(String hash) {
         User user = getLoggedUser();
-        Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findUnique();
+        Exam exam = Ebean.find(Exam.class).where()
+                .eq("creator", user)
+                .eq("hash", hash)
+                .findOne();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
@@ -162,7 +178,7 @@ public class StudentExamController extends BaseController {
                 .eq("exam.id", exam.getId())
                 .eq("user", user)
                 .isNull("ended")
-                .findUnique();
+                .findOne();
 
         if (p != null) {
             DateTime now = DateTimeUtils.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
@@ -182,7 +198,7 @@ public class StudentExamController extends BaseController {
 
     @ActionMethod
     public Result answerEssay(String hash, Long questionId) {
-        return getEnrolmentError(hash).orElseGet(() -> {
+        return getEnrolmentError(hash, request().remoteAddress()).orElseGet(() -> {
             DynamicForm df = formFactory.form().bindFromRequest();
             String essayAnswer = df.get("answer");
             ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, questionId);
@@ -206,7 +222,7 @@ public class StudentExamController extends BaseController {
 
     @ActionMethod
     public Result answerMultiChoice(String hash, Long qid) {
-        return getEnrolmentError(hash).orElseGet(() -> {
+        return getEnrolmentError(hash, request().remoteAddress()).orElseGet(() -> {
             ArrayNode node = (ArrayNode) request().body().asJson().get("oids");
             List<Long> optionIds = StreamSupport.stream(node.spliterator(), false)
                     .map(JsonNode::asLong)
@@ -226,7 +242,7 @@ public class StudentExamController extends BaseController {
 
     @ActionMethod
     public Result answerClozeTest(String hash, Long questionId) {
-        return getEnrolmentError(hash).orElseGet(() -> {
+        return getEnrolmentError(hash, request().remoteAddress()).orElseGet(() -> {
             ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
             if (esq == null) {
                 return forbidden();
@@ -245,29 +261,39 @@ public class StudentExamController extends BaseController {
         });
     }
 
-    private static Exam getPrototype(String hash) {
-        return createQuery()
+    private CompletionStage<Optional<Exam>> getPrototype(String hash, CollaborativeExam ce) {
+        if (ce != null) {
+            return collaborativeExamLoader.downloadExam(ce);
+        }
+        Exam exam = createQuery()
                 .where()
                 .eq("hash", hash)
                 .isNull("parent")
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
-                .findUnique();
+                .findOne();
+        if (exam == null) {
+            return CompletableFuture.supplyAsync(Optional::empty);
+        }
+        return CompletableFuture.supplyAsync(() -> Optional.of(exam));
     }
 
     private static Exam getPossibleClone(String hash, User user) {
+        // TODO: more checks needed for collaborative exam
         return createQuery().where()
                 .eq("hash", hash)
                 .eq("creator", user)
-                .isNotNull("parent")
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
-                .findUnique();
+                .findOne();
     }
 
     private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
-        Exam studentExam = prototype.copyForStudent(user);
+        boolean isCollaborative = enrolment.getCollaborativeExam() != null;
+        Exam studentExam = prototype.copyForStudent(user, isCollaborative);
         studentExam.setState(Exam.State.STUDENT_STARTED);
         studentExam.setCreator(user);
-        studentExam.setParent(prototype);
+        if (!isCollaborative) {
+            studentExam.setParent(prototype);
+        }
         studentExam.generateHash();
         studentExam.save();
 
@@ -277,16 +303,15 @@ public class StudentExamController extends BaseController {
         ExamParticipation examParticipation = new ExamParticipation();
         examParticipation.setUser(user);
         examParticipation.setExam(studentExam);
+        examParticipation.setCollaborativeExam(enrolment.getCollaborativeExam());
         examParticipation.setReservation(enrolment.getReservation());
         DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
         examParticipation.setStarted(now);
         examParticipation.save();
-        user.getParticipations().add(examParticipation);
-
         return studentExam;
     }
 
-    private static ExamEnrolment getEnrolment(User user, Exam prototype) {
+    private static ExamEnrolment getEnrolment(User user, Exam prototype, CollaborativeExam ce) {
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
         return Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
@@ -294,19 +319,21 @@ public class StudentExamController extends BaseController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", user.getId())
+                .or()
                 .eq("exam.id", prototype.getId())
+                .eq("collaborativeExam.id", ce != null ? ce.getId() : -1)
+                .endOr()
                 .le("reservation.startAt", now.toDate())
                 .gt("reservation.endAt", now.toDate())
-                .findUnique();
+                .findOne();
     }
 
-    protected Optional<Result> getEnrolmentError(ExamEnrolment enrolment) {
+    protected Optional<Result> getEnrolmentError(ExamEnrolment enrolment, String clientIP) {
         // If this is null, it means someone is either trying to access an exam by wrong hash
         // or the reservation is not in effect right now.
         if (enrolment == null) {
             return Optional.of(forbidden("sitnet_reservation_not_found"));
         }
-        String clientIP = request().remoteAddress();
         // Exam and enrolment found. Is student on the right machine?
         if (enrolment.getReservation() == null) {
             return Optional.of(forbidden("sitnet_reservation_not_found"));
@@ -317,7 +344,7 @@ public class StudentExamController extends BaseController {
                     .fetch("mailAddress")
                     .where()
                     .eq("id", enrolment.getReservation().getMachine().getRoom().getId())
-                    .findUnique();
+                    .findOne();
             if (examRoom == null) {
                 return Optional.of(notFound());
             }
@@ -370,13 +397,13 @@ public class StudentExamController extends BaseController {
     }
 
 
-    private Optional<Result> getEnrolmentError(String hash) {
+    private Optional<Result> getEnrolmentError(String hash, String clientIp) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .eq("exam.hash", hash)
                 .eq("exam.creator", getLoggedUser())
                 .eq("exam.state", Exam.State.STUDENT_STARTED)
-                .findUnique();
-        return getEnrolmentError(enrolment);
+                .findOne();
+        return getEnrolmentError(enrolment, clientIp);
     }
 
     private void notifyTeachers(Exam exam) {

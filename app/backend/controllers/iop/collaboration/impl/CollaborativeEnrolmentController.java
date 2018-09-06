@@ -1,4 +1,4 @@
-package backend.controllers.iop.collaboration;
+package backend.controllers.iop.collaboration.impl;
 
 import java.net.URL;
 import java.util.List;
@@ -44,7 +44,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
 
     @Restrict({@Group("STUDENT")})
     public CompletionStage<Result> listExams() {
-        Optional<URL> url = parseUrl(null);
+        Optional<URL> url = parseUrl();
         if (!url.isPresent()) {
             return wrapAsPromise(internalServerError());
         }
@@ -144,7 +144,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         Ebean.beginTransaction();
         try {
             // Take pessimistic lock for user to prevent multiple enrolments creating.
-            Ebean.find(User.class).setForUpdate(true).where().eq("id", user.getId()).findUnique();
+            Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
 
             List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")

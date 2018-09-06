@@ -130,7 +130,7 @@ public class EnrolmentController extends BaseController {
                 .eq("state", Exam.State.PUBLISHED)
                 .eq("course.code", code)
                 .idEq(id)
-                .findUnique();
+                .findOne();
 
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
@@ -187,10 +187,10 @@ public class EnrolmentController extends BaseController {
         ExamEnrolment enrolment;
         if (user.hasRole("STUDENT", getSession())) {
             enrolment = Ebean.find(ExamEnrolment.class).fetch("exam")
-                    .where().idEq(id).eq("user", user).findUnique();
+                    .where().idEq(id).eq("user", user).findOne();
         } else {
             enrolment = Ebean.find(ExamEnrolment.class).fetch("exam")
-                    .where().idEq(id).findUnique();
+                    .where().idEq(id).findOne();
         }
         if (enrolment == null) {
             return notFound("enrolment not found");
@@ -214,7 +214,7 @@ public class EnrolmentController extends BaseController {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .idEq(id)
                 .eq("user", getLoggedUser())
-                .findUnique();
+                .findOne();
         if (enrolment == null) {
             return notFound("enrolment not found");
         }
@@ -241,7 +241,7 @@ public class EnrolmentController extends BaseController {
         Ebean.beginTransaction();
         try {
             // Take pessimistic lock for user to prevent multiple enrolments creating.
-            Ebean.find(User.class).setForUpdate(true).where().eq("id", user.getId()).findUnique();
+            Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
             Optional<Exam> possibleExam = getExam(eid, type);
             if (!possibleExam.isPresent()) {
                 return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
@@ -403,7 +403,7 @@ public class EnrolmentController extends BaseController {
                 .eq("exam.examOwners", user)
                 .eq("exam.creator", user)
                 .endJunction()
-                .findUnique();
+                .findOne();
         if (enrolment == null) {
             return forbidden("sitnet_not_possible_to_remove_participant");
         }
@@ -427,7 +427,7 @@ public class EnrolmentController extends BaseController {
         if (user.hasRole("STUDENT", getSession())) {
             query = query.eq("user", user);
         }
-        ExamEnrolment enrolment = query.findUnique();
+        ExamEnrolment enrolment = query.findOne();
         if (enrolment == null) {
             return notFound();
         } else {

@@ -69,7 +69,7 @@ public class UserController extends BaseController {
             } catch (IllegalArgumentException e) {
                 return badRequest();
             }
-            Permission permission = Ebean.find(Permission.class).where().eq("type", type).findUnique();
+            Permission permission = Ebean.find(Permission.class).where().eq("type", type).findOne();
             user.getPermissions().add(permission);
             user.update();
         }
@@ -87,7 +87,7 @@ public class UserController extends BaseController {
         if (user.getPermissions().stream().anyMatch(p -> p.getValue().equals(permissionString))) {
             Permission permission = Ebean.find(Permission.class).where()
                     .eq("type", Permission.Type.valueOf(permissionString))
-                    .findUnique();
+                    .findOne();
             user.getPermissions().remove(permission);
             user.update();
         }
@@ -96,7 +96,7 @@ public class UserController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
     public Result getUser(Long id) {
-        User user = Ebean.find(User.class).fetch("roles", "name").fetch("language").where().idEq(id).findUnique();
+        User user = Ebean.find(User.class).fetch("roles", "name").fetch("language").where().idEq(id).findOne();
         if (user == null) {
             return notFound();
         }
@@ -132,7 +132,7 @@ public class UserController extends BaseController {
             return notFound("sitnet_user_not_found");
         }
         if (user.getRoles().stream().noneMatch((r) -> r.getName().equals(roleName))) {
-            Role role = Ebean.find(Role.class).where().eq("name", roleName).findUnique();
+            Role role = Ebean.find(Role.class).where().eq("name", roleName).findOne();
             if (role == null) {
                 return notFound("sitnet_role_not_found");
             }
@@ -149,7 +149,7 @@ public class UserController extends BaseController {
             return notFound("sitnet_user_not_found");
         }
         if (user.getRoles().stream().anyMatch((r) -> r.getName().equals(roleName))) {
-            Role role = Ebean.find(Role.class).where().eq("name", roleName).findUnique();
+            Role role = Ebean.find(Role.class).where().eq("name", roleName).findOne();
             if (role == null) {
                 return notFound("sitnet_role_not_found");
             }
@@ -253,7 +253,7 @@ public class UserController extends BaseController {
         Result result;
         User user = Ebean.find(User.class).fetch("roles", "name").fetch("language").where()
                 .idEq(getLoggedUser().getId())
-                .findUnique();
+                .findOne();
         if (user == null) {
             result = notFound();
         } else {

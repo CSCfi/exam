@@ -23,10 +23,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.UUID;
+import javax.validation.constraints.NotNull;
 
 import com.typesafe.config.ConfigFactory;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import play.Environment;
 import play.Logger;

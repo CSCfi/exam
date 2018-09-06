@@ -16,17 +16,18 @@
 
 package backend.system.interceptors;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import javax.validation.constraints.NotNull;
+
 import akka.stream.Materializer;
-import backend.util.JsonFilter;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.jetbrains.annotations.NotNull;
 import play.http.HttpEntity;
 import play.libs.Json;
 import play.mvc.Action;
 import play.mvc.Result;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import backend.util.JsonFilter;
 
 abstract class JsonFilterAction<T> extends Action<T> {
 

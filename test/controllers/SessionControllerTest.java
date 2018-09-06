@@ -13,12 +13,12 @@ public class SessionControllerTest extends IntegrationTestCase {
     @Test
     public void testLoginAsNewUser() throws Exception {
         String eppn = "newuser@test.org";
-        User user = Ebean.find(User.class).where().eq("eppn", eppn).findUnique();
+        User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
         assertThat(user).isNull();
 
         login(eppn);
 
-        user = Ebean.find(User.class).where().eq("eppn", eppn).findUnique();
+        user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
         assertThat(user).isNotNull();
         assertThat(user.getRoles()).hasSize(1);
         assertThat(user.getOrganisation()).isNotNull();

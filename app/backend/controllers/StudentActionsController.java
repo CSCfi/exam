@@ -39,7 +39,7 @@ import play.libs.Json;
 import play.mvc.Result;
 
 import backend.controllers.base.ActionMethod;
-import backend.controllers.base.BaseController;
+import backend.controllers.iop.collaboration.impl.CollaborationController;
 import backend.impl.ExternalCourseHandler;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
@@ -55,7 +55,7 @@ import backend.util.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
 @Restrict({@Group("STUDENT")})
-public class StudentActionsController extends BaseController {
+public class StudentActionsController extends CollaborationController {
 
     private static final boolean PERM_CHECK_ACTIVE = ConfigUtil.isEnrolmentPermissionCheckActive();
 
@@ -93,7 +93,7 @@ public class StudentActionsController extends BaseController {
                 .isNotNull("autoEvaluationNotified")
                 .endJunction()
                 .endJunction()
-                .findUnique();
+                .findOne();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
@@ -116,7 +116,7 @@ public class StudentActionsController extends BaseController {
                 .isNotNull("autoEvaluationNotified")
                 .endJunction()
                 .endJunction()
-                .findUnique();
+                .findOne();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
@@ -189,8 +189,7 @@ public class StudentActionsController extends BaseController {
     }
 
     @ActionMethod
-    public Result getEnrolment(Long eid) throws IOException {
-        // TODO: Collab exam download
+    public CompletionStage<Result> getEnrolment(Long eid) throws IOException {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .fetch("externalExam")
@@ -206,25 +205,38 @@ public class StudentActionsController extends BaseController {
                 .where()
                 .idEq(eid)
                 .eq("user", getLoggedUser())
-                .findUnique();
+                .findOne();
         if (enrolment == null) {
-            return notFound();
+            return wrapAsPromise(notFound());
         }
         PathProperties pp = PathProperties.parse(
                 "(*, exam(*, course(name, code), examOwners(firstName, lastName), examInspections(user(firstName, lastName))), " +
                         "user(id), reservation(startAt, endAt, machine(name, room(name, roomCode, localTimezone, " +
                         "roomInstruction, roomInstructionEN, roomInstructionSV))))"
         );
-
+        if (enrolment.getCollaborativeExam() != null) {
+            // Collaborative exam, we need to download
+            return downloadExam(enrolment.getCollaborativeExam()).thenComposeAsync(result -> {
+                if (result.isPresent()) {
+                    // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+                    // Works in this particular use case
+                    Exam exam = result.get();
+                    enrolment.setExam(exam);
+                    return wrapAsPromise(ok(enrolment, pp));
+                } else {
+                    return wrapAsPromise(notFound());
+                }
+            });
+        }
         if (enrolment.getExternalExam() == null) {
-            return ok(enrolment, pp);
+            return wrapAsPromise(ok(enrolment, pp));
         } else {
             // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
             // Works in this particular use case
             Exam exam = enrolment.getExternalExam().deserialize();
             enrolment.setExternalExam(null);
             enrolment.setExam(exam);
-            return ok(enrolment, pp);
+            return wrapAsPromise(ok(enrolment, pp));
         }
     }
 
@@ -264,7 +276,7 @@ public class StudentActionsController extends BaseController {
 
     @ActionMethod
     public Result getReservationInstructions(Long eid) {
-        Exam exam = Ebean.find(Exam.class).where().eq("id", eid).findUnique();
+        Exam exam = Ebean.find(Exam.class).where().eq("id", eid).findOne();
         if (exam == null) {
             return notFound();
         }
@@ -297,7 +309,7 @@ public class StudentActionsController extends BaseController {
                 .idEq(eid)
                 .eq("state", Exam.State.PUBLISHED)
                 .eq("examEnrolments.user", getLoggedUser())
-                .findUnique();
+                .findOne();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }

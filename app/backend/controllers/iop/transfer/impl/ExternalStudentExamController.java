@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
@@ -39,6 +40,7 @@ import play.mvc.Results;
 
 import backend.controllers.StudentExamController;
 import backend.controllers.base.ActionMethod;
+import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.impl.AutoEvaluationHandler;
 import backend.impl.EmailComposer;
 import backend.models.Exam;
@@ -58,43 +60,46 @@ public class ExternalStudentExamController extends StudentExamController {
 
     @Inject
     public ExternalStudentExamController(EmailComposer emailComposer, ActorSystem actor,
+                                         CollaborativeExamLoader collaborativeExamLoader,
                                          AutoEvaluationHandler autoEvaluationHandler, Environment environment) {
-        super(emailComposer, actor, autoEvaluationHandler, environment);
+        super(emailComposer, actor, collaborativeExamLoader, autoEvaluationHandler, environment);
     }
 
     @ActionMethod
     @Override
-    public Result startExam(String hash) throws IOException {
+    public CompletionStage<Result> startExam(String hash) throws IOException {
         User user = getLoggedUser();
         Optional<ExternalExam> optional = getExternalExam(hash, user);
         if (!optional.isPresent()) {
-            return forbidden();
+            return wrapAsPromise(forbidden());
         }
         ExternalExam externalExam = optional.get();
         Optional<ExamEnrolment> optionalEnrolment = getEnrolment(user, externalExam);
         if (!optionalEnrolment.isPresent()) {
-            return forbidden();
+            return wrapAsPromise(forbidden());
         }
         ExamEnrolment enrolment = optionalEnrolment.get();
         Exam newExam = externalExam.deserialize();
-        return getEnrolmentError(optionalEnrolment.get()).orElseGet(() -> {
-            if (newExam.getState().equals(Exam.State.PUBLISHED)) {
-                newExam.setState(Exam.State.STUDENT_STARTED);
-                try {
-                    externalExam.serialize(newExam);
-                } catch (IOException e) {
-                    return internalServerError();
-                }
-                DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
-                externalExam.setStarted(now);
-                externalExam.update();
+        Optional<Result> error = getEnrolmentError(enrolment, request().remoteAddress());
+        if (error.isPresent()) {
+            return wrapAsPromise(error.get());
+        }
+        if (newExam.getState().equals(Exam.State.PUBLISHED)) {
+            newExam.setState(Exam.State.STUDENT_STARTED);
+            try {
+                externalExam.serialize(newExam);
+            } catch (IOException e) {
+                return wrapAsPromise(internalServerError());
             }
-            newExam.setCloned(false);
-            newExam.setExternal(true);
-            newExam.setDerivedMaxScores();
-            processClozeTestQuestions(newExam);
-            return ok(newExam, getPath(false));
-        });
+            DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
+            externalExam.setStarted(now);
+            externalExam.update();
+        }
+        newExam.setCloned(false);
+        newExam.setExternal(true);
+        newExam.setDerivedMaxScores();
+        processClozeTestQuestions(newExam);
+        return wrapAsPromise(ok(newExam, getPath(false)));
     }
 
     @Override
@@ -285,7 +290,7 @@ public class ExternalStudentExamController extends StudentExamController {
                 .le("reservation.startAt", now.toDate())
                 .gt("reservation.endAt", now.toDate())
                 .eq("reservation.externalUserRef", user.getEppn())
-                .findUnique();
+                .findOne();
         return Optional.ofNullable(enrolment);
     }
 
@@ -294,8 +299,8 @@ public class ExternalStudentExamController extends StudentExamController {
                 .eq("externalExam.hash", hash)
                 .eq("externalExam.creator", user)
                 .jsonEqualTo("externalExam.content", "state", Exam.State.STUDENT_STARTED.toString())
-                .findUnique();
-        return getEnrolmentError(enrolment);
+                .findOne();
+        return getEnrolmentError(enrolment, request().remoteAddress());
     }
 
     private Result terminateExam(String hash, Exam.State newState) {
@@ -303,7 +308,7 @@ public class ExternalStudentExamController extends StudentExamController {
         ExternalExam ee = Ebean.find(ExternalExam.class).where()
                 .eq("hash", hash)
                 .eq("creator", user)
-                .findUnique();
+                .findOne();
         if (ee == null) {
             return forbidden();
         }

@@ -14,7 +14,7 @@
  *
  */
 
-package backend.controllers.iop.collaboration;
+package backend.controllers.iop.collaboration.api;
 
 import akka.NotUsed;
 import akka.stream.IOResult;

@@ -179,7 +179,7 @@ public class SystemRequestHandler implements ActionCreator {
             String header;
 
             // Is this a known machine?
-            ExamMachine lookedUp = Ebean.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findUnique();
+            ExamMachine lookedUp = Ebean.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findOne();
             if (lookedUp == null) {
                 // IP not known
                 header = "x-exam-unknown-machine";

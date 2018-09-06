@@ -130,7 +130,7 @@ public class ReservationController extends BaseController {
                 .fetch("enrolment.exam.executionType")
                 .where()
                 .idEq(id)
-                .findUnique();
+                .findOne();
         if (reservation == null) {
             return notFound("sitnet_not_found");
         }
@@ -158,7 +158,7 @@ public class ReservationController extends BaseController {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
                 .eq("reservation.id", id)
-                .findUnique();
+                .findOne();
 
         if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
@@ -167,7 +167,7 @@ public class ReservationController extends BaseController {
         ExamParticipation participation = Ebean.find(ExamParticipation.class)
                 .where()
                 .eq("exam.id", enrolment.getExam().getId())
-                .findUnique();
+                .findOne();
 
         if (participation != null) {
             return forbidden(String.format("sitnet_unable_to_remove_reservation (id=%d).", participation.getId()));
@@ -228,7 +228,7 @@ public class ReservationController extends BaseController {
         Query<ExamMachine> query = Ebean.createQuery(ExamMachine.class);
         props.apply(query);
         ExamMachine previous = reservation.getMachine();
-        ExamMachine machine = query.where().idEq(machineId).findUnique();
+        ExamMachine machine = query.where().idEq(machineId).findOne();
         if (machine == null) {
             return notFound();
         }

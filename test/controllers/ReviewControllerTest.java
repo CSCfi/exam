@@ -85,7 +85,7 @@ public class ReviewControllerTest extends IntegrationTestCase {
                 .eq("name", "Algoritmit, 2013")
                 .eq("parent", null)
                 .endAnd()
-                .findUnique();
+                .findOne();
         assert parent != null;
         final ExamInspection examInspection = new ExamInspection();
         examInspection.setUser(user);

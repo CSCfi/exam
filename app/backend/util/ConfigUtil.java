@@ -56,9 +56,9 @@ public class ConfigUtil {
     }
 
     public static Map<Role, List<String>> getRoleMapping() {
-        Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findUnique();
-        Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findUnique();
-        Role admin = Ebean.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findUnique();
+        Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne();
+        Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findOne();
+        Role admin = Ebean.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findOne();
         Map<Role, List<String>> roles = new HashMap<>();
         roles.put(student, ConfigFactory.load().getStringList("sitnet.roles.student"));
         roles.put(teacher, ConfigFactory.load().getStringList("sitnet.roles.teacher"));

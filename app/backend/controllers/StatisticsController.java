@@ -126,7 +126,7 @@ public class StatisticsController extends BaseController {
                 .where()
                 .idEq(id)
                 .isNotNull("course")
-                .findUnique();
+                .findOne();
         if (exam == null) {
             return notFound();
         }
@@ -209,7 +209,7 @@ public class StatisticsController extends BaseController {
     public Result getExamEnrollments(Long id) throws IOException {
         Exam proto = Ebean.find(Exam.class).fetch("examEnrolments").fetch("examEnrolments.user")
                 .fetch("examEnrolments.reservation").fetch("course")
-                .where().eq("id", id).isNull("parent").findUnique();
+                .where().eq("id", id).isNull("parent").findOne();
         if (proto == null) {
             return notFound("sitnet_error_exam_not_found");
         }
@@ -428,7 +428,7 @@ public class StatisticsController extends BaseController {
                     .where()
                     .eq("user.id", p.getUser().getId())
                     .eq("exam.id", p.getExam().getId())
-                    .findUnique();
+                    .findOne();
             if (enrolment == null) {
                 continue;
             }

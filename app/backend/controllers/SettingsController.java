@@ -46,7 +46,7 @@ public class SettingsController  extends BaseController {
     private Environment environment;
 
     public static GeneralSettings getOrCreateSettings(String name, String value, String defaultValue) {
-        GeneralSettings gs = Ebean.find(GeneralSettings.class).where().eq("name", name).findUnique();
+        GeneralSettings gs = Ebean.find(GeneralSettings.class).where().eq("name", name).findOne();
         if (gs == null) {
             gs = new GeneralSettings();
             gs.setName(name);

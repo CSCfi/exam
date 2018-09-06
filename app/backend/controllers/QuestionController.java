@@ -106,7 +106,7 @@ public class QuestionController extends BaseController {
                     .eq("examSectionQuestions.examSection.exam.examOwners", user)
                     .endJunction();
         }
-        Question question = expr.findUnique();
+        Question question = expr.findOne();
         if (question == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
@@ -124,7 +124,7 @@ public class QuestionController extends BaseController {
                     .eq("questionOwners", user)
                     .endJunction();
         }
-        Question question = query.findUnique();
+        Question question = query.findOne();
         if (question == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
@@ -190,7 +190,7 @@ public class QuestionController extends BaseController {
                         .eq("creator", user)
                         .endJunction()
                         .endJunction()
-                        .findUnique();
+                        .findOne();
                 if (tag == null) {
                     tag = new Tag();
                     tag.setName(tagNode.get("name").asText());
@@ -231,7 +231,7 @@ public class QuestionController extends BaseController {
                     .eq("examSectionQuestions.examSection.exam.examOwners", user)
                     .endJunction();
         }
-        Question question = query.findUnique();
+        Question question = query.findOne();
         if (question == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
@@ -256,7 +256,7 @@ public class QuestionController extends BaseController {
                     .eq("questionOwners", user)
                     .endJunction();
         }
-        Question question = expr.findUnique();
+        Question question = expr.findOne();
         if (question == null) {
             return notFound();
         }
@@ -407,7 +407,7 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addOwner(Long uid) {
-        User newOwner = Ebean.find(User.class).select("id, firstName, lastName, userIdentifier").where().idEq(uid).findUnique();
+        User newOwner = Ebean.find(User.class).select("id, firstName, lastName, userIdentifier").where().idEq(uid).findOne();
         if (newOwner == null) {
             return notFound();
         }

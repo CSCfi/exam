@@ -5,13 +5,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
 
 import base.IntegrationTestCase;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Ebean;
-import org.jetbrains.annotations.NotNull;
+
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
@@ -32,7 +33,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsTeacher
-    public void testAddEssayQuestionToExam() throws Exception {
+    public void testAddEssayQuestionToExam() {
 
         // Setup
         long examId = 1L;
@@ -80,7 +81,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
 
         // Check that section now has a reference to the original question
         assertThat(Ebean.find(ExamSectionQuestion.class).where()
-                .eq("question.id", question.getId()).findUnique()).isNotNull();
+                .eq("question.id", question.getId()).findOne()).isNotNull();
     }
 
     @Test

@@ -75,7 +75,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
                 .where()
                 .eq("user.id", user.getId())
                 .eq("reservation.externalRef", ref)
-                .findUnique();
+                .findOne();
         if (enrolment == null) {
             return CompletableFuture.supplyAsync(() -> Results.notFound(String.format("No reservation with ref %s for current user.", ref)));
         }

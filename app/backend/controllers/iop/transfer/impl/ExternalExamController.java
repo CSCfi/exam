@@ -15,34 +15,23 @@
 
 package backend.controllers.iop.transfer.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 import akka.stream.IOResult;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import backend.controllers.SettingsController;
-import backend.controllers.StudentExamController;
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.transfer.api.ExternalExamAPI;
-import backend.impl.AutoEvaluationHandler;
-import backend.impl.NoShowHandler;
-import backend.models.Attachment;
-import backend.models.AutoEvaluationConfig;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamInspection;
-import backend.models.ExamParticipation;
-import backend.models.ExamSection;
-import backend.models.ExamSectionQuestion;
-import backend.models.ExamSectionQuestionOption;
-import backend.models.GeneralSettings;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.json.ExternalExam;
-import backend.models.questions.Question;
-import backend.util.AppUtil;
-import backend.util.JsonDeserializer;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,24 +53,17 @@ import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
-import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import backend.controllers.SettingsController;
+import backend.controllers.StudentExamController;
+import backend.controllers.base.BaseController;
+import backend.controllers.iop.transfer.api.ExternalExamAPI;
+import backend.impl.AutoEvaluationHandler;
+import backend.impl.NoShowHandler;
+import backend.models.*;
+import backend.models.json.ExternalExam;
+import backend.models.questions.Question;
+import backend.util.AppUtil;
+import backend.util.JsonDeserializer;
 
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {
@@ -161,7 +143,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         if (ee == null) {
             return wrapAsPromise(badRequest());
         }
-        Exam parent = Ebean.find(Exam.class).where().eq("hash", ee.getExternalRef()).findUnique();
+        Exam parent = Ebean.find(Exam.class).where().eq("hash", ee.getExternalRef()).findOne();
         if (parent == null) {
             return wrapAsPromise(notFound());
         }
@@ -398,7 +380,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .eq("reservation.externalRef", ref)
                 .isNull("exam.parent")
                 .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
-                .findUnique();
+                .findOne();
     }
 
     private static URL parseUrl(String format, Object... args) throws MalformedURLException {

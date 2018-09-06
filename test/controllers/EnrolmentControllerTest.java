@@ -93,13 +93,13 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         String email = "student@foo.bar";
         exam.setExecutionType(Ebean.find(ExamExecutionType.class)
                 .where().eq("type", ExamExecutionType.Type.PRIVATE.toString())
-                .findUnique());
+                .findOne());
         exam.update();
 
         Result result = request(Helpers.POST, "/app/enrolments/student/" + exam.getId(), Json.newObject().put("email", email));
         assertThat(result.status()).isEqualTo(200);
 
-        User user = Ebean.find(User.class).where().eq("eppn", eppn).findUnique();
+        User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
         assertThat(user).isNull();
 
         login(eppn, ImmutableMap.of("mail", email));
@@ -115,13 +115,13 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         String eppn = "student@uni.org";
         exam.setExecutionType(Ebean.find(ExamExecutionType.class)
                 .where().eq("type", ExamExecutionType.Type.PRIVATE.toString())
-                .findUnique());
+                .findOne());
         exam.update();
 
         Result result = request(Helpers.POST, "/app/enrolments/student/" + exam.getId(), Json.newObject().put("email", eppn));
         assertThat(result.status()).isEqualTo(200);
 
-        User user = Ebean.find(User.class).where().eq("eppn", eppn).findUnique();
+        User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
         assertThat(user).isNull();
 
         login(eppn);
@@ -173,7 +173,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
 
         // Verify
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("exam.id", exam.getId())
-                .eq("user.id", user.getId()).findUnique();
+                .eq("user.id", user.getId()).findOne();
         assertThat(enrolment).isNotNull();
     }
 

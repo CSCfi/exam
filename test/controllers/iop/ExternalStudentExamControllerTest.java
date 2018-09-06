@@ -129,7 +129,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
         DateTime started = Ebean.find(ExternalExam.class).where()
                 .eq("hash", enrolment.getExternalExam().getHash())
-                .findUnique()
+                .findOne()
                 .getStarted();
 
         // Try again
@@ -139,7 +139,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         // Check that starting time did not change
         assertThat(Ebean.find(ExternalExam.class).where()
                 .eq("hash", enrolment.getExternalExam().getHash())
-                .findUnique()
+                .findOne()
                 .getStarted()
         ).isEqualTo(started);
     }
@@ -166,7 +166,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
 
         // Check that an option was marked as answered in the database
-        ExternalExam savedExternalExam = Ebean.find(ExternalExam.class).where().eq("hash", ee.getHash()).findUnique();
+        ExternalExam savedExternalExam = Ebean.find(ExternalExam.class).where().eq("hash", ee.getHash()).findOne();
         Exam savedExam = savedExternalExam.deserialize();
         ExamSectionQuestion savedQuestion = savedExam.getExamSections().stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
@@ -248,7 +248,7 @@ public class ExternalStudentExamControllerTest extends IntegrationTestCase {
         });
         result = request(Helpers.PUT, String.format("/app/iop/student/exam/%s", hash), null);
         assertThat(result.status()).isEqualTo(200);
-        ExternalExam turnedExam = Ebean.find(ExternalExam.class).where().eq("hash", hash).findUnique();
+        ExternalExam turnedExam = Ebean.find(ExternalExam.class).where().eq("hash", hash).findOne();
         assertThat(turnedExam.getFinished()).isNotNull();
         Exam content = turnedExam.deserialize();
         assertThat(content.getState()).isEqualTo(Exam.State.REVIEW);

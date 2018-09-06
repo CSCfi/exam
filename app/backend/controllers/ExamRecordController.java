@@ -72,7 +72,7 @@ public class ExamRecordController extends BaseController {
                 .fetch("examSections.sectionQuestions.question")
                 .where()
                 .idEq(Long.parseLong(df.get("id")))
-                .findUnique();
+                .findOne();
         return validateExamState(exam, true).orElseGet(() -> {
             exam.setState(Exam.State.GRADED_LOGGED);
             exam.update();
@@ -80,7 +80,7 @@ public class ExamRecordController extends BaseController {
                     .fetch("user")
                     .where()
                     .eq("exam.id", exam.getId())
-                    .findUnique();
+                    .findOne();
             if (participation == null) {
                 return notFound();
             }
@@ -107,7 +107,7 @@ public class ExamRecordController extends BaseController {
                 .fetch("parent")
                 .fetch("parent.creator")
                 .where()
-                .idEq(Long.parseLong(df.get("id"))).findUnique();
+                .idEq(Long.parseLong(df.get("id"))).findOne();
         return validateExamState(exam, false).orElseGet(() -> {
             exam.setState(Exam.State.GRADED_LOGGED);
             exam.setGrade(null);

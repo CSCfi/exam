@@ -293,51 +293,51 @@ POST          /integration/iop/exams/:ref                              backend.c
 POST          /integration/iop/reservations/:ref/noshow                backend.controllers.iop.transfer.impl.ExternalExamController.addNoShow(ref: String)
 
 ################# Collaborative Exam interface #########
-GET           /integration/iop/exams                                   backend.controllers.iop.collaboration.CollaborativeExamController.listExams
-POST          /integration/iop/exams                                   backend.controllers.iop.collaboration.CollaborativeExamController.createExam
-GET           /integration/iop/exams/:id                               backend.controllers.iop.collaboration.CollaborativeExamController.getExam(id: Long)
-PUT           /integration/iop/exams/:id                               backend.controllers.iop.collaboration.CollaborativeExamController.updateExam(id: Long)
-DELETE        /integration/iop/exams/:id                               backend.controllers.iop.collaboration.CollaborativeExamController.deleteExam(id: Long)
-PUT           /integration/iop/exams/:id/language/:code                backend.controllers.iop.collaboration.CollaborativeExamController.updateLanguage(id: Long, code: String)
-POST          /integration/iop/exams/:id/owners                        backend.controllers.iop.collaboration.CollaborativeExamController.addOwner(id: Long)
-DELETE        /integration/iop/exams/:id/owners/:oid                   backend.controllers.iop.collaboration.CollaborativeExamController.removeOwner(id: Long, oid: Long)
+GET           /integration/iop/exams                                   backend.controllers.iop.collaboration.impl.CollaborativeExamController.listExams
+POST          /integration/iop/exams                                   backend.controllers.iop.collaboration.impl.CollaborativeExamController.createExam
+GET           /integration/iop/exams/:id                               backend.controllers.iop.collaboration.impl.CollaborativeExamController.getExam(id: Long)
+PUT           /integration/iop/exams/:id                               backend.controllers.iop.collaboration.impl.CollaborativeExamController.updateExam(id: Long)
+DELETE        /integration/iop/exams/:id                               backend.controllers.iop.collaboration.impl.CollaborativeExamController.deleteExam(id: Long)
+PUT           /integration/iop/exams/:id/language/:code                backend.controllers.iop.collaboration.impl.CollaborativeExamController.updateLanguage(id: Long, code: String)
+POST          /integration/iop/exams/:id/owners                        backend.controllers.iop.collaboration.impl.CollaborativeExamController.addOwner(id: Long)
+DELETE        /integration/iop/exams/:id/owners/:oid                   backend.controllers.iop.collaboration.impl.CollaborativeExamController.removeOwner(id: Long, oid: Long)
 
-POST          /integration/iop/exams/:eid/sections                     backend.controllers.iop.collaboration.CollaborativeExamSectionController.addSection(eid: Long)
-DELETE        /integration/iop/exams/:eid/sections/:sid                backend.controllers.iop.collaboration.CollaborativeExamSectionController.removeSection(eid: Long, sid: Long)
-PUT           /integration/iop/exams/:eid/sections/:sid                backend.controllers.iop.collaboration.CollaborativeExamSectionController.updateSection(eid: Long, sid: Long)
-DELETE        /integration/iop/exams/:eid/sections/:sid/questions      backend.controllers.iop.collaboration.CollaborativeExamSectionController.clearQuestions(eid: Long, sid: Long)
-POST          /integration/iop/exams/:eid/sections/:sid/questions      backend.controllers.iop.collaboration.CollaborativeExamSectionController.addQuestion(eid: Long, sid: Long)
-DELETE        /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.controllers.iop.collaboration.CollaborativeExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long)
-PUT           /integration/iop/exams/:eid/sections/:sid/reorder        backend.controllers.iop.collaboration.CollaborativeExamSectionController.reorderSectionQuestions(eid: Long, sid: Long)
-PUT           /integration/iop/exams/:eid/reorder                      backend.controllers.iop.collaboration.CollaborativeExamSectionController.reorderSections(eid: Long)
-PUT           /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.controllers.iop.collaboration.CollaborativeExamSectionController.updateQuestion(eid: Long, sid: Long, qid: Long)
+POST          /integration/iop/exams/:eid/sections                     backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.addSection(eid: Long)
+DELETE        /integration/iop/exams/:eid/sections/:sid                backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.removeSection(eid: Long, sid: Long)
+PUT           /integration/iop/exams/:eid/sections/:sid                backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.updateSection(eid: Long, sid: Long)
+DELETE        /integration/iop/exams/:eid/sections/:sid/questions      backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.clearQuestions(eid: Long, sid: Long)
+POST          /integration/iop/exams/:eid/sections/:sid/questions      backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.addQuestion(eid: Long, sid: Long)
+DELETE        /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long)
+PUT           /integration/iop/exams/:eid/sections/:sid/reorder        backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.reorderSectionQuestions(eid: Long, sid: Long)
+PUT           /integration/iop/exams/:eid/reorder                      backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.reorderSections(eid: Long)
+PUT           /integration/iop/exams/:eid/sections/:sid/questions/:qid backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.updateQuestion(eid: Long, sid: Long, qid: Long)
 ################# Collaborative Exam enrolment interface #########
-GET           /integration/iop/enrolments                              backend.controllers.iop.collaboration.CollaborativeEnrolmentController.listExams
-GET           /integration/iop/enrolments/exam/:eid                    backend.controllers.iop.collaboration.CollaborativeEnrolmentController.checkIfEnrolled(eid: Long)
-POST          /integration/iop/enrolments/:eid                         backend.controllers.iop.collaboration.CollaborativeEnrolmentController.createEnrolment(eid: Long)
+GET           /integration/iop/enrolments                              backend.controllers.iop.collaboration.impl.CollaborativeEnrolmentController.listExams
+GET           /integration/iop/enrolments/exam/:eid                    backend.controllers.iop.collaboration.impl.CollaborativeEnrolmentController.checkIfEnrolled(eid: Long)
+POST          /integration/iop/enrolments/:eid                         backend.controllers.iop.collaboration.impl.CollaborativeEnrolmentController.createEnrolment(eid: Long)
 ################# Collaborative Exam reservation interface #########
-GET           /integration/iop/exams/:eid/info                         backend.controllers.iop.collaboration.CollaborativeCalendarController.getExamInfo(eid: Long)
-GET           /integration/iop/exams/:eid/calendar/:roomId             backend.controllers.iop.collaboration.CollaborativeCalendarController.getSlots(eid: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer])
-POST          /integration/iop/calendar/reservation                    backend.controllers.iop.collaboration.CollaborativeCalendarController.createReservation
+GET           /integration/iop/exams/:eid/info                         backend.controllers.iop.collaboration.impl.CollaborativeCalendarController.getExamInfo(eid: Long)
+GET           /integration/iop/exams/:eid/calendar/:roomId             backend.controllers.iop.collaboration.impl.CollaborativeCalendarController.getSlots(eid: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer])
+POST          /integration/iop/calendar/reservation                    backend.controllers.iop.collaboration.impl.CollaborativeCalendarController.createReservation
 
 ############# Integration attachments #################
-POST          /integration/iop/attachment/question                     backend.controllers.iop.collaboration.CollaborativeAttachmentController.addAttachmentToQuestion()
-DELETE        /integration/iop/attachment/exam/:eid/question/:qid      backend.controllers.iop.collaboration.CollaborativeAttachmentController.deleteQuestionAttachment(eid: Long, qid: Long)
-GET           /integration/iop/attachment/exam/:eid/question/:qid      backend.controllers.iop.collaboration.CollaborativeAttachmentController.downloadQuestionAttachment(eid: Long, qid: Long)
-POST          /integration/iop/attachment/question/answer              backend.controllers.iop.collaboration.CollaborativeAttachmentController.addAttachmentToQuestionAnswer()
-DELETE        /integration/iop/attachment/question/:qid/answer/:eid    backend.controllers.iop.collaboration.CollaborativeAttachmentController.deleteQuestionAnswerAttachment(qid: Long, eid: Long)
-GET           /integration/iop/attachment/question/:qid/answer/:eid    backend.controllers.iop.collaboration.CollaborativeAttachmentController.downloadQuestionAnswerAttachment(qid: Long, eid: Long)
-POST          /integration/iop/attachment/exam                         backend.controllers.iop.collaboration.CollaborativeAttachmentController.addAttachmentToExam()
-DELETE        /integration/iop/attachment/exam/:id                     backend.controllers.iop.collaboration.CollaborativeAttachmentController.deleteExamAttachment(id: Long)
-GET           /integration/iop/attachment/exam/:id                     backend.controllers.iop.collaboration.CollaborativeAttachmentController.downloadExamAttachment(id: Long)
+POST          /integration/iop/attachment/question                     backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToQuestion()
+DELETE        /integration/iop/attachment/exam/:eid/question/:qid      backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteQuestionAttachment(eid: Long, qid: Long)
+GET           /integration/iop/attachment/exam/:eid/question/:qid      backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadQuestionAttachment(eid: Long, qid: Long)
+POST          /integration/iop/attachment/question/answer              backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToQuestionAnswer()
+DELETE        /integration/iop/attachment/question/:qid/answer/:eid    backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteQuestionAnswerAttachment(qid: Long, eid: Long)
+GET           /integration/iop/attachment/question/:qid/answer/:eid    backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadQuestionAnswerAttachment(qid: Long, eid: Long)
+POST          /integration/iop/attachment/exam                         backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToExam()
+DELETE        /integration/iop/attachment/exam/:id                     backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteExamAttachment(id: Long)
+GET           /integration/iop/attachment/exam/:id                     backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadExamAttachment(id: Long)
 
-POST          /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.CollaborativeAttachmentController.addFeedbackAttachment(id: Long)
-DELETE        /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.CollaborativeAttachmentController.deleteFeedbackAttachment(id: Long)
-GET           /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.CollaborativeAttachmentController.downloadFeedbackAttachment(id: Long)
+POST          /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addFeedbackAttachment(id: Long)
+DELETE        /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteFeedbackAttachment(id: Long)
+GET           /integration/iop/attachment/exam/:id/feedback            backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadFeedbackAttachment(id: Long)
 
-POST          /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.CollaborativeAttachmentController.addStatementAttachment(id: Long)
-DELETE        /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.CollaborativeAttachmentController.deleteStatementAttachment(id: Long)
-GET           /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.CollaborativeAttachmentController.downloadStatementAttachment(id: Long)
+POST          /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addStatementAttachment(id: Long)
+DELETE        /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteStatementAttachment(id: Long)
+GET           /integration/iop/attachment/exam/:id/statement           backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadStatementAttachment(id: Long)
 
 ################# Time interface ######################
 GET           /app/time/:hash                                          backend.controllers.TimeController.getExamRemainingTime(hash: String)

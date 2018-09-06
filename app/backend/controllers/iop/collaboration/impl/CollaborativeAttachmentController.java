@@ -14,8 +14,9 @@
  *
  */
 
-package backend.controllers.iop.collaboration;
+package backend.controllers.iop.collaboration.impl;
 
+import backend.controllers.iop.collaboration.api.CollaborativeAttachmentInterface;
 import backend.models.Exam;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
