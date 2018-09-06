@@ -107,7 +107,7 @@ public class CsvBuilder {
             if (role == Role.Name.ADMIN) {
                 el = el.eq("parent.examOwners", user);
             }
-            Exam exam = el.findUnique();
+            Exam exam = el.findOne();
             if (exam == null) {
                 Logger.warn("Exam with id {} not found or inaccessible, unable to grade it", examId);
                 continue;

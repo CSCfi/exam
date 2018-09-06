@@ -144,7 +144,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private void saveOrUpdate(Course external) {
-        Course local = Ebean.find(Course.class).where().eq("code", external.getCode()).findUnique();
+        Course local = Ebean.find(Course.class).where().eq("code", external.getCode()).findOne();
         if (local == null) {
             // New course, add it
             external.save();
@@ -238,7 +238,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                         continue;
                     }
                     Long externalRef = scale.get("code").asLong();
-                    GradeScale gs = Ebean.find(GradeScale.class).where().eq("externalRef", externalRef).findUnique();
+                    GradeScale gs = Ebean.find(GradeScale.class).where().eq("externalRef", externalRef).findOne();
                     if (gs != null) {
                         scales.add(gs);
                         continue;
@@ -310,7 +310,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             }
             String name = node.get("institutionName").asText();
             // TODO: how to identify (external) organisations. Maybe we need some "externalRef" for organisations as well?
-            Organisation organisation = Ebean.find(Organisation.class).where().ieq("name", name).findUnique();
+            Organisation organisation = Ebean.find(Organisation.class).where().ieq("name", name).findOne();
             // TODO: should organisations preexist or not? As a safeguard, lets create these for now if not found.
             if (organisation == null) {
                 organisation = new Organisation();

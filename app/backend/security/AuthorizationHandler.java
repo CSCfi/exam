@@ -61,7 +61,7 @@ class AuthorizationHandler implements DeadboltHandler {
         if (user != null) {
             if (session.isTemporalStudent()) {
                 user.getRoles().clear();
-                user.getRoles().add(Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findUnique());
+                user.getRoles().add(Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne());
             } else {
                 user.setRoles(user.getRoles().stream()
                         .filter((r) -> r.getName().equals(session.getLoginRole()))

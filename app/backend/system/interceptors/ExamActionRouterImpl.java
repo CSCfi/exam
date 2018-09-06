@@ -15,16 +15,17 @@
 
 package backend.system.interceptors;
 
-import backend.controllers.base.BaseController;
-import backend.models.Session;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+
 import play.cache.SyncCacheApi;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import javax.inject.Inject;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import backend.controllers.base.BaseController;
+import backend.models.Session;
 
 public class ExamActionRouterImpl extends Action<ExamActionRouter> {
 

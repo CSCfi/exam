@@ -15,17 +15,19 @@
 
 package backend.models.questions;
 
-import backend.models.ExamSectionQuestion;
-import backend.models.User;
-import backend.models.api.AttachmentContainer;
-import backend.models.base.OwnedModel;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import javax.persistence.*;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.annotation.EnumValue;
-import backend.models.Attachment;
-import backend.models.Tag;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
@@ -36,13 +38,12 @@ import org.springframework.beans.BeanUtils;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import javax.persistence.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import backend.models.Attachment;
+import backend.models.ExamSectionQuestion;
+import backend.models.Tag;
+import backend.models.User;
+import backend.models.api.AttachmentContainer;
+import backend.models.base.OwnedModel;
 
 @Entity
 public class Question extends OwnedModel implements AttachmentContainer {
@@ -375,10 +376,14 @@ public class Question extends OwnedModel implements AttachmentContainer {
         return new EqualsBuilder().append(id, other.getId()).build();
     }
 
-    private Question doCopy(Map<Long, MultipleChoiceOption> optionMap) {
+    private Question doCopy(Map<Long, MultipleChoiceOption> optionMap, boolean setParent) {
         Question question = new Question();
-        BeanUtils.copyProperties(this, question, "id", "options", "tags", "children");
-        question.setParent(this);
+        if (setParent) {
+            BeanUtils.copyProperties(this, question, "id", "options", "tags", "children");
+            question.setParent(this);
+        } else {
+            BeanUtils.copyProperties(this, question, "id", "options", "tags", "children", "questionOwners", "creator", "modifier");
+        }
         for (MultipleChoiceOption o : options) {
             if (optionMap == null) {
                 question.getOptions().add(o.copy());
@@ -395,11 +400,11 @@ public class Question extends OwnedModel implements AttachmentContainer {
     }
 
     public Question copy() {
-        return doCopy(null);
+        return doCopy(null, true);
     }
 
-    public Question copy(Map<Long, MultipleChoiceOption> optionMap) {
-        return doCopy(optionMap);
+    public Question copy(Map<Long, MultipleChoiceOption> optionMap, boolean setParent) {
+        return doCopy(optionMap, setParent);
     }
 
     @Override

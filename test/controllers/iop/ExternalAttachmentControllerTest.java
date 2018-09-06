@@ -16,28 +16,29 @@
 
 package controllers.iop;
 
+import java.io.IOException;
+import java.util.Arrays;
+import javax.validation.constraints.NotNull;
+
 import akka.stream.Materializer;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
-import backend.models.json.ExternalExam;
-import backend.models.questions.EssayAnswer;
 import base.RunAsStudent;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Ebean;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import java.io.IOException;
-import java.util.Arrays;
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.ExamSectionQuestion;
+import backend.models.json.ExternalExam;
+import backend.models.questions.EssayAnswer;
 
 import static org.fest.assertions.Assertions.assertThat;
 

@@ -15,17 +15,18 @@
 
 package backend.models.questions;
 
-import backend.models.ExamSectionQuestionOption;
-import backend.models.base.GeneratedIdentityModel;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.BeanUtils;
-
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import java.util.Set;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.springframework.beans.BeanUtils;
+
+import backend.models.ExamSectionQuestionOption;
+import backend.models.base.GeneratedIdentityModel;
 
 
 @Entity
@@ -121,6 +122,7 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
         }
         return result;
     }
+
     @Override
     public int compareTo(@NotNull MultipleChoiceOption o) {
         if (getId() < o.getId()) {

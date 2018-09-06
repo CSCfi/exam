@@ -152,7 +152,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     public void setUp() throws Exception {
         super.setUp();
         Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
-        exam = Ebean.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findUnique();
+        exam = Ebean.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findOne();
         initExamSectionQuestions(exam);
         exam.setExamActiveStartDate(DateTime.now().minusDays(1));
         exam.setExamActiveEndDate(DateTime.now().plusDays(1));
@@ -217,7 +217,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/integration/iop/exams/" + RESERVATION_REF, node);
         assertThat(result.status()).isEqualTo(201);
 
-        Exam attainment = Ebean.find(Exam.class).where().eq("parent", exam).findUnique();
+        Exam attainment = Ebean.find(Exam.class).where().eq("parent", exam).findOne();
         assertThat(attainment).isNotNull();
         // Auto-evaluation expected to occur so state should be GRADED
         assertThat(attainment.getState()).isEqualTo(Exam.State.GRADED);
@@ -272,7 +272,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
                 Json.newObject());
         assertThat(result.status()).isEqualTo(200);
 
-        Reservation r = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF_2).findUnique();
+        Reservation r = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF_2).findOne();
         assertThat(r).isNotNull();
         assertThat(r.isNoShow()).isTrue();
     }

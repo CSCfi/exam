@@ -15,17 +15,28 @@
 
 package backend.models;
 
-import backend.models.api.Sortable;
-import backend.models.base.OwnedModel;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import backend.models.questions.Question;
 import org.springframework.beans.BeanUtils;
 
-import javax.annotation.Nonnull;
-import javax.persistence.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import backend.models.api.Sortable;
+import backend.models.base.OwnedModel;
+import backend.models.questions.Question;
 
 @Entity
 public final class ExamSection extends OwnedModel implements Comparable<ExamSection>, Sortable {
@@ -134,13 +145,13 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         return section;
     }
 
-    public ExamSection copy(Exam exam, boolean produceStudentExamSection)
+    public ExamSection copy(Exam exam, boolean produceStudentExamSection, boolean setParents)
     {
         ExamSection section = new ExamSection();
         BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions");
         section.setExam(exam);
         for (ExamSectionQuestion esq : sectionQuestions) {
-            section.getSectionQuestions().add(esq.copy(!produceStudentExamSection));
+            section.getSectionQuestions().add(esq.copy(!produceStudentExamSection, setParents));
         }
         if (produceStudentExamSection && lotteryOn) {
             section.shuffleQuestions();

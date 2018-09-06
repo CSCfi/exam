@@ -64,10 +64,10 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     }
 
     private void setUserOrg(String code) {
-        User user = Ebean.find(User.class).where().eq("eppn", "student@funet.fi").findUnique();
+        User user = Ebean.find(User.class).where().eq("eppn", "student@funet.fi").findOne();
         Organisation org = null;
         if (code != null) {
-            org = Ebean.find(Organisation.class).where().eq("code", code).findUnique();
+            org = Ebean.find(Organisation.class).where().eq("code", code).findOne();
         }
         user.setOrganisation(org);
         user.update();
@@ -110,7 +110,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         Result result = get("/app/courses?filter=code&q=2121219");
         assertThat(result.status()).isEqualTo(200);
 
-        Course course = Ebean.find(Course.class).where().eq("code", "2121219").findUnique();
+        Course course = Ebean.find(Course.class).where().eq("code", "2121219").findOne();
         assertThat(course).isNotNull();
         assertThat(course.getName()).endsWith("2"); // Could assert some more things maybe?
     }

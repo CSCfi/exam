@@ -72,7 +72,7 @@ public class CalendarController extends BaseController {
                 .where()
                 .eq("user.id", user.getId())
                 .eq("reservation.id", id)
-                .findUnique();
+                .findOne();
         if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
         }
@@ -131,7 +131,7 @@ public class CalendarController extends BaseController {
         Ebean.beginTransaction();
         try {
             // Take pessimistic lock for user to prevent multiple reservations creating.
-            Ebean.find(User.class).setForUpdate(true).where().eq("id", user.getId()).findUnique();
+            Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
             final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")
                     .where()
@@ -142,7 +142,7 @@ public class CalendarController extends BaseController {
                     .isNull("reservation")
                     .gt("reservation.startAt", now.toDate())
                     .endJunction()
-                    .findUnique();
+                    .findOne();
             Optional<Result> badEnrolment = checkEnrolment(enrolment, user);
             if (badEnrolment.isPresent()) {
                 return wrapAsPromise(badEnrolment.get());
@@ -229,7 +229,7 @@ public class CalendarController extends BaseController {
                 .isNull("reservation")
                 .gt("reservation.startAt", now.toDate())
                 .endJunction()
-                .findUnique();
+                .findOne();
         return enrolment == null ? null : enrolment.getExam();
     }
 

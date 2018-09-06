@@ -214,7 +214,7 @@ public class ExamController extends BaseController {
                 .eq("state", Exam.State.SAVED)
                 .eq("state", Exam.State.PUBLISHED)
                 .endJunction()
-                .findUnique();
+                .findOne();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -270,7 +270,7 @@ public class ExamController extends BaseController {
                 .fetch("examOwners")
                 .where()
                 .idEq(id)
-                .findUnique();
+                .findOne();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
@@ -320,7 +320,7 @@ public class ExamController extends BaseController {
     @With(ExamUpdateSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateExam(Long id) {
-        Exam exam = prototypeQuery().where().idEq(id).findUnique();
+        Exam exam = prototypeQuery().where().idEq(id).findOne();
         if (exam == null) {
             return notFound();
         }
@@ -339,7 +339,7 @@ public class ExamController extends BaseController {
         boolean canOverrideGrading = ConfigUtil.isCourseGradeScaleOverridable();
         boolean changed = false;
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
-            GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findUnique();
+            GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
             if (scale != null) {
                 changed = exam.getGradeScale() == null || !exam.getGradeScale().equals(scale);
             }
@@ -409,12 +409,12 @@ public class ExamController extends BaseController {
                 .fetch("examInspections.user", "firstName, lastName")
                 .where()
                 .idEq(id)
-                .findUnique();
+                .findOne();
         if (prototype == null) {
             return notFound("sitnet_exam_not_found");
         }
         String type = formFactory.form().bindFromRequest().get("type");
-        ExamExecutionType executionType = Ebean.find(ExamExecutionType.class).where().eq("type", type).findUnique();
+        ExamExecutionType executionType = Ebean.find(ExamExecutionType.class).where().eq("type", type).findOne();
         if (type == null) {
             return notFound("sitnet_execution_type_not_found");
         }
@@ -438,7 +438,7 @@ public class ExamController extends BaseController {
         ExamExecutionType examExecutionType = Ebean.find(ExamExecutionType.class)
                 .where()
                 .eq("type", executionType)
-                .findUnique();
+                .findOne();
         if (examExecutionType == null) {
             return badRequest("Unsupported execution type");
         }

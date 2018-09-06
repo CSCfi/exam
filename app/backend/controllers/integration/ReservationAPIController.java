@@ -83,7 +83,7 @@ public class ReservationAPIController extends BaseController {
         PathProperties pp = PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))");
         Query<ExamRoom> query = Ebean.find(ExamRoom.class);
         pp.apply(query);
-        ExamRoom room = query.where().idEq(roomId).findUnique();
+        ExamRoom room = query.where().idEq(roomId).findOne();
         if (room == null) {
             return notFound("room not found");
         }

@@ -49,7 +49,7 @@ public class TimeController extends BaseController {
                 .eq("externalExam.hash", hash)
                 .endJunction()
                 .eq("user.id", user.getId())
-                .findUnique();
+                .findOne();
 
         if (enrolment == null) {
             return notFound();

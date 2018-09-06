@@ -23,6 +23,7 @@ public class Session {
     private Boolean valid;
     private String loginRole;
     private boolean temporalStudent;
+    private boolean collaborativeExamInEffect;
 
     public Long getUserId() {
         return userId;
@@ -62,5 +63,13 @@ public class Session {
 
     public void setTemporalStudent(boolean temporalStudent) {
         this.temporalStudent = temporalStudent;
+    }
+
+    public boolean isCollaborativeExamInEffect() {
+        return collaborativeExamInEffect;
+    }
+
+    public void setCollaborativeExamInEffect(boolean collaborativeExamInEffect) {
+        this.collaborativeExamInEffect = collaborativeExamInEffect;
     }
 }

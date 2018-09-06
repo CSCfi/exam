@@ -33,7 +33,7 @@ public class ExamOwnerController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamOwners(Long id) {
-        Exam exam = Ebean.find(Exam.class).fetch("examOwners").where().idEq(id).findUnique();
+        Exam exam = Ebean.find(Exam.class).fetch("examOwners").where().idEq(id).findOne();
         if (exam == null) {
             return notFound();
         }

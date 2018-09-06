@@ -126,7 +126,7 @@ public class ExternalCalendarController extends CalendarController {
         if (start.isBeforeNow() || end.isBefore(start)) {
             return badRequest("invalid dates");
         }
-        ExamRoom room = Ebean.find(ExamRoom.class).where().eq("externalRef", roomRef).findUnique();
+        ExamRoom room = Ebean.find(ExamRoom.class).where().eq("externalRef", roomRef).findOne();
         if (room == null) {
             return notFound("room not found");
         }
@@ -155,7 +155,7 @@ public class ExternalCalendarController extends CalendarController {
                 .fetch("machine.room")
                 .where()
                 .eq("externalRef", ref)
-                .findUnique();
+                .findOne();
         if (reservation == null) {
             return notFound("reservation not found");
         }
@@ -172,7 +172,7 @@ public class ExternalCalendarController extends CalendarController {
     public Result provideSlots(Optional<String> roomId, Optional<String> date, Optional<String> start, Optional<String> end,
                                Optional<Integer> duration) {
         if (roomId.isPresent() && date.isPresent() && start.isPresent() && end.isPresent() && duration.isPresent()) {
-            ExamRoom room = Ebean.find(ExamRoom.class).where().eq("externalRef", roomId.get()).findUnique();
+            ExamRoom room = Ebean.find(ExamRoom.class).where().eq("externalRef", roomId.get()).findOne();
             if (room == null) {
                 return forbidden(String.format("No room with ref: (%s)", roomId.get()));
             }
@@ -232,7 +232,7 @@ public class ExternalCalendarController extends CalendarController {
                 .isNull("reservation")
                 .gt("reservation.startAt", now.toDate())
                 .endJunction()
-                .findUnique();
+                .findOne();
         Optional<Result> error = checkEnrolment(enrolment, user);
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
@@ -259,7 +259,7 @@ public class ExternalCalendarController extends CalendarController {
     @Restrict(@Group("STUDENT"))
     public CompletionStage<Result> requestReservationRemoval(String ref) throws MalformedURLException {
         User user = getLoggedUser();
-        Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", ref).findUnique();
+        Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", ref).findOne();
         return externalReservationHandler.removeReservation(reservation, user);
     }
 

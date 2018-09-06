@@ -81,7 +81,7 @@ public class ExamSectionController extends QuestionController implements Section
                 .where()
                 .eq("exam.id", eid)
                 .idEq(sid)
-                .findUnique();
+                .findOne();
         if (section == null) {
             return notFound("sitnet_error_not_found");
         }
@@ -120,7 +120,7 @@ public class ExamSectionController extends QuestionController implements Section
                 .where()
                 .eq("exam.id", eid)
                 .idEq(sid)
-                .findUnique();
+                .findOne();
         if (section == null) {
             return notFound("sitnet_error_not_found");
         }
@@ -156,7 +156,7 @@ public class ExamSectionController extends QuestionController implements Section
         Integer from = Integer.parseInt(df.get("from"));
         Integer to = Integer.parseInt(df.get("to"));
         return checkBounds(from, to).orElseGet(() -> {
-            Exam exam = Ebean.find(Exam.class).fetch("examSections").where().idEq(eid).findUnique();
+            Exam exam = Ebean.find(Exam.class).fetch("examSections").where().idEq(eid).findOne();
             if (exam == null) {
                 return notFound("sitnet_error_exam_not_found");
             }
@@ -325,7 +325,7 @@ public class ExamSectionController extends QuestionController implements Section
                 .eq("examSection.exam.id", eid)
                 .eq("examSection.id", sid)
                 .eq("question.id", qid)
-                .findUnique();
+                .findOne();
         if (sectionQuestion == null) {
             return notFound("sitnet_error_not_found");
         }
@@ -358,7 +358,7 @@ public class ExamSectionController extends QuestionController implements Section
                 .where()
                 .idEq(sid)
                 .eq("exam.id", eid)
-                .findUnique();
+                .findOne();
         if (section == null) {
             return notFound("sitnet_error_not_found");
         }
@@ -430,7 +430,7 @@ public class ExamSectionController extends QuestionController implements Section
         }
         PathProperties pp = PathProperties.parse("(*, question(*, options(*)), options(*, option(*)))");
         query.apply(pp);
-        ExamSectionQuestion examSectionQuestion = query.findUnique();
+        ExamSectionQuestion examSectionQuestion = query.findOne();
         if (examSectionQuestion == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
@@ -439,7 +439,7 @@ public class ExamSectionController extends QuestionController implements Section
                 .fetch("examSectionQuestions.options")
                 .where()
                 .idEq(examSectionQuestion.getQuestion().getId())
-                .findUnique();
+                .findOne();
         if (question == null) {
             return notFound();
         }
@@ -460,7 +460,7 @@ public class ExamSectionController extends QuestionController implements Section
             processExamQuestionOptions(question, examSectionQuestion, (ArrayNode) body.get("options"));
         }
         // Bit dumb, refetch from database to get the updated options right in response. Could be made more elegantly
-        return ok(query.findUnique(), pp);
+        return ok(query.findOne(), pp);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -470,7 +470,7 @@ public class ExamSectionController extends QuestionController implements Section
         if (user.hasRole("TEACHER", getSession())) {
             query = query.eq("examSection.exam.examOwners", user);
         }
-        ExamSectionQuestion examSectionQuestion = query.findUnique();
+        ExamSectionQuestion examSectionQuestion = query.findOne();
         if (examSectionQuestion == null) {
             return forbidden("sitnet_error_access_forbidden");
         }

@@ -1,4 +1,4 @@
-package backend.controllers.iop.collaboration;
+package backend.controllers.iop.collaboration.impl;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -52,7 +52,7 @@ public class CollaborativeCalendarController extends CollaborationController {
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class).where()
                 .eq("collaborativeExam.id", id)
                 .eq("user", getLoggedUser())
-                .findUnique();
+                .findOne();
         if (ee == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
@@ -112,7 +112,7 @@ public class CollaborativeCalendarController extends CollaborationController {
                 .isNull("reservation")
                 .gt("reservation.startAt", now.toDate())
                 .endJunction()
-                .findUnique();
+                .findOne();
         if (enrolment == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
@@ -136,7 +136,7 @@ public class CollaborativeCalendarController extends CollaborationController {
                     Ebean.beginTransaction();
                     try {
                         // Take pessimistic lock for user to prevent multiple reservations creating.
-                        Ebean.find(User.class).setForUpdate(true).where().eq("id", user.getId()).findUnique();
+                        Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
                         Reservation oldReservation = enrolment.getReservation();
                         Reservation reservation = new Reservation();
                         reservation.setEndAt(end);
@@ -213,7 +213,7 @@ public class CollaborativeCalendarController extends CollaborationController {
                 .isNull("reservation")
                 .gt("reservation.startAt", now.toDate())
                 .endJunction()
-                .findUnique();
+                .findOne();
     }
 
 }

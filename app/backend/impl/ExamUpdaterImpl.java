@@ -149,7 +149,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
             ExamType eType = Ebean.find(ExamType.class)
                     .where()
                     .eq("type", type)
-                    .findUnique();
+                    .findOne();
 
             if (eType != null) {
                 exam.setExamType(eType);
@@ -309,7 +309,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
         boolean canOverrideGrading = ConfigUtil.isCourseGradeScaleOverridable();
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
-            GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findUnique();
+            GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
             if (scale != null) {
                 exam.setGradeScale(scale);
             } else {

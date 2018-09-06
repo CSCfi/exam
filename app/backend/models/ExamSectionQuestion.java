@@ -15,23 +15,6 @@
 
 package backend.models;
 
-import backend.models.api.Scorable;
-import backend.models.api.Sortable;
-import backend.models.base.OwnedModel;
-import backend.models.questions.ClozeTestAnswer;
-import backend.models.questions.EssayAnswer;
-import backend.models.questions.MultipleChoiceOption;
-import backend.models.questions.Question;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.springframework.beans.BeanUtils;
-import play.Logger;
-import play.mvc.Result;
-
-import javax.annotation.Nonnull;
-import javax.persistence.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -40,6 +23,24 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.beans.BeanUtils;
+import play.Logger;
+import play.mvc.Result;
+
+import backend.models.api.Scorable;
+import backend.models.api.Sortable;
+import backend.models.base.OwnedModel;
+import backend.models.questions.ClozeTestAnswer;
+import backend.models.questions.EssayAnswer;
+import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.Question;
 
 @Entity
 public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSectionQuestion>, Sortable, Scorable {
@@ -193,7 +194,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         // This is a little bit tricky. Need to map the original question options with copied ones so they can be
         // associated with both question and exam section question options :)
         Map<Long, MultipleChoiceOption> optionMap = new HashMap<>();
-        Question blueprint = question.copy(optionMap);
+        Question blueprint = question.copy(optionMap, true);
         blueprint.setParent(question);
         blueprint.save();
         optionMap.forEach((k, optionCopy) -> {
@@ -223,7 +224,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         return esqCopy;
     }
 
-    ExamSectionQuestion copy(boolean preserveOriginalQuestion) {
+    ExamSectionQuestion copy(boolean preserveOriginalQuestion, boolean setParent) {
         ExamSectionQuestion esqCopy = new ExamSectionQuestion();
         BeanUtils.copyProperties(this, esqCopy, "id", "options");
         Question blueprint;
@@ -235,8 +236,10 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             // This is a little bit tricky. Need to map the original question options with copied ones so they can be
             // associated with both question and exam section question options :)
             Map<Long, MultipleChoiceOption> optionMap = new HashMap<>();
-            blueprint = question.copy(optionMap);
-            blueprint.setParent(question);
+            blueprint = question.copy(optionMap, setParent);
+            if (setParent) {
+                blueprint.setParent(question);
+            }
             blueprint.save();
             optionMap.forEach((k, optionCopy) -> {
                 optionCopy.setQuestion(blueprint);

@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.controllers.iop.collaboration;
+package backend.controllers.iop.collaboration.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;

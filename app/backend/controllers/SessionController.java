@@ -48,13 +48,7 @@ import backend.controllers.base.ActionMethod;
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.transfer.api.ExternalExamAPI;
 import backend.exceptions.NotFoundException;
-import backend.models.ExamEnrolment;
-import backend.models.Language;
-import backend.models.Organisation;
-import backend.models.Reservation;
-import backend.models.Role;
-import backend.models.Session;
-import backend.models.User;
+import backend.models.*;
 import backend.models.dto.Credentials;
 import backend.util.AppUtil;
 import backend.util.ConfigUtil;
@@ -105,7 +99,7 @@ public class SessionController extends BaseController {
         User user = Ebean.find(User.class)
                 .where()
                 .eq("eppn", eppn)
-                .findUnique();
+                .findOne();
         boolean newUser = user == null;
         try {
             if (newUser) {
@@ -136,7 +130,7 @@ public class SessionController extends BaseController {
         String pwd = AppUtil.encodeMD5(credentials.getPassword());
         User user = Ebean.find(User.class)
                 .where().eq("eppn", credentials.getUsername() + "@funet.fi")
-                .eq("password", pwd).findUnique();
+                .eq("password", pwd).findOne();
 
         if (user == null) {
             return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
@@ -173,6 +167,20 @@ public class SessionController extends BaseController {
                 });
     }
 
+    private Reservation getUpcomingCollaborativeExamReservation(String eppn) {
+        DateTime now = DateTimeUtils.adjustDST(new DateTime());
+        int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
+        DateTime future = now.plusMinutes(lookAheadMinutes);
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).where()
+                .eq("user.eppn", eppn)
+                .isNotNull("collaborativeExam")
+                .le("reservation.startAt", future)
+                .gt("reservation.endAt", now)
+                .orderBy("reservation.startAt")
+                .findList();
+        return enrolments.isEmpty() ? null : enrolments.get(0).getReservation();
+    }
+
     private Reservation getUpcomingExternalReservation(String eppn) {
         DateTime now = DateTimeUtils.adjustDST(new DateTime());
         int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
@@ -188,7 +196,7 @@ public class SessionController extends BaseController {
     }
 
     private CompletionStage<Result> handleExternalReservation(User user, Reservation reservation) throws MalformedURLException {
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation", reservation).findUnique();
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation", reservation).findOne();
         if (enrolment != null) {
             // already imported
             return wrapAsPromise(ok());
@@ -240,7 +248,7 @@ public class SessionController extends BaseController {
     }
 
     private Organisation findOrganisation(String attribute) {
-        return Ebean.find(Organisation.class).where().eq("code", attribute).findUnique();
+        return Ebean.find(Organisation.class).where().eq("code", attribute).findOne();
     }
 
     private void updateUser(User user) throws AddressException {
@@ -279,6 +287,8 @@ public class SessionController extends BaseController {
             session.setLoginRole(user.getRoles().get(0).getName());
         }
         session.setTemporalStudent(isTemporaryVisitor);
+        Reservation collaborativeExamReservation = getUpcomingCollaborativeExamReservation(user.getEppn());
+        session.setCollaborativeExamInEffect(collaborativeExamReservation != null);
         String token = createSession(session);
         List<Role> roles = isTemporaryVisitor ?
                 Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList() : user.getRoles();
@@ -357,7 +367,7 @@ public class SessionController extends BaseController {
         if (user == null) {
             return notFound();
         }
-        Role role = Ebean.find(Role.class).where().eq("name", roleName).findUnique();
+        Role role = Ebean.find(Role.class).where().eq("name", roleName).findOne();
         if (role == null) {
             return notFound();
         }

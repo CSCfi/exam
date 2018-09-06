@@ -81,7 +81,7 @@ public class ReviewController extends BaseController {
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .where()
                 .eq("exam.id", eid)
-                .findUnique();
+                .findOne();
 
         if (participation == null) {
             return notFound();
@@ -133,7 +133,7 @@ public class ReviewController extends BaseController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("exam.id", eid)
-                .findUnique();
+                .findOne();
         if (enrolment == null || enrolment.getReservation() == null) {
             return notFound();
         }
@@ -173,7 +173,7 @@ public class ReviewController extends BaseController {
             query = query.eq("state", Exam.State.ABORTED);
         }
         query = query.endJunction();
-        Exam exam = query.orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber").findUnique();
+        Exam exam = query.orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber").findOne();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
@@ -281,7 +281,7 @@ public class ReviewController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result reviewExam(Long id) {
         DynamicForm df = formFactory.form().bindFromRequest();
-        Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator").where().idEq(id).findUnique();
+        Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator").where().idEq(id).findOne();
         if (exam == null) {
             return notFound("sitnet_exam_not_found");
         }
@@ -323,7 +323,7 @@ public class ReviewController extends BaseController {
             ExamType eType = Ebean.find(ExamType.class)
                     .where()
                     .eq("type", creditType)
-                    .findUnique();
+                    .findOne();
             if (eType != null) {
                 exam.setCreditType(eType);
             }
@@ -432,7 +432,7 @@ public class ReviewController extends BaseController {
             return forbidden();
         }
         Comment form = bindForm(Comment.class);
-        Comment comment = Ebean.find(Comment.class).fetch("creator", "firstName, lastName").where().idEq(cid).findUnique();
+        Comment comment = Ebean.find(Comment.class).fetch("creator", "firstName, lastName").where().idEq(cid).findOne();
         if (comment == null) {
             return notFound();
         }

@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.controllers.iop.collaboration;
+package backend.controllers.iop.collaboration.impl;
 
 import java.net.URL;
 import java.util.List;
@@ -50,7 +50,7 @@ public class CollaborativeExamController extends CollaborationController {
         ExamExecutionType examExecutionType = Ebean.find(ExamExecutionType.class)
                 .where()
                 .eq("type", ExamExecutionType.Type.PUBLIC.toString())
-                .findUnique();
+                .findOne();
         User user = getLoggedUser();
         Exam exam = new Exam();
         exam.generateHash();
@@ -85,7 +85,7 @@ public class CollaborativeExamController extends CollaborationController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public CompletionStage<Result> listExams() {
-        Optional<URL> url = parseUrl(null);
+        Optional<URL> url = parseUrl();
         if (!url.isPresent()) {
             return wrapAsPromise(internalServerError());
         }
@@ -142,7 +142,7 @@ public class CollaborativeExamController extends CollaborationController {
 
     @Restrict({@Group("ADMIN")})
     public CompletionStage<Result> createExam() {
-        Optional<URL> url = parseUrl(null);
+        Optional<URL> url = parseUrl();
         if (!url.isPresent()) {
             return wrapAsPromise(internalServerError());
         }

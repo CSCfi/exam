@@ -16,7 +16,7 @@
 
 package backend.controllers.iop.transfer.api;
 
-import backend.controllers.iop.collaboration.CollaborativeAttachmentInterface;
+import backend.controllers.iop.collaboration.api.CollaborativeAttachmentInterface;
 import backend.models.json.ExternalExam;
 import play.mvc.Result;
 import play.mvc.Results;
