@@ -1,7 +1,9 @@
 import java.net.InetSocketAddress
 
 import play.sbt.PlayRunHook
-import sbt._
+import sbt.File
+
+import scala.sys.process._
 
 object Karma {
   def apply(base: File): PlayRunHook = {

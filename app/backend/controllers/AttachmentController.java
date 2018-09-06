@@ -94,7 +94,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         }
         File file = filePart.getFile();
         Map<String, String[]> m = body.asFormUrlEncoded();
-        Long qid = Long.parseLong(m.get("questionId")[0]);
+        long qid = Long.parseLong(m.get("questionId")[0]);
 
         // first check if answer already exist
         ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).fetch("essayAnswer")
@@ -113,7 +113,8 @@ public class AttachmentController extends BaseController implements LocalAttachm
 
         String newFilePath;
         try {
-            newFilePath = copyFile(file, "question", qid.toString(), "answer", question.getEssayAnswer().getId().toString());
+            newFilePath = copyFile(file, "question", Long.toString(qid), "answer",
+                    question.getEssayAnswer().getId().toString());
         } catch (IOException e) {
             return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
@@ -140,7 +141,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             return wrapAsPromise(forbidden("sitnet_file_too_large"));
         }
         Map<String, String[]> m = body.asFormUrlEncoded();
-        Long qid = Long.parseLong(m.get("questionId")[0]);
+        long qid = Long.parseLong(m.get("questionId")[0]);
         Question question = Ebean.find(Question.class)
                 .fetch("examSectionQuestions.examSection.exam.parent")
                 .where()
@@ -151,7 +152,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         }
         String newFilePath;
         try {
-            newFilePath = copyFile(file, "question", qid.toString());
+            newFilePath = copyFile(file, "question", Long.toString(qid));
         } catch (IOException e) {
             return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
@@ -170,6 +171,9 @@ public class AttachmentController extends BaseController implements LocalAttachm
     public Result deleteQuestionAttachment(Long id) {
 
         Question question = Ebean.find(Question.class, id);
+        if (question == null) {
+            return notFound();
+        }
         removePrevious(question);
         return ok();
     }
@@ -247,7 +251,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             return wrapAsPromise(forbidden("sitnet_file_too_large"));
         }
         Map<String, String[]> m = body.asFormUrlEncoded();
-        Long eid = Long.parseLong(m.get("examId")[0]);
+        long eid = Long.parseLong(m.get("examId")[0]);
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return wrapAsPromise(notFound());
@@ -258,7 +262,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         }
         String newFilePath;
         try {
-            newFilePath = copyFile(file, "exam", eid.toString());
+            newFilePath = copyFile(file, "exam", Long.toString(eid));
         } catch (IOException e) {
             return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
@@ -407,6 +411,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
 
     @Override
     public CompletionStage<Result> downloadStatementAttachment(Long id) {
+
         User user = getLoggedUser();
         ExpressionList<Exam> query = Ebean.find(Exam.class).where().idEq(id)
                 .isNotNull("languageInspection.statement.attachment");
