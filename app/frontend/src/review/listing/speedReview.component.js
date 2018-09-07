@@ -37,11 +37,13 @@ angular.module('app.review')
                     ExamRes.exams.get({ id: $routeParams.id }, function (exam) {
                         vm.examInfo = {
                             examOwners: exam.examOwners,
-                            title: exam.course.code + ' ' + exam.name
+                            title: exam.course.code + ' ' + exam.name,
+                            anonymous: exam.anonymous
                         };
                         ExamRes.examReviews.query({ eid: $routeParams.id },
                             function (reviews) {
                                 reviews.forEach(function (r) {
+                                    r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
                                     r.duration = moment.utc(Date.parse(r.duration)).format('HH:mm');
                                     if (r.exam.languageInspection && !r.exam.languageInspection.finishedAt) {
                                         r.isUnderLanguageInspection = true;
@@ -200,9 +202,9 @@ angular.module('app.review')
                             '',
                             '',
                         r.exam.totalScore + ' / ' + r.exam.maxScore,
-                        r.user.firstName + ' ' + r.user.lastName,
-                        r.user.userIdentifier]
-                            .join() + ',\n';
+                        r.displayName,
+                        r.user ? r.user.userIdentifier : '']
+                            .join() + '\n';
                     }).reduce(function (a, b) {
                         return a + b;
                     }, '');

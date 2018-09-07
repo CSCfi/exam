@@ -16,7 +16,7 @@
         <table class="table table-striped exams-table">
             <thead ng-init="$ctrl.noShowPredicate = 'reservation.startAt'">
             <tr>
-                <th sort by="user.lastName" text="sitnet_student" predicate="$ctrl.noShowPredicate" reverse="$ctrl.reverse"></th>
+                <th sort by="displayName" text="sitnet_student" predicate="$ctrl.noShowPredicate" reverse="$ctrl.reverse"></th>
                 <th sort by="user.email" text="sitnet_email" predicate="$ctrl.noShowPredicate" reverse="$ctrl.reverse"></th>
                 <th sort by="reservation.startAt" text="sitnet_reservation" predicate="$ctrl.noShowPredicate" reverse="$ctrl.reverse"></th>
                 <th>{{'sitnet_exam_state' | translate}}</th>
@@ -27,7 +27,7 @@
             <tbody>
             <tr ng-repeat="review in $ctrl.noShows | orderBy:$ctrl.noShowPredicate:$ctrl.reverse">
                 <td class="table-column-examname">
-                    {{review.user.firstName}}&nbsp;{{review.user.lastName}}
+                    {{review.displayName}}
                     <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
                 </td>
                 <td class="table-column-25"><a class="pointer" href="mailto:{{review.user.email}}">

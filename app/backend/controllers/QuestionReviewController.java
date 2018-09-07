@@ -15,6 +15,19 @@
 
 package backend.controllers;
 
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.ExamSectionQuestion;
+import backend.models.User;
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.questions.Question;
+import backend.system.interceptors.Anonymous;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import io.ebean.Ebean;
+import io.ebean.text.PathProperties;
+import play.mvc.Result;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,19 +36,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.text.PathProperties;
-import play.mvc.Result;
-
-import backend.controllers.base.BaseController;
-import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
-import backend.models.User;
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.questions.Question;
 
 
 public class QuestionReviewController extends BaseController {
@@ -51,6 +51,7 @@ public class QuestionReviewController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER")})
+    @Anonymous(filteredProperties = {"user", "creator", "modifier"})
     public Result getEssays(Long examId, Optional<List<Long>> ids) {
         Exam exam = Ebean.find(Exam.class, examId);
         User user = getLoggedUser();
@@ -104,8 +105,9 @@ public class QuestionReviewController extends BaseController {
         List<String> results = questionMap.entrySet().stream()
                 .map(e -> new QuestionEntry(e.getKey(), e.getValue()).toJson())
                 .collect(Collectors.toList());
+
         String json = String.format("[%s]", String.join(", ", results));
-        return ok(json).as("application/json");
+        return writeAnonymousResult(ok(json).as("application/json"), exam.isAnonymous());
     }
 
     // DTO
@@ -116,7 +118,7 @@ public class QuestionReviewController extends BaseController {
         QuestionEntry(Question question, List<ExamSectionQuestion> answers) {
             PathProperties pp = PathProperties.parse(
                     "(*, essayAnswer(attachment(*), *), question(parent(question), attachment(*), *), " +
-                            "examSection(name, exam(id, hash, creator(id, email, userIdentifier, firstName, lastName), "+
+                            "examSection(name, exam(id, hash, creator(id, email, userIdentifier, firstName, lastName), " +
                             "state, examInspections(user(id)))))");
             this.question = Ebean.json().toJson(question, PathProperties.parse("(attachment(*), *)"));
             this.answers = answers.stream().map(a -> Ebean.json().toJson(a, pp)).collect(Collectors.toList());

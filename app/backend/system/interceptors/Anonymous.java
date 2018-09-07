@@ -28,4 +28,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Anonymous {
     String[] filteredProperties();
+    String contextParamKey() default AnonymousJsonAction.CONTEXT_KEY;
 }

@@ -13,7 +13,7 @@
     <tbody>
         <tr ng-repeat="r in $ctrl.reservations | orderBy:$ctrl.predicate:$ctrl.reverse">
             <td class="reservation-search">
-                <span ng-if="r.user">{{r.user.firstName}} {{r.user.lastName}}</span>
+                <span>{{r.userAggregate}}</span>
                 <span ng-if="r.user.userIdentifier">&nbsp;({{r.user.userIdentifier}})</span>
                 <span ng-if="r.user">
                     <br/>

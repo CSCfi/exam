@@ -112,7 +112,8 @@ export class ReservationController implements angular.IComponentController {
             this.$http.get('/app/reservations', { params: params }).then((resp: angular.IHttpResponse<any[]>) => {
                 const reservations = resp.data;
                 reservations.forEach(r => {
-                    r.userAggregate = r.user ? r.user.lastName + r.user.firstName : r.externalUserRef;
+                    r.userAggregate = r.user ? `${r.user.lastName}  ${r.user.firstName}`
+                        : r.externalUserRef ? r.externalUserRef : r.enrolment.exam.id;
                     if (!r.enrolment || r.enrolment.externalExam) {
                         r.enrolment = r.enrolment || {};
                         const externalState = r.enrolment.finished ? 'EXTERNAL_FINISHED' :

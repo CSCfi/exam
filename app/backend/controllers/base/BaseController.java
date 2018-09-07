@@ -24,10 +24,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import backend.models.Role;
+import backend.system.interceptors.AnonymousJsonAction;
 import com.google.inject.Inject;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
@@ -237,4 +240,22 @@ public class BaseController extends Controller {
         return src == null ? null : Math.round(src * HUNDRED) / HUNDRED;
     }
 
+    protected Result writeAnonymousResult(Result result, boolean anonymous) {
+        if (anonymous && !getLoggedUser().hasRole(Role.Name.ADMIN.toString(), getSession())) {
+            return withAnonymousHeader(result);
+        }
+        return result;
+    }
+
+    protected Result writeAnonymousResult(Result result, Set<Long> anonIds) {
+        if (!anonIds.isEmpty() && !getLoggedUser().hasRole(Role.Name.ADMIN.toString(), getSession())) {
+            ctx().args.put(AnonymousJsonAction.CONTEXT_KEY, anonIds);
+            return withAnonymousHeader(result);
+        }
+        return result;
+    }
+
+    private Result withAnonymousHeader(Result result) {
+        return result.withHeader(AnonymousJsonAction.ANONYMOUS_HEADER, Boolean.TRUE.toString());
+    }
 }

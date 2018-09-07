@@ -63,7 +63,7 @@
 
         <div class="review-border">
             <!-- Graded and Logged -->
-            <rl-graded-logged reviews="$ctrl.gradedLoggedReviews" on-archive="$ctrl.onArchive(reviews)"></rl-graded-logged>
+            <rl-graded-logged exam="$ctrl.exam" reviews="$ctrl.gradedLoggedReviews" on-archive="$ctrl.onArchive(reviews)"></rl-graded-logged>
         </div>
 
         <div class="review-border" ng-if="$ctrl.rejectedReviews.length > 0">

@@ -21,8 +21,8 @@ angular.module('app.review')
         bindings: {
             participation: '<'
         },
-        controller: ['Exam',
-            function (Exam) {
+        controller: ['Exam', 'Session',
+            function (Exam, Session) {
 
                 const vm = this;
 
@@ -30,8 +30,17 @@ angular.module('app.review')
                     window.open('/assessments/' + vm.participation.exam.id, '_blank');
                 };
 
+                vm.hideGrade = function () {
+                    return vm.participation.noShow || !vm.participation.exam.grade;
+                };
+
+                vm.hideAnswerLink = function () {
+                    return vm.participation.exam.state === 'ABORTED' || vm.participation.noShow ||
+                        (vm.participation.exam.anonymous && !Session.getUser().isAdmin);
+                };
+
                 vm.translateGrade = function () {
-                    if (vm.participation.noShow || !vm.participation.exam.grade) {
+                    if (vm.hideGrade()) {
                         return;
                     }
                     return Exam.getExamGradeDisplayName(vm.participation.exam.grade.name);

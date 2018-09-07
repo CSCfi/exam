@@ -34,6 +34,7 @@ angular.module('app.review')
                     ExamRes.examReviews.query({ eid: vm.exam.id },
                         function (reviews) {
                             reviews.forEach(function (r) {
+                                r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
                                 r.duration = $filter('diffInMinutesTo')(r.started, r.ended);
                                 if (r.exam.languageInspection && !r.exam.languageInspection.finishedAt) {
                                     r.isUnderLanguageInspection = true;

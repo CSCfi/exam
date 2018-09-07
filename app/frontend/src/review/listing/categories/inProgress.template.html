@@ -35,7 +35,7 @@
             </div>
         </div>
         <div ng-hide="$ctrl.exam.executionType.type==='MATURITY'" class="review-attachment-button review-list-speed-button marr20">
-            <a target="_self" class="pointer" href="/speedreview/{{$ctrl.exam.id}}">
+            <a class="pointer" href="/speedreview/{{$ctrl.exam.id}}">
                 {{'sitnet_speed_review' | translate}} ({{$ctrl.data.filtered.length}})
             </a>
         </div>
@@ -44,7 +44,7 @@
     <table class="table table-striped exams-table">
         <thead>
             <tr>
-                <th class="with-top" sort by="user.lastName" text="sitnet_student" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
+                <th class="with-top" sort by="displayName" text="sitnet_student" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
                 <th class="with-top" sort by="user.email" text="sitnet_email" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
                 <th class="with-top" sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
                 <th class="with-top" sort by="started" text="sitnet_exam_time" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
@@ -59,7 +59,7 @@
                 | offset: $ctrl.data.page*$ctrl.data.pageSize | limitTo: $ctrl.data.pageSize">
                 <td class="table-column-15 table-column-bold">
                     <a class="pointer" href="/assessments/{{review.exam.id}}">
-                        {{review.user.firstName}} {{review.user.lastName}}
+                        {{review.displayName}}
                         <span ng-if="review.user.userIdentifier">
                             <br/>({{review.user.userIdentifier}})</span>
                     </a>

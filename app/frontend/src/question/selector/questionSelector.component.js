@@ -55,7 +55,7 @@ angular.module('app.question')
                     ExamRes.sectionquestionsmultiple.insert({
                             eid: examId,
                             sid: sectionId,
-                            seq: to,
+                            sequenceNumber: to,
                             questions: vm.selections.join()
                         }, function () {
                             toast.info($translate.instant('sitnet_question_added'));

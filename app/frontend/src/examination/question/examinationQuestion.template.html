@@ -76,18 +76,18 @@
 
             <examination-cloze-test ng-switch-when="ClozeTestQuestion"
                                     sq="$ctrl.sq"
-                                    exam-hash="$ctrl.examHash">
+                                    exam-hash="$ctrl.exam.hash">
             </examination-cloze-test>
 
             <examination-multi-choice-question ng-switch-when="MultipleChoiceQuestion"
                                         sq="$ctrl.sq"
-                                        exam-hash="$ctrl.examHash"
+                                        exam-hash="$ctrl.exam.hash"
                                         is-preview="$ctrl.isPreview">
             </examination-multi-choice-question>
 
             <examination-weighted-multi-choice-question ng-switch-when="WeightedMultipleChoiceQuestion"
                                                sq="$ctrl.sq"
-                                               exam-hash="$ctrl.examHash"
+                                               exam-hash="$ctrl.exam.hash"
                                                is-preview="$ctrl.isPreview">
             </examination-weighted-multi-choice-question>
         </div>

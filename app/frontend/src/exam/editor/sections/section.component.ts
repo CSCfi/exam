@@ -194,7 +194,7 @@ export const SectionComponent: ng.IComponentOptions = {
 
         removeQuestion = (sq: ExamSectionQuestion) => {
             this.$http.delete(this.getResource(
-                `/app/exams/${this.examId}/sections/${this.section.id}/question/${sq.question.id}`
+                `/app/exams/${this.examId}/sections/${this.section.id}/questions/${sq.question.id}`
             )).then(() => {
                 this.section.sectionQuestions.splice(this.section.sectionQuestions.indexOf(sq), 1);
                 toast.info(this.$translate.instant('sitnet_question_removed'));
@@ -222,7 +222,7 @@ export const SectionComponent: ng.IComponentOptions = {
                     sectionId: this.section.id,
                     questionCount: this.section.sectionQuestions.length
                 }
-            }).result.then(function (data) {
+            }).result.then((data) => {
                 // TODO: see if we could live without reloading the whole exam from back?
                 this.onReloadRequired();
             });
