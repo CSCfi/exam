@@ -63,14 +63,14 @@ angular.module('app.exam')
                     'insert': { method: 'POST', params: { eid: '@eid', sid: '@sid', seq: '@seq', qid: '@qid' } }
 
                 }),
-            sectionquestionsmultiple: $resource('/app/exams/:eid/sections/:sid/:seq/questions',
+            sectionquestionsmultiple: $resource('/app/exams/:eid/sections/:sid/questions',
                 {
-                    eid: '@eid', sid: '@sid', seq: '@seq', questions: '@questions'
+                    eid: '@eid', sid: '@sid', questions: '@questions'
                 },
                 {
                     'insert': {
                         method: 'POST',
-                        params: { eid: '@eid', sid: '@sid', seq: '@seq', questions: '@questions' }
+                        params: { eid: '@eid', sid: '@sid', questions: '@questions' }
                     }
 
                 }),

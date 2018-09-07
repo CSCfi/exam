@@ -18,7 +18,7 @@ import toast from 'toastr';
 
 angular.module('app.review')
     .component('noShows', {
-        template: './noShows.template.html',
+        template: require('./noShows.template.html'),
         bindings: {
             dismiss: '&',
             resolve: '<'
@@ -31,6 +31,9 @@ angular.module('app.review')
 
             vm.$onInit = function () {
                 vm.noShows = vm.resolve.noShows;
+                vm.noShows.forEach(function (r) {
+                   r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
+                });
             };
 
             vm.permitRetrial = function (reservation) {

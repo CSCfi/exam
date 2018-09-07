@@ -21,7 +21,7 @@
                  ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'">
                 <section section="section" exam-id="$ctrl.exam.id"
                          on-delete="$ctrl.removeSection(section)"
-                        on-reload-required="$ctrl.onReloadRequired()">
+                         on-reload-required="$ctrl.onReloadRequired()">
                 </section>
             </div>
         </div>

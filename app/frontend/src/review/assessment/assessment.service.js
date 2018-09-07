@@ -23,14 +23,12 @@ angular.module('app.review')
 
             const self = this;
 
-            self.noShowApi = $resource('/app/noshows/:eid/:uid', {
-                eid: '@eid',
-                uid: '@uid'
+            self.noShowApi = $resource('/app/usernoshows/:eid', {
+                eid: '@eid'
             });
 
-            self.participationsApi = $resource('/app/examparticipations/:eid/:uid', {
-                eid: '@eid',
-                uid: '@uid'
+            self.participationsApi = $resource('/app/examparticipations/:eid', {
+                eid: '@eid'
             });
 
             self.examAssessmentApi = $resource('/app/review/:id/info', {

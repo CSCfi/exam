@@ -30,6 +30,9 @@ angular.module('app.review')
                 const vm = this;
 
                 vm.$onInit = function () {
+                    vm.name = vm.answer.examSection.exam.creator ?
+                        `${vm.answer.examSection.exam.creator.lastName} ${vm.answer.examSection.exam.creator.firstName}` :
+                        vm.answer.examSection.exam.id;
                     vm.answer.expanded = true;
                     vm.answer.essayAnswer = vm.answer.essayAnswer || {};
                     vm.answer.essayAnswer.score = vm.answer.essayAnswer.evaluatedScore;

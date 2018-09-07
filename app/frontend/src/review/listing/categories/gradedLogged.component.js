@@ -22,7 +22,8 @@ angular.module('app.review')
         template: require('./gradedLogged.template.html'),
         bindings: {
             reviews: '<',
-            onArchive: '&'
+            onArchive: '&',
+            exam: '<'
         },
         controller: ['$q', '$filter', '$translate', 'dialogs', 'ReviewList', 'Files', 'Exam', 'ExamRes',
             function ($q, $filter, $translate, dialogs, ReviewList, Files, Exam, ExamRes) {
@@ -103,6 +104,7 @@ angular.module('app.review')
                 const examCredit = (courseCredit, customCredit) => customCredit ? customCredit : courseCredit;
 
                 const handleGradedReviews = r => {
+                    r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
                     r.displayedGradingTime = r.exam.languageInspection ?
                         r.exam.languageInspection.finishedAt : r.exam.gradedTime;
                     r.displayedGrade = translateGrade(r.exam);

@@ -39,7 +39,7 @@ angular.module('app.enrolment')
                 const vm = this;
 
                 vm.$onInit = function () {
-                    Enrolment.getExamEnrolment($routeParams.code, $routeParams.id).then(function (data) {
+                    Enrolment.getEnrolmentInfo($routeParams.code, $routeParams.id).then(function (data) {
                         vm.exam = data;
                     }, function (err) {
                         toast.error(err.data);

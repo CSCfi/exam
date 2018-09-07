@@ -43,6 +43,7 @@ angular.module('app.review')
                 vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items);
 
             const handleOngoingReviews = (review) => {
+                review.displayName = review.user ? `${review.user.lastName} ${review.user.firstName}` : review.exam.id;
                 ReviewList.gradeExam(review.exam);
             };
 

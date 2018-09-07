@@ -32,7 +32,7 @@
                 <table class="table table-striped exams-table">
                     <thead ng-init="$ctrl.reviewPredicate = 'deadline'">
                         <tr>
-                            <th class="with-top" sort by="user.lastName" text="sitnet_student" predicate="$ctrl.reviewPredicate" reverse="$ctrl.reverse"></th>
+                            <th class="with-top" sort by="displayName" text="sitnet_student" predicate="$ctrl.reviewPredicate" reverse="$ctrl.reverse"></th>
                             <th class="with-top" sort by="started" text="sitnet_exam_duration" predicate="$ctrl.reviewPredicate" reverse="$ctrl.reverse"></th>
                             <th sort by="deadline" text="sitnet_review_deadline" predicate="$ctrl.reviewPredicate" reverse="$ctrl.reverse" class="with-space"></th>
                             <th class="with-space">{{'sitnet_inspection_status' | translate}}</th>
@@ -46,7 +46,7 @@
                     <tbody>
                         <tr ng-repeat="review in $ctrl.examReviews | orderBy:$ctrl.reviewPredicate:$ctrl.reverse | offset: $ctrl.currentPage*$ctrl.pageSize | limitTo: $ctrl.pageSize">
                             <td class="table-column-bold reservation-search">
-                                {{review.user.firstName}} {{review.user.lastName}}
+                                {{review.displayName}}
                                 <span ng-if="review.user.userIdentifier">
                                     <br/>({{review.user.userIdentifier}})</span>
                                 <br/>

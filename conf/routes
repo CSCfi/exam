@@ -136,8 +136,8 @@ GET           /app/review/info/:eid                                    backend.c
 GET           /app/exams/:eid/reservation                              backend.controllers.ReviewController.getReservationInformationForExam(eid: Long)
 GET           /app/review/:eid                                         backend.controllers.ReviewController.getExamReview(eid: Long)
 GET           /app/examenrolments/:eid                                 backend.controllers.ReviewController.getEnrolmentsForExam(eid: Long)
-GET           /app/examparticipations/:eid/:uid                        backend.controllers.ReviewController.getParticipationsForExamAndUser(eid: Long, uid: Long)
-GET           /app/noshows/:eid/:uid                                   backend.controllers.ReviewController.listNoShowsForExamAndUser(eid: Long, uid: Long)
+GET           /app/examparticipations/:eid                             backend.controllers.ReviewController.getParticipationsForExamAndUser(eid: Long)
+GET           /app/usernoshows/:eid                                    backend.controllers.ReviewController.listNoShowsForExamAndUser(eid: Long)
 POST          /app/email/inspection/:eid                               backend.controllers.ReviewController.sendInspectionMessage(eid: Long)
 POST          /app/review/:id/inspection                               backend.controllers.ReviewController.addInspectionComment(id: Long)
 POST          /app/gradeimport                                         backend.controllers.ReviewController.importGrades

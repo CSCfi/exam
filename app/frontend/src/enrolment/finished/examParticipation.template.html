@@ -6,7 +6,7 @@
             <div>
                 <!-- exam title n stuff -->
                 <div class="student-enrolment-exam">
-                    <span ng-if="$ctrl.participation.exam.anonymous">#{{ $ctrl.participation.id }}</span>
+                    <span ng-if="$ctrl.participation.exam.anonymous">#{{ $ctrl.participation.exam.id }}</span>
                     {{ $ctrl.participation.exam.name }}
                     <span ng-if="$ctrl.participation.exam.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
                 </div>

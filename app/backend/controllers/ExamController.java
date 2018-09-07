@@ -34,6 +34,7 @@ import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.Question;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExamUpdateSanitizer;
+import backend.system.interceptors.Anonymous;
 import backend.util.AppUtil;
 import backend.util.ConfigUtil;
 import be.objectify.deadbolt.java.actions.Group;
@@ -218,6 +219,7 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Anonymous(filteredProperties = {"user"})
     public Result getExam(Long id) {
         Exam exam = doGetExam(id);
         if (exam == null) {
@@ -226,10 +228,9 @@ public class ExamController extends BaseController {
         User user = getLoggedUser();
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole("ADMIN", getSession())) {
             exam.getExamSections().forEach(s -> s.setSectionQuestions(new TreeSet<>(s.getSectionQuestions())));
-            return ok(exam);
-        } else {
-            return forbidden("sitnet_error_access_forbidden");
+            return writeAnonymousResult(ok(exam), exam.isAnonymous());
         }
+        return forbidden("sitnet_error_access_forbidden");
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})

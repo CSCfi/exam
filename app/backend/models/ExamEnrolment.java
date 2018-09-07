@@ -53,6 +53,7 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     private CollaborativeExam collaborativeExam;
 
     @OneToOne(cascade = CascadeType.ALL)
+    @JsonBackReference
     private ExternalExam externalExam;
 
     @OneToOne(cascade = CascadeType.REMOVE)

@@ -36,17 +36,17 @@ angular.module('app.review')
                     vm.participation.duration = duration.format('HH:mm');
 
                     vm.student = vm.participation.user;
+                    vm.studentName = vm.student ? `${vm.student.lastName} ${vm.student.firstName}` : vm.exam.id;
                     vm.enrolment = vm.exam.examEnrolments[0];
                     vm.reservation = vm.enrolment.reservation;
                     Assessment.participationsApi.query({
-                        eid: vm.exam.parent.id,
-                        uid: vm.student.id
+                        eid: vm.exam.id
                     }, function (data) {
                         // Filter out the participation we are looking into
                         const previousParticipations = data.filter(function (p) {
                             return p.id !== vm.participation.id;
                         });
-                        Assessment.noShowApi.query({eid: vm.exam.parent.id, uid: vm.student.id}, function (data) {
+                        Assessment.noShowApi.query({eid: vm.exam.id}, function (data) {
                             const noShows = data.map(function (d) {
                                 return {noShow: true, started: d.reservation.startAt, exam: {state: 'no_show'}};
                             });

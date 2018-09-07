@@ -18,12 +18,31 @@ package backend.controllers;
 import akka.actor.ActorSystem;
 import backend.controllers.base.BaseController;
 import backend.impl.EmailComposer;
-import backend.models.*;
+import backend.models.Attachment;
+import backend.models.Comment;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamExecutionType;
+import backend.models.ExamInspection;
+import backend.models.ExamMachine;
+import backend.models.ExamParticipation;
+import backend.models.ExamSection;
+import backend.models.ExamSectionQuestion;
+import backend.models.ExamType;
+import backend.models.Grade;
+import backend.models.GradeScale;
+import backend.models.InspectionComment;
+import backend.models.LanguageInspection;
+import backend.models.Permission;
+import backend.models.Role;
+import backend.models.User;
+import backend.models.base.GeneratedIdentityModel;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CommaJoinedListSanitizer;
+import backend.system.interceptors.Anonymous;
 import backend.util.AppUtil;
 import backend.util.CsvBuilder;
 import be.objectify.deadbolt.java.actions.Group;
@@ -44,7 +63,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import play.Logger;
 import play.data.DynamicForm;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -61,7 +79,16 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
@@ -91,13 +118,18 @@ public class ReviewController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getParticipationsForExamAndUser(Long eid, Long uid) {
+    @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail", "grade"})
+    public Result getParticipationsForExamAndUser(Long eid) {
+        final Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound();
+        }
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
-                .fetch("exam", "id, state")
+                .fetch("exam", "id, state, anonymous")
                 .fetch("exam.grade", "id, name")
                 .where()
-                .eq("user.id", uid)
-                .eq("exam.parent.id", eid)
+                .eq("user", exam.getCreator())
+                .eq("exam.parent", exam.getParent())
                 .disjunction()
                 .eq("exam.state", Exam.State.ABORTED)
                 .eq("exam.state", Exam.State.GRADED)
@@ -105,24 +137,28 @@ public class ReviewController extends BaseController {
                 .eq("exam.state", Exam.State.ARCHIVED)
                 .endJunction()
                 .findList();
-        return ok(participations);
+        return writeAnonymousResult(ok(participations), exam.isAnonymous());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result listNoShowsForExamAndUser(Long eid, Long uid) {
+    @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail"})
+    public Result listNoShowsForExamAndUser(Long eid) {
+        final Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound();
+        }
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation", "startAt, endAt")
+                .fetch("reservation", "startAt, endAt, noShow")
                 .where()
-                .eq("user.id", uid)
-                .eq("exam.id", eid)
+                .eq("user", exam.getCreator())
+                .eq("exam", exam.getParent())
                 .eq("reservation.noShow", true)
                 .orderBy("reservation.endAt")
                 .findList();
         if (enrolments == null) {
             return notFound();
-        } else {
-            return ok(enrolments);
         }
+        return writeAnonymousResult(ok(enrolments), exam.isAnonymous());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -156,6 +192,7 @@ public class ReviewController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail", "creator", "modifier"})
     public Result getExamReview(Long eid) {
         ExpressionList<Exam> query = createQuery()
                 .where()
@@ -183,7 +220,7 @@ public class ReviewController extends BaseController {
         exam.getExamSections().stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
-                .forEach( esq -> {
+                .forEach(esq -> {
                     if (esq.getClozeTestAnswer() == null) {
                         ClozeTestAnswer cta = new ClozeTestAnswer();
                         cta.save();
@@ -192,14 +229,15 @@ public class ReviewController extends BaseController {
                     }
                     esq.getClozeTestAnswer().setQuestionWithResults(esq);
                 });
-        return ok(exam);
+        return writeAnonymousResult(ok(exam), exam.isAnonymous());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Anonymous(filteredProperties = {"user", "creator", "modifier"})
     public Result getExamReviews(Long eid) {
         User user = getLoggedUser();
         PathProperties pp = PathProperties.parse("(" +
-                        "id, name, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, " +
+                "id, name, anonymous, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, " +
                 "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*)" +
                 "examInspections(ready, user(id, firstName, lastName, email)), " +
                 "examSections(sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
@@ -216,13 +254,14 @@ public class ReviewController extends BaseController {
                 .in("state", Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED,
                         Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED, Exam.State.ARCHIVED);
         if (!user.hasRole(Role.Name.ADMIN.toString(), getSession())) {
-                query.where().disjunction()
+            query.where().disjunction()
                     .eq("parent.examOwners", user)
                     .eq("examInspections.user", user)
                     .endJunction();
         }
         Set<Exam> exams = query.findSet();
 
+        Set<Long> anonIds = new HashSet<>();
         Set<ExamParticipation> participations = exams.stream().map(e -> {
             e.setMaxScore();
             e.setApprovedAnswerCount();
@@ -230,10 +269,14 @@ public class ReviewController extends BaseController {
             e.setTotalScore();
             ExamParticipation ep = e.getExamParticipation();
             ep.setExam(e);
+            if (e.isAnonymous()) {
+                anonIds.add(ep.getId());
+            }
             return ep;
         }).collect(Collectors.toSet());
 
-        return ok(participations);
+        final Result result = ok(participations);
+        return writeAnonymousResult(result, anonIds);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -255,13 +298,13 @@ public class ReviewController extends BaseController {
         Double score = essayScore == null ? null : Double.parseDouble(essayScore);
         answer.setEvaluatedScore(round(score));
         answer.update();
-        return ok(Json.toJson(essayQuestion));
+        return ok();
     }
 
     @Restrict({@Group("TEACHER")})
     public Result updateAssessmentInfo(Long id) {
         String info = request().body().asJson().get("assessmentInfo").asText();
-        Optional<Exam>  option = Ebean.find(Exam.class).fetch("parent.creator")
+        Optional<Exam> option = Ebean.find(Exam.class).fetch("parent.creator")
                 .where()
                 .idEq(id)
                 .eq("state", Exam.State.GRADED_LOGGED)
@@ -383,6 +426,7 @@ public class ReviewController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Anonymous(filteredProperties = {"user"})
     public Result listNoShows(Long eid) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount")
@@ -398,9 +442,13 @@ public class ReviewController extends BaseController {
                 .findList();
         if (enrolments == null) {
             return notFound();
-        } else {
-            return ok(enrolments);
         }
+
+        final Result result = ok(enrolments);
+        Set<Long> anonIds = enrolments.stream().filter(e -> e.getExam().isAnonymous())
+                .map(GeneratedIdentityModel::getId)
+                .collect(Collectors.toSet());
+        return writeAnonymousResult(result, anonIds);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

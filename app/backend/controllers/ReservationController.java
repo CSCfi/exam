@@ -15,14 +15,19 @@
 
 package backend.controllers;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import javax.inject.Inject;
-
+import backend.controllers.base.BaseController;
+import backend.exceptions.NotFoundException;
+import backend.impl.EmailComposer;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamMachine;
+import backend.models.ExamParticipation;
+import backend.models.ExamRoom;
+import backend.models.Reservation;
+import backend.models.User;
+import backend.models.base.GeneratedIdentityModel;
+import backend.system.interceptors.Anonymous;
+import backend.util.DateTimeUtils;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -39,17 +44,14 @@ import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 
-import backend.controllers.base.BaseController;
-import backend.exceptions.NotFoundException;
-import backend.impl.EmailComposer;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamMachine;
-import backend.models.ExamParticipation;
-import backend.models.ExamRoom;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.util.DateTimeUtils;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class ReservationController extends BaseController {
@@ -246,6 +248,7 @@ public class ReservationController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Anonymous(filteredProperties = {"user", "externalUserRef"})
     public Result getReservations(Optional<String> state, Optional<Long> ownerId, Optional<Long> studentId,
                                   Optional<Long> roomId, Optional<Long> machineId, Optional<Long> examId,
                                   Optional<String> start, Optional<String> end) {
@@ -333,6 +336,14 @@ public class ReservationController extends BaseController {
                     .endJunction();
         }
         Set<Reservation> reservations = query.orderBy("startAt").findSet();
-        return ok(reservations);
+
+        final Result result = ok(reservations);
+
+        final Set<Long> anonIds = reservations.stream()
+                .filter(r -> r.getEnrolment() != null && r.getEnrolment().getExam() != null
+                        && r.getEnrolment().getExam().isAnonymous())
+                .map(GeneratedIdentityModel::getId)
+                .collect(Collectors.toSet());
+        return writeAnonymousResult(result, anonIds);
     }
 }
