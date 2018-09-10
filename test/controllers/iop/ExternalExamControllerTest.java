@@ -1,18 +1,22 @@
 package controllers.iop;
 
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamMachine;
-import backend.models.ExamRoom;
-import backend.models.ExamSection;
-import backend.models.ExamSectionQuestion;
-import backend.models.Language;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.iop.ExternalReservation;
-import backend.models.questions.Question;
-import backend.util.AppUtil;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.StreamSupport;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,28 +38,16 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import play.Environment;
 import play.Logger;
-import play.api.Play;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.StreamSupport;
+import backend.models.*;
+import backend.models.iop.ExternalReservation;
+import backend.models.questions.Question;
+import backend.util.AppUtil;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -224,7 +216,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
 
         attachmentServlet.getWaiter().await(10000, 3);
 
-        String uploadPath = AppUtil.getAttachmentPath(Play.current().environment().asJava()).toString();
+        String uploadPath = AppUtil.getAttachmentPath(Environment.simple()).toString();
         final Path path = FileSystems.getDefault().getPath(uploadPath);
 
         long start = System.currentTimeMillis();
