@@ -166,19 +166,19 @@
 <div class="col-md-12 padl0 padr0 marb20">
     <span class="pull-right">
         <div class="review-attachment-button exam-questions-buttons">
-            <a target="_self" class="pointer preview" ng-click="$ctrl.previewExam(3)">
+            <a class="pointer preview" ng-click="$ctrl.previewExam(3)">
                 {{'sitnet_preview' | translate}}</a>
         </div>
         <div class="review-attachment-button exam-questions-buttons marl10">
-            <a target="_self" class="pointer" ng-click="$ctrl.updateExam()">
+            <a class="pointer" ng-click="$ctrl.updateExam()">
                 {{'sitnet_save' | translate}}</a>
         </div>
         <div ng-hide="$ctrl.exam.state === 'PUBLISHED'" class="review-attachment-button exam-questions-buttons marl10">
-            <a target="_self" class="pointer" ng-click="$ctrl.saveAndPublishExam()">
+            <a class="pointer" ng-click="$ctrl.saveAndPublishExam()">
                 {{'sitnet_save_and_publish' | translate}}</a>
         </div>
         <div ng-show="$ctrl.exam.state === 'PUBLISHED' && $ctrl.exam.executionType.type==='PUBLIC'" class="review-attachment-button exam-questions-buttons marl10">
-            <a target="_self" class="pointer warning" ng-click="$ctrl.unpublishExam()">
+            <a class="pointer warning" ng-click="$ctrl.unpublishExam()">
                 {{'sitnet_unpublish_exam' | translate}}
             </a>
         </div>
@@ -187,7 +187,7 @@
 <div class="col-md-12 padl0 padr0 marb20 padt20 grey-top">
     <span class="pull-left">
         <div class="review-attachment-button exam-questions-buttons">
-            <a target="_self" class="pointer preview" ng-click="$ctrl.previousTab()">
+            <a class="pointer preview" ng-click="$ctrl.previousTab()">
                 &#171; {{'sitnet_questions' | translate}}</a>
         </div>
     </span>

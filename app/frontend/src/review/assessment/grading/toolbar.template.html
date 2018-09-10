@@ -3,7 +3,7 @@
 
     <div ng-show="$ctrl.isReadOnly() || (!$ctrl.isOwnerOrAdmin() && $ctrl.isGraded())"
          class="review-attachment-button exam-questions-buttons marl15">
-        <a target="_self" class="pointer preview" href="{{$ctrl.getExitUrl()}}">
+        <a class="pointer preview" href="{{$ctrl.getExitUrl()}}">
             {{'sitnet_close' | translate}}</a>
     </div>
 
