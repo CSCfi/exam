@@ -18,36 +18,30 @@ import * as moment from 'moment';
 import * as _ from 'lodash';
 const truncate = require('truncate-html').default;
 
-export interface ITruncateFilterService extends angular.IFilterService {
-    (name: 'truncate'): (value: string, after: number) => string;
-}
 export class TruncateFilter {
-    constructor() {
-        return (value: string, after: number): string => {
+
+    static factory(): angular.FilterFactory {
+        return () => (value: string, after: number): string => {
             return truncate(value, after);
         };
     }
 }
 
-export interface IDiffInMinutesFilterService extends angular.IFilterService {
-    (name: 'diffInMinutesTo'): (from: VarDate, to: VarDate) => number;
-}
 export class DiffInMinutesFilter {
-    constructor() {
-        return (from: VarDate, to: VarDate): number => {
+
+    static factory(): angular.FilterFactory {
+        return () => (from: VarDate, to: VarDate): number => {
             const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
             return Math.round(diff);
         };
     }
 }
 
-export interface IDiffInDaysFilterService extends angular.IFilterService {
-    (name: 'diffInDaysToNow'): (date: VarDate) => string;
-}
 export class DiffInDaysFilter {
-    constructor() {
-        const msInDay = 1000 * 60 * 60 * 24;
-        return (date: VarDate): string => {
+
+    static factory(): angular.FilterFactory {
+        return () => (date: VarDate): string => {
+            const msInDay = 1000 * 60 * 60 * 24;
             const diff = (new Date(date).getTime() - new Date().getTime()) / msInDay;
             if (diff < 0) {
                 return '<span class="sitnet-text-alarm">' + Math.floor(diff) + '</span>';
@@ -57,12 +51,9 @@ export class DiffInDaysFilter {
     }
 }
 
-export interface IOffsetFilterService extends angular.IFilterService {
-    (name: 'offset'): (input: string | undefined, start: string) => string;
-}
 export class OffsetFilter {
-    constructor() {
-        return (input: string | undefined, start: string): string => {
+    static factory(): angular.FilterFactory {
+        return () => (input: string | undefined, start: string): string => {
             if (!input) {
                 return '';
             }
@@ -72,12 +63,10 @@ export class OffsetFilter {
     }
 }
 
-export interface IPageFillFilterService extends angular.IFilterService {
-    (name: 'pagefill'): (input: number[], total: number, current: number, pageSize: number) => number[];
-}
 export class PageFillFilter {
-    constructor() {
-        return (input: number[], total: number, current: number, pageSize: number): number[] => {
+
+    static factory(): angular.FilterFactory {
+        return () => (input: number[], total: number, current: number, pageSize: number): number[] => {
             const pages = Math.floor(total / pageSize);
             if (pages > 0 && current === pages) {
                 const amount = (pages + 1) * pageSize - total;
@@ -88,12 +77,10 @@ export class PageFillFilter {
     }
 }
 
-export interface IAdjustDstFilterService extends angular.IFilterService {
-    (name: 'adjustdst'): (input: moment.MomentInput) => string;
-}
 export class AdjustDstFilter {
-    constructor() {
-        return (input: moment.MomentInput): string => {
+
+    static factory(): angular.FilterFactory {
+        return () => (input: moment.MomentInput): string => {
             if (moment(input).isDST()) {
                 return moment(input).add(-1, 'hour').format();
             }
