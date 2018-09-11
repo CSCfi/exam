@@ -51,6 +51,7 @@ public class CollaborativeCalendarController extends CollaborationController {
 
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class).where()
                 .eq("collaborativeExam.id", id)
+                .isNull("exam")
                 .eq("user", getLoggedUser())
                 .findOne();
         if (ee == null) {

@@ -100,6 +100,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                                 .disjunction()
                                 .gt("reservation.endAt", now.toDate())
                                 .isNull("reservation")
+                                .isNotNull("exam")
                                 .endJunction()
                                 .findList();
                         if (enrolments.isEmpty()) {
