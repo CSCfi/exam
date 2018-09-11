@@ -49,6 +49,9 @@ routesGenerator := InjectedRoutesGenerator
 
 testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
 
+sources in(Compile, doc) := Seq.empty
+publishArtifact in(Compile, packageDoc) := false
+
 lazy val frontendDirectory = baseDirectory {
   _ / "app/frontend"
 }
