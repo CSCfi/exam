@@ -11,7 +11,7 @@
                     src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
             </sup>
             <div class="review-attachment-button make-inline">
-                <a class="pointer" target="_self" ng-click="$ctrl.getAnswerAttachments()">
+                <a class="pointer" ng-click="$ctrl.getAnswerAttachments()">
                     {{'sitnet_load_answer_attachments' | translate }}
                     <img src="Images/icon_attachment.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_attachment.png'" />
                 </a>
@@ -29,14 +29,14 @@
     <div class="review-list-title-row">
         <span class="review-list-bluetitle">
             <!-- aborted-->
-            <a target="_self" class="pointer" ng-click="$ctrl.openAborted()">
+            <a class="pointer" ng-click="$ctrl.openAborted()">
                 {{'sitnet_aborted_exams' | translate}} ({{$ctrl.abortedExams.length}})</a>
             <sup class="padl05">
                 <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_aborted_description' | translate}}"
                     src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
             </sup>
             <!-- tenttiin saapumattomat -->
-            <a style="margin-left:100px;" target="_self" class="pointer" ng-click="$ctrl.openNoShows()">
+            <a style="margin-left:100px;" class="pointer" ng-click="$ctrl.openNoShows()">
                 {{'sitnet_no_shows' | translate}} ({{$ctrl.noShows.length}})</a>
             <sup class="padl05">
                 <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_no_shows_description' | translate}}"

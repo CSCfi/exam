@@ -41,24 +41,24 @@
 <!-- Buttons -->
 <div class="col-md-12 padl0 padr0 marb20">
     <div class="review-attachment-button exam-questions-buttons">
-        <a target="_self" class="pointer" ng-click="$ctrl.addNewSection()">
+        <a class="pointer" ng-click="$ctrl.addNewSection()">
             <i class="fa sitnet-white fa-plus"></i>&nbsp;{{'sitnet_section_add' | translate}}
         </a>
     </div>
     <span class="pull-right">
         <div class="review-attachment-button exam-questions-buttons">
-            <a target="_self" class="pointer preview" ng-click="$ctrl.previewExam(2)">
+            <a class="pointer preview" ng-click="$ctrl.previewExam(2)">
             {{'sitnet_preview' | translate}}
             </a>
         </div>
         <div class="review-attachment-button exam-questions-buttons marl10">
-            <a target="_self" class="pointer" ng-click="$ctrl.updateExam()">
+            <a class="pointer" ng-click="$ctrl.updateExam()">
             {{'sitnet_save' | translate}}
             </a>
         </div>
         <div ng-show="$ctrl.exam.executionType.type==='PUBLIC'"
              class="review-attachment-button exam-questions-buttons marl10">
-          <a target="_self" class="pointer warning" ng-click="$ctrl.removeExam()">
+          <a class="pointer warning" ng-click="$ctrl.removeExam()">
               {{'sitnet_exam_remove' | translate}}
           </a>
         </div>
@@ -68,13 +68,13 @@
 <div class="col-md-12 padl0 padr0 marb20 padt20 grey-top">
     <span class="pull-right">
         <div class="review-attachment-button exam-questions-buttons">
-            <a target="_self" class="pointer preview" ng-click="$ctrl.nextTab()">
+            <a class="pointer preview" ng-click="$ctrl.nextTab()">
                 {{'sitnet_exam_publish_tab' | translate}} &#187;</a>
         </div>
     </span>
     <span class="pull-left">
         <div class="review-attachment-button exam-questions-buttons">
-            <a target="_self" class="pointer preview" ng-click="$ctrl.previousTab()">
+            <a class="pointer preview" ng-click="$ctrl.previousTab()">
                 &#171; {{'sitnet_exam_basic_information_tab' | translate}}</a>
         </div>
     </span>

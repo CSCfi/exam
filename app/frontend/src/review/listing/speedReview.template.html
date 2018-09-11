@@ -123,12 +123,12 @@
 
             <span class="pull-right">
                 <div class="review-attachment-button make-inline">
-                    <a target="_self" class="pointer preview" href="/exams/{{$ctrl.eid}}/4">
+                    <a class="pointer preview" href="/exams/{{$ctrl.eid}}/4">
                         {{'sitnet_button_cancel' | translate}}
                     </a>
                 </div>
                 <div class="review-attachment-button make-inline mart20 marr30 marl10">
-                    <a ng-disabled="!$ctrl.hasModifications()" target="_self" class="pointer" ng-click="$ctrl.gradeExams()">
+                    <a ng-disabled="!$ctrl.hasModifications()" class="pointer" ng-click="$ctrl.gradeExams()">
                         {{'sitnet_grade_exams' | translate}}
                     </a>
                 </div>

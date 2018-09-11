@@ -34,25 +34,25 @@
     <div class="main-row">
         <ul class="nav nav-tabs">
             <li role="presentation" ng-class="{'active' : $ctrl.view === 'PUBLISHED' && !$ctrl.showExpired}">
-                <a class="pointer" target="_self" ng-click="$ctrl.view='PUBLISHED'; $ctrl.showExpired = false">
+                <a class="pointer" ng-click="$ctrl.view='PUBLISHED'; $ctrl.showExpired = false">
                     {{'sitnet_published_exams' | translate}}
                     <span class="badge">{{ ($ctrl.exams | filter: {state: 'PUBLISHED', expired: false}).length }}</span>
                 </a>
             </li>
             <li role="presentation" ng-class="{'active' : $ctrl.view === 'PUBLISHED' && $ctrl.showExpired}">
-                <a class="pointer" target="_self" ng-click="$ctrl.view='PUBLISHED'; $ctrl.showExpired = true">
+                <a class="pointer" ng-click="$ctrl.view='PUBLISHED'; $ctrl.showExpired = true">
                     {{'sitnet_expired_exams' | translate}}
                     <span class="badge">{{ ($ctrl.exams | filter: {state: 'PUBLISHED', expired: true}).length }}</span>
                 </a>
             </li>
             <li role="presentation" ng-class="{'active' : $ctrl.view === 'SAVED'}">
-                <a class="pointer" target="_self" ng-click="$ctrl.view='SAVED'; $ctrl.showExpired = false">
+                <a class="pointer" ng-click="$ctrl.view='SAVED'; $ctrl.showExpired = false">
                     {{'sitnet_saved_exams' | translate}}
                     <span class="badge">{{ ($ctrl.exams | filter: {state: 'SAVED'}).length }}</span>
                 </a>
             </li>
             <li role="presentation" ng-class="{'active' : $ctrl.view === 'DRAFT'}">
-                <a class="pointer" target="_self" ng-click="$ctrl.view='DRAFT'; $ctrl.showExpired = false">
+                <a class="pointer" ng-click="$ctrl.view='DRAFT'; $ctrl.showExpired = false">
                     {{'sitnet_draft_exams' | translate}}
                     <span class="badge">{{ ($ctrl.exams | filter: {state: 'DRAFT'}).length }}</span>
                 </a>
