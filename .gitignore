@@ -4,6 +4,7 @@ target
 *.idea
 public/bundles
 *.iml
+.vscode
 default-drop-all.sql
 default-create-all.sql
 /data/
