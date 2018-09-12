@@ -41,7 +41,7 @@ export const NavigationComponent: angular.IComponentOptions = {
 
             this.$rootScope.$on('userUpdated', () => {
                 this.user = this.Session.getUser();
-                this.getLinks(false);
+                this.getLinks(true);
             });
             this.$rootScope.$on('upcomingExam', () => this.getLinks(false));
             this.$rootScope.$on('wrongLocation', () => this.getLinks(false));

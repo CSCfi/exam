@@ -100,9 +100,13 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                                 .disjunction()
                                 .gt("reservation.endAt", now.toDate())
                                 .isNull("reservation")
-                                .isNotNull("exam")
                                 .endJunction()
+                                .or()
+                                .isNull("exam")
+                                .eq("exam.state", Exam.State.STUDENT_STARTED)
+                                .endOr()
                                 .findList();
+
                         if (enrolments.isEmpty()) {
                             return notFound("error not found");
                         }
