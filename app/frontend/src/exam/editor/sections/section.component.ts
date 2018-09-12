@@ -19,6 +19,7 @@ import * as toast from 'toastr';
 import { ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
 import { IModalService } from 'angular-ui-bootstrap';
 import { IHttpResponse } from 'angular';
+import { FileService } from '../../../utility/file/file.service';
 
 export const SectionComponent: ng.IComponentOptions = {
     template: require('./section.template.html'),
@@ -45,7 +46,8 @@ export const SectionComponent: ng.IComponentOptions = {
             private $translate: ng.translate.ITranslateService,
             private $uibModal: IModalService,
             private dialogs: angular.dialogservice.IDialogService,
-            private Question: any
+            private Question: any,
+            private Files: FileService
         ) {
             'ngInject';
         }
@@ -99,8 +101,27 @@ export const SectionComponent: ng.IComponentOptions = {
                 `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
 
             this.$http.post(resource, { sequenceNumber: seq, question: question })
-                .then(() => this.onReloadRequired())
-                .catch(resp => toast.error(resp.data));
+                .then((resp: IHttpResponse<ExamSectionQuestion>) => {
+                    // Collaborative exam question handling.
+                    this.addAttachment(resp.data, question, this.onReloadRequired);
+                }).catch(resp => toast.error(resp.data));
+        }
+
+        private addAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
+            if (!this.parentCtrl.collaborative) {
+                callback();
+                return;
+            }
+            const attachment = question.attachment;
+            if (!attachment) {
+                callback();
+                return;
+            }
+            if (attachment.modified && attachment.file) {
+                this.Files.upload('/integration/iop/attachment/question', attachment.file,
+                    { examId: this.examId, questionId: data.id },
+                    question, callback);
+            }
         }
 
         private openBaseQuestionEditor = () =>
@@ -110,7 +131,7 @@ export const SectionComponent: ng.IComponentOptions = {
                 backdrop: 'static',
                 keyboard: true,
                 windowClass: 'question-editor-modal',
-                resolve: { newQuestion: true }
+                resolve: { newQuestion: true, collaborative: this.collaborative }
             }).result.then((data: { question: Question }) => {
                 // Now that new base question was created we make an exam section question out of it
                 this.insertExamQuestion(
