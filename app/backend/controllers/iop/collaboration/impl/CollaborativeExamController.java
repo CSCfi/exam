@@ -78,7 +78,7 @@ public class CollaborativeExamController extends CollaborationController {
 
         exam.setTrialCount(1);
         exam.setExpanded(true);
-        exam.setAnonymous(ConfigUtil.isAnonymousReviewEnabled());
+        exam.setAnonymous(true);
 
         return exam;
     }
