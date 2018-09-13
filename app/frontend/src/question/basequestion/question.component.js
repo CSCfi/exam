@@ -107,15 +107,16 @@ angular.module('app.question')
                             $location.path('/questions');
                         }
                     };
-                    if (vm.newQuestion) {
+
+                    if (vm.collaborative) {
+                        fn(vm.question);
+                    } else if (vm.newQuestion) {
                         Question.createQuestion(vm.question).then(
                             function (question) {
                                 fn(question);
                             }, function (error) {
                                 toast.error(error.data);
                             });
-                    } else if (vm.collaborative) {
-                        fn(vm.question);
                     } else {
                         Question.updateQuestion(vm.question, true).then(
                             function () {

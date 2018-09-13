@@ -232,7 +232,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
 
         private isAllowedToUnpublishOrRemove = () =>
             // allowed if no upcoming reservations and if no one has taken this yet
-            !this.exam.hasEnrolmentsInEffect && this.exam.children.length === 0
+            !this.exam.hasEnrolmentsInEffect && (!this.exam.children || this.exam.children.length === 0)
 
     }
 };
