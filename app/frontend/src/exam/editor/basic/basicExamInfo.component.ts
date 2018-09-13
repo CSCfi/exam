@@ -152,6 +152,10 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             this.updateExam(true);
         }
 
+        showAnonymousReview = () => {
+            return this.collaborative || (this.exam.executionType.type === 'PUBLIC' && this.anonymousReviewEnabled);
+        }
+
         toggleAnonymous = () => {
             this.updateExam(false);
         }
