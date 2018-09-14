@@ -26,6 +26,7 @@ import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
 import akka.actor.ActorSystem;
+import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -61,8 +62,9 @@ public class ExternalStudentExamController extends StudentExamController {
     @Inject
     public ExternalStudentExamController(EmailComposer emailComposer, ActorSystem actor,
                                          CollaborativeExamLoader collaborativeExamLoader,
-                                         AutoEvaluationHandler autoEvaluationHandler, Environment environment) {
-        super(emailComposer, actor, collaborativeExamLoader, autoEvaluationHandler, environment);
+                                         AutoEvaluationHandler autoEvaluationHandler, Environment environment,
+                                         ExternalAttachmentLoader externalAttachmentLoader) {
+        super(emailComposer, actor, collaborativeExamLoader, autoEvaluationHandler, environment, externalAttachmentLoader);
     }
 
     @ActionMethod
