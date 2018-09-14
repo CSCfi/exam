@@ -429,7 +429,7 @@ public class ReviewController extends BaseController {
     @Anonymous(filteredProperties = {"user"})
     public Result listNoShows(Long eid) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount")
+                .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
                 .fetch("exam.executionType")
                 .fetch("reservation")
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")

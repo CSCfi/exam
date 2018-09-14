@@ -236,6 +236,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                         request().body().asJson().get("question"));
                 ExamSectionQuestion esq = new ExamSectionQuestion();
                 question.setId(newId());
+                question.getOptions().forEach(o -> o.setId(newId()));
                 esq.setId(sectionQuestionId);
                 esq.setQuestion(question);
                 // Assert that the sequence number provided is within limits
