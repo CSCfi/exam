@@ -15,16 +15,18 @@
 
 package backend.system;
 
+import javax.inject.Singleton;
+
 import com.google.inject.AbstractModule;
 import play.libs.akka.AkkaGuiceSupport;
-import backend.system.actors.AssessmentSenderActor;
+
+import backend.system.actors.AssessmentTransferActor;
 import backend.system.actors.AutoEvaluationNotifierActor;
+import backend.system.actors.CollaborativeAssessmentSenderActor;
 import backend.system.actors.ExamAutoSaverActor;
 import backend.system.actors.ExamExpirationActor;
 import backend.system.actors.ReservationPollerActor;
 import backend.system.actors.ReservationReminderActor;
-
-import javax.inject.Singleton;
 
 @Singleton
 public class App extends AbstractModule implements AkkaGuiceSupport {
@@ -35,9 +37,10 @@ public class App extends AbstractModule implements AkkaGuiceSupport {
         bindActor(ExamAutoSaverActor.class, "exam-auto-saver-actor");
         bindActor(ReservationPollerActor.class, "reservation-checker-actor");
         bindActor(AutoEvaluationNotifierActor.class, "auto-evaluation-notifier-actor");
-        bindActor(AssessmentSenderActor.class, "assessment-sender-actor");
+        bindActor(AssessmentTransferActor.class, "assessment-transfer-actor");
         bindActor(ExamExpirationActor.class, "exam-expiration-actor");
         bindActor(ReservationReminderActor.class, "reservation-reminder-actor");
+        bindActor(CollaborativeAssessmentSenderActor.class, "collaborative-assessment-sender-actor");
     }
 
 }

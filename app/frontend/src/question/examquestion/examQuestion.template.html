@@ -25,8 +25,7 @@
 
                             <div class="col-md-12">
                                 <div class="col-md-1">
-                                    <img src="Images/icon_warning.png" alt="exam" onerror="this.onerror=null;this.src='Images/icon_warning.svg';"
-                                    />
+                                    <img src="Images/icon_warning.png" alt="exam" onerror="this.onerror=null;this.src='Images/icon_warning.svg';" />
                                 </div>
                                 <div class="col-md-11 warning-text">
                                     {{'sitnet_exam_question_edit_instructions' | translate}}
@@ -47,8 +46,7 @@
 
                             <div class="col-md-12">
                                 <div class="col-md-1">
-                                    <img src="Images/icon_warning.png" alt="exam" onerror="this.onerror=null;this.src='Images/icon_warning.svg';"
-                                    />
+                                    <img src="Images/icon_warning.png" alt="exam" onerror="this.onerror=null;this.src='Images/icon_warning.svg';" />
                                 </div>
                                 {{'sitnet_added_to_exams' | translate}}
                                 <div class="col-md-11 warning-text">
@@ -70,7 +68,8 @@
                 <div class="col-md-12 mart40 wide-column padl0">
                     <div class="review-list-title">{{ 'sitnet_exam_basic_information_tab' | translate }}
                         <i ng-if="$ctrl.showWarning()" class="fa fa-exclamation-circle padl20 reddish"></i>
-                        <span class="warning-text-small" ng-if="$ctrl.showWarning()">{{'sitnet_shared_question_property_info' | translate}}</span>
+                        <span class="warning-text-small" ng-if="$ctrl.showWarning()">{{'sitnet_shared_question_property_info'
+                            | translate}}</span>
                     </div>
                 </div>
 
@@ -95,9 +94,12 @@
                     </div>
                     <div class="col-md-9 padr0">
                         <span ng-if="$ctrl.question.type == 'EssayQuestion'">{{'sitnet_toolbar_essay_question' | translate}}</span>
-                        <span ng-if="$ctrl.question.type == 'ClozeTestQuestion'">{{'sitnet_toolbar_cloze_test_question' | translate}}</span>
-                        <span ng-if="$ctrl.question.type == 'MultipleChoiceQuestion'">{{'sitnet_toolbar_multiplechoice_question' | translate}}</span>
-                        <span ng-if="$ctrl.question.type == 'WeightedMultipleChoiceQuestion'">{{'sitnet_toolbar_weighted_multiplechoice_question' | translate}}</span>
+                        <span ng-if="$ctrl.question.type == 'ClozeTestQuestion'">{{'sitnet_toolbar_cloze_test_question' |
+                            translate}}</span>
+                        <span ng-if="$ctrl.question.type == 'MultipleChoiceQuestion'">{{'sitnet_toolbar_multiplechoice_question'
+                            | translate}}</span>
+                        <span ng-if="$ctrl.question.type == 'WeightedMultipleChoiceQuestion'">{{'sitnet_toolbar_weighted_multiplechoice_question'
+                            | translate}}</span>
                     </div>
                 </div>
                 <div class="col-md-12 mart40 padl0 padr0">
@@ -173,7 +175,7 @@
 
                         <div class="col-md-6 question-option-empty" ng-class="option.score > 0 ? 'question-correct-option' : ''">
                             <input id="weightedOptionText" type="text" focus-on="opt{{option.id}}" class="question-option-input" ng-model="option.option.option"
-                                ng-click="$ctrl.selectIfDefault(option.option, $event)" required="true" />
+                                ng-change="$ctrl.selectIfDefault(option.option, $event)" required="true" />
                         </div>
                         <div class="col-md-2 question-option-empty-radio" ng-class="option.score > 0 ? 'question-correct-option-radio' : ''">
                             <input fixed-precision id="optionScore" name="maxScore" class="question-option-input points" type="number" step="1" ng-model="option.score"
@@ -378,7 +380,8 @@
 
             <div class="mart20">
                 <div class="question-cancel">
-                    <button ng-disabled="!questionForm.$valid" ng-click="$ctrl.save()" type="submit" class="btn btn-success bigbutton">{{'sitnet_save' | translate}}
+                    <button ng-disabled="!questionForm.$valid" ng-click="$ctrl.save()" type="submit" class="btn btn-success bigbutton">{{'sitnet_save'
+                        | translate}}
                     </button>
                 </div>
                 <div class="question-cancel marr20">

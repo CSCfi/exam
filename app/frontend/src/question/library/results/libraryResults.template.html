@@ -4,7 +4,7 @@
             <thead>
                 <tr>
                     <th>
-                        <input type="checkbox" name="select_all" ng-model="$ctrl.allSelected" ng-click="$ctrl.selectAll()" popover-placement="top"
+                        <input type="checkbox" name="select_all" ng-model="$ctrl.allSelected" ng-change="$ctrl.selectAll()" popover-placement="top"
                             popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_check_uncheck_all' | translate }}" />
                     </th>
                     <th sort by="id" text="sitnet_question" predicate="$ctrl.questionsPredicate" reverse="$ctrl.reverse" on-sort="$ctrl.onSort()"></th>
@@ -23,7 +23,7 @@
                 <tr ng-repeat="question in $ctrl.questions | orderBy: $ctrl.questionsPredicate:$ctrl.reverse
                         | offset: $ctrl.currentPage*$ctrl.pageSize | limitTo: $ctrl.pageSize">
                     <td class="question-table-checkbox">
-                        <input type="checkbox" ng-model="question.selected" ng-click="$ctrl.questionSelected()" class="questionToUpdate" value="{{question.id}}"
+                        <input type="checkbox" ng-model="question.selected" ng-change="$ctrl.questionSelected()" class="questionToUpdate" value="{{question.id}}"
                         />
                     </td>
                     <td class="question-table-name">
@@ -53,8 +53,12 @@
                     <td>
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
                         <span ng-if="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
-                        <span ng-if="question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc' | translate}}</span>
-                        <span ng-if="question.type === 'ClozeTestQuestion'">{{ 'sitnet_toolbar_cloze_test_question' | translate }}</span>
+                        <span ng-if="question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc'
+                            | translate}}
+                        </span>
+                        <span ng-if="question.type === 'ClozeTestQuestion'">{{ 'sitnet_toolbar_cloze_test_question' | translate
+                            }}
+                        </span>
                     </td>
                     <td class="question-table-name">
                         <a ng-if="question.attachment" class="pointer" ng-click="$ctrl.downloadQuestionAttachment(question)">

@@ -155,11 +155,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                     .fetch("reservation")
                     .where()
                     .eq("user.id", user.getId())
-                    // either exam ID matches OR (exam parent ID matches AND exam is started by student)
-                    .or()
                     .eq("collaborativeExam.id", ce.getId())
-                    .eq("exam.parent.id", exam.getId())
-                    .endOr()
                     .findList();
             // already enrolled
             if (enrolments.stream().anyMatch(e -> e.getReservation() == null)) {

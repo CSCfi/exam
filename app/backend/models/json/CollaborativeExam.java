@@ -72,9 +72,9 @@ public class CollaborativeExam extends GeneratedIdentityModel {
     @JsonManagedReference
     private List<ExamEnrolment> examEnrolments;
 
-    @OneToOne(mappedBy = "collaborativeExam")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "collaborativeExam")
     @JsonManagedReference
-    private ExamParticipation examParticipation;
+    private List<ExamParticipation> examParticipations;
 
     public String getExternalRef() {
         return externalRef;
@@ -164,12 +164,12 @@ public class CollaborativeExam extends GeneratedIdentityModel {
         this.examEnrolments = examEnrolments;
     }
 
-    public ExamParticipation getExamParticipation() {
-        return examParticipation;
+    public List<ExamParticipation> getExamParticipations() {
+        return examParticipations;
     }
 
-    public void setExamParticipation(ExamParticipation examParticipation) {
-        this.examParticipation = examParticipation;
+    public void setExamParticipations(List<ExamParticipation> examParticipations) {
+        this.examParticipations = examParticipations;
     }
 
     @Transient

@@ -74,7 +74,7 @@
         </div>
         <div class="col-md-9">
             <!-- lottery on/off -->
-            <input type="checkbox" name="On" value="On" ng-disabled="$ctrl.toggleDisabled()" ng-click="$ctrl.toggleLottery()" ng-model="$ctrl.section.lotteryOn">
+            <input type="checkbox" name="On" value="On" ng-disabled="$ctrl.toggleDisabled()" ng-change="$ctrl.toggleLottery()" ng-model="$ctrl.section.lotteryOn">
             </input>
             <!-- lottery item count -->
             <span ng-show="$ctrl.section.lotteryOn && $ctrl.section.sectionQuestions.length > 1">

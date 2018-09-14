@@ -29,7 +29,7 @@ angular.module('app.question')
                 <div class="col-md-2 question-option-empty-radio" 
                         ng-class="{'question-correct-option-radio':$ctrl.option.correctOption}">
                     <input name="correctOption" type="radio" ng-model="$ctrl.option.correctOption" ng-value="true" 
-                        ng-click="$ctrl.correctAnswerToggled()"
+                        ng-change="$ctrl.correctAnswerToggled()"
                            ng-disabled="$ctrl.option.correctOption == true" class="make-inline question-option-radio">
                 </div>
         

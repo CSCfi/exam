@@ -46,9 +46,8 @@
             <div class="col-md-3 exam-basic-title">{{'sitnet_anonymous_review' | translate}}
             </div>
             <div class="col-md-9">
-                <input type="checkbox" title="anonymous" name="anonymous"
-                       ng-click="$ctrl.toggleAnonymous()" ng-model="$ctrl.exam.anonymous"
-                       ng-disabled="$ctrl.toggleAnonymousDisabled()"/>
+                <input type="checkbox" title="anonymous" name="anonymous" ng-change="$ctrl.toggleAnonymous()" ng-model="$ctrl.exam.anonymous"
+                    ng-disabled="$ctrl.toggleAnonymousDisabled()" />
             </div>
         </div>
 
@@ -109,10 +108,12 @@
             <div class="col-md-3 exam-basic-title">{{'sitnet_subject_to_language_inspection' | translate}}</div>
             <div class="col-md-9">
                 <button class="btn btn-review" ng-class="$ctrl.exam.subjectToLanguageInspection === true ? 'btn-primary' : ''" ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
-                    ng-click="$ctrl.exam.subjectToLanguageInspection = true; $ctrl.updateExam()">{{'DIALOGS_YES' | translate }}
+                    ng-click="$ctrl.exam.subjectToLanguageInspection = true; $ctrl.updateExam()">{{'DIALOGS_YES'
+                    | translate }}
                 </button>&nbsp;
                 <button class="btn btn-review" ng-class="$ctrl.exam.subjectToLanguageInspection === false ? 'btn-primary' : ''" ng-disabled="$ctrl.exam.state === 'PUBLISHED'"
-                    ng-click="$ctrl.exam.subjectToLanguageInspection = false; $ctrl.updateExam()">{{'DIALOGS_NO' | translate }}
+                    ng-click="$ctrl.exam.subjectToLanguageInspection = false; $ctrl.updateExam()">{{'DIALOGS_NO'
+                    | translate }}
                 </button>
 
             </div>
@@ -135,7 +136,8 @@
                 </sup>
             </div>
             <div class="col-md-9">
-                <button type="button" class="btn btn-primary green border-green" ng-click="$ctrl.selectAttachmentFile()">{{'sitnet_attach_file' | translate}}
+                <button type="button" class="btn btn-primary green border-green" ng-click="$ctrl.selectAttachmentFile()">{{'sitnet_attach_file'
+                    | translate}}
                 </button>
                 <div ng-show="$ctrl.exam.attachment" class="make-inline student-enrolment-exam">
                     <a class="pointer" ng-click="$ctrl.downloadExamAttachment()">

@@ -44,7 +44,7 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
     @JsonBackReference
     private Exam exam;
 
-    @OneToOne
+    @ManyToOne
     @JsonBackReference
     private CollaborativeExam collaborativeExam;
 
