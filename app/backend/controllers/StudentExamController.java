@@ -15,19 +15,31 @@
 
 package backend.controllers;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
 import akka.actor.ActorSystem;
+import akka.stream.ActorMaterializer;
+import akka.stream.IOResult;
+import akka.stream.javadsl.FileIO;
+import akka.stream.javadsl.Source;
+import akka.util.ByteString;
+import backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController;
+import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,9 +48,13 @@ import io.ebean.Ebean;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
+import org.springframework.util.StringUtils;
 import play.Environment;
+import play.Logger;
 import play.data.DynamicForm;
 import play.db.ebean.Transactional;
+import play.libs.ws.WSRequest;
+import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
@@ -66,16 +82,20 @@ public class StudentExamController extends BaseController {
     private final AutoEvaluationHandler autoEvaluationHandler;
     private final CollaborativeExamLoader collaborativeExamLoader;
     protected final Environment environment;
+    private final ExternalAttachmentLoader externalAttachmentLoader;
 
     @Inject
     public StudentExamController(EmailComposer emailComposer, ActorSystem actor,
                                  CollaborativeExamLoader collaborativeExamLoader,
-                                 AutoEvaluationHandler autoEvaluationHandler, Environment environment) {
+                                 AutoEvaluationHandler autoEvaluationHandler,
+                                 Environment environment,
+                                 ExternalAttachmentLoader externalAttachmentLoader) {
         this.emailComposer = emailComposer;
         this.actor = actor;
         this.collaborativeExamLoader = collaborativeExamLoader;
         this.autoEvaluationHandler = autoEvaluationHandler;
         this.environment = environment;
+        this.externalAttachmentLoader = externalAttachmentLoader;
     }
 
     @ActionMethod
@@ -101,6 +121,13 @@ public class StudentExamController extends BaseController {
                     return error.get();
                 }
                 Exam newExam = createNewExam(prototype, user, enrolment);
+                if (enrolment.getCollaborativeExam() != null) {
+                    try {
+                        externalAttachmentLoader.fetchExternalAttachmentsAsLocal(newExam).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        Logger.error("Could not fetch external attachments!", e);
+                    }
+                }
                 newExam.setCloned(true);
                 newExam.setDerivedMaxScores();
                 processClozeTestQuestions(newExam);
