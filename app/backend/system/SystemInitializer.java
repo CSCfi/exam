@@ -122,7 +122,7 @@ class SystemInitializer {
         ));
         tasks.put("COLLABORATIVE_EXAM_SENDER", system.scheduler().schedule(
                 Duration.create(COLLABORATIVE_ASSESSMENT_SENDER_START_AFTER_SECONDS, TimeUnit.SECONDS),
-                Duration.create(COLLABORATIVE_ASSESSMENT_SENDER_INTERVAL_MINUTES, TimeUnit.HOURS),
+                Duration.create(COLLABORATIVE_ASSESSMENT_SENDER_INTERVAL_MINUTES, TimeUnit.MINUTES),
                 collaborativeAssessmentSender, "tick", system.dispatcher(), null
         ));
         tasks.put("RESERVATION_REMINDER", system.scheduler().schedule(
