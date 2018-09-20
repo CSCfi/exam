@@ -15,16 +15,11 @@
 
 package backend.system.actors;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-import java.util.function.Function;
-import javax.inject.Inject;
-
 import akka.actor.AbstractActor;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.Query;
@@ -35,16 +30,24 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 public class CollaborativeAssessmentSenderActor extends AbstractActor {
 
     private WSClient wsClient;
+    private ExternalAttachmentLoader externalAttachmentLoader;
 
     @Inject
-    public CollaborativeAssessmentSenderActor(WSClient wsClient) {
+    public CollaborativeAssessmentSenderActor(WSClient wsClient, ExternalAttachmentLoader externalAttachmentLoader) {
         this.wsClient = wsClient;
+        this.externalAttachmentLoader = externalAttachmentLoader;
     }
 
     @Override
@@ -71,22 +74,17 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
         }).build();
     }
 
-    private JsonNode serialize(String data) throws IOException {
-        ObjectMapper om = new ObjectMapper();
-        return om.readTree(data);
-    }
-
     private static PathProperties getPath() {
         String path = "(*, exam(id, name, state, instruction, hash, duration, executionType(id, type), " + // (
-                "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
+                "examLanguages(code), attachment(id, externalId, fileName), examOwners(firstName, lastName)" +
                 "autoEvaluationConfig(*, gradeEvaluations(*, grade(*)))" +
                 "examInspections(*, user(id, firstName, lastName))" +
                 "gradeScale(*, grades(*))" +
                 "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
                 "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
-                "question(id, type, question, attachment(id, fileName), options(*))" +
+                "question(id, type, question, attachment(id, externalId, fileName), options(*))" +
                 "options(*, option(*))" +
-                "essayAnswer(id, answer, objectVersion, attachment(fileName))" +
+                "essayAnswer(id, answer, objectVersion, attachment(id, externalId, fileName))" +
                 "clozeTestAnswer(id, question, answer, objectVersion)" +
                 ")), examParticipation(started, ended)))";
         return PathProperties.parse(path);
@@ -96,7 +94,26 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
         String ref = enrolment.getCollaborativeExam().getExternalRef();
         Logger.debug("Sending back collaborative assessment for exam " + ref);
         URL url = parseUrl(ref);
+        List<CompletableFuture> futures = new ArrayList<>();
+        // Create external attachments.
+        if (enrolment.getExam().getAttachment() != null) {
+            futures.add(externalAttachmentLoader.createExternalAttachment(enrolment.getExam().getAttachment()));
+        }
+        enrolment.getExam().getExamSections().stream()
+                .flatMap(s -> s.getSectionQuestions().stream())
+                .flatMap(sq -> {
+                    List<Attachment> attachments = new ArrayList<>();
+                    if (sq.getEssayAnswer() != null && sq.getEssayAnswer().getAttachment() != null) {
+                        attachments.add(sq.getEssayAnswer().getAttachment());
+                    }
+                    if (sq.getQuestion().getAttachment() != null) {
+                        attachments.add(sq.getQuestion().getAttachment());
+                    }
+                    return attachments.stream();
+                }).forEach(a -> futures.add(externalAttachmentLoader.createExternalAttachment(a)));
+
         WSRequest request = wsClient.url(url.toString());
+        request.setContentType("application/json");
         Function<WSResponse, Void> onSuccess = response -> {
             if (response.getStatus() != 201) {
                 Logger.error("Failed in sending assessment for exam " + ref);
@@ -108,8 +125,13 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
             return null;
         };
 
-        JsonNode body =  serialize(Ebean.json().toJson(enrolment, pp));
-        request.post(body).thenApplyAsync(onSuccess);
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenComposeAsync(aVoid -> request.post(Ebean.json().toJson(enrolment, pp)))
+                .thenApplyAsync(onSuccess)
+                .exceptionally(t -> {
+                    Logger.error("Could not send assessment to xm! [id=" + enrolment.getId() + "]", t);
+                    return null;
+                });
     }
 
     private static URL parseUrl(String examRef) throws MalformedURLException {

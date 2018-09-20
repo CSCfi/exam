@@ -48,6 +48,7 @@ import io.ebean.text.PathProperties;
 import io.ebean.text.json.EJson;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
+import play.Logger;
 import play.db.ebean.Transactional;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -192,17 +193,15 @@ public class ExternalExamController extends BaseController implements ExternalEx
     }
 
     @SubjectNotPresent
-    public CompletionStage<Result> provideEnrolment(String ref) throws MalformedURLException {
+    public CompletionStage<Result> provideEnrolment(String ref) {
         ExamEnrolment enrolment = getPrototype(ref);
         if (enrolment == null) {
             return CompletableFuture.completedFuture(notFound());
         }
-        final URL attachmentUrl = parseUrl("/api/attachments/");
         final Exam exam = enrolment.getExam();
         final List<CompletableFuture<Void>> futures = new ArrayList<>();
-        final WSRequest request = wsClient.url(attachmentUrl.toString());
         if (exam.getAttachment() != null) {
-            futures.add(externalAttachmentLoader.createExternalAttachment(request, exam.getAttachment()));
+            futures.add(externalAttachmentLoader.createExternalAttachment(exam.getAttachment()));
         }
         exam.getExamSections().stream()
                 .flatMap(examSection -> examSection.getSectionQuestions().stream())
@@ -210,11 +209,14 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .filter(question -> question.getAttachment() != null)
                 .distinct()
                 .forEach(question -> futures.add(
-                        externalAttachmentLoader.createExternalAttachment(request, question.getAttachment())
+                        externalAttachmentLoader.createExternalAttachment(question.getAttachment())
                 ));
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-                .thenComposeAsync(aVoid ->
-                        wrapAsPromise(ok(exam, getPath())));
+                .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
+                .exceptionally(t -> {
+                    Logger.error("Could not provide enrolment [id=" + enrolment.getId() + "]", t);
+                    return internalServerError();
+                });
     }
 
     @SubjectNotPresent

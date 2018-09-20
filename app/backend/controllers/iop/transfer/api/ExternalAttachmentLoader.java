@@ -20,7 +20,6 @@ import backend.controllers.iop.transfer.impl.ExternalAttachmentLoaderImpl;
 import backend.models.Attachment;
 import backend.models.Exam;
 import com.google.inject.ImplementedBy;
-import play.libs.ws.WSRequest;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -28,5 +27,6 @@ import java.util.concurrent.CompletableFuture;
 public interface ExternalAttachmentLoader {
 
     CompletableFuture<Void> fetchExternalAttachmentsAsLocal(Exam exam);
-    CompletableFuture<Void> createExternalAttachment(WSRequest request, Attachment attachment);
+
+    CompletableFuture<Void> createExternalAttachment(Attachment attachment);
 }

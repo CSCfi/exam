@@ -80,7 +80,19 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
     }
 
     @Override
-    public CompletableFuture<Void> createExternalAttachment(WSRequest request, Attachment attachment) {
+    public CompletableFuture<Void> createExternalAttachment(Attachment attachment) {
+        if (attachment == null || StringUtils.isEmpty(attachment.getFilePath())) {
+            return CompletableFuture.completedFuture(null);
+        }
+        final URL attachmentUrl;
+        try {
+            attachmentUrl = parseUrl("/api/attachments/");
+        } catch (MalformedURLException e) {
+           return CompletableFuture.supplyAsync(() -> {
+               throw new RuntimeException(e);
+           });
+        }
+        final WSRequest request = wsClient.url(attachmentUrl.toString());
         return request.post("")
                 .thenAcceptAsync(response -> {
                     final JsonNode json = response.asJson();
@@ -126,8 +138,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
             try {
                 attachmentUrl = parseUrl("/api/attachments/%s/download", attachment.getExternalId());
             } catch (MalformedURLException e) {
-                Logger.error("Invalid URL!", e);
-                return;
+                throw new RuntimeException("Invalid URL!", e);
             }
             final WSRequest request = wsClient.url(attachmentUrl.toString());
             request.stream()
