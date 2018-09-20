@@ -56,7 +56,7 @@
             {{'sitnet_save' | translate}}
             </a>
         </div>
-        <div ng-show="$ctrl.exam.executionType.type==='PUBLIC'"
+        <div ng-show="$ctrl.showDelete()"
              class="review-attachment-button exam-questions-buttons marl10">
           <a class="pointer warning" ng-click="$ctrl.removeExam()">
               {{'sitnet_exam_remove' | translate}}

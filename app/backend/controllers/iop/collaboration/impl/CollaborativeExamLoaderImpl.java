@@ -127,6 +127,16 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         return defer(Results.internalServerError());
     }
 
+    public CompletionStage<Result> deleteExam(CollaborativeExam ce) {
+        final Optional<URL> url = parseUrl(ce.getExternalRef());
+        if (!url.isPresent()) {
+            return defer(Results.internalServerError());
+        }
+        final WSRequest request = wsClient.url(url.get().toString());
+        return request.delete()
+                .thenApplyAsync(response -> Results.status(response.getStatus()));
+    }
+
     private CompletionStage<Result> defer(Result result) {
         return CompletableFuture.supplyAsync(() -> result);
     }

@@ -18,6 +18,7 @@ import * as ng from 'angular';
 import * as toast from 'toastr';
 
 import { Exam, ExamSection } from '../../exam.model';
+import { SessionService } from '../../../session/session.service';
 
 
 export const SectionsListComponent: ng.IComponentOptions = {
@@ -42,7 +43,8 @@ export const SectionsListComponent: ng.IComponentOptions = {
             private $translate: ng.translate.ITranslateService,
             private $location: ng.ILocationService,
             private dialogs: angular.dialogservice.IDialogService,
-            private Exam: any
+            private Exam: any,
+            private Session: SessionService
         ) {
             'ngInject';
         }
@@ -51,9 +53,6 @@ export const SectionsListComponent: ng.IComponentOptions = {
             this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
             this.updateSectionIndices();
         }
-
-        private getResource = (url: string) => this.collaborative ?
-            url.replace('/app/exams/', '/integration/iop/exams/') : url
 
         private updateSectionIndices = () => {
             // set sections and question numbering
@@ -72,7 +71,8 @@ export const SectionsListComponent: ng.IComponentOptions = {
 
         moveSection = (section: ExamSection, from: number, to: number) => {
             if (from >= 0 && to >= 0 && from !== to) {
-                this.$http.put(this.getResource(`/app/exams/${this.exam.id}/reorder`), { from: from, to: to }).then(
+                this.$http.put(this.Exam.getResource(`/app/exams/${this.exam.id}/reorder`, this.collaborative),
+                    { from: from, to: to }).then(
                     resp => {
                         this.updateSectionIndices();
                         toast.info(this.$translate.instant('sitnet_sections_reordered'));
@@ -81,7 +81,7 @@ export const SectionsListComponent: ng.IComponentOptions = {
         }
 
         addNewSection = () => {
-            this.$http.post(this.getResource(`/app/exams/${this.exam.id}/sections`), {})
+            this.$http.post(this.Exam.getResource(`/app/exams/${this.exam.id}/sections`, this.collaborative), {})
                 .then((resp: ng.IHttpResponse<ExamSection>) => {
                     toast.success(this.$translate.instant('sitnet_section_added'));
                     this.exam.examSections.push(resp.data);
@@ -112,22 +112,12 @@ export const SectionsListComponent: ng.IComponentOptions = {
         }
 
         removeExam = () => {
-            if (this.isAllowedToUnpublishOrRemove()) {
-                const dialog = this.dialogs.confirm(
-                    this.$translate.instant('sitnet_confirm'), this.$translate.instant('sitnet_remove_exam'));
-                dialog.result.then(() => {
-                    this.$http.delete(this.getResource(`/app/exams/${this.exam.id}`)).then(() => { // TODO: COLLAB
-                        toast.success(this.$translate.instant('sitnet_exam_removed'));
-                        this.$location.path('/');
-                    }).catch(resp => toast.error(resp.data));
-                });
-            } else {
-                toast.warning(this.$translate.instant('sitnet_exam_removal_not_possible'));
-            }
+            this.Exam.removeExam(this.exam, this.collaborative);
         }
 
         removeSection = (section: ExamSection) => {
-            this.$http.delete(this.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`)).then(() => {
+            this.$http.delete(this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`))
+                .then(() => {
                 toast.info(this.$translate.instant('sitnet_section_removed'));
                 this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
                 this.updateSectionIndices();
@@ -140,12 +130,14 @@ export const SectionsListComponent: ng.IComponentOptions = {
 
         previousTab = () => this.onPreviousTabSelected();
 
+        showDelete = () => {
+            if (this.collaborative) {
+                return this.Session.getUser().isAdmin;
+            }
+            return this.exam.executionType.type === 'PUBLIC';
+        }
+
         onReloadRequired = () => this.onNewLibraryQuestion();
-
-        private isAllowedToUnpublishOrRemove = () =>
-            // allowed if no upcoming reservations and if no one has taken this yet
-            !this.exam.hasEnrolmentsInEffect && this.exam.children.length === 0
-
 
     }
 };
