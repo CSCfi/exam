@@ -18,4 +18,5 @@ public interface CollaborativeExamLoader {
     CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce);
     CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, boolean isPrePublication,
                                        Model resultModel, User sender);
+    CompletionStage<Result> deleteExam(CollaborativeExam ce);
 }

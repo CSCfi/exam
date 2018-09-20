@@ -162,7 +162,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
 
         toggleAnonymousDisabled = () => {
             return !this.Session.getUser().isAdmin ||
-                !this.isAllowedToUnpublishOrRemove();
+                !this.Exam.isAllowedToUnpublishOrRemove(this.exam, this.collaborative);
         }
 
         selectAttachmentFile = () => {
@@ -189,27 +189,18 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             this.Attachment.removeExamAttachment(this.exam, this.collaborative);
         }
 
-        removeExam = (canRemoveWithoutConfirmation: boolean) => {
-            if (this.isAllowedToUnpublishOrRemove()) {
-                const fn = () => {
-                    this.ExamRes.exams.remove({ id: this.exam.id }, () => {
-                        toast.success(this.$translate.instant('sitnet_exam_removed'));
-                        this.$location.path('/');
-                    }, error => toast.error(error.data));
-                };
-                if (canRemoveWithoutConfirmation) {
-                    fn();
-                } else {
-                    const dialog = this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
-                        this.$translate.instant('sitnet_remove_exam'));
-                    dialog.result.then(() => fn());
-                }
-            } else {
-                toast.warning(this.$translate.instant('sitnet_exam_removal_not_possible'));
-            }
+        removeExam = () => {
+            this.Exam.removeExam(this.exam, this.collaborative);
         }
 
         nextTab = () => this.onNextTabSelected();
+
+        showDelete = () => {
+            if (this.collaborative) {
+                return this.Session.getUser().isAdmin;
+            }
+            return this.exam.executionType.type === 'PUBLIC';
+        }
 
         private refreshExamTypes = () => {
             this.Exam.refreshExamTypes().then((types: ExamExecutionType[]) => {
@@ -233,10 +224,6 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                 this.exam.gradeScale = this.exam.course.gradeScale;
             }
         }
-
-        private isAllowedToUnpublishOrRemove = () =>
-            // allowed if no upcoming reservations and if no one has taken this yet
-            !this.exam.hasEnrolmentsInEffect && (!this.exam.children || this.exam.children.length === 0)
 
     }
 };

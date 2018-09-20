@@ -33,6 +33,7 @@ import org.joda.time.DateTime;
 import play.libs.Json;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 
@@ -171,17 +172,16 @@ public class CollaborativeExamController extends CollaborationController {
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
-        return downloadExam(ce).thenApplyAsync(result -> {
-            if (result.isPresent()) {
-                Exam exam = result.get();
-                if (!exam.getState().equals(Exam.State.PUBLISHED)) {
-                    return forbidden("sitnet_exam_removal_not_possible");
-                }
-                ce.delete();
-                return ok();
-            }
-            return notFound("sitnet_error_exam_not_found");
-        });
+        if (!ce.getState().equals(Exam.State.DRAFT) && !ce.getState().equals(Exam.State.PRE_PUBLISHED)) {
+            return wrapAsPromise(forbidden("sitnet_exam_removal_not_possible"));
+        }
+        return examLoader.deleteExam(ce)
+                .thenApplyAsync(result -> {
+                    if (result.status() == Http.Status.OK) {
+                        ce.delete();
+                    }
+                    return result;
+                });
     }
 
     @With(ExamUpdateSanitizer.class)

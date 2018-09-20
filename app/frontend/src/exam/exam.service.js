@@ -17,8 +17,8 @@ import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.exam')
-    .service('Exam', ['$translate', '$q', '$location', '$http', 'ExamRes', 'Question', 'Session',
-        function ($translate, $q, $location, $http, ExamRes, Question, Session) {
+    .service('Exam', ['$translate', '$q', '$location', '$http', 'ExamRes', 'Question', 'Session', 'dialogs',
+        function ($translate, $q, $location, $http, ExamRes, Question, Session, dialogs) {
 
             const self = this;
 
@@ -356,6 +356,36 @@ angular.module('app.exam')
                 const user = Session.getUser();
                 return exam && user && (user.isAdmin || self.isOwner(exam));
             };
+
+            self.removeExam = function (exam, collaborative=false) {
+                if (self.isAllowedToUnpublishOrRemove(exam, collaborative)) {
+                    const dialog = dialogs.confirm(
+                        $translate.instant('sitnet_confirm'),
+                        $translate.instant('sitnet_remove_exam'));
+                    dialog.result.then(() => {
+                        $http.delete(self.getResource(`/app/exams/${exam.id}`, collaborative)).then(() => {
+                            toast.success($translate.instant('sitnet_exam_removed'));
+                            $location.path('/');
+                        }).catch(resp => toast.error(resp.data));
+                    }).catch(angular.noop);
+                } else {
+                    toast.warning($translate.instant('sitnet_exam_removal_not_possible'));
+                }
+            }
+
+            self.getResource = function (url, collaborative=false) {
+                return collaborative ?
+                    url.replace('/app/exams/', '/integration/iop/exams/') : url;
+            }
+
+            self.isAllowedToUnpublishOrRemove = function (exam, collaborative=false) {
+                if (collaborative) {
+                    return Session.getUser().isAdmin && (exam.state === 'DRAFT'
+                        || exam.state === 'PRE_PUBLISHED');
+                }
+                // allowed if no upcoming reservations and if no one has taken this yet
+                return !exam.hasEnrolmentsInEffect && (!exam.children || exam.children.length === 0);
+            }
 
         }]);
 
