@@ -2,7 +2,8 @@
     <div class="row">
         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
             <span class="student-exam-row-title-blue">
-                <a href="/enroll/exam/{{$ctrl.exam.id}}?code={{$ctrl.exam.course.code}}">{{$ctrl.exam.name}}</a>
+                <a ng-hide="$ctrl.collaborative" href="/enroll/exam/{{$ctrl.exam.id}}?code={{$ctrl.exam.course.code}}">{{$ctrl.exam.name}}</a>
+                <span ng-show="$ctrl.collaborative">{{$ctrl.exam.name}}</span>
             </span>
             <br/>
             <span ng-if="$ctrl.exam.enrolled && !$ctrl.exam.reservationMade" class="student-exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
