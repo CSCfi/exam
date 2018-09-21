@@ -18,30 +18,37 @@ import toast from 'toastr';
 
 angular.module('app.review')
     .component('assessment', {
+        bindings: {
+            collaborative: '<'
+        },
         template: require('./assessment.template.html'),
-        controller: ['$routeParams', 'Assessment', 'ExamRes', 'Question', 'Session', 'Exam',
-            function ($routeParams, Assessment, ExamRes, Question, Session, Exam) {
+        controller: ['$routeParams', '$http', 'Assessment', 'ExamRes', 'Question', 'Session', 'Exam',
+            function ($routeParams, $http, Assessment, ExamRes, Question, Session, Exam) {
 
                 const vm = this;
 
                 vm.$onInit = function () {
-                    ExamRes.reviewerExam.get({eid: $routeParams.id},
-                        function (exam) {
-                            exam.examSections.forEach(function (es) {
-                                es.sectionQuestions.filter(function (esq) {
-                                    return esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer.answer;
-                                }).forEach(function (esq) {
-                                    esq.clozeTestAnswer.answer = JSON.parse(esq.clozeTestAnswer.answer);
-                                });
+                    const path = vm.collaborative ? `${$routeParams.id}/${$routeParams.ref}` : $routeParams.id;
+                    const url = getResource(path);
+                    $http.get(url).then(function (resp) {
+                        const participation = resp.data;
+                        const exam = participation.exam;
+                        exam.examSections.forEach(function (es) {
+                            es.sectionQuestions.filter(function (esq) {
+                                return esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer.answer;
+                            }).forEach(function (esq) {
+                                esq.clozeTestAnswer.answer = JSON.parse(esq.clozeTestAnswer.answer);
                             });
-
-                            vm.questionSummary = Question.getQuestionAmounts(exam);
-                            vm.exam = exam;
-                            vm.user = Session.getUser();
-                            vm.backUrl = vm.user.isAdmin ? '/' : '/exams/' + vm.exam.parent.id + '/4';
-                        }, function (err) {
-                            toast.error(err.data);
                         });
+
+                        vm.questionSummary = Question.getQuestionAmounts(exam);
+                        vm.exam = exam;
+                        vm.participation = participation;
+                        vm.user = Session.getUser();
+                        vm.backUrl = vm.user.isAdmin ? '/' : '/exams/' + vm.exam.parent.id + '/4';
+                    }).catch(function (err) {
+                        toast.error(err.data);
+                    });
                 };
 
                 vm.isUnderLanguageInspection = function () {
@@ -81,13 +88,17 @@ angular.module('app.review')
                     if (vm.exam.state === 'REVIEW') {
                         const state = 'REVIEW_STARTED';
                         const review = Assessment.getPayload(vm.exam, state);
-                        ExamRes.review.update({id: review.id}, review,
+                        ExamRes.review.update({ id: review.id }, review,
                             function () {
                                 vm.exam.state = state;
                             }
                         );
                     }
                 };
+
+                const getResource = function (path) {
+                    return vm.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`;
+                }
 
             }
         ]

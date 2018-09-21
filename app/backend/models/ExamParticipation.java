@@ -67,6 +67,10 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
     @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime deadline;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime sentForReview;
+
     public DateTime getDeadline() {
         return deadline;
     }
@@ -129,6 +133,14 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
 
     public void setDuration(DateTime duration) {
         this.duration = duration;
+    }
+
+    public DateTime getSentForReview() {
+        return sentForReview;
+    }
+
+    public void setSentForReview(DateTime sentForReview) {
+        this.sentForReview = sentForReview;
     }
 
     @Override

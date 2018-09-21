@@ -15,8 +15,15 @@
 
 package backend.models.questions;
 
-import backend.models.ExamSectionQuestion;
-import backend.models.base.GeneratedIdentityModel;
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.regex.Pattern;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
+
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -26,19 +33,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Transient;
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.regex.Pattern;
+import backend.models.ExamSectionQuestion;
+import backend.models.base.GeneratedIdentityModel;
 
 @Entity
 public class ClozeTestAnswer extends GeneratedIdentityModel {
 
     private static final String CLOZE_SELECTOR = "span[cloze=true]";
+
+    private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+?^$\\\\]");
 
     @Column(columnDefinition = "TEXT")
     private String answer;
@@ -165,10 +168,14 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             return false;
         }
         String precisionAttr = blank.attr("precision");
-        Double answer = Double.parseDouble(answerText);
+        double answer = Double.parseDouble(answerText);
         Double correctAnswer = Double.parseDouble(blank.text().trim());
         Double precision = precisionAttr == null ? 0.0 : Double.parseDouble(precisionAttr);
         return correctAnswer - precision <= answer && answer <= correctAnswer + precision;
+    }
+
+    private String escapeSpecialRegexChars(String input) {
+        return SPECIAL_REGEX_CHARS.matcher(input).replaceAll("\\\\$0");
     }
 
     private boolean isCorrectAnswer(Element blank, Map<String, String> answers) {
@@ -188,7 +195,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         // For escaped '\*' and '\|' we have to first replace occurrences with special
         // escape sequence until restoring them in the regex.
         final String ESC = "__!ESC__";
-        String regex = correctAnswer
+        String regex = escapeSpecialRegexChars(correctAnswer)
                 .replace("\\*", ESC)
                 .replace("*", ".*")
                 .replace(ESC, "\\*")

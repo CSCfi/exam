@@ -20,10 +20,9 @@ angular.module('app.review')
     .component('rGrading', {
         template: require('./grading.template.html'),
         bindings: {
-            exam: '<',
-            user: '<',
-            questionSummary: '<',
             onUpdate: '&'
+        }, require: {
+            parentCtrl: '^^assessment'
         },
         controller: ['$translate', '$scope', 'Assessment', 'Exam', 'ExamRes', 'Attachment', 'Language',
             function ($translate, $scope, Assessment, Exam, ExamRes, Attachment, Language) {
@@ -31,6 +30,10 @@ angular.module('app.review')
                 const vm = this;
 
                 vm.$onInit = function () {
+                    vm.exam = vm.parentCtrl.exam;
+                    vm.questionSummary = vm.parentCtrl.questionSummary;
+                    vm.collaborative = vm.parentCtrl.collaborative;
+                    vm.user = vm.parentCtrl.user;
                     vm.message = {};
                     vm.selections = {};
                     initGrade();
@@ -64,7 +67,8 @@ angular.module('app.review')
 
                 vm.getTeacherCount = function () {
                     // Do not add up if user exists in both groups
-                    const owners = vm.exam.parent.examOwners.filter(function (owner) {
+                    const examOwners = vm.collaborative ? vm.exam.examOwners : vm.exam.parent.examOwners;
+                    const owners = examOwners.filter(function (owner) {
                         return vm.exam.examInspections.map(function (inspection) {
                             return inspection.user.id;
                         }).indexOf(owner.id) === -1;

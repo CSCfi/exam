@@ -22,6 +22,9 @@ angular.module('app.review')
             exam: '<',
             reviews: '<'
         },
+        require: {
+            parentCtrl: '^^reviewList'
+        },
         controller: ['ReviewList', 'ExamRes', function (ReviewList, ExamRes) {
 
             const vm = this;
@@ -35,9 +38,14 @@ angular.module('app.review')
 
             };
 
+            vm.getLinkToAssessment = (review) =>
+                vm.parentCtrl.collaborative ? `/assessments/collaborative/${vm.exam.id}/${review._id}`
+                    : `/assessments/${review.exam.id}`
+
+
             vm.pageSelected = function (page) {
                 vm.currentPage = page;
-            }
+            };
 
             vm.applyFreeSearchFilter = () =>
                 vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items);

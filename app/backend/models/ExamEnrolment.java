@@ -63,10 +63,6 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime enrolledOn;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @JsonSerialize(using = DateTimeAdapter.class)
-    private DateTime sentForReview;
-
     private String information;
 
     private boolean reservationCanceled;
@@ -87,14 +83,6 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
 
     public void setEnrolledOn(DateTime enrolledOn) {
         this.enrolledOn = enrolledOn;
-    }
-
-    public DateTime getSentForReview() {
-        return sentForReview;
-    }
-
-    public void setSentForReview(DateTime sentForReview) {
-        this.sentForReview = sentForReview;
     }
 
     public Exam getExam() {

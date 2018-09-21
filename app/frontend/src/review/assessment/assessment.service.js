@@ -18,8 +18,8 @@ import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.review')
-    .service('Assessment', ['$q', '$resource', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Question',
-        function ($q, $resource, $translate, $location, $timeout, dialogs, ExamRes, Session, Question) {
+    .service('Assessment', ['$q', '$resource', '$routeParams', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Question',
+        function ($q, $resource, $routeParams, $translate, $location, $timeout, dialogs, ExamRes, Session, Question) {
 
             const self = this;
 
@@ -153,7 +153,11 @@ angular.module('app.review')
 
             self.getExitUrl = function (exam) {
                 const user = Session.getUser || { isAdmin: false };
-                return user.isAdmin ? '/' : '/exams/' + exam.parent.id + '/4';
+                if (user.isAdmin) {
+                    return '/';
+                }
+                const id = exam.parent ? exam.parent.id : $routeParams.id;
+                return `/exams/${id}/4`;
             };
 
             self.createExamRecord = function (exam, needsConfirmation, followUpUrl) {
