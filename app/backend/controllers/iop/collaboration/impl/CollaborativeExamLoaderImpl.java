@@ -94,6 +94,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
                 ce.setDuration(exam.getDuration());
                 ce.setHash(exam.getHash());
                 ce.setState(exam.getState());
+                ce.setAnonymous(exam.isAnonymous());
                 ce.update();
                 return Optional.of(exam);
             };

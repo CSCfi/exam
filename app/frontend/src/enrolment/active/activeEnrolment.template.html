@@ -11,7 +11,7 @@
                 <div class="student-enrolment-exam">
                     <a href="/enroll/exam/{{ $ctrl.enrolment.exam.id }}?code={{ $ctrl.enrolment.exam.course.code }}">
                         {{ $ctrl.enrolment.exam.name || $ctrl.enrolment.collaborativeExam.name}}</a>
-                    <span ng-if="$ctrl.enrolment.exam.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
+                    <span ng-if="$ctrl.enrolment.exam.anonymous || $ctrl.enrolment.collaborativeExam.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
                     <br/>
                     <span ng-if="$ctrl.enrolment.exam.state ==='PUBLISHED' && $ctrl.enrolment.reservation" class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
                     <span ng-if="$ctrl.enrolment.exam.state ==='PUBLISHED' && !$ctrl.enrolment.reservation" class="exam-needs-reservation">{{'sitnet_state_needs_reservation_title' | translate}}</span>
