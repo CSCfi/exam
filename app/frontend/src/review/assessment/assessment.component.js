@@ -31,8 +31,9 @@ angular.module('app.review')
                     const path = vm.collaborative ? `${$routeParams.id}/${$routeParams.ref}` : $routeParams.id;
                     const url = getResource(path);
                     $http.get(url).then(function (resp) {
-                        const participation = resp.data;
-                        const exam = participation.exam;
+                        // TODO: this is ugly. Should make ReviewController return a participation too
+                        const participation = vm.collaborative ? resp.data : resp.data.participation;
+                        const exam = vm.collaborative ? participation.exam : resp.data;
                         exam.examSections.forEach(function (es) {
                             es.sectionQuestions.filter(function (esq) {
                                 return esq.question.type === 'ClozeTestQuestion' && esq.clozeTestAnswer.answer;
