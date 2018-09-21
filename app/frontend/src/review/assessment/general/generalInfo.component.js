@@ -20,7 +20,8 @@ angular.module('app.review')
     .component('rGeneralInfo', {
         template: require('./generalInfo.template.html'),
         bindings: {
-            exam: '<'
+            exam: '<',
+            participation: '<'
         },
         controller: ['ExamRes', 'Attachment', 'Assessment',
             function (ExamRes, Attachment, Assessment) {
@@ -28,7 +29,6 @@ angular.module('app.review')
                 const vm = this;
 
                 vm.$onInit = function () {
-                    vm.participation = vm.exam.examParticipation;
                     const duration = moment.utc(new Date(vm.participation.duration));
                     if (duration.second() > 29) {
                         duration.add(1, 'minutes');
@@ -46,9 +46,9 @@ angular.module('app.review')
                         const previousParticipations = data.filter(function (p) {
                             return p.id !== vm.participation.id;
                         });
-                        Assessment.noShowApi.query({eid: vm.exam.id}, function (data) {
+                        Assessment.noShowApi.query({ eid: vm.exam.id }, function (data) {
                             const noShows = data.map(function (d) {
-                                return {noShow: true, started: d.reservation.startAt, exam: {state: 'no_show'}};
+                                return { noShow: true, started: d.reservation.startAt, exam: { state: 'no_show' } };
                             });
                             vm.previousParticipations = previousParticipations.concat(noShows);
                         });

@@ -20,19 +20,21 @@ angular.module('app.review')
     .component('reviewList', {
         template: require('./reviewList.template.html'),
         bindings: {
-            exam: '<'
+            exam: '<',
+            collaborative: '<'
         },
-        controller: ['$filter', '$q', '$translate', '$uibModal', 'dialogs', 'ExamRes', 'DateTime', 'Exam',
+        controller: ['$filter', '$http', '$q', '$translate', '$uibModal', 'dialogs', 'ExamRes', 'DateTime', 'Exam',
             'ReviewList', 'Files',
-            function ($filter, $q, $translate, $modal, dialogs, ExamRes, DateTime, Exam, Review,
+            function ($filter, $http, $q, $translate, $modal, dialogs, ExamRes, DateTime, Exam, Review,
                 Files) {
 
                 const vm = this;
 
                 vm.$onInit = function () {
-
-                    ExamRes.examReviews.query({ eid: vm.exam.id },
-                        function (reviews) {
+                    const url = getResource(vm.exam.id);
+                    $http.get(url).then(
+                        function (resp) {
+                            const reviews = resp.data;
                             reviews.forEach(function (r) {
                                 r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
                                 r.duration = $filter('diffInMinutesTo')(r.started, r.ended);
@@ -54,11 +56,9 @@ angular.module('app.review')
                                     !r.exam.languageInspection.finishedAt;
                             });
                             vm.rejectedReviews = filterByState(reviews, ['REJECTED']);
-                        },
-                        function (error) {
+                        }).catch(function (error) {
                             toast.error(error.data);
-                        }
-                    );
+                        });
 
                     // No-shows
                     ExamRes.noShows.query({ eid: vm.exam.id }, function (noShows) {
@@ -131,6 +131,10 @@ angular.module('app.review')
                         return states.indexOf(r.exam.state) > -1;
                     });
                 };
+
+                const getResource = function (path) {
+                    return vm.collaborative ? `/integration/iop/reviews/${path}` : `/app/reviews/${path}`;
+                }
 
 
             }

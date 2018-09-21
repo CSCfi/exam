@@ -58,7 +58,7 @@
             <tr ng-repeat="review in $ctrl.data.filtered | orderBy:$ctrl.data.predicate:$ctrl.data.reverse
                 | offset: $ctrl.data.page*$ctrl.data.pageSize | limitTo: $ctrl.data.pageSize">
                 <td class="table-column-15 table-column-bold">
-                    <a class="pointer" href="/assessments/{{review.exam.id}}">
+                    <a class="pointer" href="{{ $ctrl.getLinkToAssessment(review) }}">
                         {{review.displayName}}
                         <span ng-if="review.user.userIdentifier">
                             <br/>({{review.user.userIdentifier}})</span>

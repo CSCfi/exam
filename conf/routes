@@ -320,6 +320,9 @@ GET           /integration/iop/exams/:eid/info                         backend.c
 GET           /integration/iop/exams/:eid/calendar/:roomId             backend.controllers.iop.collaboration.impl.CollaborativeCalendarController.getSlots(eid: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer])
 POST          /integration/iop/calendar/reservation                    backend.controllers.iop.collaboration.impl.CollaborativeCalendarController.createReservation
 
+GET           /integration/iop/reviews/:id                             backend.controllers.iop.collaboration.impl.CollaborativeReviewController.listAssessments(id: Long)
+GET           /integration/iop/reviews/:id/:ref                        backend.controllers.iop.collaboration.impl.CollaborativeReviewController.getAssessment(id: Long, ref: String)
+
 ############# Integration attachments #################
 POST          /integration/iop/attachment/question                     backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToQuestion()
 DELETE        /integration/iop/attachment/exam/:eid/question/:qid      backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteQuestionAttachment(eid: Long, qid: Long)

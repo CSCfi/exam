@@ -44,7 +44,7 @@ angular.module('app.question')
             question: '<',
             lotteryOn: '<'
         },
-        controller: function () {
+        controller: ['$translate', function ($translate) {
 
             const vm = this;
 
@@ -57,6 +57,5 @@ angular.module('app.question')
                 }
             };
 
-        }
+        }]
     });
-

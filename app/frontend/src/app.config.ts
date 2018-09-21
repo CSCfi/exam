@@ -92,6 +92,9 @@ export default function configs(
 
     /* review */
     $routeProvider.when('/assessments/:id', { template: '<assessment></assessment>' });
+    $routeProvider.when('/assessments/collaborative/:id/:ref',
+        { template: '<assessment collaborative="true"></assessment>' });
+
     $routeProvider.when('/speedreview/:id', { template: '<speed-review></speed-review>' });
     $routeProvider.when('/print/exam/:id', { template: '<printed-assessment></printed-assessment>' });
 

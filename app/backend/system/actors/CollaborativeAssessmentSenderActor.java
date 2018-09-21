@@ -15,11 +15,16 @@
 
 package backend.system.actors;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import javax.inject.Inject;
+
 import akka.actor.AbstractActor;
-import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.Query;
@@ -30,14 +35,11 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 
-import javax.inject.Inject;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.ExamParticipation;
+
 
 public class CollaborativeAssessmentSenderActor extends AbstractActor {
 
@@ -54,15 +56,15 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
             Logger.debug("{}: Running collaborative assessment sender ...", getClass().getCanonicalName());
-            Query<ExamEnrolment> query = Ebean.find(ExamEnrolment.class);
+            Query<ExamParticipation> query = Ebean.find(ExamParticipation.class);
             PathProperties pp = getPath();
             pp.apply(query);
-            List<ExamEnrolment> enrolments = query.where()
+            List<ExamParticipation> enrolments = query.where()
                     .isNotNull("collaborativeExam")
                     .in("exam.state", Exam.State.ABORTED, Exam.State.REVIEW)
                     .isNull("sentForReview")
-                    .isNotNull("exam.examParticipation.started")
-                    .isNotNull("exam.examParticipation.ended")
+                    .isNotNull("started")
+                    .isNotNull("ended")
                     .findList();
             enrolments.forEach(e -> {
                 try {
@@ -78,6 +80,7 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
         String path = "(*, exam(id, name, state, instruction, hash, duration, executionType(id, type), " + // (
                 "examLanguages(code), attachment(id, externalId, fileName), examOwners(firstName, lastName)" +
                 "autoEvaluationConfig(*, gradeEvaluations(*, grade(*)))" +
+                "creditType(*), examType(*), executionType(*)" +
                 "examInspections(*, user(id, firstName, lastName))" +
                 "gradeScale(*, grades(*))" +
                 "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
@@ -86,20 +89,21 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
                 "options(*, option(*))" +
                 "essayAnswer(id, answer, objectVersion, attachment(id, externalId, fileName))" +
                 "clozeTestAnswer(id, question, answer, objectVersion)" +
-                ")), examParticipation(started, ended)))";
+                ")), examEnrolments(*, user(firstName, lastName, email), reservation(*, machine(*, room(*))) )" +
+                "))";
         return PathProperties.parse(path);
     }
 
-    private void send(ExamEnrolment enrolment, PathProperties pp) throws IOException {
-        String ref = enrolment.getCollaborativeExam().getExternalRef();
+    private void send(ExamParticipation participation, PathProperties pp) throws IOException {
+        String ref = participation.getCollaborativeExam().getExternalRef();
         Logger.debug("Sending back collaborative assessment for exam " + ref);
         URL url = parseUrl(ref);
         List<CompletableFuture> futures = new ArrayList<>();
         // Create external attachments.
-        if (enrolment.getExam().getAttachment() != null) {
-            futures.add(externalAttachmentLoader.createExternalAttachment(enrolment.getExam().getAttachment()));
+        if (participation.getExam().getAttachment() != null) {
+            futures.add(externalAttachmentLoader.createExternalAttachment(participation.getExam().getAttachment()));
         }
-        enrolment.getExam().getExamSections().stream()
+        participation.getExam().getExamSections().stream()
                 .flatMap(s -> s.getSectionQuestions().stream())
                 .flatMap(sq -> {
                     List<Attachment> attachments = new ArrayList<>();
@@ -118,18 +122,18 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
             if (response.getStatus() != 201) {
                 Logger.error("Failed in sending assessment for exam " + ref);
             } else {
-                enrolment.setSentForReview(DateTime.now());
-                enrolment.update();
+                participation.setSentForReview(DateTime.now());
+                participation.update();
                 Logger.info("Assessment for exam " + ref + " processed successfully");
             }
             return null;
         };
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-                .thenComposeAsync(aVoid -> request.post(Ebean.json().toJson(enrolment, pp)))
+                .thenComposeAsync(aVoid -> request.post(Ebean.json().toJson(participation, pp)))
                 .thenApplyAsync(onSuccess)
                 .exceptionally(t -> {
-                    Logger.error("Could not send assessment to xm! [id=" + enrolment.getId() + "]", t);
+                    Logger.error("Could not send assessment to xm! [id=" + participation.getId() + "]", t);
                     return null;
                 });
     }

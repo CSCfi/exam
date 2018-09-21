@@ -15,36 +15,23 @@
 
 package backend.controllers;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
-import backend.controllers.base.BaseController;
-import backend.impl.EmailComposer;
-import backend.models.Attachment;
-import backend.models.Comment;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamExecutionType;
-import backend.models.ExamInspection;
-import backend.models.ExamMachine;
-import backend.models.ExamParticipation;
-import backend.models.ExamSection;
-import backend.models.ExamSectionQuestion;
-import backend.models.ExamType;
-import backend.models.Grade;
-import backend.models.GradeScale;
-import backend.models.InspectionComment;
-import backend.models.LanguageInspection;
-import backend.models.Permission;
-import backend.models.Role;
-import backend.models.User;
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.questions.ClozeTestAnswer;
-import backend.models.questions.EssayAnswer;
-import backend.models.questions.Question;
-import backend.sanitizers.Attrs;
-import backend.sanitizers.CommaJoinedListSanitizer;
-import backend.system.interceptors.Anonymous;
-import backend.util.AppUtil;
-import backend.util.CsvBuilder;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -68,30 +55,18 @@ import play.mvc.Result;
 import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
-import javax.inject.Inject;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.zip.GZIPOutputStream;
+import backend.controllers.base.BaseController;
+import backend.impl.EmailComposer;
+import backend.models.*;
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.questions.ClozeTestAnswer;
+import backend.models.questions.EssayAnswer;
+import backend.models.questions.Question;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.CommaJoinedListSanitizer;
+import backend.system.interceptors.Anonymous;
+import backend.util.AppUtil;
+import backend.util.CsvBuilder;
 
 public class ReviewController extends BaseController {
 
@@ -155,9 +130,6 @@ public class ReviewController extends BaseController {
                 .eq("reservation.noShow", true)
                 .orderBy("reservation.endAt")
                 .findList();
-        if (enrolments == null) {
-            return notFound();
-        }
         return writeAnonymousResult(ok(enrolments), exam.isAnonymous());
     }
 
