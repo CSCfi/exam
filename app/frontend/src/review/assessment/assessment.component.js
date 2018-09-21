@@ -32,7 +32,7 @@ angular.module('app.review')
                     const url = getResource(path);
                     $http.get(url).then(function (resp) {
                         // TODO: this is ugly. Should make ReviewController return a participation too
-                        const participation = vm.collaborative ? resp.data : resp.data.participation;
+                        const participation = vm.collaborative ? resp.data : resp.data.examParticipation;
                         const exam = vm.collaborative ? participation.exam : resp.data;
                         exam.examSections.forEach(function (es) {
                             es.sectionQuestions.filter(function (esq) {

@@ -44,7 +44,16 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import backend.models.*;
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamMachine;
+import backend.models.ExamRoom;
+import backend.models.ExamSection;
+import backend.models.ExamSectionQuestion;
+import backend.models.Language;
+import backend.models.Reservation;
+import backend.models.User;
 import backend.models.iop.ExternalReservation;
 import backend.models.questions.Question;
 import backend.util.AppUtil;
