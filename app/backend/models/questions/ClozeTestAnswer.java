@@ -24,6 +24,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -97,10 +98,8 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         this.question = doc.body().children().toString();
     }
 
-    // This sets up the question so it can be displayed for review
-    public void setQuestionWithResults(ExamSectionQuestion esq) {
+    private void setQuestionWithResults(Document doc) {
         Map<String, String> answers = asMap(new Gson());
-        Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
         score = new Score();
         blanks.forEach(b -> {
@@ -128,6 +127,19 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             }
         });
         this.question = doc.body().children().toString();
+    }
+
+    // This sets up the question so it can be displayed for review
+    public void setQuestionWithResults(JsonNode esq) {
+        Document doc = Jsoup.parse(esq.get("question").get("question").asText());
+        setQuestionWithResults(doc);
+    }
+
+
+    // This sets up the question so it can be displayed for review
+    public void setQuestionWithResults(ExamSectionQuestion esq) {
+        Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
+        setQuestionWithResults(doc);
     }
 
     public Score getScore(ExamSectionQuestion esq) {
