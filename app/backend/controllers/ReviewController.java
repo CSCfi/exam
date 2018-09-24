@@ -150,20 +150,6 @@ public class ReviewController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getEnrolmentsForExam(Long eid) {
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("exam", "id, name")
-                .fetch("exam.course", "code")
-                .fetch("user", "id")
-                .fetch("reservation", "startAt")
-                .fetch("reservation.machine", "name")
-                .where()
-                .eq("exam.id", eid)
-                .findList();
-        return ok(enrolments);
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail", "creator", "modifier"})
     public Result getExamReview(Long eid) {
         ExpressionList<Exam> query = createQuery()

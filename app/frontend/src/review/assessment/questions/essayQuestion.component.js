@@ -20,15 +20,22 @@ angular.module('app.review')
     .component('rEssayQuestion', {
         template: require('./essayQuestion.template.html'),
         bindings: {
-            exam: '<',
             sectionQuestion: '<',
-            isScorable: '<',
             onScore: '&'
         },
-        controller: ['$sce', '$translate', 'Assessment', 'Attachment',
-            function ($sce, $translate, Assessment, Attachment) {
+        require: {
+            parentCtrl: '^^rExamSection'
+        },
+        controller: ['$sce', '$routeParams', '$translate', 'Assessment', 'Attachment',
+            function ($sce, $routeParams, $translate, Assessment, Attachment) {
 
                 const vm = this;
+
+                vm.$onInit = function () {
+                    vm.participation = vm.parentCtrl.participation;
+                    vm.exam = vm.parentCtrl.exam;
+                    vm.isScorable = vm.parentCtrl.isScorable;
+                };
 
                 vm.displayQuestionText = function () {
                     return $sce.trustAsHtml(vm.sectionQuestion.question.question);
@@ -43,10 +50,10 @@ angular.module('app.review')
                 };
 
                 vm.insertEssayScore = function () {
-                    Assessment.saveEssayScore(vm.sectionQuestion)
-                        .then(function () {
+                    Assessment.saveEssayScore(vm.sectionQuestion, $routeParams.id, $routeParams.ref, vm.participation._rev)
+                        .then(function (resp) {
                             toast.info($translate.instant('sitnet_graded'));
-                            vm.onScore();
+                            vm.onScore({ revision: resp.data ? resp.data.rev : undefined });
                         }, function (error) {
                             toast.error(error.data);
                         });

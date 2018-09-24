@@ -54,7 +54,7 @@
 
     <!-- Sections -->
     <div ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'">
-        <r-exam-section exam="$ctrl.exam" section="section" on-score="$ctrl.scoreSet()" index="$index + 1" is-scorable="(!$ctrl.isGraded() || $ctrl.isOwnerOrAdmin()) && !$ctrl.isReadOnly()">
+        <r-exam-section section="section" on-score="$ctrl.scoreSet(revision)" index="$index + 1" is-scorable="(!$ctrl.isGraded() || $ctrl.isOwnerOrAdmin()) && !$ctrl.isReadOnly()">
         </r-exam-section>
     </div>
 

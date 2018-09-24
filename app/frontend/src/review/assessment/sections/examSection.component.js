@@ -19,19 +19,26 @@ angular.module('app.review')
     .component('rExamSection', {
         template: require('./examSection.template.html'),
         bindings: {
-            exam: '<',
             section: '<',
             isScorable: '<',
             index: '<',
             onScore: '&'
+        }, require: {
+            parentCtrl: '^^assessment'
         },
         controller: ['$sce', 'Attachment',
             function ($sce, Attachment) {
 
                 const vm = this;
 
-                vm.scoreSet = function () {
-                    vm.onScore();
+                vm.$onInit = function () {
+                    vm.exam = vm.parentCtrl.exam;
+                    vm.participation = vm.parentCtrl.participation;
+                    vm.collaborative = vm.parentCtrl.collaborative;
+                };
+
+                vm.scoreSet = function (revision) {
+                    vm.onScore({ revision: revision });
                 };
 
                 vm.displayQuestionText = function () {
