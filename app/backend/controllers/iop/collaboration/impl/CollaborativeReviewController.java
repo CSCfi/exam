@@ -40,6 +40,9 @@ import play.mvc.Result;
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.models.json.CollaborativeExam;
+import backend.models.questions.ClozeTestAnswer;
+import backend.models.questions.Question;
+import backend.util.JsonDeserializer;
 
 public class CollaborativeReviewController extends BaseController {
 
@@ -63,10 +66,26 @@ public class CollaborativeReviewController extends BaseController {
         }
     }
 
-    private Result handleRemoteResponse(WSResponse response) {
+    private Result handleRemoteResponse(WSResponse response, boolean processAnswers) {
         JsonNode root = response.asJson();
         if (response.getStatus() != OK) {
             return internalServerError(root.get("message").asText("Connection refused"));
+        }
+        JsonNode examNode = root.get("exam");
+        if (processAnswers) {
+            // Manipulate cloze test answers so that they can be conveniently displayed for review
+            stream(examNode.get("examSections"))
+                    .flatMap(es -> stream(es.get("sectionQuestions")))
+                    .filter(esq -> esq.get("question").get("type").textValue().equals(Question.Type.ClozeTestQuestion.toString()))
+                    .forEach(esq -> {
+                        if (!esq.get("clozeTestAnswer").isObject()) {
+                            ((ObjectNode) esq).set("clozeTestAnswer", Json.newObject());
+                        }
+                        ClozeTestAnswer cta = JsonDeserializer.deserialize(
+                                ClozeTestAnswer.class, esq.get("clozeTestAnswer"));
+                        cta.setQuestionWithResults(esq);
+                        ((ObjectNode) esq).set("clozeTestAnswer", serialize(cta));
+                    });
         }
         return ok(root);
     }
@@ -102,7 +121,7 @@ public class CollaborativeReviewController extends BaseController {
             return wrapAsPromise(internalServerError());
         }
         WSRequest request = wsClient.url(url.get().toString());
-        return request.get().thenApplyAsync(this::handleRemoteResponse);
+        return request.get().thenApplyAsync(resp -> handleRemoteResponse(resp, false));
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
@@ -116,7 +135,7 @@ public class CollaborativeReviewController extends BaseController {
             return wrapAsPromise(internalServerError());
         }
         WSRequest request = wsClient.url(url.get().toString());
-        return request.get().thenApplyAsync(this::handleRemoteResponse);
+        return request.get().thenApplyAsync(resp -> handleRemoteResponse(resp, true));
     }
 
     private CompletionStage<Result> upload(URL url, JsonNode payload) {

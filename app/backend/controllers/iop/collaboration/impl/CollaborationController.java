@@ -1,6 +1,5 @@
 package backend.controllers.iop.collaboration.impl;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -11,7 +10,6 @@ import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Model;
 import org.joda.time.DateTime;
@@ -80,17 +78,6 @@ public class CollaborationController extends BaseController {
     CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, boolean isPrePublication,
                                        Model resultModel, User sender) {
         return examLoader.uploadExam(ce, content, isPrePublication, resultModel, sender);
-    }
-
-    JsonNode serialize(Exam exam) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            String json = mapper.writeValueAsString(exam);
-            return mapper.readTree(json);
-        } catch (IOException e) {
-            Logger.error("unable to serialize");
-            throw new RuntimeException(e);
-        }
     }
 
     boolean isAuthorizedToView(Exam exam, User user, Role.Name loginRole) {

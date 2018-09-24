@@ -73,10 +73,10 @@ export const SectionsListComponent: ng.IComponentOptions = {
             if (from >= 0 && to >= 0 && from !== to) {
                 this.$http.put(this.Exam.getResource(`/app/exams/${this.exam.id}/reorder`, this.collaborative),
                     { from: from, to: to }).then(
-                    resp => {
-                        this.updateSectionIndices();
-                        toast.info(this.$translate.instant('sitnet_sections_reordered'));
-                    }).catch(resp => toast.error(resp.data));
+                        resp => {
+                            this.updateSectionIndices();
+                            toast.info(this.$translate.instant('sitnet_sections_reordered'));
+                        }).catch(resp => toast.error(resp.data));
             }
         }
 
@@ -91,7 +91,7 @@ export const SectionsListComponent: ng.IComponentOptions = {
 
         updateExam = (silent: boolean) => {
             const deferred: ng.IDeferred<void> = this.$q.defer();
-            this.Exam.updateExam(this.exam).then(() => {
+            this.Exam.updateExam(this.exam, {}, this.collaborative).then(() => {
                 if (!silent) {
                     toast.info(this.$translate.instant('sitnet_exam_saved'));
                 }
@@ -118,10 +118,10 @@ export const SectionsListComponent: ng.IComponentOptions = {
         removeSection = (section: ExamSection) => {
             this.$http.delete(this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`))
                 .then(() => {
-                toast.info(this.$translate.instant('sitnet_section_removed'));
-                this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
-                this.updateSectionIndices();
-            }).catch(resp => toast.error(resp.data));
+                    toast.info(this.$translate.instant('sitnet_section_removed'));
+                    this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
+                    this.updateSectionIndices();
+                }).catch(resp => toast.error(resp.data));
         }
 
         calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);

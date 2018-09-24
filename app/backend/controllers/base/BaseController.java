@@ -29,13 +29,14 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import backend.models.Role;
-import backend.system.interceptors.AnonymousJsonAction;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
+import play.Logger;
 import play.cache.SyncCacheApi;
 import play.data.Form;
 import play.data.FormFactory;
@@ -50,9 +51,11 @@ import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamParticipation;
 import backend.models.Reservation;
+import backend.models.Role;
 import backend.models.Session;
 import backend.models.User;
 import backend.models.api.CountsAsTrial;
+import backend.system.interceptors.AnonymousJsonAction;
 
 public class BaseController extends Controller {
 
@@ -257,5 +260,16 @@ public class BaseController extends Controller {
 
     private Result withAnonymousHeader(Result result) {
         return result.withHeader(AnonymousJsonAction.ANONYMOUS_HEADER, Boolean.TRUE.toString());
+    }
+
+    protected JsonNode serialize(Object o) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String json = mapper.writeValueAsString(o);
+            return mapper.readTree(json);
+        } catch (IOException e) {
+            Logger.error("unable to serialize");
+            throw new RuntimeException(e);
+        }
     }
 }
