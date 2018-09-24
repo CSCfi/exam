@@ -18,8 +18,8 @@ import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.review')
-    .service('Assessment', ['$q', '$resource', '$routeParams', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Question',
-        function ($q, $resource, $routeParams, $translate, $location, $timeout, dialogs, ExamRes, Session, Question) {
+    .service('Assessment', ['$q', '$http', '$resource', '$routeParams', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Question',
+        function ($q, $http, $resource, $routeParams, $translate, $location, $timeout, dialogs, ExamRes, Session, Question) {
 
             const self = this;
 
@@ -192,15 +192,14 @@ angular.module('app.review')
                 }
             };
 
-            self.saveEssayScore = function (question) {
+            self.saveEssayScore = function (question, examId, examRef, rev) {
                 if (!question.essayAnswer || isNaN(question.essayAnswer.evaluatedScore)) {
                     return $q.reject();
                 }
+                const url = examId && examRef ? `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}` :
+                    `/app/review/examquestion/${question.id}/score`;
 
-                return Question.essayScoreApi.update({
-                    id: question.id,
-                    evaluatedScore: question.essayAnswer.evaluatedScore
-                }).$promise;
+                return $http.put(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });
             };
 
             self.saveAssessmentInfo = function (exam) {

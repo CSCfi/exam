@@ -135,7 +135,6 @@ PUT           /app/reviews/archive                                     backend.c
 GET           /app/review/info/:eid                                    backend.controllers.ReviewController.getExamStudentInfo(eid: Long)
 GET           /app/exams/:eid/reservation                              backend.controllers.ReviewController.getReservationInformationForExam(eid: Long)
 GET           /app/review/:eid                                         backend.controllers.ReviewController.getExamReview(eid: Long)
-GET           /app/examenrolments/:eid                                 backend.controllers.ReviewController.getEnrolmentsForExam(eid: Long)
 GET           /app/examparticipations/:eid                             backend.controllers.ReviewController.getParticipationsForExamAndUser(eid: Long)
 GET           /app/usernoshows/:eid                                    backend.controllers.ReviewController.listNoShowsForExamAndUser(eid: Long)
 POST          /app/email/inspection/:eid                               backend.controllers.ReviewController.sendInspectionMessage(eid: Long)
@@ -322,6 +321,7 @@ POST          /integration/iop/calendar/reservation                    backend.c
 
 GET           /integration/iop/reviews/:id                             backend.controllers.iop.collaboration.impl.CollaborativeReviewController.listAssessments(id: Long)
 GET           /integration/iop/reviews/:id/:ref                        backend.controllers.iop.collaboration.impl.CollaborativeReviewController.getAssessment(id: Long, ref: String)
+PUT           /integration/iop/reviews/:id/:ref/question/:qid          backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAnswerScore(id: Long, ref: String, qid: Long)
 
 ############# Integration attachments #################
 POST          /integration/iop/attachment/question                     backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToQuestion()

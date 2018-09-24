@@ -19,14 +19,19 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import play.Logger;
+import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
@@ -66,6 +71,26 @@ public class CollaborativeReviewController extends BaseController {
         return ok(root);
     }
 
+    private Stream<JsonNode> stream(JsonNode node) {
+        return StreamSupport.stream(node.spliterator(), false);
+    }
+
+    private void scoreAnswer(JsonNode examNode, Long qid, Double score) {
+        stream(examNode.get("examSections"))
+                .flatMap(es -> stream(es.get("sectionQuestions")))
+                .filter(esq -> esq.get("id").asLong() == qid)
+                .findAny()
+                .ifPresent(esq -> {
+                    JsonNode essayAnswer = esq.get("essayAnswer");
+                    if (essayAnswer.isObject()) {
+                        ((ObjectNode) essayAnswer).put("evaluatedScore", score);
+                    } else {
+                        ((ObjectNode) essayAnswer).set("essayAnswer",
+                                Json.newObject().put("evaluatedScore", score));
+                    }
+                });
+    }
+
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public CompletionStage<Result> listAssessments(Long id) {
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
@@ -92,6 +117,47 @@ public class CollaborativeReviewController extends BaseController {
         }
         WSRequest request = wsClient.url(url.get().toString());
         return request.get().thenApplyAsync(this::handleRemoteResponse);
+    }
+
+    private CompletionStage<Result> upload(URL url, JsonNode payload) {
+        WSRequest request = wsClient.url(url.toString());
+        Function<WSResponse, Result> onSuccess = response -> {
+            if (response.getStatus() != OK) {
+                JsonNode root = response.asJson();
+                return internalServerError(root.get("message").asText());
+            }
+            return ok(Json.newObject().put("rev", response.asJson().get("rev").textValue()));
+        };
+        return request.put(payload).thenApplyAsync(onSuccess);
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public CompletionStage<Result> updateAnswerScore(Long id, String ref, Long qid) {
+        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
+        if (ce == null) {
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+        }
+        Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
+        if (!url.isPresent()) {
+            return wrapAsPromise(internalServerError());
+        }
+        JsonNode body = request().body().asJson();
+        String input = body.get("evaluatedScore").asText();
+        Double score = input == null ? null : Double.parseDouble(input);
+        String revision = body.get("rev").asText();
+        WSRequest request = wsClient.url(url.get().toString());
+        Function<WSResponse, CompletionStage<Result>> onSuccess = (response) -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != OK) {
+                return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+            }
+            scoreAnswer(root.get("exam"), qid, score);
+            ((ObjectNode) root).put("rev", revision);
+            return upload(url.get(), root);
+        };
+        return request.get().thenComposeAsync(onSuccess);
+
+
     }
 
 }

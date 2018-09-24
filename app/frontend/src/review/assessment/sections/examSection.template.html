@@ -2,14 +2,13 @@
     <div class="review-border">
         <div class="padt50 padl30 padr30">
             <div class="col-md-12 review-list-title padl0">
-                 {{$ctrl.index}}. &nbsp; &nbsp;{{$ctrl.section.name}}
+                {{$ctrl.index}}. &nbsp; &nbsp;{{$ctrl.section.name}}
             </div>
         </div>
         <div class="detail-row padr0 padl0 mar0" ng-show="$ctrl.section.description">
             <div class="col-md-12 padr0 padl0">
                 <div class="padl30 mart20">
-                    <img src="Images/icon_info.svg" alt="exam"
-                         onerror="this.onerror=null;this.src='Images/icon_info.png'" />
+                    <img src="Images/icon_info.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_info.png'" />
                     <span class="padl10 notice-text">{{$ctrl.section.description}}</span></div>
             </div>
         </div>
@@ -19,8 +18,7 @@
                     <r-multi-choice-question section-question="sq"></r-multi-choice-question>
                 </div>
                 <div ng-if="sq.question.type === 'EssayQuestion'">
-                    <r-essay-question section-question="sq" exam="$ctrl.exam" on-score="$ctrl.scoreSet()"
-                                      is-scorable="$ctrl.isScorable">
+                    <r-essay-question section-question="sq" on-score="$ctrl.scoreSet(revision)">
                     </r-essay-question>
                 </div>
                 <div ng-if="sq.question.type === 'WeightedMultipleChoiceQuestion'">

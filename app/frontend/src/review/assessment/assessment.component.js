@@ -63,7 +63,8 @@ angular.module('app.review')
                     window.open('/print/exam/' + vm.exam.id, '_blank');
                 };
 
-                vm.scoreSet = function () {
+                vm.scoreSet = function (revision) {
+                    vm.participation._rev = revision;
                     angular.extend(vm.questionSummary, Question.getQuestionAmounts(vm.exam));
                     startReview();
                 };
