@@ -60,6 +60,7 @@
                         </li>
                     </ul>
                 </th>
+                <th ng-if="$ctrl.showId()" class="with-top">Id</th>
                 <th class="with-top" sort by="displayName" text="sitnet_student" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
                 <th class="with-top" sort by="user.email" text="sitnet_email" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
                 <th class="with-top" sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
@@ -78,6 +79,7 @@
                 <td class="table-column-checkbox">
                     <input type="checkbox" ng-model="review.selected" class="selectionBox" value="{{review.exam.id}}" />
                 </td>
+                <td ng-if="$ctrl.showId()">{{ review._id || review.exam.id }}</td>
                 <td class="table-column-13 table-column-bold">
                     <a class="pointer" href="{{ $ctrl.getLinkToAssessment(review) }}">
                         {{review.displayName}}

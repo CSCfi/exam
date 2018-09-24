@@ -28,8 +28,8 @@ angular.module('app.review')
         require: {
             parentCtrl: '^^reviewList'
         },
-        controller: ['$q', '$filter', '$translate', 'dialogs', 'ReviewList', 'Files', 'Exam', 'ExamRes',
-            function ($q, $filter, $translate, dialogs, ReviewList, Files, Exam, ExamRes) {
+        controller: ['$q', '$filter', '$translate', 'dialogs', 'ReviewList', 'Files', 'Exam', 'ExamRes', 'Session',
+            function ($q, $filter, $translate, dialogs, ReviewList, Files, Exam, ExamRes, Session) {
 
                 const vm = this;
 
@@ -53,6 +53,8 @@ angular.module('app.review')
                         vm.applyFreeSearchFilter();
                     }
                 };
+
+                vm.showId = () => Session.getUser().isAdmin && vm.exam.anonymous;
 
                 vm.pageSelected = function (page) {
                     vm.currentPage = page;
@@ -111,7 +113,7 @@ angular.module('app.review')
                 const examCredit = (courseCredit, customCredit) => customCredit ? customCredit : courseCredit;
 
                 const handleGradedReviews = r => {
-                    r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
+                    r.displayName = ReviewList.getDisplayName(r, vm.parentCtrl.collaborative);
                     r.displayedGradingTime = r.exam.languageInspection ?
                         r.exam.languageInspection.finishedAt : r.exam.gradedTime;
                     r.displayedGrade = translateGrade(r.exam);

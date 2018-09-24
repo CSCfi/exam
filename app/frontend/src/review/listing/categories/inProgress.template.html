@@ -34,7 +34,7 @@
                 <img class="nopad" src="Images/icon_search.png" width="49" height="40">
             </div>
         </div>
-        <div ng-hide="$ctrl.exam.executionType.type==='MATURITY'" class="review-attachment-button review-list-speed-button marr20">
+        <div ng-hide="$ctrl.exam.executionType.type==='MATURITY' || $ctrl.parentCtrl.collaborative" class="review-attachment-button review-list-speed-button marr20">
             <a class="pointer" href="/speedreview/{{$ctrl.exam.id}}">
                 {{'sitnet_speed_review' | translate}} ({{$ctrl.data.filtered.length}})
             </a>
@@ -44,6 +44,7 @@
     <table class="table table-striped exams-table">
         <thead>
             <tr>
+                <th ng-if="$ctrl.showId()" class="with-top">Id</th>
                 <th class="with-top" sort by="displayName" text="sitnet_student" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
                 <th class="with-top" sort by="user.email" text="sitnet_email" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
                 <th class="with-top" sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
@@ -57,6 +58,7 @@
         <tbody>
             <tr ng-repeat="review in $ctrl.data.filtered | orderBy:$ctrl.data.predicate:$ctrl.data.reverse
                 | offset: $ctrl.data.page*$ctrl.data.pageSize | limitTo: $ctrl.data.pageSize">
+                <td ng-if="$ctrl.showId()">{{ review._id || review.exam.id }}</td>
                 <td class="table-column-15 table-column-bold">
                     <a class="pointer" href="{{ $ctrl.getLinkToAssessment(review) }}">
                         {{review.displayName}}

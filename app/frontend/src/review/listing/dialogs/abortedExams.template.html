@@ -14,6 +14,7 @@
         <table class="table table-striped exams-table">
             <thead ng-init="$ctrl.abortedPredicate = 'started'">
             <tr>
+                <th ng-if="$ctrl.showId()">Id</th>
                 <th sort by="displayName" text="sitnet_student" predicate="$ctrl.abortedPredicate" reverse="$ctrl.reverse"></th>
                 <th sort by="user.email" text="sitnet_email" predicate="$ctrl.abortedPredicate" reverse="$ctrl.reverse"></th>
                 <th sort by="started" text="sitnet_exam_duration" predicate="$ctrl.abortedPredicate" reverse="$ctrl.reverse"></th>
@@ -25,6 +26,7 @@
 
             <tbody>
             <tr ng-repeat="review in $ctrl.abortedExams | orderBy:$ctrl.abortedPredicate:$ctrl.reverse">
+                <td ng-if="$ctrl.showId()">{{ review._id || review.exam.id }}</td>
                 <td class="table-column-examname">
                     {{review.displayName}}
                     <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>

@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
+import backend.system.interceptors.Anonymous;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -68,7 +69,7 @@ public class CollaborativeReviewController extends CollaborationController {
         }
     }
 
-    private Result handleSingleAssessmentResponse(WSResponse response) {
+    private Result handleSingleAssessmentResponse(WSResponse response, boolean admin) {
         JsonNode root = response.asJson();
         if (response.getStatus() != OK) {
             return internalServerError(root.get("message").asText("Connection refused"));
@@ -89,10 +90,10 @@ public class CollaborativeReviewController extends CollaborationController {
                     ((ObjectNode) esq).set("clozeTestAnswer", serialize(cta));
                 });
 
-        return ok(root);
+        return writeAnonymousResult(ok(root), true, admin);
     }
 
-    private Result handleMultipleAssesmentResponse(WSResponse response) {
+    private Result handleMultipleAssesmentResponse(WSResponse response, boolean admin) {
         JsonNode root = response.asJson();
         if (response.getStatus() != OK) {
             return internalServerError(root.get("message").asText("Connection refused"));
@@ -106,7 +107,7 @@ public class CollaborativeReviewController extends CollaborationController {
             exam.setTotalScore();
             ((ObjectNode) ep).set("exam", serialize(exam));
         });
-        return ok(root);
+        return writeAnonymousResult(ok(root), true, admin);
     }
 
     private Stream<JsonNode> stream(JsonNode node) {
@@ -130,6 +131,7 @@ public class CollaborativeReviewController extends CollaborationController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Anonymous(filteredProperties = {"user"})
     public CompletionStage<Result> listAssessments(Long id) {
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
         if (ce == null) {
@@ -140,10 +142,12 @@ public class CollaborativeReviewController extends CollaborationController {
             return wrapAsPromise(internalServerError());
         }
         WSRequest request = wsClient.url(url.get().toString());
-        return request.get().thenApplyAsync(this::handleMultipleAssesmentResponse);
+        final boolean admin = isUserAdmin();
+        return request.get().thenApplyAsync(response -> handleMultipleAssesmentResponse(response, admin));
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Anonymous(filteredProperties = {"user"})
     public CompletionStage<Result> getAssessment(Long id, String ref) {
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
         if (ce == null) {
@@ -154,7 +158,8 @@ public class CollaborativeReviewController extends CollaborationController {
             return wrapAsPromise(internalServerError());
         }
         WSRequest request = wsClient.url(url.get().toString());
-        return request.get().thenApplyAsync(this::handleSingleAssessmentResponse);
+        final boolean admin = isUserAdmin();
+        return request.get().thenApplyAsync(response -> handleSingleAssessmentResponse(response, admin));
     }
 
     private CompletionStage<Result> upload(URL url, JsonNode payload) {

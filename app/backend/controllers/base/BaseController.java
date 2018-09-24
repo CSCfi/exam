@@ -239,15 +239,23 @@ public class BaseController extends Controller {
         return CompletableFuture.supplyAsync(() -> result);
     }
 
+    protected boolean isUserAdmin() {
+        return getLoggedUser().hasRole(Role.Name.ADMIN.toString(), getSession());
+    }
+
     protected Double round(Double src) {
         return src == null ? null : Math.round(src * HUNDRED) / HUNDRED;
     }
 
-    protected Result writeAnonymousResult(Result result, boolean anonymous) {
-        if (anonymous && !getLoggedUser().hasRole(Role.Name.ADMIN.toString(), getSession())) {
+    protected Result writeAnonymousResult(Result result, boolean anonymous, boolean admin) {
+        if (anonymous && !admin) {
             return withAnonymousHeader(result);
         }
         return result;
+    }
+
+    protected Result writeAnonymousResult(Result result, boolean anonymous) {
+        return writeAnonymousResult(result, anonymous, isUserAdmin());
     }
 
     protected Result writeAnonymousResult(Result result, Set<Long> anonIds) {
