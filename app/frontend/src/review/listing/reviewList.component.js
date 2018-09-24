@@ -61,9 +61,14 @@ angular.module('app.review')
                         });
 
                     // No-shows
-                    ExamRes.noShows.query({ eid: vm.exam.id }, function (noShows) {
-                        vm.noShows = noShows;
-                    });
+                    if (vm.collaborative) {
+                        //TODO: Fetch collaborative no-shows from xm.
+                        vm.noShows = [];
+                    } else {
+                        ExamRes.noShows.query({eid: vm.exam.id}, function (noShows) {
+                            vm.noShows = noShows;
+                        });
+                    }
                 };
 
                 vm.onArchive = function (reviews) {
