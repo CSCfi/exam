@@ -76,6 +76,9 @@ public class CollaborativeExam extends GeneratedIdentityModel {
     @JsonManagedReference
     private List<ExamParticipation> examParticipations;
 
+    @Column
+    private boolean anonymous;
+
     public String getExternalRef() {
         return externalRef;
     }
@@ -170,6 +173,14 @@ public class CollaborativeExam extends GeneratedIdentityModel {
 
     public void setExamParticipations(List<ExamParticipation> examParticipations) {
         this.examParticipations = examParticipations;
+    }
+
+    public boolean isAnonymous() {
+        return anonymous;
+    }
+
+    public void setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
     }
 
     @Transient

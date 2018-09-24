@@ -66,10 +66,12 @@ public class CollaborationController extends BaseController {
                 .forEach(node -> {
                     String ref = node.get("_id").asText();
                     String rev = node.get("_rev").asText();
+                    final boolean anonymous = node.get("anonymous").booleanValue();
                     CollaborativeExam ce = new CollaborativeExam();
                     ce.setExternalRef(ref);
                     ce.setRevision(rev);
                     ce.setCreated(DateTime.now());
+                    ce.setAnonymous(anonymous);
                     ce.save();
                     locals.put(ref, ce);
                 });
