@@ -22,7 +22,7 @@ describe('AssessmentController', function () {
     let scope;
     let mockHttp;
     let mockUser = {id: 1, isAdmin: true};
-    let mockExam = {id: 1, state: 'REVIEW', examSections: []};
+    let mockExam = {id: 1, state: 'REVIEW', examParticipation: {}, examSections: []};
 
     beforeEach(inject(function ($rootScope, $componentController, $httpBackend) {
         scope = $rootScope.$new();
@@ -43,7 +43,7 @@ describe('AssessmentController', function () {
 
     it('should start review when score is set', function () {
         expect(ctrl.exam.state).toBe('REVIEW');
-        ctrl.scoreSet();
+        ctrl.scoreSet({revision: undefined});
         mockHttp.flush();
         expect(ctrl.exam.state).toBe('REVIEW_STARTED');
     });
