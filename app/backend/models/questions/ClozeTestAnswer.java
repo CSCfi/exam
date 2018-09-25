@@ -72,7 +72,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         return clozeTestAnswer;
     }
 
-    // This sets up the question so that it can be displayed to student;
+    // This sets up the question so that it can be displayed to student
     public void setQuestion(ExamSectionQuestion esq) {
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
@@ -134,7 +134,6 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         Document doc = Jsoup.parse(esq.get("question").get("question").asText());
         setQuestionWithResults(doc);
     }
-
 
     // This sets up the question so it can be displayed for review
     public void setQuestionWithResults(ExamSectionQuestion esq) {

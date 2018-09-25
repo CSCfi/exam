@@ -30,21 +30,28 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
+import org.joda.time.DateTime;
 import play.Logger;
+import play.data.DynamicForm;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 
-import backend.controllers.base.BaseController;
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
+import backend.models.Exam;
+import backend.models.ExamType;
+import backend.models.Grade;
+import backend.models.GradeScale;
+import backend.models.Role;
+import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.Question;
 import backend.util.JsonDeserializer;
 
-public class CollaborativeReviewController extends BaseController {
+public class CollaborativeReviewController extends CollaborationController {
 
     @Inject
     CollaborativeExamLoader examLoader;
@@ -175,8 +182,80 @@ public class CollaborativeReviewController extends BaseController {
             return upload(url.get(), root);
         };
         return request.get().thenComposeAsync(onSuccess);
-
-
     }
+
+    private void updateReviewState(Exam exam, Exam.State newState, boolean stateOnly) {
+        exam.setState(newState);
+        // set grading info only if exam is really graded, not just modified
+        if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)) {
+            if (!stateOnly) {
+                exam.setGradedTime(DateTime.now());
+                exam.setGradedByUser(getLoggedUser());
+            }
+        }
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result reviewExam(Long id) {
+        DynamicForm df = formFactory.form().bindFromRequest();
+        Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator").where().idEq(id).findOne();
+        if (exam == null) {
+            return notFound("sitnet_exam_not_found");
+        }
+        User user = getLoggedUser();
+        final Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
+        Exam.State newState = Exam.State.valueOf(df.get("state"));
+        if (!isAuthorizedToView(exam, user, loginRole)) {
+            return forbidden("You are not allowed to modify this object");
+        }
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
+            return forbidden("Not allowed to update grading of this exam");
+        }
+
+
+        Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
+        String additionalInfo = df.get("additionalInfo");
+        if (grade != null) {
+            Grade examGrade = Ebean.find(Grade.class, grade);
+            GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
+            if (scale.getGrades().contains(examGrade)) {
+                exam.setGrade(examGrade);
+                exam.setGradeless(false);
+            } else {
+                return badRequest("Invalid grade for this grade scale");
+            }
+        } else if (df.get("gradeless").equals("true")) {
+            exam.setGrade(null);
+            exam.setGradeless(true);
+        } else {
+            exam.setGrade(null);
+        }
+        String creditType = df.get("creditType.type");
+        if (creditType == null) {
+            creditType = df.get("creditType");
+        }
+        if (creditType != null) {
+            ExamType eType = Ebean.find(ExamType.class)
+                    .where()
+                    .eq("type", creditType)
+                    .findOne();
+            if (eType != null) {
+                exam.setCreditType(eType);
+            }
+        } else {
+            exam.setCreditType(null);
+        }
+        exam.setAdditionalInfo(additionalInfo);
+        exam.setAnswerLanguage(df.get("answerLanguage"));
+
+        if (df.get("customCredit") != null) {
+            exam.setCustomCredit(Double.parseDouble(df.get("customCredit")));
+        } else {
+            exam.setCustomCredit(null);
+        }
+        updateReviewState(exam, newState, false);
+        return ok();
+    }
+
 
 }
