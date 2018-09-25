@@ -43,6 +43,8 @@ import backend.models.ExamParticipation;
 
 public class CollaborativeAssessmentSenderActor extends AbstractActor {
 
+    private static final int STATUS_CREATED = 201;
+
     private WSClient wsClient;
     private ExternalAttachmentLoader externalAttachmentLoader;
 
@@ -119,7 +121,7 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
         WSRequest request = wsClient.url(url.toString());
         request.setContentType("application/json");
         Function<WSResponse, Void> onSuccess = response -> {
-            if (response.getStatus() != 201) {
+            if (response.getStatus() != STATUS_CREATED) {
                 Logger.error("Failed in sending assessment for exam " + ref);
             } else {
                 participation.setSentForReview(DateTime.now());

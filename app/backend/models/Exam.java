@@ -553,7 +553,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private Exam createCopy(User user, boolean produceStudentExam, boolean setParent) {
         Exam clone = new Exam();
         BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipation",
-                "examInspections", "autoEvaluationConfig", "creator", "created", produceStudentExam ? "examOwners" : "none");
+                "examInspections", "autoEvaluationConfig", "creator", "created");
         if (setParent) {
             clone.setParent(this);
         }

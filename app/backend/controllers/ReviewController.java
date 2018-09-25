@@ -664,7 +664,6 @@ public class ReviewController extends BaseController {
                 notifyPartiesAboutPrivateExamRejection(exam);
             }
         }
-        exam.generateHash();
         exam.update();
         return ok();
     }
