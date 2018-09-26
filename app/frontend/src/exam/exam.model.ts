@@ -90,6 +90,11 @@ export interface CollaborativeExam {
     examLanguages: ExamLanguage[];
 }
 
+export interface Participation {
+    id: number;
+    exam: Exam;
+}
+
 export interface Exam {
     id: number;
     attachment: Attachment | null;

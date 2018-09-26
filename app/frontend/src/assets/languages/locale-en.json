@@ -887,5 +887,7 @@
   "sitnet_pre_published": "Esijulkaistu EN",
   "sitnet_pre_publish_exam_confirm": "Oletko varma, että haluat esijulkaista tentin? Tämän jälkeen opettajat pääsevät muokkaamaan tenttiä EN",
   "sitnet_pre_publish_exam_confirm_dialog_title": "Tentin esijulkaisu EN",
-  "sitnet_anonymous_review": "Anonymous assessment"
+  "sitnet_anonymous_review": "Anonymous assessment",
+  "sitnet_collaborative_exam_responses": "Yhteistenttien suoritukset EN",
+  "sitnet_collaborative_exam_response_search_description": "Voit hakea yhteistenttien suorituksia tentin nimen mukaan. EN"
 }

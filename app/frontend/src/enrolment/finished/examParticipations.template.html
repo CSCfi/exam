@@ -3,14 +3,20 @@
     <!-- Finished exams list -->
     <div class="top-row">
         <div class="student-details-title-wrap">
-            <div class="student-exam-details-title nomar marl15">{{'sitnet_exam_responses' | translate}}</div>
+            <div class="student-exam-details-title nomar marl15">
+                <span ng-hide="$ctrl.collaborative">{{'sitnet_exam_responses' | translate}}</span>
+                <span ng-show="$ctrl.collaborative">{{'sitnet_collaborative_exam_responses' | translate}}</span>
+            </div>
         </div>
     </div>
 
     <div>
         <div class="student-details-title-wrap padleft">
-            <span class="form-group">
+            <span ng-hide="$ctrl.collaborative" class="form-group">
                 <img class="nopad" src="Images/icon_info.png"> &nbsp;{{ 'sitnet_exam_response_search_description' | translate }}
+            </span>
+            <span ng-show="$ctrl.collaborative" class="form-group">
+                <img class="nopad" src="Images/icon_info.png"> &nbsp;{{ 'sitnet_collaborative_exam_response_search_description' | translate }}
             </span>
         </div>
     </div>
@@ -66,7 +72,7 @@
         | orderBy: $ctrl.filter.ordering
         | offset: $ctrl.currentPage*$ctrl.pageSize
         | limitTo: $ctrl.pageSize">
-            <exam-participation participation="participation"></exam-participation>
+            <exam-participation participation="participation" collaborative="$ctrl.collaborative"></exam-participation>
         </div>
     </div>
 

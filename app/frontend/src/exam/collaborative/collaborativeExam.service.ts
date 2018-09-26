@@ -16,7 +16,7 @@
 import * as ng from 'angular';
 import * as toast from 'toastr';
 import { SessionService } from '../../session/session.service';
-import { CollaborativeExam } from '../exam.model';
+import { CollaborativeExam, Participation } from '../exam.model';
 
 export class CollaborativeExamService {
 
@@ -28,6 +28,18 @@ export class CollaborativeExamService {
         private Session: SessionService) {
 
         'ngInject';
+    }
+
+    listStudentParticipations(): ng.IPromise<Participation[]> {
+        const deferred: ng.IDeferred<Participation[]> = this.$q.defer();
+        this.$http.get('/integration/iop/student/finishedExams')
+            .then((resp: ng.IHttpResponse<Participation[]>) => {
+                deferred.resolve(resp.data);
+            }, err => {
+                toast.error(err.data);
+                deferred.reject(err);
+            });
+        return deferred.promise;
     }
 
     listExams(): ng.IPromise<CollaborativeExam[]> {

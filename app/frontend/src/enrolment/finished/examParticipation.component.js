@@ -19,7 +19,8 @@ angular.module('app.enrolment')
     .component('examParticipation', {
         template: require('./examParticipation.template.html'),
         bindings: {
-            participation: '<'
+            participation: '<',
+            collaborative: '<'
         },
         controller: ['$scope', '$translate', 'StudentExamRes', 'Exam',
             function ($scope, $translate, StudentExamRes, Exam) {

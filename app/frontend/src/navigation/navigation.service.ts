@@ -179,7 +179,18 @@ export class NavigationService {
                 href: '/student/participations',
                 visible: student && !hideDashboard,
                 name: 'sitnet_exam_responses',
-                iconPng: 'icon_finished.png'
+                iconPng: 'icon_finished.png',
+                submenu: {
+                    hidden: true,
+                    items: [
+                        {
+                            href: '/student/participations/collaborative',
+                            visible: true,
+                            name: 'sitnet_collaborative_exam_responses',
+                            iconPng: 'icon_finished.png'
+                        }
+                    ]
+                }
             },
             {
                 href: '/logout',

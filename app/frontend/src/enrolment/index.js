@@ -25,6 +25,7 @@ require('./search/collaborativeExamSearch.component.ts');
 require('./finished/examFeedback.component');
 require('./finished/examParticipation.component');
 require('./finished/examParticipations.component');
+require('./finished/collaborativeExamParticipations.component');
 require('./exams/examEnrolmentCandidate.component');
 require('./exams/examEnrolmentDetails.component');
 require('./exams/examEnrolments.component');
