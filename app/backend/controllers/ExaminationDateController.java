@@ -15,16 +15,16 @@
 
 package backend.controllers;
 
-import backend.controllers.base.BaseController;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import backend.controllers.base.BaseController;
 import io.ebean.Ebean;
-import backend.models.Exam;
-import backend.models.ExaminationDate;
 import org.joda.time.LocalDate;
 import play.mvc.Result;
 import play.mvc.With;
+
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.ExaminationDate;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExaminationDateSanitizer;
 

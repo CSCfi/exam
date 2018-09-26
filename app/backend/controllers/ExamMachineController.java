@@ -15,23 +15,23 @@
 
 package backend.controllers;
 
+import java.util.List;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import backend.controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
-import backend.models.Exam;
-import backend.models.ExamMachine;
-import backend.models.ExamRoom;
-import backend.models.Reservation;
-import backend.models.Software;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.util.List;
+import backend.controllers.base.BaseController;
+import backend.models.ExamMachine;
+import backend.models.ExamRoom;
+import backend.models.Reservation;
+import backend.models.Software;
 
 public class ExamMachineController extends BaseController {
 
@@ -181,14 +181,6 @@ public class ExamMachineController extends BaseController {
         return forbidden();
     }
 
-    @Restrict(@Group("ADMIN"))
-    public Result hasSoftwareExams(Long sid) {
-        List<Exam> exams = Ebean.find(Exam.class)
-                .where()
-                .in("softwares.id", sid)
-                .findList();
-        return exams.isEmpty() ? notFound() : ok();
-    }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result getSoftwares() {

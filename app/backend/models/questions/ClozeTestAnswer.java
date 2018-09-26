@@ -25,7 +25,7 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.reflect.TypeToken;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
@@ -63,6 +63,10 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
 
     public String getQuestion() {
         return question;
+    }
+
+    public Score getScore() {
+        return score;
     }
 
     public ClozeTestAnswer copy() {
@@ -141,7 +145,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         setQuestionWithResults(doc);
     }
 
-    public Score getScore(ExamSectionQuestion esq) {
+    public Score calculateScore(ExamSectionQuestion esq) {
         Map<String, String> answers = asMap(new Gson());
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
@@ -158,8 +162,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
     }
 
     private Map<String, String> asMap(Gson gson) {
-        Type mapType = new TypeToken<Map<String, String>>() {
-        }.getType();
+        Type mapType = new TypeToken<Map<String, String>>() {/* pass */}.getType();
         Map<String, String> map = gson.fromJson(answer, mapType);
         return map == null ? Collections.emptyMap() : map;
     }

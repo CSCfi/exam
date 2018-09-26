@@ -27,12 +27,13 @@ import javax.inject.Inject;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
-import play.data.DynamicForm;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -41,9 +42,7 @@ import play.mvc.Result;
 
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.models.Exam;
-import backend.models.ExamType;
 import backend.models.Grade;
-import backend.models.GradeScale;
 import backend.models.Role;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
@@ -184,78 +183,69 @@ public class CollaborativeReviewController extends CollaborationController {
         return request.get().thenComposeAsync(onSuccess);
     }
 
-    private void updateReviewState(Exam exam, Exam.State newState, boolean stateOnly) {
-        exam.setState(newState);
-        // set grading info only if exam is really graded, not just modified
-        if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)) {
-            if (!stateOnly) {
-                exam.setGradedTime(DateTime.now());
-                exam.setGradedByUser(getLoggedUser());
-            }
-        }
-    }
-
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result reviewExam(Long id) {
-        DynamicForm df = formFactory.form().bindFromRequest();
-        Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator").where().idEq(id).findOne();
-        if (exam == null) {
-            return notFound("sitnet_exam_not_found");
+    public CompletionStage<Result> updateAssessment(Long id, String ref) {
+        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
+        if (ce == null) {
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
+        Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
+        if (!url.isPresent()) {
+            return wrapAsPromise(internalServerError());
+        }
+        JsonNode body = request().body().asJson();
         User user = getLoggedUser();
         final Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
-        Exam.State newState = Exam.State.valueOf(df.get("state"));
-        if (!isAuthorizedToView(exam, user, loginRole)) {
-            return forbidden("You are not allowed to modify this object");
-        }
-        if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
-            return forbidden("Not allowed to update grading of this exam");
-        }
 
-
-        Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
-        String additionalInfo = df.get("additionalInfo");
-        if (grade != null) {
-            Grade examGrade = Ebean.find(Grade.class, grade);
-            GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
-            if (scale.getGrades().contains(examGrade)) {
-                exam.setGrade(examGrade);
-                exam.setGradeless(false);
+        WSRequest request = wsClient.url(url.get().toString());
+        Function<WSResponse, CompletionStage<Result>> onSuccess = (response) -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != OK) {
+                return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+            }
+            JsonNode examNode = root.get("exam");
+            Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
+            if (!isAuthorizedToView(exam, user, loginRole)) {
+                return wrapAsPromise(forbidden("You are not allowed to modify this object"));
+            }
+            if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
+                return wrapAsPromise(forbidden("Not allowed to update grading of this exam"));
+            }
+            JsonNode grade = body.get("grade");
+            if (grade.isObject()) {
+                boolean validGrade = exam.getGradeScale().getGrades().stream()
+                        .map(Grade::getId)
+                        .anyMatch(i -> i == grade.get("id").asInt());
+                if (validGrade) {
+                    ((ObjectNode) examNode).set("grade", grade);
+                } else {
+                    return wrapAsPromise(badRequest("Invalid grade for this grade scale"));
+                }
+            } else if (body.get("gradeless").asBoolean(false)){
+                ((ObjectNode)examNode).set("grade", NullNode.getInstance());
+                ((ObjectNode)examNode).put("gradeless", true);
             } else {
-                return badRequest("Invalid grade for this grade scale");
+                ((ObjectNode)examNode).set("grade", NullNode.getInstance());
             }
-        } else if (df.get("gradeless").equals("true")) {
-            exam.setGrade(null);
-            exam.setGradeless(true);
-        } else {
-            exam.setGrade(null);
-        }
-        String creditType = df.get("creditType.type");
-        if (creditType == null) {
-            creditType = df.get("creditType");
-        }
-        if (creditType != null) {
-            ExamType eType = Ebean.find(ExamType.class)
-                    .where()
-                    .eq("type", creditType)
-                    .findOne();
-            if (eType != null) {
-                exam.setCreditType(eType);
-            }
-        } else {
-            exam.setCreditType(null);
-        }
-        exam.setAdditionalInfo(additionalInfo);
-        exam.setAnswerLanguage(df.get("answerLanguage"));
+            JsonNode creditType = body.get("creditType");
+            ((ObjectNode)examNode).set("creditType", creditType);
+            ((ObjectNode)examNode).put("additionalInfo", body.get("additionalInfo").asText());
+            ((ObjectNode)examNode).put("answerLanguage", body.get("answerLanguage").asText());
+            ((ObjectNode)examNode).put("customCredit", body.get("customCredit").asDouble());
 
-        if (df.get("customCredit") != null) {
-            exam.setCustomCredit(Double.parseDouble(df.get("customCredit")));
-        } else {
-            exam.setCustomCredit(null);
-        }
-        updateReviewState(exam, newState, false);
-        return ok();
+            Exam.State newState = Exam.State.valueOf(body.get("state").asText());
+            ((ObjectNode)examNode).put("state", newState.toString());
+            if (newState == Exam.State.GRADED || newState == Exam.State.GRADED_LOGGED) {
+                String gradedTime =  ISODateTimeFormat.dateTime().print(DateTime.now());
+                ((ObjectNode)examNode).put("gradedTime", gradedTime);
+                ((ObjectNode)examNode).set("gradedByUser", serialize(user));
+            }
+
+            return upload(url.get(), root);
+        };
+        return request.get().thenComposeAsync(onSuccess);
     }
+
 
 
 }

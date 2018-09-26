@@ -132,7 +132,7 @@ public class CalendarController extends BaseController {
         try {
             // Take pessimistic lock for user to prevent multiple reservations creating.
             Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
-            final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+            Optional<ExamEnrolment> optionalEnrolment = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")
                     .where()
                     .eq("user.id", user.getId())
@@ -142,7 +142,11 @@ public class CalendarController extends BaseController {
                     .isNull("reservation")
                     .gt("reservation.startAt", now.toDate())
                     .endJunction()
-                    .findOne();
+                    .findOneOrEmpty();
+            if (!optionalEnrolment.isPresent()) {
+                return wrapAsPromise(notFound());
+            }
+            ExamEnrolment enrolment = optionalEnrolment.get();
             Optional<Result> badEnrolment = checkEnrolment(enrolment, user);
             if (badEnrolment.isPresent()) {
                 return wrapAsPromise(badEnrolment.get());
@@ -172,8 +176,11 @@ public class CalendarController extends BaseController {
                 if (externalReference != null) {
                     return externalReservationHandler.removeReservation(oldReservation, user)
                             .thenCompose(result -> {
-                                // Refetch enrolment, otherwise
+                                // Refetch enrolment
                                 ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());
+                                if (updatedEnrolment == null) {
+                                    return wrapAsPromise(notFound());
+                                }
                                 return makeNewReservation(updatedEnrolment, reservation, user);
                             });
                 } else {

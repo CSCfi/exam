@@ -330,7 +330,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 if (clozeTestAnswer == null) {
                     return 0.0;
                 }
-                ClozeTestAnswer.Score score = clozeTestAnswer.getScore(this);
+                ClozeTestAnswer.Score score = clozeTestAnswer.calculateScore(this);
                 int correct = score.getCorrectAnswers();
                 int incorrect = score.getIncorrectAnswers();
                 if (correct + incorrect == 0) {

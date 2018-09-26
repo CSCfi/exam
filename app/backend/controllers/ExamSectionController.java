@@ -154,7 +154,7 @@ public class ExamSectionController extends QuestionController implements Section
     public Result reorderSections(Long eid) {
         DynamicForm df = formFactory.form().bindFromRequest();
         Integer from = Integer.parseInt(df.get("from"));
-        Integer to = Integer.parseInt(df.get("to"));
+        int to = Integer.parseInt(df.get("to"));
         return checkBounds(from, to).orElseGet(() -> {
             Exam exam = Ebean.find(Exam.class).fetch("examSections").where().idEq(eid).findOne();
             if (exam == null) {
@@ -184,7 +184,7 @@ public class ExamSectionController extends QuestionController implements Section
     public Result reorderSectionQuestions(Long eid, Long sid) {
         DynamicForm df = formFactory.form().bindFromRequest();
         Integer from = Integer.parseInt(df.get("from"));
-        Integer to = Integer.parseInt(df.get("to"));
+        int to = Integer.parseInt(df.get("to"));
         return checkBounds(from, to).orElseGet(() -> {
             Exam exam = Ebean.find(Exam.class, eid);
             if (exam == null) {
@@ -297,7 +297,7 @@ public class ExamSectionController extends QuestionController implements Section
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        Integer sequence = request().body().asJson().get("sequenceNumber").asInt();
+        int sequence = request().body().asJson().get("sequenceNumber").asInt();
         for (String s : questions.split(",")) {
             Question question = Ebean.find(Question.class, Long.parseLong(s));
             if (question == null) {
@@ -402,7 +402,7 @@ public class ExamSectionController extends QuestionController implements Section
                 .forEach(this::deleteOption);
         // Additions
         StreamSupport.stream(node.spliterator(), false)
-                .filter(o -> SanitizingHelper.parse("id", o, Long.class) == null)
+                .filter(o -> !SanitizingHelper.parse("id", o, Long.class).isPresent())
                 .forEach(o -> createOptionBasedOnExamQuestion(question, esq, o));
         // Finally update own option scores:
         for (JsonNode option : node) {
