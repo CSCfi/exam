@@ -42,7 +42,7 @@ export const PaginatorComponent: angular.IComponentOptions = {
         constructor() { }
 
         $onChanges(props: IOnChangesObject) {
-            if (_.isArray(props.items)) {
+            if (props.items && _.isArray(props.items.currentValue)) {
                 this.pageCount = Math.ceil(this.items.length / this.pageSize) - 1;
                 // Go to first page always when the underlying collection gets modified
                 this.currentPage = 0;

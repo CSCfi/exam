@@ -291,6 +291,10 @@ POST          /integration/iop/exams/:ref                              backend.c
 + nocsrf
 POST          /integration/iop/reservations/:ref/noshow                backend.controllers.iop.transfer.impl.ExternalExamController.addNoShow(ref: String)
 
+######## Collaborative Student Actions interface #######
+
+GET           /integration/iop/student/finishedExams                   backend.controllers.iop.collaboration.impl.CollaborativeStudentActionController.getFinishedExams()
+
 ################# Collaborative Exam interface #########
 GET           /integration/iop/exams                                   backend.controllers.iop.collaboration.impl.CollaborativeExamController.listExams
 POST          /integration/iop/exams                                   backend.controllers.iop.collaboration.impl.CollaborativeExamController.createExam

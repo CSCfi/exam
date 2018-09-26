@@ -43,7 +43,7 @@ describe('RoomStatisticsComponent', function () {
         });
         $httpBackend.expectGET(/\/app\/reports\/participations\?endDate=[\w:+^&]/)
             .respond(readFixtures('participations.json'));
-        ctrl.listParticipations();
+        ctrl.listStudentParticipations();
         $httpBackend.flush();
 
         // Check participations

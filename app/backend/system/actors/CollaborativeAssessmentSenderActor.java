@@ -77,19 +77,19 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
     }
 
     private static PathProperties getPath() {
-        String path = "(*, exam(id, name, state, instruction, hash, duration, executionType(id, type), " + // (
-                "examLanguages(code), attachment(id, externalId, fileName), examOwners(firstName, lastName)" +
+        String path = "(*, user(id, firstName, lastName, email, eppn)" +
+                "exam(id, name, state, instruction, hash, duration, executionType(id, type), " +
+                "examLanguages(code), attachment(id, externalId, fileName)" +
                 "autoEvaluationConfig(*, gradeEvaluations(*, grade(*)))" +
                 "creditType(*), examType(*), executionType(*)" +
-                "examInspections(*, user(id, firstName, lastName))" +
                 "gradeScale(*, grades(*))" +
-                "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
-                "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
+                "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," +
+                "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " +
                 "question(id, type, question, attachment(id, externalId, fileName), options(*))" +
                 "options(*, option(*))" +
                 "essayAnswer(id, answer, objectVersion, attachment(id, externalId, fileName))" +
                 "clozeTestAnswer(id, question, answer, objectVersion)" +
-                ")), examEnrolments(*, user(firstName, lastName, email), reservation(*, machine(*, room(*))) )" +
+                ")), examEnrolments(*, user(firstName, lastName, email, eppn), reservation(*, machine(*, room(*))) )" +
                 "))";
         return PathProperties.parse(path);
     }

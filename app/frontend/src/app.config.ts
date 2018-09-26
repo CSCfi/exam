@@ -86,6 +86,8 @@ export default function configs(
     $routeProvider.when('/student/exams/collaborative',
         { template: '<collaborative-exam-search></collaborative-exam-search>' });
     $routeProvider.when('/student/participations', { template: '<exam-participations></exam-participations>' });
+    $routeProvider.when('/student/participations/collaborative',
+        { template: '<collaborative-exam-participations></collaborative-exam-participations>' });
     $routeProvider.when('/student/logout/:reason?', { template: '<examination-logout></examination-logout>' });
     $routeProvider.when('/enroll/exam/:id', { template: '<exam-enrolments></exam-enrolments>' });
 
