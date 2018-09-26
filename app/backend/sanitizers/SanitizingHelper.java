@@ -15,11 +15,11 @@
 
 package backend.sanitizers;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import play.libs.typedmap.TypedKey;
 import play.mvc.Http;
-
-import java.util.Optional;
 
 public final class SanitizingHelper {
 

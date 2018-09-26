@@ -15,16 +15,17 @@
 
 package backend.controllers;
 
+import java.util.List;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
-import backend.controllers.base.BaseController;
-import backend.models.Accessibility;
-import backend.models.ExamRoom;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.util.List;
+import backend.controllers.base.BaseController;
+import backend.models.Accessibility;
+import backend.models.ExamRoom;
 
 
 public class AccessibilityController extends BaseController {
@@ -46,24 +47,18 @@ public class AccessibilityController extends BaseController {
     @Restrict({@Group("ADMIN")})
     public Result removeAccessibility(Long id) {
         Accessibility accessibility = Ebean.find(Accessibility.class, id);
-
-        if(accessibility == null) {
+        if (accessibility == null) {
             return notFound();
         }
-
-        List<ExamRoom> examRooms = Ebean.find(ExamRoom.class)
+        Ebean.find(ExamRoom.class)
                 .where()
                 .in("accessibility", accessibility)
-                .findList();
-
-        if(examRooms != null) {
-            for(ExamRoom examRoom : examRooms) {
-                examRoom.getAccessibility().remove(accessibility);
-                examRoom.update();
-            }
-        }
+                .findList()
+                .forEach( er -> {
+                    er.getAccessibility().remove(accessibility);
+                    er.update();
+                });
         accessibility.delete();
-
         return ok();
     }
 

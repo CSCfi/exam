@@ -64,15 +64,19 @@ public class ExamRecordController extends BaseController {
     // Do not update anything else but state to GRADED_LOGGED regarding the exam
     // Instead assure that all required exam fields are set
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addExamRecord() throws IOException {
+    public Result addExamRecord() {
         DynamicForm df = formFactory.form().bindFromRequest();
-        final Exam exam = Ebean.find(Exam.class)
+        final Optional<Exam> optionalExam  = Ebean.find(Exam.class)
                 .fetch("parent")
                 .fetch("parent.creator")
                 .fetch("examSections.sectionQuestions.question")
                 .where()
                 .idEq(Long.parseLong(df.get("id")))
-                .findOne();
+                .findOneOrEmpty();
+        if (!optionalExam.isPresent()) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+        Exam exam = optionalExam.get();
         return validateExamState(exam, true).orElseGet(() -> {
             exam.setState(Exam.State.GRADED_LOGGED);
             exam.update();
@@ -100,14 +104,18 @@ public class ExamRecordController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result registerExamWithoutRecord() throws IOException {
+    public Result registerExamWithoutRecord() {
         DynamicForm df = formFactory.form().bindFromRequest();
-        final Exam exam = Ebean.find(Exam.class)
+        final Optional<Exam> optionalExam = Ebean.find(Exam.class)
                 .fetch("languageInspection")
                 .fetch("parent")
                 .fetch("parent.creator")
                 .where()
-                .idEq(Long.parseLong(df.get("id"))).findOne();
+                .idEq(Long.parseLong(df.get("id"))).findOneOrEmpty();
+        if (!optionalExam.isPresent()) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+        Exam exam = optionalExam.get();
         return validateExamState(exam, false).orElseGet(() -> {
             exam.setState(Exam.State.GRADED_LOGGED);
             exam.setGrade(null);
