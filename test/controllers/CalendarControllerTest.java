@@ -1,5 +1,10 @@
 package controllers;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
+import javax.mail.internet.MimeMessage;
+
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.icegreen.greenmail.junit.GreenMailRule;
@@ -7,15 +12,7 @@ import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamExecutionType;
-import backend.models.ExamRoom;
-import backend.models.Language;
-import backend.models.Reservation;
-import backend.models.User;
 import net.jodah.concurrentunit.Waiter;
-import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
@@ -24,12 +21,17 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import static play.test.Helpers.contentAsString;
 
-import javax.mail.internet.MimeMessage;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamExecutionType;
+import backend.models.ExamRoom;
+import backend.models.Language;
+import backend.models.Reservation;
+import backend.models.User;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
 
 public class CalendarControllerTest extends IntegrationTestCase {
 
@@ -287,7 +289,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
                         .put("examId", exam.getId())
                         .put("start", ISODateTimeFormat.dateTime().print(start))
                         .put("end", ISODateTimeFormat.dateTime().print(end)));
-        assertThat(result.status()).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(404);
         assertThat(contentAsString(result).equals("sitnet_error_enrolment_not_found"));
 
         // Verify
