@@ -49,9 +49,9 @@ angular.module('app.question')
             const vm = this;
 
             vm.removeOption = function () {
-                const hasCorrectAnswer = vm.question.options.some(o => o.id !== vm.option.id && o.defaultScore > 0);
+                const hasCorrectAnswer = vm.question.options.some(o => o !== vm.option && o.defaultScore > 0);
                 if (hasCorrectAnswer) {
-                    vm.question.options.splice(vm.question.options.indexOf(vm.option.id), 1);
+                    vm.question.options.splice(vm.question.options.indexOf(vm.option), 1);
                 } else {
                     toast.error($translate.instant('sitnet_action_disabled_minimum_options'));
                 }
