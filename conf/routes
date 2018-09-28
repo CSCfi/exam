@@ -34,14 +34,14 @@ POST          /app/exams/:id                                           backend.c
 PUT           /app/exams/:eid/course/:cid                              backend.controllers.ExamController.updateCourse(eid: Long, cid: Long)
 DELETE        /app/exams/:eid/course                                   backend.controllers.ExamController.removeCourse(eid: Long)
 
-GET           /app/exampreview/:id                                     backend.controllers.ExamController.getExamPreview(id: Long)
+GET           /app/exams/:id/preview                                   backend.controllers.ExamController.getExamPreview(id: Long)
 GET           /app/reviewerexams                                       backend.controllers.ExamController.getTeachersExams
 
 GET           /app/examsearch                                          backend.controllers.ExamController.listExams(courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList])
 
 PUT           /app/exam/:eid/software/:sid                             backend.controllers.ExamController.updateExamSoftware(eid: Long, sid: Long)
 
-PUT           /app/exams/:eid/language/:code                            backend.controllers.ExamController.updateExamLanguage(eid: Long, code: String)
+PUT           /app/exams/:eid/language/:code                           backend.controllers.ExamController.updateExamLanguage(eid: Long, code: String)
 
 GET           /app/examtypes                                           backend.controllers.ExamController.getExamTypes
 GET           /app/executiontypes                                      backend.controllers.ExamController.getExamExecutionTypes
@@ -297,6 +297,7 @@ GET           /integration/iop/student/finishedExams                   backend.c
 GET           /integration/iop/exams                                   backend.controllers.iop.collaboration.impl.CollaborativeExamController.listExams
 POST          /integration/iop/exams                                   backend.controllers.iop.collaboration.impl.CollaborativeExamController.createExam
 GET           /integration/iop/exams/:id                               backend.controllers.iop.collaboration.impl.CollaborativeExamController.getExam(id: Long)
+GET           /integration/iop/exams/:id/preview                       backend.controllers.iop.collaboration.impl.CollaborativeExamController.getExamPreview(id: Long)
 PUT           /integration/iop/exams/:id                               backend.controllers.iop.collaboration.impl.CollaborativeExamController.updateExam(id: Long)
 DELETE        /integration/iop/exams/:id                               backend.controllers.iop.collaboration.impl.CollaborativeExamController.deleteExam(id: Long)
 PUT           /integration/iop/exams/:id/language/:code                backend.controllers.iop.collaboration.impl.CollaborativeExamController.updateLanguage(id: Long, code: String)
