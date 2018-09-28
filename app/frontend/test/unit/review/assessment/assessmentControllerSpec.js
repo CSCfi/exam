@@ -21,21 +21,22 @@ describe('AssessmentController', function () {
     let ctrl;
     let scope;
     let mockHttp;
-    let mockUser = {id: 1, isAdmin: true};
-    let mockExam = {id: 1, state: 'REVIEW', examParticipation: {}, examSections: []};
+    let mockUser = { id: 1, isAdmin: true };
+    let mockExam = { id: 1, state: 'REVIEW', examParticipation: {}, examSections: [] };
 
     beforeEach(inject(function ($rootScope, $componentController, $httpBackend) {
         scope = $rootScope.$new();
         mockHttp = $httpBackend;
         mockHttpCalls();
         ctrl = $componentController('assessment', {
-                $scope: scope,
-                $routeParams: {id: 1},
-                Assessment: createMockAssessment(),
-                Question: createMockQuestion(),
-                Session: createMockSession(),
-                Exam: {}
-            }
+            $scope: scope,
+            $routeParams: { id: 1 },
+            Assessment: createMockAssessment(),
+            CollaborativeAssessment: {},
+            Question: createMockQuestion(),
+            Session: createMockSession(),
+            Exam: {}
+        }
         );
         ctrl.$onInit();
         mockHttp.flush();
@@ -43,7 +44,7 @@ describe('AssessmentController', function () {
 
     it('should start review when score is set', function () {
         expect(ctrl.exam.state).toBe('REVIEW');
-        ctrl.scoreSet({revision: undefined});
+        ctrl.scoreSet({ revision: undefined });
         mockHttp.flush();
         expect(ctrl.exam.state).toBe('REVIEW_STARTED');
     });
@@ -81,7 +82,7 @@ describe('AssessmentController', function () {
     function createMockAssessment() {
         let mock = jasmine.createSpyObj('Assessment', ['getPayload']);
         mock.getPayload.and.callFake(function (exam, state) {
-            return {id: 1, state: state};
+            return { id: 1, state: state };
         });
         return mock;
     }
@@ -94,7 +95,7 @@ describe('AssessmentController', function () {
 
     function createMockQuestion() {
         let mock = jasmine.createSpyObj('Question', ['getQuestionAmounts']);
-        mock.getQuestionAmounts.and.returnValue({accepted: 0, rejected: 0, hasEssays: false});
+        mock.getQuestionAmounts.and.returnValue({ accepted: 0, rejected: 0, hasEssays: false });
         return mock;
     }
 
