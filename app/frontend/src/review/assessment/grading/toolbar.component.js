@@ -19,16 +19,23 @@ angular.module('app.review')
     .component('rToolbar', {
         template: require('./toolbar.template.html'),
         bindings: {
-            exam: '<',
             valid: '<'
         },
-        controller: ['$translate', 'Assessment', 'Exam',
-            function ($translate, Assessment, Exam) {
+        require: {
+            parentCtrl: '^^rGrading'
+        },
+        controller: ['$translate', '$routeParams', 'Assessment', 'CollaborativeAssessment', 'Exam',
+            function ($translate, $routeParams, Assessment, CollaborativeAssessment, Exam) {
 
                 const vm = this;
 
+                vm.$onInit = function () {
+                    vm.exam = vm.parentCtrl.exam;
+                    vm.participation = vm.parentCtrl.participation;
+                };
+
                 vm.isOwnerOrAdmin = function () {
-                    return Exam.isOwnerOrAdmin(vm.exam);
+                    return Exam.isOwnerOrAdmin(vm.exam, vm.parentCtrl.collaborative);
                 };
 
                 vm.isReadOnly = function () {
@@ -47,11 +54,19 @@ angular.module('app.review')
                 };
 
                 vm.saveAssessment = function () {
-                    Assessment.saveAssessment(vm.exam, vm.isOwnerOrAdmin());
+                    if (vm.parentCtrl.collaborative) {
+                        CollaborativeAssessment.saveAssessment(vm.participation, vm.isOwnerOrAdmin(), $routeParams.id, $routeParams.ref);
+                    } else {
+                        Assessment.saveAssessment(vm.exam, vm.isOwnerOrAdmin());
+                    }
                 };
 
                 vm.createExamRecord = function () {
-                    Assessment.createExamRecord(vm.exam, true);
+                    if (vm.parentCtrl.collaborative) {
+                        CollaborativeAssessment.createExamRecord(vm.participation, $routeParams.id, $routeParams.ref);
+                    } else {
+                        Assessment.createExamRecord(vm.exam, true, vm.parentCtrl.collaborative);
+                    }
                 };
 
                 vm.rejectMaturity = function () {
@@ -59,7 +74,7 @@ angular.module('app.review')
                 };
 
                 vm.getExitUrl = function () {
-                    return Assessment.getExitUrl(vm.exam);
+                    return Assessment.getExitUrl(vm.exam, vm.parentCtrl.collaborative);
                 };
 
             }

@@ -25,7 +25,7 @@ angular.module('app.review')
         require: {
             parentCtrl: '^^reviewList'
         },
-        controller: ['ReviewList', 'ExamRes', function (ReviewList, ExamRes) {
+        controller: ['ReviewList', function (ReviewList) {
 
             const vm = this;
 

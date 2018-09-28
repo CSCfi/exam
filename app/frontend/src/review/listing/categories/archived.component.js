@@ -21,6 +21,9 @@ angular.module('app.review')
         bindings: {
             reviews: '<'
         },
+        require: {
+            parentCtrl: '^^reviewList'
+        },
         controller: ['ReviewList', 'Exam', function (ReviewList, Exam) {
 
             const vm = this;
@@ -31,7 +34,7 @@ angular.module('app.review')
                 vm.data.reverse = true;
 
                 vm.isOwner = (user) =>
-                    vm.exam.examOwners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
+                    vm.parentCtrl.exam.examOwners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
 
             };
 
@@ -56,6 +59,10 @@ angular.module('app.review')
             vm.pageSelected = function (page) {
                 vm.currentPage = page;
             }
+
+            vm.getLinkToAssessment = (review) =>
+                vm.parentCtrl.collaborative ? `/assessments/collaborative/${vm.parentCtrl.exam.id}/${review._id}`
+                    : `/assessments/${review.exam.id}`
 
         }]
     });

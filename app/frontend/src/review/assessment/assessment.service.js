@@ -35,7 +35,8 @@ angular.module('app.review')
                 id: '@id'
             }, {
                     update: { method: 'PUT' }
-                });
+                }
+            );
 
             self.saveFeedback = function (exam, silent) {
                 const deferred = $q.defer();
@@ -49,7 +50,7 @@ angular.module('app.review')
                     ExamRes.comment.update({
                         eid: exam.id,
                         cid: exam.examFeedback.id
-                    }, examFeedback, function (data) {
+                    }, examFeedback, function () {
                         if (!silent) {
                             toast.info($translate.instant('sitnet_comment_updated'));
                         }
@@ -151,13 +152,13 @@ angular.module('app.review')
                 return words.length;
             };
 
-            self.getExitUrl = function (exam) {
+            self.getExitUrl = function (exam, collaborative) {
                 const user = Session.getUser || { isAdmin: false };
                 if (user.isAdmin) {
                     return '/';
                 }
                 const id = exam.parent ? exam.parent.id : $routeParams.id;
-                return `/exams/${id}/4`;
+                return collaborative ? `/exams/collaborative/${id}/4` : `/exams/${id}/4`;
             };
 
             self.createExamRecord = function (exam, needsConfirmation, followUpUrl) {
@@ -216,7 +217,7 @@ angular.module('app.review')
                         // Just save feedback and leave
                         saveFeedback(exam).then(function () {
                             toast.info($translate.instant('sitnet_saved'));
-                            $location.path('exams/' + exam.parent.id + '/4');
+                            $location.path(self.getExitUrl(exam, false));
                         });
                     }
                 }
@@ -230,7 +231,7 @@ angular.module('app.review')
                     } else {
                         const oldState = exam.state;
                         const newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
-                        const payload = getPayload(exam, newState);
+                        const payload = getPayload(exam, newState, false);
                         if (newState !== 'GRADED' || oldState === 'GRADED') {
                             sendAssessment(newState, payload, messages, exam);
                         } else {
@@ -302,7 +303,7 @@ angular.module('app.review')
                 });
             };
 
-            const getErrors = function (exam) {
+            self.getErrors = function (exam) {
                 const messages = [];
                 if (!_.get(exam.grade, 'id') && !exam.gradeless) {
                     messages.push('sitnet_participation_unreviewed');

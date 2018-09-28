@@ -24,14 +24,15 @@ angular.module('app.review')
         }, require: {
             parentCtrl: '^^assessment'
         },
-        controller: ['$translate', '$scope', 'Assessment', 'Exam', 'ExamRes', 'Attachment', 'Language',
-            function ($translate, $scope, Assessment, Exam, ExamRes, Attachment, Language) {
+        controller: ['$translate', '$scope', 'Assessment', 'CollaborativeAssessment', 'Exam', 'ExamRes', 'Attachment', 'Language',
+            function ($translate, $scope, Assessment, CollaborativeAssessment, Exam, ExamRes, Attachment, Language) {
 
                 const vm = this;
 
                 vm.$onInit = function () {
                     vm.exam = vm.parentCtrl.exam;
                     vm.questionSummary = vm.parentCtrl.questionSummary;
+                    vm.participation = vm.parentCtrl.participation;
                     vm.collaborative = vm.parentCtrl.collaborative;
                     vm.user = vm.parentCtrl.user;
                     vm.message = {};
@@ -54,7 +55,7 @@ angular.module('app.review')
                 };
 
                 vm.isOwnerOrAdmin = function () {
-                    return Exam.isOwnerOrAdmin(vm.exam);
+                    return Exam.isOwnerOrAdmin(vm.exam, vm.collaborative);
                 };
 
                 vm.isReadOnly = function () {
@@ -93,7 +94,11 @@ angular.module('app.review')
                 };
 
                 vm.saveAssessmentInfo = function () {
-                    Assessment.saveAssessmentInfo(vm.exam);
+                    if (vm.parentCtrl.collaborative) {
+                        CollaborativeAssessment.saveAssessmentInfo($routeParams.id, $routeParams.ref, vm.participation);
+                    } else {
+                        Assessment.saveAssessmentInfo(vm.exam);
+                    }
                 };
 
                 vm.downloadFeedbackAttachment = function () {

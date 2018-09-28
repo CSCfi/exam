@@ -88,6 +88,14 @@ public class CollaborationController extends BaseController {
         );
     }
 
+    boolean isAuthorizedToAssess(Exam exam, User user, Role.Name loginRole) {
+        return loginRole == Role.Name.ADMIN || (
+                exam.getExamOwners().stream().anyMatch(u ->
+                        u.getEmail().equals(user.getEmail()) || u.getEmail().equals(user.getEppn()))
+                        && exam.hasState(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED)
+        );
+    }
+
     long newId() {
         return Math.abs(random.nextLong());
     }

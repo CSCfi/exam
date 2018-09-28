@@ -25,6 +25,9 @@ angular.module('app.review')
             onArchive: '&',
             exam: '<'
         },
+        require: {
+            parentCtrl: '^^reviewList'
+        },
         controller: ['$q', '$filter', '$translate', 'dialogs', 'ReviewList', 'Files', 'Exam', 'ExamRes',
             function ($q, $filter, $translate, dialogs, ReviewList, Files, Exam, ExamRes) {
 
@@ -90,6 +93,10 @@ angular.module('app.review')
                     );
                 };
 
+                vm.getLinkToAssessment = (review) =>
+                    vm.parentCtrl.collaborative ? `/assessments/collaborative/${vm.exam.id}/${review._id}`
+                        : `/assessments/${review.exam.id}`
+
                 vm.selectAll = () =>
                     ReviewList.selectAll(vm.selections, vm.data.filtered);
 
@@ -108,7 +115,7 @@ angular.module('app.review')
                     r.displayedGradingTime = r.exam.languageInspection ?
                         r.exam.languageInspection.finishedAt : r.exam.gradedTime;
                     r.displayedGrade = translateGrade(r.exam);
-                    r.displayedCredit = examCredit(r.exam.course.credits, r.exam.customCredit);
+                    r.displayedCredit = examCredit(r.exam.course ? r.exam.course.credits : 0, r.exam.customCredit);
                 };
 
             }]

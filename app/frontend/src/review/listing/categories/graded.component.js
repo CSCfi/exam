@@ -21,8 +21,12 @@ angular.module('app.review')
     .component('rlGraded', {
         template: require('./graded.template.html'),
         bindings: {
+            exam: '<',
             reviews: '<',
             onRegistered: '&'
+        },
+        require: {
+            parentCtrl: '^^reviewList'
         },
         controller: ['$q', '$translate', 'dialogs', 'ReviewList', 'Exam',
             function ($q, $translate, dialogs, ReviewList, Exam) {
@@ -72,6 +76,10 @@ angular.module('app.review')
                     });
                 };
 
+                vm.getLinkToAssessment = (review) =>
+                    vm.parentCtrl.collaborative ? `/assessments/collaborative/${vm.exam.id}/${review._id}`
+                        : `/assessments/${review.exam.id}`
+
                 vm.pageSelected = function (page) {
                     vm.currentPage = page;
                 }
@@ -94,7 +102,7 @@ angular.module('app.review')
                     r.displayedGradingTime = r.exam.languageInspection ?
                         r.exam.languageInspection.finishedAt : r.exam.gradedTime;
                     r.displayedGrade = translateGrade(r.exam);
-                    r.displayedCredit = examCredit(r.exam.course.credits, r.exam.customCredit);
+                    r.displayedCredit = examCredit(r.exam.course ? r.exam.course.credits : 0, r.exam.customCredit);
                 };
 
             }]
