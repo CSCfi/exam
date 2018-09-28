@@ -135,7 +135,7 @@ angular.module('app.question')
                 };
 
                 vm.getFileSize = function () {
-                    return !vm.question ? 0 : Attachment.getFileSize(vm.question.attachment);
+                    return !vm.question || !vm.question.attachment ? 0 : Attachment.getFileSize(vm.question.attachment.file.size);
                 };
 
                 vm.save = function () {

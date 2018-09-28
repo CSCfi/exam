@@ -155,7 +155,7 @@ angular.module('app.question')
                 };
 
                 vm.getFileSize = function () {
-                    return Attachment.getFileSize(vm.question.attachment);
+                    return Attachment.getFileSize(vm.question.attachment.size);
                 };
 
                 vm.hasUploadedAttachment = function () {

@@ -75,7 +75,7 @@ angular.module('app.question')
                     if (vm.newQuestion) {
                         vm.question = Question.getQuestionDraft();
                         vm.currentOwners = angular.copy(vm.question.questionOwners);
-                    } else if (vm.questionDraft) {
+                    } else if (vm.questionDraft && vm.collaborative) {
                         vm.question = vm.questionDraft;
                         vm.currentOwners = angular.copy(vm.question.questionOwners);
                         window.onbeforeunload = function () {

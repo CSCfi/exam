@@ -271,7 +271,7 @@ angular.module('app.question')
                     function (response) {
                         toast.info($translate.instant('sitnet_question_added'));
                         if (question.attachment && question.attachment.modified) {
-                            Files.upload('/app/attachment/question', question.attachment,
+                            Files.upload('/app/attachment/question', question.attachment.file,
                                 { questionId: response.id }, question, function () {
                                     deferred.resolve(response);
                                 });
@@ -292,7 +292,7 @@ angular.module('app.question')
                     function (response) {
                         toast.info($translate.instant('sitnet_question_saved'));
                         if (question.attachment && question.attachment.modified) {
-                            Files.upload('/app/attachment/question', question.attachment,
+                            Files.upload('/app/attachment/question', question.attachment.file,
                                 { questionId: question.id }, question, function () {
                                     deferred.resolve();
                                 });

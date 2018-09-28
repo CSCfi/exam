@@ -15,13 +15,13 @@
 /// <reference types="angular-dialog-service" />
 
 import * as ng from 'angular';
+import { IDeferred } from 'angular';
 import * as toast from 'toastr';
 
 import { IModalService } from 'angular-ui-bootstrap';
 
 import { ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { IDeferred } from 'angular';
 import { FileService } from '../../../utility/file/file.service';
 
 export const SectionQuestionComponent: ng.IComponentOptions = {
@@ -61,12 +61,17 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
 
         editQuestion = () => this.openExamQuestionEditor();
 
-        downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
+        downloadQuestionAttachment = () => {
+            if (this.parentCtrl.collaborative) {
+                this.Attachment.downloadCollaborativeQuestionAttachment(this.parentCtrl.examId, this.sectionQuestion);
+            }
+            this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
+        }
 
         removeQuestion = () =>
             this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
                 this.$translate.instant('sitnet_remove_question')).result.then(
-                    () => this.onDelete({ sectionQuestion: this.sectionQuestion }))
+                () => this.onDelete({ sectionQuestion: this.sectionQuestion }))
 
 
         getQuestionDistribution(): ng.IPromise<{ distributed: boolean }> {
@@ -78,9 +83,9 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                 .then((resp: ng.IHttpResponse<{ distributed: boolean }>) => {
                     deferred.resolve({ distributed: resp.data.distributed });
                 }).catch(resp => {
-                    toast.error(resp.data);
-                    deferred.reject();
-                });
+                toast.error(resp.data);
+                deferred.reject();
+            });
             return deferred.promise;
         }
 
@@ -111,7 +116,8 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                         { examSectionQuestions: [] }),
                     collaborative: this.parentCtrl.collaborative,
                     examId: this.parentCtrl.examId,
-                    sectionQuestion: this.sectionQuestion
+                    sectionQuestion: this.sectionQuestion,
+                    questionId: this.sectionQuestion.question.id
                 }
             }).result.then((data: { question: Question }) => {
                 const resource = `/app/exams/${this.parentCtrl.examId}/sections/` +
@@ -133,7 +139,9 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                                 data.question);
                         } else if (attachment.removed) {
                             this.Attachment.eraseCollaborativeQuestionAttachment(this.parentCtrl.examId,
-                                this.sectionQuestion.id);
+                                this.sectionQuestion.id).then(() => {
+                                delete this.sectionQuestion.question.attachment;
+                            });
                         }
                     })
                     .catch(resp => toast.error(resp.data));
@@ -153,11 +161,11 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
             }).result.then(data => {
                 this.Question.updateDistributedExamQuestion(data.question, data.examQuestion,
                     this.parentCtrl.examId, this.parentCtrl.section.id).then(
-                        esq => {
-                            toast.info(this.$translate.instant('sitnet_question_saved'));
-                            // apply changes back to scope
-                            ng.extend(this.sectionQuestion, esq);
-                        });
+                    esq => {
+                        toast.info(this.$translate.instant('sitnet_question_saved'));
+                        // apply changes back to scope
+                        ng.extend(this.sectionQuestion, esq);
+                    });
 
             });
         }

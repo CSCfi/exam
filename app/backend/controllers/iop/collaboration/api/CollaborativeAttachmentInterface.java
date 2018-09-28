@@ -411,8 +411,12 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         if (!url.isPresent()) {
             return CompletableFuture.supplyAsync(Results::internalServerError);
         }
-        return getWsClient().url(url.get().toString()).stream().thenApply(WSResponse::getBodyAsSource)
-                .thenCompose(byteStringSource -> serveAsBase64Stream(attachment, byteStringSource));
+        return getWsClient().url(url.get().toString()).stream().thenCompose(response -> {
+            if (response.getStatus() != 200) {
+                return CompletableFuture.supplyAsync(() -> Results.status(response.getStatus()));
+            }
+            return serveAsBase64Stream(attachment, response.getBodyAsSource());
+        });
     }
 
     default CompletionStage<Result> deleteExternalAttachment(AttachmentContainer attachmentContainer, U externalExam,
