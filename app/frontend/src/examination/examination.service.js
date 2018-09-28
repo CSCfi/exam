@@ -29,10 +29,10 @@ angular.module('app.examination')
                 return _external ? url.replace('/app/', '/app/iop/') : url;
             };
 
-            self.startExam = function (hash, isPreview, id) {
-                const url = isPreview && id ? '/app/exampreview/' + id : '/app/student/exam/' + hash;
+            self.startExam = function (hash, isPreview, isCollaboration, id) {
+                const url = isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + hash;
                 const deferred = $q.defer();
-                $http.get(url).then(function (resp) {
+                $http.get(isCollaboration ? url.replace('/app/', '/integration/iop/') : url).then(function (resp) {
                     if (resp.data.cloned) {
                         // we came here with a reference to the parent exam so do not render page just yet,
                         // reload with reference to student exam that we just created
@@ -170,7 +170,7 @@ angular.module('app.examination')
                 }
                 if (!preview) {
                     const url = getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
-                    $http.post(url, {oids: ids}).then(function () {
+                    $http.post(url, { oids: ids }).then(function () {
                         toast.info($translate.instant('sitnet_answer_saved'));
                         sq.options.forEach(function (o) {
                             o.answered = ids.indexOf(o.id) > -1;
@@ -193,7 +193,7 @@ angular.module('app.examination')
             self.logout = function (msg, hash) {
                 const url = getResource('/app/student/exam/' + hash);
                 $http.put(url).then(function () {
-                    toast.info($translate.instant(msg), {timeOut: 5000});
+                    toast.info($translate.instant(msg), { timeOut: 5000 });
                     window.onbeforeunload = null;
                     $location.path('/student/logout/finished');
                 }).catch(function (resp) {

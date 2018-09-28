@@ -20,10 +20,11 @@ angular.module('app.examination')
     .component('examination', {
         template: require('./examination.template.html'),
         bindings: {
-            isPreview: '<'
+            isPreview: '<',
+            isCollaborative: '<' // Collaborative preview
         },
-        controller: ['$http', '$location', '$routeParams', '$translate', 'Examination', 'Enrolment',
-            function ($http, $location, $routeParams, $translate, Examination, Enrolment) {
+        controller: ['$location', '$routeParams', '$translate', 'Examination', 'Enrolment',
+            function ($location, $routeParams, $translate, Examination, Enrolment) {
 
                 const vm = this;
 
@@ -33,7 +34,7 @@ angular.module('app.examination')
                             return $translate.instant('sitnet_unsaved_data_may_be_lost');
                         };
                     }
-                    Examination.startExam($routeParams.hash, vm.isPreview, $routeParams.id)
+                    Examination.startExam($routeParams.hash, vm.isPreview, vm.isCollaborative, $routeParams.id)
                         .then(function (exam) {
                             exam.examSections.sort(function (a, b) {
                                 return a.sequenceNumber - b.sequenceNumber;
@@ -44,9 +45,9 @@ angular.module('app.examination')
                             });
 
                             vm.exam = exam;
-                            setActiveSection({type: 'guide'});
+                            setActiveSection({ type: 'guide' });
                             if (!vm.isPreview && !vm.exam.cloned && vm.exam.executionType.type === 'MATURITY') {
-                                Enrolment.showMaturityInstructions({exam: vm.exam});
+                                Enrolment.showMaturityInstructions({ exam: vm.exam });
                             }
                         }, function (err) {
                             console.log(JSON.stringify(err));

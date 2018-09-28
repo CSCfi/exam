@@ -56,6 +56,9 @@ export default function configs(
     $routeProvider.when('/exams/:id/:tab', { template: '<exam-tabs></exam-tabs>' });
     $routeProvider.when('/exams/:id/select/course', { template: '<course-selection></course-selection>' });
     $routeProvider.when('/exams/:id/view/preview/:tab?', { template: '<examination is-preview="true"><examination>' });
+    $routeProvider.when('/exams/collaborative/:id/view/preview/:tab?',
+        { template: '<examination is-preview="true" is-collaborative="true"><examination>' });
+
     $routeProvider.when('/exams/:id/view/printout/:tab?', { template: '<printout></printout>' });
     $routeProvider.when('/printouts', { template: '<printout-listing></printout-listing>' });
 

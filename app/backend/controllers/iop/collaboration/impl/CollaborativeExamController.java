@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,7 +38,14 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 
-import backend.models.*;
+import backend.models.Exam;
+import backend.models.ExamExecutionType;
+import backend.models.ExamSection;
+import backend.models.ExamType;
+import backend.models.GradeScale;
+import backend.models.Language;
+import backend.models.Role;
+import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.EmailSanitizer;
@@ -119,8 +127,7 @@ public class CollaborativeExamController extends CollaborationController {
         return request.get().thenApplyAsync(onSuccess);
     }
 
-    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public CompletionStage<Result> getExam(Long id) {
+    private CompletionStage<Result> getExam(Long id, Consumer<Exam> postProcessor) {
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
@@ -132,13 +139,24 @@ public class CollaborativeExamController extends CollaborationController {
                     if (!result.isPresent()) {
                         return notFound("sitnet_error_exam_not_found");
                     }
-                    Exam exam  = result.get();
+                    Exam exam = result.get();
                     if (!isAuthorizedToView(exam, user, loginRole)) {
                         return notFound("sitnet_error_exam_not_found");
                     }
+                    postProcessor.accept(exam);
                     return ok(serialize(exam));
                 }
         );
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public CompletionStage<Result> getExam(Long id) {
+        return getExam(id, (exam -> {}));
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public CompletionStage<Result> getExamPreview(Long id) {
+        return getExam(id, (exam -> examUpdater.preparePreview(exam)));
     }
 
     @Restrict({@Group("ADMIN")})

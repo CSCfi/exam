@@ -21,6 +21,8 @@ import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
 import backend.models.*;
+import backend.models.questions.ClozeTestAnswer;
+import backend.models.questions.Question;
 import backend.sanitizers.Attrs;
 import backend.util.ConfigUtil;
 
@@ -237,6 +239,22 @@ public class ExamUpdaterImpl implements ExamUpdater {
         return Optional.empty();
     }
 
+    @Override
+    public void preparePreview(Exam exam) {
+        Set<Question> questionsToHide = new HashSet<>();
+        exam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
+                .forEach(esq -> {
+                    ClozeTestAnswer answer = new ClozeTestAnswer();
+                    answer.setQuestion(esq);
+                    esq.setClozeTestAnswer(answer);
+                    questionsToHide.add(esq.getQuestion());
+                });
+        questionsToHide.forEach(q -> q.setQuestion(null));
+        exam.getExamSections().stream().filter(ExamSection::getLotteryOn).forEach(ExamSection::shuffleQuestions);
+        exam.setDerivedMaxScores();
+    }
 
 
     private void updateGradeEvaluations(Exam exam, AutoEvaluationConfig newConfig) {

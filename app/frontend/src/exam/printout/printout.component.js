@@ -24,7 +24,7 @@ angular.module('app.exam')
                 const vm = this;
 
                 vm.$onInit = function () {
-                    $http.get('/app/exampreview/' + $routeParams.id).then(function (resp) {
+                    $http.get('/app/exams/' + $routeParams.id + '/preview').then(function (resp) {
                         resp.data.examSections.sort(function (a, b) {
                             return a.sequenceNumber - b.sequenceNumber;
                         });
