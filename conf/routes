@@ -132,8 +132,6 @@ POST          /app/review/:eid/comment/:cid                            backend.c
 PUT           /app/review/:eid/comment/:cid                            backend.controllers.ReviewController.updateComment(eid: Long, cid: Long)
 GET           /app/noshows/:eid                                        backend.controllers.ReviewController.listNoShows(eid: Long)
 PUT           /app/reviews/archive                                     backend.controllers.ReviewController.archiveExams
-GET           /app/review/info/:eid                                    backend.controllers.ReviewController.getExamStudentInfo(eid: Long)
-GET           /app/exams/:eid/reservation                              backend.controllers.ReviewController.getReservationInformationForExam(eid: Long)
 GET           /app/review/:eid                                         backend.controllers.ReviewController.getExamReview(eid: Long)
 GET           /app/examparticipations/:eid                             backend.controllers.ReviewController.getParticipationsForExamAndUser(eid: Long)
 GET           /app/usernoshows/:eid                                    backend.controllers.ReviewController.listNoShowsForExamAndUser(eid: Long)
@@ -323,9 +321,14 @@ GET           /integration/iop/exams/:eid/info                         backend.c
 GET           /integration/iop/exams/:eid/calendar/:roomId             backend.controllers.iop.collaboration.impl.CollaborativeCalendarController.getSlots(eid: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer])
 POST          /integration/iop/calendar/reservation                    backend.controllers.iop.collaboration.impl.CollaborativeCalendarController.createReservation
 
+################# Collaborative Exam review interface #########
 GET           /integration/iop/reviews/:id                             backend.controllers.iop.collaboration.impl.CollaborativeReviewController.listAssessments(id: Long)
 GET           /integration/iop/reviews/:id/:ref                        backend.controllers.iop.collaboration.impl.CollaborativeReviewController.getAssessment(id: Long, ref: String)
 PUT           /integration/iop/reviews/:id/:ref/question/:qid          backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAnswerScore(id: Long, ref: String, qid: Long)
+PUT           /integration/iop/reviews/:id/:ref                        backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessment(id: Long, ref: String)
+PUT           /integration/iop/reviews/:id/:ref/comment                backend.controllers.iop.collaboration.impl.CollaborativeReviewController.addComment(id: Long, ref: String)
+PUT           /integration/iop/reviews/:id/:ref/info                   backend.controllers.iop.collaboration.impl.CollaborativeReviewController.updateAssessmentInfo(id: Long, ref: String)
+PUT           /integration/iop/reviews/:id/:ref/record                 backend.controllers.iop.collaboration.impl.CollaborativeReviewController.finalizeAssessment(id: Long, ref: String)
 
 ############# Integration attachments #################
 POST          /integration/iop/attachment/question                     backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToQuestion()

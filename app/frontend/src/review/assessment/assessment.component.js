@@ -22,8 +22,8 @@ angular.module('app.review')
             collaborative: '<'
         },
         template: require('./assessment.template.html'),
-        controller: ['$routeParams', '$http', 'Assessment', 'ExamRes', 'Question', 'Session', 'Exam',
-            function ($routeParams, $http, Assessment, ExamRes, Question, Session, Exam) {
+        controller: ['$routeParams', '$http', 'Assessment', 'CollaborativeAssessment', 'ExamRes', 'Question', 'Session', 'Exam',
+            function ($routeParams, $http, Assessment, CollaborativeAssessment, ExamRes, Question, Session, Exam) {
 
                 const vm = this;
 
@@ -46,7 +46,7 @@ angular.module('app.review')
                         vm.exam = exam;
                         vm.participation = participation;
                         vm.user = Session.getUser();
-                        vm.backUrl = vm.user.isAdmin ? '/' : '/exams/' + vm.exam.parent.id + '/4';
+                        vm.backUrl = Assessment.getExitUrl(vm.exam, vm.collaborative);
                     }).catch(function (err) {
                         toast.error(err.data);
                     });
@@ -74,7 +74,7 @@ angular.module('app.review')
                 };
 
                 vm.isOwnerOrAdmin = function () {
-                    return Exam.isOwnerOrAdmin(vm.exam);
+                    return Exam.isOwnerOrAdmin(vm.exam, vm.collaborative);
                 };
 
                 vm.isReadOnly = function () {
@@ -89,12 +89,21 @@ angular.module('app.review')
                 const startReview = function () {
                     if (vm.exam.state === 'REVIEW') {
                         const state = 'REVIEW_STARTED';
-                        const review = Assessment.getPayload(vm.exam, state);
-                        ExamRes.review.update({ id: review.id }, review,
-                            function () {
+                        if (!vm.collaborative) {
+                            const review = Assessment.getPayload(vm.exam, state);
+                            ExamRes.review.update({ id: review.id }, review,
+                                function () {
+                                    vm.exam.state = state;
+                                }
+                            );
+                        } else {
+                            const review = CollaborativeAssessment.getPayload(vm.exam, state, vm.participation._rev);
+                            const url = `/integration/iop/reviews/${examId}/${examRef}`;
+                            $http.put(url, payload).then(function (resp) {
+                                vm.participation._rev = resp.data.rev;
                                 vm.exam.state = state;
-                            }
-                        );
+                            });
+                        }
                     }
                 };
 

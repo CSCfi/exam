@@ -72,7 +72,7 @@
                     <input type="checkbox" ng-model="review.selected" class="selectionBox" value="{{review.exam.id}}" />
                 </td>
                 <td class="table-column-13 table-column-bold">
-                    <a class="pointer" href="/assessments/{{review.exam.id}}">
+                    <a class="pointer" href="{{ $ctrl.getLinkToAssessment(review) }}">
                         {{review.displayName}}
                         <span ng-if="review.user.userIdentifier">
                             <br/>({{review.user.userIdentifier}})</span>
@@ -82,8 +82,8 @@
                     <a class="pointer smaller" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                 </td>
                 <td class="table-column-10">{{review.duration + " min"}}</td>
-                <td class="table-column-10">{{review.started | adjustdst | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' | translate}} {{review.started
-                    | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date: 'HH:mm'}}
+                <td class="table-column-10">{{review.started | adjustdst | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
+                    translate}} {{review.started | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date: 'HH:mm'}}
                 </td>
                 <td class="table-column-15">{{review.exam.totalScore}} / {{review.exam.maxScore}}
                     <span ng-if="review.exam.rejectedAnswerCount > 0 || review.exam.approvedAnswerCount > 0">

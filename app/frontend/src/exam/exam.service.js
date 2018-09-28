@@ -344,20 +344,20 @@ angular.module('app.exam')
                 return total.toFixed(2);
             };
 
-            self.isOwner = function (exam) {
+            self.isOwner = function (exam, collaborative) {
                 const user = Session.getUser();
                 const examToCheck = exam && exam.parent ? exam.parent : exam;
                 return examToCheck && examToCheck.examOwners.filter(function (o) {
-                    return o.id === user.id;
+                    return o.id === user.id || (collaborative && (o.eppn === user.eppn || o.email === user.email));
                 }).length > 0;
             };
 
-            self.isOwnerOrAdmin = function (exam) {
+            self.isOwnerOrAdmin = function (exam, collaborative) {
                 const user = Session.getUser();
-                return exam && user && (user.isAdmin || self.isOwner(exam));
+                return exam && user && (user.isAdmin || self.isOwner(exam, collaborative));
             };
 
-            self.removeExam = function (exam, collaborative=false) {
+            self.removeExam = function (exam, collaborative = false) {
                 if (self.isAllowedToUnpublishOrRemove(exam, collaborative)) {
                     const dialog = dialogs.confirm(
                         $translate.instant('sitnet_confirm'),
@@ -373,12 +373,12 @@ angular.module('app.exam')
                 }
             }
 
-            self.getResource = function (url, collaborative=false) {
+            self.getResource = function (url, collaborative = false) {
                 return collaborative ?
                     url.replace('/app/exams/', '/integration/iop/exams/') : url;
             }
 
-            self.isAllowedToUnpublishOrRemove = function (exam, collaborative=false) {
+            self.isAllowedToUnpublishOrRemove = function (exam, collaborative = false) {
                 if (collaborative) {
                     return Session.getUser().isAdmin && (exam.state === 'DRAFT'
                         || exam.state === 'PRE_PUBLISHED');

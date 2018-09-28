@@ -21,8 +21,11 @@ angular.module('app.review')
         bindings: {
             exam: '<'
         },
-        controller: ['$uibModal', 'Assessment', 'Attachment', 'Files',
-            function ($modal, Assessment, Attachment, Files) {
+        require: {
+            parentCtrl: '^^assessment'
+        },
+        controller: ['$uibModal', '$routeParams', 'Assessment', 'CollaborativeAssessment', 'Attachment', 'Files',
+            function ($modal, $routeParams, Assessment, CollaborativeAssessment, Attachment, Files) {
 
                 const vm = this;
 
@@ -37,7 +40,11 @@ angular.module('app.review')
                 };
 
                 vm.saveFeedback = function () {
-                    Assessment.saveFeedback(vm.exam);
+                    if (vm.parentCtrl.collaborative) {
+                        CollaborativeAssessment.saveFeedback($routeParams.id, $routeParams.ref, vm.parentCtrl.participation);
+                    } else {
+                        Assessment.saveFeedback(vm.exam);
+                    }
                 };
 
                 vm.downloadFeedbackAttachment = function () {
@@ -62,7 +69,7 @@ angular.module('app.review')
                     }).result.then(function (data) {
                         Assessment.saveFeedback(vm.exam).then(function () {
                             Files.upload('/app/attachment/exam/' + vm.exam.id + '/feedback',
-                                data.attachmentFile, {examId: vm.exam.id}, vm.exam.examFeedback);
+                                data.attachmentFile, { examId: vm.exam.id }, vm.exam.examFeedback);
                         })
                     });
                 };

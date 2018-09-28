@@ -62,7 +62,7 @@ export interface Question {
     id: number;
     question: string;
     type: string;
-    attachment:  Attachment;
+    attachment: Attachment;
 }
 
 export interface ExamSectionQuestion {
@@ -93,6 +93,7 @@ export interface CollaborativeExam {
 export interface Participation {
     id: number;
     exam: Exam;
+    _rev: string;
 }
 
 export interface Exam {
@@ -122,4 +123,12 @@ export interface Exam {
     subjectToLanguageInspection: boolean | null;
     enrollInstruction: string;
     anonymous: boolean;
+    assessmentInfo: string;
+    examFeedback: { comment: string };
+    grade: Grade;
+    gradeless: boolean;
+    creditType: { type: string };
+    customCredit: number;
+    answerLanguage: ExamLanguage;
+    additionalInfo: string;
 }

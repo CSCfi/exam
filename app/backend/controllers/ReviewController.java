@@ -77,22 +77,6 @@ public class ReviewController extends BaseController {
     protected ActorSystem actor;
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getExamStudentInfo(Long eid) {
-
-        ExamParticipation participation = Ebean.find(ExamParticipation.class)
-                .fetch("user", "id, firstName, lastName, email, userIdentifier")
-                .where()
-                .eq("exam.id", eid)
-                .findOne();
-
-        if (participation == null) {
-            return notFound();
-        } else {
-            return ok(participation);
-        }
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail", "grade"})
     public Result getParticipationsForExamAndUser(Long eid) {
         final Exam exam = Ebean.find(Exam.class, eid);
@@ -131,22 +115,6 @@ public class ReviewController extends BaseController {
                 .orderBy("reservation.endAt")
                 .findList();
         return writeAnonymousResult(ok(enrolments), exam.isAnonymous());
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getReservationInformationForExam(Long eid) {
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .fetch("reservation.machine")
-                .fetch("reservation.machine.room")
-                .where()
-                .eq("exam.id", eid)
-                .findOne();
-        if (enrolment == null || enrolment.getReservation() == null) {
-            return notFound();
-        }
-        ExamMachine machine = enrolment.getReservation().getMachine();
-        return ok(machine);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -398,10 +366,6 @@ public class ReviewController extends BaseController {
                 .eq("reservation.noShow", true)
                 .orderBy("reservation.endAt")
                 .findList();
-        if (enrolments == null) {
-            return notFound();
-        }
-
         final Result result = ok(enrolments);
         Set<Long> anonIds = enrolments.stream().filter(e -> e.getExam().isAnonymous())
                 .map(GeneratedIdentityModel::getId)

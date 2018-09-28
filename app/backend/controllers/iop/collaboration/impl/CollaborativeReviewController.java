@@ -40,7 +40,6 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 
-import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.models.Exam;
 import backend.models.Grade;
 import backend.models.Role;
@@ -51,9 +50,6 @@ import backend.models.questions.Question;
 import backend.util.JsonDeserializer;
 
 public class CollaborativeReviewController extends CollaborationController {
-
-    @Inject
-    CollaborativeExamLoader examLoader;
 
     @Inject
     WSClient wsClient;
@@ -72,27 +68,44 @@ public class CollaborativeReviewController extends CollaborationController {
         }
     }
 
-    private Result handleRemoteResponse(WSResponse response, boolean processAnswers) {
+    private Result handleSingleAssessmentResponse(WSResponse response) {
         JsonNode root = response.asJson();
         if (response.getStatus() != OK) {
             return internalServerError(root.get("message").asText("Connection refused"));
         }
         JsonNode examNode = root.get("exam");
-        if (processAnswers) {
-            // Manipulate cloze test answers so that they can be conveniently displayed for review
-            stream(examNode.get("examSections"))
-                    .flatMap(es -> stream(es.get("sectionQuestions")))
-                    .filter(esq -> esq.get("question").get("type").textValue().equals(Question.Type.ClozeTestQuestion.toString()))
-                    .forEach(esq -> {
-                        if (!esq.get("clozeTestAnswer").isObject()) {
-                            ((ObjectNode) esq).set("clozeTestAnswer", Json.newObject());
-                        }
-                        ClozeTestAnswer cta = JsonDeserializer.deserialize(
-                                ClozeTestAnswer.class, esq.get("clozeTestAnswer"));
-                        cta.setQuestionWithResults(esq);
-                        ((ObjectNode) esq).set("clozeTestAnswer", serialize(cta));
-                    });
+
+        // Manipulate cloze test answers so that they can be conveniently displayed for review
+        stream(examNode.get("examSections"))
+                .flatMap(es -> stream(es.get("sectionQuestions")))
+                .filter(esq -> esq.get("question").get("type").textValue().equals(Question.Type.ClozeTestQuestion.toString()))
+                .forEach(esq -> {
+                    if (!esq.get("clozeTestAnswer").isObject() || esq.get("clozeTestAnswer").size() == 0) {
+                        ((ObjectNode) esq).set("clozeTestAnswer", Json.newObject());
+                    }
+                    ClozeTestAnswer cta = JsonDeserializer.deserialize(
+                            ClozeTestAnswer.class, esq.get("clozeTestAnswer"));
+                    cta.setQuestionWithResults(esq);
+                    ((ObjectNode) esq).set("clozeTestAnswer", serialize(cta));
+                });
+
+        return ok(root);
+    }
+
+    private Result handleMultipleAssesmentResponse(WSResponse response) {
+        JsonNode root = response.asJson();
+        if (response.getStatus() != OK) {
+            return internalServerError(root.get("message").asText("Connection refused"));
         }
+        // calculate scores
+        stream(root).forEach(ep -> {
+            Exam exam = JsonDeserializer.deserialize(Exam.class, ep.get("exam"));
+            exam.setMaxScore();
+            exam.setApprovedAnswerCount();
+            exam.setRejectedAnswerCount();
+            exam.setTotalScore();
+            ((ObjectNode) ep).set("exam", serialize(exam));
+        });
         return ok(root);
     }
 
@@ -107,7 +120,7 @@ public class CollaborativeReviewController extends CollaborationController {
                 .findAny()
                 .ifPresent(esq -> {
                     JsonNode essayAnswer = esq.get("essayAnswer");
-                    if (essayAnswer.isObject()) {
+                    if (essayAnswer.isObject() && essayAnswer.size() > 0) {
                         ((ObjectNode) essayAnswer).put("evaluatedScore", score);
                     } else {
                         ((ObjectNode) essayAnswer).set("essayAnswer",
@@ -127,7 +140,7 @@ public class CollaborativeReviewController extends CollaborationController {
             return wrapAsPromise(internalServerError());
         }
         WSRequest request = wsClient.url(url.get().toString());
-        return request.get().thenApplyAsync(resp -> handleRemoteResponse(resp, false));
+        return request.get().thenApplyAsync(this::handleMultipleAssesmentResponse);
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
@@ -141,7 +154,7 @@ public class CollaborativeReviewController extends CollaborationController {
             return wrapAsPromise(internalServerError());
         }
         WSRequest request = wsClient.url(url.get().toString());
-        return request.get().thenApplyAsync(resp -> handleRemoteResponse(resp, true));
+        return request.get().thenApplyAsync(this::handleSingleAssessmentResponse);
     }
 
     private CompletionStage<Result> upload(URL url, JsonNode payload) {
@@ -205,14 +218,14 @@ public class CollaborativeReviewController extends CollaborationController {
             }
             JsonNode examNode = root.get("exam");
             Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
-            if (!isAuthorizedToView(exam, user, loginRole)) {
+            if (!isAuthorizedToAssess(exam, user, loginRole)) {
                 return wrapAsPromise(forbidden("You are not allowed to modify this object"));
             }
             if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
                 return wrapAsPromise(forbidden("Not allowed to update grading of this exam"));
             }
             JsonNode grade = body.get("grade");
-            if (grade.isObject()) {
+            if (grade.isObject() && grade.size() > 0) {
                 boolean validGrade = exam.getGradeScale().getGrades().stream()
                         .map(Grade::getId)
                         .anyMatch(i -> i == grade.get("id").asInt());
@@ -221,31 +234,152 @@ public class CollaborativeReviewController extends CollaborationController {
                 } else {
                     return wrapAsPromise(badRequest("Invalid grade for this grade scale"));
                 }
-            } else if (body.get("gradeless").asBoolean(false)){
-                ((ObjectNode)examNode).set("grade", NullNode.getInstance());
-                ((ObjectNode)examNode).put("gradeless", true);
+            } else if (body.get("gradeless").asBoolean(false)) {
+                ((ObjectNode) examNode).set("grade", NullNode.getInstance());
+                ((ObjectNode) examNode).put("gradeless", true);
             } else {
-                ((ObjectNode)examNode).set("grade", NullNode.getInstance());
+                ((ObjectNode) examNode).set("grade", NullNode.getInstance());
             }
             JsonNode creditType = body.get("creditType");
-            ((ObjectNode)examNode).set("creditType", creditType);
-            ((ObjectNode)examNode).put("additionalInfo", body.get("additionalInfo").asText());
-            ((ObjectNode)examNode).put("answerLanguage", body.get("answerLanguage").asText());
-            ((ObjectNode)examNode).put("customCredit", body.get("customCredit").asDouble());
+            ((ObjectNode) examNode).set("creditType", creditType);
+            ((ObjectNode) examNode).put("additionalInfo", body.get("additionalInfo").asText());
+            ((ObjectNode) examNode).put("answerLanguage", body.get("answerLanguage").asText());
+            ((ObjectNode) examNode).put("customCredit", body.get("customCredit").asDouble());
 
             Exam.State newState = Exam.State.valueOf(body.get("state").asText());
-            ((ObjectNode)examNode).put("state", newState.toString());
+            ((ObjectNode) examNode).put("state", newState.toString());
             if (newState == Exam.State.GRADED || newState == Exam.State.GRADED_LOGGED) {
-                String gradedTime =  ISODateTimeFormat.dateTime().print(DateTime.now());
-                ((ObjectNode)examNode).put("gradedTime", gradedTime);
-                ((ObjectNode)examNode).set("gradedByUser", serialize(user));
+                String gradedTime = ISODateTimeFormat.dateTime().print(DateTime.now());
+                ((ObjectNode) examNode).put("gradedTime", gradedTime);
+                ((ObjectNode) examNode).set("gradedByUser", serialize(user));
             }
+            String revision = body.get("rev").asText();
+            ((ObjectNode) root).put("rev", revision);
 
             return upload(url.get(), root);
         };
         return request.get().thenComposeAsync(onSuccess);
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public CompletionStage<Result> addComment(Long id, String ref) {
+        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
+        if (ce == null) {
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+        }
+        Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
+        if (!url.isPresent()) {
+            return wrapAsPromise(internalServerError());
+        }
+        JsonNode body = request().body().asJson();
+        String revision = body.get("rev").asText();
+        WSRequest request = wsClient.url(url.get().toString());
+        Function<WSResponse, CompletionStage<Result>> onSuccess = (response) -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != OK) {
+                return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+            }
+            JsonNode examNode = root.get("exam");
+            ((ObjectNode)examNode).set("examFeedback",
+                    Json.newObject().put("comment", body.get("comment").asText()));
+            ((ObjectNode) root).put("rev", revision);
+            return upload(url.get(), root);
+        };
+        return request.get().thenComposeAsync(onSuccess);
+    }
 
+    @Restrict({@Group("TEACHER")})
+    public CompletionStage<Result> updateAssessmentInfo(Long id, String ref) {
+        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
+        if (ce == null) {
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+        }
+        Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
+        if (!url.isPresent()) {
+            return wrapAsPromise(internalServerError());
+        }
+        User user = getLoggedUser();
+        Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
+        JsonNode body = request().body().asJson();
+        String revision = body.get("rev").asText();
+        WSRequest request = wsClient.url(url.get().toString());
+        Function<WSResponse, CompletionStage<Result>> onSuccess = (response) -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != OK) {
+                return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+            }
+            JsonNode examNode = root.get("exam");
+            Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
+            if (!isAuthorizedToAssess(exam, user, loginRole)) {
+                return wrapAsPromise(forbidden("You are not allowed to modify this object"));
+            }
+            if (!exam.hasState(Exam.State.GRADED_LOGGED)) {
+                return wrapAsPromise(forbidden("Not allowed to update grading of this exam"));
+            }
+            ((ObjectNode)examNode).put("assessmentInfo", body.get("assessmentInfo").asText());
+            ((ObjectNode) root).put("rev", revision);
+            return upload(url.get(), root);
+        };
+        return request.get().thenComposeAsync(onSuccess);
+    }
+
+    private Optional<CompletionStage<Result>> validateExamState(Exam exam, boolean gradeRequired, User user,
+                                                                Role.Name loginRole) {
+        if (exam == null) {
+            return Optional.of(wrapAsPromise(notFound()));
+        }
+        if (!isAuthorizedToAssess(exam, user, loginRole)) {
+            return Optional.of(wrapAsPromise(forbidden("You are not allowed to modify this object")));
+        }
+        if ((exam.getGrade() == null && gradeRequired) || exam.getCreditType() == null || exam.getAnswerLanguage() == null ||
+                exam.getGradedByUser() == null) {
+            return Optional.of(wrapAsPromise(forbidden("not yet graded by anyone!")));
+        }
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
+                exam.getExamRecord() != null) {
+            return Optional.of(wrapAsPromise(forbidden("sitnet_error_exam_already_graded_logged")));
+        }
+        return Optional.empty();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public CompletionStage<Result> finalizeAssessment(Long id, String ref) {
+        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
+        if (ce == null) {
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+        }
+        Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
+        if (!url.isPresent()) {
+            return wrapAsPromise(internalServerError());
+        }
+        User user = getLoggedUser();
+        Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
+        JsonNode body = request().body().asJson();
+        String revision = body.get("rev").asText();
+        Boolean gradeless = body.get("gradeless").asBoolean(false);
+        WSRequest request = wsClient.url(url.get().toString());
+        Function<WSResponse, CompletionStage<Result>> onSuccess = (response) -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != OK) {
+                return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+            }
+            JsonNode examNode = root.get("exam");
+            Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
+            return validateExamState(exam, !gradeless, user, loginRole).orElseGet(() -> {
+                ((ObjectNode)examNode).put("state", Exam.State.GRADED_LOGGED.toString());
+                if (exam.getGradedByUser() == null && exam.getAutoEvaluationConfig() != null) {
+                    // Automatically graded by system, set graded by user at this point.
+                    ((ObjectNode)examNode).set("gradedByUser", serialize(user));
+                }
+                if (gradeless) {
+                    ((ObjectNode)examNode).put("gradeless", true);
+                    ((ObjectNode)examNode).set("grade", NullNode.getInstance());
+                }
+                ((ObjectNode) root).put("rev", revision);
+                return upload(url.get(), root);
+            });
+        };
+        return request.get().thenComposeAsync(onSuccess);
+    }
 
 }
