@@ -15,28 +15,14 @@
 
 package backend.controllers;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.TreeSet;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
-import backend.controllers.base.BaseController;
-import backend.impl.EmailComposer;
-import backend.impl.ExamUpdater;
-import backend.models.Course;
-import backend.models.Exam;
-import backend.models.ExamExecutionType;
-import backend.models.ExamMachine;
-import backend.models.ExamSection;
-import backend.models.ExamType;
-import backend.models.GradeScale;
-import backend.models.Language;
-import backend.models.Role;
-import backend.models.Software;
-import backend.models.User;
-import backend.models.questions.ClozeTestAnswer;
-import backend.models.questions.Question;
-import backend.sanitizers.Attrs;
-import backend.sanitizers.ExamUpdateSanitizer;
-import backend.system.interceptors.Anonymous;
-import backend.util.AppUtil;
-import backend.util.ConfigUtil;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -51,14 +37,25 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.With;
 
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import backend.controllers.base.BaseController;
+import backend.impl.EmailComposer;
+import backend.impl.ExamUpdater;
+import backend.models.Course;
+import backend.models.Exam;
+import backend.models.ExamExecutionType;
+import backend.models.ExamMachine;
+import backend.models.ExamSection;
+import backend.models.ExamType;
+import backend.models.GradeScale;
+import backend.models.Language;
+import backend.models.Role;
+import backend.models.Software;
+import backend.models.User;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.ExamUpdateSanitizer;
+import backend.system.interceptors.Anonymous;
+import backend.util.AppUtil;
+import backend.util.ConfigUtil;
 
 
 public class ExamController extends BaseController {
@@ -275,26 +272,12 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        Set<Question> questionsToHide = new HashSet<>();
-        exam.getExamSections().stream()
-                .flatMap(es -> es.getSectionQuestions().stream())
-                .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
-                .forEach(esq -> {
-                    ClozeTestAnswer answer = new ClozeTestAnswer();
-                    answer.setQuestion(esq);
-                    esq.setClozeTestAnswer(answer);
-                    questionsToHide.add(esq.getQuestion());
-                });
-        questionsToHide.forEach(q -> q.setQuestion(null));
-
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) ||
                 getLoggedUser().hasRole("ADMIN", getSession())) {
-            exam.getExamSections().stream().filter(ExamSection::getLotteryOn).forEach(ExamSection::shuffleQuestions);
-            exam.setDerivedMaxScores();
+            examUpdater.preparePreview(exam);
             return ok(exam);
-        } else {
-            return forbidden("sitnet_error_access_forbidden");
         }
+        return forbidden("sitnet_error_access_forbidden");
     }
 
     private Result handleExamUpdate(Exam exam) {

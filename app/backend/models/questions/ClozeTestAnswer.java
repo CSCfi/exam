@@ -147,6 +147,9 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
 
     public Score calculateScore(ExamSectionQuestion esq) {
         Map<String, String> answers = asMap(new Gson());
+        if (esq.getQuestion().getQuestion() == null) {
+            return new Score();
+        }
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
         Score score = new Score();
