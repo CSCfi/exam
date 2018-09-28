@@ -250,8 +250,8 @@ export class AttachmentService {
             exam.languageInspection.statement.attachment.fileName);
     }
 
-    getFileSize(attachment: Attachment): string {
-        return Math.round(attachment.size / 1000) + ' kB';
+    getFileSize(size: number): string {
+        return Math.round(size / 1000) + ' kB';
     }
 
     selectFile(isTeacherModal, resolve) {

@@ -19,8 +19,8 @@ import { Participation } from '../../exam/exam.model';
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
 
 interface Filter {
-    ordering: string,
-    text: string
+    ordering: string;
+    text: string;
 }
 
 export const CollaborativeExamParticipationsComponent: angular.IComponentOptions = {

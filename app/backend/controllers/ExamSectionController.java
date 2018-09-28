@@ -464,12 +464,14 @@ public class ExamSectionController extends QuestionController implements Section
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateUndistributedExamQuestion(Long sid, Long qid, Long eid) {
+    public Result updateUndistributedExamQuestion(Long eid, Long sid, Long qid) {
         User user = getLoggedUser();
         ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(qid);
         if (user.hasRole("TEACHER", getSession())) {
             query = query.eq("examSection.exam.examOwners", user);
         }
+        PathProperties pp = PathProperties.parse("(*, question(*, attachment(*), options(*)), options(*, option(*)))");
+        query.apply(pp);
         ExamSectionQuestion examSectionQuestion = query.findOne();
         if (examSectionQuestion == null) {
             return forbidden("sitnet_error_access_forbidden");
@@ -480,7 +482,7 @@ public class ExamSectionController extends QuestionController implements Section
         }
         updateExamQuestion(examSectionQuestion, question);
         examSectionQuestion.update();
-        return ok(examSectionQuestion);
+        return ok(examSectionQuestion, pp);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
