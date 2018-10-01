@@ -25,7 +25,7 @@ angular.module('app.review')
         require: {
             parentCtrl: '^^reviewList'
         },
-        controller: ['ReviewList', function (ReviewList) {
+        controller: ['ReviewList', 'Session', function (ReviewList, Session) {
 
             const vm = this;
 
@@ -37,6 +37,8 @@ angular.module('app.review')
                     vm.exam.examOwners.some(o => o.firstName + o.lastName === user.firstName + user.lastName);
 
             };
+
+            vm.showId = () => Session.getUser().isAdmin && vm.exam.anonymous;
 
             vm.getLinkToAssessment = (review) =>
                 vm.parentCtrl.collaborative ? `/assessments/collaborative/${vm.exam.id}/${review._id}`
@@ -51,7 +53,7 @@ angular.module('app.review')
                 vm.data.filtered = ReviewList.applyFilter(vm.data.filter, vm.data.items);
 
             const handleOngoingReviews = (review) => {
-                review.displayName = review.user ? `${review.user.lastName} ${review.user.firstName}` : review.exam.id;
+                review.displayName = ReviewList.getDisplayName(review, vm.parentCtrl.collaborative);
                 ReviewList.gradeExam(review.exam);
             };
 

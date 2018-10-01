@@ -23,12 +23,17 @@ angular.module('app.review')
             dismiss: '&',
             resolve: '<'
         },
-        controller: ['$translate', '$scope', 'ExamRes', function ($translate, $scope, ExamRes) {
+        controller: ['$translate', '$scope', 'ExamRes', 'Session', function ($translate, $scope, ExamRes, Session) {
 
             const vm = this;
 
             vm.$onInit = function () {
                 vm.abortedExams = vm.resolve.abortedExams;
+                vm.exam = vm.resolve.exam;
+            };
+
+            vm.showId = function () {
+                return Session.getUser().isAdmin && vm.exam.anonymous;
             };
 
             vm.permitRetrial = function (reservation) {

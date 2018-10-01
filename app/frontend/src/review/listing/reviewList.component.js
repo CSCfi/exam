@@ -36,7 +36,7 @@ angular.module('app.review')
                         function (resp) {
                             const reviews = resp.data;
                             reviews.forEach(function (r) {
-                                r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id;
+                                r.displayName = Review.getDisplayName(r, vm.collaborative);
                                 r.duration = $filter('diffInMinutesTo')(r.started, r.ended);
                                 if (r.exam.languageInspection && !r.exam.languageInspection.finishedAt) {
                                     r.isUnderLanguageInspection = true;
@@ -110,6 +110,7 @@ angular.module('app.review')
                         windowClass: 'question-editor-modal',
                         component: 'abortedExams',
                         resolve: {
+                            exam: vm.exam,
                             abortedExams: function () {
                                 return vm.abortedExams;
                             }

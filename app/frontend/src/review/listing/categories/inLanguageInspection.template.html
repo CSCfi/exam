@@ -30,6 +30,7 @@
     <table class="table table-striped exams-table">
         <thead>
             <tr>
+                <th ng-if="$ctrl.showId()" class="with-top">Id</th>
                 <th sort by="displayName" text="sitnet_student" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
                 <th sort by="user.email" text="sitnet_email" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
                 <th sort by="duration" text="sitnet_exam_duration" predicate="$ctrl.data.predicate" reverse="$ctrl.data.reverse"></th>
@@ -43,6 +44,7 @@
         <tbody>
             <tr ng-repeat="review in $ctrl.data.filtered | orderBy:$ctrl.data.predicate:$ctrl.data.reverse
             | offset: $ctrl.data.page*$ctrl.data.pageSize | limitTo: $ctrl.data.pageSize">
+                <td ng-if="$ctrl.showId()">{{ review._id || review.exam.id }}</td>
                 <td class="table-column-13 table-column-bold">
                     <a class="pointer" href="/assessments/{{review.exam.id}}">
                         {{review.displayName}}

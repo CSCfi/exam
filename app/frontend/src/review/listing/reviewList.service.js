@@ -23,6 +23,11 @@ angular.module('app.review')
 
             const self = this;
 
+            self.getDisplayName = function (review, collaborative = false) {
+                return review.user ? `${review.user.lastName} ${review.user.firstName}` :
+                    collaborative ? review._id : review.exam.id;
+            };
+
             self.gradeExam = function (exam) {
                 if (!exam.grade || !exam.grade.id) {
                     exam.grade = {};
