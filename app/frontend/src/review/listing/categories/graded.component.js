@@ -65,11 +65,12 @@ angular.module('app.review')
                     }
                     const dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                         $translate.instant('sitnet_confirm_record_review'));
+                    const examId = vm.parentCtrl.collaborative ? vm.exam.id : undefined;
 
                     dialog.result.then(function (btn) {
                         const promises = [];
                         selection.forEach(function (r) {
-                            promises.push(ReviewList.sendToRegistry(r));
+                            promises.push(ReviewList.sendToRegistry(r, examId));
                         });
                         $q.all(promises).then(function () {
                             vm.onRegistered({ reviews: selection });

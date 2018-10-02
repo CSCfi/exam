@@ -68,11 +68,20 @@ angular.module('app.review')
                     if (!selection) {
                         return;
                     }
-                    const ids = selection.map(r => r.exam.id);
-                    ExamRes.archive.update({ ids: ids.join() }, function () {
+                    const ok = () => {
                         vm.onArchive({ reviews: selection });
                         toast.info($translate.instant('sitnet_exams_archived'));
-                    });
+                    };
+                    /*if (vm.parentCtrl.collaborative) {
+                        selection.forEach(function (r) {
+                            const promises = [];
+                            promises.push(ReviewList.sendToArchive(r, vm.exam.id));
+                            $q.all(promises).then(ok);
+                        });
+                    } else { */
+                    const ids = selection.map(r => r.exam.id);
+                    ExamRes.archive.update({ ids: ids.join() }, ok);
+                    // }
                 };
 
                 vm.printSelected = function (asReport) {
