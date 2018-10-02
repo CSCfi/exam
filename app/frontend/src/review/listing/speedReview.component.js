@@ -190,8 +190,8 @@ angular.module('app.review')
                         animation: true,
                         component: 'attachmentSelector',
                         resolve: { title: function () { return 'sitnet_import_grades_from_csv'; } }
-                    }).result.then(function () {
-                        $route.reload();
+                    }).result.then(function (data) {
+                        Files.upload('/app/gradeimport', data.attachmentFile, {}, null, $route.reload);
                     });
 
                 };
