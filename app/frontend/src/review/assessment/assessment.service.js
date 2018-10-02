@@ -166,7 +166,7 @@ angular.module('app.review')
                 if (!self.checkCredit(exam)) {
                     return;
                 }
-                const messages = getErrors(exam);
+                const messages = self.getErrors(exam);
                 if (messages.length > 0) {
                     messages.forEach(function (msg) {
                         toast.error($translate.instant(msg));
@@ -225,7 +225,7 @@ angular.module('app.review')
                     if (!self.checkCredit(exam)) {
                         return;
                     }
-                    const messages = getErrors(exam);
+                    const messages = self.getErrors(exam);
                     if (exam.executionType.type === 'MATURITY') {
                         sendAssessment(exam.state, getPayload(exam), messages, exam);
                     } else {
