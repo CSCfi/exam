@@ -28,8 +28,8 @@ angular.module('app.review')
                 const vm = this;
 
                 vm.$onInit = function () {
-                    const path = vm.collaborative ? `${$routeParams.id}/${$routeParams.ref}` : $routeParams.id;
-                    const url = getResource(path);
+                    vm.path = vm.collaborative ? `${$routeParams.id}/${$routeParams.ref}` : $routeParams.id;
+                    const url = getResource(vm.path);
                     $http.get(url).then(function (resp) {
                         // TODO: this is ugly. Should make ReviewController return a participation too
                         const participation = vm.collaborative ? resp.data : resp.data.examParticipation;
@@ -98,8 +98,8 @@ angular.module('app.review')
                             );
                         } else {
                             const review = CollaborativeAssessment.getPayload(vm.exam, state, vm.participation._rev);
-                            const url = `/integration/iop/reviews/${examId}/${examRef}`;
-                            $http.put(url, payload).then(function (resp) {
+                            const url = `/integration/iop/reviews/${vm.path}`;
+                            $http.put(url, review).then(function (resp) {
                                 vm.participation._rev = resp.data.rev;
                                 vm.exam.state = state;
                             });

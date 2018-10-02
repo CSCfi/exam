@@ -230,7 +230,7 @@ public class CollaborativeReviewController extends CollaborationController {
                 return wrapAsPromise(forbidden("Not allowed to update grading of this exam"));
             }
             JsonNode grade = body.get("grade");
-            if (grade.isObject() && grade.size() > 0) {
+            if (grade != null && grade.isObject() && grade.size() > 0) {
                 boolean validGrade = exam.getGradeScale().getGrades().stream()
                         .map(Grade::getId)
                         .anyMatch(i -> i == grade.get("id").asInt());
@@ -239,7 +239,7 @@ public class CollaborativeReviewController extends CollaborationController {
                 } else {
                     return wrapAsPromise(badRequest("Invalid grade for this grade scale"));
                 }
-            } else if (body.get("gradeless").asBoolean(false)) {
+            } else if (body.path("gradeless").asBoolean(false)) {
                 ((ObjectNode) examNode).set("grade", NullNode.getInstance());
                 ((ObjectNode) examNode).put("gradeless", true);
             } else {
@@ -247,18 +247,24 @@ public class CollaborativeReviewController extends CollaborationController {
             }
             JsonNode creditType = body.get("creditType");
             ((ObjectNode) examNode).set("creditType", creditType);
-            ((ObjectNode) examNode).put("additionalInfo", body.get("additionalInfo").asText());
-            ((ObjectNode) examNode).put("answerLanguage", body.get("answerLanguage").asText());
-            ((ObjectNode) examNode).put("customCredit", body.get("customCredit").asDouble());
+            ((ObjectNode) examNode).put("additionalInfo", body.path("additionalInfo")
+                    .asText(null));
+            ((ObjectNode) examNode).put("answerLanguage", body.path("answerLanguage")
+                    .asText(null));
+            ((ObjectNode) examNode).put("customCredit", body.path("customCredit").isMissingNode() ? null :
+                    body.path("customCredit").doubleValue());
 
-            Exam.State newState = Exam.State.valueOf(body.get("state").asText());
+            Exam.State newState = Exam.State.valueOf(body.path("state").asText());
             ((ObjectNode) examNode).put("state", newState.toString());
             if (newState == Exam.State.GRADED || newState == Exam.State.GRADED_LOGGED) {
                 String gradedTime = ISODateTimeFormat.dateTime().print(DateTime.now());
                 ((ObjectNode) examNode).put("gradedTime", gradedTime);
                 ((ObjectNode) examNode).set("gradedByUser", serialize(user));
             }
-            String revision = body.get("rev").asText();
+            String revision = body.path("rev").asText(null);
+            if (revision == null) {
+                return wrapAsPromise(badRequest());
+            }
             ((ObjectNode) root).put("rev", revision);
 
             return upload(url.get(), root);
@@ -360,13 +366,17 @@ public class CollaborativeReviewController extends CollaborationController {
         User user = getLoggedUser();
         Role.Name loginRole = Role.Name.valueOf(getSession().getLoginRole());
         JsonNode body = request().body().asJson();
-        String revision = body.get("rev").asText();
-        Boolean gradeless = body.get("gradeless").asBoolean(false);
+        String revision = body.path("rev").asText(null);
+        if (revision == null) {
+            return wrapAsPromise(badRequest());
+        }
+        Boolean gradeless = body.path("gradeless").asBoolean(false);
         WSRequest request = wsClient.url(url.get().toString());
         Function<WSResponse, CompletionStage<Result>> onSuccess = (response) -> {
             JsonNode root = response.asJson();
             if (response.getStatus() != OK) {
-                return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
+                return wrapAsPromise(internalServerError(root.get("message")
+                        .asText("Connection refused")));
             }
             JsonNode examNode = root.get("exam");
             Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
