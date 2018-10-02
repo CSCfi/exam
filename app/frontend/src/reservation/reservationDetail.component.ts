@@ -26,7 +26,6 @@ export const ReservationDetailComponent: angular.IComponentOptions = {
     },
     controller: class ReservationDetailController implements angular.IComponentController {
         reservations: any[];
-        isAdminView = false;
 
         constructor(
             private $http: angular.IHttpService,
