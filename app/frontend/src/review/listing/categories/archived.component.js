@@ -55,7 +55,7 @@ angular.module('app.review')
                 r.displayedGradingTime = r.exam.languageInspection ?
                     r.exam.languageInspection.finishedAt : r.exam.gradedTime;
                 r.displayedGrade = translateGrade(r.exam);
-                r.displayedCredit = examCredit(r.exam.course.credits, r.exam.customCredit);
+                r.displayedCredit = examCredit(r.exam.course ? r.exam.course.credits : 0, r.exam.customCredit);
             };
 
             vm.pageSelected = function (page) {

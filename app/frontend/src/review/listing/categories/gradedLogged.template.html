@@ -2,15 +2,12 @@
     <div class="col-md-12">
         <div class="review-list-title">{{ 'sitnet_exam_graded_logged' | translate }}
             <a ng-click="$ctrl.data.toggle = !$ctrl.data.toggle" class="pointer">
-                <img ng-show="!$ctrl.data.toggle" src="Images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';"
-                />
-                <img ng-show="$ctrl.data.toggle" src="Images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';"
-                />
+                <img ng-show="!$ctrl.data.toggle" src="Images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';" />
+                <img ng-show="$ctrl.data.toggle" src="Images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';" />
             </a>
             <sup class="padl05">
                 <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_graded_logged_description' | translate}}"
-                    src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"
-                />
+                    src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
             </sup>
         </div>
     </div>
@@ -27,7 +24,8 @@
 
 <div ng-show="$ctrl.data.toggle && $ctrl.data.items.length > 0">
     <div class="form-group input-group search tab-search review-list-search padl0 marl30">
-        <input ng-change="$ctrl.applyFreeSearchFilter()" ng-model="$ctrl.data.filter" class="form-control search" placeholder="{{'sitnet_search' | translate }}">
+        <input ng-change="$ctrl.applyFreeSearchFilter()" ng-model="$ctrl.data.filter" class="form-control search"
+            placeholder="{{'sitnet_search' | translate }}">
         <div class="input-group-addon search">
             <img class="nopad" src="Images/icon_search.png" width="49" height="40">
         </div>
@@ -36,7 +34,7 @@
     <table class="table table-striped exams-table">
         <thead>
             <tr>
-                <th class="dropdown" uib-dropdown>
+                <th class="dropdown" ng-if="!$ctrl.parentCtrl.collaborative" uib-dropdown>
                     <button class="btn btn-xs btn-default" data-toggle="dropdown" uib-dropdown-toggle>
                         <i class="fa fa-square-o"></i>&nbsp;
                         <i class="fa fa-angle-down"></i>
@@ -69,7 +67,7 @@
         <tbody>
             <tr ng-repeat="review in $ctrl.data.filtered | orderBy:$ctrl.data.predicate:$ctrl.data.reverse
         | offset: $ctrl.currentPageGradedLogged*$ctrl.data.pageSize | limitTo:$ctrl.data.pageSize">
-                <td class="table-column-checkbox">
+                <td ng-if="!$ctrl.parentCtrl.collaborative" class="table-column-checkbox">
                     <input type="checkbox" ng-model="review.selected" class="selectionBox" value="{{review.exam.id}}" />
                 </td>
                 <td ng-if="$ctrl.showId()">{{ review._id || review.exam.id }}</td>
@@ -77,20 +75,22 @@
                     <a class="pointer" href="{{ $ctrl.getLinkToAssessment(review) }}">
                         {{review.displayName}}
                         <span ng-if="review.user.userIdentifier">
-                            <br/>({{review.user.userIdentifier}})</span>
+                            <br />({{review.user.userIdentifier}})</span>
                     </a>
                 </td>
                 <td class="table-column-15">
                     <a class="pointer smaller" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                 </td>
                 <td class="table-column-10">{{review.duration + " min"}}</td>
-                <td class="table-column-10">{{review.started | adjustdst | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
-                    translate}} {{review.started | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date: 'HH:mm'}}
+                <td class="table-column-10">{{review.started | adjustdst | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short'
+                    |
+                    translate}} {{review.started | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date:
+                    'HH:mm'}}
                 </td>
                 <td class="table-column-15">{{review.exam.totalScore}} / {{review.exam.maxScore}}
                     <span ng-if="review.exam.rejectedAnswerCount > 0 || review.exam.approvedAnswerCount > 0">
-                        <br/>{{'sitnet_approved' | translate }}: {{ review.exam.approvedAnswerCount }}
-                        <br/>{{'sitnet_rejected' | translate }}: {{ review.exam.rejectedAnswerCount }}
+                        <br />{{'sitnet_approved' | translate }}: {{ review.exam.approvedAnswerCount }}
+                        <br />{{'sitnet_rejected' | translate }}: {{ review.exam.rejectedAnswerCount }}
                     </span>
                 </td>
                 <td class="table-column-15">{{review.displayedGrade}}</td>
@@ -114,7 +114,8 @@
 
 <div class="detail-row">
     <div class="col-md-12" ng-show="$ctrl.data.toggle && $ctrl.data.filtered.length > $ctrl.data.pageSize">
-        <paginator items="$ctrl.data.filtered" page-size="$ctrl.data.pageSize" on-select-page="$ctrl.pageSelected(page)" current-page="$ctrl.data.page"></paginator>
+        <paginator items="$ctrl.data.filtered" page-size="$ctrl.data.pageSize" on-select-page="$ctrl.pageSelected(page)"
+            current-page="$ctrl.data.page"></paginator>
     </div>
 </div>
 
@@ -127,7 +128,7 @@
             <a class="pointer" ng-click="$ctrl.printSelected()">{{'sitnet_print_selected_to_file' | translate}}</a>
         </div>
 
-        <span class="pull-right">
+        <span ng-if="!$ctrl.parentCtrl.collaborative" class="pull-right">
             <div class="review-attachment-button make-inline mart20 marr30 marl10">
                 <a class="pointer" ng-click="$ctrl.archiveSelected()">
                     {{'sitnet_archive_selected' | translate}}

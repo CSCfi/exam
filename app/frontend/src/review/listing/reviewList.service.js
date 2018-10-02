@@ -18,8 +18,8 @@ import _ from 'lodash';
 import toast from 'toastr';
 
 angular.module('app.review')
-    .service('ReviewList', ['$q', '$translate', 'Exam', 'ExamRes',
-        function ($q, $translate, Exam, ExamRes) {
+    .service('ReviewList', ['$q', '$http', '$translate', 'Exam', 'ExamRes',
+        function ($q, $http, $translate, Exam, ExamRes) {
 
             const self = this;
 
@@ -46,7 +46,7 @@ angular.module('app.review')
                     }
                     return grade;
                 });
-                const noGrade = {type: 'NONE', name: Exam.getExamGradeDisplayName('NONE')};
+                const noGrade = { type: 'NONE', name: Exam.getExamGradeDisplayName('NONE') };
                 if (exam.gradeless && !exam.selectedGrade) {
                     exam.selectedGrade = noGrade;
                 }
@@ -97,24 +97,6 @@ angular.module('app.review')
                     return;
                 }
                 return objects;
-            };
-
-            self.sendSelectedToRegistry = function (data) {
-                const selection = getSelectedReviews(data);
-                if (!selection) {
-                    return;
-                }
-                const dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_record_review'));
-
-                dialog.result.then(function (btn) {
-                    const promises = [];
-                    selection.forEach(function (r) {
-                        promises.push(send(r));
-                    });
-                    $q.all(promises).then(function () {
-                        toast.info($translate.instant('sitnet_results_send_ok'));
-                    });
-                });
             };
 
             const resetSelections = function (scope, view) {
@@ -174,30 +156,46 @@ angular.module('app.review')
                 return objects;
             };
 
-            self.sendToRegistry = function (review) {
+            const send = function (review, examId, state) {
                 const deferred = $q.defer();
                 const exam = review.exam;
-                const resource = exam.gradeless ? ExamRes.register : ExamRes.saveRecord;
+
                 if ((exam.grade || exam.gradeless) && exam.creditType && exam.answerLanguage) {
                     const examToRecord = {
                         'id': exam.id,
-                        'state': 'GRADED_LOGGED',
+                        'state': state,
                         'grade': exam.grade,
                         'customCredit': exam.customCredit,
                         'totalScore': exam.totalScore,
                         'creditType': exam.creditType,
-                        'sendFeedback': true,
                         'answerLanguage': exam.answerLanguage
                     };
-
-                    resource.add(examToRecord, function () {
-                        deferred.resolve();
-                    });
+                    if (examId) {
+                        const url = `/integration/iop/reviews/${examId}/${review._id}/record`;
+                        examToRecord.rev = review._rev;
+                        $http.put(url, examToRecord).then(function (resp) {
+                            review._rev = resp.data.rev;
+                            deferred.resolve();
+                        });
+                    } else {
+                        const resource = exam.gradeless ? ExamRes.register : ExamRes.saveRecord;
+                        resource.add(examToRecord, function () {
+                            deferred.resolve();
+                        });
+                    }
                 } else {
                     toast.error($translate.instant('sitnet_failed_to_record_review'));
                     deferred.reject();
                 }
                 return deferred.promise;
+            }
+
+            self.sendToArchive = function (review, examId) {
+                send(review, examId, 'ARCHIVED');
+            }
+
+            self.sendToRegistry = function (review, examId) {
+                send(review, examId, 'GRADED_LOGGED');
             };
 
 
