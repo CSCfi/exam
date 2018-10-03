@@ -55,6 +55,7 @@ export class SessionService {
     _scheduler: IPromise<any>;
 
     constructor(private $http: angular.IHttpService,
+        private $route: angular.route.IRouteService,
         private $q: angular.IQService,
         private $interval: angular.IIntervalService,
         private $sessionStorage: any, // no usable typedef available
@@ -133,8 +134,6 @@ export class SessionService {
     private redirect(): void {
         if (this.$location.path() === '/' && this._user.isLanguageInspector) {
             this.$location.path('/inspections');
-        } else if (this._env && !this._env.isProd) {
-            this.$location.path(this._user.isLanguageInspector ? '/inspections' : '/');
         }
     }
 
@@ -305,6 +304,8 @@ export class SessionService {
             this.$http.put('/app/users/agreement', {}).then(() => {
                 user.userAgreementAccepted = true;
                 this.setUser(user);
+                // We need to reload controllers after accepted user agreement.
+                this.$route.reload();
             }).catch((resp) => {
                 toastr.error(resp.data);
             });
@@ -331,6 +332,9 @@ export class SessionService {
                 this.$rootScope.$broadcast('userUpdated');
                 if (user.isStudent && !user.userAgreementAccepted) {
                     this.openEulaModal(user);
+                } else {
+                    // We need to reload controllers after role is selected.
+                    this.$route.reload();
                 }
             }).catch((resp) => {
                 toastr.error(resp.data);

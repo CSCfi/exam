@@ -33,12 +33,17 @@ angular.module('app.enrolment')
         '        <enrolment-candidate ng-repeat="exam in $ctrl.exams" exam="exam"></enrolment-candidate>\n' +
         '    </div>\n' +
         '</div>\n',
-        controller: ['$routeParams', 'Enrolment',
-            function ($routeParams, Enrolment) {
+        controller: ['$routeParams', 'Enrolment', 'Session',
+            function ($routeParams, Enrolment, Session) {
 
                 const vm = this;
 
                 vm.$onInit = function () {
+                    const user = Session.getUser();
+                    if (!user.loginRole) {
+                        // We can not load resources before role is known.
+                        return;
+                    }
                     Enrolment.getEnrolmentInfo($routeParams.code, $routeParams.id).then(function (data) {
                         vm.exam = data;
                     }, function (err) {
