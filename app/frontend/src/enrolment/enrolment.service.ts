@@ -112,7 +112,7 @@ export class EnrolmentService {
 
     getEnrolmentInfo(code: string, id: number): ng.IPromise<EnrolmentInfo> {
         const deferred: ng.IDeferred<EnrolmentInfo> = this.$q.defer();
-        this.$http.get(`/app/enrolments/${id}`).then((resp: ng.IHttpResponse<Exam>) => {
+        this.$http.get(`/app/enrolments/${id}?code=${code}`).then((resp: ng.IHttpResponse<Exam>) => {
             const exam = resp.data;
             this.getMaturityInstructions(exam).then(data => {
                 const info: EnrolmentInfo =
