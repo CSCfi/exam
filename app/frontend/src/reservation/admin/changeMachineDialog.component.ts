@@ -46,7 +46,7 @@ export const ChangeMachineDialogComponent: angular.IComponentOptions = {
 
         $onInit() {
             this.reservation = this.resolve.reservation;
-            this.$http.get(`/app/reservations/${this.reservation.id}}/machines`).then((resp: IHttpResponse<any[]>) => {
+            this.$http.get(`/app/reservations/${this.reservation.id}/machines`).then((resp: IHttpResponse<any[]>) => {
                 this.availableMachineOptions = resp.data.map(o => {
                     return {
                         id: o.id,
@@ -74,10 +74,9 @@ export const ChangeMachineDialogComponent: angular.IComponentOptions = {
                 }).catch(resp => toast.error(resp.data));
         }
 
-        cancel = function () {
+        cancel() {
             this.close({ $value: 'Dismissed' });
-        };
-
+        }
 
     }
 
