@@ -91,7 +91,7 @@
                     </button>
                     <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu" aria-labelledby="dropDownMenu21">
                         <li role="presentation" class="input-group">
-                            <input ng-model="$ctrl.limitations.organisations" class="form-control" ng-click="$event.preventDefault()" placeholder="{{'sitnet_search' | translate }}">
+                            <input ng-model="$ctrl.limitations.organisations" class="form-control" ng-click="$event.stopPropagation()" placeholder="{{'sitnet_search' | translate }}">
                             <div class="input-group-addon">
                                 <i class="fa fa-search fa-fw"></i>
                             </div>
@@ -160,8 +160,8 @@
                     </button>
                     <ul class="dropdown-menu student-select-room" role="menu" aria-labelledby="dropDownMenu1">
                         <li role="presentation" class="input-group">
-                            <input ng-model="$ctrl.limitations.rooms" class="form-control" ng-click="$event.preventDefault()" placeholder="{{'sitnet_search' | translate }}">
-
+                            <input ng-model="$ctrl.limitations.rooms" class="form-control"
+                                   ng-click="$event.stopPropagation()" placeholder="{{'sitnet_search' | translate }}">
                             <div class="input-group-addon">
                                 <i class="fa fa-search fa-fw"></i>
                             </div>
