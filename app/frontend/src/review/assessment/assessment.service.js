@@ -195,7 +195,7 @@ angular.module('app.review')
 
             self.saveEssayScore = function (question, examId, examRef, rev) {
                 if (!question.essayAnswer || isNaN(question.essayAnswer.evaluatedScore)) {
-                    return $q.reject();
+                    return $q.reject({ data: 'sitnet_error_score_input' });
                 }
                 const url = examId && examRef ? `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}` :
                     `/app/review/examquestion/${question.id}/score`;
