@@ -54,8 +54,8 @@ angular.module('app.review')
                         .then(function (resp) {
                             toast.info($translate.instant('sitnet_graded'));
                             vm.onScore({ revision: resp.data ? resp.data.rev : undefined });
-                        }, function (error) {
-                            toast.error(error.data);
+                        }).catch(function (error) {
+                            toast.error($translate.instant(error.data));
                         });
                 };
 
