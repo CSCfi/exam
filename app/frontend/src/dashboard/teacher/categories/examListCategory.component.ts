@@ -87,7 +87,7 @@ export const ExamListCategoryComponent: ng.IComponentOptions = {
         copyExam(exam, type) {
             this.$http.post(`/app/exams/${exam.id}`, { type: type }).then((resp: IHttpResponse<{ id: number }>) => {
                 toast.success(this.$translate.instant('sitnet_exam_copied'));
-                this.$location.path(`/exams/'${resp.data.id}/1`);
+                this.$location.path(`/exams/${resp.data.id}/1`);
             }).catch(resp => toast.error(resp.data));
         }
 
