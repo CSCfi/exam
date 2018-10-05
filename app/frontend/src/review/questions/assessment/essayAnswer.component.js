@@ -59,7 +59,7 @@ angular.module('app.review')
                 };
 
                 vm.downloadAttachment = function () {
-                    return Attachment.downloadQuestionAnswerAttachment(vm.answer, vm.answer.examSection.exam.hash);
+                    return Attachment.downloadQuestionAnswerAttachment(vm.answer);
                 };
 
             }

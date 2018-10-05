@@ -46,7 +46,7 @@ angular.module('app.review')
                 };
 
                 vm.downloadQuestionAnswerAttachment = function () {
-                    return Attachment.downloadQuestionAnswerAttachment(vm.sectionQuestion, vm.exam.hash);
+                    return Attachment.downloadQuestionAnswerAttachment(vm.sectionQuestion);
                 };
 
                 vm.insertEssayScore = function () {

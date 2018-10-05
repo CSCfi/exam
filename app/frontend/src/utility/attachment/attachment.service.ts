@@ -227,8 +227,8 @@ export class AttachmentService {
         }
     }
 
-    downloadQuestionAnswerAttachment(question: AnsweredQuestion, hash: string) {
-        this.Files.download(`/app/attachment/question/${question.id}/answer/${hash}`,
+    downloadQuestionAnswerAttachment(question: AnsweredQuestion) {
+        this.Files.download(`/app/attachment/question/${question.id}/answer`,
             question.essayAnswer.attachment.fileName);
     }
 
