@@ -128,6 +128,7 @@ public class QuestionController extends BaseController {
         if (question == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
+        Collections.sort(question.getOptions());
         Question copy = question.copy();
         copy.setParent(null);
         copy.setQuestion(String.format("<p>**COPY**</p>%s", question.getQuestion()));
