@@ -109,6 +109,7 @@ export interface Exam {
     collaborative: boolean;
     hash: string;
     examOwners: User[];
+    creator: User;
     examType: { type: string };
     executionType: ExamExecutionType;
     examEnrolments: { reservation?: { endAt: number } }[];
@@ -117,6 +118,7 @@ export interface Exam {
     children: Exam[];
     examinationDates: ExaminationDate[];
     trialCount: number | null;
+    parent: Exam | null;
     state: string;
     examSections: ExamSection[];
     examLanguages: ExamLanguage[];
@@ -129,6 +131,6 @@ export interface Exam {
     gradeless: boolean;
     creditType: { type: string };
     customCredit: number;
-    answerLanguage: ExamLanguage;
+    answerLanguage: ExamLanguage | string;
     additionalInfo: string;
 }
