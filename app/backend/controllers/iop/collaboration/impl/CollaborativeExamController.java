@@ -173,12 +173,11 @@ public class CollaborativeExamController extends CollaborationController {
             }
             String externalRef = root.get("id").asText();
             String revision = root.get("rev").asText();
-            final boolean anonymous = root.get("anonymous").booleanValue();
             CollaborativeExam ce = new CollaborativeExam();
             ce.setExternalRef(externalRef);
             ce.setRevision(revision);
             ce.setCreated(DateTime.now());
-            ce.setAnonymous(anonymous);
+            ce.setAnonymous(true);
             ce.save();
             return created(Json.newObject().put("id", ce.getId()));
         };
