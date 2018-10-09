@@ -60,6 +60,10 @@ angular.module('app.facility')
                     vm.activeTab = 4;
                 };
 
+                vm.editMultipleRooms = function () {
+                    $location.path("/rooms_edit/edit_multiple");
+                };
+
                 vm.goBack = function (event) {
                     event.preventDefault();
                     $window.history.back();

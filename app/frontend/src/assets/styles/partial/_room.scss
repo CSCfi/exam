@@ -203,7 +203,6 @@
 
     font-family: HelveticaNeue;
     font-size: 14px;
-    color: #2c2c2c;
     letter-spacing: 0.69px;
     text-align: left;
   }
@@ -211,21 +210,17 @@
   .exam-room-label {
     font-family: HelveticaNeue;
     font-size: 20px;
-    color: #2c2c2c;
     letter-spacing: 0.63px;
     text-align: left;
   }
 
   .toggleMessage {
     background-color: white;
-
-    color: #444;
     cursor: pointer;
     padding: 18px;
     width: 97%;
     text-align: left;
     border: 1px solid #dfdfdf;
-    border-bottom: none;
     outline: none;
     transition: 0.4s;
     font-size: 16px;
@@ -243,7 +238,6 @@
 
   .room-name-title {
     font-size: 22px;
-    color: #2C2C2C;
     letter-spacing: 0.63px;
     text-align: left;
     display: inline-block;

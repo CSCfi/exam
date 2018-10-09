@@ -65,10 +65,6 @@ angular.module('app.facility.rooms')
                     );
                 };
 
-                vm.editMultipleRooms = function () {
-                    $location.path("/rooms_edit/edit_multiple");
-                };
-
                 vm.isArchived = function (machine) {
                     return machine.isArchived() === false;
                 };
