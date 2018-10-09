@@ -889,5 +889,9 @@
   "sitnet_pre_publish_exam_confirm_dialog_title": "Tentin esijulkaisu SV",
   "sitnet_anonymous_review": "Anonyymi arviointi SV",
   "sitnet_collaborative_exam_responses": "Yhteistenttien suoritukset SV",
-  "sitnet_collaborative_exam_response_search_description": "Voit hakea yhteistenttien suorituksia tentin nimen mukaan. SV"
+  "sitnet_collaborative_exam_response_search_description": "Voit hakea yhteistenttien suorituksia tentin nimen mukaan. SV",
+  "sitnet_exam_rooms_administration": "Tenttitilojen ylläpito SV",
+  "sitnet_exam_all_rooms": "Kaikki tenttitilat SV",
+  "sitnet_exam_machine_softwares": "Tarvittavat ohjelmistot SV",
+  "sitnet_openinghours_exception_datetimes": "Aukioloajat ja poikkeusaukioloajat SV"
 }

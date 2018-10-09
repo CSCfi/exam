@@ -1,13 +1,21 @@
 <div id="dashboard">
     <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title marl20">{{'sitnet_exam_rooms_administration' | translate}}
-                    <a ng-click="$ctrl.createExamRoom()">
+        <div class="col-md-9">
+            <div class="student-enroll-title-wrap marb20">
+                <div>
+                    <span class="student-enroll-title">{{'sitnet_exam_rooms_administration' | translate}}</span>
+                    <a ng-click="$ctrl.createExamRoom()" class="marl20">
                         <img class="plus_icon" src="Images/icon_plus.png">
                     </a>
                 </div>
             </div>
+        </div>
+        <div class="col-md-3">
+            <span class="pull-left fa-stack fa-lg header-top-icon">
+                <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                <i class="fa sitnet-white fa-building-o fa-stack-1x"></i>
+            </span>
+            <a class="header-top-link" ng-click="$ctrl.editMultipleRooms()">{{ 'sitnet_edit_all_rooms' | translate }}</a>
         </div>
     </div>
         <div class="tab-wrapper">
@@ -18,12 +26,12 @@
                     room="$ctrl.room" on-next-tab-selected="$ctrl.switchToExceptionTimes()">
                 </room-list>
             </uib-tab>
-            <uib-tab ng-if="$ctrl.user.isAdmin" index="2" heading="{{ 'sitnet_exception_datetimes' | translate }}"
-                     deselect="$ctrl.tabChanged($selectedIndex)">
-                <exception-list-all
-                    room="$ctrl.room" on-previous-tab-selected="$ctrl.switchToExamRooms" on-next-tab-selected="$ctrl.switchToNeededSoftware">
-                </exception-list-all>
-            </uib-tab>
+            <!--<uib-tab ng-if="$ctrl.user.isAdmin" index="2" heading="{{ 'sitnet_exception_datetimes' | translate }}"-->
+                     <!--deselect="$ctrl.tabChanged($selectedIndex)">-->
+                <!--<exception-list-all-->
+                    <!--room="$ctrl.room" on-previous-tab-selected="$ctrl.switchToExamRooms" on-next-tab-selected="$ctrl.switchToNeededSoftware">-->
+                <!--</exception-list-all>-->
+            <!--</uib-tab>-->
             <uib-tab ng-if="$ctrl.user.isAdmin" index="3" heading="{{ 'sitnet_exam_machine_softwares' | translate }}"
                      deselect="$ctrl.tabChanged($selectedIndex)">
                 <software
