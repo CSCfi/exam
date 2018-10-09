@@ -17,15 +17,16 @@ import * as angular from 'angular';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 import { LanguageService } from '../common/language.service';
-import { LanguageInspectionService, QueryParams, QueryResult } from './languageInspections.service';
+import { LanguageInspectionService, QueryParams } from './languageInspections.service';
+import { LanguageInspection } from './maturity.model';
 
-interface LanguageInspectionEntity implements QueryResult {
+interface LanguageInspectionData extends LanguageInspection {
     ownerAggregate: string;
     studentName: string;
     studentNameAggregate: string;
     inspectorName: string;
     inspectorNameAggregate: string;
-    answerLanguage: string;
+    answerLanguage?: string;
 }
 
 export const LanguageInspectionsComponent: angular.IComponentOptions = {
@@ -34,10 +35,10 @@ export const LanguageInspectionsComponent: angular.IComponentOptions = {
 
         private startDate: Date;
         private endDate: Date;
+        private ongoingInspections: LanguageInspectionData[];
+        private processedInspections: LanguageInspectionData[];
 
         constructor(
-            private $http: angular.IHttpService,
-            private $translate: angular.translate.ITranslateService,
             private Language: LanguageService,
             private LanguageInspections: LanguageInspectionService
         ) {
@@ -53,15 +54,14 @@ export const LanguageInspectionsComponent: angular.IComponentOptions = {
                 params.start = this.startDate.getTime() + tzOffset;
             }
             if (this.endDate) {
-                let m: moment.Moment = moment(this.endDate).add(1, 'days');
+                const m = moment(this.endDate).add(1, 'days');
                 params.end = Date.parse(m.format());
             }
             const refreshAll = _.isEmpty(params);
             this.LanguageInspections.query(params).then(
                 (resp) => {
-                    const inspections = resp.data;
-                    inspections.forEach(i => {
-                        const entity: LanguageInspectionEntity = _.extend(i, {
+                    const inspections: LanguageInspectionData[] = resp.data.map(i =>
+                        _.assign(i, {
                             ownerAggregate: i.exam.parent ? i.exam.parent.examOwners
                                 .map(o => `${o.firstName} ${o.lastName}`).join(', ') : '',
                             studentName: i.exam.creator ?
@@ -73,55 +73,29 @@ export const LanguageInspectionsComponent: angular.IComponentOptions = {
                             inspectorNameAggregate: i.modifier ?
                                 `${i.modifier.lastName} ${i.modifier.firstName}` : '',
                             answerLanguage: i.exam.answerLanguage ?
-                                this.Language.getLanguageNativeName(i.exam.answerLanguage) : '';
-
+                                this.Language.getLanguageNativeName(i.exam.answerLanguage.code) : undefined
                         })
-                        i.ownerAggregate = i.exam.parent.examOwners
-                            .map(o => o.firstName + ' ' + o.lastName).join(', ');
-                        i.studentName = i.exam.creator ? i.exam.creator.firstName + ' ' + i.exam.creator.lastName : '';
-                        i.studentNameAggregate =
-                            i.exam.creator ? i.exam.creator.lastName + ' ' + i.exam.creator.firstName : '';
-                        i.inspectorName = i.modifier ? i.modifier.firstName + ' ' + i.modifier.lastName : '';
-                        i.inspectorNameAggregate = i.modifier ? i.modifier.lastName + ' ' + i.modifier.firstName : '';
-                        i.answerLanguage =
-                            i.exam.answerLanguage ? Language.getLanguageNativeName(i.exam.answerLanguage) : '';
-                    });
+                    );
                     if (refreshAll) {
-                        vm.ongoingInspections = inspections.filter(i => !i.finishedAt);
+                        this.ongoingInspections = inspections.filter(i => !i.finishedAt);
                     }
-                    vm.processedInspections = inspections.filter(i => i.finishedAt);
+                    this.processedInspections = inspections.filter(i => i.finishedAt);
                 });
+        }
+
+        startDateChanged = (date) => {
+            this.startDate = date;
+            this.query();
+        }
+
+        endDateChanged = (date) => {
+            this.endDate = date;
+            this.query();
         }
 
     }
 };
 
-/*
-angular.module('app.maturity')
-        .component('languageInspections', {
-            template: require('./languageInspections.template.html'),
-            controller: ['$translate', 'LanguageInspections', 'Language',
-                function ($translate, LanguageInspections, Language) {
 
-                    const vm = this;
+angular.module('app.maturity').component('languageInspections', LanguageInspectionsComponent);
 
-                    vm.$onInit = function () {
-                        query();
-                    };
-
-                    vm.startDateChanged = function (date) {
-                        vm.startDate = date;
-                        query();
-                    };
-
-                    vm.endDateChanged = function (date) {
-                        vm.endDate = date;
-                        query();
-                    };
-
-
-
-                }
-            ]
-        });
-*/

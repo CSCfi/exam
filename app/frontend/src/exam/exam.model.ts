@@ -131,6 +131,6 @@ export interface Exam {
     gradeless: boolean;
     creditType: { type: string };
     customCredit: number;
-    answerLanguage: ExamLanguage | string;
+    answerLanguage?: ExamLanguage;
     additionalInfo: string;
 }

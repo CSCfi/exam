@@ -18,8 +18,6 @@ import * as ng from 'angular';
 import * as toast from 'toastr';
 import * as uib from 'angular-ui-bootstrap';
 import { LanguageInspection } from './maturity.model';
-import { Exam } from '../exam/exam.model';
-import { User } from '../session/session.service';
 
 export interface QueryParams {
     text?: string;
@@ -27,17 +25,9 @@ export interface QueryParams {
     end?: number;
 }
 
-export interface QueryResult {
-    exam: Exam;
-    modifier: User;
-}
-
-export interface QueryResultResource extends ng.resource.IResource<QueryResult>, QueryResult { }
-
 export class LanguageInspectionService {
 
     constructor(
-        private $resource: ng.resource.IResourceService,
         private $http: ng.IHttpService,
         private $location: ng.ILocationService,
         private $uibModal: uib.IModalService,
@@ -47,7 +37,7 @@ export class LanguageInspectionService {
         'ngInject';
     }
 
-    query(params: QueryParams): ng.IPromise<ng.IHttpResponse<QueryResult[]>> {
+    query(params: QueryParams): ng.IPromise<ng.IHttpResponse<LanguageInspection[]>> {
         return this.$http({
             url: '/app/inspections',
             method: 'GET',

@@ -16,6 +16,7 @@
 import * as angular from 'angular';
 import * as toast from 'toastr';
 import { Exam, ExamLanguage } from '../../exam.model';
+import { LanguageService } from '../../../common/language.service';
 
 export const LanguageSelectorComponent: angular.IComponentOptions = {
     template: require('./languageSelector.template.html'),
@@ -33,15 +34,15 @@ export const LanguageSelectorComponent: angular.IComponentOptions = {
             private $http: angular.IHttpService,
             private $q: angular.IQService,
             private $translate: angular.translate.ITranslateService,
-            private Language: any
+            private Language: LanguageService
         ) {
             'ngInject';
         }
 
         $onInit = () =>
-            this.Language.languageApi.query((languages: ExamLanguage[]) => {
+            this.Language.getExamLanguages().then((languages: ExamLanguage[]) => {
                 this.examLanguages = languages.map((language) => {
-                    language.name = this.Language.getLanguageNativeName(language.code);
+                    language.name = this.Language.getLanguageNativeName(language.code) || '';
                     return language;
                 });
             })

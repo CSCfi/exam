@@ -8,4 +8,5 @@ export interface LanguageInspection {
     startedAt?: Date;
     finishedAt?: Date;
     approved?: boolean;
+    modifier: User;
 }
