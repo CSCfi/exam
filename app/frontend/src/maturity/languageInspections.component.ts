@@ -73,7 +73,7 @@ export const LanguageInspectionsComponent: angular.IComponentOptions = {
                             inspectorNameAggregate: i.modifier ?
                                 `${i.modifier.lastName} ${i.modifier.firstName}` : '',
                             answerLanguage: i.exam.answerLanguage ?
-                                this.Language.getLanguageNativeName(i.exam.answerLanguage.code) : undefined
+                                this.Language.getLanguageNativeName(i.exam.answerLanguage) : undefined
                         })
                     );
                     if (refreshAll) {

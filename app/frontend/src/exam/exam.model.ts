@@ -96,7 +96,7 @@ export interface Participation {
     _rev: string;
 }
 
-export interface Exam {
+export interface ExamImpl {
     id: number;
     attachment: Attachment | null;
     hasEnrolmentsInEffect: boolean;
@@ -131,6 +131,11 @@ export interface Exam {
     gradeless: boolean;
     creditType: { type: string };
     customCredit: number;
-    answerLanguage?: ExamLanguage;
     additionalInfo: string;
 }
+
+// TODO: should somehow make it clearer whether answerLanguage can be a string or an object
+export interface Exam extends ExamImpl {
+    answerLanguage?: ExamLanguage;
+}
+

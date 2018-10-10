@@ -1,9 +1,13 @@
 import { User } from '../session/session.service';
-import { Exam } from '../exam/exam.model';
+import { ExamImpl } from '../exam/exam.model';
+
+interface Maturity extends ExamImpl {
+    answerLanguage: string;
+}
 
 export interface LanguageInspection {
     id: number;
-    exam: Exam;
+    exam: Maturity;
     assignee?: User;
     startedAt?: Date;
     finishedAt?: Date;

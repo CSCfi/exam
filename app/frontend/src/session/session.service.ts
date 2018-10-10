@@ -122,7 +122,7 @@ export class SessionService {
             this.$window.location.href = `${data.logoutUrl}?return=${localLogout}`;
         } else if (!this._env || this._env.isProd) {
             // redirect to SP-logout directly
-            window.location.href = localLogout;
+            this.$window.location.href = localLogout;
         } else {
             // DEV logout
             this.$location.path('/');
