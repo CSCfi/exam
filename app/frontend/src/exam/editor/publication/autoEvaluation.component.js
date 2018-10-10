@@ -49,6 +49,12 @@ angular.module('app.exam.editor')
                     prepareAutoEvaluationConfig();
                 };
 
+                vm.$onChanges = function (props) {
+                    if (props.exam) {
+                        prepareAutoEvaluationConfig();
+                    }
+                }
+
                 const getReleaseTypeByName = function (name) {
                     const matches = vm.autoevaluation.releaseTypes.filter(function (rt) {
                         return rt.name === name;
