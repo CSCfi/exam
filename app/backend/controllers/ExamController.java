@@ -293,9 +293,8 @@ public class ExamController extends BaseController {
                 exam.getAutoEvaluationConfig().delete();
                 exam.setAutoEvaluationConfig(null);
             }
-        } else {
-            request().attrs().getOptional(Attrs.AUTO_EVALUATION_CONFIG)
-                    .ifPresent(nc -> examUpdater.updateAutoEvaluationConfig(exam, nc));
+        } else if (request().attrs().containsKey(Attrs.AUTO_EVALUATION_CONFIG)) {
+            examUpdater.updateAutoEvaluationConfig(exam, request().attrs().get(Attrs.AUTO_EVALUATION_CONFIG));
         }
         exam.save();
         return ok(exam);
@@ -401,6 +400,10 @@ public class ExamController extends BaseController {
         ExamExecutionType executionType = Ebean.find(ExamExecutionType.class).where().eq("type", type).findOne();
         if (type == null) {
             return notFound("sitnet_execution_type_not_found");
+        }
+        // No sense in copying the AE config if grade scale is fixed to course (that will initially be NULL for a copy)
+        if (prototype.getAutoEvaluationConfig() != null && !ConfigUtil.isCourseGradeScaleOverridable()) {
+            prototype.setAutoEvaluationConfig(null);
         }
         Exam copy = prototype.copy(user);
         copy.setName(String.format("**COPY**%s", copy.getName()));

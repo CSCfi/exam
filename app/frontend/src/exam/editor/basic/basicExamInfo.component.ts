@@ -35,7 +35,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         exam: Exam;
         collaborative: boolean;
         anonymousReviewEnabled: boolean;
-        onUpdate: (_: { props: { code: string | null, name: string | null } }) => any;
+        onUpdate: (_: { props: { code: string | null, name: string | null, scaleChange: boolean } }) => any;
         onNextTabSelected: () => any;
 
         gradeScaleSetting: { overridable: boolean };
@@ -76,7 +76,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             this.initGradeScale();
         }
 
-        $onChanges = (props: { exam?: Exam }) => {
+        $onChanges = (props: ng.IOnChangesObject) => {
             if (props.exam) {
                 this.initGradeScale();
             }
@@ -89,7 +89,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
                     delete this.exam.autoEvaluationConfig;
                 }
                 const code = this.exam.course ? this.exam.course.code : null;
-                this.onUpdate({ props: { name: this.exam.name, code: code } });
+                this.onUpdate({ props: { name: this.exam.name, code: code, scaleChange: resetAutoEvaluationConfig } });
             }, (error) => {
                 if (error.data) {
                     const msg = error.data.message || error.data;
@@ -102,7 +102,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             this.exam.course = course;
             this.initGradeScale(); //  Grade scale might need changing based on new course
             const code = this.exam.course ? this.exam.course.code : null;
-            this.onUpdate({ props: { name: this.exam.name, code: code } });
+            this.onUpdate({ props: { name: this.exam.name, code: code, scaleChange: false } });
         }
 
         getExecutionTypeTranslation = () =>
