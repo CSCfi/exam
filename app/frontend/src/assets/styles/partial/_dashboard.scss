@@ -710,6 +710,14 @@
 
   .exams-list {
     background-color: $sitnet-background;
+
+    .student-enrolment-wrapper {
+      margin-right: 20px;
+      @media (max-width: $sitnet-mobile) {
+        padding: 10px;
+        margin-right: 10px;
+      }
+    }
   }
 
   .exam-settings-link {

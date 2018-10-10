@@ -45,11 +45,6 @@
     letter-spacing:0.27px;
     line-height:18px;
     text-align:left;
-
-    @media (max-width: $sitnet-mobile) {
-      margin-left: 1.5em;
-    }
-
   }
 
   a:hover {
@@ -57,9 +52,8 @@
     color: $sitnet-white;
     border-left:3px solid #3CA34F;
     @media (max-width: $sitnet-mobile) {
-      margin-left: 1.5em;
+      border-left: none;
     }
-
   }
 
   .selected {
@@ -75,7 +69,7 @@
       text-align:left;
       font-weight: bold;
       @media (max-width: $sitnet-mobile) {
-        margin-left: 1.5em;
+        padding-left: 0px;
       }
   }
 
@@ -89,6 +83,9 @@
 
   ul {
     padding: 0;
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 1.5em;
+    }
   }
 
   .nav-header {

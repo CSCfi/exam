@@ -76,7 +76,7 @@ export class NavigationService {
                 href: '/',
                 visible: !hideDashboard,
                 name: nameForDashboard,
-                iconPng: 'icon_desktop.png',
+                iconPng: 'icon_enrols.svg',
                 submenu: teacherCollaborativeExamsSubmenu
             },
             {
