@@ -10,7 +10,7 @@
         <div class="col-md-3 exam-basic-title padl0">{{'sitnet_examination_dates' | translate}}</div>
         <div class="col-md-4">
 
-            <date-picker on-update="$ctrl.examinationDateChanged(date)" extra="true" extra-text="sitnet_add" on-extra-action="$ctrl.addExaminationDate(date)">
+            <date-picker extra="true" extra-text="sitnet_add" on-extra-action="$ctrl.addExaminationDate(date)">
             </date-picker>
         </div>
     </div>
@@ -47,8 +47,7 @@
                     <div class="exam-basic-title">{{'sitnet_exam_validity' | translate}}
                         <sup>
                             <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_validity_description' | translate}}"
-                                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
-                            />
+                                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
                         </sup>
                     </div>
                 </div>
@@ -66,7 +65,8 @@
                 <div class="col-md-12">
                     <div class="mart10">
                         <span class="text-info">
-                            <img class="arrow_icon" src="Images/icon_info.png"> {{ 'sitnet_restricting_validity_change_disallowed' | translate }}
+                            <img class="arrow_icon" src="Images/icon_info.png"> {{
+                            'sitnet_restricting_validity_change_disallowed' | translate }}
                         </span>
                     </div>
                 </div>
@@ -76,7 +76,8 @@
 
     <!-- Exam length -->
     <div class="col-md-12 margin-20">
-        <div class="col-md-3 exam-basic-title padl0">{{'sitnet_exam_duration' | translate}} ({{'sitnet_minutes' | translate}}):
+        <div class="col-md-3 exam-basic-title padl0">{{'sitnet_exam_duration' | translate}} ({{'sitnet_minutes' |
+            translate}}):
             <sup>
                 <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_duration_description' | translate}}"
                     src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
@@ -84,7 +85,8 @@
         </div>
         <div class="col-md-9">
             <span ng-repeat="duration in $ctrl.examDurations">
-                <button class="btn btn-publish" ng-class="$ctrl.checkDuration(duration)" ng-click="$ctrl.setExamDuration(duration)" ng-disabled="!$ctrl.user.isAdmin && $ctrl.exam.hasEnrolmentsInEffect">{{duration}}
+                <button class="btn btn-publish" ng-class="$ctrl.checkDuration(duration)" ng-click="$ctrl.setExamDuration(duration)"
+                    ng-disabled="!$ctrl.user.isAdmin && $ctrl.exam.hasEnrolmentsInEffect">{{duration}}
                 </button>
             </span>
         </div>
@@ -103,8 +105,7 @@
             <div class="col-md-3 exam-basic-title">{{'sitnet_publish_max_count' | translate}}
                 <sup>
                     <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_trial_count_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
-                    />
+                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
                 </sup>
             </div>
             <div class="col-md-9">
@@ -112,9 +113,11 @@
                     <button class="btn btn-publish" ng-class="$ctrl.checkTrialCount(x)" ng-click="$ctrl.setTrialCount(x)">{{x}}
                     </button>&nbsp;
                 </span>
-                <button ng-if="$ctrl.exam.executionType.type==='PUBLIC'" class="btn btn-publish" ng-class="$ctrl.checkTrialCount(null)" ng-click="$ctrl.setTrialCount(null)">&infin;
+                <button ng-if="$ctrl.exam.executionType.type==='PUBLIC'" class="btn btn-publish" ng-class="$ctrl.checkTrialCount(null)"
+                    ng-click="$ctrl.setTrialCount(null)">&infin;
                 </button>
-                <button ng-if="$ctrl.exam.executionType.type==='PRIVATE'" class="btn btn-publish" ng-class="$ctrl.checkTrialCount()" ng-disabled="true">1
+                <button ng-if="$ctrl.exam.executionType.type==='PRIVATE'" class="btn btn-publish" ng-class="$ctrl.checkTrialCount()"
+                    ng-disabled="true">1
                 </button>
                 <span ng-if="$ctrl.exam.executionType.type==='PRIVATE'" class="text-muted">
                     ({{'sitnet_private_exam_trial_count_description' | translate}})</span>
@@ -136,8 +139,7 @@
             <div class="review-list-title">{{ 'sitnet_enrolment_url' | translate }}
                 <sup>
                     <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_enrolment_url_description' | translate}}"
-                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'"
-                    />
+                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
                 </sup>
             </div>
         </div>

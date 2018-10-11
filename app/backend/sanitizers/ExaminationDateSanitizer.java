@@ -15,16 +15,16 @@
 
 package backend.sanitizers;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import org.joda.time.LocalDate;
-import org.joda.time.format.ISODateTimeFormat;
+import org.joda.time.format.DateTimeFormat;
 import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 public class ExaminationDateSanitizer extends play.mvc.Action.Simple {
 
@@ -40,7 +40,7 @@ public class ExaminationDateSanitizer extends play.mvc.Action.Simple {
 
     private Http.Request sanitize(Http.Context ctx, JsonNode body) throws SanitizingException {
         if (body.has("date")) {
-            LocalDate date = LocalDate.parse(body.get("date").asText(), ISODateTimeFormat.dateTimeParser());
+            LocalDate date = LocalDate.parse(body.get("date").asText(), DateTimeFormat.forPattern("dd/MM/yy"));
             return ctx.request().addAttr(Attrs.DATE, date);
         } else {
             throw new SanitizingException("no date");
