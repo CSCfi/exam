@@ -14,6 +14,7 @@
  */
 
 import * as angular from 'angular';
+import * as base64 from 'base64-js';
 import * as toast from 'toastr';
 
 export default function configs(
@@ -140,8 +141,9 @@ export default function configs(
             return {
                 'response': function (response) {
 
-                    const b64ToUtf8 = function (data) {
-                        return decodeURIComponent(encodeURIComponent(atob(data)));
+                    const b64ToUtf8 = function (str, encoding = 'utf-8') {
+                        const bytes = base64.toByteArray(str);
+                        return new (TextDecoder)(encoding).decode(bytes);
                     };
 
                     const unknownMachine = response.headers()['x-exam-unknown-machine'];

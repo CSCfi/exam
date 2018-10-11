@@ -24,7 +24,8 @@ angular.module('app.enrolment')
         self.display = function (data) {
 
             const opts = {
-                timeOut: 10000
+                timeOut: 10000,
+                preventDuplicates: true
             };
             let startsAt = moment(data[4]);
             const now = moment();
@@ -38,14 +39,14 @@ angular.module('app.enrolment')
                     toast.warning(t.sitnet_your_exam_will_start_at + ' ' + startsAt.format('HH:mm') + ' ' +
                         t.sitnet_at_location + ': ' + data[0] + ', ' + data[1] + ' ' +
                         t.sitnet_at_room + ' ' + data[2] + ' ' +
-                        t.sitnet_at_machine + ' ' + data[3], opts);
+                        t.sitnet_at_machine + ' ' + data[3], null, opts);
                 });
             } else {
                 parts = ['sitnet_you_have_ongoing_exam_at_location', 'sitnet_at_room', 'sitnet_at_machine'];
                 $translate(parts).then(function (t) {
                     toast.error(t.sitnet_you_have_ongoing_exam_at_location + ': ' + data[0] + ', ' + data[1] + ' ' +
                         t.sitnet_at_room + ' ' + data[2] + ' ' +
-                        t.sitnet_at_machine + ' ' + data[3], opts);
+                        t.sitnet_at_machine + ' ' + data[3], null, opts);
                 });
             }
         };
