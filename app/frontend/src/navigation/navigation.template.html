@@ -44,7 +44,7 @@
         <div class="nav-body-mobile" ng-show="$ctrl.mobileMenuOpen">
             <ul class="links">
                 <li ng-class="{selected: $ctrl.isActive(link)}" ng-repeat="link in $ctrl.links" ng-show="link.visible">
-                    <a class="menu_item_link" href="{{link.href}}">
+                    <a href="{{link.href}}">
                         <img width="18" src="/assets/assets/images/nav/{{link.iconPng}}" alt="{{ link.name | translate }}" />
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>

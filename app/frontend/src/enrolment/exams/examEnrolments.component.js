@@ -30,7 +30,7 @@ angular.module('app.enrolment')
         '        <div class="student-exam-details-title subtitle">{{\'sitnet_student_exams\' | translate}}</div>\n' +
         '    </div>\n' +
         '    <div class="exams-list">\n' +
-        '        <enrolment-candidate ng-repeat="exam in $ctrl.exams" exam="exam"></enrolment-candidate>\n' +
+        '        <exam-search-result ng-repeat="exam in $ctrl.exams" exam="exam"></exam-search-result>\n' +
         '    </div>\n' +
         '</div>\n',
         controller: ['$routeParams', 'Enrolment', 'Session',
@@ -44,12 +44,12 @@ angular.module('app.enrolment')
                         // We can not load resources before role is known.
                         return;
                     }
-                    Enrolment.getEnrolmentInfo($routeParams.code, $routeParams.id).then(function (data) {
+                    Enrolment.getEnrolmentInfo($routeParams.code, parseInt($routeParams.id)).then(function (data) {
                         vm.exam = data;
                     }, function (err) {
                         toast.error(err.data);
                     });
-                    Enrolment.listEnrolments($routeParams.code, $routeParams.id).then(function (data) {
+                    Enrolment.listEnrolments($routeParams.code, parseInt($routeParams.id)).then(function (data) {
                         vm.exams = data;
                     });
                 };

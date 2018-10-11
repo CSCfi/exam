@@ -19,6 +19,7 @@
 @import "partial/mainview";
 @import "partial/printout";
 
+* {-webkit-font-smoothing: antialiased;}
 
 html {
   font-family: $sitnet-family-helvetica;
@@ -172,7 +173,7 @@ label {
     margin-left: 10px;
 
     &.nowdt {
-      width: inherit;
+      min-width: inherit;
     }
 
   }
@@ -264,6 +265,10 @@ label {
 
   &.padleft {
     margin-left: 3.7em;
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 1.7em;
+    }
+
   }
 
   &.subtitle { margin-bottom: 0px; }
@@ -592,7 +597,6 @@ label {
 
   &.search {
     height:40px !important;
-    width:550px !important;
   }
 
   &.langinsp {
@@ -608,7 +612,7 @@ label {
 .form-group {
 
   &.search {
-    width: 400px;
+    max-width: 550px;
   }
 
 }
