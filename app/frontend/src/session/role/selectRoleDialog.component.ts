@@ -31,7 +31,7 @@ export const SelectRoleDialogComponent: angular.IComponentOptions = {
                 </button>
                 <ul class="dropdown-menu">
                     <li ng-repeat="role in $ctrl.user.roles">
-                        <a role="menuitem" title="{{role.displayName}}" ng-click="$ctrl.ok(role)">
+                        <a role="menuitem" title="{{role.displayName | translate}}" ng-click="$ctrl.ok(role)">
                             <i class="fa pull-right" ng-class="role.icon"></i>
                             {{role.displayName | translate}}
                         </a>

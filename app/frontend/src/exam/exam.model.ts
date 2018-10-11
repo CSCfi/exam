@@ -96,7 +96,7 @@ export interface Participation {
     _rev: string;
 }
 
-export interface Exam {
+export interface ExamImpl {
     id: number;
     attachment: Attachment | null;
     hasEnrolmentsInEffect: boolean;
@@ -109,6 +109,7 @@ export interface Exam {
     collaborative: boolean;
     hash: string;
     examOwners: User[];
+    creator: User;
     examType: { type: string };
     executionType: ExamExecutionType;
     examEnrolments: { reservation?: { endAt: number } }[];
@@ -117,6 +118,7 @@ export interface Exam {
     children: Exam[];
     examinationDates: ExaminationDate[];
     trialCount: number | null;
+    parent: Exam | null;
     state: string;
     examSections: ExamSection[];
     examLanguages: ExamLanguage[];
@@ -129,6 +131,11 @@ export interface Exam {
     gradeless: boolean;
     creditType: { type: string };
     customCredit: number;
-    answerLanguage: ExamLanguage;
     additionalInfo: string;
 }
+
+// TODO: should somehow make it clearer whether answerLanguage can be a string or an object
+export interface Exam extends ExamImpl {
+    answerLanguage?: ExamLanguage;
+}
+

@@ -14,10 +14,11 @@
  */
 
 require('./maturity.module');
+require('./maturity.model.ts');
 require('../common');
 require('./listing/reviewedInspections.component');
 require('./listing/unfinishedInspections.component');
-require('./languageInspections.service');
-require('./languageInspections.component');
+require('./languageInspections.service.ts');
+require('./languageInspections.component.ts');
 require('./reporting/maturityReporting.component');
 require('./dialogs/inspectionStatementDialog.component');

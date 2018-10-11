@@ -34,7 +34,6 @@ export class CollaborativeAssesmentService {
 
     constructor(private $http: ng.IHttpService,
         private $q: ng.IQService,
-        private $routeParams: ng.route.IRouteParamsService,
         private $translate: ng.translate.ITranslateService,
         private $location: ng.ILocationService,
         private $timeout: ng.ITimeoutService,

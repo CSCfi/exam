@@ -14,7 +14,7 @@
  */
 
 require('./common.module');
-require('./language.service');
+require('./language.service.ts');
 require('./settingsResource');
 require('./userResource');
 require('./historyBack.component');
