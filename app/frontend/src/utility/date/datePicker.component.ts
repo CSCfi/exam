@@ -25,18 +25,17 @@ export const DatePickerComponent: angular.IComponentOptions = {
         onUpdate: '&',
         initialDate: '<?',
         extra: '<?',
+        extraText: '@',
+        onExtraAction: '&',
         modelOptions: '<?',
         optional: '<?'
     },
     controller: class DatePickerController implements angular.IComponentController {
 
         onUpdate: ({ date: Date }) => any;
+        onExtraAction: ({ date: Date }) => any;
         date: Date | null;
         initialDate: Date | string | null;
-        extra: {
-            action: ({ date: Date }) => any;
-            text: string;
-        };
         showWeeks = true;
         modelOptions: any;
         optional: boolean;
@@ -69,7 +68,7 @@ export const DatePickerComponent: angular.IComponentOptions = {
         }
 
         extraClicked() {
-            this.extra.action({ date: this.date });
+            this.onExtraAction({ date: this.date });
         }
 
     }

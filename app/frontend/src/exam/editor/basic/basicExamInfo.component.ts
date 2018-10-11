@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-/// <reference types="angular-dialog-service" />
 
 import * as ng from 'angular';
 import * as toast from 'toastr';
@@ -43,13 +42,10 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         gradeScales: GradeScale[];
 
         constructor(
-            private $location: ng.ILocationService,
             private $scope: ng.IScope,
             private $translate: ng.translate.ITranslateService,
             private $uibModal: IModalService,
-            private dialogs: angular.dialogservice.IDialogService,
             private Exam: any,
-            private ExamRes: any,
             private SettingsResource: any,
             private Attachment: AttachmentService,
             private Files: FileService,
@@ -57,7 +53,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         ) {
             'ngInject';
 
-            $scope.$on('$localeChangeSuccess', () => {
+            this.$scope.$on('$localeChangeSuccess', () => {
                 this.refreshExamTypes();
                 this.refreshGradeScales();
             });
@@ -108,9 +104,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         getExecutionTypeTranslation = () =>
             !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType.type)
 
-
-        checkExamType = (type: string) =>
-            this.exam.examType.type === type ? 'btn-primary' : ''
+        checkExamType = (type: string) => this.exam.examType.type === type ? 'btn-primary' : '';
 
         setExamType = (type: string) => {
             this.exam.examType.type = type;
@@ -152,18 +146,14 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             this.updateExam(true);
         }
 
-        showAnonymousReview = () => {
-            return this.collaborative || (this.exam.executionType.type === 'PUBLIC' && this.anonymousReviewEnabled);
-        }
+        showAnonymousReview = () =>
+            this.collaborative || (this.exam.executionType.type === 'PUBLIC' && this.anonymousReviewEnabled)
 
-        toggleAnonymous = () => {
-            this.updateExam(false);
-        }
+        toggleAnonymous = () => this.updateExam(false);
 
-        toggleAnonymousDisabled = () => {
-            return !this.Session.getUser().isAdmin ||
-                !this.Exam.isAllowedToUnpublishOrRemove(this.exam, this.collaborative);
-        }
+        toggleAnonymousDisabled = () =>
+            !this.Session.getUser().isAdmin ||
+            !this.Exam.isAllowedToUnpublishOrRemove(this.exam, this.collaborative)
 
         selectAttachmentFile = () => {
             this.$uibModal.open({
@@ -181,17 +171,14 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             });
         }
 
-        downloadExamAttachment = () => {
-            this.Attachment.downloadExamAttachment(this.exam, this.collaborative);
-        }
+        downloadExamAttachment = () =>
+            this.Attachment.downloadExamAttachment(this.exam, this.collaborative)
 
-        removeExamAttachment = () => {
-            this.Attachment.removeExamAttachment(this.exam, this.collaborative);
-        }
+        removeExamAttachment = () =>
+            this.Attachment.removeExamAttachment(this.exam, this.collaborative)
 
-        removeExam = () => {
-            this.Exam.removeExam(this.exam, this.collaborative);
-        }
+        removeExam = () =>
+            this.Exam.removeExam(this.exam, this.collaborative)
 
         nextTab = () => this.onNextTabSelected();
 

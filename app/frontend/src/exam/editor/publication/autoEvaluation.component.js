@@ -50,7 +50,7 @@ angular.module('app.exam.editor')
                 };
 
                 vm.$onChanges = function (props) {
-                    if (props.exam) {
+                    if (props.exam && vm.autoevaluation) {
                         prepareAutoEvaluationConfig();
                     }
                 }

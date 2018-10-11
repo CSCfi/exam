@@ -38,7 +38,6 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
         onPreviousTabSelected: () => any;
         onNextTabSelected: () => any;
 
-        newExaminationDate: { date: Date };
         user: User;
         hostName: string;
         autoevaluation: { enabled: boolean };
@@ -55,9 +54,6 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
         ) {
             'ngInject';
 
-            this.newExaminationDate = {
-                'date': new Date()
-            };
             this.hostName = window.location.origin;
         }
 
@@ -72,14 +68,14 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
             };
         }
 
-        examinationDateChanged = (date: Date) => this.newExaminationDate.date = date;
-
         addExaminationDate = (date: Date) => {
+            const fmt = 'DD/MM/YYYY';
+            const formattedDate = moment(date).format(fmt);
             const alreadyExists: boolean = this.exam.examinationDates
-                .map((ed: { date: Date }) => moment(ed.date).format('L'))
-                .some((d: string) => d === moment(date).format('L'));
+                .map((ed: { date: Date }) => moment(ed.date).format(fmt))
+                .some((d: string) => d === formattedDate);
             if (!alreadyExists) {
-                this.$http.post(`/app/exam/${this.exam.id}/examinationdate`, { date: date }).then(
+                this.$http.post(`/app/exam/${this.exam.id}/examinationdate`, { date: formattedDate }).then(
                     (resp: angular.IHttpResponse<ExaminationDate>) =>
                         this.exam.examinationDates.push(resp.data)
                 );
