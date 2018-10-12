@@ -25,7 +25,16 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
@@ -57,7 +66,23 @@ import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.BaseController;
 import backend.impl.EmailComposer;
-import backend.models.*;
+import backend.models.Attachment;
+import backend.models.Comment;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamExecutionType;
+import backend.models.ExamInspection;
+import backend.models.ExamParticipation;
+import backend.models.ExamSection;
+import backend.models.ExamSectionQuestion;
+import backend.models.ExamType;
+import backend.models.Grade;
+import backend.models.GradeScale;
+import backend.models.InspectionComment;
+import backend.models.LanguageInspection;
+import backend.models.Permission;
+import backend.models.Role;
+import backend.models.User;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
@@ -66,12 +91,19 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.CommaJoinedListSanitizer;
 import backend.system.interceptors.Anonymous;
 import backend.util.AppUtil;
-import backend.util.CsvBuilder;
+import backend.util.csv.CsvBuilder;
+import backend.util.file.FileHandler;
 
 public class ReviewController extends BaseController {
 
     @Inject
     protected EmailComposer emailComposer;
+
+    @Inject
+    protected CsvBuilder csvBuilder;
+
+    @Inject
+    protected FileHandler fileHandler;
 
     @Inject
     protected ActorSystem actor;
@@ -558,7 +590,7 @@ public class ReviewController extends BaseController {
         User user = getLoggedUser();
         boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
         try {
-            CsvBuilder.parseGrades(file, user, isAdmin ? Role.Name.ADMIN : Role.Name.TEACHER);
+            csvBuilder.parseGrades(file, user, isAdmin ? Role.Name.ADMIN : Role.Name.TEACHER);
         } catch (IOException e) {
             Logger.error("Failed to parse CSV file. Stack trace follows");
             e.printStackTrace();
@@ -598,8 +630,9 @@ public class ReviewController extends BaseController {
         } catch (IOException e) {
             Logger.error("Failed in creating a tarball", e);
         }
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + tarball.getName() + "\"");
-        String body = Base64.getEncoder().encodeToString(setData(tarball).toByteArray());
+        fileHandler.setContentType(tarball, response());
+        byte[] data = fileHandler.read(tarball);
+        String body = Base64.getEncoder().encodeToString(data);
         return ok(body);
     }
 

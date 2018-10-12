@@ -41,23 +41,38 @@ import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.BaseController;
 import backend.impl.EmailComposer;
-import backend.models.*;
+import backend.models.Exam;
+import backend.models.ExamParticipation;
+import backend.models.ExamRecord;
+import backend.models.GradeScale;
+import backend.models.LanguageInspection;
+import backend.models.Organisation;
+import backend.models.Permission;
+import backend.models.User;
 import backend.models.dto.ExamScore;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExamRecordSanitizer;
-import backend.util.CsvBuilder;
 import backend.util.ExcelBuilder;
+import backend.util.csv.CsvBuilder;
+import backend.util.file.FileHandler;
 
 
 public class ExamRecordController extends BaseController {
 
-    protected final EmailComposer emailComposer;
+    private final EmailComposer emailComposer;
 
-    protected final ActorSystem actor;
+    private CsvBuilder csvBuilder;
+
+    private FileHandler fileHandler;
+
+    private ActorSystem actor;
 
     @Inject
-    public ExamRecordController(EmailComposer emailComposer, ActorSystem actor) {
+    public ExamRecordController(EmailComposer emailComposer, CsvBuilder csvBuilder, FileHandler fileHandler,
+                                ActorSystem actor) {
         this.emailComposer = emailComposer;
+        this.csvBuilder = csvBuilder;
+        this.fileHandler = fileHandler;
         this.actor = actor;
     }
 
@@ -97,7 +112,7 @@ public class ExamRecordController extends BaseController {
             final User user = getLoggedUser();
             actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
                 emailComposer.composeInspectionReady(exam.getCreator(), user, exam, Collections.emptySet());
-                Logger.info("Inspection ready notification email sent");
+                Logger.info("Inspection ready notification email sent to {}", user.getEmail());
             }, actor.dispatcher());
             return ok();
         });
@@ -129,21 +144,12 @@ public class ExamRecordController extends BaseController {
     public Result exportExamRecordsAsCsv(Long startDate, Long endDate) {
         File file;
         try {
-            file = CsvBuilder.build(startDate, endDate);
+            file = csvBuilder.build(startDate, endDate);
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_csv_file");
         }
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        String content = Base64.getEncoder().encodeToString(setData(file).toByteArray());
-        if (!file.delete()) {
-            Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
-        }
-        return ok(content);
-    }
-
-    private Result sendFile(File file) {
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        String content = Base64.getEncoder().encodeToString(setData(file).toByteArray());
+        fileHandler.setContentType(file, response());
+        String content = fileHandler.encodeFile(file);
         if (!file.delete()) {
             Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
         }
@@ -156,11 +162,16 @@ public class ExamRecordController extends BaseController {
         Collection<Long> childIds = request().attrs().get(Attrs.ID_COLLECTION);
         File file;
         try {
-            file = CsvBuilder.build(examId, childIds);
+            file = csvBuilder.build(examId, childIds);
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_csv_file");
         }
-        return sendFile(file);
+        fileHandler.setContentType(file, response());
+        String content = fileHandler.encodeFile(file);
+        if (!file.delete()) {
+            Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
+        }
+        return ok(content);
     }
 
     @With(ExamRecordSanitizer.class)
