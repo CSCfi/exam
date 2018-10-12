@@ -107,9 +107,7 @@ export const SectionsListComponent: ng.IComponentOptions = {
         }
 
         previewExam = (fromTab: number) => {
-            const resource = this.exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
-            const collaboration = this.collaborative ? 'collaborative/' : '';
-            this.$location.path(`/exams/${collaboration}${this.exam.id}/view/${resource}/${fromTab}`);
+            this.Exam.previewExam(this.exam, fromTab, this.collaborative);
         }
 
         removeExam = () => {
