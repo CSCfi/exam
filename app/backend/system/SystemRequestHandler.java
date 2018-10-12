@@ -16,18 +16,17 @@
 package backend.system;
 
 
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import javax.xml.bind.DatatypeConverter;
-
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamMachine;
+import backend.models.ExamRoom;
+import backend.models.Session;
+import backend.models.User;
+import backend.util.DateTimeUtils;
 import com.google.inject.Inject;
 import io.ebean.Ebean;
+import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.ISODateTimeFormat;
@@ -39,14 +38,14 @@ import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import backend.controllers.base.BaseController;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamMachine;
-import backend.models.ExamRoom;
-import backend.models.Session;
-import backend.models.User;
-import backend.util.DateTimeUtils;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public class SystemRequestHandler implements ActionCreator {
 
@@ -197,7 +196,7 @@ public class SystemRequestHandler implements ActionCreator {
                 header = "x-exam-wrong-room";
                 message = enrolment.getId() + ":::" + lookedUp.getId();
             }
-            headers.put(header, DatatypeConverter.printBase64Binary(message.getBytes()));
+            headers.put(header, Base64.encodeBase64String(message.getBytes()));
             Logger.debug("room and machine not ok. " + message);
             return false;
         }
