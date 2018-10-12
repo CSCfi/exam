@@ -89,13 +89,13 @@ angular.module('app.review')
                     if (!selection) {
                         return;
                     }
-                    let url = '/app/exam/record/export/';
+                    let url = vm.parentCtrl.collaborative ? '/integration/iop/reviews/' : '/app/exam/record/export/';
                     if (asReport) {
                         url += 'report/';
                     }
                     const fileType = asReport ? '.xlsx' : '.csv';
                     const ids = selection.map(function (r) {
-                        return r.exam.id;
+                        return vm.parentCtrl.collaborative ? r._id : r.exam.id;
                     });
 
                     Files.download(url + vm.exam.id,

@@ -35,7 +35,8 @@ class EmailSenderImpl implements EmailSender {
     private Boolean USE_SSL = ConfigFactory.load().getString("play.mailer.ssl").equals("YES");
     private String USER = ConfigFactory.load().getString("play.mailer.user");
     private String PWD = ConfigFactory.load().getString("play.mailer.password");
-    private Boolean USE_MOCK = ConfigFactory.load().hasPath("play.mailer.mock") && ConfigFactory.load().getBoolean("play.mailer.mock");
+    private Boolean USE_MOCK = ConfigFactory.load().hasPath("play.mailer.mock") &&
+            ConfigFactory.load().getBoolean("play.mailer.mock");
 
 
     private void mockSending(HtmlEmail email, String content, EmailAttachment... attachments) {

@@ -15,11 +15,7 @@
 
 package backend.controllers.base;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,7 +60,6 @@ public class BaseController extends Controller {
     protected static final int SITNET_TIMEOUT_MINUTES = 30;
     protected static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
 
-    private static final int KB = 1024;
     private static final double HUNDRED = 100d;
     private static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
 
@@ -162,27 +157,6 @@ public class BaseController extends Controller {
                     .ilike(lnField, condition);
         }
         return result;
-    }
-
-    protected ByteArrayOutputStream setData(File file) {
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-        try {
-            InputStream fis = new FileInputStream(file);
-
-            byte[] buf = new byte[KB];
-
-            for (int readNum; (readNum = fis.read(buf)) != -1; ) {
-                bos.write(buf, 0, readNum);
-            }
-
-            fis.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-        return bos;
     }
 
     private void handleNoShow(User user, Long examId, EmailComposer composer) {

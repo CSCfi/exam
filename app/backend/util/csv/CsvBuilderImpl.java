@@ -13,22 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.util;
+package backend.util.csv;
 
-
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import backend.models.Comment;
-import backend.models.Exam;
-import backend.models.ExamRecord;
-import backend.models.Grade;
-import backend.models.Role;
-import backend.models.User;
-import backend.models.dto.ExamScore;
-import org.joda.time.DateTime;
-import play.Logger;
 
 import java.io.File;
 import java.io.FileReader;
@@ -37,10 +23,35 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-public class CsvBuilder {
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import play.Logger;
 
-    public static File build(Long startDate, Long endDate) throws IOException {
+import backend.models.Comment;
+import backend.models.Exam;
+import backend.models.ExamRecord;
+import backend.models.Grade;
+import backend.models.Role;
+import backend.models.User;
+import backend.models.dto.ExamScore;
+import backend.util.AppUtil;
+
+
+public class CsvBuilderImpl implements CsvBuilder {
+
+
+    @Override
+    public File build(Long startDate, Long endDate) throws IOException {
         Date start = new Date(startDate);
         Date end = new Date(endDate);
         List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
@@ -59,7 +70,8 @@ public class CsvBuilder {
         return file;
     }
 
-    public static File build(Long examId, Collection<Long> childIds) throws IOException {
+    @Override
+    public File build(Long examId, Collection<Long> childIds) throws IOException {
 
         List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
                 .fetch("examScore")
@@ -78,7 +90,20 @@ public class CsvBuilder {
         return file;
     }
 
-    public static void parseGrades(File csvFile, User user, Role.Name role) throws IOException {
+    @Override
+    public File build(JsonNode node) throws IOException {
+        File file = File.createTempFile("csv-output-", ".tmp");
+        CSVWriter writer = new CSVWriter(new FileWriter(file));
+        writer.writeNext(getHeaders());
+        StreamSupport.stream(node.spliterator(), false).forEach(assessment ->
+            writer.writeNext(values(assessment).toArray(String[]::new))
+        );
+        writer.close();
+        return file;
+    }
+
+    @Override
+    public void parseGrades(File csvFile, User user, Role.Name role) throws IOException {
         CSVReader reader = new CSVReader(new FileReader(csvFile));
         String[] records;
         while ((records = reader.readNext()) != null) {
@@ -119,8 +144,7 @@ public class CsvBuilder {
                     .findList();
             if (grades.isEmpty()) {
                 Logger.warn("No grade found with name {}", gradeName);
-            }
-            else if (grades.size() > 1) {
+            } else if (grades.size() > 1) {
                 Logger.warn("Multiple grades found with name {}", gradeName);
             } else {
                 exam.setGrade(grades.get(0));
@@ -145,5 +169,31 @@ public class CsvBuilder {
             }
         }
         reader.close();
+    }
+
+    private String[] getHeaders() {
+        return new String[]{"id",
+                "studentFirstName", "studentLastName", "studentEmail",
+                "examName", "examDate", "creditType", "credits", "creditLanguage", "studentGrade", "gradeScale", "examScore",
+                "lecturer", "lecturerFirstName", "lecturerLastName", "lecturerEmail", "lecturerEmployeeNumber",
+                "date", "additionalInfo"};
+    }
+
+    private Stream<String> values(JsonNode assessment) {
+        JsonNode student = assessment.get("user");
+        JsonNode exam = assessment.get("exam");
+        JsonNode teacher = exam.get("gradedByUser");
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
+        JsonNode[] nodes = {
+                assessment.get("_id"), student.get("firstName"), student.get("lastName"),
+                student.get("email"), exam.get("name"),
+                new TextNode(dtf.print(assessment.get("ended").asLong())),
+                exam.get("creditType").get("type"), exam.get("customCredit"), exam.get("answerLanguage"),
+                exam.get("grade").get("name"), exam.get("gradeScale").get("description"), exam.get("totalScore"),
+                teacher.path("eppn"), teacher.get("firstName"), teacher.get("lastName"),
+                teacher.get("email"), teacher.path("employeeNumber"), exam.get("gradedTime"), exam.path("additionalInfo")
+        };
+        return Stream.of(nodes).map(JsonNode::asText);
+
     }
 }
