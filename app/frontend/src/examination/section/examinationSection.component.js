@@ -21,7 +21,8 @@ angular.module('app.examination')
         bindings: {
             exam: '<',
             isPreview: '<',
-            section: '<'
+            section: '<',
+            isCollaborative: '<'
         },
         controller: ['$interval', 'Examination',
             function ($interval, Examination) {

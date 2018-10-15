@@ -23,6 +23,7 @@ angular.module('app.examination')
             exam: '<',
             activeSection: '<',
             isPreview: '<',
+            isCollaborative: '<',
             onPageSelect: '&'
         },
         controller: ['$http', '$location', '$routeParams', '$translate', 'dialogs', 'Session', 'Examination',
@@ -76,7 +77,7 @@ angular.module('app.examination')
                 };
 
                 vm.downloadExamAttachment = function () {
-                    Attachment.downloadExamAttachment(vm.exam);
+                    Attachment.downloadExamAttachment(vm.exam, vm.isCollaborative);
                 };
 
                 vm.selectGuidePage = function () {

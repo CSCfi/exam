@@ -21,7 +21,8 @@ angular.module('app.examination')
         bindings: {
             exam: '<',
             sq: '<',
-            isPreview: '<'
+            isPreview: '<',
+            isCollaborative: '<'
         },
         controller: ['$sce', '$filter', 'Examination', 'Attachment',
             function ($sce, $filter, Examination, Attachment) {
@@ -44,6 +45,9 @@ angular.module('app.examination')
                 vm.downloadQuestionAttachment = function () {
                     if (vm.exam.external) {
                         Attachment.downloadExternalQuestionAttachment(vm.exam, vm.sq);
+                        return;
+                    } else if (vm.isCollaborative) {
+                        Attachment.downloadCollaborativeQuestionAttachment(vm.exam.id, vm.sq);
                         return;
                     }
                     Attachment.downloadQuestionAttachment(vm.sq.question);
