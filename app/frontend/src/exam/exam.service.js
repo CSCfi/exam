@@ -387,5 +387,11 @@ angular.module('app.exam')
                 return !exam.hasEnrolmentsInEffect && (!exam.children || exam.children.length === 0);
             }
 
+            self.previewExam = function (exam, fromTab, collaborative) {
+                const resource = exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
+                const collaboration = collaborative ? 'collaborative/' : '';
+                $location.path(`/exams/${collaboration}${exam.id}/view/${resource}/${fromTab}`);
+            }
+
         }]);
 

@@ -31,40 +31,18 @@ angular.module('app.enrolment')
                     const state = vm.participation.exam.state;
                     if (state === 'GRADED_LOGGED' || state === 'REJECTED' || state === 'ARCHIVED'
                         || (state === 'GRADED' && vm.participation.exam.autoEvaluationNotified)) {
+                        if (vm.collaborative) {
+                            // No need to load anything, because we have already everything.
+                            prepareReview(vm.participation.exam);
+                            return;
+                        }
                         loadReview();
                     }
                 };
 
                 const loadReview = function () {
                     StudentExamRes.feedback.get({eid: vm.participation.exam.id},
-                        function (exam) {
-                            if (!exam.grade) {
-                                exam.grade = {name: 'NONE'};
-                            }
-                            if (exam.languageInspection) {
-                                exam.grade.displayName = $translate.instant(
-                                    exam.languageInspection.approved ? 'sitnet_approved' : 'sitnet_rejected');
-                                exam.contentGrade = Exam.getExamGradeDisplayName(exam.grade.name);
-                                exam.gradedTime = exam.languageInspection.finishedAt;
-                            } else {
-                                exam.grade.displayName = Exam.getExamGradeDisplayName(exam.grade.name);
-                            }
-                            Exam.setCredit(exam);
-                            if (exam.creditType) {
-                                exam.creditType.displayName = Exam.getExamTypeDisplayName(exam.creditType.type);
-                            }
-                            vm.participation.reviewedExam = exam;
-                            StudentExamRes.scores.get({eid: vm.participation.exam.id},
-                                function (data) {
-                                    vm.participation.scores = {
-                                        maxScore: data.maxScore,
-                                        totalScore: data.totalScore,
-                                        approvedAnswerCount: data.approvedAnswerCount,
-                                        rejectedAnswerCount: data.rejectedAnswerCount,
-                                        hasApprovedRejectedAnswers: data.approvedAnswerCount + data.rejectedAnswerCount > 0
-                                    };
-                                });
-                        }
+                        prepareReview
                     );
                 };
 
@@ -75,6 +53,41 @@ angular.module('app.enrolment')
                     }
                 });
 
+                const prepareReview = function (exam) {
+                    if (!exam.grade) {
+                        exam.grade = {name: 'NONE'};
+                    }
+                    if (exam.languageInspection) {
+                        exam.grade.displayName = $translate.instant(
+                            exam.languageInspection.approved ? 'sitnet_approved' : 'sitnet_rejected');
+                        exam.contentGrade = Exam.getExamGradeDisplayName(exam.grade.name);
+                        exam.gradedTime = exam.languageInspection.finishedAt;
+                    } else {
+                        exam.grade.displayName = Exam.getExamGradeDisplayName(exam.grade.name);
+                    }
+                    Exam.setCredit(exam);
+                    if (exam.creditType) {
+                        exam.creditType.displayName = Exam.getExamTypeDisplayName(exam.creditType.type);
+                    }
+                    vm.participation.reviewedExam = exam;
+                    if (vm.collaborative) {
+                        // No need to load separate scores.
+                        prepareScores(exam);
+                        return;
+                    }
+                    StudentExamRes.scores.get({eid: vm.participation.exam.id},
+                        prepareScores);
+                }
+
+                const prepareScores = function (data) {
+                    vm.participation.scores = {
+                        maxScore: data.maxScore,
+                        totalScore: data.totalScore,
+                        approvedAnswerCount: data.approvedAnswerCount,
+                        rejectedAnswerCount: data.rejectedAnswerCount,
+                        hasApprovedRejectedAnswers: data.approvedAnswerCount + data.rejectedAnswerCount > 0
+                    };
+                }
             }
         ]
     });
