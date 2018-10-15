@@ -33,7 +33,7 @@ import play.test.Helpers;
 import backend.models.*;
 import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
-import backend.util.JsonDeserializer;
+import backend.util.json.JsonDeserializer;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;

@@ -41,7 +41,7 @@ import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.questions.Question;
 import backend.util.AppUtil;
-import backend.util.JsonDeserializer;
+import backend.util.json.JsonDeserializer;
 
 
 public class CollaborativeExamSectionController extends CollaborationController implements SectionQuestionHandler {

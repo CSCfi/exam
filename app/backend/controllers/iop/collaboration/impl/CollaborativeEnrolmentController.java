@@ -27,7 +27,7 @@ import backend.models.ExamEnrolment;
 import backend.models.ExamExecutionType;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
 
 public class CollaborativeEnrolmentController extends CollaborationController {
 

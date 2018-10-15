@@ -28,7 +28,7 @@ import backend.controllers.base.BaseController;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.User;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
 
 
 public class TimeController extends BaseController {

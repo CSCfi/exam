@@ -51,8 +51,8 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.EnrolmentCourseInformationSanitizer;
 import backend.sanitizers.EnrolmentInformationSanitizer;
 import backend.sanitizers.StudentEnrolmentSanitizer;
-import backend.util.ConfigUtil;
-import backend.util.DateTimeUtils;
+import backend.util.config.ConfigUtil;
+import backend.util.datetime.DateTimeUtils;
 import backend.validators.JsonValidator;
 
 public class EnrolmentController extends BaseController {

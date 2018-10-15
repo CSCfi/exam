@@ -18,7 +18,7 @@ package backend.controllers;
 
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import backend.util.ChunkMaker;
+import backend.util.file.ChunkMaker;
 import backend.models.Attachment;
 import backend.models.Exam;
 import backend.models.ExamSectionQuestion;

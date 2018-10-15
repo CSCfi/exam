@@ -35,7 +35,7 @@ import backend.controllers.base.ActionMethod;
 import backend.controllers.base.BaseController;
 import backend.models.GeneralSettings;
 import backend.models.User;
-import backend.util.ConfigUtil;
+import backend.util.config.ConfigUtil;
 
 public class SettingsController  extends BaseController {
 

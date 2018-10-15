@@ -17,7 +17,7 @@ package backend.models;
 
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.iop.ExternalReservation;
-import backend.util.DateTimeAdapter;
+import backend.util.datetime.DateTimeAdapter;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.builder.EqualsBuilder;

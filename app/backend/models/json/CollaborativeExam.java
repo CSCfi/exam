@@ -28,8 +28,8 @@ import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamParticipation;
 import backend.models.base.GeneratedIdentityModel;
-import backend.util.DateTimeAdapter;
-import backend.util.JsonDeserializer;
+import backend.util.datetime.DateTimeAdapter;
+import backend.util.json.JsonDeserializer;
 
 @Entity
 public class CollaborativeExam extends GeneratedIdentityModel {

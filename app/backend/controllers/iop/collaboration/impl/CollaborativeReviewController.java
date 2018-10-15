@@ -25,7 +25,6 @@ import backend.models.questions.Question;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExternalRefCollectionSanitizer;
 import backend.system.interceptors.Anonymous;
-import backend.util.JsonDeserializer;
 import backend.util.csv.CsvBuilder;
 import backend.util.file.FileHandler;
 import be.objectify.deadbolt.java.actions.Group;
@@ -58,6 +57,7 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import backend.util.json.JsonDeserializer;
 
 public class CollaborativeReviewController extends CollaborationController {
 
@@ -237,7 +237,7 @@ public class CollaborativeReviewController extends CollaborationController {
                 return internalServerError("sitnet_error_creating_csv_file");
             }
             fileHandler.setContentType(file, responseCtx);
-            return ok(fileHandler.encodeFile(file));
+            return ok(fileHandler.encode(file));
         });
     }
 

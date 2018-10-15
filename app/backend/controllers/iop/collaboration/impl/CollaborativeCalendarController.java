@@ -28,7 +28,7 @@ import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CalendarReservationSanitizer;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
 
 public class CollaborativeCalendarController extends CollaborationController {
 

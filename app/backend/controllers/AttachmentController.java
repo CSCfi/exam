@@ -47,7 +47,7 @@ import backend.models.api.AttachmentContainer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
 import backend.util.AppUtil;
-import backend.util.ConfigUtil;
+import backend.util.config.ConfigUtil;
 
 
 public class AttachmentController extends BaseController implements LocalAttachmentInterface {

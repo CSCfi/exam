@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import backend.models.ExamRoom;
 import backend.models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
-import backend.util.DateTimeAdapter;
+import backend.util.datetime.DateTimeAdapter;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;

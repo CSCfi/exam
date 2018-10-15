@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import backend.util.json.JsonFilter;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class JsonFilterTest {

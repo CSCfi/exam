@@ -13,22 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.util;
+package backend.util.excel;
 
-
-import io.ebean.Ebean;
-import backend.models.ExamRecord;
-import backend.models.dto.ExamScore;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
+
+import io.ebean.Ebean;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import backend.models.ExamRecord;
+import backend.models.dto.ExamScore;
 
 public class ExcelBuilder {
 
