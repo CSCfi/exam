@@ -99,19 +99,8 @@ public class CollaborativeReviewController extends CollaborationController {
             return internalServerError(root.get("message").asText("Connection refused"));
         }
         // calculate scores
-        stream(root).forEach(ep -> {
-            Exam exam = JsonDeserializer.deserialize(Exam.class, ep.get("exam"));
-            exam.setMaxScore();
-            exam.setApprovedAnswerCount();
-            exam.setRejectedAnswerCount();
-            exam.setTotalScore();
-            ((ObjectNode) ep).set("exam", serialize(exam));
-        });
+        calculateScores(root);
         return writeAnonymousResult(ok(root), true, admin);
-    }
-
-    private Stream<JsonNode> stream(JsonNode node) {
-        return StreamSupport.stream(node.spliterator(), false);
     }
 
     private void scoreAnswer(JsonNode examNode, Long qid, Double score) {

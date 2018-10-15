@@ -6,10 +6,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
+import backend.util.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Model;
 import org.joda.time.DateTime;
@@ -98,5 +101,20 @@ public class CollaborationController extends BaseController {
 
     long newId() {
         return Math.abs(random.nextLong());
+    }
+
+    void calculateScores(JsonNode root) {
+        stream(root).forEach(ep -> {
+            Exam exam = JsonDeserializer.deserialize(Exam.class, ep.get("exam"));
+            exam.setMaxScore();
+            exam.setApprovedAnswerCount();
+            exam.setRejectedAnswerCount();
+            exam.setTotalScore();
+            ((ObjectNode) ep).set("exam", serialize(exam));
+        });
+    }
+
+    Stream<JsonNode> stream(JsonNode node) {
+        return StreamSupport.stream(node.spliterator(), false);
     }
 }
