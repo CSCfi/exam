@@ -15,16 +15,17 @@
 
 package backend.controllers.iop.collaboration.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
-import backend.system.interceptors.Anonymous;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,7 +40,9 @@ import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 
 import backend.models.Exam;
 import backend.models.Grade;
@@ -48,12 +51,23 @@ import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.Question;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.ExternalRefCollectionSanitizer;
+import backend.system.interceptors.Anonymous;
 import backend.util.JsonDeserializer;
+import backend.util.csv.CsvBuilder;
+import backend.util.file.FileHandler;
 
 public class CollaborativeReviewController extends CollaborationController {
 
     @Inject
     WSClient wsClient;
+
+    @Inject
+    CsvBuilder csvBuilder;
+
+    @Inject
+    FileHandler fileHandler;
 
     private Optional<URL> parseUrl(String examRef, String assessmentRef) {
         String url = String.format("%s/api/exams/%s/assessments",
@@ -79,7 +93,8 @@ public class CollaborativeReviewController extends CollaborationController {
         // Manipulate cloze test answers so that they can be conveniently displayed for review
         stream(examNode.get("examSections"))
                 .flatMap(es -> stream(es.get("sectionQuestions")))
-                .filter(esq -> esq.get("question").get("type").textValue().equals(Question.Type.ClozeTestQuestion.toString()))
+                .filter(esq -> esq.get("question").get("type").textValue().equals(
+                        Question.Type.ClozeTestQuestion.toString()))
                 .forEach(esq -> {
                     if (!esq.get("clozeTestAnswer").isObject() || esq.get("clozeTestAnswer").size() == 0) {
                         ((ObjectNode) esq).set("clozeTestAnswer", Json.newObject());
@@ -92,6 +107,8 @@ public class CollaborativeReviewController extends CollaborationController {
 
         return writeAnonymousResult(ok(root), true, admin);
     }
+
+
 
     private Result handleMultipleAssesmentResponse(WSResponse response, boolean admin) {
         JsonNode root = response.asJson();
@@ -134,6 +151,57 @@ public class CollaborativeReviewController extends CollaborationController {
         final boolean admin = isUserAdmin();
         return request.get().thenApplyAsync(response -> handleMultipleAssesmentResponse(response, admin));
     }
+
+    private boolean isFinished(JsonNode exam) {
+        return exam.get("state").asText().equals(Exam.State.GRADED_LOGGED.toString()) &&
+                !exam.path("gradeless").asBoolean() &&
+                exam.get("grade").has("name") &&
+                exam.has("gradedByUser") &&
+                exam.has("customCredit");
+    }
+
+    private void filterFinished(JsonNode node, Collection<String> ids) {
+        Iterator<JsonNode> it = node.iterator();
+        while (it.hasNext()) {
+            JsonNode assessment = it.next();
+            if (!ids.contains(assessment.get("_id").asText()) || !isFinished(assessment.get("exam"))) {
+                it.remove();
+            }
+        }
+    }
+
+    @With(ExternalRefCollectionSanitizer.class)
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public CompletionStage<Result> exportAssessments(Long id) {
+        Collection<String> refs = request().attrs().get(Attrs.REF_COLLECTION);
+        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
+        if (ce == null) {
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+        }
+        Optional<URL> url = parseUrl(ce.getExternalRef(), null);
+        if (!url.isPresent()) {
+            return wrapAsPromise(internalServerError());
+        }
+        WSRequest request = wsClient.url(url.get().toString());
+        Http.Response responseCtx = response();
+        return request.get().thenApplyAsync(response -> {
+            JsonNode root = response.asJson();
+            if (response.getStatus() != OK) {
+                return internalServerError(root.get("message").asText("Connection refused"));
+            }
+            filterFinished(root, refs);
+            calculateScores(root);
+            File file;
+            try {
+                file = csvBuilder.build(root);
+            } catch (IOException e) {
+                return internalServerError("sitnet_error_creating_csv_file");
+            }
+            fileHandler.setContentType(file, responseCtx);
+            return ok(fileHandler.encodeFile(file));
+        });
+    }
+
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     @Anonymous(filteredProperties = {"user"})

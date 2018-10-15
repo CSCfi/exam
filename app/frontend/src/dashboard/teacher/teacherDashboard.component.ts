@@ -83,7 +83,7 @@ export const TeacherDashboardComponent: angular.IComponentOptions = {
             ];
             this.archivedExtraColumns = [
                 {
-                    text: 'sitnet_participation_unreviewed',
+                    text: 'sitnet_participations_assessed',
                     property: 'assessedCount',
                     link: '/exams/__/4',
                     checkOwnership: true

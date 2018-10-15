@@ -157,7 +157,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
      * this is the user who is marked as evaluator of the Exam
      * in WebOodi, or other system
      */
-    @JsonBackReference
     @ManyToOne
     private User gradedByUser;
 
