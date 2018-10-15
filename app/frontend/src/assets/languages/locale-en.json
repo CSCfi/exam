@@ -815,7 +815,7 @@
   "sitnet_question_text_description": "Add question text. You can edit the text with the text editor. You can define additional information after choosing the question type.",
   "sitnet_question_type_description": "Choosing the question type. Essay: answering by writing or attaching a file. Multiple choice question (one correct answer): define many choices, one correct. Multiple choice question (many correct answer): define many choices, at least one correct. Fill-in question: define 1-n gaps. Student answers by filling in gaps.",
   "sitnet_question_owners_description": "The owners of the question have full rights to edit the question even if it is used in an exam of another owner ",
-  "sitnet_question_attachment_description": "A file that a student can download in an exam. Make sure that software needed for opening the file is available on computers  ",
+  "sitnet_attachment_description": "A file that a student can download in an exam. Make sure that software needed for opening the file is available on computers  ",
   "sitnet_question_instruction_description": "Additional information for students on answering the questions during the exam ",
   "sitnet_question_tag_question_description": "You can categorize and find the the questions by using key words",
   "sitnet_question_evaluation_criteria_description": "Assessment criteria that helps in assessing the question. Criteria is shown with the assessment of the answer.  ",

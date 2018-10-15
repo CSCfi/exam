@@ -154,8 +154,7 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
         }
 
         previewExam = (fromTab: number) => {
-            const resource = this.exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
-            this.$location.path(`/exams/${this.exam.id}/view/${resource}/${fromTab}`);
+            this.Exam.previewExam(this.exam, fromTab, this.collaborative);
         }
 
         nextTab = () => this.onNextTabSelected();

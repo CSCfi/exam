@@ -19,6 +19,7 @@ package backend.controllers.iop.collaboration.impl;
 import backend.models.User;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
 import play.Logger;
 import play.libs.ws.WSClient;
@@ -54,7 +55,9 @@ public class CollaborativeStudentActionController extends CollaborationControlle
             if (response.getStatus() != Http.Status.OK) {
                 return wrapAsPromise(Results.status(response.getStatus()));
             }
-            return wrapAsPromise(ok(response.asJson()));
+            final JsonNode root = response.asJson();
+            calculateScores(root);
+            return wrapAsPromise(ok(root));
         });
     }
 

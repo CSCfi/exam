@@ -34,6 +34,7 @@ public enum Attrs {
     public static final TypedKey<Integer> GRADE_ID = TypedKey.create("gradeId");
     public static final TypedKey<Collection<Integer>> ACCESSABILITES = TypedKey.create("accessabilities");
     public static final TypedKey<Collection<Long>> ID_COLLECTION = TypedKey.create("idCollection");
+    public static final TypedKey<Collection<String>> REF_COLLECTION = TypedKey.create("refCollection");
     public static final TypedKey<LocalDate> DATE = TypedKey.create("date");
     public static final TypedKey<DateTime> START_DATE = TypedKey.create("startDate");
     public static final TypedKey<DateTime> END_DATE = TypedKey.create("endDate");
