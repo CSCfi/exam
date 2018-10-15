@@ -24,7 +24,7 @@ import play.Logger;
 
 import backend.impl.EmailComposer;
 import backend.models.Reservation;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
 
 public class ReservationReminderActor extends AbstractActor {
 

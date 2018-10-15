@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.util;
+package backend.util.config;
 
 import java.util.ArrayList;
 import java.util.HashMap;

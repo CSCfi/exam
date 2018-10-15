@@ -54,7 +54,7 @@ import backend.models.Reservation;
 import backend.models.User;
 import backend.models.base.GeneratedIdentityModel;
 import backend.system.interceptors.Anonymous;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
 
 
 public class ReservationController extends BaseController {

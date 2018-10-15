@@ -61,8 +61,8 @@ import backend.models.MailAddress;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
-import backend.util.ConfigUtil;
-import backend.util.DateTimeUtils;
+import backend.util.config.ConfigUtil;
+import backend.util.datetime.DateTimeUtils;
 
 
 public class ExternalCalendarController extends CalendarController {

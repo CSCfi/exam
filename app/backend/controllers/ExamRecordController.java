@@ -52,7 +52,7 @@ import backend.models.User;
 import backend.models.dto.ExamScore;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExamRecordSanitizer;
-import backend.util.ExcelBuilder;
+import backend.util.excel.ExcelBuilder;
 import backend.util.csv.CsvBuilder;
 import backend.util.file.FileHandler;
 
@@ -149,7 +149,7 @@ public class ExamRecordController extends BaseController {
             return internalServerError("sitnet_error_creating_csv_file");
         }
         fileHandler.setContentType(file, response());
-        String content = fileHandler.encodeFile(file);
+        String content = fileHandler.encode(file);
         if (!file.delete()) {
             Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
         }
@@ -167,7 +167,7 @@ public class ExamRecordController extends BaseController {
             return internalServerError("sitnet_error_creating_csv_file");
         }
         fileHandler.setContentType(file, response());
-        String content = fileHandler.encodeFile(file);
+        String content = fileHandler.encode(file);
         if (!file.delete()) {
             Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
         }

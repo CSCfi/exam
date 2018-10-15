@@ -41,7 +41,7 @@ import scala.concurrent.duration.FiniteDuration;
 
 import backend.impl.EmailComposer;
 import backend.models.User;
-import backend.util.ConfigUtil;
+import backend.util.config.ConfigUtil;
 
 @Singleton
 class SystemInitializer {

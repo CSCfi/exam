@@ -31,7 +31,7 @@ import org.joda.time.DateTime;
 import backend.models.api.CountsAsTrial;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.json.CollaborativeExam;
-import backend.util.DateTimeAdapter;
+import backend.util.datetime.DateTimeAdapter;
 
 @Entity
 public class ExamParticipation extends GeneratedIdentityModel implements CountsAsTrial {

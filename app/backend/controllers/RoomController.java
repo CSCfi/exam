@@ -52,8 +52,8 @@ import backend.models.ExamStartingHour;
 import backend.models.MailAddress;
 import backend.models.calendar.DefaultWorkingHours;
 import backend.models.calendar.ExceptionWorkingHours;
-import backend.util.ConfigUtil;
-import backend.util.DateTimeUtils;
+import backend.util.config.ConfigUtil;
+import backend.util.datetime.DateTimeUtils;
 
 public class RoomController extends BaseController {
 

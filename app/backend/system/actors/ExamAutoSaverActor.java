@@ -38,7 +38,7 @@ import backend.models.Reservation;
 import backend.models.User;
 import backend.models.json.ExternalExam;
 import backend.util.AppUtil;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
 
 public class ExamAutoSaverActor extends AbstractActor {
 

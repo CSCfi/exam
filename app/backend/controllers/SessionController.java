@@ -51,8 +51,8 @@ import backend.exceptions.NotFoundException;
 import backend.models.*;
 import backend.models.dto.Credentials;
 import backend.util.AppUtil;
-import backend.util.ConfigUtil;
-import backend.util.DateTimeUtils;
+import backend.util.config.ConfigUtil;
+import backend.util.datetime.DateTimeUtils;
 
 public class SessionController extends BaseController {
 

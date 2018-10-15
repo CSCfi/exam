@@ -28,7 +28,7 @@ import backend.impl.EmailComposer;
 import backend.models.AutoEvaluationConfig;
 import backend.models.Exam;
 import backend.models.User;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
 
 public class AutoEvaluationNotifierActor extends AbstractActor {
 
