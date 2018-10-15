@@ -44,7 +44,7 @@ import backend.models.Reservation;
 import backend.models.User;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CalendarReservationSanitizer;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
 
 
 public class CalendarController extends BaseController {

@@ -46,7 +46,7 @@ import play.i18n.MessagesApi;
 
 import backend.models.*;
 import backend.models.iop.ExternalReservation;
-import backend.util.ConfigUtil;
+import backend.util.config.ConfigUtil;
 
 class EmailComposerImpl implements EmailComposer {
 

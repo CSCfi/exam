@@ -43,7 +43,7 @@ import backend.models.Grade;
 import backend.models.GradeScale;
 import backend.models.Organisation;
 import backend.models.User;
-import backend.util.ConfigUtil;
+import backend.util.config.ConfigUtil;
 
 
 public class ExternalCourseHandlerImpl implements ExternalCourseHandler {

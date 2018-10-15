@@ -43,7 +43,7 @@ import backend.models.ExamEnrolment;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
 
 public class ExternalReservationHandlerImpl implements ExternalReservationHandler {
 

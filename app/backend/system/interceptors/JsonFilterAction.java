@@ -17,7 +17,7 @@
 package backend.system.interceptors;
 
 import akka.stream.Materializer;
-import backend.util.JsonFilter;
+import backend.util.json.JsonFilter;
 import com.fasterxml.jackson.databind.JsonNode;
 import play.http.HttpEntity;
 import play.libs.Json;

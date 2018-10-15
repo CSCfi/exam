@@ -34,7 +34,7 @@ import backend.models.api.CountsAsTrial;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.json.CollaborativeExam;
 import backend.models.json.ExternalExam;
-import backend.util.DateTimeAdapter;
+import backend.util.datetime.DateTimeAdapter;
 
 
 @Entity

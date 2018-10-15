@@ -15,11 +15,7 @@
 
 package backend.controllers;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -33,12 +29,7 @@ import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
 import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
-import akka.stream.IOResult;
-import akka.stream.javadsl.FileIO;
-import akka.stream.javadsl.Source;
-import akka.util.ByteString;
-import backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController;
+
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -48,13 +39,10 @@ import io.ebean.Ebean;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
-import org.springframework.util.StringUtils;
 import play.Environment;
 import play.Logger;
 import play.data.DynamicForm;
 import play.db.ebean.Transactional;
-import play.libs.ws.WSRequest;
-import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
@@ -71,7 +59,7 @@ import backend.models.questions.Question;
 import backend.system.interceptors.ExamActionRouter;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.AppUtil;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
 @Restrict({@Group("STUDENT")})

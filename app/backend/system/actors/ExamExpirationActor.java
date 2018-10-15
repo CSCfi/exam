@@ -24,7 +24,7 @@ import play.Logger;
 
 import backend.models.Exam;
 import backend.models.ExamRecord;
-import backend.util.ConfigUtil;
+import backend.util.config.ConfigUtil;
 
 public class ExamExpirationActor extends AbstractActor {
 

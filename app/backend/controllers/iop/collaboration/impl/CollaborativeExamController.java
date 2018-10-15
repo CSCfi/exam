@@ -51,7 +51,7 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.EmailSanitizer;
 import backend.sanitizers.ExamUpdateSanitizer;
 import backend.util.AppUtil;
-import backend.util.ConfigUtil;
+import backend.util.config.ConfigUtil;
 
 public class CollaborativeExamController extends CollaborationController {
 

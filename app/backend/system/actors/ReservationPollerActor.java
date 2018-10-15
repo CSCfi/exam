@@ -25,7 +25,7 @@ import play.Logger;
 
 import backend.impl.NoShowHandler;
 import backend.models.Reservation;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
 
 public class ReservationPollerActor extends AbstractActor {
 
