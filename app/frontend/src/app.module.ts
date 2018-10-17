@@ -20,6 +20,7 @@ import 'angular-ui-bootstrap';
 import 'ngstorage';
 import 'angular-translate';
 import 'angular-dialog-service';
+import 'angular-dynamic-locale';
 
 import configs from './app.config';
 import runBlock from './app.run';
@@ -48,6 +49,7 @@ angular.module('app', [
     'ngStorage',
     'ui.bootstrap',
     'pascalprecht.translate',
+    'tmh.dynamicLocale',
     'dialogs.services',
     'dialogs.controllers',
     SessionModule,

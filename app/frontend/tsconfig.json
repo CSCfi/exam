@@ -16,6 +16,7 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "noEmitHelpers": true,
+    "importHelpers": true,
     "strictNullChecks": true,
     "skipLibCheck": true
   },
