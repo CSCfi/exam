@@ -398,6 +398,21 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
                 externalExam.get(), exam.get(), getLoggedUser());
     }
 
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    default CompletionStage<Result> downloadExternalAttachment(String id) {
+        final Optional<URL> url = parseUrl("/api/attachments/%s", id);
+        if (!url.isPresent()) {
+            return CompletableFuture.supplyAsync(Results::internalServerError);
+        }
+        return getWsClient().url(url.get().toString()).get().thenCompose(response -> {
+            if (response.getStatus() != 200) {
+                return CompletableFuture.supplyAsync(() -> Results.status(response.getStatus()));
+            }
+            final JsonNode node = response.asJson();
+            return download(id, node.path("mimeType").asText(), node.path("displayName").asText());
+        });
+    }
+
     default CompletionStage<Result> downloadExternalAttachment(Attachment attachment) {
         if (attachment == null) {
             return CompletableFuture.supplyAsync(Results::notFound);
@@ -407,7 +422,11 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
             Logger.warn("External id can not be found for attachment [id={}]", attachment.getId());
             return CompletableFuture.supplyAsync(Results::notFound);
         }
-        final Optional<URL> url = parseUrl("/api/attachments/%s/download", externalId);
+        return download(externalId, attachment.getMimeType(), attachment.getFileName());
+    }
+
+    default CompletionStage<Result> download(String id, String mimeType, String fileName) {
+        final Optional<URL> url = parseUrl("/api/attachments/%s/download", id);
         if (!url.isPresent()) {
             return CompletableFuture.supplyAsync(Results::internalServerError);
         }
@@ -415,7 +434,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
             if (response.getStatus() != 200) {
                 return CompletableFuture.supplyAsync(() -> Results.status(response.getStatus()));
             }
-            return serveAsBase64Stream(attachment, response.getBodyAsSource());
+            return serveAsBase64Stream(mimeType, fileName, response.getBodyAsSource());
         });
     }
 

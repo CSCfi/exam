@@ -232,6 +232,10 @@ export class AttachmentService {
             question.essayAnswer.attachment.fileName);
     }
 
+    downloadCollaborativeAttachment(id: string, fileName: string) {
+        this.Files.download(`/integration/iop/attachment/${id}`, fileName);
+    }
+
     downloadExamAttachment(exam: Exam, collaborative = false) {
         if (!exam.attachment) {
             return;

@@ -42,10 +42,18 @@ angular.module('app.review')
                 };
 
                 vm.downloadQuestionAttachment = function () {
+                    if (vm.parentCtrl.collaborative) {
+                        const attachment = vm.sectionQuestion.question.attachment;
+                        return Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+                    }
                     return Attachment.downloadQuestionAttachment(vm.sectionQuestion.question);
                 };
 
                 vm.downloadQuestionAnswerAttachment = function () {
+                    if (vm.parentCtrl.collaborative) {
+                        const attachment = vm.sectionQuestion.essayAnswer.attachment;
+                        return Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+                    }
                     return Attachment.downloadQuestionAnswerAttachment(vm.sectionQuestion);
                 };
 

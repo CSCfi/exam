@@ -68,12 +68,16 @@ public interface BaseAttachmentInterface<T> {
     CompletionStage<Result> deleteStatementAttachment(T id);
 
     default CompletionStage<Result> serveAsBase64Stream(Attachment attachment, Source<ByteString, ?> source) {
+        return serveAsBase64Stream(attachment.getMimeType(), attachment.getFileName(), source);
+    }
+
+    default CompletionStage<Result> serveAsBase64Stream(String mimeType, String fileName, Source<ByteString, ?> source) {
         return CompletableFuture.supplyAsync(() -> ok().chunked(source.via(new ChunkMaker(3 * 1024))
                 .map(byteString -> {
                     final byte[] encoded = Base64.getEncoder().encode(byteString.toArray());
                     return ByteString.fromArray(encoded);
-                })).as(attachment.getMimeType())
-                .withHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFileName() + "\""));
+                })).as(mimeType)
+                .withHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\""));
     }
 
     default ExamSectionQuestion getExamSectionQuestion(Long qid, Exam exam) {
