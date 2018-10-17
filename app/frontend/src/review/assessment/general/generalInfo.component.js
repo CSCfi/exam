@@ -24,8 +24,8 @@ angular.module('app.review')
             participation: '<',
             collaborative: '<'
         },
-        controller: ['ExamRes', 'Attachment', 'Assessment',
-            function (ExamRes, Attachment, Assessment) {
+        controller: ['ExamRes', 'Attachment', 'Assessment', '$routeParams',
+            function (ExamRes, Attachment, Assessment, $routeParams) {
 
                 const vm = this;
 
@@ -41,27 +41,39 @@ angular.module('app.review')
                         vm.collaborative ? vm.participation._id : vm.exam.id;
                     vm.enrolment = vm.exam.examEnrolments[0];
                     vm.reservation = vm.enrolment.reservation;
-                    Assessment.participationsApi.query({
+                    const params = {
                         eid: vm.exam.id
-                    }, function (data) {
-                        // Filter out the participation we are looking into
-                        const previousParticipations = data.filter(function (p) {
-                            return p.id !== vm.participation.id;
-                        });
-                        Assessment.noShowApi.query({ eid: vm.exam.id }, function (data) {
-                            const noShows = data.map(function (d) {
-                                return { noShow: true, started: d.reservation.startAt, exam: { state: 'no_show' } };
-                            });
-                            vm.previousParticipations = previousParticipations.concat(noShows);
-                        });
-                    });
-
+                    };
+                    let participationsApi = Assessment.participationsApi;
+                    if (vm.collaborative) {
+                        participationsApi = Assessment.collaborativeParticipationsApi;
+                        params.eid = $routeParams.id;
+                        params.aid = $routeParams.ref;
+                    }
+                    participationsApi.query(params, handleParticipations);
                 };
 
                 vm.downloadExamAttachment = function () {
-                    Attachment.downloadExamAttachment(vm.exam);
+                    Attachment.downloadExamAttachment(vm.exam, vm.collaborative);
                 };
 
+                function handleParticipations(data) {
+                    if (vm.collaborative) {
+                        //TODO: Add collaborative support for noshows.
+                        vm.previousParticipations = data;
+                        return;
+                    }
+                    // Filter out the participation we are looking into
+                    const previousParticipations = data.filter(function (p) {
+                        return p.id !== vm.participation.id;
+                    });
+                    Assessment.noShowApi.query({eid: vm.exam.id}, function (data) {
+                        const noShows = data.map(function (d) {
+                            return {noShow: true, started: d.reservation.startAt, exam: {state: 'no_show'}};
+                        });
+                        vm.previousParticipations = previousParticipations.concat(noShows);
+                    });
+                }
             }
         ]
     });

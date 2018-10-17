@@ -15,35 +15,6 @@
 
 package backend.controllers.iop.collaboration.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
-import javax.inject.Inject;
-
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
-import io.ebean.Ebean;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
-import play.Logger;
-import play.libs.Json;
-import play.libs.ws.WSClient;
-import play.libs.ws.WSRequest;
-import play.libs.ws.WSResponse;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.With;
-
 import backend.models.Exam;
 import backend.models.Grade;
 import backend.models.Role;
@@ -57,6 +28,36 @@ import backend.system.interceptors.Anonymous;
 import backend.util.JsonDeserializer;
 import backend.util.csv.CsvBuilder;
 import backend.util.file.FileHandler;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
+import org.springframework.util.StringUtils;
+import play.Logger;
+import play.libs.Json;
+import play.libs.ws.WSClient;
+import play.libs.ws.WSRequest;
+import play.libs.ws.WSResponse;
+import play.mvc.Http;
+import play.mvc.Result;
+import play.mvc.Results;
+import play.mvc.With;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 public class CollaborativeReviewController extends CollaborationController {
 
@@ -108,8 +109,6 @@ public class CollaborativeReviewController extends CollaborationController {
         return writeAnonymousResult(ok(root), true, admin);
     }
 
-
-
     private Result handleMultipleAssesmentResponse(WSResponse response, boolean admin) {
         JsonNode root = response.asJson();
         if (response.getStatus() != OK) {
@@ -150,6 +149,46 @@ public class CollaborativeReviewController extends CollaborationController {
         WSRequest request = wsClient.url(url.get().toString());
         final boolean admin = isUserAdmin();
         return request.get().thenApplyAsync(response -> handleMultipleAssesmentResponse(response, admin));
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail", "grade"})
+    public CompletionStage<Result> getParticipationsForExamAndUser(Long eid, String aid) {
+        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, eid);
+        if (ce == null) {
+            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+        }
+        Optional<URL> url = parseUrl(ce.getExternalRef(), null);
+        if (!url.isPresent()) {
+            return wrapAsPromise(internalServerError());
+        }
+        WSRequest request = wsClient.url(url.get().toString());
+        final boolean admin = isUserAdmin();
+        return request.get().thenApplyAsync(response -> {
+            if (response.getStatus() != 200) {
+                return Results.status(response.getStatus());
+            }
+            final JsonNode root = response.asJson();
+            final Optional<JsonNode> assessment = stream(root).filter(node -> node.path("_id").asText().equals(aid))
+                    .findFirst();
+            if (!assessment.isPresent()) {
+                return Results.notFound("Assessment not found!");
+            }
+            final String eppn = assessment.get().path("user").path("eppn").textValue();
+            if (StringUtils.isEmpty(eppn)) {
+                return Results.notFound("Eppn not found!");
+            }
+            // Filter for user eppn and left out assessment that we currently are looking.
+            final Iterator<JsonNode> it = root.iterator();
+            while (it.hasNext()) {
+                JsonNode node = it.next();
+                if (!node.path("user").path("eppn").asText().equals(eppn)
+                        || node.path("_id").asText().equals(aid)) {
+                    it.remove();
+                }
+            }
+            return writeAnonymousResult(ok(root), true, admin);
+        });
     }
 
     private boolean isFinished(JsonNode exam) {
@@ -348,7 +387,7 @@ public class CollaborativeReviewController extends CollaborationController {
                 return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
             }
             JsonNode examNode = root.get("exam");
-            ((ObjectNode)examNode).set("examFeedback",
+            ((ObjectNode) examNode).set("examFeedback",
                     Json.newObject().put("comment", body.get("comment").asText()));
             ((ObjectNode) root).put("rev", revision);
             return upload(url.get(), root);
@@ -384,7 +423,7 @@ public class CollaborativeReviewController extends CollaborationController {
             if (!exam.hasState(Exam.State.GRADED_LOGGED)) {
                 return wrapAsPromise(forbidden("Not allowed to update grading of this exam"));
             }
-            ((ObjectNode)examNode).put("assessmentInfo", body.get("assessmentInfo").asText());
+            ((ObjectNode) examNode).put("assessmentInfo", body.get("assessmentInfo").asText());
             ((ObjectNode) root).put("rev", revision);
             return upload(url.get(), root);
         };
@@ -438,14 +477,14 @@ public class CollaborativeReviewController extends CollaborationController {
             JsonNode examNode = root.get("exam");
             Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
             return validateExamState(exam, !gradeless, user, loginRole).orElseGet(() -> {
-                ((ObjectNode)examNode).put("state", Exam.State.GRADED_LOGGED.toString());
+                ((ObjectNode) examNode).put("state", Exam.State.GRADED_LOGGED.toString());
                 if (exam.getGradedByUser() == null && exam.getAutoEvaluationConfig() != null) {
                     // Automatically graded by system, set graded by user at this point.
-                    ((ObjectNode)examNode).set("gradedByUser", serialize(user));
+                    ((ObjectNode) examNode).set("gradedByUser", serialize(user));
                 }
                 if (gradeless) {
-                    ((ObjectNode)examNode).put("gradeless", true);
-                    ((ObjectNode)examNode).set("grade", NullNode.getInstance());
+                    ((ObjectNode) examNode).put("gradeless", true);
+                    ((ObjectNode) examNode).set("grade", NullNode.getInstance());
                 }
                 ((ObjectNode) root).put("rev", revision);
                 return upload(url.get(), root);

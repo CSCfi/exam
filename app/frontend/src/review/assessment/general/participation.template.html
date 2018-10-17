@@ -8,7 +8,7 @@
     {{'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span ng-hide="$ctrl.hideGrade()" style="color:#3CA34F;">{{ $ctrl.translateGrade() }}</span>
 </div>
 <div class="col-md-4 general-info-link-bold"
-     ng-hide="$ctrl.hideAnswerLink()">
+     ng-if="!$ctrl.hideAnswerLink()">
     <a class="pointer" ng-click="$ctrl.viewAnswers()">{{'sitnet_view_answers' | translate}}</a>
 </div>
 <div class="col-md-4 sitnet-info-text-compact" ng-show="$ctrl.participation.exam.state === 'ABORTED' || $ctrl.participation.noShow">

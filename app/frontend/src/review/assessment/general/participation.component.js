@@ -19,15 +19,20 @@ angular.module('app.review')
     .component('rParticipation', {
         template: require('./participation.template.html'),
         bindings: {
-            participation: '<'
+            participation: '<',
+            collaborative: '<'
         },
-        controller: ['Exam', 'Session',
-            function (Exam, Session) {
+        controller: ['Exam', 'Session', '$routeParams',
+            function (Exam, Session, $routeParams) {
 
                 const vm = this;
 
                 vm.viewAnswers = function () {
-                    window.open('/assessments/' + vm.participation.exam.id, '_blank');
+                    let url = '/assessments/' + vm.participation.exam.id;
+                    if (vm.collaborative) {
+                        url = `/assessments/collaborative/${$routeParams.id}/${vm.participation._id}`
+                    }
+                    window.open(url, '_blank');
                 };
 
                 vm.hideGrade = function () {
@@ -35,8 +40,10 @@ angular.module('app.review')
                 };
 
                 vm.hideAnswerLink = function () {
+                    const anonymous = (vm.participation.collaborativeExam && vm.participation.collaborativeExam.anonymous)
+                        || vm.participation.exam.anonymous
                     return vm.participation.exam.state === 'ABORTED' || vm.participation.noShow ||
-                        (vm.participation.exam.anonymous && !Session.getUser().isAdmin);
+                        (anonymous && !Session.getUser().isAdmin);
                 };
 
                 vm.translateGrade = function () {

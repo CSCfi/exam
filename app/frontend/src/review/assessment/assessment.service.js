@@ -31,6 +31,11 @@ angular.module('app.review')
                 eid: '@eid'
             });
 
+            self.collaborativeParticipationsApi = $resource('/integration/iop/reviews/:eid/participations/:aid', {
+                eid: '@eid',
+                aid: '@aid'
+            })
+
             self.examAssessmentApi = $resource('/app/review/:id/info', {
                 id: '@id'
             }, {
