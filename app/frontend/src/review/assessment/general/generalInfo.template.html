@@ -45,7 +45,7 @@
         </span>
         <div class="col-md-12 padl0" ng-if="$ctrl.previousParticipations.length > 0"
              ng-repeat="participation in $ctrl.previousParticipations">
-            <r-participation participation="participation"></r-participation>
+            <r-participation participation="participation" collaborative="$ctrl.collaborative"></r-participation>
         </div>
     </div>
 
