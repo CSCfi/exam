@@ -41,7 +41,7 @@ export const DatePickerComponent: angular.IComponentOptions = {
         optional: boolean;
 
         opened: boolean;
-        dateOptions: {
+        options = {
             startingDay: 1
         };
         format = 'dd.MM.yyyy';

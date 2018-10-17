@@ -14,10 +14,11 @@
  */
 
 import * as angular from 'angular';
-import { IDeferred, IHttpResponse, IPromise, IHttpProviderDefaults } from 'angular';
+import { IDeferred, IHttpResponse, IPromise } from 'angular';
 import * as toastr from 'toastr';
 import * as uib from 'angular-ui-bootstrap';
 import * as _ from 'lodash';
+import * as adl from 'angular-dynamic-locale';
 
 export interface Role {
     name: string;
@@ -64,7 +65,9 @@ export class SessionService {
         private $rootScope: angular.IRootScopeService,
         private $timeout: angular.ITimeoutService,
         private $uibModal: uib.IModalService,
-        private $window: angular.IWindowService) {
+        private $window: angular.IWindowService,
+        private tmhDynamicLocaleCache: { get: (k: string) => any, put: (k: string, v: any) => void },
+        private tmhDynamicLocale: adl.tmh.IDynamicLocale) {
         'ngInject';
     }
 
@@ -241,9 +244,29 @@ export class SessionService {
         return deferred.promise;
     }
 
-    translate(lang) {
+    private setLocale = async (lang: string) => {
+        if (['fi', 'sv', 'en'].map(k => this.tmhDynamicLocaleCache.get(k)).every(_.isObject)) {
+            // Locale cache already loaded
+            this.tmhDynamicLocale.set(lang);
+        } else {
+            let inject = k => this.tmhDynamicLocaleCache.put(k, angular.injector(['ngLocale']).get('$locale'));
+
+            await import('angular-i18n/angular-locale_fi');
+            inject('fi');
+            await import('angular-i18n/angular-locale_sv');
+            inject('sv');
+            await import('angular-i18n/angular-locale_en');
+            inject('en');
+
+            this.tmhDynamicLocale.set(lang);
+        }
+    }
+
+    translate(lang: string) {
         this.$translate.use(lang);
-        this.$rootScope.$broadcast('$localeChangeSuccess');
+        this.setLocale(lang).then(
+            () => this.$rootScope.$broadcast('$localeChangeSuccess')
+        );
     }
 
     switchLanguage(lang: string) {
