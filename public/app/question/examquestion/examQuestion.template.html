@@ -112,7 +112,7 @@
                                   src="/assets/assets/images/icon_tooltip.svg" alt="exam"
                                   onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"/></sup>
                     </div>
-                    <div class="col-md-9 padr0" ng-show="$ctrl.question.type">
+                    <div class="col-md-9 padr0" ng-if="$ctrl.question.type">
                         <textarea id="editor" name="editor" ck-editor
                                   enable-cloze-test="$ctrl.question.type === 'ClozeTestQuestion'" rows="10" cols="60"
                                   ng-model="$ctrl.question.question" required>
