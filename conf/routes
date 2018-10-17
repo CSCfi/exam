@@ -334,6 +334,7 @@ POST          /integration/iop/reviews/:id                             backend.c
 GET           /integration/iop/reviews/:eid/participations/:aid        backend.controllers.iop.collaboration.impl.CollaborativeReviewController.getParticipationsForExamAndUser(eid: Long, aid: String)
 
 ############# Integration attachments #################
+GET           /integration/iop/attachment/:id                          backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadExternalAttachment(id: String)
 POST          /integration/iop/attachment/question                     backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.addAttachmentToQuestion()
 DELETE        /integration/iop/attachment/exam/:eid/question/:qid      backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.deleteQuestionAttachment(eid: Long, qid: Long)
 GET           /integration/iop/attachment/exam/:eid/question/:qid      backend.controllers.iop.collaboration.impl.CollaborativeAttachmentController.downloadQuestionAttachment(eid: Long, qid: Long)

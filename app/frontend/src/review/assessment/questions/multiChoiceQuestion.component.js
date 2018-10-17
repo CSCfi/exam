@@ -21,6 +21,9 @@ angular.module('app.review')
         bindings: {
             sectionQuestion: '<'
         },
+        require: {
+            parentCtrl: '^^rExamSection'
+        },
         controller: ['$sce', 'Attachment', 'Question',
             function ($sce, Attachment, Question) {
 
@@ -49,10 +52,12 @@ angular.module('app.review')
                 };
 
                 vm.downloadQuestionAttachment = function () {
+                    if (vm.parentCtrl.collaborative) {
+                        const attachment = vm.sectionQuestion.question.attachment;
+                        return Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+                    }
                     return Attachment.downloadQuestionAttachment(vm.sectionQuestion.question);
                 };
-
-
             }
         ]
     });

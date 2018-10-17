@@ -54,7 +54,12 @@ angular.module('app.review')
                 };
 
                 vm.downloadExamAttachment = function () {
-                    Attachment.downloadExamAttachment(vm.exam, vm.collaborative);
+                    if (vm.collaborative) {
+                        const attachment = vm.exam.attachment;
+                        Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+                        return;
+                    }
+                    Attachment.downloadExamAttachment(vm.exam);
                 };
 
                 function handleParticipations(data) {

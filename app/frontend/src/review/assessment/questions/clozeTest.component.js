@@ -19,7 +19,10 @@ angular.module('app.review')
     .component('rClozeTest', {
         template: require('./clozeTest.template.html'),
         bindings: {
-            sectionQuestion: '<'
+            sectionQuestion: '<',
+        },
+        require: {
+            parentCtrl: '^^rExamSection'
         },
         controller: ['$sce', 'Attachment',
             function ($sce, Attachment) {
@@ -31,6 +34,10 @@ angular.module('app.review')
                 };
 
                 vm.downloadQuestionAttachment = function () {
+                    if (vm.parentCtrl.collaborative) {
+                        const attachment = vm.sectionQuestion.question.attachment;
+                        return Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+                    }
                     return Attachment.downloadQuestionAttachment(vm.sectionQuestion.question);
                 };
 
