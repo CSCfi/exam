@@ -87,10 +87,14 @@ export const SectionComponent: ng.IComponentOptions = {
             return sectionQuestions.every(sq => score === this.getQuestionScore(sq));
         }
 
-        private updateSection = () => {
+        private updateSection = (silent: boolean) => {
             this.$http.put(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`),
                 this.getSectionPayload())
-                .then(() => toast.info(this.$translate.instant('sitnet_section_updated')))
+                .then(() => {
+                    if (!silent) {
+                        toast.info(this.$translate.instant('sitnet_section_updated'));
+                    }
+                })
                 .catch(resp => toast.error(resp.data));
         }
 
@@ -159,8 +163,8 @@ export const SectionComponent: ng.IComponentOptions = {
             dialog.result.then(() => this.onDelete({ section: this.section }));
         }
 
-        renameSection = () => this.updateSection();
-        expandSection = () => this.updateSection();
+        renameSection = () => this.updateSection(false);
+        expandSection = () => this.updateSection(true);
 
         toggleDisabled = () => !this.section.sectionQuestions || this.section.sectionQuestions.length < 2;
 
@@ -191,7 +195,7 @@ export const SectionComponent: ng.IComponentOptions = {
                 toast.warning(this.$translate.instant('sitnet_warn_lottery_count'));
                 this.section.lotteryItemCount = 1;
             } else {
-                this.updateSection();
+                this.updateSection(false);
             }
         }
 
@@ -223,7 +227,7 @@ export const SectionComponent: ng.IComponentOptions = {
                     // turn off lottery
                     this.section.lotteryOn = false;
                     this.section.lotteryItemCount = 1;
-                    this.updateSection();
+                    this.updateSection(true);
                 }
             }).catch(resp => toast.error(resp.data));
         }
