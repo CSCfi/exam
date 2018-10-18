@@ -63,10 +63,9 @@
         </div>
     </div>
 
-    <hr class="info-question-separator" ng-show="$ctrl.sq.expanded">
-
     <!-- answer -->
     <div class="exam-question-container" ng-show="$ctrl.sq.expanded">
+        <hr class="info-question-separator" ng-show="$ctrl.sq.expanded">
         <div class="question" ng-switch="$ctrl.sq.question.type">
             <examination-essay-question ng-switch-when="EssayQuestion"
                                         sq="$ctrl.sq"
