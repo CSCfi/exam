@@ -156,12 +156,13 @@ export class ClozeTest implements IDirective<ClozeTestScope> {
         const editable = _.isUndefined(scope.editable) || scope.editable; // defaults to true
         const replacement = angular.element(scope.content);
         const inputs = replacement.find('input');
+        const padding = 2; // add some extra length so that all characters are more likely to fit in the input field
         for (let i = 0; i < inputs.length; ++i) {
             const input = inputs[i];
             const id = input.attributes['id'].value;
             const answer = scope.results ? scope.results[input.id] : null;
             if (answer) {
-                input.setAttribute('size', answer.length);
+                input.setAttribute('size', answer.length + padding);
             }
             input.setAttribute('ng-model', 'results.' + id);
             if (!editable) {
