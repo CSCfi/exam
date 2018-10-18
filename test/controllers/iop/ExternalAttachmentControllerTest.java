@@ -89,7 +89,7 @@ public class ExternalAttachmentControllerTest extends BaseCollaborativeAttachmen
         Http.MultipartFormData.DataPart questionId =
                 new Http.MultipartFormData.DataPart("questionId", examSectionQuestion.getId().toString());
 
-        Source<ByteString, ?> src = FileIO.fromFile(testImage);
+        Source<ByteString, ?> src = FileIO.fromPath(testImage.toPath());
         Http.MultipartFormData.FilePart<Source<ByteString, ?>> fp =
                 new Http.MultipartFormData.FilePart<>("file", "test_image.png", "image/png", src);
 

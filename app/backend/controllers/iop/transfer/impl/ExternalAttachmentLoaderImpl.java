@@ -16,16 +16,22 @@
 
 package backend.controllers.iop.transfer.impl;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 import akka.stream.IOResult;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.util.AppUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
 import org.springframework.util.StringUtils;
@@ -35,14 +41,10 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
 
-import javax.inject.Inject;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.util.AppUtil;
 
 public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
 
@@ -112,7 +114,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                         Logger.error("Invalid URL!", e);
                         return;
                     }
-                    final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromFile(file);
+                    final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.toPath());
                     final Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart =
                             new Http.MultipartFormData.FilePart<>("file",
                                     attachment.getFileName(), attachment.getMimeType(), source);
@@ -145,7 +147,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                     .thenAccept(response -> {
                         final String filePath = AppUtil.createFilePath(environment, pathParams);
                         response.getBodyAsSource()
-                                .runWith(FileIO.toFile(new File(filePath)), ActorMaterializer.create(actor))
+                                .runWith(FileIO.toPath(Paths.get(filePath)), ActorMaterializer.create(actor))
                                 .thenAccept(ioResult -> {
                                     if (!ioResult.wasSuccessful()) {
                                         Logger.error("Could not write file " + filePath + " to disk!");

@@ -16,15 +16,15 @@
 
 package controllers.iop;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import akka.stream.Materializer;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
-import backend.models.json.CollaborativeExam;
-import backend.models.questions.EssayAnswer;
 import base.RunAsStudent;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,10 +36,11 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.ExamSectionQuestion;
+import backend.models.json.CollaborativeExam;
+import backend.models.questions.EssayAnswer;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -149,7 +150,7 @@ public class CollaborativeAttachmentControllerTest extends BaseCollaborativeAtta
                 .map(e -> new Http.MultipartFormData.DataPart(e.getKey(), e.getValue()))
                 .collect(Collectors.toList());
 
-        Source<ByteString, ?> src = FileIO.fromFile(testImage);
+        Source<ByteString, ?> src = FileIO.fromPath(testImage.toPath());
         Http.MultipartFormData.FilePart<Source<ByteString, ?>> fp =
                 new Http.MultipartFormData.FilePart<>("file", "test_image.png", "image/png", src);
         dataParts.add(fp);

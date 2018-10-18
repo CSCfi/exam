@@ -430,7 +430,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         if (!file.exists()) {
             return wrapAsPromise(internalServerError("Requested file does not exist on disk even though referenced from database!"));
         }
-        final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromFile(file);
+        final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.toPath());
         return serveAsBase64Stream(attachment, source);
     }
 

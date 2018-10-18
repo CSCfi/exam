@@ -16,21 +16,20 @@
 
 package backend.controllers.iop.collaboration.api;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
 import akka.NotUsed;
 import akka.stream.IOResult;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import backend.controllers.BaseAttachmentInterface;
-import backend.models.Attachment;
-import backend.models.Comment;
-import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
-import backend.models.User;
-import backend.models.api.AttachmentContainer;
-import backend.models.questions.EssayAnswer;
-import backend.util.AppUtil;
-import backend.util.ConfigUtil;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -45,14 +44,16 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import backend.controllers.BaseAttachmentInterface;
+import backend.models.Attachment;
+import backend.models.Comment;
+import backend.models.Exam;
+import backend.models.ExamSectionQuestion;
+import backend.models.User;
+import backend.models.api.AttachmentContainer;
+import backend.models.questions.EssayAnswer;
+import backend.util.AppUtil;
+import backend.util.ConfigUtil;
 
 import static play.mvc.Controller.request;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -493,7 +494,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
             return CompletableFuture.supplyAsync(Results::internalServerError);
         }
         final WSRequest request = getWsClient().url(url.get().toString());
-        final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromFile(file.getFile());
+        final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.getFile().toPath());
         final Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart =
                 new Http.MultipartFormData.FilePart<>("file",
                         file.getFilename(),

@@ -34,6 +34,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Seconds;
+import play.Environment;
 import play.Logger;
 import play.inject.ApplicationLifecycle;
 import scala.concurrent.duration.Duration;
@@ -63,6 +64,7 @@ class SystemInitializer {
 
     private EmailComposer composer;
     private ActorSystem system;
+    private Environment environment;
 
     private Map<String, Cancellable> tasks = new HashMap<>();
 
@@ -70,6 +72,7 @@ class SystemInitializer {
     SystemInitializer(ActorSystem system,
                       ApplicationLifecycle lifecycle,
                       EmailComposer composer,
+                      Environment environment,
                       @Named("exam-auto-saver-actor") ActorRef examAutoSaver,
                       @Named("reservation-checker-actor") ActorRef reservationChecker,
                       @Named("auto-evaluation-notifier-actor") ActorRef autoEvaluationNotifier,
@@ -80,6 +83,7 @@ class SystemInitializer {
 
         this.system = system;
         this.composer = composer;
+        this.environment = environment;
 
         String encoding = System.getProperty("file.encoding");
         if (!encoding.equals("UTF-8")) {
@@ -135,7 +139,9 @@ class SystemInitializer {
 
         lifecycle.addStopHook(() -> {
             cancelTasks();
-            system.terminate();
+            if (!environment.isTest()) {
+                system.terminate();
+            }
             return CompletableFuture.completedFuture(null);
         });
     }
