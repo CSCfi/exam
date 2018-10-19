@@ -16,16 +16,6 @@
 package backend.controllers;
 
 import backend.controllers.base.BaseController;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import backend.controllers.base.BaseController;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import io.ebean.Model;
-import io.ebean.Query;
-import io.ebean.text.PathProperties;
 import backend.models.Exam;
 import backend.models.ExamSectionQuestion;
 import backend.models.ExamSectionQuestionOption;
@@ -33,13 +23,23 @@ import backend.models.Tag;
 import backend.models.User;
 import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
+import backend.sanitizers.SanitizingHelper;
+import backend.util.AppUtil;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import io.ebean.Model;
+import io.ebean.Query;
+import io.ebean.text.PathProperties;
+import org.apache.commons.collections.CollectionUtils;
 import play.Logger;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
-import backend.sanitizers.SanitizingHelper;
-import backend.util.AppUtil;
 
 import javax.persistence.PersistenceException;
 import java.util.Collections;
@@ -59,6 +59,10 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds) {
         User user = getLoggedUser();
+        if (user.hasRole("ADMIN", getSession())
+                && Stream.of(examIds, courseIds, tagIds, sectionIds).allMatch(CollectionUtils::isEmpty)) {
+            return ok(Collections.emptySet());
+        }
         PathProperties pp = PathProperties.parse("*, modifier(firstName, lastName) questionOwners(id, firstName, lastName, userIdentifier, email), " +
                 "attachment(id, fileName), options(defaultScore), tags(name), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))");
         Query<Question> query = Ebean.find(Question.class);

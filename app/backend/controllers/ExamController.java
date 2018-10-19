@@ -144,7 +144,7 @@ public class ExamController extends BaseController {
         PathProperties pp = PathProperties.parse("(id, name, course(id, code), examSections(id, name))");
         Query<Exam> query = Ebean.find(Exam.class);
         pp.apply(query);
-        ExpressionList<Exam> el = query.where().isNotNull("name").isNotNull("course");
+        ExpressionList<Exam> el = query.where().isNotNull("name").isNotNull("course").isNull("parent");
         if (!user.hasRole("ADMIN", getSession())) {
             el = el.eq("examOwners", user);
         }
