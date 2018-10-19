@@ -19,8 +19,7 @@ import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import {
-    IAttributes, IAugmentedJQuery, IDirective, IDirectiveFactory, INgModelController, IScope,
-    ICompiledExpression
+    IAttributes, IAugmentedJQuery, IDirective, IDirectiveFactory, INgModelController, IScope
 } from 'angular';
 
 // MOVE TO UTIL/DATE
@@ -80,11 +79,14 @@ export class CkEditor implements IDirective<CkEditorScope> {
         enableClozeTest: '=?'
     };
 
+    constructor(private $translate: angular.translate.ITranslateService) { }
+
     link(scope: CkEditorScope, element: IAugmentedJQuery, attributes: IAttributes, ngModel: INgModelController) {
         // We need to disable some paste tools when cloze test editing is ongoing. There's a risk that
         // dysfunctional formatting gets pasted which can break the cloze test markup.
         const removals = scope.enableClozeTest ? 'Underline,Paste,PasteFromWord' : 'Underline,Cloze';
-        const ck = CKEDITOR.replace(<HTMLTextAreaElement>element[0], { removeButtons: removals });
+        const ck = CKEDITOR.replace(<HTMLTextAreaElement>element[0],
+            { removeButtons: removals, language: this.$translate.use() });
 
         let modelValue;
         ck.on('instanceReady', () => {
@@ -108,7 +110,11 @@ export class CkEditor implements IDirective<CkEditorScope> {
     }
 
     static factory(): IDirectiveFactory {
-        return () => new CkEditor();
+        const directive = (
+            $translate: angular.translate.ITranslateService
+        ) => new CkEditor($translate);
+        directive.$inject = ['$translate'];
+        return directive;
     }
 }
 
