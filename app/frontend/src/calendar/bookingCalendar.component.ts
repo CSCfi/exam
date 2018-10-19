@@ -16,7 +16,6 @@
 import * as angular from 'angular';
 import * as moment from 'moment';
 import * as _ from 'lodash';
-import * as fullCalendar from 'fullcalendar';
 import { CalendarService, Room } from './calendar.service';
 
 import 'fullcalendar/dist/fullcalendar.min.css';
@@ -59,7 +58,7 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
             const self = this;
             let selectedEvent;
             this.defaultDate = moment();
-            this.$rootScope.$on('$translateChangeSuccess', () => {
+            this.$rootScope.$on('$localeChangeSuccess', () => {
                 this.calendarConfig.buttonText.today = this.$translate.instant('sitnet_today');
                 this.calendarConfig.customButtons.myCustomButton.text = _.capitalize(
                     moment().locale(this.$translate.use()).format('MMMM YYYY')

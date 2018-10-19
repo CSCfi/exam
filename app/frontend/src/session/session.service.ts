@@ -264,9 +264,7 @@ export class SessionService {
 
     translate(lang: string) {
         this.$translate.use(lang);
-        this.setLocale(lang).then(
-            () => this.$rootScope.$broadcast('$localeChangeSuccess')
-        );
+        this.setLocale(lang);
     }
 
     switchLanguage(lang: string) {

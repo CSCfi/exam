@@ -312,8 +312,7 @@ export const CalendarComponent: angular.IComponentOptions = {
             this.organisations.forEach(o => o.filtered = false);
             org.filtered = true;
             this.selectedOrganisation = org;
-
-            this.rooms.forEach(r => r.filtered = false);
+            this.selectedRoom = undefined;
             this.listExternalRooms();
         }
 

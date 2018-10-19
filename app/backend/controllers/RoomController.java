@@ -29,7 +29,6 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
@@ -111,7 +110,7 @@ public class RoomController extends BaseController {
 
     @Restrict(@Group("ADMIN"))
     public Result getExamRoom(Long id) {
-        ExamRoom examRoom = ExamRoom.find.ref(id);
+        ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
         if (examRoom == null) {
             return notFound("room not found");
         }
