@@ -132,7 +132,7 @@ angular.module('app.question')
                 };
 
                 vm.listCourses = function () {
-                    vm.courses = vm.courses.filter(function (course) {
+                    const courses = vm.courses.filter(function (course) {
                         return course.filtered;
                     });
                     const deferred = $q.defer();
@@ -141,14 +141,14 @@ angular.module('app.question')
                         tagIds: getTagIds(),
                         sectionIds: getSectionIds()
                     }, function (data) {
-                        vm.courses = union(vm.courses, data);
+                        vm.courses = union(courses, data);
                         deferred.resolve();
                     });
                     return deferred.promise;
                 };
 
                 vm.listExams = function () {
-                    vm.exams = vm.exams.filter(function (exam) {
+                    const exams = vm.exams.filter(function (exam) {
                         return exam.filtered;
                     });
                     const deferred = $q.defer();
@@ -157,13 +157,13 @@ angular.module('app.question')
                         sectionIds: getSectionIds(),
                         tagIds: getTagIds()
                     }, function (data) {
-                        vm.exams = union(vm.exams, data);
+                        vm.exams = union(exams, data);
                         deferred.resolve();
                     });
                     return deferred.promise;
                 };
 
-                const doListTags = function (sections) {
+                const doListTags = function (tags, sections) {
                     const examIds = getExamIds();
                     const courseIds = getCourseIds();
                     Library.tagApi.query({
@@ -171,7 +171,7 @@ angular.module('app.question')
                         courseIds: courseIds,
                         sectionIds: getSectionIds()
                     }, function (data) {
-                        vm.tags = union(vm.tags, data);
+                        tags = union(tags, data);
                         let examSections = [];
                         vm.exams.filter(function (e) {
                             const examMatch = examIds.length === 0 || examIds.indexOf(e.id) > -1;
@@ -185,23 +185,23 @@ angular.module('app.question')
                                 return section;
                             }));
                         });
-                        vm.tags = vm.tags.concat(union(sections, examSections));
+                        vm.tags = tags.concat(union(sections, examSections));
                     });
                 };
 
                 vm.listTags = function () {
-                    vm.tags = vm.tags.filter(function (tag) {
+                    const tags = vm.tags.filter(function (tag) {
                         return tag.filtered && !tag.isSectionTag;
                     });
-                    const sections = vm.tags.filter(function (tag) {
+                    const sections = tags.filter(function (tag) {
                         return tag.filtered && tag.isSectionTag;
                     });
                     if (getExamIds().length === 0) {
                         vm.listExams().then(function () {
-                            return doListTags(sections);
+                            return doListTags(tags, sections);
                         });
                     } else {
-                        return doListTags(sections);
+                        return doListTags(tags, sections);
                     }
                 };
 
