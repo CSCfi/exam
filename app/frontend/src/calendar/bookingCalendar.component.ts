@@ -12,18 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import * as angular from 'angular';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 import { CalendarService, Room } from './calendar.service';
 
+import 'fullcalendar';
+import 'fullcalendar/dist/lang/fi';
+import 'fullcalendar/dist/lang/sv';
 import 'fullcalendar/dist/fullcalendar.min.css';
 
 export const BookingCalendarComponent: angular.IComponentOptions = {
     template:
         `<div id="calendarBlock" style="display: none;">
-            <div class="col-md-12 calendar-no-paddings" id="calendar" config="$ctrl.calendarConfig"
+            <div class="col-md-12 calendar-no-paddings" id="calendar"
                     ng-model="$ctrl.eventSources"
                     ui-calendar="$ctrl.calendarConfig" calendar="myCalendar">
             </div>
