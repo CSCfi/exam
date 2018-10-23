@@ -3,7 +3,7 @@
 EXAM Quickstart for developers
 =====================================
 
-1.  Prerequisites: install sbt, node (^ 5) and postgresql (^ 9.4)
+1.  Prerequisites: install sbt, node (^ 8) and postgresql (^ 9.4)
 
 2.  Create postgresql database
 
