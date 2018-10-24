@@ -52,10 +52,10 @@ public class AccessibilityController extends BaseController {
         }
         Ebean.find(ExamRoom.class)
                 .where()
-                .in("accessibility", accessibility)
+                .in("accessibilities", accessibility)
                 .findList()
                 .forEach( er -> {
-                    er.getAccessibility().remove(accessibility);
+                    er.getAccessibilities().remove(accessibility);
                     er.update();
                 });
         accessibility.delete();

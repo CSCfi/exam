@@ -165,7 +165,7 @@ export const CalendarComponent: angular.IComponentOptions = {
 
         getRoomAccessibility(): string {
             const room = this.selectedRoom;
-            return room ? room.accessibility.map(a => a.name).join(', ') : '';
+            return room ? room.accessibilities.map(a => a.name).join(', ') : '';
         }
 
         makeExternalReservation() {
@@ -323,7 +323,7 @@ export const CalendarComponent: angular.IComponentOptions = {
             }
         }
 
-        getDescription(room): string {
+        getDescription(room: Room): string {
             if (room.outOfService) {
                 const status = room.statusComment ? ': ' + room.statusComment : '';
                 return this.$translate.instant('sitnet_room_out_of_service') + status;

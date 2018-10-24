@@ -302,7 +302,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
             return true;
         }
         // The following is always empty because no UI-support for adding
-        List<Accessibility> machineAccessibility = machine.getAccessibility();
+        List<Accessibility> machineAccessibility = machine.getAccessibilities();
         return machineAccessibility.stream()
                 .map(accessibility -> accessibility.getId().intValue())
                 .collect(Collectors.toList())
@@ -310,7 +310,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     private static boolean isRoomAccessibilitySatisfied(ExamRoom room, Collection<Integer> wanted) {
-        List<Accessibility> roomAccessibility = room.getAccessibility();
+        List<Accessibility> roomAccessibility = room.getAccessibilities();
         return roomAccessibility.stream()
                 .map(accessibility -> accessibility.getId().intValue())
                 .collect(Collectors.toList())

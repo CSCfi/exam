@@ -15,13 +15,20 @@
 
 package backend.models;
 
-import backend.models.base.GeneratedIdentityModel;
+import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.joda.time.Interval;
 
-import javax.persistence.*;
-import java.util.List;
+import backend.models.base.GeneratedIdentityModel;
 
 @Entity
 public class ExamMachine extends GeneratedIdentityModel {
@@ -43,7 +50,8 @@ public class ExamMachine extends GeneratedIdentityModel {
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JsonManagedReference
-    private List<Accessibility> accessibility;
+    @Deprecated
+    private List<Accessibility> accessibilities;
 
     private String ipAddress;
 
@@ -182,12 +190,12 @@ public class ExamMachine extends GeneratedIdentityModel {
         this.videoRecordings = videoRecordings;
     }
 
-    public List<Accessibility> getAccessibility() {
-        return accessibility;
+    public List<Accessibility> getAccessibilities() {
+        return accessibilities;
     }
 
-    public void setAccessibility(List<Accessibility> accessibility) {
-        this.accessibility = accessibility;
+    public void setAccessibilities(List<Accessibility> accessibilities) {
+        this.accessibilities = accessibilities;
     }
 
     @Transient
