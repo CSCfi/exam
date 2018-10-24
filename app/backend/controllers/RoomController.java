@@ -91,7 +91,7 @@ public class RoomController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result getExamRooms() {
         ExpressionList<ExamRoom> query = Ebean.find(ExamRoom.class)
-                .fetch("accessibility")
+                .fetch("accessibilities")
                 .fetch("examMachines")
                 .fetch("defaultWorkingHours")
                 .fetch("calendarExceptionEvents")
@@ -104,7 +104,7 @@ public class RoomController extends BaseController {
             room.getExamMachines().removeIf(ExamMachine::isArchived);
         }
         PathProperties props = PathProperties.parse(
-                "(*, mailAddress(*), accessibility(*), defaultWorkingHours(*), calendarExceptionEvents(*), examMachines(*, softwareInfo(*)))");
+                "(*, mailAddress(*), accessibilities(*), defaultWorkingHours(*), calendarExceptionEvents(*), examMachines(*, softwareInfo(*)))");
         return ok(rooms, props);
     }
 
@@ -115,7 +115,7 @@ public class RoomController extends BaseController {
             return notFound("room not found");
         }
         PathProperties props = PathProperties.parse(
-                "(*, defaultWorkingHours(*), calendarExceptionEvents(*), accessibility(*), mailAddress(*), examStartingHours(*), examMachines(*))");
+                "(*, defaultWorkingHours(*), calendarExceptionEvents(*), accessibilities(*), mailAddress(*), examStartingHours(*), examMachines(*))");
         return ok(examRoom, props);
     }
 
@@ -147,7 +147,7 @@ public class RoomController extends BaseController {
                 "outOfService",
                 "state",
                 "expanded").get();
-        ExamRoom existing = ExamRoom.find.ref(id);
+        ExamRoom existing = Ebean.find(ExamRoom.class, id);
         if (existing == null) {
             return wrapAsPromise(notFound());
         }
@@ -327,7 +327,7 @@ public class RoomController extends BaseController {
         if (room == null) {
             return notFound();
         }
-        room.getAccessibility().clear();
+        room.getAccessibilities().clear();
         room.save();
 
         if (!ids.isEmpty()) {
@@ -339,7 +339,7 @@ public class RoomController extends BaseController {
                     break;
                 }
                 Accessibility accessibility = Ebean.find(Accessibility.class, accessibilityId);
-                room.getAccessibility().add(accessibility);
+                room.getAccessibilities().add(accessibility);
                 room.save();
                 asyncUpdateRemote(room);
             }

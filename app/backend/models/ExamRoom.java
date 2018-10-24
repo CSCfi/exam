@@ -15,10 +15,20 @@
 
 package backend.models;
 
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.calendar.DefaultWorkingHours;
-import backend.models.calendar.ExceptionWorkingHours;
-import backend.util.DateTimeUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.ebean.Finder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -28,12 +38,10 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.calendar.DefaultWorkingHours;
+import backend.models.calendar.ExceptionWorkingHours;
+import backend.util.DateTimeUtils;
 
 @Entity
 public class ExamRoom extends GeneratedIdentityModel {
@@ -71,7 +79,7 @@ public class ExamRoom extends GeneratedIdentityModel {
     // Accessibility info describes what accessibility issues there are regarding the room
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "examRoom")
     @JsonManagedReference
-    private List<Accessibility> accessibility;
+    private List<Accessibility> accessibilities;
 
     // Checkbox indicating is there any accessibility issues concerning the room
     @Column(columnDefinition = "boolean default false")
@@ -161,12 +169,12 @@ public class ExamRoom extends GeneratedIdentityModel {
         this.examStartingHours = examStartingHours;
     }
 
-    public List<Accessibility> getAccessibility() {
-        return accessibility;
+    public List<Accessibility> getAccessibilities() {
+        return accessibilities;
     }
 
-    public void setAccessibility(List<Accessibility> accessibility) {
-        this.accessibility = accessibility;
+    public void setAccessibilities(List<Accessibility> accessibilities) {
+        this.accessibilities = accessibilities;
     }
 
     public String getRoomInstruction() {

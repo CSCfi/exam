@@ -33,8 +33,9 @@ export interface Room {
     roomInstruction: string | null;
     roomInstructionSV: string | null;
     roomInstructionEN: string | null;
-    accessibility: { id: number, name: string }[];
+    accessibilities: { id: number, name: string }[];
     outOfService: boolean;
+    statusComment: string | null;
 }
 
 export interface Slot {
@@ -95,8 +96,6 @@ export class CalendarService {
             promise.reject(resp);
         });
     }
-
-
 
     private reserveExternal(slot: Slot, promise: IDeferred<any>) {
         this.$http.post('/integration/iop/reservations/external', slot).then(() => {
