@@ -185,8 +185,9 @@ public class CollaborativeExam extends GeneratedIdentityModel {
 
     @Transient
     public Exam getExam(JsonNode node) {
-        JsonNode formatted = ((ObjectNode) node).put("id", id);
-        return JsonDeserializer.deserialize(Exam.class, formatted);
+        final ObjectNode objectNode = (ObjectNode) node;
+        objectNode.put("id", id).put("externalRef", externalRef);
+        return JsonDeserializer.deserialize(Exam.class, objectNode);
     }
 
 }
