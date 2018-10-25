@@ -269,10 +269,12 @@ public class ExternalCalendarController extends CalendarController {
         if (org.isPresent() && date.isPresent()) {
             // First check that exam exists
             User user = getLoggedUser();
-            Exam exam = getEnrolledExam(examId, user);
-            if (exam == null) {
+            ExamEnrolment ee = getEnrolment(examId, user);
+            // For now do not allow making an external reservation for collaborative exam
+            if (ee == null || ee.getCollaborativeExam() != null) {
                 return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
             }
+            Exam exam = ee.getExam();
 
             // Also sanity check the provided search date
             try {
