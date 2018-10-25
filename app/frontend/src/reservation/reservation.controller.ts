@@ -21,7 +21,7 @@ import { Option } from '../utility/select/dropDownSelect.component';
 
 interface Selection {
     roomId?: number;
-    examId?: number;
+    examId?: string;
     ownerId?: number;
     studentId?: number;
     machineId?: number;
@@ -30,7 +30,7 @@ interface Selection {
 
 export class ReservationController implements angular.IComponentController {
 
-    examId: number | undefined;
+    examId: string | undefined;
     user: User;
     startDate: Date = new Date();
     endDate: Date = new Date();
@@ -56,17 +56,19 @@ export class ReservationController implements angular.IComponentController {
     rooms: any[];
     machines: any[];
     reservations: any[];
+    isInteroperable: boolean;
 
     constructor(
         private $http: angular.IHttpService,
         private $routeParams: angular.route.IRouteParamsService,
         private $filter: angular.IFilterService,
         private Session: SessionService,
-        private Reservation: ReservationService
+        private Reservation: ReservationService,
+        private SettingsResource: any
     ) {
         'ngInject';
 
-        this.examId = $routeParams.eid ? parseInt($routeParams.eid) : undefined;
+        this.examId = $routeParams.eid ? $routeParams.eid : undefined;
         this.user = Session.getUser();
 
         if (this.user.isAdmin) {
@@ -100,6 +102,11 @@ export class ReservationController implements angular.IComponentController {
                 if (typeof params[k] === 'object') {
                     params[k] = params[k].id;
                 }
+            }
+
+            if (!Number.isInteger(params.examId)) {
+                params.externalRef = params.examId;
+                delete params.examId;
             }
 
             if (this.startDate) {
@@ -146,14 +153,10 @@ export class ReservationController implements angular.IComponentController {
                     return { id: s.id, value: s, label: s.name };
                 });
             }).catch(resp => toast.error(resp.data));
-        this.$http.get('/app/reservations/exams')
-            .then((resp: angular.IHttpResponse<{ id: number, name: string }[]>) => {
-                const exams = this.$filter('orderBy')(resp.data, 'name');
-                this.examOptions = exams.map(e => {
-                    return { id: e.id, value: e, label: e.name };
-                });
-            }).catch(resp => toast.error(resp.data));
-
+        this.SettingsResource.iop.get((data) => {
+            this.isInteroperable = data.isInteroperable;
+            this.initExamOptions();
+        });
 
         if (this.isAdminView()) {
             this.$http.get('/app/reservations/teachers')
@@ -179,6 +182,32 @@ export class ReservationController implements angular.IComponentController {
 
                 }).catch(resp => toast.error(resp.data));
         }
+    }
+
+    protected initExamOptions() {
+        this.$http.get('/app/reservations/exams')
+            .then((resp: angular.IHttpResponse<{ id: string, name: string }[]>) => {
+                return resp.data;
+            })
+            .then(exams => {
+                if (this.isInteroperable && this.isAdminView()) {
+                    // Load also collaborative exams.
+                    return this.$http.get('/integration/iop/exams')
+                        .then((resp: angular.IHttpResponse<{ id: string, name: string, externalRef: string }[]>) => {
+                            return exams.concat(resp.data.map(e => {
+                                return { id: e.externalRef, name: e.name };
+                            }));
+                        });
+                }
+                return exams;
+            })
+            .then(exams => {
+                const filteredExams = this.$filter('orderBy')(exams, 'name');
+                this.examOptions = filteredExams.map(e => {
+                    return { id: e.id, value: e, label: e.name };
+                });
+            })
+            .catch(resp => toast.error(resp.data));
     }
 
     private roomContains = (room, machine) => room.examMachines.some(m => m.id === machine.id);

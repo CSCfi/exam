@@ -251,7 +251,7 @@ public class ReservationController extends BaseController {
     @Anonymous(filteredProperties = {"user", "externalUserRef"})
     public Result getReservations(Optional<String> state, Optional<Long> ownerId, Optional<Long> studentId,
                                   Optional<Long> roomId, Optional<Long> machineId, Optional<Long> examId,
-                                  Optional<String> start, Optional<String> end) {
+                                  Optional<String> start, Optional<String> end, Optional<String> externalRef) {
         ExpressionList<Reservation> query = Ebean.find(Reservation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("enrolment.exam", "id, name, state, trialCount")
@@ -260,6 +260,7 @@ public class ReservationController extends BaseController {
                 .fetch("enrolment.exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
                 .fetch("enrolment.exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
                 .fetch("enrolment.exam.examInspections.user", "id, firstName, lastName")
+                .fetch("enrolment.collaborativeExam", "*")
                 .fetch("machine", "id, name, ipAddress, otherIdentifier")
                 .fetch("machine.room", "id, name, roomCode")
                 .where()
@@ -272,6 +273,7 @@ public class ReservationController extends BaseController {
         if (user.hasRole("TEACHER", getSession())) {
             query = query
                     .isNull("enrolment.externalExam") // Hide reservations of external students (just to be sure)
+                    .isNull("enrolment.collaborativeExam") // Hide collaborative exams from teachers.
                     .disjunction()
                     .eq("enrolment.exam.parent.examOwners", user)
                     .eq("enrolment.exam.examOwners", user)
@@ -311,7 +313,12 @@ public class ReservationController extends BaseController {
         }
 
         if (studentId.isPresent()) {
-            query = query.eq("user.id", studentId.get());
+            query = query.eq("user.id", studentId.get())
+                    // Hide reservations for anonymous exams.
+                    .or()
+                    .eq("enrolment.exam.anonymous", false)
+                    .eq("enrolment.collaborativeExam.anonymous", false)
+                    .endOr();
         }
         if (roomId.isPresent()) {
             query = query.eq("machine.room.id", roomId.get());
@@ -325,6 +332,8 @@ public class ReservationController extends BaseController {
                     .eq("enrolment.exam.parent.id", examId.get())
                     .eq("enrolment.exam.id", examId.get())
                     .endJunction();
+        } else if (externalRef.isPresent()) {
+            query = query.eq("enrolment.collaborativeExam.externalRef", externalRef.get());
         }
 
         if (ownerId.isPresent() && user.hasRole("ADMIN", getSession())) {
