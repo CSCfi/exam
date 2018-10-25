@@ -592,7 +592,7 @@ class EmailComposerImpl implements EmailComposer {
     }
 
     @Override
-    public void composeCollaborativeExamAnnouncement(Set<String> emails, User sender, Exam exam, Long ref) {
+    public void composeCollaborativeExamAnnouncement(Set<String> emails, User sender, Exam exam) {
         String templatePath = getTemplatesRoot() + "collaborativeExamNotification.html";
         String template = readFile(templatePath, ENCODING);
         String subject = "New collaborative exam";
@@ -603,14 +603,11 @@ class EmailComposerImpl implements EmailComposer {
                         DF.print(new DateTime(exam.getExamActiveEndDate()))));
         String examDuration = String.format("%dh %dmin", exam.getDuration() / MINUTES_IN_HOUR,
                 exam.getDuration() % MINUTES_IN_HOUR);
-        // /exams/collaborative/:id/:tab
-        String link = String.format("%s/exams/collaborative/%d/1", HOSTNAME, ref);
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("exam_info", messaging.get(lang, "email.template.reservation.exam", examInfo));
         stringValues.put("exam_period", examPeriod);
         stringValues.put("exam_duration", messaging.get(lang, "email.template.reservation.exam.duration", examDuration));
-        stringValues.put("editing_link", link);
 
         //Replace template strings
         template = replaceAll(template, stringValues);
