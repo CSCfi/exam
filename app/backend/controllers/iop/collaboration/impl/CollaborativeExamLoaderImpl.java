@@ -117,7 +117,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
                 if (isPrePublication) {
                     Set<String> receivers = content.getExamOwners().stream().map(User::getEmail).collect(Collectors.toSet());
                     as.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
-                            () -> composer.composeCollaborativeExamAnnouncement(receivers, sender, content, ce.getId()),
+                            () -> composer.composeCollaborativeExamAnnouncement(receivers, sender, content),
                             as.dispatcher()
                     );
                 }

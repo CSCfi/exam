@@ -94,6 +94,6 @@ public interface EmailComposer {
     /**
      * Message sent to teacher when collaborative exam is created in the system.
      */
-    void composeCollaborativeExamAnnouncement(Set<String> emails, User sender, Exam exam, Long ref);
+    void composeCollaborativeExamAnnouncement(Set<String> emails, User sender, Exam exam);
 
 }
