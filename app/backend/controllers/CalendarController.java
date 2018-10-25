@@ -216,17 +216,16 @@ public class CalendarController extends BaseController {
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result getSlots(Long examId, Long roomId, String day, Collection<Integer> aids) {
         User user = getLoggedUser();
-        Exam exam = getEnrolledExam(examId, user); // TODO: collab exam <- download
-        if (exam == null) {
+        ExamEnrolment ee = getEnrolment(examId, user);
+        if (ee == null) {
             return forbidden("sitnet_error_enrolment_not_found");
         }
-        return calendarHandler.getSlots(user, exam, roomId, day, aids);
+        return calendarHandler.getSlots(user, ee.getExam(), roomId, day, aids);
     }
 
-
-    protected Exam getEnrolledExam(Long examId, User user) {
+    protected ExamEnrolment getEnrolment(Long examId, User user) {
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        return Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .where()
                 .eq("user", user)
@@ -237,8 +236,6 @@ public class CalendarController extends BaseController {
                 .gt("reservation.startAt", now.toDate())
                 .endJunction()
                 .findOne();
-        return enrolment == null ? null : enrolment.getExam();
     }
-
 
 }
