@@ -18,7 +18,7 @@
         <div class="detail-row-tall"
              ng-repeat="room in $ctrl.rooms | filter: $ctrl.massEditedRoomFilter | orderBy:'name'">
             <div class="col-md-12">
-                <b>{{room.name}}</b>
+                <b>{{room.name || 'sitnet_no_name' | translate}}</b>
             </div>
             <exception-list room="room" on-create="$ctrl.addException(exception)" on-delete="$ctrl.deleteException(exception)"
                             filter="$ctrl.massEditedExceptionFilter" hide-button="true" hide-title="true"></exception-list>
