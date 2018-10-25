@@ -11,7 +11,7 @@
                     <span class="col-md-6">
                         <span ng-show="$ctrl.showName" onclick="document.getElementById('name_field').select();">
                             <span class="room-name" ng-click="$ctrl.showName = !$ctrl.showName">
-                                {{$ctrl.room.name}}
+                                {{$ctrl.room.name || 'sitnet_no_name' | translate}}
                                 <i class="fa fa-pencil"></i>
                             </span>
                             <a class="room-name" ng-click="$ctrl.disableRoom()" popover-placement="left" popover-trigger="'mouseenter'"
