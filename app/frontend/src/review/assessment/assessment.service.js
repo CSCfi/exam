@@ -18,8 +18,8 @@ import angular from 'angular';
 import toast from 'toastr';
 
 angular.module('app.review')
-    .service('Assessment', ['$q', '$http', '$resource', '$routeParams', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Question',
-        function ($q, $http, $resource, $routeParams, $translate, $location, $timeout, dialogs, ExamRes, Session, Question) {
+    .service('Assessment', ['$q', '$http', '$resource', '$routeParams', '$translate', '$location', '$timeout', 'dialogs', 'ExamRes', 'Session', 'Exam',
+        function ($q, $http, $resource, $routeParams, $translate, $location, $timeout, dialogs, ExamRes, Session, Exam) {
 
             const self = this;
 
@@ -103,8 +103,7 @@ angular.module('app.review')
             };
 
             self.checkCredit = function (exam, silent) {
-                const credit = exam.customCredit;
-                const valid = !isNaN(credit) && credit >= 0;
+                const valid = Exam.hasCustomCredit(exam);
                 if (!valid) {
                     if (!silent) {
                         toast.error($translate.instant('sitnet_not_a_valid_custom_credit'));

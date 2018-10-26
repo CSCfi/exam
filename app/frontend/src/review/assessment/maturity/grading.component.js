@@ -170,7 +170,7 @@ angular.module('app.review')
                             }
                         });
                     });
-                    if (vm.exam.course && !vm.exam.customCredit) {
+                    if (vm.exam.course && !Exam.hasCustomCredit(vm.exam)) {
                         vm.exam.customCredit = vm.exam.course.credits;
                     }
                 };

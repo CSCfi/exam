@@ -190,7 +190,7 @@ angular.module('app.exam')
             };
 
             self.setCredit = function (exam) {
-                if (exam.customCredit !== undefined && exam.customCredit) {
+                if (self.hasCustomCredit(exam)) {
                     exam.credit = exam.customCredit;
                 } else {
                     exam.credit = exam.course && exam.course.credits ? exam.course.credits : 0;
@@ -391,6 +391,15 @@ angular.module('app.exam')
                 const resource = exam.executionType.type === 'PRINTOUT' ? 'printout' : 'preview';
                 const collaboration = collaborative ? 'collaborative/' : '';
                 $location.path(`/exams/${collaboration}${exam.id}/view/${resource}/${fromTab}`);
+            }
+
+            self.hasCustomCredit = (exam) => {
+                return !isNaN(exam.customCredit) && exam.customCredit >= 0;
+            }
+
+            self.getExamDisplayCredit = (exam) => {
+                const courseCredit = exam.course ? exam.course.credits : 0;
+                return self.hasCustomCredit(exam) ? exam.customCredit : courseCredit;
             }
 
         }]);
