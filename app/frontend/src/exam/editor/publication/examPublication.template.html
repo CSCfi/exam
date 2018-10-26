@@ -147,8 +147,11 @@
         <div class="col-md-12 padl0 margin-20">
             <div class="col-md-12">
                 <div class="">
-                    <a ng-if="!$ctrl.collaborative" href="{{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}">
+                    <a ng-if="!$ctrl.collaborative && exam.executionType.type === 'PUBLIC'" href="{{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}">
                         {{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}</a>
+                    <a ng-if="!$ctrl.collaborative && exam.executionType.type !== 'PUBLIC'" href="{{ $ctrl.hostName }}/calendar/{{ $ctrl.exam.id }}">
+                        {{ $ctrl.hostName }}/calendar/{{ $ctrl.exam.id }}</a>
+                    </a>
                     <a ng-if="$ctrl.collaborative" href="{{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?collaborative=true">
                         {{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?collaborative=true</a>
                 </div>
