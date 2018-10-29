@@ -119,14 +119,12 @@ angular.module('app.review')
                     return Exam.getExamGradeDisplayName(grade);
                 };
 
-                const examCredit = (courseCredit, customCredit) => customCredit ? customCredit : courseCredit;
-
                 const handleGradedReviews = r => {
                     r.displayName = ReviewList.getDisplayName(r, vm.parentCtrl.collaborative);
                     r.displayedGradingTime = r.exam.languageInspection ?
                         r.exam.languageInspection.finishedAt : r.exam.gradedTime;
                     r.displayedGrade = translateGrade(r.exam);
-                    r.displayedCredit = examCredit(r.exam.course ? r.exam.course.credits : 0, r.exam.customCredit);
+                    r.displayedCredit = Exam.getExamDisplayCredit(r.exam);
                 };
 
             }]
