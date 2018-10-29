@@ -145,12 +145,13 @@
                 </div>
             </div>
 
-            <div class="col-md-12 padl0 margin-20">
-                <div class="col-md-12">
-                    <div class="">
-                        <a href="{{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}">
-                            {{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}</a>
-                    </div>
+            <div class="col-md-12">
+                <div class="">
+                    <a ng-if="exam.executionType.type === 'PUBLIC'" href="{{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}">
+                        {{ $ctrl.hostName }}/enroll/exam/{{ $ctrl.exam.id }}?code={{ $ctrl.exam.course.code }}</a>
+                    <a ng-if="exam.executionType.type !== 'PUBLIC'" href="{{ $ctrl.hostName }}/calendar/{{ $ctrl.exam.id }}">
+                        {{ $ctrl.hostName }}/calendar/{{ $ctrl.exam.id }}</a>
+                    </a>
                 </div>
             </div>
         </div>
