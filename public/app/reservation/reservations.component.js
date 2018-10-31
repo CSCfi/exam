@@ -236,11 +236,23 @@ angular.module('app.reservation')
                             function (reservations) {
                                 reservations.forEach(function (r) {
                                     r.userAggregate = r.user ? r.user.lastName + r.user.firstName : r.externalUserRef;
+                                    // Transfer exam taken here
                                     if (!r.enrolment || r.enrolment.externalExam) {
                                         r.enrolment = r.enrolment || {};
                                         var externalState = r.enrolment.finished ? 'EXTERNAL_FINISHED' :
                                             'EXTERNAL_UNFINISHED';
                                         r.enrolment.exam = {external: true, examOwners: [], state: externalState};
+                                    }
+                                    // Transfer exam taken elsewhere
+                                    if (r.externalReservation) {
+                                        r.org = {
+                                            name: r.externalReservation.orgName,
+                                            code: r.externalReservation.orgCode
+                                        };
+                                        r.machine = {
+                                            name: r.externalReservation.machineName,
+                                            room: {name: r.externalReservation.roomName},
+                                        };
                                     }
                                     var exam = r.enrolment.exam.parent || r.enrolment.exam;
                                     r.enrolment.teacherAggregate = exam.examOwners.map(function (o) {

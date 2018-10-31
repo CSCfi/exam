@@ -43,7 +43,10 @@
         <td class="reservation-search">{{r.startAt | adjustdst | date:'dd.MM.yyyy'}}<br/>{{r.startAt | adjustdst |
             date:'HH:mm'}}-{{r.endAt | adjustdst | date:'HH:mm'}}
         </td>
-        <td class="reservation-search">{{r.machine.room.name}}<br/>{{r.machine.name}}</td>
+        <td class="reservation-search">{{r.machine.room.name}}<br/>
+            <span ng-if="r.org">{{ r.org.name }} ({{ r.org.code }})</span>
+            {{r.machine.name}}
+        </td>
         <td class="reservation-search {{$ctrl.getStateclass(r)}}">{{'sitnet_exam_status_' + $ctrl.printExamState(r) | lowercase | translate}}</td>
 
         <td class="reservation-search" ng-if="$ctrl.isAdminView()">

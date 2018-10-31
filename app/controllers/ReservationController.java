@@ -15,6 +15,14 @@
 
 package controllers;
 
+import java.io.IOException;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import javax.inject.Inject;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -41,15 +49,6 @@ import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 
 public class ReservationController extends BaseController {
 
@@ -256,6 +255,7 @@ public class ReservationController extends BaseController {
                 .fetch("enrolment.exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
                 .fetch("enrolment.exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
                 .fetch("enrolment.exam.examInspections.user", "id, firstName, lastName")
+                .fetch("externalReservation")
                 .fetch("machine", "id, name, ipAddress, otherIdentifier")
                 .fetch("machine.room", "id, name, roomCode")
                 .where()

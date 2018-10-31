@@ -15,15 +15,19 @@
 
 package models.iop;
 
-import models.base.GeneratedIdentityModel;
-
 import javax.persistence.Entity;
+
+import models.base.GeneratedIdentityModel;
 
 
 @Entity
 public class ExternalReservation extends GeneratedIdentityModel {
 
     private String orgRef;
+
+    private String orgName;
+
+    private String orgCode;
 
     private String roomRef;
 
@@ -47,6 +51,22 @@ public class ExternalReservation extends GeneratedIdentityModel {
 
     public void setOrgRef(String orgRef) {
         this.orgRef = orgRef;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
+    public String getOrgCode() {
+        return orgCode;
+    }
+
+    public void setOrgCode(String orgCode) {
+        this.orgCode = orgCode;
     }
 
     public String getRoomRef() {
