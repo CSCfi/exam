@@ -16,8 +16,6 @@
 import * as angular from 'angular';
 import { FileService } from '../../file/file.service';
 
-declare function require(name: string): any;
-
 export interface FileResult {
     $value: { attachmentFile: File };
 }
@@ -34,8 +32,8 @@ export const AttachmentSelectorComponent: angular.IComponentOptions = {
         resolve: '<'
     },
     controller: class AttachmentSelectorController implements angular.IComponentController {
-        close: (r: FileResult) => void;
-        dismiss: (r: CancelResult) => void;
+        close: (_: FileResult) => void;
+        dismiss: (_: CancelResult) => void;
         resolve: { isTeacherModal: boolean, title: string };
         title: string;
         isTeacherModal: boolean;
@@ -43,7 +41,6 @@ export const AttachmentSelectorComponent: angular.IComponentOptions = {
         attachmentFile: File;
 
         constructor(
-            private $scope: angular.IScope,
             private Files: FileService
         ) {
             'ngInject';

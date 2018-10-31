@@ -33,7 +33,7 @@ export default function configs(
     const ieHeaders = { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' };
     Object.assign(defaults.headers, { get: ieHeaders });
 
-    ['en', 'fi', 'sv'].forEach(l => $translateProvider.translations(l, require(`./assets/languages/locale-${l}.json`)));
+    ['en', 'fi', 'sv'].forEach(l => $translateProvider.translations(l, require(`./assets/i18n/${l}.json`)));
 
     $translateProvider.useSanitizeValueStrategy('');
     $translateProvider.preferredLanguage('en');
@@ -136,9 +136,16 @@ export default function configs(
 
     // HTTP INTERCEPTOR
     $httpProvider.interceptors.push(
-        function ($q, $rootScope, $location, $translate, WrongLocation) {
+        function ($q, $rootScope, $location, $translate, WrongLocation, Session) {
             'ngInject';
             return {
+                'request': function (request) {
+                    if (Session.getUser()) {
+                        request.headers = Object.assign(request.headers,
+                            { 'x-exam-authentication': Session.getUser().token });
+                    }
+                    return request;
+                },
                 'response': function (response) {
 
                     const b64ToUtf8 = function (str, encoding = 'utf-8') {

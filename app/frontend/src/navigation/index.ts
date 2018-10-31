@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { downgradeInjectable, downgradeComponent } from '@angular/upgrade/static';
 
 import * as angular from 'angular';
 
@@ -19,8 +20,8 @@ import { NavigationService } from './navigation.service';
 import { NavigationComponent } from './navigation.component';
 
 export default angular.module('app.navigation', [])
-    .service('Navigation', NavigationService)
-    .component('navigation', NavigationComponent)
+    .service('Navigation', downgradeInjectable(NavigationService))
+    .directive('navigation', downgradeComponent({ component: NavigationComponent }) as angular.IDirectiveFactory)
     .name;
 
 

@@ -13,78 +13,94 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
-import * as toastr from 'toastr';
-import * as $ from 'jquery';
-import { SessionService, User } from '../session/session.service';
+import { Location } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { Link, NavigationService } from './navigation.service';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
+import { SessionService, User } from '../session/session.service';
 
-declare function require(name: string): any;
 
-export const NavigationComponent: angular.IComponentOptions = {
-    template: require('./navigation.template.html'),
-    controller: class NavigationController implements angular.IComponentController {
+import * as toastr from 'toastr';
 
-        appVersion: string;
-        links: Link[];
-        mobileMenuOpen: boolean;
-        user: User;
-        isInteroperable: boolean;
+@Component({
+    selector: 'navigation',
+    template: require('./navigation.component.html')
+})
+export class NavigationComponent implements OnInit, OnDestroy {
 
-        constructor(
-            private $http: angular.IHttpService,
-            private $rootScope: angular.IRootScopeService,
-            private $location: angular.ILocationService,
-            private Navigation: NavigationService,
-            private Session: SessionService) {
-            'ngInject';
+    appVersion: string;
+    links: Link[];
+    mobileMenuOpen: boolean;
+    user: User;
+    isInteroperable: boolean;
+    private ngUnsubscribe = new Subject();
 
-            this.$rootScope.$on('userUpdated', () => {
-                this.user = this.Session.getUser();
-                this.getLinks(true);
-            });
-            this.$rootScope.$on('upcomingExam', () => this.getLinks(false));
-            this.$rootScope.$on('wrongLocation', () => this.getLinks(false));
-        }
+    constructor(
+        private location: Location,
+        private Navigation: NavigationService,
+        private Session: SessionService) {
 
-        $onInit() {
-            this.user = this.Session.getUser();
-            if (this.user && this.user.isAdmin) {
-                this.Navigation.getAppVersion()
-                    .then(resp => this.appVersion = resp.data.appVersion)
-                    .catch(e => toastr.error(e.data));
-                this.getLinks(true);
-            } else if (this.user) {
-                this.getLinks(true);
-            } else {
-                this.getLinks(false);
-            }
-        }
-
-        isActive(link: Link): boolean {
-            return link.href === this.$location.path();
-        }
-
-        openMenu(): void {
-            this.mobileMenuOpen = !this.mobileMenuOpen;
-        }
-
-        switchLanguage(key): void {
-            this.Session.switchLanguage(key);
-        }
-
-        private getLinks = (checkInteroperability: boolean) => {
-            if (checkInteroperability) {
-                this.$http.get('/app/settings/iop')
-                    .then((resp: angular.IHttpResponse<{ isInteroperable: boolean }>) => {
-                        this.isInteroperable = resp.data.isInteroperable;
-                        this.links = this.Navigation.getLinks(this.isInteroperable);
-                    })
-                    .catch(angular.noop);
-            } else {
-                this.links = this.Navigation.getLinks(false);
-            }
-        }
-
+        // TODO: make these observables in other components
+        /*
+        this.$rootScope.$on('upcomingExam', () => this.getLinks(false));
+        this.$rootScope.$on('wrongLocation', () => this.getLinks(false));
+        */
     }
-};
+
+    ngOnInit() {
+        this.Session.userChange$.pipe(
+            takeUntil(this.ngUnsubscribe))
+            .subscribe((user: User) => {
+                this.user = user;
+                this.getLinks(true);
+            }
+            );
+
+        this.user = this.Session.getUser();
+        if (this.user && this.user.isAdmin) {
+            this.Navigation.getAppVersion().subscribe(
+                resp => this.appVersion = resp.appVersion,
+                e => toastr.error(e)
+            );
+            this.getLinks(true);
+        } else if (this.user) {
+            this.getLinks(true);
+        } else {
+            this.getLinks(false);
+        }
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
+
+    isActive(link: Link): boolean {
+        return link.href === this.location.path();
+    }
+
+    openMenu(): void {
+        this.mobileMenuOpen = !this.mobileMenuOpen;
+    }
+
+    switchLanguage(key): void {
+        this.Session.switchLanguage(key);
+    }
+
+    private getLinks = (checkInteroperability: boolean) => {
+        if (checkInteroperability) {
+            this.Navigation.getInteroperability().subscribe(
+                resp => {
+                    this.isInteroperable = resp.isInteroperable;
+                    this.links = this.Navigation.getLinks(this.isInteroperable);
+                }, e => toastr.error(e));
+        } else {
+            this.links = this.Navigation.getLinks(false);
+        }
+    }
+
+}
+
+

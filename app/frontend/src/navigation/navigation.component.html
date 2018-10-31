@@ -1,0 +1,87 @@
+<div *ngIf="user" id="vmenu" class="hidden-print">
+    <div class="nav-container">
+        <div class="nav-header">
+            <div class="logo">
+                <div class="hidden-mobile">
+                    <img src="/assets/assets/images/exam-logo-new.svg" alt="exam" onerror="this.onerror = null;
+                            this.src = '/assets/assets/images/exam-logo-new.png'" />
+                </div>
+                <div class="visible-mobile">
+                    <div class="mobile-menu" (click)="openMenu()" [hidden]="!user">
+                        <img src="/assets/assets/images/icon_menu_mobile.svg" alt="exam-menu-mobile" onerror="this.onerror = null;
+                                this.src = '/assets/assets/images/icon_menu_mobile.png'" />
+                    </div>
+                    <img src="/assets/assets/images/exam-logo-mobile.svg" alt="exam-log-mobile" onerror="this.onerror = null;
+                            this.src = '/assets/assets/images/exam-logo-mobile.png'" />
+                </div>
+            </div>
+            <div [hidden]="!appVersion">
+                <div class="app-version">
+                    v. {{ appVersion }}
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-body">
+            <ul class="links">
+                <li *ngFor="let link of links" [hidden]="!link.visible">
+                    <a [ngClass]="{'selected': isActive(link)}" href="{{link.href}}">
+                        <img width="18" src="/assets/assets/images/nav/{{link.iconPng}}" alt="" />
+                        <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{ link.name |
+                            translate }}</span>
+                    </a>
+                    <ul class="submenu" [hidden]="!link.submenu.hidden">
+                        <li *ngFor="let subitem of link.submenu.items" [ngClass]="{'selectedsub': isActive(subitem)}">
+                            <a href="{{subitem.href}}">
+                                <div>
+                                    <img width="18" src="/assets/assets/images/nav/{{subitem.iconPng}}" alt="" />
+                                    {{ subitem.name | translate }} </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-body-mobile" [hidden]="!mobileMenuOpen">
+            <ul class="links">
+                <li [ngClass]="{'selected': isActive(link)}" *ngFor="let link of links" [hidden]="!link.visible">
+                    <a href="{{link.href}}">
+                        <img width="18" src="/assets/assets/images/nav/{{link.iconPng}}" alt="" />
+                        <span class="menu-item">{{ link.name | translate }}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-user" [hidden]="!user">
+            <div class="user">
+                <div class="user-name">
+                    <div class="user-logo">
+                        <img src="/assets/assets/images/icon_menu_user.png" alt="" />
+                    </div>
+                    <div class="user-data">
+                        {{user.firstName}}&nbsp;{{user.lastName}}
+                        <br />
+                        <span [hidden]="!user.isStudent">{{ 'sitnet_student' | translate }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-footer">
+            <div class="locale-bar">
+                <span class="locale-item">
+                    <a (click)="switchLanguage('fi')">FI</a>
+                </span>
+                <span class="locale-item">
+                    <a (click)="switchLanguage('sv')">SV</a>
+                </span>
+                <span class="locale-item">
+                    <a (click)="switchLanguage('en')">EN</a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -13,7 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
+import { Location } from '@angular/common';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
 import { SessionService, User } from '../session/session.service';
 
 export interface Link {
@@ -25,17 +29,20 @@ export interface Link {
     submenu?: { hidden: boolean, items: Link[] };
 }
 
+@Injectable()
 export class NavigationService {
 
     constructor(
-        private $http: angular.IHttpService,
-        private $location: angular.ILocationService,
-        private Session: SessionService) {
-        'ngInject';
+        private http: HttpClient,
+        private location: Location,
+        private Session: SessionService) { }
+
+    getAppVersion(): Observable<{ appVersion: string }> {
+        return this.http.get<{ appVersion: string }>('/app/settings/appVersion');
     }
 
-    getAppVersion(): angular.IHttpPromise<{ appVersion: string }> {
-        return this.$http.get('/app/settings/appVersion');
+    getInteroperability(): Observable<{ isInteroperable: boolean }> {
+        return this.http.get<{ isInteroperable: boolean }>('/app/settings/iop');
     }
 
     getLinks(interoperable: boolean): Link[] {
@@ -51,7 +58,7 @@ export class NavigationService {
         const languageInspector = user.isTeacher && user.isLanguageInspector;
 
         // Do not show if waiting for exam to begin
-        const hideDashboard = /\/student\/waiting-room|wrong-machine|wrong-room/.test(this.$location.path());
+        const hideDashboard = /\/student\/waiting-room|wrong-machine|wrong-room/.test(this.location.path());
 
         // Change the menu item title if student
         const nameForDashboard = student ? 'sitnet_user_enrolled_exams_title' : 'sitnet_dashboard';
@@ -68,8 +75,14 @@ export class NavigationService {
             ]
         };
 
-        const teacherCollaborativeExamsSubmenu = teacher && interoperable ? collaborativeExamsSubmenu : undefined;
-        const studentCollaborativeExamsSubmenu = student && interoperable ? collaborativeExamsSubmenu : undefined;
+        const teacherCollaborativeExamsSubmenu = teacher && interoperable ? collaborativeExamsSubmenu : {
+            hidden: true,
+            items: []
+        };
+        const studentCollaborativeExamsSubmenu = student && interoperable ? collaborativeExamsSubmenu : {
+            hidden: true,
+            items: []
+        };
 
         return [
             {
@@ -83,7 +96,11 @@ export class NavigationService {
                 href: '/inspections',
                 visible: languageInspector,
                 name: 'sitnet_language_inspections',
-                iconPng: 'icon_admin_lang_inspection.png'
+                iconPng: 'icon_admin_lang_inspection.png',
+                submenu: {
+                    hidden: true,
+                    items: []
+                }
             },
             {
                 href: '/exams',
@@ -153,27 +170,39 @@ export class NavigationService {
                 href: '/users',
                 visible: admin,
                 name: 'sitnet_users',
-                iconPng: 'icon_users.png'
+                iconPng: 'icon_users.png',
+                submenu: {
+                    hidden: true,
+                    items: []
+                }
             },
             {
                 href: '/questions',
                 visible: teacher,
                 name: 'sitnet_library_new',
-                iconPng: 'icon_questions.png'
+                iconPng: 'icon_questions.png',
+                submenu: {
+                    hidden: true,
+                    items: []
+                }
             },
             {
                 href: '/reservations',
                 visible: teacher,
                 name: 'sitnet_reservations_new',
                 iconSvg: 'icon_reservations.svg',
-                iconPng: 'icon_reservations.png'
+                iconPng: 'icon_reservations.png',
+                submenu: {
+                    hidden: true,
+                    items: []
+                }
             },
             {
                 href: '/student/exams',
                 visible: student && !hideDashboard,
                 name: 'sitnet_exams',
                 iconPng: 'icon_exams.png',
-                submenu: studentCollaborativeExamsSubmenu
+                submenu: studentCollaborativeExamsSubmenu,
             },
             {
                 href: '/student/participations',
@@ -196,7 +225,11 @@ export class NavigationService {
                 href: '/logout',
                 visible: true,
                 name: 'sitnet_logout',
-                iconPng: 'icon_admin_logout.png'
+                iconPng: 'icon_admin_logout.png',
+                submenu: {
+                    hidden: true,
+                    items: []
+                }
             }
         ];
     }

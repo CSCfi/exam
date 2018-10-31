@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { downgradeInjectable } from '@angular/upgrade/static';
 
 import * as angular from 'angular';
 
@@ -30,7 +31,7 @@ export default angular.module('app.utility', [])
     .run(runBlock)
     .service('Attachment', AttachmentService)
     .service('DateTime', DateTimeService)
-    .service('Files', FileService)
+    .service('Files', downgradeInjectable(FileService))
     .component('attachmentSelector', AttachmentSelectorComponent)
     .component('datePicker', DatePickerComponent)
     .component('dateTimePicker', DateTimePickerComponent)

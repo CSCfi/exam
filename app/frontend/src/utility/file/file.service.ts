@@ -12,24 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { WindowRef } from '../window/window.service';
 
-import * as angular from 'angular';
-import { IDeferred, IHttpResponse, IPromise } from 'angular';
 import * as toast from 'toastr';
 import * as FileSaver from 'file-saver';
 
+@Injectable()
 export class FileService {
 
     private _supportsBlobUrls: boolean;
     private _maxFileSize: number;
 
     constructor(
-        private $q: angular.IQService,
-        private $http: angular.IHttpService,
-        private $translate: angular.translate.ITranslateService,
-        private $timeout: angular.ITimeoutService,
-        private $window: angular.IWindowService) {
-        'ngInject';
+        private http: HttpClient,
+        private translate: TranslateService,
+        private windowRef: WindowRef) {
 
         const svg = new Blob(
             ['<svg xmlns=\'http://www.w3.org/2000/svg\'></svg>'],
@@ -42,65 +42,75 @@ export class FileService {
     }
 
     download(url: string, filename: string, params?: any, post?: boolean) {
-        const res = post ? this.$http.post : this.$http.get;
-        res(url, { params: params })
-            .then((resp: IHttpResponse<string>) => {
-                const contentType = resp.headers()['content-type'].split(';')[0];
-                this._saveFile(resp.data, filename, contentType);
-            })
-            .catch(resp => toast.error(resp.data || resp));
+        const method = post ? 'POST' : 'GET';
+        this.http.request(method, url,
+            { responseType: 'text', observe: 'response', params: params })
+            .subscribe(
+                (resp: HttpResponse<string>) => {
+                    if (resp.body) {
+                        const contentType = resp.headers.get('Content-Type');
+                        if (contentType) {
+                            this._saveFile(resp.body, filename, contentType.split(';')[0]);
+                        }
+                    }
+                },
+                resp => {
+                    console.log('error ' + JSON.stringify(resp));
+                    toast.error(resp.body || resp);
+                });
     }
 
     open(file: Blob) {
         const reader = new FileReader();
         reader.onload = () => {
             const f = reader.result;
-            this.$window.open(f);
+            this.windowRef.nativeWindow.open(f);
         };
         reader.readAsDataURL(file);
     }
 
-    getMaxFilesize(): IPromise<{ filesize: number }> {
-        const deferred: IDeferred<{ filesize: number }> = this.$q.defer();
-        if (this._maxFileSize) {
-            this.$timeout(() => deferred.resolve({ 'filesize': this._maxFileSize }), 10);
-        }
-        this.$http.get('/app/settings/maxfilesize')
-            .then((resp: IHttpResponse<{ filesize: number }>) => {
-                this._maxFileSize = resp.data.filesize;
-                return deferred.resolve(resp.data);
-            }).catch(e => deferred.reject(e));
-        return deferred.promise;
+    getMaxFilesize(): Promise<{ filesize: number }> {
+        return new Promise((resolve, reject) => {
+            if (this._maxFileSize) {
+                resolve({ 'filesize': this._maxFileSize });
+            } else {
+                this.http.get<{ filesize: number }>('/app/settings/maxfilesize')
+                    .subscribe(resp => {
+                        this._maxFileSize = resp.filesize;
+                        resolve(resp);
+                    }, e => reject(e));
+            }
+        });
     }
 
     upload(url: string, file: File, params: any, parent: any, callback?: () => void): void {
         this._doUpload(url, file, params)
             .then(resp => {
                 if (parent) {
-                    parent.attachment = resp.data;
+                    parent.attachment = resp.body;
                 }
                 if (callback) {
                     callback();
                 }
             }).catch(resp =>
-                toast.error(this.$translate.instant(resp.data))
+                toast.error(this.translate.instant(resp.data))
             );
     }
 
     uploadAnswerAttachment(url: string, file: File, params: any, parent: any): void {
         this._doUpload(url, file, params)
             .then(resp => {
-                parent.objectVersion = resp.data.objectVersion;
-                parent.attachment = resp.data.attachment;
+                parent.objectVersion = resp.objectVersion;
+                parent.attachment = resp.attachment;
             })
             .catch(resp =>
-                toast.error(this.$translate.instant(resp.data))
+                toast.error(this.translate.instant(resp.data))
             );
     }
 
     private _saveFile(data: string, fileName: string, contentType: string) {
         if (!this._supportsBlobUrls) {
-            this.$window.open('data:' + contentType + ';base64,' + data);
+            this.windowRef.nativeWindow.open('data:' + contentType + ';base64,' + data);
         } else {
             const byteString = atob(data);
             const ab = new ArrayBuffer(byteString.length);
@@ -115,31 +125,30 @@ export class FileService {
 
     private _isFileTooBig(file: File): boolean {
         if (file.size > this._maxFileSize) {
-            toast.error(this.$translate.instant('sitnet_file_too_large'));
+            toast.error(this.translate.instant('sitnet_file_too_large'));
             return true;
         }
         return false;
     }
 
-    private _doUpload(url: string, file: File, params: any): IPromise<any> {
-        const deferred = this.$q.defer();
-        if (this._isFileTooBig(file)) {
-            this.$timeout(() => deferred.reject({ data: 'sitnet_file_too_large' }), 10);
-        }
-        const fd = new FormData();
-        fd.append('file', file);
-        for (let k in params) {
-            if (params.hasOwnProperty(k)) {
-                fd.append(k, params[k]);
+    private _doUpload(url: string, file: File, params: any): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this._isFileTooBig(file)) {
+                reject({ data: 'sitnet_file_too_large' });
+            } else {
+                const fd = new FormData();
+                fd.append('file', file);
+                for (let k in params) {
+                    if (params.hasOwnProperty(k)) {
+                        fd.append(k, params[k]);
+                    }
+                }
+                this.http.post(url, fd).subscribe(
+                    resp => resolve(resp),
+                    resp => reject(resp)
+                );
             }
-        }
-
-        this.$http.post(url, fd, {
-            transformRequest: angular.identity,
-            headers: { 'Content-Type': undefined }
-        }).then(resp => deferred.resolve(resp))
-            .catch(resp => deferred.reject(resp));
-        return deferred.promise;
+        });
     }
 
 }

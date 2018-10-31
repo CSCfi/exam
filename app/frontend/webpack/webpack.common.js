@@ -12,7 +12,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
  */
 const config = {
     entry: [
-        './src/app.module.ts'
+        './src/main.ts'
     ],
     output: {
         path: buildPath,
@@ -29,7 +29,7 @@ const config = {
             },
             {
                 test: /\.less$/,
-                use: ['style-loader', 'css-loader', 'less-loader']
+                use: ['style-loader', 'css-loader', 'less-loader'],
             },
             {
                 test: /\.scss$/,
@@ -37,7 +37,7 @@ const config = {
             },
             {
                 test: /\.ts$/,
-                loader: ['ng-annotate-loader', 'awesome-typescript-loader', 'tslint-loader'],
+                loader: ['ng-annotate-loader', 'awesome-typescript-loader', 'angular2-template-loader?keepUrl=true', 'tslint-loader'],
             },
             {
                 test: /\.js$/,
@@ -53,7 +53,11 @@ const config = {
                 use: 'url-loader?limit=100000'
             },
             {
-                test: /\.html$/,
+                test: /\.component\.html$/,
+                use: 'raw-loader'
+            },
+            {
+                test: /\.template.html$/,
                 use: 'ng-cache-loader?prefix=[dir]/[dir]',
                 exclude: '/node_modules/'
             },
@@ -72,6 +76,7 @@ const config = {
             jQuery: 'jquery',
             'window.jQuery': 'jquery'
         }),
+        new webpack.ContextReplacementPlugin(/\@angular(\\|\/)core(\\|\/)fesm5/, path.join(__dirname, './src')),
         new CleanWebpackPlugin(['bundles'], { root: path.resolve(__dirname, '../../../public') }),
         new HtmlWebpackPlugin({ title: 'Production' })
     ],

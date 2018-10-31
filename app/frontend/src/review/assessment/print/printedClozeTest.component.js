@@ -17,7 +17,7 @@ import angular from 'angular';
 
 angular.module('app.review')
     .component('printedClozeTest', {
-        template: require('./templates/clozeTest.html'),
+        template: require('./templates/clozeTest.template.html'),
         bindings: {
             sectionQuestion: '<'
         },

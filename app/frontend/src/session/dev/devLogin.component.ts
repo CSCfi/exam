@@ -13,13 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { SessionService, User } from '../session.service';
 
-export const DevLoginComponent: angular.IComponentOptions = {
-    bindings: {
-        onLoggedIn: '&'
-    },
+@Component({
+    selector: 'dev-login',
     template: `
     <div class="top-row">
         <div class="col-md-12">
@@ -29,45 +27,40 @@ export const DevLoginComponent: angular.IComponentOptions = {
         </div>
     </div>
     <div id="login">
-        <form ng-submit="$ctrl.login()">
+        <form (ngSubmit)="login()">
             <p>
                 <label class="control-label">{{'sitnet_username' | translate}}</label>
-                <input class="form-control login" type="text" placeholder="{{'sitnet_username' | translate}}"
-                       ng-model="$ctrl.credentials.username"/>
+                <input class="form-control login" name="uname" type="text"
+                placeholder="{{'sitnet_username' | translate}}" [(ngModel)]="credentials.username"/>
             </p>
                 <p>
                 <label class="control-label">{{'sitnet_password' | translate}}</label>
-                <input class="form-control login" type="password" placeholder="{{'sitnet_password' | translate}}"
-                       ng-model="$ctrl.credentials.password"/><br/>
+                <input class="form-control login" type="password" name="pwd"
+                placeholder="{{'sitnet_password' | translate}}" [(ngModel)]="credentials.password"/><br/>
             </p>
             <p>
                 <button type="submit" class="btn btn-primary" id="submit">{{'sitnet_login' | translate}}</button>
             </p>
         </form>
     </div>
-    `,
-    controller: class DevLoginController {
-        onLoggedIn: ({ user: User }) => void;
-        credentials: {
-            username: string,
-            password: string
-        } = { username: '', password: '' };
+    `
+})
+export class DevLoginComponent {
+    @Output() onLoggedIn = new EventEmitter<User>();
 
-        constructor(private Session: SessionService) {
-            'ngInject';
-        }
+    credentials = { username: '', password: '' };
 
-        login() {
-            this.Session.login(this.credentials.username, this.credentials.password)
-                .then((user: User) => {
-                    this.onLoggedIn({ 'user': user });
-                })
-                .catch((err) => {
-                    console.log(JSON.stringify(err));
-                });
+    constructor(private Session: SessionService) { }
 
-        }
+    login() {
+        this.Session.login(this.credentials.username, this.credentials.password)
+            .then((user: User) => {
+                this.onLoggedIn.emit(user);
+            })
+            .catch((err) => {
+                console.log(JSON.stringify(err));
+            });
 
     }
 
-};
+}

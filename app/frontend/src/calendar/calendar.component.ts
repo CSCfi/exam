@@ -225,6 +225,10 @@ export const CalendarComponent: angular.IComponentOptions = {
             }
         }
 
+        hide() {
+            $('#calendarBlock').css({ display: 'none' });
+        }
+
         render() {
             $('#calendarBlock').css({ display: 'block' });
             $('#calendar').css({ position: 'relative', visibility: 'visible', display: 'block' });
@@ -314,6 +318,7 @@ export const CalendarComponent: angular.IComponentOptions = {
             this.selectedOrganisation = org;
             this.selectedRoom = undefined;
             this.listExternalRooms();
+            this.hide();
         }
 
         selectAccessibility(accessibility) {
