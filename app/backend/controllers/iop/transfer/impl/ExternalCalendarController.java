@@ -321,6 +321,8 @@ public class ExternalCalendarController extends CalendarController {
         ExternalReservation external = new ExternalReservation();
         external.setOrgRef(orgRef);
         external.setRoomRef(roomRef);
+        external.setOrgName(node.path("orgName").asText());
+        external.setOrgCode(node.path("orgCode").asText());
         JsonNode machineNode = node.get("machine");
         JsonNode roomNode = machineNode.get("room");
         external.setMachineName(machineNode.get("name").asText());
