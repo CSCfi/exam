@@ -15,20 +15,16 @@
 
 package backend.controllers;
 
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
-import backend.exceptions.NotFoundException;
-import backend.impl.EmailComposer;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamMachine;
-import backend.models.ExamParticipation;
-import backend.models.ExamRoom;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.base.GeneratedIdentityModel;
-import backend.system.interceptors.Anonymous;
-import backend.util.DateTimeUtils;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -45,15 +41,20 @@ import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Result;
 
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import backend.controllers.base.BaseController;
+import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
+import backend.exceptions.NotFoundException;
+import backend.impl.EmailComposer;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamMachine;
+import backend.models.ExamParticipation;
+import backend.models.ExamRoom;
+import backend.models.Reservation;
+import backend.models.User;
+import backend.models.base.GeneratedIdentityModel;
+import backend.system.interceptors.Anonymous;
+import backend.util.DateTimeUtils;
 
 
 public class ReservationController extends BaseController {
@@ -274,6 +275,7 @@ public class ReservationController extends BaseController {
                 .fetch("enrolment.exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
                 .fetch("enrolment.exam.examInspections.user", "id, firstName, lastName")
                 .fetch("enrolment.collaborativeExam", "*")
+                .fetch("externalReservation")
                 .fetch("machine", "id, name, ipAddress, otherIdentifier")
                 .fetch("machine.room", "id, name, roomCode")
                 .where();
