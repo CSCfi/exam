@@ -17,7 +17,7 @@ import angular from 'angular';
 
 angular.module('app.review')
     .component('printedEssay', {
-        template: require('./templates/essay.html'),
+        template: require('./templates/essay.template.html'),
         bindings: {
             sectionQuestion: '<'
         },

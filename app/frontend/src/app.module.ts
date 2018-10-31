@@ -12,7 +12,22 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
+import * as angularJS from 'angular';
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { CommonModule, Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+
+import { NgbModalModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { UpgradeModule } from '@angular/upgrade/static';
+import { WindowRef } from './utility/window/window.service';
+import { FileService } from './utility/file/file.service';
+import { SessionService } from './session/session.service';
+import { AuthInterceptor } from './httpInterceptor';
+import { StorageServiceModule } from 'angular-webstorage-service';
+
 import 'angular-resource';
 import 'angular-route';
 import 'angular-animate';
@@ -41,8 +56,12 @@ import './exam/printout';
 import 'toastr/toastr.scss';
 import 'font-awesome/css/font-awesome.min.css';
 import './assets/styles/main.scss';
+import { DevLoginComponent } from './session/dev/devLogin.component';
+import { NavigationService } from './navigation/navigation.service';
+import { NavigationComponent } from './navigation/navigation.component';
+import { AppComponent } from './app.component';
 
-angular.module('app', [
+angularJS.module('app', [
     'ngAnimate',
     'ngResource',
     'ngRoute',
@@ -62,6 +81,7 @@ angular.module('app', [
     'app.administrative'
 ]).config(configs)
     .run(runBlock)
+    .component('examApp', AppComponent)
     .filter('truncate', filters.TruncateFilter.factory())
     .filter('diffInMinutesTo', filters.DiffInMinutesFilter.factory())
     .filter('diffInDaysToNow', filters.DiffInDaysFilter.factory())
@@ -82,3 +102,44 @@ angular.module('app', [
     .directive('lowercase', directives.Lowercase.factory())
     .directive('sort', directives.Sort.factory())
     .directive('teacherList', directives.TeacherList.factory());
+
+/*
+    Bootstrap the AngularJS app
+ */
+@NgModule({
+    imports: [
+        BrowserModule,
+        CommonModule,
+        HttpClientModule,
+        FormsModule,
+        TranslateModule.forRoot(),
+        NgbDropdownModule,
+        NgbModalModule,
+        StorageServiceModule,
+        UpgradeModule,
+    ],
+    declarations: [
+        NavigationComponent,
+        DevLoginComponent
+    ],
+    entryComponents: [
+        DevLoginComponent,
+        NavigationComponent
+    ],
+    providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+        Location,
+        { provide: LocationStrategy, useClass: PathLocationStrategy },
+        WindowRef,
+        FileService,
+        SessionService,
+        NavigationService
+    ]
+})
+export class AppModule {
+    constructor(private upgrade: UpgradeModule) { }
+    ngDoBootstrap() {
+        this.upgrade.bootstrap(document.body, ['app'], { strictDi: true });
+    }
+}
+

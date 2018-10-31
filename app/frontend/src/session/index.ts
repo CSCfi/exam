@@ -12,23 +12,21 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
+import { downgradeInjectable, downgradeComponent } from '@angular/upgrade/static';
 
 import * as angular from 'angular';
 
 import { SessionService } from './session.service';
-import { SessionComponent } from './session.component';
 import { DevLoginComponent } from './dev/devLogin.component';
 import { EulaDialogComponent } from './eula/eulaDialog.component';
 import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
 import { LogoutComponent } from './logout/logout.component';
 
 export default angular.module('app.session', [])
-    .service('Session', SessionService)
-    .component('devLogin', DevLoginComponent)
+    .service('Session', downgradeInjectable(SessionService))
+    .directive('devLogin', downgradeComponent({ component: DevLoginComponent }))
     .component('logout', LogoutComponent)
     .component('eulaDialog', EulaDialogComponent)
     .component('selectRoleDialog', SelectRoleDialogComponent)
-    .component('session', SessionComponent)
     .name;
 

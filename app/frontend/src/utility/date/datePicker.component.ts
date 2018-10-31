@@ -17,8 +17,6 @@ import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
-declare function require(name: string): any;
-
 export const DatePickerComponent: angular.IComponentOptions = {
     template: require('./datePicker.template.html'),
     bindings: {

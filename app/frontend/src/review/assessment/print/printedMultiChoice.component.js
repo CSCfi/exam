@@ -17,7 +17,7 @@ import angular from 'angular';
 
 angular.module('app.review')
     .component('printedMultiChoice', {
-        template: require('./templates/multiChoice.html'),
+        template: require('./templates/multiChoice.template.html'),
         bindings: {
             sectionQuestion: '<'
         },
