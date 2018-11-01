@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { SessionService, User } from '../session.service';
 
 @Component({
@@ -53,14 +53,13 @@ export class DevLoginComponent {
     constructor(private Session: SessionService) { }
 
     login() {
-        this.Session.login(this.credentials.username, this.credentials.password)
-            .then((user: User) => {
-                this.onLoggedIn.emit(user);
-            })
-            .catch((err) => {
-                console.log(JSON.stringify(err));
-            });
-
+        this.Session.login$(this.credentials.username, this.credentials.password)
+            .subscribe(
+                (user: User) => {
+                    this.onLoggedIn.emit(user);
+                },
+                err => console.log(JSON.stringify(err))
+            );
     }
 
 }

@@ -14,8 +14,8 @@
  */
 
 import * as angular from 'angular';
-import * as _ from 'lodash';
 import { IOnChangesObject } from 'angular';
+import * as _ from 'lodash';
 
 export const PaginatorComponent: angular.IComponentOptions = {
     template:

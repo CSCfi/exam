@@ -15,8 +15,6 @@
 
 import * as angular from 'angular';
 
-declare function require(name: string): any;
-
 export const DateTimePickerComponent: angular.IComponentOptions = {
     template: `
         <div id="datetimepicker" class="datetimepicker-wrapper">

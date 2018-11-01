@@ -15,8 +15,8 @@
 
 import * as angular from 'angular';
 import * as toast from 'toastr';
+import { SessionService, User } from '../../../session/session.service';
 import { Exam } from '../../exam.model';
-import { User, SessionService } from '../../../session/session.service';
 
 export const CollaborativeExamOwnerSelectorComponent: angular.IComponentOptions = {
     template: require('./collaborativeExamOwnerSelector.template.html'),

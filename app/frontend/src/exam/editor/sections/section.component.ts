@@ -15,11 +15,11 @@
 /// <reference types="angular-dialog-service" />
 
 import * as ng from 'angular';
-import * as toast from 'toastr';
-import { ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
-import { IModalService } from 'angular-ui-bootstrap';
 import { IHttpResponse } from 'angular';
+import { IModalService } from 'angular-ui-bootstrap';
+import * as toast from 'toastr';
 import { FileService } from '../../../utility/file/file.service';
+import { ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
 
 export const SectionComponent: ng.IComponentOptions = {
     template: require('./section.template.html'),

@@ -37,7 +37,7 @@ const config = {
             },
             {
                 test: /\.ts$/,
-                loader: ['ng-annotate-loader', 'awesome-typescript-loader', 'angular2-template-loader?keepUrl=true', 'tslint-loader'],
+                loader: ['ng-annotate-loader', 'awesome-typescript-loader', 'tslint-loader'],
             },
             {
                 test: /\.js$/,

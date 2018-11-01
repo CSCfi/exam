@@ -12,9 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
-import 'zone.js';
+// These two moduls must be imported first. Otherwise the whole app breaks.
 import 'reflect-metadata';
+import 'zone.js';
+
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppModule } from './app.module';
 platformBrowserDynamic().bootstrapModule(AppModule);

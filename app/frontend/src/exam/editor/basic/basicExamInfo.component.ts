@@ -14,12 +14,12 @@
  */
 
 import * as ng from 'angular';
-import * as toast from 'toastr';
 import { IModalService } from 'angular-ui-bootstrap';
+import * as toast from 'toastr';
+import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
 import { Course, Exam, ExamExecutionType, GradeScale } from '../../exam.model';
-import { SessionService } from '../../../session/session.service';
 
 export const BasicExamInfoComponent: ng.IComponentOptions = {
     template: require('./basicExamInfo.template.html'),

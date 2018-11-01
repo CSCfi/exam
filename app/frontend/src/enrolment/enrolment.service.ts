@@ -15,13 +15,13 @@
 /// <reference types="angular-dialog-service" />
 
 import * as ng from 'angular';
-import * as toast from 'toastr';
 import * as uib from 'angular-ui-bootstrap';
 import * as _ from 'lodash';
-
+import * as toast from 'toastr';
 import { Exam } from '../exam/exam.model';
 import { User } from '../session/session.service';
-import { ExamEnrolment, EnrolmentInfo } from './enrolment.model';
+import { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
+
 
 export class EnrolmentService {
 
@@ -31,9 +31,7 @@ export class EnrolmentService {
         private $http: ng.IHttpService,
         private $location: ng.ILocationService,
         private $uibModal: uib.IModalService,
-        private dialogs: angular.dialogservice.IDialogService,
         private Language: any,
-        private EnrollRes: any
     ) {
         'ngInject';
     }

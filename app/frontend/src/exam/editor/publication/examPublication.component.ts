@@ -14,13 +14,13 @@
  */
 
 import * as angular from 'angular';
+import { IModalService } from 'angular-ui-bootstrap';
+import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as toast from 'toastr';
-import * as _ from 'lodash';
-
-import { IModalService } from 'angular-ui-bootstrap';
-import { Exam, ExaminationDate, AutoEvaluationConfig } from '../../exam.model';
 import { SessionService, User } from '../../../session/session.service';
+import { AutoEvaluationConfig, Exam, ExaminationDate } from '../../exam.model';
+
 
 
 export const ExamPublicationComponent: angular.IComponentOptions = {

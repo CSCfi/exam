@@ -14,9 +14,8 @@
  */
 
 import * as angular from 'angular';
+import { IHttpResponse, IHttpService, IQService } from 'angular';
 import * as moment from 'moment';
-import * as mtz from 'moment-timezone';
-import { IQService, IHttpService, IHttpResponse } from 'angular';
 
 interface Reservation {
     machine?: {

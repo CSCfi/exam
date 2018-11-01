@@ -14,8 +14,8 @@
  */
 
 import * as angular from 'angular';
-import * as moment from 'moment';
 import * as _ from 'lodash';
+import * as moment from 'moment';
 const truncate = require('truncate-html').default;
 
 export class TruncateFilter {

@@ -15,7 +15,7 @@
  */
 import * as angular from 'angular';
 import { IComponentController } from 'angular';
-import { User, Role } from '../session.service';
+import { Role, User } from '../session.service';
 
 export const SelectRoleDialogComponent: angular.IComponentOptions = {
     template: `

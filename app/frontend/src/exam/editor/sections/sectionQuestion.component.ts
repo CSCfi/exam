@@ -16,13 +16,13 @@
 
 import * as ng from 'angular';
 import { IDeferred } from 'angular';
-import * as toast from 'toastr';
-
 import { IModalService } from 'angular-ui-bootstrap';
-
-import { ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
+import * as toast from 'toastr';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
+import { ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
+
+
 
 export const SectionQuestionComponent: ng.IComponentOptions = {
     template: require('./sectionQuestion.template.html'),
@@ -71,7 +71,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
         removeQuestion = () =>
             this.dialogs.confirm(this.$translate.instant('sitnet_confirm'),
                 this.$translate.instant('sitnet_remove_question')).result.then(
-                () => this.onDelete({ sectionQuestion: this.sectionQuestion }))
+                    () => this.onDelete({ sectionQuestion: this.sectionQuestion }))
 
 
         getQuestionDistribution(): ng.IPromise<{ distributed: boolean }> {
@@ -83,9 +83,9 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                 .then((resp: ng.IHttpResponse<{ distributed: boolean }>) => {
                     deferred.resolve({ distributed: resp.data.distributed });
                 }).catch(resp => {
-                toast.error(resp.data);
-                deferred.reject();
-            });
+                    toast.error(resp.data);
+                    deferred.reject();
+                });
             return deferred.promise;
         }
 
@@ -140,8 +140,8 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                         } else if (attachment.removed) {
                             this.Attachment.eraseCollaborativeQuestionAttachment(this.parentCtrl.examId,
                                 this.sectionQuestion.id).then(() => {
-                                delete this.sectionQuestion.question.attachment;
-                            });
+                                    delete this.sectionQuestion.question.attachment;
+                                });
                         }
                     })
                     .catch(resp => toast.error(resp.data));
@@ -161,11 +161,11 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
             }).result.then(data => {
                 this.Question.updateDistributedExamQuestion(data.question, data.examQuestion,
                     this.parentCtrl.examId, this.parentCtrl.section.id).then(
-                    esq => {
-                        toast.info(this.$translate.instant('sitnet_question_saved'));
-                        // apply changes back to scope
-                        ng.extend(this.sectionQuestion, esq);
-                    });
+                        esq => {
+                            toast.info(this.$translate.instant('sitnet_question_saved'));
+                            // apply changes back to scope
+                            ng.extend(this.sectionQuestion, esq);
+                        });
 
             });
         }

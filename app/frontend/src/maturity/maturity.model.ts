@@ -1,5 +1,5 @@
-import { User } from '../session/session.service';
 import { ExamImpl } from '../exam/exam.model';
+import { User } from '../session/session.service';
 
 interface Maturity extends ExamImpl {
     answerLanguage: string;

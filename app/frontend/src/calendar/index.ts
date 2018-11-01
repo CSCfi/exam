@@ -14,12 +14,12 @@
  */
 
 import * as angular from 'angular';
-import { CalendarService } from './calendar.service';
-import { BookingCalendarComponent } from './bookingCalendar.component';
-import { CalendarComponent } from './calendar.component';
-
 import 'angular-ui-calendar';
 import 'fullcalendar';
+import { BookingCalendarComponent } from './bookingCalendar.component';
+import { CalendarComponent } from './calendar.component';
+import { CalendarService } from './calendar.service';
+
 
 export default angular.module('app.calendar', ['ui.calendar'])
     .service('Calendar', CalendarService)

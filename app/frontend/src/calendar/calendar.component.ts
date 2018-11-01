@@ -14,11 +14,11 @@
  */
 
 import * as angular from 'angular';
-import * as toast from 'toastr';
-import * as moment from 'moment';
-import { Room, Slot, CalendarService } from './calendar.service';
-import { DateTimeService } from '../utility/date/date.service';
 import { IHttpResponse } from 'angular';
+import * as moment from 'moment';
+import * as toast from 'toastr';
+import { DateTimeService } from '../utility/date/date.service';
+import { CalendarService, Room, Slot } from './calendar.service';
 
 interface ExamInfo {
     examActiveStartDate: number;

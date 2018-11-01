@@ -15,9 +15,9 @@
 
 import * as angular from 'angular';
 import * as toast from 'toastr';
-import { ReservationService } from './reservationService';
 import { SessionService, User } from '../session/session.service';
 import { Option } from '../utility/select/dropDownSelect.component';
+import { ReservationService } from './reservationService';
 
 interface Selection {
     roomId?: number;

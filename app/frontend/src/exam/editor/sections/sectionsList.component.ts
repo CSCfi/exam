@@ -16,9 +16,9 @@
 
 import * as ng from 'angular';
 import * as toast from 'toastr';
-
-import { Exam, ExamSection } from '../../exam.model';
 import { SessionService } from '../../../session/session.service';
+import { Exam, ExamSection } from '../../exam.model';
+
 
 
 export const SectionsListComponent: ng.IComponentOptions = {

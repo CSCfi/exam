@@ -16,11 +16,9 @@
 /// <reference types="mathjax" />
 
 import * as angular from 'angular';
+import { IAttributes, IAugmentedJQuery, IDirective, IDirectiveFactory, INgModelController, IScope } from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import {
-    IAttributes, IAugmentedJQuery, IDirective, IDirectiveFactory, INgModelController, IScope
-} from 'angular';
 
 // MOVE TO UTIL/DATE
 export class DateValidator implements IDirective {
