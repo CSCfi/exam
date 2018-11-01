@@ -16,7 +16,7 @@
 
 import * as ng from 'angular';
 import * as toast from 'toastr';
-import { Participation, Exam, Grade } from '../../exam/exam.model';
+import { Exam, Grade, Participation } from '../../exam/exam.model';
 
 interface Payload {
     id: number;

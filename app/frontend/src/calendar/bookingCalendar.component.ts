@@ -13,14 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import * as angular from 'angular';
-import * as moment from 'moment';
-import * as _ from 'lodash';
-import { CalendarService, Room } from './calendar.service';
-
 import 'fullcalendar';
+import 'fullcalendar/dist/fullcalendar.min.css';
 import 'fullcalendar/dist/lang/fi';
 import 'fullcalendar/dist/lang/sv';
-import 'fullcalendar/dist/fullcalendar.min.css';
+import * as _ from 'lodash';
+import * as moment from 'moment';
+import { CalendarService, Room } from './calendar.service';
+
 
 export const BookingCalendarComponent: angular.IComponentOptions = {
     template:

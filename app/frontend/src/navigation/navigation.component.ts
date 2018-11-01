@@ -15,14 +15,12 @@
 
 import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Link, NavigationService } from './navigation.service';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
-import { SessionService, User } from '../session/session.service';
-
-
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import * as toastr from 'toastr';
+import { SessionService, User } from '../session/session.service';
+import { Link, NavigationService } from './navigation.service';
 
 @Component({
     selector: 'navigation',

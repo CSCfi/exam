@@ -14,13 +14,13 @@
  */
 
 import * as angular from 'angular';
-import * as toast from 'toastr';
-import { IDirective, IDirectiveFactory, IScope, IAttributes, IAugmentedJQuery } from 'angular';
-
+import { IAttributes, IAugmentedJQuery, IDirective, IDirectiveFactory, IScope } from 'angular';
+import 'jquery-ui/ui/disable-selection';
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
 import 'jquery-ui/ui/widgets/sortable';
-import 'jquery-ui/ui/disable-selection';
+import * as toast from 'toastr';
+
 
 interface SortableScope extends IScope {
     onMove: (x: any) => void;

@@ -15,10 +15,10 @@
 /// <reference types="angular-dialog-service" />
 
 import * as ng from 'angular';
-import * as toast from 'toastr';
-import { DateTimeService } from '../../../utility/date/date.service';
-import { SessionService } from '../../../session/session.service';
 import { IHttpResponse } from 'angular';
+import * as toast from 'toastr';
+import { SessionService } from '../../../session/session.service';
+import { DateTimeService } from '../../../utility/date/date.service';
 
 export const ExamListCategoryComponent: ng.IComponentOptions = {
     template: require('./examListCategory.template.html'),

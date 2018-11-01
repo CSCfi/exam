@@ -12,16 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import 'moment-timezone';
-
 import * as angular from 'angular';
-import * as moment from 'moment';
-import * as mtz from 'moment-timezone';
-import * as toastr from 'toastr';
-
-import { DateTimeService } from '../utility/date/date.service';
-import { SessionService } from '../session/session.service';
 import { IDeferred } from 'angular';
+import * as moment from 'moment';
+import 'moment-timezone';
+import * as toastr from 'toastr';
+import { SessionService } from '../session/session.service';
+import { DateTimeService } from '../utility/date/date.service';
+
+
 
 export interface Room {
     id: number;

@@ -14,12 +14,12 @@
  */
 
 import * as angular from 'angular';
-import { ReservationService } from './reservationService';
 import { AdminReservationComponent } from './admin/adminReservations.component';
-import { TeacherReservationComponent } from './teacher/teacherReservations.component';
-import { ReservationDetailComponent } from './reservationDetail.component';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
+import { ReservationDetailComponent } from './reservationDetail.component';
+import { ReservationService } from './reservationService';
+import { TeacherReservationComponent } from './teacher/teacherReservations.component';
 
 export default angular.module('app.reservation', [])
     .service('Reservation', ReservationService)

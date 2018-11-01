@@ -12,16 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as toastr from 'toastr';
-
-import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { Observable, Subject } from 'rxjs';
-import { SESSION_STORAGE, WebStorageService } from 'angular-webstorage-service';
-import { interval, Unsubscribable } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
+import { SESSION_STORAGE, WebStorageService } from 'angular-webstorage-service';
+import { interval, Observable, of, Subject, Unsubscribable } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import * as toastr from 'toastr';
 import { WindowRef } from '../utility/window/window.service';
 
 export interface Role {
@@ -67,6 +66,7 @@ export class SessionService {
 
     constructor(private http: HttpClient,
         private i18n: TranslateService,
+        @Inject('$translate') private $ajsTranslate: any,
         private location: Location,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
         private modal: NgbModal,
@@ -91,19 +91,11 @@ export class SessionService {
         this.user = user;
     }
 
-    private init(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            if (!this.env) {
-                this.http.get<Env>('/app/settings/environment').subscribe(
-                    resp => {
-                        this.env = resp;
-                        resolve();
-                    },
-                    () => reject());
-            } else {
-                resolve();
-            }
-        });
+    private init(): Observable<Env> {
+        if (this.env) {
+            return of(this.env);
+        }
+        return this.http.get<Env>('/app/settings/environment');
     }
 
     private static hasPermission(user: User, permission: string) {
@@ -117,12 +109,10 @@ export class SessionService {
         return user && user.loginRole !== null && user.loginRole.name === role;
     }
 
-    getEnv(): Promise<'DEV' | 'PROD'> {
-        return new Promise((resolve, reject) => {
-            this.init()
-                .then(() => resolve(this.env.isProd ? 'PROD' : 'DEV'))
-                .catch(() => reject());
-        });
+    getEnv$(): Observable<'DEV' | 'PROD'> {
+        return this.init().pipe(
+            tap(env => this.env = env),
+            map(env => env.isProd ? 'PROD' : 'DEV'));
     }
 
     private onLogoutSuccess(data: { logoutUrl: string }): void {
@@ -234,25 +224,22 @@ export class SessionService {
             error => toastr.error(error.data));
     }
 
-    login(username: string, password: string): Promise<User> {
+    login$(username: string, password: string): Observable<User> {
         const credentials = {
             username: username,
             password: password
         };
-        return new Promise((resolve, reject) => {
-            this.http.post<User>('/app/login', credentials)
-                .subscribe(
-                resp => {
-                    this.processLoggedInUser(resp);
-                    this.onLoginSuccess();
-                    resolve(this.user);
-                },
-                resp => {
-                    this.onLoginFailure(resp);
-                    reject();
-                }
-                );
-        });
+        return this.http.post<User>('/app/login', credentials).pipe(
+            tap(resp => {
+                this.processLoggedInUser(resp);
+                this.onLoginSuccess();
+            }),
+            map(() => this.user),
+            catchError(resp => {
+                this.onLoginFailure(resp);
+                return of(resp);
+            })
+        );
     }
 
     // FIXME: no idea how
@@ -278,6 +265,7 @@ export class SessionService {
 
     translate(lang: string) {
         this.i18n.use(lang);
+        this.$ajsTranslate.use(lang); // TODO: remove once AJS is gone
         // this.setLocale(lang);
     }
 
@@ -286,13 +274,11 @@ export class SessionService {
             this.translate(lang);
         } else {
             this.http.put('/app/user/lang', { lang: lang })
-                .subscribe(
-                () => {
+                .subscribe(() => {
                     this.user.lang = lang;
                     this.translate(lang);
                 },
-                () => toastr.error('failed to switch language')
-                );
+                () => toastr.error('failed to switch language'));
         }
     }
 

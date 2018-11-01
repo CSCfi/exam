@@ -15,8 +15,8 @@
 
 import * as angular from 'angular';
 import * as toast from 'toastr';
-import { Exam, ExamLanguage } from '../../exam.model';
 import { LanguageService } from '../../../common/language.service';
+import { Exam, ExamLanguage } from '../../exam.model';
 
 export const LanguageSelectorComponent: angular.IComponentOptions = {
     template: require('./languageSelector.template.html'),

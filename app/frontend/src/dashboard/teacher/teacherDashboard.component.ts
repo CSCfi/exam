@@ -14,8 +14,8 @@
  */
 
 import * as angular from 'angular';
-import { TeacherDashboardService } from './teacherDashboard.service';
 import { SessionService } from '../../session/session.service';
+import { TeacherDashboardService } from './teacherDashboard.service';
 
 interface ExtraColumn {
     text: string;

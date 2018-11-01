@@ -16,10 +16,10 @@
 /// <reference types="angular-dialog-service" />
 
 import * as ng from 'angular';
-import * as toast from 'toastr';
 import * as uib from 'angular-ui-bootstrap';
+import * as toast from 'toastr';
+import { Exam, ExamSectionQuestion, Question } from '../../exam/exam.model';
 import { FileService } from '../file/file.service';
-import { Attachment, Exam, ExamSectionQuestion, Question } from '../../exam/exam.model';
 
 interface ExamWithFeedback {
     id: number;

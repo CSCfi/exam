@@ -13,9 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpHandler, HttpRequest } from '@angular/common/http';
-
 import { SessionService } from './session/session.service';
 
 @Injectable()

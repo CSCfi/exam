@@ -15,8 +15,8 @@
 /// <reference types="angular-dialog-service" />
 
 import * as ng from 'angular';
-import * as toast from 'toastr';
 import { IModalService } from 'angular-ui-bootstrap';
+import * as toast from 'toastr';
 
 export class ReservationService {
 

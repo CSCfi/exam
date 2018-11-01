@@ -14,10 +14,9 @@
  */
 
 import { Location } from '@angular/common';
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-
 import { SessionService, User } from '../session/session.service';
 
 export interface Link {

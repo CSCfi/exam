@@ -15,8 +15,8 @@
  */
 
 import * as angular from 'angular';
-import { Participation } from '../../exam/exam.model';
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
+import { Participation } from '../../exam/exam.model';
 
 interface Filter {
     ordering: string;

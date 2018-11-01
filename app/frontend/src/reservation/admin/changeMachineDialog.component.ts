@@ -16,8 +16,8 @@
  */
 
 import * as angular from 'angular';
-import * as toast from 'toastr';
 import { IHttpResponse } from 'angular';
+import * as toast from 'toastr';
 import { Option } from '../../utility/select/dropDownSelect.component';
 
 export const ChangeMachineDialogComponent: angular.IComponentOptions = {

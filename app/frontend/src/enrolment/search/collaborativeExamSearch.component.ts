@@ -15,10 +15,10 @@
 
 import * as angular from 'angular';
 import * as _ from 'lodash';
-
-import { CollaborativeExam } from '../../exam/exam.model';
 import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
+import { CollaborativeExam } from '../../exam/exam.model';
 import { EnrolmentService } from '../enrolment.service';
+
 
 interface CollaborativeExamInfo extends CollaborativeExam {
     languages: string[];
