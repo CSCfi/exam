@@ -31,7 +31,7 @@ export const RemoveReservationDialogComponent: angular.IComponentOptions = {
         dismiss: (_: { $value: string }) => void;
 
         reservation: { id: number };
-        message: { text: string };
+        message = { text: undefined };
 
         constructor(
             private $http: angular.IHttpService,

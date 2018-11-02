@@ -543,13 +543,13 @@ class EmailComposerImpl implements EmailComposer {
     }
 
     @Override
-    public void composeNoShowMessage(User student, Exam exam) {
+    public void composeNoShowMessage(User student, String examName, String courseCode) {
         String templatePath = getTemplatesRoot() + "noShow.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(student);
         String subject = messaging.get(lang, "email.template.noshow.student.subject");
         String message = messaging.get(lang, "email.template.noshow.student.message",
-                exam.getName(), exam.getCourse().getCode());
+                examName, courseCode);
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("message", message);
         String content = replaceAll(template, stringValues);
