@@ -44,6 +44,7 @@ public class ReservationPollerActor extends AbstractActor {
             List<Reservation> reservations = Ebean.find(Reservation.class)
                     .fetch("enrolment")
                     .fetch("enrolment.exam")
+                    .fetch("enrolment.collaborativeExam")
                     .fetch("enrolment.externalExam")
                     .where()
                     .eq("noShow", false)

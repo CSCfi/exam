@@ -51,14 +51,14 @@ public class ExamUpdaterImpl implements ExamUpdater {
         boolean hasFutureReservations = hasFutureReservations(exam);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), session);
         if (newStart.isPresent()) {
-            if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newStart.get(), exam, true)) {
+            if (isAdmin || !hasFutureReservations || isNonRestrictingValidityChange(newStart.get(), exam, true)) {
                 exam.setExamActiveStartDate(newStart.get());
             } else {
                 return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
             }
         }
         if (newEnd.isPresent()) {
-            if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newEnd.get(), exam, false)) {
+            if (isAdmin || !hasFutureReservations || isNonRestrictingValidityChange(newEnd.get(), exam, false)) {
                 exam.setExamActiveEndDate(newEnd.get());
             } else {
                 return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
@@ -318,15 +318,15 @@ public class ExamUpdaterImpl implements ExamUpdater {
         return reason == null ? Optional.empty() : Optional.of(badRequest(reason));
     }
 
-    private boolean isRestrictingValidityChange(DateTime newDate, Exam exam, boolean isStartDate) {
+    private boolean isNonRestrictingValidityChange(DateTime newDate, Exam exam, boolean isStartDate) {
         DateTime oldDate = isStartDate ? exam.getExamActiveStartDate() : exam.getExamActiveEndDate();
-        return isStartDate ? oldDate.isBefore(newDate) : newDate.isBefore(oldDate);
+        return isStartDate ? oldDate.isAfter(newDate) : newDate.isAfter(oldDate);
     }
 
     private void updateGrading(Exam exam, int grading) {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
         boolean canOverrideGrading = ConfigUtil.isCourseGradeScaleOverridable();
-        if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
+        if (canOverrideGrading || exam.getCourse() == null || exam.getCourse().getGradeScale() == null) {
             GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
             if (scale != null) {
                 exam.setGradeScale(scale);
