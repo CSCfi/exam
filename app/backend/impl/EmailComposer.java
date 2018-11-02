@@ -84,7 +84,7 @@ public interface EmailComposer {
     /**
      * Message sent to student when he did not show up for exam.
      */
-    void composeNoShowMessage(User student, Exam exam);
+    void composeNoShowMessage(User student, String examName, String courseCode);
 
     /**
      * Message sent to teacher when language inspection is finished.

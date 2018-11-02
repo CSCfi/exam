@@ -168,8 +168,18 @@ public class BaseController extends Controller {
                 .eq("user", user)
                 .eq("noShow", false)
                 .lt("endAt", new Date())
+                // Either a) exam id matches and exam state is published OR
+                //        b) collaborative exam id matches and exam is NULL
+                .or()
+                .and()
                 .eq("enrolment.exam.id", examId)
                 .eq("enrolment.exam.state", Exam.State.PUBLISHED)
+                .endAnd()
+                .and()
+                .eq("enrolment.collaborativeExam.id", examId)
+                .isNull("enrolment.exam")
+                .endAnd()
+                .endOr()
                 .isNull("externalReservation")
                 .findList();
         noShowHandler.handleNoShows(reservations);

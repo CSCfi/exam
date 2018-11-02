@@ -49,15 +49,6 @@ public class CollaborativeCalendarController extends CollaborationController {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
 
-        ExamEnrolment ee = Ebean.find(ExamEnrolment.class).where()
-                .eq("collaborativeExam.id", id)
-                .isNull("exam")
-                .eq("user", getLoggedUser())
-                .findOne();
-        if (ee == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
-        }
-
         return downloadExam(ce).thenApplyAsync(
                 result -> {
                     if (!result.isPresent()) {

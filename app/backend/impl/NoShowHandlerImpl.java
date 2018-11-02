@@ -15,25 +15,25 @@
 
 package backend.impl;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Stream;
+import javax.inject.Inject;
+
 import com.typesafe.config.ConfigFactory;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamInspection;
-import backend.models.Reservation;
 import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 
-import javax.inject.Inject;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamInspection;
+import backend.models.Reservation;
 
 public class NoShowHandlerImpl implements NoShowHandler {
 
@@ -70,23 +70,28 @@ public class NoShowHandlerImpl implements NoShowHandler {
         return new URL(HOST + String.format("/api/enrolments/%s/noshow", reservationRef));
     }
 
+    private boolean isLocal(ExamEnrolment ee) {
+        return ee.getExam() != null && ee.getExam().getState() == Exam.State.PUBLISHED;
+    }
+
+    private boolean isCollaborative(ExamEnrolment ee) {
+        return ee.getCollaborativeExam() != null &&  ee.getExam() == null;
+    }
+
     @Override
     public void handleNoShows(List<Reservation> noShows) {
-        List<Reservation> locals = noShows.stream().filter(ns ->
-                ns.getExternalRef() == null &&
-                        ns.getEnrolment() != null &&
-                        ns.getEnrolment().getExam() != null &&
-                        ns.getEnrolment().getExam().getState() == Exam.State.PUBLISHED
-        ).collect(Collectors.toList());
+        Stream<Reservation> locals = noShows.stream()
+                .filter(ns -> ns.getExternalRef() == null && ns.getEnrolment() != null)
+                .filter(ns -> isLocal(ns.getEnrolment()) || isCollaborative(ns.getEnrolment()));
         locals.forEach(this::handleNoShowAndNotify);
 
-        List<Reservation> externals = noShows.stream().filter(ns ->
+        Stream<Reservation> externals = noShows.stream().filter(ns ->
                 ns.getExternalRef() != null && (
                         ns.getUser() == null ||
                                 ns.getEnrolment() == null ||
                                 ns.getEnrolment().getExternalExam() == null ||
                                 ns.getEnrolment().getExternalExam().getStarted() == null)
-        ).collect(Collectors.toList());
+        );
         externals.forEach(r -> {
             // Send to XM for further processing
             // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed
@@ -107,9 +112,13 @@ public class NoShowHandlerImpl implements NoShowHandler {
                 reservation.getId());
         ExamEnrolment enrolment = reservation.getEnrolment();
         Exam exam = enrolment.getExam();
+        String examName = exam == null ?
+                enrolment.getCollaborativeExam().getName() : enrolment.getExam().getName();
+        String courseCode = exam == null ? "" : enrolment.getExam().getCourse().getCode();
+
         // Notify student
-        composer.composeNoShowMessage(reservation.getUser(), exam);
-        if (exam.isPrivate()) {
+        composer.composeNoShowMessage(reservation.getUser(), examName, courseCode);
+        if (exam != null && exam.isPrivate()) {
             // Notify teachers
             Stream.concat(
                     exam.getExamOwners().stream(),
