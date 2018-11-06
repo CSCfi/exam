@@ -20,6 +20,7 @@ import 'angular-dialog-service';
 import 'angular-dynamic-locale';
 import 'angular-resource';
 import 'angular-route';
+import 'bootstrap';
 import 'angular-ui-bootstrap';
 import 'font-awesome/css/font-awesome.min.css';
 import 'ngstorage';
@@ -59,6 +60,9 @@ import { SessionService } from './session/session.service';
 import UtilityModule from './utility';
 import { FileService } from './utility/file/file.service';
 import { WindowRef } from './utility/window/window.service';
+import { SelectRoleDialogComponent } from './session/role/selectRoleDialog.component';
+import { EulaDialogComponent } from './session/eula/eulaDialog.component';
+import { LogoutComponent } from './session/logout/logout.component';
 
 angularJS.module('app', [
     'ngAnimate',
@@ -119,11 +123,17 @@ angularJS.module('app', [
     ],
     declarations: [
         NavigationComponent,
-        DevLoginComponent
+        DevLoginComponent,
+        SelectRoleDialogComponent,
+        EulaDialogComponent,
+        LogoutComponent
     ],
     entryComponents: [
         DevLoginComponent,
-        NavigationComponent
+        NavigationComponent,
+        SelectRoleDialogComponent,
+        EulaDialogComponent,
+        LogoutComponent
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

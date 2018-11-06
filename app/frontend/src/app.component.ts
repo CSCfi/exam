@@ -24,7 +24,7 @@ export const AppComponent: angular.IComponentOptions = {
             <dev-login (on-logged-in)="$ctrl.setUser($event)"></dev-login>
         </div>
         <div ng-if="$ctrl.user && (!$ctrl.user.isStudent || $ctrl.user.userAgreementAccepted)">
-            <navigation ng-hide="$ctrl.hideNavBar"></navigation>
+            <navigation (hidden)="$ctrl.hideNavBar"></navigation>
             <div id="mainView" class="container-fluid"
                 ng-class="{'vmenu-on': !$ctrl.hideNavBar && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
                 <div class="ng-view"></div>

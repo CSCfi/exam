@@ -13,67 +13,48 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import * as angular from 'angular';
-import { IComponentController } from 'angular';
-import { Role, User } from '../session.service';
 
-export const SelectRoleDialogComponent: angular.IComponentOptions = {
+import { Component, Input } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { User } from '../session.service';
+
+@Component({
+    selector: 'role-selector-dialog',
     template: `
     <div id="sitnet-dialog">
-        <div class="student-message-dialog-wrapper-padding">
-            <div class="student-enroll-dialog-wrap">
-                <h1 class="student-enroll-title">
-                    <i class="fa fa-user"></i>&nbsp;&nbsp;{{'sitnet_select_role' | translate}}</i>
-                </h1>
-            </div>
-            <div class="modal-body">
-                <span class="dropdown pointer" uib-dropdown>
-                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
-                            data-toggle="dropdown" aria-expanded="true">
-                        {{'sitnet_choose' | translate}}&nbsp;<span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li ng-repeat="role in $ctrl.user.roles">
-                            <a role="menuitem" title="{{role.displayName | translate}}" ng-click="$ctrl.ok(role)">
-                                <i class="fa pull-right" ng-class="role.icon"></i>
-                                {{role.displayName | translate}}
-                            </a>
-                        </li>
-                    </ul>
-                </span>
-            </div>
-            <div class="modal-footer">
-                <div class="col-md-12">
-                    <button class="btn btn-sm btn-danger pull-right" ng-click="$ctrl.cancel()">
-                        {{'sitnet_button_decline' | translate}}
-                    </button>
-                </div>
+
+        <div class="modal-header">
+            <h1 class="sitnet-black"><i class="fa fa-user"></i>&nbsp;&nbsp;{{'sitnet_select_role' | translate}}</h1>
+        </div>
+        <div class="modal-body">
+             <span class="dropdown pointer" uib-dropdown>
+                <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                        data-toggle="dropdown" aria-expanded="true">
+                    {{'sitnet_choose' | translate}}&nbsp;<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li *ngFor="let role of user.roles">
+                        <a role="menuitem" title="{{role.displayName | translate}}" (click)="activeModal.close(role)">
+                            <i class="fa pull-right" ngClass="role.icon"></i>
+                            {{role.displayName | translate}}
+                        </a>
+                    </li>
+                </ul>
+             </span>
+        </div>
+        <div class="modal-footer">
+            <div class="col-md-12">
+                <button class="btn btn-sm btn-danger pull-right" (click)="activeModal.dismiss()">
+                    {{'sitnet_button_decline' | translate}}
+                </button>
             </div>
         </div>
     </div>
-    `,
-    bindings: {
-        resolve: '<',
-        close: '&',
-        dismiss: '&'
-    },
-    controller: class SelectRoleDialogController implements IComponentController {
+    `
+})
+export class SelectRoleDialogComponent {
+    @Input() user: User;
 
-        user: User;
-        resolve: { user: User };
-        close: (x: { $value: Role }) => any;
-        dismiss: () => any;
+    constructor(public activeModal: NgbActiveModal) { }
 
-        $onInit() {
-            this.user = this.resolve.user;
-        }
-
-        ok(role: Role) {
-            this.close({ $value: role });
-        }
-
-        cancel() {
-            this.dismiss();
-        }
-    }
-};
+}

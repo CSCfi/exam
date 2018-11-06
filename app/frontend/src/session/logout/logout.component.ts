@@ -13,19 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
+import { Component, OnInit } from '@angular/core';
 import { SessionService } from '../session.service';
 
-export const LogoutComponent: angular.IComponentOptions = {
-    controller: class LogoutController {
+@Component({
+    selector: 'logout',
+    template: '<div>logging out</div>'
+})
+export class LogoutComponent implements OnInit {
+    constructor(private Session: SessionService) { }
 
-        constructor(private Session: SessionService) {
-            'ngInject';
-        }
-
-        $onInit() {
-            this.Session.logout();
-        }
-
+    ngOnInit() {
+        this.Session.logout();
     }
-};
+
+}
