@@ -13,63 +13,49 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
-import { IComponentController, IHttpResponse } from 'angular';
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-export const EulaDialogComponent: angular.IComponentOptions = {
+@Component({
+    selector: 'eula-dialog',
     template: `
     <div id="sitnet-dialog">
-        <div class="student-message-dialog-wrapper-padding">
+        <div class="modal-header">
             <div class="student-enroll-dialog-wrap">
                 <h1 class="student-enroll-title">{{'sitnet_accept_useragreement' | translate}}</h1>
             </div>
-            <div class="modal-body">
-                <div ng-bind-html="$ctrl.settings.eula.value">
-                </div>
+        </div>
+        <div class="modal-body">
+            <div [innerHtml]="settings.eula.value">
             </div>
-            <div class="student-message-dialog-footer">
-                <div class="student-message-dialog-button-save">
-                    <button class="btn btn-sm btn-primary" ng-click="$ctrl.ok()">
-                        {{'sitnet_button_accept' | translate}}
-                    </button>
-                </div>
-                <div class="student-message-dialog-button-cancel">
-                    <button class="btn btn-sm btn-danger pull-left" ng-click="$ctrl.cancel()">
-                        {{'sitnet_button_decline' | translate}}
-                    </button>
-                </div>
+        </div>
+        <div class="modal-footer">
+            <div class="student-message-dialog-button-save">
+                <button class="btn btn-sm btn-primary" (click)="activeModal.close()">
+                    {{'sitnet_button_accept' | translate}}
+                </button>
+            </div>
+            <div class="student-message-dialog-button-cancel">
+                <button class="btn btn-sm btn-danger pull-left" (click)="activeModal.dismiss()">
+                    {{'sitnet_button_decline' | translate}}
+                </button>
             </div>
         </div>
     </div>
-    `,
-    bindings: {
-        close: '&',
-        dismiss: '&'
-    },
-    controller: class EulaDialogController implements IComponentController {
+    `
+})
+export class EulaDialogComponent implements OnInit {
+    settings = { eula: { value: '' } };
 
-        settings: { eula: { value: string } };
-        close: () => any;
-        dismiss: (x: any) => any;
+    constructor(
+        public activeModal: NgbActiveModal,
+        private http: HttpClient) { }
 
-        constructor(private $http: angular.IHttpService) {
-            'ngInject';
-        }
-
-        $onInit() {
-            this.$http.get('/app/settings/agreement').then((resp: IHttpResponse<{ value: string }>) =>
-                this.settings = { eula: { value: resp.data.value } }
-            ).catch(angular.noop);
-        }
-
-        cancel() {
-            this.dismiss({ $value: 'cancel' });
-        }
-
-        ok() {
-            this.close();
-        }
-
+    ngOnInit() {
+        this.http.get<{ value: string }>('/app/settings/agreement').subscribe(
+            resp => this.settings = { eula: { value: resp.value } }
+        );
     }
 
-};
+}

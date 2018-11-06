@@ -22,6 +22,8 @@ import { interval, Observable, of, Subject, Unsubscribable } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import * as toastr from 'toastr';
 import { WindowRef } from '../utility/window/window.service';
+import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
+import { EulaDialogComponent } from './eula/eulaDialog.component';
 
 export interface Role {
     name: string;
@@ -317,11 +319,11 @@ export class SessionService {
     }
 
     private openEulaModal(user: User): void {
-        this.modal.open({
+        const modalRef = this.modal.open(EulaDialogComponent, {
             backdrop: 'static',
-            keyboard: true,
-            component: 'eulaDialog'
-        }).result.then(() => {
+            keyboard: true
+        });
+        modalRef.result.then(() => {
             this.http.put('/app/users/agreement', {}).subscribe(
                 () => {
                     user.userAgreementAccepted = true;
@@ -329,21 +331,18 @@ export class SessionService {
                     // We need to reload controllers after accepted user agreement.
                     // FIXME: figure out how
                     // this.$route.reload();
-                },
-                resp => toastr.error(resp.data)
+                }, resp => toastr.error(resp)
             );
         }).catch(() => this.location.go('/logout'));
     }
 
     private openRoleSelectModal(user: User) {
-        this.modal.open({
-            component: 'selectRoleDialog',
+        const modalRef = this.modal.open(SelectRoleDialogComponent, {
             backdrop: 'static',
-            keyboard: false,
-            resolve: {
-                user: () => user
-            }
-        }).result.then((role: { name: string, icon: string, displayName: string }) => {
+            keyboard: false
+        });
+        modalRef.componentInstance.user = user;
+        modalRef.result.then((role: { name: string, icon: string, displayName: string }) => {
             this.http.put(`/app/users/${user.id}/roles/${role.name}`, {}).subscribe(() => {
                 user.loginRole = role;
                 user.isAdmin = role.name === 'ADMIN';

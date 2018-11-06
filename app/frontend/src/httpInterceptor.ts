@@ -36,7 +36,7 @@ export class AuthInterceptor implements HttpInterceptor {
                 .set('x-exam-authentication', user.token)
         });
 
-        // send cloned request with header to the next handler.
+        // send cloned request with headers to the next handler.
         return next.handle(authReq);
     }
 }
