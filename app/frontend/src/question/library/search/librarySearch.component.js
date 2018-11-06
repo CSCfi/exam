@@ -37,9 +37,10 @@ angular.module('app.question')
                         vm.courses = storedData.filters.courses || [];
                         vm.tags = storedData.filters.tags || [];
                         vm.filter.text = storedData.filters.text;
+                        vm.filter.owner = storedData.filters.owner;
                         query().then(function () {
-                            if (vm.filter.text) {
-                                vm.applyFreeSearchFilter();
+                            if (vm.filter.text || vm.filter.owner) {
+                                vm.applySearchFilter();
                             } else {
                                 vm.onUpdate({results: vm.questions});
                             }
@@ -54,14 +55,9 @@ angular.module('app.question')
                     }
                 };
 
-                vm.applyFreeSearchFilter = function () {
-                    const results = Library.applyFreeSearchFilter(vm.filter.text, vm.questions);
-                    vm.onUpdate({results: results});
-                    saveFilters();
-                };
-
-                vm.applyOwnerSearchFilter = function () {
-                    const results = Library.applyOwnerSearchFilter(vm.filter.owner, vm.questions);
+                vm.applySearchFilter = function () {
+                    let results = Library.applyFreeSearchFilter(vm.filter.text, vm.questions);
+                    results = Library.applyOwnerSearchFilter(vm.filter.owner, results);
                     vm.onUpdate({results: results});
                     saveFilters();
                 };
@@ -71,7 +67,8 @@ angular.module('app.question')
                         exams: vm.exams,
                         courses: vm.courses,
                         tags: vm.tags,
-                        text: vm.filter.text
+                        text: vm.filter.text,
+                        owner: vm.filter.owner
                     };
                     Library.storeFilters(filters, 'search');
                 };
@@ -120,7 +117,6 @@ angular.module('app.question')
                         );
                     return deferred.promise;
                 };
-
 
                 const union = function (filtered, tags) {
                     const filteredIds = filtered.map(function (tag) {
@@ -221,7 +217,7 @@ angular.module('app.question')
                 vm.applyFilter = function (tag) {
                     tag.filtered = !tag.filtered;
                     query().then(function () {
-                        vm.applyFreeSearchFilter();
+                        vm.applySearchFilter();
                     });
                 };
 
