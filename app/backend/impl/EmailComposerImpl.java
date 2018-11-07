@@ -349,8 +349,8 @@ class EmailComposerImpl implements EmailComposer {
         emailSender.send(toUser.getEmail(), fromUser.getEmail(), subject, template);
     }
 
-    private String getTeachersAsText(Exam exam) {
-        return exam.getExamOwners().stream()
+    private String getTeachersAsText(Set<User> owners) {
+        return owners.stream()
                 .map(eo -> String.format("%s %s", eo.getFirstName(), eo.getLastName()))
                 .collect(Collectors.joining(", "));
     }
@@ -362,13 +362,16 @@ class EmailComposerImpl implements EmailComposer {
         Lang lang = getLang(student);
         Exam exam = enrolment.getExam();
 
-        String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getCode());
-        String teacherName;
+        String examInfo = exam != null ? String.format("%s (%s)", exam.getName(), exam.getCourse().getCode())
+                : enrolment.getCollaborativeExam().getName();
 
-        if (!exam.getExamOwners().isEmpty()) {
-            teacherName = getTeachers(exam);
-        } else {
-            teacherName = String.format("%s %s", exam.getCreator().getFirstName(), exam.getCreator().getLastName());
+        String teacherName = "";
+        if (exam != null) {
+            if (!exam.getExamOwners().isEmpty()) {
+                teacherName = getTeachers(exam);
+            } else {
+                teacherName = String.format("%s %s", exam.getCreator().getFirstName(), exam.getCreator().getLastName());
+            }
         }
 
         DateTime startDate = adjustDST(enrolment.getReservation().getStartAt(), TZ);
@@ -376,8 +379,8 @@ class EmailComposerImpl implements EmailComposer {
         String reservationDate = DTF.print(startDate) + " - " + DTF.print(endDate);
 
         Map<String, String> values = new HashMap<>();
-        String subject = messaging.get(lang, "email.template.reservation.change.subject", enrolment.getExam().getName());
-
+        String subject = messaging.get(lang, "email.template.reservation.change.subject", exam != null ? enrolment.getExam().getName()
+                : enrolment.getCollaborativeExam().getName());
         values.put("message", messaging.get(lang, "email.template.reservation.change.message"));
         values.put("previousMachine", messaging.get(lang, "email.template.reservation.change.previous"));
         values.put("previousMachineName", messaging.get(lang, "email.template.reservation.machine", previous.getName()));
@@ -394,7 +397,6 @@ class EmailComposerImpl implements EmailComposer {
         values.put("cancellationInfo", messaging.get(lang, "email.template.reservation.cancel.info"));
         values.put("cancellationLink", HOSTNAME);
         values.put("cancellationLinkText", messaging.get(lang, "email.template.reservation.cancel.link.text"));
-
 
         String content = replaceAll(template, values);
         emailSender.send(student.getEmail(), SYSTEM_ACCOUNT, subject, content);
@@ -416,7 +418,8 @@ class EmailComposerImpl implements EmailComposer {
         if (isStudentUser) {
             subject = messaging.get(lang, "email.reservation.cancellation.subject");
         } else {
-            subject = messaging.get(lang, "email.reservation.cancellation.subject.forced", enrolment.getExam().getName());
+            subject = messaging.get(lang, "email.reservation.cancellation.subject.forced",
+                    enrolment.getExam() != null ? enrolment.getExam().getName() : enrolment.getCollaborativeExam().getName());
         }
 
         String date = DF.print(adjustDST(reservation.getStartAt(), TZ));
@@ -429,11 +432,15 @@ class EmailComposerImpl implements EmailComposer {
         if (isStudentUser) {
             String time = String.format("%s - %s", DTF.print(adjustDST(reservation.getStartAt(), TZ)),
                     DTF.print(adjustDST(reservation.getEndAt(), TZ)));
-            Exam source = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent() : enrolment.getExam();
+            final Set<User> owners = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent().getExamOwners()
+                    : enrolment.getExam().getExamOwners();
             stringValues.put("message", messaging.get(lang, "email.template.reservation.cancel.message.student"));
-            stringValues.put("exam", messaging.get(lang, "email.template.reservation.exam",
-                    enrolment.getExam().getName() + " (" + enrolment.getExam().getCourse().getCode() + ")"));
-            stringValues.put("teacher", messaging.get(lang, "email.template.reservation.teacher", getTeachersAsText(source)));
+
+            final String examName = enrolment.getExam() != null ?
+                    enrolment.getExam().getName() + " (" + enrolment.getExam().getCourse().getCode() + ")"
+                    : enrolment.getCollaborativeExam().getName();
+            stringValues.put("exam", messaging.get(lang, "email.template.reservation.exam", examName));
+            stringValues.put("teacher", messaging.get(lang, "email.template.reservation.teacher", getTeachersAsText(owners)));
             stringValues.put("time", messaging.get(lang, "email.template.reservation.date", time));
             stringValues.put("place", messaging.get(lang, "email.template.reservation.room", room));
             stringValues.put("new_time", messaging.get(lang, "email.template.reservation.cancel.message.student.new.time"));

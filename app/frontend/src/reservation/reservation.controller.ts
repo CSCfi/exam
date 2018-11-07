@@ -127,6 +127,11 @@ export class ReservationController implements angular.IComponentController {
                             'EXTERNAL_UNFINISHED';
                         r.enrolment.exam = { external: true, examOwners: [], state: externalState };
                     }
+                    // Collaborative exam
+                    if (r.enrolment.collaborativeExam) {
+                        r.enrolment.exam = r.enrolment.collaborativeExam;
+                        r.enrolment.exam.examOwners = [];
+                    }
                     const exam = r.enrolment.exam.parent || r.enrolment.exam;
                     r.enrolment.teacherAggregate = exam.examOwners.map(function (o) {
                         return o.lastName + o.firstName;
