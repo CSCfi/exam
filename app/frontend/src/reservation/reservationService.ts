@@ -32,7 +32,8 @@ export class ReservationService {
 
 
     printExamState = (reservation) =>
-        reservation.noShow ? 'NO_SHOW' : reservation.enrolment.exam.state
+        reservation.noShow ? 'NO_SHOW' : reservation.enrolment.exam ? reservation.enrolment.exam.state
+            : reservation.enrolment.collaborativeExam.state
 
     removeReservation(enrolment) {
         const externalRef = enrolment.reservation.externalRef;
