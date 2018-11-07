@@ -55,7 +55,7 @@ DELETE        /app/exam/:eid/owner/:uid                                backend.c
 
 ############### Exam inspection interface ###############
 GET           /app/exam/:id/inspections                                backend.controllers.ExamInspectionController.getExamInspections(id: Long)
-POST          /app/exams/:eid/inspector/:uid                           backend.controllers.ExamInspectionController.insertInspection(eid: Long, uid: Long)
+POST          /app/exams/:eid/inspector/:uid                           backend.controllers.ExamInspectionController.addInspection(eid: Long, uid: Long)
 DELETE        /app/exams/inspector/:id                                 backend.controllers.ExamInspectionController.deleteInspection(id: Long)
 PUT           /app/exams/inspection/:id                                backend.controllers.ExamInspectionController.setInspectionOutcome(id: Long)
 

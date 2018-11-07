@@ -15,30 +15,31 @@
 
 package backend.controllers;
 
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+
 import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import backend.controllers.base.BaseController;
-import backend.impl.EmailComposer;
 import io.ebean.Ebean;
 import io.ebean.Model;
+import play.libs.Json;
+import play.mvc.Result;
+import play.mvc.With;
+import scala.concurrent.duration.Duration;
+
+import backend.controllers.base.BaseController;
+import backend.impl.EmailComposer;
 import backend.models.Comment;
 import backend.models.Exam;
 import backend.models.ExamInspection;
 import backend.models.Role;
 import backend.models.User;
-import play.libs.Json;
-import play.mvc.Result;
-import play.mvc.With;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CommentSanitizer;
-import scala.concurrent.duration.Duration;
 import backend.util.AppUtil;
-
-import javax.inject.Inject;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 
 public class ExamInspectionController extends BaseController {
@@ -51,10 +52,10 @@ public class ExamInspectionController extends BaseController {
 
     @With(CommentSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result insertInspection(Long eid, Long uid) {
+    public Result addInspection(Long eid, Long uid) {
         User recipient = Ebean.find(User.class, uid);
         Exam exam = Ebean.find(Exam.class, eid);
-        if (exam == null) {
+        if (exam == null || recipient == null) {
             return notFound();
         }
         User user = getLoggedUser();
