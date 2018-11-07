@@ -16,6 +16,7 @@
 package backend.controllers;
 
 import backend.controllers.base.BaseController;
+import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.exceptions.NotFoundException;
 import backend.impl.EmailComposer;
 import backend.models.Exam;
@@ -51,6 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 
@@ -58,6 +60,9 @@ public class ReservationController extends BaseController {
 
     @Inject
     protected EmailComposer emailComposer;
+
+    @Inject
+    protected CollaborativeExamLoader collaborativeExamLoader;
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result getExams() {
@@ -168,7 +173,7 @@ public class ReservationController extends BaseController {
 
         ExamParticipation participation = Ebean.find(ExamParticipation.class)
                 .where()
-                .eq("exam.id", enrolment.getExam().getId())
+                .eq("exam", enrolment.getExam())
                 .findOne();
 
         if (participation != null) {
@@ -189,7 +194,7 @@ public class ReservationController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result findAvailableMachines(Long reservationId) {
+    public Result findAvailableMachines(Long reservationId) throws ExecutionException, InterruptedException {
         Reservation reservation = Ebean.find(Reservation.class, reservationId);
         if (reservation == null) {
             return notFound();
@@ -204,10 +209,11 @@ public class ReservationController extends BaseController {
                 .ne("archived", true)
                 .findList();
 
+        final Exam exam = getReservationExam(reservation);
         Iterator<ExamMachine> it = candidates.listIterator();
         while (it.hasNext()) {
             ExamMachine machine = it.next();
-            if (!machine.hasRequiredSoftware(reservation.getEnrolment().getExam())) {
+            if (!machine.hasRequiredSoftware(exam)) {
                 it.remove();
             }
             if (machine.isReservedDuring(reservation.toInterval())) {
@@ -218,7 +224,7 @@ public class ReservationController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result updateMachine(Long reservationId) {
+    public Result updateMachine(Long reservationId) throws ExecutionException, InterruptedException {
         Reservation reservation = Ebean.find(Reservation.class, reservationId);
 
         if (reservation == null) {
@@ -237,7 +243,8 @@ public class ReservationController extends BaseController {
         if (!machine.getRoom().equals(reservation.getMachine().getRoom())) {
             return forbidden("Not allowed to change to use a machine from a different room");
         }
-        if (!machine.hasRequiredSoftware(reservation.getEnrolment().getExam()) ||
+        Exam exam = getReservationExam(reservation);
+        if (!machine.hasRequiredSoftware(exam) ||
                 machine.isReservedDuring(reservation.toInterval())) {
             return forbidden("Machine not eligible for choosing");
         }
@@ -245,6 +252,12 @@ public class ReservationController extends BaseController {
         reservation.update();
         emailComposer.composeReservationChangeNotification(reservation.getUser(), previous, machine, reservation.getEnrolment());
         return ok(machine, props);
+    }
+
+    private Exam getReservationExam(Reservation reservation) throws InterruptedException, ExecutionException {
+        return reservation.getEnrolment().getExam() != null ? reservation.getEnrolment().getExam()
+                : collaborativeExamLoader.downloadExam(reservation.getEnrolment().getCollaborativeExam())
+                .toCompletableFuture().get().orElse(null);
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
@@ -263,11 +276,7 @@ public class ReservationController extends BaseController {
                 .fetch("enrolment.collaborativeExam", "*")
                 .fetch("machine", "id, name, ipAddress, otherIdentifier")
                 .fetch("machine.room", "id, name, roomCode")
-                .where()
-                .disjunction()
-                .ne("enrolment.exam.state", Exam.State.DELETED) // Local student reservation
-                .isNotNull("externalUserRef") // External student reservation
-                .endJunction();
+                .where();
 
         User user = getLoggedUser();
         if (user.hasRole("TEACHER", getSession())) {
@@ -313,12 +322,14 @@ public class ReservationController extends BaseController {
         }
 
         if (studentId.isPresent()) {
-            query = query.eq("user.id", studentId.get())
-                    // Hide reservations for anonymous exams.
-                    .or()
-                    .eq("enrolment.exam.anonymous", false)
-                    .eq("enrolment.collaborativeExam.anonymous", false)
-                    .endOr();
+            query = query.eq("user.id", studentId.get());
+            // Hide reservations for anonymous exams.
+            if (user.hasRole("TEACHER", getSession())) {
+                query.or()
+                        .eq("enrolment.exam.anonymous", false)
+                        .eq("enrolment.collaborativeExam.anonymous", false)
+                        .endOr();
+            }
         }
         if (roomId.isPresent()) {
             query = query.eq("machine.room.id", roomId.get());
@@ -329,11 +340,16 @@ public class ReservationController extends BaseController {
         if (examId.isPresent()) {
             query = query
                     .disjunction()
+                    .ne("enrolment.exam.state", Exam.State.DELETED) // Local student reservation
+                    .isNotNull("externalUserRef") // External student reservation
+                    .endJunction()
+                    .disjunction()
                     .eq("enrolment.exam.parent.id", examId.get())
                     .eq("enrolment.exam.id", examId.get())
                     .endJunction();
         } else if (externalRef.isPresent()) {
-            query = query.eq("enrolment.collaborativeExam.externalRef", externalRef.get());
+            query = query.eq("enrolment.collaborativeExam.externalRef", externalRef.get())
+                    .ne("enrolment.collaborativeExam.state", Exam.State.DELETED);
         }
 
         if (ownerId.isPresent() && user.hasRole("ADMIN", getSession())) {
