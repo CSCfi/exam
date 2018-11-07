@@ -47,8 +47,7 @@
                 </div>
             </div>
             <!-- General Information -->
-            <r-general-info ng-if="$ctrl.exam && !$ctrl.hideGeneralInfo" participation="$ctrl.participation"
-                            exam="$ctrl.exam" collaborative="$ctrl.collaborative"></r-general-info>
+            <r-general-info ng-if="$ctrl.exam && !$ctrl.hideGeneralInfo" participation="$ctrl.participation" exam="$ctrl.exam" collaborative="$ctrl.collaborative"></r-general-info>
         </div>
     </div>
 
@@ -79,8 +78,8 @@
             <div ng-hide="$ctrl.hideGradeInfo" class="padl15 padr15">
                 <r-grading ng-if="$ctrl.exam && !$ctrl.exam.subjectToLanguageInspection" on-update="$ctrl.gradingUpdated()">
                 </r-grading>
-                <r-maturity-grading ng-if="$ctrl.exam && $ctrl.exam.subjectToLanguageInspection" on-update="$ctrl.gradingUpdated()" user="$ctrl.user"
-                    exam="$ctrl.exam">
+                <r-maturity-grading ng-if="$ctrl.exam && $ctrl.exam.executionType.type === 'MATURITY' &&
+                    $ctrl.exam.subjectToLanguageInspection" on-update="$ctrl.gradingUpdated()" user="$ctrl.user" exam="$ctrl.exam">
                 </r-maturity-grading>
             </div>
 
