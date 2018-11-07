@@ -49,7 +49,11 @@
                 </div>
             </div>
             <!-- General Information -->
+<<<<<<< HEAD:public/app/review/assessment/assessment.template.html
             <r-general-info ng-if="$ctrl.exam && !$ctrl.hideGeneralInfo" exam="$ctrl.exam"></r-general-info>
+=======
+            <r-general-info ng-if="$ctrl.exam && !$ctrl.hideGeneralInfo" participation="$ctrl.participation" exam="$ctrl.exam" collaborative="$ctrl.collaborative"></r-general-info>
+>>>>>>> c0ea78120... CSCEXAM-215 language inspection requirement for copied exam:app/frontend/src/review/assessment/assessment.template.html
         </div>
     </div>
 
@@ -83,8 +87,9 @@
                            on-update="$ctrl.gradingUpdated()" user="$ctrl.user" exam="$ctrl.exam"
                            question-summary="$ctrl.questionSummary">
                 </r-grading>
-                <r-maturity-grading ng-if="$ctrl.exam && $ctrl.exam.subjectToLanguageInspection"
-                                    on-update="$ctrl.gradingUpdated()" user="$ctrl.user" exam="$ctrl.exam">
+                <r-maturity-grading ng-if="$ctrl.exam && $ctrl.exam.executionType.type === 'MATURITY' &&
+                    $ctrl.exam.subjectToLanguageInspection" on-update="$ctrl.gradingUpdated()" user="$ctrl.user"
+                    exam="$ctrl.exam">
                 </r-maturity-grading>
             </div>
 
