@@ -182,8 +182,8 @@ angular.module('app.review')
                         });
                         $scope.title = 'sitnet_import_grades_from_csv';
                         $scope.submit = function () {
-                            Files.upload('/app/gradeimport', $scope.attachmentFile, {}, null, $modalInstance,
-                                $route.reload);
+                            Files.upload('/app/gradeimport', $scope.attachmentFile, {}, null,
+                                $route.reload, $modalInstance);
                         };
                         $scope.cancel = function () {
                             $modalInstance.dismiss('Canceled');

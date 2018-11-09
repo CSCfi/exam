@@ -128,13 +128,16 @@ angular.module('app.utility')
                 return deferred.promise;
             };
 
-            var upload = function (url, file, params, parent, callback) {
+            var upload = function (url, file, params, parent, callback, modal) {
                 doUpload(url, file, params).then(function (resp) {
                     if (parent) {
                         parent.attachment = resp.data;
                     }
                     if (callback) {
                         callback();
+                    }
+                    if (modal) {
+                        modal.dismiss();
                     }
                 }).catch(function (resp) {
                     toast.error($translate.instant(resp.data));

@@ -1,11 +1,11 @@
 <div id="dashboard">
 
     <div class="top-row">
-        <div class="col-md-12" >
+        <div class="col-md-12">
             <div class="student-details-title-wrap">
                 <a href="{{$ctrl.backUrl}}">
                     <img class="arrow_icon" src="/assets/assets/images/icon_history.png"></a>
-                    <div class="student-exam-details-title">{{'sitnet_exam_review' | translate}}</div>
+                <div class="student-exam-details-title">{{'sitnet_exam_review' | translate}}</div>
             </div>
 
             <div class="review-attachment-button print-button">
@@ -42,18 +42,14 @@
                 <div class="review-list-title">{{$ctrl.exam.course.code}} - {{$ctrl.exam.name}}
                     <a class="pointer" ng-click="$ctrl.hideGeneralInfo = !$ctrl.hideGeneralInfo">
                         <img ng-show="hideGeneralInfo" src="/assets/assets/images/icon_list_show_right.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'" />
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"/>
                         <img ng-show="!hideGeneralInfo" src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'" />
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"/>
                     </a>
                 </div>
             </div>
             <!-- General Information -->
-<<<<<<< HEAD:public/app/review/assessment/assessment.template.html
             <r-general-info ng-if="$ctrl.exam && !$ctrl.hideGeneralInfo" exam="$ctrl.exam"></r-general-info>
-=======
-            <r-general-info ng-if="$ctrl.exam && !$ctrl.hideGeneralInfo" participation="$ctrl.participation" exam="$ctrl.exam" collaborative="$ctrl.collaborative"></r-general-info>
->>>>>>> c0ea78120... CSCEXAM-215 language inspection requirement for copied exam:app/frontend/src/review/assessment/assessment.template.html
         </div>
     </div>
 
@@ -73,10 +69,12 @@
 
                     <span class="review-question-title">{{ 'sitnet_grading_info' | translate }}</span>
                     <a ng-click="$ctrl.hideGradeInfo = !$ctrl.hideGradeInfo">
-                        <img ng-show="$ctrl.hideGradeInfo" src="/assets/assets/images/icon_list_show_right.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'" />
-                        <img ng-hide="$ctrl.hideGradeInfo" src="/assets/assets/images/icon_list_show_down.svg" alt="exam"
-                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'" />
+                        <img ng-show="$ctrl.hideGradeInfo" src="/assets/assets/images/icon_list_show_right.svg"
+                             alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"/>
+                        <img ng-hide="$ctrl.hideGradeInfo" src="/assets/assets/images/icon_list_show_down.svg"
+                             alt="exam"
+                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"/>
                     </a>
                 </div>
             </div>
@@ -89,7 +87,7 @@
                 </r-grading>
                 <r-maturity-grading ng-if="$ctrl.exam && $ctrl.exam.executionType.type === 'MATURITY' &&
                     $ctrl.exam.subjectToLanguageInspection" on-update="$ctrl.gradingUpdated()" user="$ctrl.user"
-                    exam="$ctrl.exam">
+                                    exam="$ctrl.exam">
                 </r-maturity-grading>
             </div>
 
