@@ -13,8 +13,30 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
-import toast from 'toastr';
+import * as toast from 'toastr';
+import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { Location } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { SessionService } from '../session/session.service';
+
+
+@Injectable()
+export class ExamService {
+
+    constructor(
+        private translate: TranslateService,
+        private location: Location,
+        private http: HttpClient,
+        private Question: any, // tbd
+        private Session: SessionService,
+        private modal: NgbModal
+    ) {
+
+    }
+
+}
 
 angular.module('app.exam')
     .service('Exam', ['$translate', '$q', '$location', '$http', 'ExamRes', 'Question', 'Session', 'dialogs',

@@ -15,7 +15,7 @@
 
 import angular from 'angular';
 
-require('./editor/editor.module');
+require('./editor/editor.module.ts');
 require('../facility/facility.module');
 require('../review/review.module');
 require('../examination/examination.module');

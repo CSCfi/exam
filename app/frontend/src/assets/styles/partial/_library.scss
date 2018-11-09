@@ -11,8 +11,8 @@
   }
 
   .library-toolbar {
-    display: inline-block; float:right; margin-right: 30px;
-
+    float:right; 
+    margin-right: 30px;
   }
 
   .library-button {
@@ -198,31 +198,6 @@
     }
   }
 
-  .vertical-text {
-
-    display: inline;
-    padding:1em 0.25em;
-    height:100%;
-    min-height:150px;
-    max-height:100%;
-    text-align: center;
-    color:$sitnet-common-dark;
-    width:100%;
-    margin-bottom:0;
-
-    span {
-      font-size: 0.9em;
-      display: block;
-      min-height: 1em;
-      font-weight: bold;
-    }
-  }
-
-  .drag-all-wrap:hover {
-    background-color: $sitnet-theme;
-    color:white;
-  }
-
   .questions-wrapper {
     width:100%;
     margin:1em 0 0 0;
@@ -284,10 +259,6 @@
 
   ul {
     list-style: none;
-  }
-
-  li {
-    //padding:0 0.5em;
   }
 
   .question-add-owners {

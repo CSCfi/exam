@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -46,18 +46,18 @@ export class FileService {
         this.http.request(method, url,
             { responseType: 'text', observe: 'response', params: params })
             .subscribe(
-                (resp: HttpResponse<string>) => {
-                    if (resp.body) {
-                        const contentType = resp.headers.get('Content-Type');
-                        if (contentType) {
-                            this._saveFile(resp.body, filename, contentType.split(';')[0]);
-                        }
+            (resp: HttpResponse<string>) => {
+                if (resp.body) {
+                    const contentType = resp.headers.get('Content-Type');
+                    if (contentType) {
+                        this._saveFile(resp.body, filename, contentType.split(';')[0]);
                     }
-                },
-                resp => {
-                    console.log('error ' + JSON.stringify(resp));
-                    toast.error(resp.body || resp);
-                });
+                }
+            },
+            resp => {
+                console.log('error ' + JSON.stringify(resp));
+                toast.error(resp.body || resp);
+            });
     }
 
     open(file: Blob) {

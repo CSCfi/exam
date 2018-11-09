@@ -13,14 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
+import * as angular from 'angular';
+import { LanguageService } from './language.service';
+import { downgradeInjectable } from '@angular/upgrade/static';
 
-require('../../facility');
-require('../../software');
-require('../../review');
-require('../../examination');
-require('../../question');
-require('angular-animate');
+angular.module('app.common', []).service('Language', downgradeInjectable(LanguageService));
 
-angular.module('app.exam.editor',
-    ['app.facility', 'app.software', 'app.review', 'app.examination', 'app.question']);

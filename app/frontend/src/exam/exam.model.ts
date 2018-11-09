@@ -59,10 +59,15 @@ export interface Attachment {
 }
 
 export interface Question {
-    id: number;
+    id?: number;
     question: string;
     type: string;
-    attachment: Attachment;
+    attachment?: Attachment;
+    options: any[]; // TBD
+    tags: any[]; // TBD
+    questionOwners: User[];
+    state: string;
+    examSectionQuestions: ExamSectionQuestion[];
 }
 
 export interface ExamSectionQuestion {

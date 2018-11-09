@@ -13,7 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FileService } from '../../file/file.service';
 
 export interface FileResult {
@@ -24,43 +26,32 @@ interface CancelResult {
     $value: string;
 }
 
-export const AttachmentSelectorComponent: angular.IComponentOptions = {
-    template: require('./attachmentSelector.template.html'),
-    bindings: {
-        close: '&',
-        dismiss: '&',
-        resolve: '<'
-    },
-    controller: class AttachmentSelectorController implements angular.IComponentController {
-        close: (_: FileResult) => void;
-        dismiss: (_: CancelResult) => void;
-        resolve: { isTeacherModal: boolean, title: string };
-        title: string;
-        isTeacherModal: boolean;
-        maxFileSize: number;
-        attachmentFile: File;
+@Component({
+    selector: 'eula-dialog',
+    template: require('./attachmentSelector.template.html')
+})
+export class AttachmentSelectorComponent implements OnInit {
+    @ViewChild('file') file;
+    public files = new Set<File>();
 
-        constructor(
-            private Files: FileService
-        ) {
-            'ngInject';
-        }
+    title = 'sitnet_attachment_selection';
+    isTeacherModal: boolean;
+    maxFileSize: number;
 
-        $onInit() {
-            this.title = this.resolve.title || 'sitnet_attachment_selection';
-            this.isTeacherModal = this.resolve.isTeacherModal;
-            this.Files.getMaxFilesize().then(data => this.maxFileSize = data.filesize);
-        }
+    constructor(public activeModal: NgbActiveModal, private Files: FileService) { }
 
-        ok() {
-            this.close({
-                $value: { 'attachmentFile': this.attachmentFile }
-            });
-        }
-
-        cancel() {
-            this.dismiss({ $value: 'cancel' });
-        }
-
+    ngOnInit() {
+        this.Files.getMaxFilesize().then(data => this.maxFileSize = data.filesize);
+        this.file.nativeElement.click();
     }
-};
+
+    onFilesAdded() {
+        const files: { [key: string]: File } = this.file.nativeElement.files;
+        for (let key in files) {
+            if (!isNaN(parseInt(key))) {
+                this.files.add(files[key]);
+            }
+        }
+    }
+
+}

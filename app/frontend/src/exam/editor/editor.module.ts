@@ -13,7 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
+import * as angular from 'angular';
+import { downgradeComponent } from '@angular/upgrade/static';
+import { LanguageSelectorComponent } from './common/languageSelector.component';
 
-angular.module('app.common', []);
+require('../../facility');
+require('../../software');
+require('../../review');
+require('../../examination');
+require('../../question');
+require('angular-animate');
+
+angular.module('app.exam.editor',
+    ['app.facility', 'app.software', 'app.review', 'app.examination', 'app.question']
+).directive('languageSelector', downgradeComponent({ component: LanguageSelectorComponent }));
 

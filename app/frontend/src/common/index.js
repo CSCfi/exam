@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./common.module');
+require('./common.module.ts');
 require('./language.service.ts');
 require('./settingsResource');
 require('./userResource');
