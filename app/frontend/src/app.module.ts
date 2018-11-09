@@ -39,7 +39,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
-import { NgbDropdownModule, NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { StorageServiceModule } from 'angular-webstorage-service';
 
@@ -63,6 +63,10 @@ import { WindowRef } from './utility/window/window.service';
 import { SelectRoleDialogComponent } from './session/role/selectRoleDialog.component';
 import { EulaDialogComponent } from './session/eula/eulaDialog.component';
 import { LogoutComponent } from './session/logout/logout.component';
+import { SortableDirective } from './utility/dragndrop/sortable.directive';
+import { LanguageSelectorComponent } from './exam/editor/common/languageSelector.component';
+import { LanguageService } from './common/language.service';
+import { ConfirmationDialogComponent } from './exam/editor/common/confirmationDialog.component';
 
 angularJS.module('app', [
     'ngAnimate',
@@ -116,8 +120,7 @@ angularJS.module('app', [
         HttpClientModule,
         FormsModule,
         TranslateModule.forRoot(),
-        NgbDropdownModule,
-        NgbModalModule,
+        NgbModule,
         StorageServiceModule,
         UpgradeModule,
     ],
@@ -126,14 +129,18 @@ angularJS.module('app', [
         DevLoginComponent,
         SelectRoleDialogComponent,
         EulaDialogComponent,
-        LogoutComponent
+        LanguageSelectorComponent,
+        LogoutComponent,
+        ConfirmationDialogComponent,
+        SortableDirective
     ],
     entryComponents: [
         DevLoginComponent,
         NavigationComponent,
         SelectRoleDialogComponent,
         EulaDialogComponent,
-        LogoutComponent
+        LogoutComponent,
+        LanguageSelectorComponent
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
@@ -148,7 +155,8 @@ angularJS.module('app', [
         WindowRef,
         FileService,
         SessionService,
-        NavigationService
+        NavigationService,
+        LanguageService
     ]
 })
 export class AppModule {

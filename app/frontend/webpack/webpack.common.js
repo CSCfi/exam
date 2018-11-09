@@ -6,6 +6,8 @@ const buildPath = path.resolve(__dirname, '../../../public/bundles/');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
 
 /**
  * Base configuration object for Webpack
@@ -94,7 +96,9 @@ const config = {
         }),
         new webpack.ContextReplacementPlugin(/\@angular(\\|\/)core(\\|\/)fesm5/, path.join(__dirname, './src')),
         new CleanWebpackPlugin(['bundles'], { root: path.resolve(__dirname, '../../../public') }),
-        new HtmlWebpackPlugin({ title: 'Production' })
+        new HtmlWebpackPlugin({ title: 'Production' }),
+        new BundleAnalyzerPlugin({ analyzerMode: 'static', openAnalyzer: false })
+
     ],
     resolve: {
         alias: { Images: path.resolve(__dirname, '../src/assets/images') },

@@ -22,12 +22,19 @@ export default function configs(
     $routeProvider: angular.route.IRouteProvider,
     $httpProvider: angular.IHttpProvider,
     $locationProvider: angular.ILocationProvider,
-    $compileProvider: angular.ICompileProvider
+    $compileProvider: angular.ICompileProvider,
+    $provide: any
 ) {
     'ngInject';
     $compileProvider.debugInfoEnabled(false);
     $httpProvider.useApplyAsync(true);
 
+    /*
+    $provide.decorator('appSortable', ['$delegate', $delegate => {
+        $delegate[0].restrict = 'EA';
+        return $delegate;
+    }]);
+*/
     // IE caches each and every GET unless the following is applied:
     const defaults: angular.IHttpProviderDefaults = $httpProvider.defaults;
     const ieHeaders = { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' };

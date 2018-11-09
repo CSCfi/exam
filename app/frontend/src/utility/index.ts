@@ -12,14 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { downgradeInjectable } from '@angular/upgrade/static';
+import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
+
 import * as angular from 'angular';
 import { AttachmentService } from './attachment/attachment.service';
 import { AttachmentSelectorComponent } from './attachment/dialogs/attachmentSelector.component';
 import { DateTimeService } from './date/date.service';
 import { DatePickerComponent } from './date/datePicker.component';
 import { DateTimePickerComponent } from './date/dateTimePicker.component';
-import { DraggableModalDirective, DroppableDirective, SortableDirective } from './dragndrop/dragndrop.directive';
+import { DraggableModalDirective, DroppableDirective } from './dragndrop/dragndrop.directive';
+import { SortableDirective } from './dragndrop/sortable.directive';
 import { FileService } from './file/file.service';
 import { PaginatorComponent } from './paginator/paginator.component';
 import { DropDownSelectComponent } from './select/dropDownSelect.component';
@@ -39,6 +41,6 @@ export default angular.module('app.utility', [])
     .component('paginator', PaginatorComponent)
     .directive('droppable', DroppableDirective.factory())
     .directive('draggableModal', DraggableModalDirective.factory())
-    .directive('sortable', SortableDirective.factory())
+    // .directive('appSortable', downgradeComponent({ component: SortableDirective }) as angular.IDirectiveFactory)
     .name;
 

@@ -13,64 +13,58 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
 import * as toast from 'toastr';
 import { LanguageService } from '../../../common/language.service';
 import { Exam, ExamLanguage } from '../../exam.model';
+import { HttpClient } from '@angular/common/http';
+import { Component, Input, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
-export const LanguageSelectorComponent: angular.IComponentOptions = {
-    template: require('./languageSelector.template.html'),
-    bindings: {
-        exam: '<',
-        collaborative: '<'
-    },
-    controller: class LanguageSelectorController implements angular.IComponentController {
-        exam: Exam;
-        collaborative: boolean;
+@Component({
+    selector: 'language-selector',
+    template: require('./languageSelector.component.html')
+})
+export class LanguageSelectorComponent implements OnInit {
+    @Input() exam: Exam;
+    @Input() collaborative: boolean;
 
-        examLanguages: ExamLanguage[];
+    examLanguages: ExamLanguage[];
 
-        constructor(
-            private $http: angular.IHttpService,
-            private $q: angular.IQService,
-            private $translate: angular.translate.ITranslateService,
-            private Language: LanguageService
-        ) {
-            'ngInject';
-        }
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private Language: LanguageService
+    ) { }
 
-        $onInit = () =>
-            this.Language.getExamLanguages().then((languages: ExamLanguage[]) => {
-                this.examLanguages = languages.map((language) => {
-                    language.name = this.Language.getLanguageNativeName(language.code) || '';
-                    return language;
-                });
-            })
-
-        selectedLanguages = () =>
-            this.exam.examLanguages.length === 0 ? this.$translate.instant('sitnet_select') :
-                this.exam.examLanguages.map((language) =>
-                    this.Language.getLanguageNativeName(language.code))
-                    .join(', ')
-
-        isSelected = (lang: ExamLanguage) =>
-            this.exam.examLanguages.map(el => el.code).indexOf(lang.code) > -1
-
-        updateExamLanguage = (lang: ExamLanguage) => {
-            const resource = this.collaborative ? '/integration/iop/exams' : '/app/exams';
-            this.$http.put(`${resource}/${this.exam.id}/language/${lang.code}`, {}).then(
-                () => {
-                    if (this.isSelected(lang)) {
-                        const index = this.exam.examLanguages.map(el => el.code).indexOf(lang.code);
-                        this.exam.examLanguages.splice(index, 1);
-                    } else {
-                        this.exam.examLanguages.push(lang);
-                    }
-                    toast.info(this.$translate.instant('sitnet_exam_language_updated'));
-                }
-            ).catch(resp => toast.error(resp.data));
-        }
+    ngOnInit() {
+        this.Language.getExamLanguages().then((languages: ExamLanguage[]) => {
+            this.examLanguages = languages.map((language) => {
+                language.name = this.Language.getLanguageNativeName(language.code) || '';
+                return language;
+            });
+        });
     }
-};
 
-angular.module('app.exam.editor').component('languageSelector', LanguageSelectorComponent);
+    selectedLanguages = () =>
+        this.exam.examLanguages.length === 0 ? this.translate.instant('sitnet_select') :
+            this.exam.examLanguages.map((language) =>
+                this.Language.getLanguageNativeName(language.code))
+                .join(', ')
+
+    isSelected = (lang: ExamLanguage) =>
+        this.exam.examLanguages.map(el => el.code).indexOf(lang.code) > -1
+
+    updateExamLanguage = (lang: ExamLanguage) => {
+        const resource = this.collaborative ? '/integration/iop/exams' : '/app/exams';
+        this.http.put(`${resource}/${this.exam.id}/language/${lang.code}`, {}).subscribe(
+            () => {
+                if (this.isSelected(lang)) {
+                    const index = this.exam.examLanguages.map(el => el.code).indexOf(lang.code);
+                    this.exam.examLanguages.splice(index, 1);
+                } else {
+                    this.exam.examLanguages.push(lang);
+                }
+                toast.info(this.translate.instant('sitnet_exam_language_updated'));
+            }, resp => toast.error(resp.data));
+    }
+}

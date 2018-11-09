@@ -20,48 +20,7 @@ import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
 import 'jquery-ui/ui/widgets/sortable';
 import * as toast from 'toastr';
-
-
-interface SortableScope extends IScope {
-    onMove: (x: any) => void;
-    objects: any[];
-    selection: string;
-}
-
-export class SortableDirective implements IDirective<SortableScope> {
-    restrict = 'A';
-    scope = {
-        onMove: '&',
-        objects: '=',
-        selection: '@selection'
-    };
-    link(scope: SortableScope, element: IAugmentedJQuery, attrs: IAttributes) {
-        let startIndex = -1;
-        element.sortable({
-            items: scope.selection,
-            start: (event, ui) => {
-                // on start we define where the item is dragged from
-                startIndex = ($(ui.item).index());
-            },
-            stop: (event, ui) => {
-                // on stop we determine the new index of the
-                // item and store it there
-                const newIndex = ($(ui.item).index());
-                const objToMove = scope.objects[startIndex];
-                scope.objects.splice(startIndex, 1);
-                scope.objects.splice(newIndex, 0, objToMove);
-                // we move items in the array, propagate update to angular as well
-                // since we're outside its lifecycle
-                scope.onMove({ object: objToMove, from: startIndex, to: newIndex });
-            },
-            axis: 'y'
-        });
-    }
-
-    static factory(): IDirectiveFactory {
-        return () => new SortableDirective();
-    }
-}
+import { Directive, EventEmitter, Input, Output } from '@angular/core';
 
 export class DraggableModalDirective implements IDirective {
     restrict = 'A';

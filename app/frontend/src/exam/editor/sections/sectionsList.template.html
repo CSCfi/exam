@@ -1,11 +1,10 @@
 <!-- Sections -->
 <div class="col-md-12 exam-border">
 
-    <div class="student-enrolment-wrapper review-view exam-questions-warning mart40"
-         ng-if="$ctrl.exam.hasEnrolmentsInEffect">
+    <div class="student-enrolment-wrapper review-view exam-questions-warning padt40" ng-if="$ctrl.exam.hasEnrolmentsInEffect">
         <div class="col-md-12">
-            <div class="col-md-1"><img src="Images/icon_warning.png" alt="exam"
-                                       onerror="this.onerror=null;this.src='Images/icon_warning.svg';"/>
+            <div class="col-md-1">
+                <img src="Images/icon_warning.png" alt="exam" onerror="this.onerror=null;this.src='Images/icon_warning.svg';" />
             </div>
             <div class="col-md-11 warning-text">
                 {{'sitnet_upcoming_reservations_exist' | translate}}
@@ -13,20 +12,18 @@
         </div>
     </div>
 
-    <div class="col-md-12 padl0">
+    <div class="col-md-12 padl0 padt40">
 
-        <div sortable objects="$ctrl.exam.examSections" selection=".section-handle"
-             on-move="$ctrl.moveSection(object, from, to)" id="exam">
-            <div ng-class="$ctrl.exam.examSections.length > 1 ? 'section-handle' : ''"
-                 ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'">
-                <section section="section" exam-id="$ctrl.exam.id"
-                         on-delete="$ctrl.removeSection(section)"
-                         on-reload-required="$ctrl.onReloadRequired()">
+        <app-sortable [appSortable]="$ctrl.exam.examSections" [selection]="'.section-handle'" (onMove)="$ctrl.moveSection(object, from, to)">
+
+            <div ng-class="$ctrl.exam.examSections.length > 1 ? 'section-handle' : ''" ng-repeat="section in $ctrl.exam.examSections | orderBy: 'sequenceNumber'">
+                <section section="section" exam-id="$ctrl.exam.id" on-delete="$ctrl.removeSection(section)" on-reload-required="$ctrl.onReloadRequired()">
                 </section>
+
             </div>
-        </div>
+        </app-sortable>
         <div class="col-md-12 padl0 mart20">
-        <div class="col-md-3 exam-basic-title">
+            <div class="col-md-3 exam-basic-title">
                 {{'sitnet_total_score' | translate }}:
             </div>
             <div class="col-md-9">
@@ -48,19 +45,18 @@
     <span class="pull-right">
         <div class="review-attachment-button exam-questions-buttons">
             <a class="pointer preview" ng-click="$ctrl.previewExam(2)">
-            {{'sitnet_preview' | translate}}
+                {{'sitnet_preview' | translate}}
             </a>
         </div>
         <div class="review-attachment-button exam-questions-buttons marl10">
             <a class="pointer" ng-click="$ctrl.updateExam()">
-            {{'sitnet_save' | translate}}
+                {{'sitnet_save' | translate}}
             </a>
         </div>
-        <div ng-show="$ctrl.showDelete()"
-             class="review-attachment-button exam-questions-buttons marl10">
-          <a class="pointer warning" ng-click="$ctrl.removeExam()">
-              {{'sitnet_exam_remove' | translate}}
-          </a>
+        <div ng-show="$ctrl.showDelete()" class="review-attachment-button exam-questions-buttons marl10">
+            <a class="pointer warning" ng-click="$ctrl.removeExam()">
+                {{'sitnet_exam_remove' | translate}}
+            </a>
         </div>
     </span>
 </div>
@@ -79,5 +75,3 @@
         </div>
     </span>
 </div>
-
-
