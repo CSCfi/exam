@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
+ * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -16,15 +16,21 @@
 package controllers.iop;
 
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import javax.inject.Inject;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.typesafe.config.ConfigFactory;
-import controllers.base.BaseController;
-import controllers.iop.api.ExternalFacilityAPI;
-import models.ExamRoom;
+import io.ebean.Ebean;
+import io.ebean.text.PathProperties;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -32,13 +38,9 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import javax.inject.Inject;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
+import controllers.base.BaseController;
+import controllers.iop.api.ExternalFacilityAPI;
+import models.ExamRoom;
 
 public class FacilityController extends BaseController implements ExternalFacilityAPI {
 
@@ -60,6 +62,13 @@ public class FacilityController extends BaseController implements ExternalFacili
                 String.format("/api/organisations/%s/facilities", orgRef));
     }
 
+    private String toJson(ExamRoom room) {
+        PathProperties pp = PathProperties.parse(
+                "(*, defaultWorkingHours(*), calendarExceptionEvents(*), mailAddress(*), " +
+                        "examStartingHours(*), accessibility(*))");
+        return Ebean.json().toJson(room, pp);
+    }
+
     @Restrict({@Group("ADMIN")})
     public CompletionStage<Result> updateFacility(Long id) throws MalformedURLException {
         ExamRoom room = Ebean.find(ExamRoom.class, id);
@@ -67,7 +76,7 @@ public class FacilityController extends BaseController implements ExternalFacili
             return CompletableFuture.supplyAsync(Results::notFound);
         }
         URL url = parseUrl(room.getExternalRef());
-        WSRequest request = wsClient.url(url.toString());
+        WSRequest request = wsClient.url(url.toString()).setContentType("application/json");
         if (room.getExternalRef() == null && !room.getState().equals(ExamRoom.State.INACTIVE.toString())) {
             // Add new
             Function<WSResponse, Result>  onSuccess = response -> {
@@ -80,7 +89,7 @@ public class FacilityController extends BaseController implements ExternalFacili
                 room.update();
                 return ok(Json.newObject().put("externalRef", externalRef));
             };
-            return request.post(Json.toJson(room)).thenApplyAsync(onSuccess);
+            return request.post(toJson(room)).thenApplyAsync(onSuccess);
         } else if (room.getExternalRef() != null){
             // Remove
             Function<WSResponse, Result>  onSuccess = response -> {
@@ -121,8 +130,8 @@ public class FacilityController extends BaseController implements ExternalFacili
     @Override
     public CompletionStage<Result> updateFacility(ExamRoom room) throws MalformedURLException {
         URL url = parseUrl(room.getExternalRef());
-        WSRequest request = wsClient.url(url.toString());
-        return request.put(Json.toJson(room)).thenApplyAsync(response -> ok(room));
+        WSRequest request = wsClient.url(url.toString()).setContentType("application/json");
+        return request.put(toJson(room)).thenApplyAsync(response -> ok(room));
     }
 
     @Override
