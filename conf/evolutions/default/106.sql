@@ -1,8 +1,8 @@
 # --- !Ups
-ALTER TABLE collaborative_exam
-  ADD COLUMN anonymous BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE exam_participation
+  ADD COLUMN sent_for_review TIMESTAMPTZ NULL;
 
 # --- !Downs
-ALTER TABLE collaborative_exam
-  DROP COLUMN anonymous;
+ALTER TABLE exam_participation
+  DROP COLUMN sent_for_review;
 
