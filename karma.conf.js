@@ -13,7 +13,6 @@ module.exports = function (config) {
             'target/web/web-modules/main/webjars/lib/jquery/jquery.js',
             'target/web/web-modules/main/webjars/lib/angular-ui-bootstrap/ui-bootstrap-tpls.js',
             'target/web/web-modules/main/webjars/lib/FileSaver.js/FileSaver.js',
-            'public/components/vendor/angular-promise-extras.js',
             'public/components/vendor/dialogs.min.js',
             'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
             'public/app/**/*.module.js',
