@@ -22,7 +22,7 @@
              class="review-attachment-button exam-questions-buttons marl10">
             <button class="pointer preview"
                     ng-if="$ctrl.isMaturityRejection()"
-                    ng-disabled="!$ctrl.isOwnerOrAdmin() || !$ctrl.$valid"
+                    ng-disabled="!$ctrl.isOwnerOrAdmin() || !$ctrl.valid"
                     ng-click="$ctrl.rejectMaturity()">
                 {{'sitnet_reject_maturity' | translate}}</button>
         </div>
