@@ -15,15 +15,14 @@
 import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
 import { Exam, ExamSection } from '../../exam.model';
-import { ConfirmationDialogComponent } from '../common/confirmationDialog.component';
-import { Component, EventEmitter, Input, OnInit, OnChanges, Output } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { ExamService } from '../../exam.service';
+import { tap, catchError } from 'rxjs/operators';
 
 @Component({
-    selector: 'sections-list',
-    template: require('./sectionsList.template.html'),
+    selector: 'sections',
+    template: require('./sectionsList.component.html'),
 })
 export class SectionsListComponent implements OnInit, OnChanges {
     @Input() exam: Exam;
@@ -33,95 +32,83 @@ export class SectionsListComponent implements OnInit, OnChanges {
     @Output() onNewLibraryQuestion = new EventEmitter<void>();
 
     constructor(
-        private http: HttpClient,
         private translate: TranslateService,
-        private $location: ng.ILocationService,
-        private modal: NgbModal,
-        private Exam: any,
+        private Exam: ExamService,
         private Session: SessionService
-    ) {
-        'ngInject';
-    }
+    ) { }
 
     private init = () => {
         this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
         this.updateSectionIndices();
     }
 
-    private updateSectionIndices = () => {
+    private updateSectionIndices = () =>
         // set sections and question numbering
-        ng.forEach(this.exam.examSections, (section, index) => section.index = index + 1);
-    }
+        this.exam.examSections.forEach((section, index) => section.index = index + 1)
 
-    $onInit = () => {
+    ngOnInit() {
         this.init();
     }
 
-    $onChanges = (changes: ng.IOnChangesObject) => {
+    ngOnChanges(changes: SimpleChanges) {
         if (changes.exam) {
             this.init();
         }
     }
 
-    moveSection = (section: ExamSection, from: number, to: number) => {
-        if (from >= 0 && to >= 0 && from !== to) {
-            this.$http.put(this.Exam.getResource(`/app/exams/${this.exam.id}/reorder`, this.collaborative),
-                { from: from, to: to }).then(
-                    resp => {
-                        this.updateSectionIndices();
-                        toast.info(this.$translate.instant('sitnet_sections_reordered'));
-                    }).catch(resp => toast.error(resp.data));
+    moveSection = (event: any) => {
+        if (event.from >= 0 && event.to >= 0 && event.from !== event.to) {
+            this.Exam.reorderSections(event.from, event.to, this.exam, this.collaborative).subscribe(
+                () => {
+                    this.updateSectionIndices();
+                    toast.info(this.translate.instant('sitnet_sections_reordered'));
+                },
+                err => toast.error(err)
+            );
         }
     }
 
-    addNewSection = () => {
-        this.$http.post(this.Exam.getResource(`/app/exams/${this.exam.id}/sections`, this.collaborative), {})
-            .then((resp: ng.IHttpResponse<ExamSection>) => {
-                toast.success(this.$translate.instant('sitnet_section_added'));
-                this.exam.examSections.push(resp.data);
+    addNewSection = () =>
+        this.Exam.addSection(this.exam, this.collaborative).pipe(
+            tap(es => {
+                toast.success(this.translate.instant('sitnet_section_added'));
+                this.exam.examSections.push(es);
                 this.updateSectionIndices();
-            }).catch(resp => toast.error(resp.data));
-    }
+            }),
+            catchError(resp => toast.error(resp))
+        )
 
-    updateExam = (silent: boolean) => {
-        const deferred: ng.IDeferred<void> = this.$q.defer();
-        this.Exam.updateExam(this.exam, {}, this.collaborative).then(() => {
-            if (!silent) {
-                toast.info(this.$translate.instant('sitnet_exam_saved'));
-            }
-            deferred.resolve();
-        }, (error) => {
-            if (error.data) {
-                const msg = error.data.message || error.data;
-                toast.error(this.$translate.instant(msg));
-            }
-            deferred.reject();
-        });
-        return deferred.promise;
-    }
+    updateExam = (silent: boolean) =>
+        this.Exam.updateExam(this.exam, {}, this.collaborative).pipe(
+            tap(() => {
+                if (!silent) {
+                    toast.info(this.translate.instant('sitnet_exam_saved'));
+                }
+            }),
+            catchError(resp =>
+                toast.error(this.translate.instant(resp))
+            )
+        )
 
-    previewExam = (fromTab: number) => {
-        this.Exam.previewExam(this.exam, fromTab, this.collaborative);
-    }
+    previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
 
-    removeExam = () => {
-        this.Exam.removeExam(this.exam, this.collaborative);
-    }
+    removeExam = () => this.Exam.removeExam(this.exam, this.collaborative);
 
-    removeSection = (section: ExamSection) => {
-        this.$http.delete(this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`))
-            .then(() => {
-                toast.info(this.$translate.instant('sitnet_section_removed'));
+    removeSection = (section: ExamSection) =>
+        this.Exam.removeSection(this.exam, section).pipe(
+            tap(() => {
+                toast.info(this.translate.instant('sitnet_section_removed'));
                 this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
                 this.updateSectionIndices();
-            }).catch(resp => toast.error(resp.data));
-    }
+            }),
+            catchError(resp => toast.error(resp))
+        )
 
     calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
 
-    nextTab = () => this.onNextTabSelected();
+    nextTab = () => this.onNextTabSelected.emit();
 
-    previousTab = () => this.onPreviousTabSelected();
+    previousTab = () => this.onPreviousTabSelected.emit();
 
     showDelete = () => {
         if (this.collaborative) {
@@ -130,9 +117,6 @@ export class SectionsListComponent implements OnInit, OnChanges {
         return this.exam.executionType.type === 'PUBLIC';
     }
 
-    onReloadRequired = () => this.onNewLibraryQuestion();
+    onReloadRequired = () => this.onNewLibraryQuestion.emit();
 
 }
-
-
-angular.module('app.exam.editor').component('sections', SectionsListComponent);

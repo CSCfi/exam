@@ -14,7 +14,8 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
  */
 const config = {
     entry: [
-        './src/main.ts'
+        './src/main.ts', // Angular entrypoint
+        './src/app.module.ajs.ts', // AJS entrypoint
     ],
     output: {
         path: buildPath,
@@ -98,7 +99,6 @@ const config = {
         new CleanWebpackPlugin(['bundles'], { root: path.resolve(__dirname, '../../../public') }),
         new HtmlWebpackPlugin({ title: 'Production' }),
         new BundleAnalyzerPlugin({ analyzerMode: 'static', openAnalyzer: false })
-
     ],
     resolve: {
         alias: { Images: path.resolve(__dirname, '../src/assets/images') },

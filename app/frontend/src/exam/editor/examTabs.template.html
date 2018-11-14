@@ -5,7 +5,8 @@
                 <history-back></history-back>
                 <div class="student-exam-details-title">{{$ctrl.examInfo.title}}</div>
             </div>
-            <span ng-show="$ctrl.exam.state" class="exam-status">{{'sitnet_' + $ctrl.exam.state | lowercase | translate}}
+            <span ng-show="$ctrl.exam.state" class="exam-status">{{'sitnet_' + $ctrl.exam.state | lowercase |
+                translate}}
             </span>
         </div>
     </div>
@@ -20,8 +21,9 @@
             </uib-tab>
             <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner() || $ctrl.user.isAdmin)" index="2" heading="{{ 'sitnet_exam_question_tab' | translate }}"
                 deselect="$ctrl.tabChanged($selectedIndex)">
-                <sections exam="$ctrl.exam" on-previous-tab-selected="$ctrl.switchToBasicInfo()" on-next-tab-selected="$ctrl.switchToPublishSettings()"
-                    collaborative="$ctrl.collaborative" on-new-library-question="$ctrl.reload()">
+                <sections [exam]="$ctrl.exam" (on-previous-tab-selected)="$ctrl.switchToBasicInfo()"
+                    (on-next-tab-selected)="$ctrl.switchToPublishSettings()" [collaborative]="$ctrl.collaborative"
+                    (on-new-library-question)="$ctrl.reload()">
                 </sections>
             </uib-tab>
             <uib-tab ng-if="$ctrl.exam && ($ctrl.isOwner() || $ctrl.user.isAdmin)" index="3" heading="{{ 'sitnet_exam_publish_tab' | translate }}"

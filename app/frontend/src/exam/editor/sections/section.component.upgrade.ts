@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Exam Consortium
+ * Copyright (c) 2017 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -12,9 +12,21 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Directive, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
+import { UpgradeComponent } from '@angular/upgrade/static';
+import { ExamSection } from '../../exam.model';
 
-require('./exam.module.ts');
-require('./student/studentExamResource');
-require('./exam.service.ts');
-require('./listing/examList.component');
-require('./examResource');
+@Directive({
+    selector: 'section'
+})
+export class SectionComponent extends UpgradeComponent {
+    @Input() section: ExamSection;
+    @Input() collaborative: boolean;
+    @Input() examId: number;
+    @Output() onDelete: EventEmitter<ExamSection>;
+    @Output() onReloadRequired: EventEmitter<void>;
+
+    constructor(elementRef: ElementRef, injector: Injector) {
+        super('section', elementRef, injector);
+    }
+}

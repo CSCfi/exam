@@ -15,18 +15,17 @@
 
 package backend.controllers.iop.collaboration.impl;
 
-import backend.models.Exam;
-import backend.models.Grade;
-import backend.models.Role;
-import backend.models.User;
-import backend.models.json.CollaborativeExam;
-import backend.models.questions.ClozeTestAnswer;
-import backend.models.questions.Question;
-import backend.sanitizers.Attrs;
-import backend.sanitizers.ExternalRefCollectionSanitizer;
-import backend.system.interceptors.Anonymous;
-import backend.util.csv.CsvBuilder;
-import backend.util.file.FileHandler;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import javax.inject.Inject;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,17 +46,20 @@ import play.mvc.Result;
 import play.mvc.Results;
 import play.mvc.With;
 
-import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
+import backend.models.Exam;
+import backend.models.Grade;
+import backend.models.Role;
+import backend.models.User;
+import backend.models.json.CollaborativeExam;
+import backend.models.questions.ClozeTestAnswer;
+import backend.models.questions.Question;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.ExternalRefCollectionSanitizer;
+import backend.system.interceptors.Anonymous;
+import backend.util.csv.CsvBuilder;
+import backend.util.file.FileHandler;
 import backend.util.json.JsonDeserializer;
+
 
 public class CollaborativeReviewController extends CollaborationController {
 
@@ -319,7 +321,7 @@ public class CollaborativeReviewController extends CollaborationController {
             }
             JsonNode examNode = root.get("exam");
             Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
-            if (!isAuthorizedToAssess(exam, user, loginRole)) {
+            if (isUnauthorizedToAssess(exam, user, loginRole)) {
                 return wrapAsPromise(forbidden("You are not allowed to modify this object"));
             }
             if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
@@ -417,7 +419,7 @@ public class CollaborativeReviewController extends CollaborationController {
             }
             JsonNode examNode = root.get("exam");
             Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
-            if (!isAuthorizedToAssess(exam, user, loginRole)) {
+            if (isUnauthorizedToAssess(exam, user, loginRole)) {
                 return wrapAsPromise(forbidden("You are not allowed to modify this object"));
             }
             if (!exam.hasState(Exam.State.GRADED_LOGGED)) {
@@ -435,7 +437,7 @@ public class CollaborativeReviewController extends CollaborationController {
         if (exam == null) {
             return Optional.of(wrapAsPromise(notFound()));
         }
-        if (!isAuthorizedToAssess(exam, user, loginRole)) {
+        if (isUnauthorizedToAssess(exam, user, loginRole)) {
             return Optional.of(wrapAsPromise(forbidden("You are not allowed to modify this object")));
         }
         if ((exam.getGrade() == null && gradeRequired) || exam.getCreditType() == null || exam.getAnswerLanguage() == null ||

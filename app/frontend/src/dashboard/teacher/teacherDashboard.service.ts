@@ -47,7 +47,7 @@ export class TeacherDashboardService {
 
     populate(scope) {
         const deferred = this.$q.defer();
-        this.Exam.listExecutionTypes().then(types => {
+        this.Exam.listExecutionTypes().subscribe(types => {
             scope.executionTypes = types;
             this.$http.get('/app/reviewerexams').then((resp: IHttpResponse<any[]>) => {
                 const reviews = resp.data;
@@ -110,7 +110,7 @@ export class TeacherDashboardService {
                 });
                 return deferred.resolve(scope);
             }).catch(() => deferred.reject());
-        }).catch(() => deferred.reject());
+        }, () => deferred.reject());
         return deferred.promise;
     }
 

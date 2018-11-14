@@ -33,6 +33,7 @@ export interface Role {
 
 export interface User {
     id: number;
+    eppn: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -193,6 +194,7 @@ export class SessionService {
         const isTeacher = loginRole != null && loginRole.name === 'TEACHER';
         this.user = {
             id: user.id,
+            eppn: user.eppn,
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
@@ -280,7 +282,7 @@ export class SessionService {
                     this.user.lang = lang;
                     this.translate(lang);
                 },
-                () => toastr.error('failed to switch language'));
+                    () => toastr.error('failed to switch language'));
         }
     }
 

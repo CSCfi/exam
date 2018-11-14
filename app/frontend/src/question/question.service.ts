@@ -13,31 +13,30 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as toast from 'toastr';
-import { Inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Location } from '@angular/common';
-import { SESSION_STORAGE, WebStorageService } from 'angular-webstorage-service';
+import * as toast from 'toastr';
+import { Exam, ExamSectionQuestion, MultipleChoiceOption, Question, ReverseQuestion } from '../exam/exam.model';
 import { SessionService } from '../session/session.service';
-import { FileService } from '../utility/file/file.service';
 import { AttachmentService } from '../utility/attachment/attachment.service';
-import { Question } from '../exam/exam.model';
+import { FileService } from '../utility/file/file.service';
 
 @Injectable()
 export class QuestionService {
+
     constructor(
+        private http: HttpClient,
         private translate: TranslateService,
-        private location: Location,
-        @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
         private Session: SessionService,
         private Files: FileService,
         private Attachment: AttachmentService
     ) { }
 
-    private questionsApi = (id = '') => `/app/questions/${id}`;
-    private questionOwnerApi = (id = '') => `/app/questions/owner/${id}`;
-    private essayScoreApi = (id) => `'/app/review/examquestion/${id}/score`;
-    private questionCopyApi = (id = '') => `/app/question/${id}`;
+    questionsApi = (id?: number) => !id ? '/app/questions' : `/app/questions/${id}`;
+    questionOwnerApi = (id?: number) => !id ? '/app/questions/owner' : `/app/questions/owner/${id}`;
+    essayScoreApi = (id) => `'/app/review/examquestion/${id}/score`;
+    questionCopyApi = (id?: number) => !id ? '/app/question' : `/app/question/${id}`;
 
     getQuestionType = (type: string) => {
         let questionType;
@@ -58,7 +57,7 @@ export class QuestionService {
         return questionType;
     }
 
-    getQuestionDraft(): Question {
+    getQuestionDraft(): ReverseQuestion {
         return {
             question: '',
             type: '',
@@ -68,309 +67,194 @@ export class QuestionService {
             state: 'NEW',
             tags: []
         };
-
-
-
-
-
     }
 
-    angular.module('app.question')
-    .service('Question', ['$q', '$resource', '$translate', '$location', '$sessionStorage',
-        'ExamQuestion', 'Session', 'Files', 'Attachment',
-        function($q, $resource, $translate, $location, $sessionStorage, ExamQuestion, Session,
-        Files, Attachment) {
-
-        const self = this;
-
-
-
-
-        self.getQuestionDraft = function () {
-            return {
-                examSectionQuestions: [],
-                options: [],
-                questionOwners: [Session.getUser()],
-                state: 'NEW',
-                tags: []
-            };
-        };
-
-        self.getQuestionAmounts = function (exam) {
-            const data = { accepted: 0, rejected: 0, hasEssays: false };
-            angular.forEach(exam.examSections, function (section) {
-                angular.forEach(section.sectionQuestions, function (sectionQuestion) {
-                    const question = sectionQuestion.question;
-                    if (question.type === 'EssayQuestion') {
-                        if (sectionQuestion.evaluationType === 'Selection' && sectionQuestion.essayAnswer) {
-                            if (parseInt(sectionQuestion.essayAnswer.evaluatedScore) === 1) {
-                                data.accepted++;
-                            } else if (parseInt(sectionQuestion.essayAnswer.evaluatedScore) === 0) {
-                                data.rejected++;
-                            }
+    getQuestionAmounts = (exam: Exam) => {
+        const data = { accepted: 0, rejected: 0, hasEssays: false };
+        exam.examSections.forEach(section => {
+            section.sectionQuestions.forEach(sectionQuestion => {
+                const question = sectionQuestion.question;
+                if (question.type === 'EssayQuestion') {
+                    if (sectionQuestion.evaluationType === 'Selection' && sectionQuestion.essayAnswer) {
+                        if (sectionQuestion.essayAnswer.evaluatedScore === 1) {
+                            data.accepted++;
+                        } else if (sectionQuestion.essayAnswer.evaluatedScore === 0) {
+                            data.rejected++;
                         }
-                        data.hasEssays = true;
                     }
-                });
+                    data.hasEssays = true;
+                }
             });
-            return data;
-        };
+        });
+        return data;
+    }
 
-        // For weighted mcq
-        self.calculateDefaultMaxPoints = function (question) {
-            return question.options
-                .filter(o => o.defaultScore > 0)
-                .reduce((a, b) => a + b.defaultScore, 0);
-        };
+    calculateDefaultMaxPoints = (question: Question) =>
+        question.options
+            .filter(o => o.defaultScore > 0)
+            .reduce((a, b) => a + b.defaultScore, 0)
 
-        // For weighted mcq
-        self.calculateMaxPoints = function (sectionQuestion) {
-            if (!sectionQuestion.options) {
-                return 0;
-            }
-            const points = sectionQuestion.options
-                .filter(o => o.score > 0)
-                .reduce((a, b) => a + parseFloat(b.score), 0);
-            return parseFloat(points.toFixed(2));
-        };
 
-        self.scoreClozeTestAnswer = function (sectionQuestion) {
-            const score = sectionQuestion.clozeTestAnswer.score;
-            return parseFloat(score.correctAnswers * sectionQuestion.maxScore /
-                (score.correctAnswers + score.incorrectAnswers).toFixed(2));
-        };
+    // For weighted mcq
+    calculateMaxPoints = (sectionQuestion: ExamSectionQuestion): number => {
+        const points = sectionQuestion.options
+            .filter(o => o.score > 0)
+            .reduce((a, b) => a + b.score, 0);
+        return parseFloat(points.toFixed(2));
+    }
 
-        self.scoreWeightedMultipleChoiceAnswer = function (sectionQuestion) {
-            const score = sectionQuestion.options
-                .filter(o => o.answered)
-                .reduce((a, b) => a + b.score, 0);
-            return Math.max(0, score);
-        };
-
-        // For non-weighted mcq
-        self.scoreMultipleChoiceAnswer = function (sectionQuestion) {
-            const selected = sectionQuestion.options.filter(function (o) {
-                return o.answered;
-            });
-            if (selected.length === 0) {
-                return 0;
-            }
-            if (selected.length !== 1) {
-                console.error('multiple options selected for a MultiChoice answer!');
-            }
-            if (selected[0].option.correctOption === true) {
-                return sectionQuestion.maxScore;
-            }
+    scoreClozeTestAnswer = (sectionQuestion: ExamSectionQuestion): number => {
+        if (!sectionQuestion.clozeTestAnswer) {
             return 0;
+        }
+        const score = sectionQuestion.clozeTestAnswer.score;
+        const proportion = score.correctAnswers * sectionQuestion.maxScore /
+            (score.correctAnswers + score.incorrectAnswers);
+        return parseFloat(proportion.toFixed(2));
+    }
+
+    scoreWeightedMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion) => {
+        const score = sectionQuestion.options
+            .filter(o => o.answered)
+            .reduce((a, b) => a + b.score, 0);
+        return Math.max(0, score);
+    }
+
+    // For non-weighted mcq
+    scoreMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion) => {
+        const answered = sectionQuestion.options.filter(o => o.answered);
+        if (answered.length === 0) {
+            // No answer
+            return 0;
+        }
+        if (answered.length !== 1) {
+            console.error('multiple options selected for a MultiChoice answer!');
+        }
+
+        return answered[0].option.correctOption ? sectionQuestion.maxScore : 0;
+    }
+
+    private getQuestionData(question: Question): Question {
+        const questionToUpdate: any = {
+            'type': question.type,
+            'defaultMaxScore': question.defaultMaxScore,
+            'question': question.question,
+            'shared': question.shared,
+            'defaultAnswerInstructions': question.defaultAnswerInstructions,
+            'defaultEvaluationCriteria': question.defaultEvaluationCriteria,
+            'questionOwners': question.questionOwners,
+            'tags': question.tags,
+            'options': question.options
         };
+        if (question.id) {
+            questionToUpdate.id = question.id;
+        }
 
-        self.decodeHtml = function (html) {
-            const txt = document.createElement('textarea');
-            txt.innerHTML = html;
-            return txt.value;
-        };
+        // update question specific attributes
+        switch (questionToUpdate.type) {
+            case 'EssayQuestion':
+                questionToUpdate.defaultExpectedWordCount = question.defaultExpectedWordCount;
+                questionToUpdate.defaultEvaluationType = question.defaultEvaluationType;
+                break;
+            case 'MultipleChoiceQuestion':
+            case 'WeightedMultipleChoiceQuestion':
+                questionToUpdate.options = question.options;
+                break;
+        }
+        return questionToUpdate;
+    }
 
-        self.longTextIfNotMath = function (text) {
-            if (text && text.length > 0 && text.indexOf('math-tex') === -1) {
-                // remove HTML tags
-                const str = String(text).replace(/<[^>]+>/gm, '');
-                // shorten string
-                return self.decodeHtml(str);
-            }
-            return '';
-        };
-
-        self.shortText = function (text, maxLength) {
-
-            if (text && text.length > 0 && text.indexOf('math-tex') === -1) {
-                // remove HTML tags
-                let str = String(text).replace(/<[^>]+>/gm, '');
-                // shorten string
-                str = self.decodeHtml(str);
-                return str.length + 3 > maxLength ? str.substr(0, maxLength) + '...' : str;
-            }
-            return text ? self.decodeHtml(text) : '';
-        };
-
-        let _filter;
-
-        self.setFilter = function (filter) {
-            switch (filter) {
-                case 'MultipleChoiceQuestion':
-                case 'WeightedMultipleChoiceQuestion':
-                case 'EssayQuestion':
-                case 'ClozeTestQuestion':
-                    _filter = filter;
-                    break;
-                default:
-                    _filter = undefined;
-            }
-        };
-
-        self.applyFilter = function (questions) {
-            if (!_filter) {
-                return questions;
-            }
-            return questions.filter(function (q) {
-                return q.type === _filter;
-            });
-        };
-
-        self.loadFilters = function (category) {
-            if ($sessionStorage.questionFilters && $sessionStorage.questionFilters[category]) {
-                return JSON.parse($sessionStorage.questionFilters[category]);
-            }
-            return {};
-        };
-
-        self.storeFilters = function (filters, category) {
-            const data = { filters: filters };
-            if (!$sessionStorage.questionFilters) {
-                $sessionStorage.questionFilters = {};
-            }
-            $sessionStorage.questionFilters[category] = JSON.stringify(data);
-        };
-
-        self.range = function (min, max, step) {
-            step |= 1;
-            const input = [];
-            for (let i = min; i <= max; i += step) {
-                input.push(i);
-            }
-            return input;
-        };
-
-        const getQuestionData = function (question) {
-            const questionToUpdate = {
-                'type': question.type,
-                'defaultMaxScore': question.defaultMaxScore,
-                'question': question.question,
-                'shared': question.shared,
-                'defaultAnswerInstructions': question.defaultAnswerInstructions,
-                'defaultEvaluationCriteria': question.defaultEvaluationCriteria,
-                'questionOwners': question.questionOwners,
-                'tags': question.tags,
-                'options': question.options
-            };
-            if (question.id) {
-                questionToUpdate.id = question.id;
-            }
-
-            // update question specific attributes
-            switch (questionToUpdate.type) {
-                case 'EssayQuestion':
-                    questionToUpdate.defaultExpectedWordCount = question.defaultExpectedWordCount;
-                    questionToUpdate.defaultEvaluationType = question.defaultEvaluationType;
-                    break;
-                case 'MultipleChoiceQuestion':
-                case 'WeightedMultipleChoiceQuestion':
-                    questionToUpdate.options = question.options;
-                    break;
-            }
-            return questionToUpdate;
-        };
-
-        self.createQuestion = function (question) {
-            const body = getQuestionData(question);
-            const deferred = $q.defer();
-
-            self.questionsApi.create(body,
-                function (response) {
-                    toast.info($translate.instant('sitnet_question_added'));
-                    if (question.attachment && question.attachment.modified) {
-                        Files.upload('/app/attachment/question', question.attachment.file,
+    createQuestion = (question: Question): Promise<Question> => {
+        const body = this.getQuestionData(question);
+        return new Promise<Question>((resolve, reject) => {
+            this.http.post<Question>(this.questionsApi(question.id), body).subscribe(
+                response => {
+                    toast.info(this.translate.instant('sitnet_question_added'));
+                    if (question.attachment && question.attachment.file && question.attachment.modified) {
+                        this.Files.upload('/app/attachment/question', question.attachment.file,
                             { questionId: response.id }, question, function () {
-                                deferred.resolve(response);
+                                resolve(response);
                             });
                     } else {
-                        deferred.resolve(response);
+                        resolve(response);
                     }
-                }, function (error) {
-                    deferred.reject(error);
-                }
+                },
+                error => reject(error)
             );
-            return deferred.promise;
-        };
+        });
+    }
 
-        self.updateQuestion = function (question, displayErrors) {
-            const body = getQuestionData(question);
-            const deferred = $q.defer();
-            self.questionsApi.update(body,
-                function (response) {
-                    toast.info($translate.instant('sitnet_question_saved'));
-                    if (question.attachment && question.attachment.modified) {
-                        Files.upload('/app/attachment/question', question.attachment.file,
+    updateQuestion = (question: Question, displayErrors: boolean): Promise<Question> => {
+        const body = this.getQuestionData(question);
+        return new Promise<Question>((resolve, reject) => {
+            this.http.put<Question>(this.questionsApi(question.id), body).subscribe(
+                response => {
+                    toast.info(this.translate.instant('sitnet_question_saved'));
+                    if (question.attachment && question.attachment.file && question.attachment.modified) {
+                        this.Files.upload('/app/attachment/question', question.attachment.file,
                             { questionId: question.id }, question, function () {
-                                deferred.resolve();
+                                resolve();
                             });
-                    }
-                    else if (question.attachment && question.attachment.removed) {
-                        Attachment.eraseQuestionAttachment(question).then(function () {
-                            deferred.resolve(response);
+                    } else if (question.attachment && question.attachment.removed) {
+                        this.Attachment.eraseQuestionAttachment(question).then(function () {
+                            resolve(response);
                         });
                     } else {
-                        deferred.resolve(response);
+                        resolve(response);
                     }
-                }, function (error) {
-                    if (displayErrors) {
-                        toast.error(error.data);
-                    }
-                    deferred.reject();
                 }
             );
-            return deferred.promise;
+        });
+    }
+
+    updateDistributedExamQuestion = (question: Question, sectionQuestion: ExamSectionQuestion, examId, sectionId) => {
+        const data: any = {
+            'id': sectionQuestion.id,
+            'maxScore': sectionQuestion.maxScore,
+            'answerInstructions': sectionQuestion.answerInstructions,
+            'evaluationCriteria': sectionQuestion.evaluationCriteria,
+            'options': sectionQuestion.options,
+            'question': question
         };
 
-        self.updateDistributedExamQuestion = function (question, sectionQuestion, examId, sectionId) {
-            const data = {
-                'id': sectionQuestion.id,
-                'maxScore': sectionQuestion.maxScore,
-                'answerInstructions': sectionQuestion.answerInstructions,
-                'evaluationCriteria': sectionQuestion.evaluationCriteria,
-                'options': sectionQuestion.options,
-                'question': question
-            };
-
-            // update question specific attributes
-            switch (question.type) {
-                case 'EssayQuestion':
-                    data.expectedWordCount = sectionQuestion.expectedWordCount;
-                    data.evaluationType = sectionQuestion.evaluationType;
-                    break;
-            }
-            const deferred = $q.defer();
-            ExamQuestion.distributionApi.update({ qid: sectionQuestion.id, eid: examId, sid: sectionId }, data,
-                function (esq) {
-                    angular.extend(esq.question, question);
-                    if (question.attachment && question.attachment.modified) {
-                        Files.upload('/app/attachment/question', question.attachment,
-                            { questionId: question.id }, question, function () {
-                                esq.question.attachment = question.attachment;
-                                deferred.resolve(esq);
+        // update question specific attributes
+        switch (question.type) {
+            case 'EssayQuestion':
+                data.expectedWordCount = sectionQuestion.expectedWordCount;
+                data.evaluationType = sectionQuestion.evaluationType;
+                break;
+        }
+        return new Promise<ExamSectionQuestion>((resolve, reject) => {
+            this.http.put<ExamSectionQuestion>(
+                `/app/exams/${examId}/sections/${sectionId}/questions/${sectionQuestion.id}/distributed`, data)
+                .subscribe(
+                    response => {
+                        Object.assign(response.question, question);
+                        if (question.attachment && question.attachment.modified && question.attachment.file) {
+                            this.Files.upload('/app/attachment/question', question.attachment.file,
+                                { questionId: question.id }, question, function () {
+                                    response.question.attachment = question.attachment;
+                                    resolve(response);
+                                });
+                        } else if (question.attachment && question.attachment.removed) {
+                            this.Attachment.eraseQuestionAttachment(question).then(() => {
+                                delete response.question.attachment;
+                                resolve(response);
                             });
+                        } else {
+                            resolve(response);
+                        }
+                    }, err => {
+                        toast.error(err.data);
+                        reject();
                     }
-                    else if (question.attachment && question.attachment.removed) {
-                        Attachment.eraseQuestionAttachment(question).then(function () {
-                            esq.question.attachment = null;
-                            deferred.resolve(esq);
-                        });
-                    } else {
-                        deferred.resolve(esq);
-                    }
-                }, function (error) {
-                    toast.error(error.data);
-                    deferred.reject();
-                }
-            );
-            return deferred.promise;
-        };
+                );
+        });
+    }
 
-        self.toggleCorrectOption = function (option, options) {
-            option.correctOption = true;
-            angular.forEach(options, function (o) {
-                o.correctOption = o === option;
-            });
-        };
+    toggleCorrectOption = (option: MultipleChoiceOption, options: MultipleChoiceOption[]) => {
+        option.correctOption = true;
+        options.forEach(o => o.correctOption = o === option);
+    }
 
-    }]);
-
+}

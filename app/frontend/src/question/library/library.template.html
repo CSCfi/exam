@@ -19,12 +19,11 @@
 
     <div class="reservation-border">
 
-        <library-search on-update="$ctrl.resultsUpdated(results)"></library-search>
+        <library-search (on-update)="$ctrl.resultsUpdated($event)"></library-search>
 
         <library-owner-selection selections="$ctrl.selections" owner-updated="$ctrl.ownerUpdated()"></library-owner-selection>
 
-        <library-results questions="$ctrl.questions" on-copy="$ctrl.questionCopied(copy)"
-                         on-selection="$ctrl.questionSelected(selections)">
+        <library-results questions="$ctrl.questions" on-copy="$ctrl.questionCopied(copy)" on-selection="$ctrl.questionSelected(selections)">
         </library-results>
 
     </div>

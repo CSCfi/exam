@@ -41,7 +41,7 @@ angular.module('app.enrolment')
                 };
 
                 const loadReview = function () {
-                    StudentExamRes.feedback.get({eid: vm.participation.exam.id},
+                    StudentExamRes.feedback.get({ eid: vm.participation.exam.id },
                         prepareReview
                     );
                 };
@@ -55,7 +55,7 @@ angular.module('app.enrolment')
 
                 const prepareReview = function (exam) {
                     if (!exam.grade) {
-                        exam.grade = {name: 'NONE'};
+                        exam.grade = { name: 'NONE' };
                     }
                     if (exam.languageInspection) {
                         exam.grade.displayName = $translate.instant(
@@ -65,7 +65,8 @@ angular.module('app.enrolment')
                     } else {
                         exam.grade.displayName = Exam.getExamGradeDisplayName(exam.grade.name);
                     }
-                    Exam.setCredit(exam);
+                    const credit = Exam.getCredit(exam);
+                    exam.credit = credit;
                     if (exam.creditType) {
                         exam.creditType.displayName = Exam.getExamTypeDisplayName(exam.creditType.type);
                     }
@@ -75,7 +76,7 @@ angular.module('app.enrolment')
                         prepareScores(exam);
                         return;
                     }
-                    StudentExamRes.scores.get({eid: vm.participation.exam.id},
+                    StudentExamRes.scores.get({ eid: vm.participation.exam.id },
                         prepareScores);
                 }
 

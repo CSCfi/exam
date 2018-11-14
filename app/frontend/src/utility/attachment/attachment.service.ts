@@ -20,7 +20,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from '../../../node_modules/rxjs';
-import { ConfirmationDialogService } from '../../exam/editor/common/confirmationDialog.service';
+import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { AttachmentSelectorComponent, FileResult } from './dialogs/attachmentSelector.component';
 
 interface ExamWithFeedback {
@@ -72,7 +72,7 @@ export class AttachmentService {
             observable.subscribe(() => resolve(), err => reject(err));
         })
 
-    eraseQuestionAttachment = (question: { id: number }) =>
+    eraseQuestionAttachment = (question: Question) =>
         this.toPromise(this.http.delete(this.questionAttachmentApi(question.id)))
 
     eraseCollaborativeQuestionAttachment(examId: number, questionId: number): Promise<any> {
@@ -139,20 +139,20 @@ export class AttachmentService {
     }
 
     downloadExternalQuestionAttachment(exam: Exam, sq: ExamSectionQuestion) {
-        if (sq.question.attachment.id) {
+        if (sq.question.attachment && sq.question.attachment.id) {
             this.Files.download(`/app/iop/attachment/exam/${exam.id}/question/${sq.id}`,
                 sq.question.attachment.fileName);
         }
     }
 
     downloadQuestionAttachment(question: Question) {
-        if (question.attachment.id) {
+        if (question.attachment && question.attachment.id) {
             this.Files.download('/app/attachment/question/' + question.id, question.attachment.fileName);
         }
     }
 
     downloadCollaborativeQuestionAttachment(examId: Number, sq: ExamSectionQuestion) {
-        if (sq.question.attachment.externalId) {
+        if (sq.question.attachment && sq.question.attachment.externalId) {
             this.Files.download(`/integration/iop/attachment/exam/${examId}/question/${sq.id}`,
                 sq.question.attachment.fileName);
         }
@@ -189,7 +189,7 @@ export class AttachmentService {
         return Math.round(size / 1000) + ' kB';
     }
 
-    selectFile(isTeacherModal, params): Promise<FileResult> {
+    selectFile(isTeacherModal: boolean, params: any): Promise<FileResult> {
         const modalRef = this.modal.open(AttachmentSelectorComponent, {
             backdrop: 'static',
             keyboard: false
