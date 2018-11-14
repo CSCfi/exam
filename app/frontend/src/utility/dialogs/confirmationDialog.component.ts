@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'confirmation-dialog',
-  template: `
+    selector: 'confirmation-dialog',
+    template: `
     <div id="sitnet-dialog">
       <div class="modal-header">
           <div class="student-enroll-dialog-wrap">
@@ -29,9 +29,9 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     `
 })
 export class ConfirmationDialogComponent {
-  title: string;
-  description: string;
+    title: string;
+    description: string;
 
-  constructor(public activeModal: NgbActiveModal) { }
+    constructor(public activeModal: NgbActiveModal) { }
 
 }

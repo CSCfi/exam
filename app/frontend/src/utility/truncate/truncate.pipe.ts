@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -12,8 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Pipe, PipeTransform } from '@angular/core';
+const truncate = require('truncate-html').default;
 
-import angular from 'angular';
+@Pipe({ name: 'truncate' })
+export class TruncatingPipe implements PipeTransform {
 
-angular.module('app.question', []);
+    transform = (value: string, after: number): string => truncate(value, after);
 
+}

@@ -18,8 +18,6 @@ import * as _ from 'lodash';
 import { SessionService, User } from '../../session/session.service';
 import { Exam } from '../exam.model';
 
-
-
 export const ExamTabsComponent: angular.IComponentOptions = {
     template: require('./examTabs.template.html'),
     bindings: {

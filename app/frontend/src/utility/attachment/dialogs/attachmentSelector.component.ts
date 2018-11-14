@@ -14,7 +14,6 @@
  */
 
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FileService } from '../../file/file.service';
 
@@ -22,17 +21,13 @@ export interface FileResult {
     $value: { attachmentFile: File };
 }
 
-interface CancelResult {
-    $value: string;
-}
-
 @Component({
-    selector: 'eula-dialog',
-    template: require('./attachmentSelector.template.html')
+    selector: 'attachment-selector',
+    template: require('./attachmentSelector.component.html')
 })
 export class AttachmentSelectorComponent implements OnInit {
     @ViewChild('file') file;
-    public files = new Set<File>();
+    fileObject: File;
 
     title = 'sitnet_attachment_selection';
     isTeacherModal: boolean;
@@ -42,14 +37,18 @@ export class AttachmentSelectorComponent implements OnInit {
 
     ngOnInit() {
         this.Files.getMaxFilesize().then(data => this.maxFileSize = data.filesize);
-        this.file.nativeElement.click();
+    }
+
+    confirmed() {
+        this.activeModal.close({ $value: { attachmentFile: this.fileObject } });
     }
 
     onFilesAdded() {
         const files: { [key: string]: File } = this.file.nativeElement.files;
         for (let key in files) {
             if (!isNaN(parseInt(key))) {
-                this.files.add(files[key]);
+                this.fileObject = files[key];
+                break;
             }
         }
     }

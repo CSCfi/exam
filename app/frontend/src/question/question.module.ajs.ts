@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Exam Consortium
+ * Copyright (c) 2017 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -13,8 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./exam.module.ts');
-require('./student/studentExamResource');
-require('./exam.service.ts');
-require('./listing/examList.component');
-require('./examResource');
+import * as angular from 'angular';
+import { downgradeInjectable, downgradeComponent } from '@angular/upgrade/static';
+import { QuestionService } from './question.service';
+import { LibraryService } from './library/library.service';
+import { LibrarySearchComponent } from './library/search/librarySearch.component';
+
+angular.module('app.question', [])
+    .directive('librarySearch', downgradeComponent({ component: LibrarySearchComponent }))
+    .service('Question', downgradeInjectable(QuestionService))
+    .service('Library', downgradeInjectable(LibraryService));
+

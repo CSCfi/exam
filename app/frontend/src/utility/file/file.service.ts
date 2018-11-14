@@ -18,6 +18,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as FileSaver from 'file-saver';
 import * as toast from 'toastr';
 import { WindowRef } from '../window/window.service';
+import { Attachment } from '../../exam/exam.model';
 
 
 @Injectable()
@@ -46,18 +47,18 @@ export class FileService {
         this.http.request(method, url,
             { responseType: 'text', observe: 'response', params: params })
             .subscribe(
-            (resp: HttpResponse<string>) => {
-                if (resp.body) {
-                    const contentType = resp.headers.get('Content-Type');
-                    if (contentType) {
-                        this._saveFile(resp.body, filename, contentType.split(';')[0]);
+                (resp: HttpResponse<string>) => {
+                    if (resp.body) {
+                        const contentType = resp.headers.get('Content-Type');
+                        if (contentType) {
+                            this._saveFile(resp.body, filename, contentType.split(';')[0]);
+                        }
                     }
-                }
-            },
-            resp => {
-                console.log('error ' + JSON.stringify(resp));
-                toast.error(resp.body || resp);
-            });
+                },
+                resp => {
+                    console.log('error ' + JSON.stringify(resp));
+                    toast.error(resp.body || resp);
+                });
     }
 
     open(file: Blob) {
@@ -87,7 +88,7 @@ export class FileService {
         this._doUpload(url, file, params)
             .then(resp => {
                 if (parent) {
-                    parent.attachment = resp.body;
+                    parent.attachment = resp;
                 }
                 if (callback) {
                     callback();
@@ -101,7 +102,7 @@ export class FileService {
         this._doUpload(url, file, params)
             .then(resp => {
                 parent.objectVersion = resp.objectVersion;
-                parent.attachment = resp.attachment;
+                parent.attachment = resp;
             })
             .catch(resp =>
                 toast.error(this.translate.instant(resp.data))
@@ -131,8 +132,8 @@ export class FileService {
         return false;
     }
 
-    private _doUpload(url: string, file: File, params: any): Promise<any> {
-        return new Promise((resolve, reject) => {
+    private _doUpload(url: string, file: File, params: any): Promise<Attachment> {
+        return new Promise<Attachment>((resolve, reject) => {
             if (this._isFileTooBig(file)) {
                 reject({ data: 'sitnet_file_too_large' });
             } else {
@@ -143,7 +144,7 @@ export class FileService {
                         fd.append(k, params[k]);
                     }
                 }
-                this.http.post(url, fd).subscribe(
+                this.http.post<Attachment>(url, fd).subscribe(
                     resp => resolve(resp),
                     resp => reject(resp)
                 );

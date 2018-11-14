@@ -117,7 +117,7 @@ export const SectionQuestionComponent: ng.IComponentOptions = {
                     collaborative: this.parentCtrl.collaborative,
                     examId: this.parentCtrl.examId,
                     sectionQuestion: this.sectionQuestion,
-                    questionId: this.sectionQuestion.question.id
+                    questionId: this.sectionQuestion.question.id || 0
                 }
             }).result.then((data: { question: Question }) => {
                 const resource = `/app/exams/${this.parentCtrl.examId}/sections/` +

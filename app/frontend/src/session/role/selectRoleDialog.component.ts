@@ -35,7 +35,7 @@ import { User } from '../session.service';
                 <ul class="dropdown-menu">
                     <li *ngFor="let role of user.roles">
                         <a role="menuitem" title="{{role.displayName | translate}}" (click)="activeModal.close(role)">
-                            <i class="fa pull-right" ngClass="role.icon"></i>
+                            <i class="fa pull-right" [ngClass]="role.icon"></i>
                             {{role.displayName | translate}}
                         </a>
                     </li>

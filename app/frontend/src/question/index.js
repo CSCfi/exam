@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./question.module');
+require('./question.module.ajs.ts');
 require('./question.service');
 
 require('./basequestion/question.component');
@@ -28,9 +28,9 @@ require('./examquestion/examQuestion.service');
 require('./examquestion/examQuestion.component');
 require('./examquestion/examQuestionEditor.component');
 require('./examquestion/baseQuestionEditor.component');
-require('./library/library.service');
+require('./library/library.service.ts');
 require('./library/library.component');
 require('./library/owners/libraryOwners.component');
 require('./library/results/libraryResults.component');
-require('./library/search/librarySearch.component');
+require('./library/search/librarySearch.component.ts');
 require('./selector/questionSelector.component');

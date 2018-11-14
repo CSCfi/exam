@@ -20,6 +20,7 @@ import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
 import { Course, Exam, ExamExecutionType, GradeScale } from '../../exam.model';
+import { ExamService } from '../../exam.service';
 
 export const BasicExamInfoComponent: ng.IComponentOptions = {
     template: require('./basicExamInfo.template.html'),
@@ -45,7 +46,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             private $scope: ng.IScope,
             private $translate: ng.translate.ITranslateService,
             private $uibModal: IModalService,
-            private Exam: any,
+            private Exam: ExamService,
             private SettingsResource: any,
             private Attachment: AttachmentService,
             private Files: FileService,
@@ -79,7 +80,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         }
 
         updateExam = (resetAutoEvaluationConfig: boolean) => {
-            this.Exam.updateExam(this.exam, {}, this.collaborative).then(() => {
+            this.Exam.updateExam(this.exam, {}, this.collaborative).subscribe(() => {
                 toast.info(this.$translate.instant('sitnet_exam_saved'));
                 if (resetAutoEvaluationConfig) {
                     delete this.exam.autoEvaluationConfig;
@@ -102,7 +103,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         }
 
         getExecutionTypeTranslation = () =>
-            !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType.type)
+            !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType)
 
         checkExamType = (type: string) => this.exam.examType.type === type ? 'btn-primary' : '';
 
@@ -156,18 +157,10 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
             !this.Exam.isAllowedToUnpublishOrRemove(this.exam, this.collaborative)
 
         selectAttachmentFile = () => {
-            this.$uibModal.open({
-                backdrop: 'static',
-                keyboard: true,
-                animation: true,
-                component: 'attachmentSelector',
-                resolve: {
-                    isTeacherModal: () => true
-                }
-            }).result.then((data) => {
+            this.Attachment.selectFile(true, {}).then(data => {
                 let url = this.collaborative ? '/integration/iop/attachment/exam' : '/app/attachment/exam';
                 this.Files.upload(url,
-                    data.attachmentFile, { examId: this.exam.id }, this.exam);
+                    data.$value.attachmentFile, { examId: this.exam.id }, this.exam);
             });
         }
 
@@ -190,7 +183,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         }
 
         private refreshExamTypes = () => {
-            this.Exam.refreshExamTypes().then((types: ExamExecutionType[]) => {
+            this.Exam.refreshExamTypes().subscribe((types: ExamExecutionType[]) => {
                 // Maturity can only have a FINAL type
                 if (this.exam.executionType.type === 'MATURITY') {
                     types = types.filter(t => t.type === 'FINAL');
@@ -200,7 +193,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         }
 
         private refreshGradeScales = () => {
-            this.Exam.refreshGradeScales().then((scales: GradeScale[]) => {
+            this.Exam.refreshGradeScales().subscribe((scales: GradeScale[]) => {
                 this.gradeScales = scales;
             });
         }

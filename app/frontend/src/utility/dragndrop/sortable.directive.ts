@@ -56,25 +56,6 @@ export class SortableDirective implements OnInit {
             });
         });
 
-        /* this.el.nativeElement.sortable({
-            items: this.selection,
-            start: (event, ui) => {
-                // on start we define where the item is dragged from
-                startIndex = ($(ui.item).index());
-            },
-            stop: (event, ui) => {
-                // on stop we determine the new index of the
-                // item and store it there
-                const newIndex = ($(ui.item).index());
-                const objToMove = this.objects[startIndex];
-                this.objects.splice(startIndex, 1);
-                this.objects.splice(newIndex, 0, objToMove);
-                // we move items in the array, propagate update to angular as well
-                // since we're outside its lifecycle
-                this.onMove.emit({ object: objToMove, from: startIndex, to: newIndex });
-            },
-            axis: 'y'
-        }); */
     }
 
 }

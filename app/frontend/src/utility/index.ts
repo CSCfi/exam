@@ -31,16 +31,15 @@ import runBlock from './utility.run';
 
 export default angular.module('app.utility', [])
     .run(runBlock)
-    .service('Attachment', AttachmentService)
+    .service('Attachment', downgradeInjectable(AttachmentService))
     .service('DateTime', DateTimeService)
     .service('Files', downgradeInjectable(FileService))
-    .component('attachmentSelector', AttachmentSelectorComponent)
+    .directive('attachmentSelector', downgradeComponent({ component: AttachmentSelectorComponent }))
     .component('datePicker', DatePickerComponent)
     .component('dateTimePicker', DateTimePickerComponent)
     .component('dropDownSelect', DropDownSelectComponent)
     .component('paginator', PaginatorComponent)
     .directive('droppable', DroppableDirective.factory())
     .directive('draggableModal', DraggableModalDirective.factory())
-    // .directive('appSortable', downgradeComponent({ component: SortableDirective }) as angular.IDirectiveFactory)
     .name;
 

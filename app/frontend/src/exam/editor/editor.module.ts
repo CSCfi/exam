@@ -16,6 +16,7 @@
 import * as angular from 'angular';
 import { downgradeComponent } from '@angular/upgrade/static';
 import { LanguageSelectorComponent } from './common/languageSelector.component';
+import { SectionsListComponent } from './sections/sectionsList.component';
 
 require('../../facility');
 require('../../software');
@@ -26,5 +27,7 @@ require('angular-animate');
 
 angular.module('app.exam.editor',
     ['app.facility', 'app.software', 'app.review', 'app.examination', 'app.question']
-).directive('languageSelector', downgradeComponent({ component: LanguageSelectorComponent }));
+)
+    .directive('languageSelector', downgradeComponent({ component: LanguageSelectorComponent }))
+    .directive('sections', downgradeComponent({ component: SectionsListComponent }));
 

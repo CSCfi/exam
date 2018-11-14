@@ -24,17 +24,21 @@ export interface Course {
     id: number;
     name: string;
     code: string;
+    credits: number;
     gradeScale: GradeScale | null;
 }
 
 export interface ExamExecutionType {
     type: string;
+    name?: string;
     id: number;
 }
 
 export interface GradeScale {
     id: number;
     displayName: string;
+    description: string;
+    name?: string;
     grades: Grade[];
 }
 
@@ -56,25 +60,80 @@ export interface Attachment {
     modified: boolean;
     size: number;
     file?: File;
+    objectVersion: number;
+}
+
+export interface Tag {
+    id: number;
+    name: string;
+}
+
+export interface ReverseExamSection extends ExamSection {
+    exam: Exam;
+}
+
+export interface ReverseExamSectionQuestion extends ExamSectionQuestion {
+    examSection: ReverseExamSection;
+}
+
+export interface ReverseQuestion extends Question {
+    examSectionQuestions: ReverseExamSectionQuestion[];
 }
 
 export interface Question {
     id?: number;
     question: string;
+    creator?: User;
     type: string;
     attachment?: Attachment;
-    options: any[]; // TBD
-    tags: any[]; // TBD
+    options: MultipleChoiceOption[];
+    tags: Tag[];
     questionOwners: User[];
     state: string;
-    examSectionQuestions: ExamSectionQuestion[];
+    defaultMaxScore?: number;
+    shared?: boolean;
+    defaultAnswerInstructions?: string;
+    defaultEvaluationCriteria?: string;
+    defaultExpectedWordCount?: number;
+    defaultEvaluationType?: string;
+}
+
+export interface EssayAnswer {
+    id: number;
+    evaluatedScore: number;
+    answer: string;
+}
+
+export interface MultipleChoiceOption {
+    id: number;
+    correctOption: boolean;
+    defaultScore: number;
+}
+
+export interface ExamSectionQuestionOption {
+    id: number;
+    score: number;
+    answered: boolean;
+    option: MultipleChoiceOption;
+}
+
+export interface ClozeTestAnswer {
+    id: number;
+    score: { correctAnswers: number, incorrectAnswers: number };
+    maxScore: number;
 }
 
 export interface ExamSectionQuestion {
     id: number;
     question: Question;
-    evaluationType: string;
+    evaluationType?: string;
     maxScore: number;
+    essayAnswer?: EssayAnswer;
+    clozeTestAnswer?: ClozeTestAnswer;
+    options: ExamSectionQuestionOption[];
+    answerInstructions: string;
+    evaluationCriteria: string;
+    expectedWordCount?: number;
 }
 
 export interface ExamSection {
@@ -115,7 +174,7 @@ export interface ExamImpl {
     hash: string;
     examOwners: User[];
     creator: User;
-    examType: { type: string };
+    examType: { type: string, name?: string };
     executionType: ExamExecutionType;
     examEnrolments: { reservation?: { endAt: number } }[];
     gradeScale: GradeScale | null;
@@ -124,6 +183,8 @@ export interface ExamImpl {
     examinationDates: ExaminationDate[];
     trialCount: number | null;
     parent: Exam | null;
+    shared: boolean;
+    expanded: boolean;
     state: string;
     examSections: ExamSection[];
     examLanguages: ExamLanguage[];
@@ -131,12 +192,15 @@ export interface ExamImpl {
     enrollInstruction: string;
     anonymous: boolean;
     assessmentInfo: string;
+    internalRef: string;
+    objectVersion: number;
     examFeedback: { comment: string };
     grade: Grade;
     gradeless: boolean;
     creditType: { type: string };
     customCredit: number;
     additionalInfo: string;
+    instruction: string;
 }
 
 // TODO: should somehow make it clearer whether answerLanguage can be a string or an object

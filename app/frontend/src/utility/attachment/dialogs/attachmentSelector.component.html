@@ -10,7 +10,7 @@
                 <input id="file-select" type="file" class="attachment-input" #file style="display: none" (change)="onFilesAdded()">
             </div>
             <div class="col-md-9 attachment-file">
-                {{ files.values().next().value?.name }}
+                {{ fileObject?.name }}
             </div>
         </div>
         <div class="row top-padding-2">
@@ -25,12 +25,12 @@
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <button class="btn btn-primary pull-left" (click)="activeModal.dismiss()">{{'sitnet_button_cancel' | translate}}
+            <button class="btn btn-primary pull-left" (click)="activeModal.dismiss()">{{'sitnet_button_cancel' |
+                translate}}
             </button>
         </div>
         <div class="col-md-6">
-            <button class="btn btn btn-success pull-right" (click)="activeModal.close($value: { attachmentFile: files.values().next().value })"
-                [disabled]="files.length === 0">
+            <button class="btn btn btn-success pull-right" (click)="confirmed()" [disabled]="!fileObject">
                 {{'sitnet_button_save' | translate}}
             </button>
         </div>

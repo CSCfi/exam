@@ -13,24 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 // NOTE! AngularJS needs to be imported before Angular. Do not change this order of imports.
-import * as angularJS from 'angular';
+import 'angular';
 import 'angular-translate';
-import 'angular-animate';
-import 'angular-dialog-service';
-import 'angular-dynamic-locale';
-import 'angular-resource';
-import 'angular-route';
-import 'bootstrap';
-import 'angular-ui-bootstrap';
-import 'font-awesome/css/font-awesome.min.css';
-import 'ngstorage';
-import 'toastr/toastr.scss';
-
-import './administrative';
-import './assets/styles/main.scss';
-import './enrolment';
-import './exam/printout';
-import './maturity';
 
 // Angular ->
 import { CommonModule, Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
@@ -43,76 +27,25 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { StorageServiceModule } from 'angular-webstorage-service';
 
-import { AppComponent } from './app.component';
-import configs from './app.config';
-import * as directives from './app.directive';
-import * as filters from './app.filter';
-import runBlock from './app.run';
-import DashboardModule from './dashboard';
-import CollaborativeExamModule from './exam/collaborative';
 import { AuthInterceptor } from './httpInterceptor';
-import NavigationModule from './navigation';
-import { NavigationComponent } from './navigation/navigation.component';
-import { NavigationService } from './navigation/navigation.service';
-import SessionModule from './session';
-import { DevLoginComponent } from './session/dev/devLogin.component';
 import { SessionService } from './session/session.service';
-import UtilityModule from './utility';
 import { FileService } from './utility/file/file.service';
 import { WindowRef } from './utility/window/window.service';
-import { SelectRoleDialogComponent } from './session/role/selectRoleDialog.component';
-import { EulaDialogComponent } from './session/eula/eulaDialog.component';
-import { LogoutComponent } from './session/logout/logout.component';
 import { SortableDirective } from './utility/dragndrop/sortable.directive';
 import { LanguageSelectorComponent } from './exam/editor/common/languageSelector.component';
 import { LanguageService } from './common/language.service';
-import { ConfirmationDialogComponent } from './exam/editor/common/confirmationDialog.component';
+import { ConfirmationDialogComponent } from './utility/dialogs/confirmationDialog.component';
+import { ExamService } from './exam/exam.service';
+import { QuestionService } from './question/question.service';
+import { ConfirmationDialogService } from './utility/dialogs/confirmationDialog.service';
+import { AttachmentService } from './utility/attachment/attachment.service';
+import { SectionsListComponent } from './exam/editor/sections/sectionsList.component';
+import { SectionComponent } from './exam/editor/sections/section.component.upgrade';
+import { AttachmentSelectorComponent } from './utility/attachment/dialogs/attachmentSelector.component';
+import { NavigationModule } from './navigation/navigation.module';
+import { SessionModule } from './session/session.module';
+import { QuestionModule } from './question/question.module';
 
-angularJS.module('app', [
-    'ngAnimate',
-    'ngResource',
-    'ngRoute',
-    'ngStorage',
-    'ui.bootstrap',
-    'pascalprecht.translate',
-    'tmh.dynamicLocale',
-    'dialogs.services',
-    'dialogs.controllers',
-    SessionModule,
-    NavigationModule,
-    UtilityModule,
-    DashboardModule,
-    CollaborativeExamModule,
-    'app.enrolment',
-    'app.maturity',
-    'app.administrative'
-]).config(configs)
-    .run(runBlock)
-    .component('examApp', AppComponent)
-    .filter('truncate', filters.TruncateFilter.factory())
-    .filter('diffInMinutesTo', filters.DiffInMinutesFilter.factory())
-    .filter('diffInDaysToNow', filters.DiffInDaysFilter.factory())
-    .filter('offset', filters.OffsetFilter.factory())
-    .filter('pagefill', filters.PageFillFilter.factory())
-    .filter('adjustdst', filters.AdjustDstFilter.factory())
-    .directive('dateValidator', directives.DateValidator.factory())
-    .directive('uniqueValue', directives.UniquenessValidator.factory())
-    .directive('ckEditor', directives.CkEditor.factory())
-    .directive('fixedPrecision', directives.FixedPrecision.factory())
-    .directive('clozeTest', directives.ClozeTest.factory())
-    .directive('uiBlur', directives.UiBlur.factory())
-    .directive('uiChange', directives.UiChange.factory())
-    .directive('fileModel', directives.FileModel.factory())
-    .directive('fileSelector', directives.FileSelector.factory())
-    .directive('mathjax', directives.MathJaxLoader.factory())
-    .directive('focusOn', directives.FocusOn.factory())
-    .directive('lowercase', directives.Lowercase.factory())
-    .directive('sort', directives.Sort.factory())
-    .directive('teacherList', directives.TeacherList.factory());
-
-/*
-    Bootstrap the AngularJS app
- */
 @NgModule({
     imports: [
         BrowserModule,
@@ -123,24 +56,24 @@ angularJS.module('app', [
         NgbModule,
         StorageServiceModule,
         UpgradeModule,
+        SessionModule,
+        NavigationModule,
+        QuestionModule
     ],
     declarations: [
-        NavigationComponent,
-        DevLoginComponent,
-        SelectRoleDialogComponent,
-        EulaDialogComponent,
         LanguageSelectorComponent,
-        LogoutComponent,
         ConfirmationDialogComponent,
-        SortableDirective
+        SortableDirective,
+        SectionsListComponent,
+        SortableDirective,
+        SectionComponent,
+        AttachmentSelectorComponent
     ],
     entryComponents: [
-        DevLoginComponent,
-        NavigationComponent,
-        SelectRoleDialogComponent,
-        EulaDialogComponent,
-        LogoutComponent,
-        LanguageSelectorComponent
+        LanguageSelectorComponent,
+        SectionsListComponent,
+        AttachmentSelectorComponent,
+        ConfirmationDialogComponent
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
@@ -153,13 +86,19 @@ angularJS.module('app', [
             deps: ['$injector']
         },
         WindowRef,
+        AttachmentService,
         FileService,
+        ExamService,
+        QuestionService,
+        ConfirmationDialogService,
         SessionService,
-        NavigationService,
         LanguageService
     ]
 })
 export class AppModule {
+    /*
+        Bootstrap the AngularJS app
+    */
     constructor(private upgrade: UpgradeModule) { }
     ngDoBootstrap() {
         this.upgrade.bootstrap(document.body, ['app'], { strictDi: true });

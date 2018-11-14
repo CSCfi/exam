@@ -26,11 +26,9 @@ export const SectionComponent: ng.IComponentOptions = {
     bindings: {
         section: '<',
         examId: '<',
+        collaborative: '<',
         onDelete: '&',
         onReloadRequired: '&' // TODO: try to live without this callback?
-    },
-    require: {
-        parentCtrl: '^^sections'
     },
     controller: class SectionComponentController implements ng.IComponentController {
 
@@ -38,7 +36,6 @@ export const SectionComponent: ng.IComponentOptions = {
         examId: number;
         onDelete: (_: { section: ExamSection }) => any;
         onReloadRequired: () => any;
-        parentCtrl: { collaborative: boolean };
         collaborative: boolean;
 
         constructor(
@@ -52,9 +49,7 @@ export const SectionComponent: ng.IComponentOptions = {
             'ngInject';
         }
 
-        $onInit = () => this.collaborative = this.parentCtrl.collaborative;
-
-        private getResource = (url: string) => this.parentCtrl.collaborative ?
+        private getResource = (url: string) => this.collaborative ?
             url.replace('/app/exams/', '/integration/iop/exams/') : url
 
         private getSectionPayload = () => ({
@@ -100,7 +95,7 @@ export const SectionComponent: ng.IComponentOptions = {
 
         private insertExamQuestion = (question: Question, seq: number) => {
             // TODO: see if we could live without reloading the whole exam from back?
-            const resource = this.parentCtrl.collaborative ?
+            const resource = this.collaborative ?
                 `/integration/iop/exams/${this.examId}/sections/${this.section.id}/questions` :
                 `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
 
@@ -112,7 +107,7 @@ export const SectionComponent: ng.IComponentOptions = {
         }
 
         private addAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
-            if (!this.parentCtrl.collaborative) {
+            if (!this.collaborative) {
                 callback();
                 return;
             }
