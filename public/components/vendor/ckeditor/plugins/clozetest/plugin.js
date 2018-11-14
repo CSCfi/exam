@@ -1,6 +1,7 @@
 CKEDITOR.plugins.add('clozetest', {
     requires: 'dialog,numericinput',
     icons: 'cloze',
+    lang: ['en', 'fi', 'sv'],
 
     // The plugin initialization logic goes inside this method.
     init: function (editor) {
@@ -9,7 +10,7 @@ CKEDITOR.plugins.add('clozetest', {
 
         // Create the toolbar button that executes the above command.
         editor.ui.addButton('Cloze', {
-            label: 'Embedded Answer',
+            label: editor.lang.clozetest.toolbar.label,
             command: 'insertCloze',
             toolbar: 'insert,0'
         });
@@ -17,7 +18,7 @@ CKEDITOR.plugins.add('clozetest', {
         if (editor.contextMenu) {
             editor.addMenuGroup('clozeGroup');
             editor.addMenuItem('clozeItem', {
-                label: 'Edit embedded answer',
+                label: editor.lang.clozetest.contextMenu.label,
                 icon: this.path + 'icons/cloze.png',
                 command: 'insertCloze',
                 group: 'clozeGroup'

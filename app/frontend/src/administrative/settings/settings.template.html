@@ -1,0 +1,137 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{'sitnet_settings' | translate}}</span>
+    </div>
+</div>
+
+<div id="dashboard">
+
+    <div class="top-row">
+        <div class="col-md-12 form-group">
+            <label for="editor">{{'sitnet_user_agreement' | translate}}</label>
+            <textarea id="editor" name="editor" ck-editor rows="10" cols="80" ng-model="$ctrl.config.eula">
+            </textarea>
+        </div>
+    </div>
+    <div class="bottom-row">
+        <div class="col-md-12">
+            <button ng-click="$ctrl.updateAgreement()" class="btn btn-success">{{'sitnet_button_save' | translate}}</button>
+        </div>
+    </div>
+
+    <div class="top-row">
+        <div class="col-md-2 form-group">
+            <label for="deadline">{{'sitnet_review_deadline' | translate}} ({{'sitnet_days' | translate}})</label>
+            <input id="deadline" name="deadline" class="form-control" type="number" min="1" ng-model="$ctrl.config.reviewDeadline" uib-popover="{{'sitnet_info_deadline' | translate}}"
+                popover-trigger="focus" />
+        </div>
+    </div>
+    <div class="bottom-row">
+        <div class="col-md-12">
+            <button ng-click="$ctrl.updateDeadline()" class="btn btn-success">{{'sitnet_button_save' | translate}}</button>
+        </div>
+    </div>
+
+    <div class="top-row">
+        <div class="col-md-2 form-group">
+            <label for="reservationWindow">{{'sitnet_reservation_window' | translate}} ({{'sitnet_days' | translate}})</label>
+            <input id="reservationWindow" name="reservationWindow" class="form-control" type="number" min="1" ng-model="$ctrl.config.reservationWindowSize"
+                uib-popover="{{'sitnet_info_reservation_window' | translate}}" popover-trigger="focus" />
+        </div>
+    </div>
+    <div class="bottom-row">
+        <div class="col-md-12">
+            <button ng-click="$ctrl.updateReservationWindow()" class="btn btn-success">{{'sitnet_button_save' | translate}}</button>
+        </div>
+    </div>
+
+    <div class="top-row">
+        <div class="col-md-12">
+            <ul>
+                <li>
+                    <strong>{{'sitnet_interoperable' | translate }}:</strong>&nbsp;
+                    <span ng-if="$ctrl.config.isInteroperable">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.isInteroperable">{{'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{'sitnet_anonymous_review' | translate }}:</strong>&nbsp;
+                    <span ng-if="$ctrl.config.anonymousReview">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.anonymousReview">{{'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{'sitnet_course_integration_support' | translate}}:</strong>&nbsp;
+                    <span ng-if="$ctrl.config.hasCourseSearchIntegration">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.hasCourseSearchIntegration">{{'DIALOGS_NO' | translate }}</span>
+                </li>
+                <ul ng-if="$ctrl.config.hasCourseSearchIntegration">
+                    <li ng-repeat="(k, v) in $ctrl.config.courseSearchIntegrationUrls">
+                        <strong>{{k}}:</strong>&nbsp;{{v}}</li>
+                    </li>
+                </ul>
+                <li>
+                    <strong>{{'sitnet_enrolment_check_integration_support' | translate }}:</strong>&nbsp;
+                    <span ng-if="$ctrl.config.hasEnrolmentCheckIntegration">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.hasEnrolmentCheckIntegration">{{'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{'sitnet_supports_maturity' | translate }}:</strong>&nbsp;
+                    <span ng-if="$ctrl.config.supportsMaturity">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.supportsMaturity">{{'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{'sitnet_supports_printouts' | translate }}:</strong>&nbsp;
+                    <span ng-if="$ctrl.config.supportsPrintouts">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.supportsPrintouts">{{'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{ 'sitnet_role_mapping' | translate }}</strong>
+                </li>
+                <ul>
+                    <li>
+                        <strong>{{'sitnet_student' | translate }}:</strong>&nbsp; {{$ctrl.config.roles.STUDENT.join(', ')}}
+                    </li>
+                    <li>
+                        <strong>{{'sitnet_teacher' | translate }}:</strong>&nbsp; {{$ctrl.config.roles.TEACHER.join(', ')}}
+                    </li>
+                    <li>
+                        <strong>{{'sitnet_admin' | translate }}:</strong>&nbsp; {{$ctrl.config.roles.ADMIN.join(', ')}}
+                    </li>
+                </ul>
+                <li>
+                    <strong>{{'sitnet_exam_durations' | translate}}:</strong>&nbsp;{{$ctrl.config.examDurations.join(', ')}}</li>
+                </li>
+                <li>
+                    <strong>{{'sitnet_grade_scale_overridable' | translate }}:</strong>&nbsp;
+                    <span ng-if="$ctrl.config.gradeScaleOverridable">{{'DIALOGS_YES' | translate }}</span>
+                    <span ng-if="!$ctrl.config.gradeScaleOverridable">{{'DIALOGS_NO' | translate }}</span>
+                </li>
+                <li>
+                    <strong>{{'sitnet_attachment_max_size' | translate}}:</strong>&nbsp;{{$ctrl.config.maxFileSize / 1000000}} MB</li>
+                </li>
+                <li>
+                    <strong>{{'sitnet_exam_expiration_period' | translate}}:</strong>&nbsp;{{$ctrl.config.expirationPeriod}}</li>
+                </li>
+                <li>
+                    <strong>{{'sitnet_default_timezone' | translate}}:</strong>&nbsp;{{$ctrl.config.defaultTimeZone}}</li>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-row"></div>
+    <div class="top-row">
+        <div class="col-md-12">
+            <ul ng-show="$ctrl.attributes">
+                <li ng-repeat="(key, value) in $ctrl.attributes">
+                    <strong>{{key}}:</strong>&nbsp;{{value}}</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="bottom-row">
+        <div class="col-md-12">
+            <a ng-show="!$ctrl.attributes" ng-click="$ctrl.showAttributes()" class="pointer">{{'sitnet_show_http_headers' | translate}}</a>
+            <a ng-show="$ctrl.attributes" ng-click="$ctrl.attributes = undefined">{{'sitnet_hide' | translate}}</a>
+        </div>
+    </div>
+</div>

@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Ebean;
-import models.Exam;
-import models.ExamSection;
-import models.ExamType;
+import backend.models.Exam;
+import backend.models.ExamSection;
+import backend.models.ExamType;
 import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -105,6 +105,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(draft.getExamLanguages().get(0).getCode()).isEqualTo("fi");
         assertThat(draft.getExamType().getId()).isEqualTo(2);
         assertThat(draft.getExpanded()).isTrue();
+        assertThat(draft.isAnonymous()).isTrue();
         int rowCount = Ebean.find(Exam.class).findCount();
         assertThat(rowCount).isEqualTo(originalRowCount + 1);
     }

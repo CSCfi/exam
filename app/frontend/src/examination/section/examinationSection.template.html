@@ -1,0 +1,29 @@
+<div class="row marr10">
+    <div class="col-md-12 studentexam-header">
+        <span class="exam-title">{{$ctrl.section.index}}. {{$ctrl.section.name}}</span>
+        <span ng-show="$sctrl.isPreview && $ctrl.section.lotteryOn" class="sitnet-text-medium">
+            <small>({{ 'sitnet_lottery_questions' | translate }})</small>
+        </span>
+    </div>
+    <div class="guide-column">
+        <div class="list-group">
+            <form class="form-inline pad-15" role="form">
+                <div class="row studentexam-header">
+                    <!-- DESCRIPTION FOR SECTION -->
+                    <div ng-if="$ctrl.section.description.length > 0" class="col-md-12 info-row mart30">
+
+                        <img src="Images/icon_info.svg"
+                             alt="exam"
+                             onerror="this.onerror=null;this.src='Images/icon_info.png';"/>
+                        <span class="padl10">{{$ctrl.section.description}}</span>
+                    </div>
+
+                    <div ng-repeat="sq in $ctrl.section.sectionQuestions | orderBy: 'sequenceNumber'">
+                        <examination-question sq="sq" exam="$ctrl.exam" section="$ctrl.section" is-preview="$ctrl.isPreview"
+                            is-collaborative="$ctrl.isCollaborative"></examination-question>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

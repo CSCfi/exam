@@ -1,8 +1,18 @@
 package controllers.iop;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.stream.Collectors;
+import javax.mail.internet.MimeMessage;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import base.IntegrationTestCase;
 import base.RunAsStudent;
-import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -12,9 +22,9 @@ import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
+import helpers.AttachmentServlet;
 import helpers.RemoteServerHelper;
-import models.*;
-import models.iop.ExternalReservation;
+import io.ebean.Ebean;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
@@ -27,18 +37,10 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import util.JsonDeserializer;
 
-import javax.mail.internet.MimeMessage;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.stream.Collectors;
+import backend.models.*;
+import backend.models.iop.ExternalReservation;
+import backend.util.JsonDeserializer;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -144,14 +146,15 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
                         SlotServlet.class, String.format("%s/slots", baseUrl),
                         ReservationServlet.class, String.format("%s/reservations", baseUrl),
                         ReservationRemovalServlet.class, String.format("%s/reservations/%s", baseUrl, RESERVATION_REF),
-                        EnrolmentServlet.class, String.format("/api/enrolments/%s", RESERVATION_REF)
+                        EnrolmentServlet.class, String.format("/api/enrolments/%s", RESERVATION_REF),
+                        AttachmentServlet.class, "/api/attachments/*"
                 )
         );
     }
 
     private void initialize(User other) throws Exception {
         Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
-        exam = Ebean.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findUnique();
+        exam = Ebean.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findOne();
         initExamSectionQuestions(exam);
         exam.setExamActiveStartDate(DateTime.now().minusDays(1));
         exam.setExamActiveEndDate(DateTime.now().plusDays(1));
@@ -285,7 +288,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
                 .put("end", ISODateTimeFormat.dateTime().print(end))
                 .put("user", "studentone@uni.org"));
         assertThat(result.status()).isEqualTo(201);
-        Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findUnique();
+        Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(reservation).isNotNull();
         assertThat(reservation.getMachine().getRoom().getExternalRef()).isEqualTo(ROOM_REF);
         assertThat(reservation.getStartAt()).isEqualTo(start);
@@ -307,7 +310,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         Result result = request(Helpers.DELETE, "/integration/iop/reservations/" + RESERVATION_REF, null);
         assertThat(result.status()).isEqualTo(200);
-        Reservation removed = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findUnique();
+        Reservation removed = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(removed).isNull();
     }
 
@@ -367,25 +370,25 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         login(eppn);
 
-        User newUser = Ebean.find(User.class).where().eq("eppn", eppn).findUnique();
+        User newUser = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
         assertThat(newUser).isNotNull();
         assertThat(newUser.getRoles()).hasSize(1);
         assertThat(newUser.getRoles().get(0).getName()).isEqualTo(Role.Name.TEACHER.toString());
 
-        reservation = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findUnique();
+        reservation = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(reservation.getUser().getId()).isEqualTo(newUser.getId());
 
         // Try do some teacher stuff, see that it is not allowed
         Result result = get("/app/reviewerexams");
         assertThat(result.status()).isEqualTo(403);
         // See that user is directed to waiting room
-        result = get("/app/enrolments");
+        result = get("/app/student/enrolments");
         assertThat(result.headers().containsKey("x-exam-upcoming-exam")).isTrue();
 
         // see that enrolment was created for the user
 
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation.externalRef",
-                RESERVATION_REF).findUnique();
+                RESERVATION_REF).findOne();
         assertThat(enrolment).isNotNull();
         assertThat(enrolment.getExam()).isNull();
         assertThat(enrolment.getExternalExam()).isNotNull();
@@ -416,7 +419,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         JsonNode body = Json.parse(contentAsString(result));
         assertThat(body.asText()).isEqualTo(RESERVATION_REF);
 
-        Reservation created = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findUnique();
+        Reservation created = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(created).isNotNull();
         ExternalReservation external = created.getExternalReservation();
         assertThat(external).isNotNull();

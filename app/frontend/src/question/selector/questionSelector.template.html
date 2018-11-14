@@ -1,0 +1,51 @@
+<div id="library">
+    <div class="library">
+        <!-- title row and add new question button -->
+        <div class="top-row">
+            <div class="col-md-12 marb20">
+                <div class="student-enroll-title-wrap">
+                    <div class="student-enroll-title">{{'sitnet_library_choose' | translate}}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- search bar and search parameters -->
+        <library-search on-update="$ctrl.resultsUpdated(results)"></library-search>
+
+        <div class="col-md-12 padl0 padr0 marb20">
+            <span class="pull-left marl20">
+                <div class="library-button make-inline mart20 marr30 marl10">
+                    <a class="pointer" ng-click="$ctrl.addQuestions()">{{'sitnet_add_chosen' | translate}}
+                        ( {{$ctrl.selections.length}} )
+                    </a>
+                </div>
+            </span>
+        </div>
+
+
+        <!-- resulting table with questions -->
+        <library-results questions="$ctrl.questions" on-selection="$ctrl.questionSelected(selections)"
+                         on-copy="$ctrl.questionCopied(copy)" table-class="library-table" disable-links="true"></library-results>
+
+        <!-- Buttons -->
+        <div class="row">
+            <div class="col-md-12 padl0 padr0 marb20">
+                <span class="pull-right">
+                    <div class="library-button make-inline">
+                        <a class="pointer preview" ng-click="$ctrl.cancel()">
+                        {{'sitnet_button_cancel' | translate}}
+                        </a>
+                    </div>
+                    <div class="library-button make-inline mart20 marr30 marl10">
+                        <a class="pointer" ng-click="$ctrl.addQuestions()">
+                        {{'sitnet_add_chosen' | translate}} ( {{$ctrl.selections.length}} )
+                        </a>
+                    </div>
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

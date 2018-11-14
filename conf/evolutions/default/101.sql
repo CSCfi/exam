@@ -6,4 +6,3 @@ ALTER TABLE external_reservation ADD COLUMN org_code VARCHAR(12);
 # --- !Downs
 ALTER TABLE external_reservation DROP COLUMN org_name;
 ALTER TABLE external_reservation DROP COLUMN org_code;
-

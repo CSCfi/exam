@@ -1,0 +1,28 @@
+<div class="main-row question-flow-category-title-wrapper">
+    <span class="col-md-10">
+        <strong>{{$ctrl.categoryTitle | translate | uppercase}}</strong>&nbsp;
+        <span class="badge question-flow-badge">{{$ctrl.reviews.length}}</span>
+    </span>
+    <div class="col-md-2">
+        <a ng-click="$ctrl.hideCategory = !$ctrl.hideCategory" class="pointer-hand pull-right">
+            <img ng-show="$ctrl.hideCategory" src="Images/icon_list_show_right.svg" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';"
+            />
+            <img ng-hide="$ctrl.hideCategory" src="Images/icon_list_show_down.svg" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';"
+            />
+        </a>
+    </div>
+</div>
+<div class="question-flow-category-questions">
+    <div ng-hide="$ctrl.hideCategory" class="main-row question-flow-category-question-wrapper" ng-repeat="r in $ctrl.reviews">
+        <div class="col-md-1">
+            <input type="radio" ng-model="r.selected" ng-value="true" ng-change="$ctrl.selectQuestion(r)">
+        </div>
+        <div class="col-md-9">
+            <div ng-bind-html="$ctrl.displayQuestionText(r)"></div>
+        </div>
+        <div class="col-md-2">
+            <div ng-class="$ctrl.isFinalized(r) ? 'text-success' : ''">{{r.answers.length - $ctrl.getAssessedAnswerCount(r)}}
+                / {{r.answers.length}}</div>
+        </div>
+    </div>
+</div>

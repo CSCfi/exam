@@ -1,0 +1,53 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4>
+            <i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{'sitnet_exception_time' | translate}}
+            </i>
+        </h4>
+    </div>
+
+    <div class='modal-body'>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="$ctrl.exception.outOfService"> {{'sitnet_room_out_of_service' | translate}}
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div id="datetimepicker">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>{{'sitnet_begin' | translate}}:</p>
+                </div>
+                <div class="col-md-6">
+                    <p>{{'sitnet_end' | translate}}:</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <date-time-picker hour-step="1" minute-step="15" on-update="$ctrl.onStartDateChange(date)">
+                    </date-time-picker>
+                </div>
+                <div class="col-md-6">
+                    <date-time-picker hour-step="1" minute-step="15" on-update="$ctrl.onEndDateChange(date)">
+                    </date-time-picker>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-danger pull-left" ng-click="$ctrl.cancel()">{{'sitnet_button_cancel' | translate}}
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-primary" ng-click="$ctrl.ok()">
+                {{'sitnet_button_save' | translate}}
+            </button>
+        </div>
+    </div>
+
+</div>

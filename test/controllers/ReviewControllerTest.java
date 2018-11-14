@@ -17,13 +17,14 @@
 package controllers;
 
 import base.IntegrationTestCase;
+import base.RunAsAdmin;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
-import models.Exam;
-import models.ExamInspection;
-import models.User;
+import backend.models.Exam;
+import backend.models.ExamInspection;
+import backend.models.User;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
@@ -37,19 +38,7 @@ public class ReviewControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void getExamReviews() {
         final User user = Ebean.find(User.class, userId);
-        final Exam parent = Ebean.find(Exam.class).where()
-                .and()
-                .eq("name", "Algoritmit, 2013")
-                .eq("parent", null)
-                .endAnd()
-                .findUnique();
-        assert parent != null;
-        final ExamInspection examInspection = new ExamInspection();
-        examInspection.setUser(user);
-        examInspection.setExam(parent.getChildren().get(0));
-        examInspection.save();
-        parent.getExamInspections().add(examInspection);
-        parent.save();
+        final Exam parent = setUpReviews(user);
 
         // Execute
         Result result = get("/app/reviews/" + parent.getId());
@@ -57,10 +46,10 @@ public class ReviewControllerTest extends IntegrationTestCase {
         // Verify
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
-        ArrayNode participations = (ArrayNode) node;
-        assertThat(participations.size()).isEqualTo(1);
+        ArrayNode participationArray = (ArrayNode) node;
+        assertThat(participationArray.size()).isEqualTo(1);
 
-        final JsonNode participation = participations.get(0);
+        final JsonNode participation = participationArray.get(0);
         final JsonNode examGradeScale = participation
                 .path("exam").path("gradeScale");
         assertThat(examGradeScale).isNotEmpty();
@@ -72,5 +61,38 @@ public class ReviewControllerTest extends IntegrationTestCase {
         assertThat(courseGradeScale).isNotEmpty();
         final JsonNode courseGrades = courseGradeScale.path("grades");
         assertThat(courseGrades.size()).isEqualTo(6);
+    }
+
+    @Test
+    @RunAsAdmin
+    public void getExamReviewsAsAdmin() {
+        final User user = Ebean.find(User.class, 3L);
+        final Exam parent = setUpReviews(user);
+
+        // Execute
+        Result result = get("/app/reviews/" + parent.getId());
+
+        // Verify
+        assertThat(result.status()).isEqualTo(200);
+        JsonNode node = Json.parse(contentAsString(result));
+        ArrayNode participationArray = (ArrayNode) node;
+        assertThat(participationArray.size()).isEqualTo(1);
+    }
+
+    private Exam setUpReviews(User user) {
+        final Exam parent = Ebean.find(Exam.class).where()
+                .and()
+                .eq("name", "Algoritmit, 2013")
+                .eq("parent", null)
+                .endAnd()
+                .findOne();
+        assert parent != null;
+        final ExamInspection examInspection = new ExamInspection();
+        examInspection.setUser(user);
+        examInspection.setExam(parent.getChildren().get(0));
+        examInspection.save();
+        parent.getExamInspections().add(examInspection);
+        parent.save();
+        return parent;
     }
 }

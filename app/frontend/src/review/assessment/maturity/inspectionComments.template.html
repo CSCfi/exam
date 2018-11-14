@@ -1,0 +1,37 @@
+
+<div class="detail-row marb20 mart20">
+    <div class="col-md-12 general-info-title">{{'sitnet_inspector_comments' | translate}}:</div>
+</div>
+
+<div ng-repeat="comment in $ctrl.exam.inspectionComments" class="col-md-12 padl0 marb20">
+    <div class="col-md-4">
+        {{comment.creator.firstName}} {{comment.creator.lastName}}
+        <small>({{comment.creator.email}})</small>
+        <br/>
+        {{ comment.created | date:'dd.MM.yyyy HH:mm' }}
+    </div>
+    <div class="col-md-8">
+        {{ comment.comment }}
+    </div>
+</div>
+
+<div class="main-row">
+    <span class="col-md-12">
+        <div class="review-attachment-button exam-questions-buttons">
+            <a class="pointer"
+               ng-if="$ctrl.addingVisible"
+               ng-disabled="$ctrl.addingDisabled"
+               ng-click="$ctrl.addInspectionComment()">
+                {{'sitnet_inspection_comment_title' | translate}}
+            </a>
+        </div>
+        <sup>
+            <img popover-placement="right" popover-trigger="'mouseenter'"
+                 uib-popover="{{'sitnet_inspection_comment_info' | translate}}"
+                 src="Images/icon_tooltip.svg"
+                 alt="{{'sitnet_inspection_comment_info' | translate}}"
+                 onerror="this.onerror=null;this.src='Images/icon_tooltip.png';"/>
+        </sup>
+    </span>
+
+</div>

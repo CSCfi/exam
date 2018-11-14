@@ -1,5 +1,6 @@
+# comment
 email.inspection.ready.subject=Your exam paper has been assessed
-email.inspection.comment.subject=A comment has been added to the assessment ot the exam
+email.inspection.comment.subject=A comment has been added to the exam assessment
 email.enrolment.no.reservation=NOTE: You have not booked an exam time yet
 email.enrolment.no.enrolments=No exam bookings
 email.weekly.report.subject=Weekly exam summary
@@ -44,7 +45,7 @@ email.template.participant.notification.title=A personal exam has been created t
 email.template.participant.notification.exam=Exam: {0}
 email.template.participant.notification.teacher=Examiners: {0}
 email.template.participant.notification.exam.period=The period of validity of the exam: {0}
-email.template.participant.notification.exam.duration=Exam duration: {0}
+email.template.participant.notification.exam.duration=Exam duration: {0} minutes
 email.template.participant.notification.please.reserve=Book exam time
 email.template.reservation.new.student=Student {0} has booked a time for a personal exam
 email.template.exam.aborted.subject=Personal exam has been abandoned
@@ -72,7 +73,7 @@ email.template.maturity.exam.aborted.message=Student {0} has decided to abort th
 email.template.maturity.exam.returned.subject=The maturity test has been returned
 email.template.maturity.exam.returned.message=Student {0} has completed the maturity test.
 email.template.maturity.noshow.subject=The student did not show up in the maturity test.
-email.template.noshow.student.subject=You did not arrive in the exam you had registered for.
+email.template.noshow.student.subject=You did not arrive in the exam you had enrolled in.
 email.template.noshow.student.message=You did not arrive in the exam {0} ({1}) during the reservation.
 email.template.reservation.change.subject=The computer for the exam is changed: "{0}"
 email.template.reservation.change.message=Hi, the exam admin has changed the computer for your exam

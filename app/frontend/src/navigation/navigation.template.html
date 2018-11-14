@@ -1,0 +1,85 @@
+<div ng-if="$ctrl.user.isTeacher || $ctrl.user.isStudent || $ctrl.user.isAdmin" id="vmenu" class="hidden-print">
+    <div class="nav-container">
+        <div class="nav-header">
+            <div class="logo">
+                <div class="hidden-mobile">
+                    <img src="Images/exam-logo-new.svg" alt="exam" onerror="this.onerror = null;
+                            this.src = 'Images/exam-logo-new.png'" />
+                </div>
+                <div class="visible-mobile">
+                    <div class="mobile-menu" ng-click="$ctrl.openMenu();" ng-hide="!$ctrl.user">
+                        <img src="Images/icon_menu_mobile.svg" alt="exam" onerror="this.onerror = null;
+                                this.src = 'Images/icon_menu_mobile.png'" />
+                    </div>
+                    <img src="Images/exam-logo-mobile.svg" alt="exam" onerror="this.onerror = null;
+                            this.src = 'Images/exam-logo-mobile.png'" />
+                </div>
+            </div>
+            <div ng-hide="!$ctrl.appVersion">
+                <div class="app-version">
+                    v. {{ $ctrl.appVersion }}
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-body">
+            <ul class="links">
+                <li ng-repeat="link in $ctrl.links" ng-show="link.visible">
+                    <a ng-class="{selected: $ctrl.isActive(link)}" href="{{link.href}}">
+                        <img width="18" src="/assets/assets/images/nav/{{link.iconPng}}" alt="{{ link.name | translate }}" />
+                        <span class="menu-item" ng-click="link.submenu.hidden = !link.submenu.hidden">{{ link.name | translate }}</span>
+                    </a>
+                    <ul class="submenu" ng-hide="link.submenu.hidden">
+                        <li ng-repeat="subitem in link.submenu.items" ng-class="{selectedsub: $ctrl.isActive(subitem)}">
+                            <a href="{{subitem.href}}">
+                                <div>
+                                    <img width="18" src="/assets/assets/images/nav/{{subitem.iconPng}}" alt="{{ subitem.name | translate }}" /> {{ subitem.name | translate }} </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-body-mobile" ng-show="$ctrl.mobileMenuOpen">
+            <ul class="links">
+                <li ng-class="{selected: $ctrl.isActive(link)}" ng-repeat="link in $ctrl.links" ng-show="link.visible">
+                    <a href="{{link.href}}">
+                        <img width="18" src="/assets/assets/images/nav/{{link.iconPng}}" alt="{{ link.name | translate }}" />
+                        <span class="menu-item">{{ link.name | translate }}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-user" ng-hide="!$ctrl.user">
+            <div class="user">
+                <div class="user-name">
+                    <div class="user-logo">
+                        <img src="Images/icon_menu_user.png" alt="{{$ctrl.user.firstName}}&nbsp;{{$ctrl.user.lastName}}" />
+                    </div>
+                    <div class="user-data">
+                        {{$ctrl.user.firstName}}&nbsp;{{$ctrl.user.lastName}}
+                        <br/>
+                        <span ng-show="$ctrl.user.isStudent">{{ 'sitnet_student' | translate }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-footer">
+            <div class="locale-bar">
+                <span class="locale-item">
+                    <a ng-click="$ctrl.switchLanguage('fi')">FI</a>
+                </span>
+                <span class="locale-item">
+                    <a ng-click="$ctrl.switchLanguage('sv')">SV</a>
+                </span>
+                <span class="locale-item">
+                    <a ng-click="$ctrl.switchLanguage('en')">EN</a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

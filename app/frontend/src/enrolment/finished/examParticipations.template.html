@@ -1,0 +1,89 @@
+<div id="dashboard">
+
+    <!-- Finished exams list -->
+    <div class="top-row">
+        <div class="student-details-title-wrap">
+            <div class="student-exam-details-title nomar marl15">
+                <span ng-hide="$ctrl.collaborative">{{'sitnet_exam_responses' | translate}}</span>
+                <span ng-show="$ctrl.collaborative">{{'sitnet_collaborative_exam_responses' | translate}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="student-details-title-wrap padleft">
+            <span ng-hide="$ctrl.collaborative" class="form-group">
+                <img class="nopad" src="Images/icon_info.png"> &nbsp;{{ 'sitnet_exam_response_search_description' | translate }}
+            </span>
+            <span ng-show="$ctrl.collaborative" class="form-group">
+                <img class="nopad" src="Images/icon_info.png"> &nbsp;{{ 'sitnet_collaborative_exam_response_search_description' | translate }}
+            </span>
+        </div>
+    </div>
+
+    <div class="detail-row padl0">
+        <div class="col-md-6 col-xs-6 col-sm-6 padl0">
+            <div class="student-details-title-wrap padleft">
+                <div class="form-group input-group">
+                    <input ng-change="$ctrl.search()" ng-model="$ctrl.filter.text" ng-model-options="{updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }"
+                        type="text" class="form-control hgt40 marl15" placeholder="{{'sitnet_search' | translate }}">
+                    <div class="input-group-addon search">
+                        <img class="nopad marl15" src="Images/icon_search.png" width="49" height="40">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xs-6 col-sm-6">
+            <div class="dropdown" uib-dropdown>
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" uib-dropdown-toggle aria-expanded="true">
+                    {{ 'sitnet_set_ordering' | translate}}&nbsp;
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li role="presentation" ng-click="$ctrl.filter.ordering='exam.name'">
+                        <a role="menuitem" class="pointer">
+                            {{'sitnet_exam_name_ascending' | translate}}
+                        </a>
+                    </li>
+                    <li role="presentation" ng-click="$ctrl.filter.ordering='-exam.name'">
+                        <a role="menuitem" class="pointer">
+                            {{'sitnet_exam_name_descending' | translate}}
+                        </a>
+                    </li>
+                    <li role="presentation" ng-click="$ctrl.filter.ordering='ended'">
+                        <a role="menuitem" class="pointer">
+                            {{'sitnet_exam_participation_descending' | translate}}
+                        </a>
+                    </li>
+                    <li role="presentation" ng-click="$ctrl.filter.ordering='-ended'">
+                        <a role="menuitem" class="pointer">
+                            {{'sitnet_exam_participation_ascending' | translate}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- List of finished exams -->
+    <div class="pad-15">
+        <div class="col-md-12 list-item" ng-repeat="participation in $ctrl.participations
+        | orderBy: $ctrl.filter.ordering
+        | offset: $ctrl.currentPage*$ctrl.pageSize
+        | limitTo: $ctrl.pageSize">
+            <exam-participation participation="participation" collaborative="$ctrl.collaborative"></exam-participation>
+        </div>
+    </div>
+
+    <!-- Div structure is same, as in exams list. This ensures that they are aligned similarly -->
+    <div class="main-row">
+        <div class="bottom-row">
+            <div class="col-md-12" ng-show="$ctrl.participations.length > $ctrl.pageSize">
+                <paginator items="$ctrl.participations" on-select-page="$ctrl.pageSelected(page)" page-size="$ctrl.pageSize" current-page="$ctrl.currentPage"
+                />
+            </div>
+        </div>
+    </div>
+
+</div>

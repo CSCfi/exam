@@ -1,0 +1,120 @@
+<div id="exam" ng-init="$ctrl.sectionQuestion.reviewExpanded = true">
+    <div class="student-enrolment-wrapper review-view">
+        <div class="col-md-12">
+
+            <!-- question text -->
+            <div>
+
+                <!--chevron -->
+                <a class="pull-right" ng-click="$ctrl.sectionQuestion.reviewExpanded = !$ctrl.sectionQuestion.reviewExpanded">
+                    <img ng-show="!$ctrl.sectionQuestion.reviewExpanded" src="Images/icon_list_show_right.svg" alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_list_show_right.png'" />
+                    <img ng-show="$ctrl.sectionQuestion.reviewExpanded" src="Images/icon_list_show_down.svg" alt="exam"
+                        onerror="this.onerror=null;this.src='Images/icon_list_show_down.png'" />
+                </a>
+                <!-- question title -->
+                <div class="review-question-title marr20" mathjax ng-bind-html="$ctrl.displayQuestionText()"></div>
+
+            </div>
+
+            <!-- question attachment -->
+            <div ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.sectionQuestion.question.attachment" class="padl0 mart20 marb20 notice-text">
+                {{ 'sitnet_question_attachment' | translate}}:
+                <a class="pointer" ng-click="$ctrl.downloadQuestionAttachment()">
+                    {{$ctrl.sectionQuestion.question.attachment.fileName}}
+                </a>
+            </div>
+
+            <!-- question instructions -->
+            <div ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.sectionQuestion.answerInstructions" class="padl0 mart20 marb20 notice-text">
+                <img src="Images/icon_info.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_info.png'" />
+                <span class="padl10">{{ 'sitnet_instructions' | translate}}:</span>
+                <span ng-bind-html="$ctrl.sectionQuestion.answerInstructions" />
+            </div>
+
+            <!-- answer -->
+            <div class="mart20" ng-show="$ctrl.sectionQuestion.reviewExpanded">
+                <hr>
+            </div>
+
+            <div ng-show="$ctrl.sectionQuestion.reviewExpanded" class="marb10">
+                <div class="points-title">
+                    <span>{{'sitnet_exam_answer' | translate | uppercase }}</span>
+                </div>
+                <span mathjax ng-bind-html="$ctrl.sectionQuestion.essayAnswer.answer"></span>
+            </div>
+
+            <!-- answer attachment -->
+            <div ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.sectionQuestion.essayAnswer.attachment" class="padl0 mart20 marb30">
+                <a class="pointer green_button left-floater-for-section" ng-click="$ctrl.downloadQuestionAnswerAttachment()">
+                    {{ 'sitnet_download_answer_attachment' | translate}}
+                    <img src="Images/icon_attachment.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_attachment.png'" />
+                </a>
+                <div class="attachment-name">{{$ctrl.sectionQuestion.essayAnswer.attachment.fileName | uppercase}}</div>
+            </div>
+
+
+            <!-- question evaluation criteria -->
+            <div ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.sectionQuestion.evaluationCriteria" class="padl0 mart20">
+                <div class="points-title">
+                    <span>{{'sitnet_exam_evaluation_criteria' | translate | uppercase }}</span>
+                </div>
+                <span ng-bind-html="$ctrl.sectionQuestion.evaluationCriteria" />
+            </div>
+
+            <!-- grade -->
+            <div ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
+                <div class="points-title">
+                    <span ng-show="$ctrl.sectionQuestion.evaluationType === 'Points'">{{
+                        'sitnet_word_points' | translate | uppercase }}&nbsp;
+                        <small>[0 &hellip; {{$ctrl.sectionQuestion.maxScore.toFixed(2)}}]</small>
+                    </span>
+                    <span ng-hide="$ctrl.sectionQuestion.evaluationType === 'Points'">{{
+                        'sitnet_comments' | translate | uppercase }}:
+                    </span>
+                </div>
+                <div>
+                    <span ng-if="$ctrl.sectionQuestion.evaluationType === 'Points'">
+                        <form name="essayPoints">
+                            <input id="score" name="score" type="number" class="form-control" ng-model="$ctrl.sectionQuestion.essayAnswer.evaluatedScore"
+                                ui-blur="$ctrl.insertEssayScore()" onclick="this.focus()" ng-disabled="!$ctrl.isScorable"
+                                min="0" max="{{$ctrl.sectionQuestion.maxScore}}" />
+                            <small ng-show="essayPoints.$invalid" class="alert-danger">
+                                <i class="fa fa-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate
+                                }}
+                            </small>
+                        </form>
+                    </span>
+                    <span ng-if="$ctrl.sectionQuestion.evaluationType === 'Selection'">
+                        <select class="form-control" ng-model="$ctrl.sectionQuestion.essayAnswer.evaluatedScore"
+                            ng-change="$ctrl.insertEssayScore()" ng-disabled="!$ctrl.isScorable">
+                            <option value="1" ng-selected="$ctrl.sectionQuestion.essayAnswer.evaluatedScore == 1">
+                                {{ 'sitnet_approved' | translate }}
+                            </option>
+                            <option value="0" ng-selected="$ctrl.sectionQuestion.essayAnswer.evaluatedScore == 0">
+                                {{ 'sitnet_rejected' | translate }}
+                            </option>
+                        </select>
+                    </span>
+                </div>
+            </div>
+            <div class="make-inline notice-text">
+                <!-- answer length & recommended length-->
+                <div ng-show="$ctrl.sectionQuestion.reviewExpanded">
+                    <span>{{ 'sitnet_answer_length' | translate}}:</span>
+                    {{ $ctrl.getWordCount() }} {{'sitnet_words' | translate }},
+                    {{ 'sitnet_approximately' | translate }}
+                    {{ $ctrl.getCharacterCount() }} {{'sitnet_characters' | translate
+                    }}
+                </div>
+                <div ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.sectionQuestion.expectedWordCount">
+                    <span>{{ 'sitnet_essay_length_recommendation' | translate}}:</span>
+                    {{ $ctrl.sectionQuestion.expectedWordCount }}
+                    ({{ 'sitnet_approximately' | translate}} {{$ctrl.sectionQuestion.expectedWordCount * 8}}
+                    {{'sitnet_characters' | translate}})
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

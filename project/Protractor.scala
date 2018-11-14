@@ -1,34 +1,43 @@
 import java.net.InetSocketAddress
 
-import play.sbt.{Play, PlayRunHook}
-import sbt._
+import play.sbt.PlayRunHook
+import sbt.File
+import scala.sys.process._
+
 
 object Protractor {
-    def apply(base: File, conf: String, args: String): PlayRunHook = {
+  def apply(base: File, conf: String, args: String): PlayRunHook = {
 
-        object ProtractorProcess extends PlayRunHook {
+    object ProtractorProcess extends PlayRunHook {
 
-            var protractor: Option[Process] = None
+      var protractor: Option[Process] = None
 
-            override def afterStarted(address: InetSocketAddress): Unit = {
-                println("Starting protractor tests...")
-                val process = Seq("./node_modules/protractor/bin/protractor", "protractor/" + conf, args.replaceAll(",", " ")).mkString(" ")
-                println(process)
-                protractor = Some(Process(process, base).run())
-                if (protractor.get.exitValue() != 0) {
-                    sys.error("Protractor tests failed!")
-                }
-                println("Stopping protractor tests...")
-                protractor.foreach(p => p.destroy())
-                protractor = None
-                System.exit(0)
-            }
-
-            override def afterStopped(): Unit = {
-                println("Protractor stopped")
-            }
+      override def afterStarted(address: InetSocketAddress): Unit = {
+        println("Starting protractor tests...")
+        val process = Seq("app/frontend/node_modules/protractor/bin/protractor", "protractor/" + conf, args.replaceAll(",", " ")).mkString(" ")
+        println(process)
+        var code = 0
+        sys.addShutdownHook(shutdown())
+        try {
+          protractor = Some(Process(process, base).run())
+          code = protractor.get.exitValue()
+          if (code != 0) {
+            sys.error("Protractor tests failed!")
+          }
+        } finally {
+          sys.exit(code)
         }
+      }
 
-        ProtractorProcess
+      override def afterStopped(): Unit = shutdown()
+
+      private def shutdown(): Unit = {
+        println("Stopping protractor tests...")
+        protractor.foreach(p => p.destroy())
+        protractor = None
+      }
     }
+
+    ProtractorProcess
+  }
 }

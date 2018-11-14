@@ -51,12 +51,23 @@
     "modifier": null,
     "printout": false,
     "gradeless": false,
-    "attachment": null,
+    "attachment": {
+      "id": 2,
+      "created": null,
+      "creator": null,
+      "fileName": "exam.txt",
+      "externalId": "123456abcdefg",
+      "filePath": null,
+      "mimeType": "plain/text",
+      "modified": null,
+      "modifier": null,
+      "objectVersion": 0
+    },
     "creditType": null,
     "examOwners": [],
     "examRecord": null,
     "gradeScale": {
-      "id": 4,
+      "id": 1,
       "type": null,
       "grades": [
         {
@@ -225,11 +236,12 @@
               "question": "Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?",
               "attachment": {
                 "id": 1,
+                "externalId": "aakkdfkssldf234",
                 "created": null,
                 "creator": null,
                 "fileName": "pika.ohje",
                 "filePath": null,
-                "mimeType": null,
+                "mimeType": "plain/text",
                 "modified": null,
                 "modifier": null,
                 "objectVersion": 0
@@ -940,7 +952,18 @@
               "creator": null,
               "modified": null,
               "modifier": null,
-              "attachment": null,
+              "attachment": {
+                "id": 3,
+                "created": null,
+                "creator": null,
+                "fileName": "answer.txt",
+                "externalId": "098765sdfasdfs",
+                "filePath": null,
+                "mimeType": "plain/text",
+                "modified": null,
+                "modifier": null,
+                "objectVersion": 0
+              },
               "objectVersion": 0,
               "evaluatedScore": null
             },

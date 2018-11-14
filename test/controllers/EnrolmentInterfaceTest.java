@@ -6,7 +6,7 @@ import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import helpers.RemoteServerHelper;
-import models.Exam;
+import backend.models.Exam;
 import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
@@ -53,7 +53,7 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
         // pop up in the search results
         Exam exam = Ebean.find(Exam.class).where()
                 .eq("course.code", "810136P")
-                .eq("state", Exam.State.PUBLISHED).findUnique();
+                .eq("state", Exam.State.PUBLISHED).findOne();
         exam.setExamActiveStartDate(DateTime.now().minusDays(1));
         exam.setExamActiveEndDate(DateTime.now().plusDays(1));
         exam.save();

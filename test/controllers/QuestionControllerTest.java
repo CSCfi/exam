@@ -1,26 +1,29 @@
 package controllers;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
+
 import base.IntegrationTestCase;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Ebean;
-import models.ExamSection;
-import models.ExamSectionQuestion;
-import models.ExamSectionQuestionOption;
-import models.User;
-import models.questions.MultipleChoiceOption;
-import models.questions.Question;
-import org.jetbrains.annotations.NotNull;
+
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import backend.models.ExamSection;
+import backend.models.ExamSectionQuestion;
+import backend.models.ExamSectionQuestionOption;
+import backend.models.User;
+import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.Question;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -30,7 +33,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsTeacher
-    public void testAddEssayQuestionToExam() throws Exception {
+    public void testAddEssayQuestionToExam() {
 
         // Setup
         long examId = 1L;
@@ -69,8 +72,8 @@ public class QuestionControllerTest extends IntegrationTestCase {
         question = deserialize(Question.class, node);
 
         // Add to exam
-        result = request(Helpers.POST, String.format("/app/exams/%d/section/%d/0/question/%d",
-                examId, sectionId, question.getId()), null);
+        result = request(Helpers.POST, String.format("/app/exams/%d/sections/%d/questions/%d",
+                examId, sectionId, question.getId()), Json.newObject().put("sequenceNumber", 0));
         assertThat(result.status()).isEqualTo(200);
         node = Json.parse(contentAsString(result));
         ExamSection deserialized = deserialize(ExamSection.class, node);
@@ -78,7 +81,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
 
         // Check that section now has a reference to the original question
         assertThat(Ebean.find(ExamSectionQuestion.class).where()
-                .eq("question.id", question.getId()).findUnique()).isNotNull();
+                .eq("question.id", question.getId()).findOne()).isNotNull();
     }
 
     @Test
@@ -196,6 +199,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assertThat(saved.getMinDefaultScore()).isEqualTo(minDefaultScore);
 
         List<Double> defaultScores = saved.getOptions().stream()
+                .sorted(Comparator.comparing(MultipleChoiceOption::getId))
                 .map(MultipleChoiceOption::getDefaultScore)
                 .collect(Collectors.toList());
         assertThat(defaultScores).isEqualTo(Arrays.asList(expectedDefaultScores));

@@ -1,5 +1,6 @@
 package controllers;
 
+import backend.models.*;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import io.ebean.Ebean;
@@ -10,10 +11,9 @@ import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
-import models.*;
-import models.questions.ClozeTestAnswer;
-import models.questions.EssayAnswer;
-import models.questions.Question;
+import backend.models.questions.ClozeTestAnswer;
+import backend.models.questions.EssayAnswer;
+import backend.models.questions.Question;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,7 +46,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     public void setUp() throws Exception {
         super.setUp();
         Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
-        exam = Ebean.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findUnique();
+        exam = Ebean.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findOne();
         initExamSectionQuestions(exam);
 
         user = Ebean.find(User.class, userId);
@@ -100,10 +100,10 @@ public class StudentExamControllerTest extends IntegrationTestCase {
 
         assertThat(studentExam.getDuration()).isEqualTo(exam.getDuration());
 
-        assertThat(Ebean.find(Exam.class).where().eq("hash", studentExam.getHash()).findUnique()).isNotNull();
+        assertThat(Ebean.find(Exam.class).where().eq("hash", studentExam.getHash()).findOne()).isNotNull();
         assertThat(Ebean.find(ExamEnrolment.class, enrolment.getId()).getExam().getHash()).isEqualTo(studentExam.getHash());
 
-        ExamParticipation participation = Ebean.find(ExamParticipation.class).where().eq("exam.id", studentExam.getId()).findUnique();
+        ExamParticipation participation = Ebean.find(ExamParticipation.class).where().eq("exam.id", studentExam.getId()).findOne();
         assertThat(participation.getStarted()).isNotNull();
         assertThat(participation.getUser().getId()).isEqualTo(user.getId());
     }
@@ -223,7 +223,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     private Exam createPrivateStudentExam() {
         exam.setExecutionType(Ebean.find(ExamExecutionType.class)
                 .where().eq("type", ExamExecutionType.Type.PRIVATE.toString())
-                .findUnique());
+                .findOne());
         exam.update();
         Result result = get("/app/student/exam/" + exam.getHash());
         JsonNode node = Json.parse(contentAsString(result));
@@ -318,7 +318,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         // Verify that the previous exam was returned, and participation & enrolment still point to it
         assertThat(studentExam.getId()).isEqualTo(anotherStudentExam.getId());
         assertThat(Ebean.find(ExamEnrolment.class, enrolment.getId()).getExam().getHash()).isEqualTo(studentExam.getHash());
-        ExamParticipation participation = Ebean.find(ExamParticipation.class).where().eq("exam.id", studentExam.getId()).findUnique();
+        ExamParticipation participation = Ebean.find(ExamParticipation.class).where().eq("exam.id", studentExam.getId()).findOne();
         assertThat(participation.getStarted()).isNotNull();
         assertThat(participation.getUser().getId()).isEqualTo(user.getId());
     }
