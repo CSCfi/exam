@@ -2,7 +2,7 @@
     <div class="col-md-12">
         <div class="student-details-title-wrap">
             <history-back></history-back>
-            <div class="student-exam-details-title">{{$ctrl.exam.name}}</div>
+            <h1 class="student-exam-details-title">{{$ctrl.exam.name}}</h1>
         </div>
     </div>
 </div>
@@ -12,7 +12,8 @@
         <div class="student-details-title col-md-9 col-xs-6">
             <span>{{$ctrl.exam.name}}</span>
             <div class="student-details-subtitle">
-                <span ng-if="!$ctrl.exam.reservationMade && $ctrl.exam.alreadyEnrolled && !$ctrl.exam.noTrialsLeft" class="exam-needs-reservation">
+                <span ng-if="!$ctrl.exam.reservationMade && $ctrl.exam.alreadyEnrolled && !$ctrl.exam.noTrialsLeft"
+                    class="exam-needs-reservation">
                     {{'sitnet_state_needs_reservation_title' | translate}}
                 </span>
                 <span ng-if="$ctrl.exam.reservationMade" class="exam-ready">
@@ -22,7 +23,8 @@
         </div>
         <div class="col-md-3 col-xs-6" ng-if="!$ctrl.exam.alreadyEnrolled && !$ctrl.exam.noTrialsLeft">
             <div class="student-message-dialog-button-save">
-                <button class="btn btn-success" ng-click="$ctrl.enrollForExam()">{{'sitnet_enroll_to_exam' | translate}}
+                <button class="btn btn-success" ng-click="$ctrl.enrollForExam()">{{'sitnet_enroll_to_exam' |
+                    translate}}
                 </button>
             </div>
         </div>
@@ -53,7 +55,8 @@
                 {{'sitnet_start_time' | translate}}:
             </div>
             <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{$ctrl.exam.examActiveEndDate | date:'dd.MM.yyyy'}}
+                {{$ctrl.exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{$ctrl.exam.examActiveEndDate |
+                date:'dd.MM.yyyy'}}
             </div>
             <div class="clearfix visible-xs"></div>
             <div class="clearfix visible-sm"></div>

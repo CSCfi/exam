@@ -21,7 +21,7 @@ export const EulaDialogComponent: angular.IComponentOptions = {
     <div id="sitnet-dialog">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{'sitnet_accept_useragreement' | translate}}</div>
+                <h1 class="student-enroll-title">{{'sitnet_accept_useragreement' | translate}}</h1>
             </div>
             <div class="modal-body">
                 <div ng-bind-html="$ctrl.settings.eula.value">

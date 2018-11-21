@@ -1,9 +1,11 @@
 <div id='dashboard'>
 
     <div class="top-row">
-        <div class="student-details-title-wrap">
-            <history-back></history-back>
-            <div class="student-exam-details-title">{{'sitnet_calendar' | translate}}</div>
+        <div class="col-md-12">
+            <div class="student-details-title-wrap">
+                <history-back></history-back>
+                <h1 class="student-exam-details-title">{{'sitnet_calendar' | translate}}</h1>
+            </div>
         </div>
     </div>
 
@@ -12,7 +14,7 @@
         <div class="student-exam-header-row">
             <span class="calendar-phase-title">1. {{ 'sitnet_calendar_phase_1' | translate }}</span>
             <div class="calendar-phase-icon">
-                <img class="arrow_icon" src="Images/icon-phase.png">
+                <img class="arrow_icon" src="Images/icon-phase.png" alt="phase 1">
             </div>
         </div>
         <div class="student-exam-header-row">
@@ -62,7 +64,8 @@
         </div>
         <div class="student-exam-row">
             <span ng-if="$ctrl.showReservationWindowInfo()" class="text-info">
-                <img class="arrow_icon" src="Images/icon_info.png"> {{ $ctrl.getReservationWindowDescription() }}</span>
+                <img class="arrow_icon" src="Images/icon_info.png" alt="info-icon"> {{
+                $ctrl.getReservationWindowDescription() }}</span>
         </div>
     </div>
 
@@ -78,7 +81,7 @@
                 </small>
             </span>
             <div class="calendar-phase-icon" ng-show="$ctrl.selectedOrganisation">
-                <img class="arrow_icon" src="Images/icon-phase.png">
+                <img class="arrow_icon" alt="phase 2" src="Images/icon-phase.png">
             </div>
         </div>
 
@@ -92,8 +95,8 @@
                     </button>
                     <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu" aria-labelledby="dropDownMenu21">
                         <li role="presentation" class="input-group">
-                            <input ng-model="$ctrl.limitations.organisations" class="form-control" ng-click="$event.stopPropagation()"
-                                placeholder="{{'sitnet_search' | translate }}">
+                            <input aria-label="search for faculty" ng-model="$ctrl.limitations.organisations" class="form-control"
+                                ng-click="$event.stopPropagation()" placeholder="{{'sitnet_search' | translate }}">
                             <div class="input-group-addon">
                                 <i class="fa fa-search fa-fw"></i>
                             </div>
@@ -132,20 +135,20 @@
                 </small>
             </span>
             <div class="calendar-phase-icon" ng-show="$ctrl.selectedRoom">
-                <img class="arrow_icon" src="Images/icon-phase.png">
+                <img class="arrow_icon" alt="phase {{ $ctrl.isExternal ? 3 : 2 }}" src="Images/icon-phase.png">
             </div>
         </div>
         <div class="student-exam-header-row" ng-hide="$ctrl.isExternal">
             <div class="calendar-accessibility-link">
                 <a ng-click="$ctrl.showAccs = !$ctrl.showAccs">
                     {{'sitnet_calendar_room_accessibility_info' | translate}}</a>
-                <img class="arrow_icon" ng-show="!$ctrl.showAccs" src="Images/arrow_right.png">
-                <img class="arrow_icon" ng-show="$ctrl.showAccs" src="Images/arrow_down.png">
+                <img class="arrow_icon" ng-show="!$ctrl.showAccs" alt="show accessibility selection" src="Images/arrow_right.png">
+                <img class="arrow_icon" ng-show="$ctrl.showAccs" alt="hide accessibility selection" src="Images/arrow_down.png">
             </div>
             <div class="student-exam-row-infobox" ng-show="$ctrl.showAccs">
                 <div class="calendar-accs-title">Tenttitilan esteettömyysvaatimukset</div>
                 <div class="calendar-accs-checkboxes" style="display:inline-block; padding-right:10px;" ng-repeat="accessibility in $ctrl.accessibilities">
-                    <input type="checkbox" role="presentation" ng-click="$ctrl.selectAccessibility(accessibility)"
+                    <input aria-label="search for accessibility criteria" type="checkbox" role="presentation" ng-click="$ctrl.selectAccessibility(accessibility)"
                         value="{{accessibility.name | truncate:30}}"> {{accessibility.name | truncate:30}}
                 </div>
                 <!-- TBD div class="calendar-accs-title subi">Tenttikoneen esteettömyysvaatimukset</div>
@@ -163,8 +166,8 @@
                     </button>
                     <ul class="dropdown-menu student-select-room" role="menu" aria-labelledby="dropDownMenu1">
                         <li role="presentation" class="input-group">
-                            <input ng-model="$ctrl.limitations.rooms" class="form-control" ng-click="$event.stopPropagation()"
-                                placeholder="{{'sitnet_search' | translate }}">
+                            <input aria-label="search for room" ng-model="$ctrl.limitations.rooms" class="form-control"
+                                ng-click="$event.stopPropagation()" placeholder="{{'sitnet_search' | translate }}">
                             <div class="input-group-addon">
                                 <i class="fa fa-search fa-fw"></i>
                             </div>
@@ -186,7 +189,7 @@
             <!-- SELECTED ROOM  -->
             <div class="calendar-room-title" ng-show="$ctrl.selectedRoom">
                 <span>{{ $ctrl.selectedRoom.name }}&nbsp;
-                    <small class="text-muted">{{$ctrl.selectedRoom.mailAddress.street}}
+                    <small class="calendar-room-info-content">{{$ctrl.selectedRoom.mailAddress.street}}
                         {{$ctrl.selectedRoom.mailAddress.zip}} {{$ctrl.selectedRoom.mailAddress.city}}
                     </small>
                 </span>
@@ -253,7 +256,7 @@
                 <span ng-if="$ctrl.isExternal" class="calendar-phase-title">4. {{ 'sitnet_calendar_phase_3' | translate
                     }}</span>
                 <div class="calendar-phase-icon" ng-show="$ctrl.reservation">
-                    <img class="arrow_icon" src="Images/icon-phase.png">
+                    <img class="arrow_icon" alt="phase {{ $ctrl.isExternal ? 4 : 3 }}" src="Images/icon-phase.png">
                 </div>
             </div>
             <div class="student-exam-header-row">

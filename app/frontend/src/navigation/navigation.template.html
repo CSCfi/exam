@@ -3,15 +3,15 @@
         <div class="nav-header">
             <div class="logo">
                 <div class="hidden-mobile">
-                    <img src="Images/exam-logo-new.svg" alt="exam" onerror="this.onerror = null;
+                    <img src="Images/exam-logo-new.svg" alt="exam-logo" onerror="this.onerror = null;
                             this.src = 'Images/exam-logo-new.png'" />
                 </div>
                 <div class="visible-mobile">
                     <div class="mobile-menu" ng-click="$ctrl.openMenu();" ng-hide="!$ctrl.user">
-                        <img src="Images/icon_menu_mobile.svg" alt="exam" onerror="this.onerror = null;
+                        <img src="Images/icon_menu_mobile.svg" alt="exam-menu-mobile" onerror="this.onerror = null;
                                 this.src = 'Images/icon_menu_mobile.png'" />
                     </div>
-                    <img src="Images/exam-logo-mobile.svg" alt="exam" onerror="this.onerror = null;
+                    <img src="Images/exam-logo-mobile.svg" alt="exam-log-mobile" onerror="this.onerror = null;
                             this.src = 'Images/exam-logo-mobile.png'" />
                 </div>
             </div>
@@ -26,14 +26,16 @@
             <ul class="links">
                 <li ng-repeat="link in $ctrl.links" ng-show="link.visible">
                     <a ng-class="{selected: $ctrl.isActive(link)}" href="{{link.href}}">
-                        <img width="18" src="/assets/assets/images/nav/{{link.iconPng}}" alt="{{ link.name | translate }}" />
-                        <span class="menu-item" ng-click="link.submenu.hidden = !link.submenu.hidden">{{ link.name | translate }}</span>
+                        <img width="18" src="/assets/assets/images/nav/{{link.iconPng}}" alt="" />
+                        <span class="menu-item" ng-click="link.submenu.hidden = !link.submenu.hidden">{{ link.name |
+                            translate }}</span>
                     </a>
                     <ul class="submenu" ng-hide="link.submenu.hidden">
                         <li ng-repeat="subitem in link.submenu.items" ng-class="{selectedsub: $ctrl.isActive(subitem)}">
                             <a href="{{subitem.href}}">
                                 <div>
-                                    <img width="18" src="/assets/assets/images/nav/{{subitem.iconPng}}" alt="{{ subitem.name | translate }}" /> {{ subitem.name | translate }} </div>
+                                    <img width="18" src="/assets/assets/images/nav/{{subitem.iconPng}}" alt="" /> {{
+                                    subitem.name | translate }} </div>
                             </a>
                         </li>
                     </ul>
@@ -45,7 +47,7 @@
             <ul class="links">
                 <li ng-class="{selected: $ctrl.isActive(link)}" ng-repeat="link in $ctrl.links" ng-show="link.visible">
                     <a href="{{link.href}}">
-                        <img width="18" src="/assets/assets/images/nav/{{link.iconPng}}" alt="{{ link.name | translate }}" />
+                        <img width="18" src="/assets/assets/images/nav/{{link.iconPng}}" alt="" />
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>
                 </li>
@@ -56,11 +58,11 @@
             <div class="user">
                 <div class="user-name">
                     <div class="user-logo">
-                        <img src="Images/icon_menu_user.png" alt="{{$ctrl.user.firstName}}&nbsp;{{$ctrl.user.lastName}}" />
+                        <img src="Images/icon_menu_user.png" alt="" />
                     </div>
                     <div class="user-data">
                         {{$ctrl.user.firstName}}&nbsp;{{$ctrl.user.lastName}}
-                        <br/>
+                        <br />
                         <span ng-show="$ctrl.user.isStudent">{{ 'sitnet_student' | translate }}
                         </span>
                     </div>

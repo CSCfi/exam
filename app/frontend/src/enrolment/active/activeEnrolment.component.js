@@ -23,8 +23,8 @@ angular.module('app.enrolment')
             enrolment: '<',
             onRemoval: '&'
         },
-        controller: ['$translate', 'dialogs', 'Enrolment', 'Reservation',
-            function ($translate, dialogs, Enrolment, Reservation) {
+        controller: ['$translate', '$location', 'dialogs', 'Enrolment', 'Reservation',
+            function ($translate, $location, dialogs, Enrolment, Reservation) {
 
                 const vm = this;
 
@@ -68,6 +68,10 @@ angular.module('app.enrolment')
                     }
                     return o['roomInstruction' + $translate.use().toUpperCase()] || o.roomInstruction;
                 };
+
+                vm.goToCalendar = function () {
+                    $location.path(vm.getLinkToCalendar());
+                }
 
             }
         ]
