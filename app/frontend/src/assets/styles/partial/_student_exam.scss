@@ -134,8 +134,8 @@
     float: right;
     font-size: 16px;
     font-family: $sitnet-family-helvetica;
-    background-color: #3CA34F;
-    border: 1px solid #358F45;
+    background-color: $sitnet-green-new;
+    border: 1px solid $sitnet-dark-green-new;
     //width: 150px;
     margin-left: 10px;
     border-radius: 3px;
@@ -146,7 +146,7 @@
     font-weight:200;
 
     :hover, :active, :focus, :active:focus {
-      background-color: #358F45;
+      background-color: $sitnet-dark-green-new;
     }
 
     &.left-floater {
@@ -154,7 +154,6 @@
       width: 167px;
       padding: 5px;
       padding-left: 20px;
-      display: inline-block;
       margin-right: 15px;
       font-size: 14px;
       letter-spacing: 0.3px;
@@ -164,7 +163,6 @@
       float:left;
       padding: 5px;
       padding-left: 20px;
-      display: inline-block;
       margin-right: 15px;
       margin-left: 0px;
       font-size: 14px;
@@ -174,7 +172,6 @@
     &.right-for-section {
       padding: 5px;
       padding-left: 20px;
-      display: inline-block;
       margin-left: 0px;
       font-size: 14px;
       letter-spacing: 0.3px;
@@ -193,8 +190,8 @@
   }
 
   .green_button:hover, .green_button:active, .green_button:focus, .green_button:active:focus {
-      background-color: #358F45;
-      border: 1px solid #358F45;
+      background-color: $sitnet-dark-green-new;
+      border: 1px solid $sitnet-dark-green-new;
       text-decoration: none;
   }
 
@@ -380,16 +377,15 @@
 
   .exam-title {
     font-family: $sitnet-family-helvetica;
-    font-size: 2em;
     color: #2c2c2c;
-    border-bottom: 2px solid #3CA34F;
+    border-bottom: 2px solid $sitnet-green-new;
     padding-bottom: 7px;
   }
 
   .guide-wrapper {
     border-radius: 4px;
     border: 2px solid #EDEDED;
-    border-left: #5BC26E 4px solid;
+    border-left: $sitnet-medium-green-new 4px solid;
     margin-right: 1.4em;
     padding: 30px;
     margin-bottom: 10px;
@@ -482,7 +478,7 @@
   .phase-box {
     border-radius: 4px;
     border: 2px solid #EDEDED;
-    border-left: #5BC26E 4px solid;
+    border-left: $sitnet-medium-green-new 4px solid;
     margin-right: 0.1em;
     padding: 10px;
     margin-bottom: 10px;
@@ -498,11 +494,10 @@
   }
 
   .phase-box:hover {
-    border-left: #5BC26E 4px solid;
+    border-left: $sitnet-medium-green-new 4px solid;
   }
 
   .section-box-title {
-    display: inline-block;
     float: left;
     margin-left: 10px;
     margin-top: 10px;
@@ -558,7 +553,6 @@
   }
 
   .question-type-img-wrap {
-    display: inline-block;
     float: right;
     padding: 1px;
   }
@@ -592,6 +586,10 @@
   .filename-text {
     color:#555555;
     font-size: 12px;
+  }
+
+  legend {
+    display: none;
   }
 
 }

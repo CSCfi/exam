@@ -21,7 +21,7 @@
     @extend .row;
     border-radius: 4px;
     border: 2px solid #EDEDED;
-    border-left: #5BC26E 4px solid;
+    border-left: $sitnet-medium-green-new 4px solid;
     margin-left: 1.4em;
     margin-right: 1.4em;
     padding: 30px;
@@ -194,7 +194,7 @@
 
   .essay-answer-wrapper {
     border: 1px solid lightgrey;
-    border-left: 4px solid #5BC26E;
+    border-left: 4px solid $sitnet-medium-green-new;
     margin-bottom: 15px
   }
 
@@ -261,17 +261,17 @@
   }
 
   .exam-ready {
-    color: #3CA34F;
+    color: $sitnet-green-new;
     font-size: 13px;
   }
 
   .exam-needs-reservation {
-    color: #ED4459;
+    color: #a61022;
     font-size: 13px;
   }
 
   .student-exam-needs-reservation {
-    color: #ED4459;
+    color: #a61022;
     font-size: 13px;
   }
 
@@ -294,7 +294,7 @@
 
     .student-details-indicator {
       float: right;
-      color: #3CA34F;
+      color: $sitnet-green-new;
       font-size: 16px;
       font-family: $sitnet-family-helvetica;
 
@@ -332,7 +332,7 @@
 
       &.enroll-button {
         float: right;
-        color: #3CA34F;
+        color: $sitnet-green-new;
         font-size: 16px;
         font-family: $sitnet-family-helvetica;
       }
@@ -378,7 +378,7 @@
   }
 
   .student-exam-all-required {
-    color: #3CA34F;
+    color: $sitnet-green-new;
     font-size: 16px;
     font-family: $sitnet-family-helvetica;
     padding-right: 3px;
@@ -395,7 +395,6 @@
   }
 
   .student-exam-settings {
-    display: inline-block;
     float: right;
 
     a {
@@ -494,11 +493,6 @@
     font-weight: bold;
   }
 
-  .enrolment-row {
-    //@extend .row;
-    //margin-left: 0.5em;
-  }
-
   .exams-table {
 
     font-family: $sitnet-family-helvetica;
@@ -573,7 +567,7 @@
         }
 
         &.review {
-          color: #3CA34F !important;
+          color: $sitnet-green-new !important;
         }
 
       }
@@ -998,7 +992,6 @@
   }
 
   .review-attachment {
-    display: inline-block;
     float: right;
     margin-right: 30px;
   }
@@ -1007,8 +1000,8 @@
     a, button {
       font-size: 16px;
       font-family: $sitnet-family-helvetica;
-      background-color: #3CA34F;
-      border: 1px solid #358F45;
+      background-color: $sitnet-green-new;
+      border: 1px solid $sitnet-dark-green-new;
       width: 100%;
       padding-left: 20px;
       padding-right: 20px;
@@ -1053,8 +1046,8 @@
     }
 
     a:hover, button:active, button:focus, button:active:focus {
-      background-color: #358F45;
-      border: 1px solid #358F45;
+      background-color: $sitnet-dark-green-new;
+      border: 1px solid $sitnet-dark-green-new;
       text-decoration: none;
 
       &.notinuse {
@@ -1107,7 +1100,6 @@
 
   .review-list-speed-button {
     float: right;
-    display: inline-block;
     padding-top: 30px;
   }
 
@@ -1169,8 +1161,8 @@
 
   .exam-button {
     color: white;
-    background-color: #3CA34F;
-    border: 1px solid #358F45;
+    background-color: $sitnet-green-new;
+    border: 1px solid $sitnet-dark-green-new;
     height: 45px;
     padding-left: 30px;
     padding-right: 30px;
@@ -1180,8 +1172,8 @@
 
   .exam-button:hover {
     color: white;
-    background-color: #358F45;
-    border: 1px solid #358F45;
+    background-color: $sitnet-dark-green-new;
+    border: 1px solid $sitnet-dark-green-new;
     height: 45px;
     padding-left: 30px;
     padding-right: 30px;
@@ -1200,7 +1192,7 @@
     &.btn-primary {
       color: #2C2C2C;
       background-color: #7FD28E;
-      border-color: #358F45;
+      border-color: $sitnet-dark-green-new;
       height: 40px;
       padding-left: 30px;
       padding-right: 30px;
@@ -1307,7 +1299,6 @@
   }
 
   .review-points {
-    display: inline-block;
     float: right;
     margin-right: 0px;
     padding-right: 15px;
@@ -1352,7 +1343,6 @@
   }
 
   .teacher-toolbar {
-    display: inline-block;
     float: right;
     margin-right: 30px;
   }
@@ -1377,7 +1367,7 @@
     &.btn-primary {
       color: #2C2C2C;
       background-color: #7FD28E;
-      border-color: #358F45;
+      border-color: $sitnet-dark-green-new;
       height: 40px;
       padding-left: 15px;
       padding-right: 15px;
@@ -1583,9 +1573,9 @@
   }
 
   .question-correct-option {
-    border-top: 1px solid #3CA34F !important;
-    border-left: 1px solid #3CA34F;
-    border-bottom: 1px solid #3CA34F;
+    border-top: 1px solid $sitnet-green-new !important;
+    border-left: 1px solid $sitnet-green-new;
+    border-bottom: 1px solid $sitnet-green-new;
     background-color: #F3FFF5;
     padding: 10px;
     border-top-left-radius: 4px;
@@ -1593,9 +1583,9 @@
   }
 
   .question-correct-option-radio {
-    border-top: 1px solid #3CA34F;
-    border-right: 1px solid #3CA34F;
-    border-bottom: 1px solid #3CA34F;
+    border-top: 1px solid $sitnet-green-new;
+    border-right: 1px solid $sitnet-green-new;
+    border-bottom: 1px solid $sitnet-green-new;
     padding-left: 15px;
     background-color: #F3FFF5;
     padding: 10px;
@@ -1624,7 +1614,6 @@
   }
 
   .exam-section-settings {
-    display: inline-block;
     float: right;
     font-size: 14px;
   }
@@ -1741,8 +1730,8 @@
   .inspection-button {
     font-size: 16px;
     font-family: Helvetica-Neue, Helvetica;
-    background-color: #3CA34F;
-    border: 1px solid #358F45;
+    background-color: $sitnet-green-new;
+    border: 1px solid $sitnet-dark-green-new;
     padding-left: 20px;
     padding-right: 20px;
     line-height: 1.5;
@@ -1779,8 +1768,8 @@
     float: right;
     font-size: 16px;
     font-family: $sitnet-family-helvetica;
-    background-color: #3CA34F;
-    border: 1px solid #358F45;
+    background-color: $sitnet-green-new;
+    border: 1px solid $sitnet-dark-green-new;
     //width: 150px;
     margin-left: 10px;
     border-radius: 3px;
@@ -1791,7 +1780,7 @@
     font-weight: 200;
 
     :hover, :active, :focus, :active:focus {
-      background-color: #358F45;
+      background-color: $sitnet-dark-green-new;
     }
 
     &.left-floater {
@@ -1799,7 +1788,6 @@
       width: 167px;
       padding: 5px;
       padding-left: 20px;
-      display: inline-block;
       margin-right: 15px;
       font-size: 14px;
       letter-spacing: 0.3px;
@@ -1809,7 +1797,6 @@
       float: left;
       padding: 5px;
       padding-left: 20px;
-      display: inline-block;
       margin-right: 15px;
       margin-left: 0px;
       font-size: 14px;
@@ -1829,8 +1816,8 @@
   }
 
   .green_button:hover, .green_button:active, .green_button:focus, .green_button:active:focus {
-    background-color: #358F45;
-    border: 1px solid #358F45;
+    background-color: $sitnet-dark-green-new;
+    border: 1px solid $sitnet-dark-green-new;
     text-decoration: none;
   }
 
