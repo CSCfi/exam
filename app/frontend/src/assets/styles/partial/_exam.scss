@@ -69,7 +69,7 @@
   .create-new {
     display: block;
     color: #4c4c4c;
-    border: 4px dashed #3CA34F;
+    border: 4px dashed $sitnet-green-new;
     border-radius: 4px;
     padding: 1em;
     margin: 1em 30px 1em 30px;
@@ -282,7 +282,7 @@
   }
 
   .exam-answered-correct {
-    border: 1px solid #3CA34F;
+    border: 1px solid $sitnet-green-new;
     background-color: #F3FFF5;
     padding: 10px;
     border-radius:4px;

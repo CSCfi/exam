@@ -50,7 +50,7 @@
   a:hover {
     text-decoration: none;
     color: $sitnet-white;
-    border-left:3px solid #3CA34F;
+    border-left:3px solid $sitnet-green-new;
     @media (max-width: $sitnet-mobile) {
       border-left: none;
     }
@@ -58,7 +58,7 @@
 
   .selected {
       background-color: $sitnet-light-grey_new;
-      border-left:3px solid #3CA34F;
+      border-left:3px solid $sitnet-green-new;
       text-decoration: none;
       padding-left: 1.5em;
       font-family:$sitnet-family-helvetica;
@@ -143,7 +143,7 @@
   }
 
   .nav-footer {
-    background-color: $sitnet-light-green_new;
+    background-color: $sitnet-medium-green-new;
     color: $sitnet-dark-grey;
     display: block;
     height: 40px;
@@ -256,9 +256,7 @@
       text-decoration: none;
 
     }
-    a:hover {
-    }
-
+    
     a:active {
       font-weight: bold;
     }
@@ -293,15 +291,6 @@
   .user-data {
     display: inline-block;
     max-width: 165px;
-  }
-
-  .links {
-    li {
-      a:hover {
-        .menu-item {
-        }
-      }
-    }
   }
 
   .sub-menu {
@@ -392,14 +381,12 @@
     text-indent: -4em;
     width: 50px;
 
-    a {
-    }
   }
 
   .selectedsub {
     a {
       background-color: $sitnet-light-grey_new;
-      border-left:3px solid #3CA34F;
+      border-left:3px solid $sitnet-green-new;
       text-decoration: none;
       padding-left: 1.5em;
       font-family:$sitnet-family-helvetica;

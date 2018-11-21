@@ -19,20 +19,20 @@ import toast from 'toastr';
 angular.module('app.enrolment')
     .component('examEnrolments', {
         template:
-        '<div id="dashboard">\n' +
-        '    <div class="main-row" ng-show="$ctrl.exam.noTrialsLeft">\n' +
-        '        <div class="col-md-12 alert-danger">\n' +
-        '            <h4>{{\'sitnet_no_trials_left\' | translate}}</h4>\n' +
-        '        </div>\n' +
-        '    </div>\n' +
-        '    <enrolment-details ng-if="$ctrl.exam" exam="$ctrl.exam"></enrolment-details>\n' +
-        '    <div ng-show="$ctrl.exams.length > 0" class="student-details-title-wrap subtitle">\n' +
-        '        <div class="student-exam-details-title subtitle">{{\'sitnet_student_exams\' | translate}}</div>\n' +
-        '    </div>\n' +
-        '    <div class="exams-list">\n' +
-        '        <exam-search-result ng-repeat="exam in $ctrl.exams" exam="exam"></exam-search-result>\n' +
-        '    </div>\n' +
-        '</div>\n',
+            '<div id="dashboard">\n' +
+            '    <div class="main-row" ng-show="$ctrl.exam.noTrialsLeft">\n' +
+            '        <div class="col-md-12 alert-danger">\n' +
+            '            <h1>{{\'sitnet_no_trials_left\' | translate}}</h1>\n' +
+            '        </div>\n' +
+            '    </div>\n' +
+            '    <enrolment-details ng-if="$ctrl.exam" exam="$ctrl.exam"></enrolment-details>\n' +
+            '    <div ng-show="$ctrl.exams.length > 0" class="student-details-title-wrap subtitle">\n' +
+            '        <div class="student-exam-details-title subtitle">{{\'sitnet_student_exams\' | translate}}</div>\n' +
+            '    </div>\n' +
+            '    <div class="exams-list">\n' +
+            '        <exam-search-result ng-repeat="exam in $ctrl.exams" exam="exam"></exam-search-result>\n' +
+            '    </div>\n' +
+            '</div>\n',
         controller: ['$routeParams', 'Enrolment', 'Session',
             function ($routeParams, Enrolment, Session) {
 
