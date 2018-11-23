@@ -13,10 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ExamLanguage, Exam } from '../exam/exam.model';
-import { map } from '../../node_modules/rxjs/operators';
+import { Injectable } from '@angular/core';
+import { ExamLanguage } from '../exam/exam.model';
 
 export interface ISOLang {
     name: string;

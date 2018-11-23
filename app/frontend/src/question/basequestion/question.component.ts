@@ -13,8 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
-import toast from 'toastr';
+import * as angular from 'angular';
+import * as toast from 'toastr';
+import { QuestionService } from '../question.service';
+import { Question } from '../../exam/exam.model';
 
 angular.module('app.question')
     .component('question', {
@@ -66,7 +68,7 @@ angular.module('app.question')
             onCancel: '&?'
         },
         controller: ['$routeParams', '$scope', '$location', '$translate', 'dialogs', 'Question',
-            function ($routeParams, $scope, $location, $translate, dialogs, Question) {
+            function ($routeParams, $scope, $location, $translate, dialogs, Question: QuestionService) {
 
                 const vm = this;
 
@@ -82,17 +84,14 @@ angular.module('app.question')
                             return $translate.instant('sitnet_unsaved_data_may_be_lost');
                         };
                     } else {
-                        Question.questionsApi.get({ id: vm.questionId || $routeParams.id },
-                            function (question) {
+                        Question.getQuestion(vm.questionId || $routeParams.id).subscribe(
+                            (question: Question) => {
                                 vm.question = question;
                                 vm.currentOwners = angular.copy(vm.question.questionOwners);
                                 window.onbeforeunload = function () {
                                     return $translate.instant('sitnet_unsaved_data_may_be_lost');
                                 };
-                            },
-                            function (error) {
-                                toast.error(error.data);
-                            }
+                            }, (error) => toast.error(error.data)
                         );
                     }
                 };

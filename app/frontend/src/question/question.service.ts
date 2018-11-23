@@ -21,6 +21,7 @@ import { Exam, ExamSectionQuestion, MultipleChoiceOption, Question, ReverseQuest
 import { SessionService } from '../session/session.service';
 import { AttachmentService } from '../utility/attachment/attachment.service';
 import { FileService } from '../utility/file/file.service';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class QuestionService {
@@ -68,6 +69,8 @@ export class QuestionService {
             tags: []
         };
     }
+
+    getQuestion = (id: number): Observable<Question> => this.http.get<Question>(this.questionsApi(id));
 
     getQuestionAmounts = (exam: Exam) => {
         const data = { accepted: 0, rejected: 0, hasEssays: false };

@@ -23,7 +23,7 @@ export const AppComponent: angular.IComponentOptions = {
         <div ng-if="!$ctrl.user && $ctrl.devLoginRequired">
             <dev-login (on-logged-in)="$ctrl.setUser($event)"></dev-login>
         </div>
-        <div ng-if="$ctrl.user && (!$ctrl.user.isStudent || $ctrl.user.userAgreementAccepted)">
+        <div ng-if="$ctrl.user">
             <navigation (hidden)="$ctrl.hideNavBar"></navigation>
             <div id="mainView" class="container-fluid"
                 ng-class="{'vmenu-on': !$ctrl.hideNavBar && !$ctrl.user.isAdmin, 'vmenu-on-admin': $ctrl.user.isAdmin}">
@@ -39,7 +39,6 @@ export const AppComponent: angular.IComponentOptions = {
 
         constructor(
             private $rootScope: angular.IRootScopeService,
-            private $location: angular.ILocationService,
             private $window: angular.IWindowService,
             private Session: SessionService) {
             'ngInject';
@@ -49,7 +48,6 @@ export const AppComponent: angular.IComponentOptions = {
             this.Session.devLogoutChange$.pipe(
                 takeUntil(this.ngUnsubscribe)
             ).subscribe(() => {
-                this.$location.url(this.$location.path());
                 delete this.user;
             });
 

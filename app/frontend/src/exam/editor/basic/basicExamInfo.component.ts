@@ -80,19 +80,19 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         }
 
         updateExam = (resetAutoEvaluationConfig: boolean) => {
-            this.Exam.updateExam(this.exam, {}, this.collaborative).subscribe(() => {
-                toast.info(this.$translate.instant('sitnet_exam_saved'));
-                if (resetAutoEvaluationConfig) {
-                    delete this.exam.autoEvaluationConfig;
-                }
-                const code = this.exam.course ? this.exam.course.code : null;
-                this.onUpdate({ props: { name: this.exam.name, code: code, scaleChange: resetAutoEvaluationConfig } });
-            }, (error) => {
-                if (error.data) {
-                    const msg = error.data.message || error.data;
-                    toast.error(this.$translate.instant(msg));
-                }
-            });
+            this.Exam.updateExam(this.exam, {}, this.collaborative).subscribe(
+                () => {
+                    toast.info(this.$translate.instant('sitnet_exam_saved'));
+                    if (resetAutoEvaluationConfig) {
+                        delete this.exam.autoEvaluationConfig;
+                    }
+                    const code = this.exam.course ? this.exam.course.code : null;
+                    this.onUpdate(
+                        { props: { name: this.exam.name, code: code, scaleChange: resetAutoEvaluationConfig } }
+                    );
+                },
+                (resp) => toast.error(this.$translate.instant(resp.error))
+            );
         }
 
         onCourseChange = (course: Course) => {

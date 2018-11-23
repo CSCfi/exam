@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
+import * as angular from 'angular';
+import { ExaminationService } from './examination.service';
 
-angular.module('app.examination', []);
+angular.module('app.examination', []).service('Examination', ExaminationService);
 

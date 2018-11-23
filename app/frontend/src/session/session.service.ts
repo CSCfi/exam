@@ -18,12 +18,12 @@ import { Inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { SESSION_STORAGE, WebStorageService } from 'angular-webstorage-service';
-import { interval, Observable, of, Subject, Unsubscribable } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { defer, from, iif, interval, Observable, of, Subject, Unsubscribable, throwError } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toastr from 'toastr';
 import { WindowRef } from '../utility/window/window.service';
-import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
 import { EulaDialogComponent } from './eula/eulaDialog.component';
+import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
 
 export interface Role {
     name: string;
@@ -59,6 +59,7 @@ export class SessionService {
 
     private PING_INTERVAL: number = 60 * 1000;
     private user: User;
+    private token: string;
     private env: { isProd: boolean };
     private sessionCheckSubscription: Unsubscribable;
     private userChangeSubscription = new Subject<User>();
@@ -90,8 +91,11 @@ export class SessionService {
 
     getUserName = () => this.user ? this.user.firstName + ' ' + this.user.lastName : '';
 
+    getToken = () => this.token;
+
     setUser(user: User) {
         this.user = user;
+        this.token = user.token;
     }
 
     private init(): Observable<Env> {
@@ -139,80 +143,8 @@ export class SessionService {
     }
 
     private redirect(): void {
-        if (this.location.path() === '/' && this.user.isLanguageInspector) {
-            this.location.go('/inspections');
-        }
-    }
-
-    private onLoginSuccess(): void {
-        this.restartSessionCheck();
-        this.userChangeSubscription.next(this.user);
-
-        const welcome = () => {
-            if (this.user) {
-                toastr.success(
-                    `${this.i18n.instant('sitnet_welcome')} ${this.user.firstName} ${this.user.lastName}`
-                );
-            }
-        };
-
-        setTimeout(welcome, 2000);
-
-        if (!this.user.loginRole) {
-            this.openRoleSelectModal(this.user);
-        } else if (this.user.isStudent && !this.user.userAgreementAccepted) {
-            this.openEulaModal(this.user);
-        } else {
-            this.redirect();
-        }
-    }
-
-    private onLoginFailure(message: any): void {
-        this.location.go('/');
-        toastr.error(message);
-    }
-
-    private processLoggedInUser(user: User): void {
-        user.roles.forEach(role => {
-            switch (role.name) {
-                case 'ADMIN':
-                    role.displayName = 'sitnet_admin';
-                    role.icon = 'fa-cog';
-                    break;
-                case 'TEACHER':
-                    role.displayName = 'sitnet_teacher';
-                    role.icon = 'fa-university';
-                    break;
-                case 'STUDENT':
-                    role.displayName = 'sitnet_student';
-                    role.icon = 'fa-graduation-cap';
-                    break;
-            }
-        });
-
-        const loginRole = user.roles.length === 1 ? user.roles[0] : null;
-        const isTeacher = loginRole != null && loginRole.name === 'TEACHER';
-        this.user = {
-            id: user.id,
-            eppn: user.eppn,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            lang: user.lang,
-            loginRole: loginRole,
-            roles: user.roles,
-            token: user.token,
-            userAgreementAccepted: user.userAgreementAccepted,
-            userIdentifier: user.userIdentifier,
-            permissions: user.permissions,
-            isAdmin: loginRole != null && loginRole.name === 'ADMIN',
-            isStudent: loginRole != null && loginRole.name === 'STUDENT',
-            isTeacher: isTeacher,
-            isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE')
-        };
-
-        this.webStorageService.set('EXAM_USER', this.user);
-        this.translate(this.user.lang);
+        const path = this.user.isLanguageInspector ? '/inspections' : '/';
+        this.location.go(path);
     }
 
     logout(): void {
@@ -223,27 +155,10 @@ export class SessionService {
             resp => {
                 this.webStorageService.remove('EXAM_USER');
                 delete this.user;
+                delete this.token;
                 this.onLogoutSuccess(resp);
             },
             error => toastr.error(error.data));
-    }
-
-    login$(username: string, password: string): Observable<User> {
-        const credentials = {
-            username: username,
-            password: password
-        };
-        return this.http.post<User>('/app/login', credentials).pipe(
-            tap(resp => {
-                this.processLoggedInUser(resp);
-                this.onLoginSuccess();
-            }),
-            map(() => this.user),
-            catchError(resp => {
-                this.onLoginFailure(resp);
-                return of(resp);
-            })
-        );
     }
 
     // FIXME: no idea how
@@ -320,52 +235,115 @@ export class SessionService {
             }, resp => toastr.error(resp));
     }
 
-    private openEulaModal(user: User): void {
+    private openUserAgreementModal$(user: User): Observable<User> {
         const modalRef = this.modal.open(EulaDialogComponent, {
             backdrop: 'static',
             keyboard: true
         });
-        modalRef.result.then(() => {
-            this.http.put('/app/users/agreement', {}).subscribe(
-                () => {
-                    user.userAgreementAccepted = true;
-                    this.setUser(user);
-                    // We need to reload controllers after accepted user agreement.
-                    // FIXME: figure out how
-                    // this.$route.reload();
-                }, resp => toastr.error(resp)
-            );
-        }).catch(() => this.location.go('/logout'));
+        return from(modalRef.result).pipe(
+            tap(() => this.http.put('/app/users/agreement', {}).subscribe()),
+            map(() => {
+                user.userAgreementAccepted = true;
+                return user;
+            }),
+        );
     }
 
-    private openRoleSelectModal(user: User) {
+    private openRoleSelectModal$(user: User): Observable<User> {
         const modalRef = this.modal.open(SelectRoleDialogComponent, {
             backdrop: 'static',
             keyboard: false
         });
         modalRef.componentInstance.user = user;
-        modalRef.result.then((role: { name: string, icon: string, displayName: string }) => {
-            this.http.put(`/app/users/${user.id}/roles/${role.name}`, {}).subscribe(() => {
+        return from(modalRef.result).pipe(
+            tap(role => this.http.put(`/app/users/${user.id}/roles/${role.name}`, {}).subscribe()),
+            map(role => {
                 user.loginRole = role;
                 user.isAdmin = role.name === 'ADMIN';
                 user.isTeacher = role.name === 'TEACHER';
                 user.isStudent = role.name === 'STUDENT';
                 user.isLanguageInspector =
                     user.isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
-                this.setUser(user);
-                this.userChangeSubscription.next(user);
-                if (user.isStudent && !user.userAgreementAccepted) {
-                    this.openEulaModal(user);
-                } else {
-                    // We need to reload controllers after role is selected.
-                    // FIXME
-                    // this.$route.reload();
+                return user;
+            }),
+        );
+    }
+
+    private prepareUser(user: User): User {
+        user.roles.forEach(role => {
+            switch (role.name) {
+                case 'ADMIN':
+                    role.displayName = 'sitnet_admin';
+                    role.icon = 'fa-cog';
+                    break;
+                case 'TEACHER':
+                    role.displayName = 'sitnet_teacher';
+                    role.icon = 'fa-university';
+                    break;
+                case 'STUDENT':
+                    role.displayName = 'sitnet_student';
+                    role.icon = 'fa-graduation-cap';
+                    break;
+            }
+        });
+
+        const loginRole = user.roles.length === 1 ? user.roles[0] : null;
+        const isTeacher = loginRole != null && loginRole.name === 'TEACHER';
+
+        Object.assign(user, {
+            loginRole: loginRole,
+            isTeacher: isTeacher,
+            isAdmin: loginRole != null && loginRole.name === 'ADMIN',
+            isStudent: loginRole != null && loginRole.name === 'STUDENT',
+            isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE')
+        });
+        return user;
+    }
+
+    login$(username: string, password: string): Observable<User> {
+        const credentials = {
+            username: username,
+            password: password
+        };
+        return this.http.post<User>('/app/login', credentials).pipe(
+            map(u => this.prepareUser(u)),
+            switchMap(u => this.processLogin$(u)),
+            tap((u: User) => {
+                this.user = u;
+                this.webStorageService.set('EXAM_USER', this.user);
+                this.translate(this.user.lang);
+                this.restartSessionCheck();
+                this.userChangeSubscription.next(u);
+                const welcome = () => {
+                    if (this.user) {
+                        toastr.success(
+                            `${this.i18n.instant('sitnet_welcome')} ${this.user.firstName} ${this.user.lastName}`
+                        );
+                    }
+                };
+                setTimeout(welcome, 2000);
+                this.redirect();
+            }),
+            catchError(resp => {
+                if (resp.error) {
+                    toastr.error(this.i18n.instant(resp.error));
                 }
-            }, resp => {
-                toastr.error(resp.data);
-                this.location.go('/logout');
-            });
-        }).catch(() => this.location.go('/logout'));
+                return throwError(resp);
+            })
+        );
+    }
+
+    private processLogin$(user: User): Observable<User> {
+        this.token = user.token;
+        const userAgreementConfirmation$ = (u: User): Observable<User> => iif(
+            () => u.isStudent && !u.userAgreementAccepted,
+            defer(() => this.openUserAgreementModal$(u)),
+            of(u)
+        );
+        return user.loginRole ? userAgreementConfirmation$(user) :
+            this.openRoleSelectModal$(user).pipe(
+                switchMap(u => userAgreementConfirmation$(u))
+            );
     }
 
 }

@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./examination.module');
-require('./examination.service');
+require('./examination.module.ts');
+require('./examination.service.ts');
 require('./examination.component');
 
 require('./clock/examinationClock.component');

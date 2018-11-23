@@ -16,7 +16,7 @@
 require('./question.module.ajs.ts');
 require('./question.service');
 
-require('./basequestion/question.component');
+require('./basequestion/question.component.ts');
 require('./basequestion/questionBody.component');
 require('./basequestion/tagPicker.component');
 require('./basequestion/essayForm.component');
