@@ -20,7 +20,7 @@ import { downgradeInjectable } from '@angular/upgrade/static';
 require('./editor/editor.module.ts');
 require('../facility/facility.module');
 require('../review/review.module');
-require('../examination/examination.module');
+require('../examination/examination.module.ts');
 require('../question');
 
 angular.module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.examination', 'app.question'])

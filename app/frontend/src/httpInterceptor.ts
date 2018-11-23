@@ -24,8 +24,8 @@ export class AuthInterceptor implements HttpInterceptor {
 
     intercept(req: HttpRequest<any>, next: HttpHandler) {
         // Get the auth token from the service.
-        const user = this.Session.getUser();
-        if (!user) {
+        const token = this.Session.getToken();
+        if (!token) {
             return next.handle(req);
         }
 
@@ -33,7 +33,7 @@ export class AuthInterceptor implements HttpInterceptor {
             headers: req.headers
                 .set('Cache-Control', 'no-cache')
                 .set('Pragma', 'no-cache')
-                .set('x-exam-authentication', user.token)
+                .set('x-exam-authentication', token)
         });
 
         // send cloned request with headers to the next handler.

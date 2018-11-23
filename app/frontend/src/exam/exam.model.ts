@@ -102,6 +102,7 @@ export interface EssayAnswer {
     id: number;
     evaluatedScore: number;
     answer: string;
+    objectVersion: number;
 }
 
 export interface MultipleChoiceOption {
@@ -121,6 +122,8 @@ export interface ClozeTestAnswer {
     id: number;
     score: { correctAnswers: number, incorrectAnswers: number };
     maxScore: number;
+    answer: string;
+    objectVersion: number;
 }
 
 export interface ExamSectionQuestion {
