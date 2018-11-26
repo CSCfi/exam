@@ -16,12 +16,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { Observable } from 'rxjs';
 import * as toast from 'toastr';
 import { Exam, ExamSectionQuestion, MultipleChoiceOption, Question, ReverseQuestion } from '../exam/exam.model';
 import { SessionService } from '../session/session.service';
 import { AttachmentService } from '../utility/attachment/attachment.service';
 import { FileService } from '../utility/file/file.service';
-import { Observable } from 'rxjs';
 
 @Injectable()
 export class QuestionService {
@@ -258,6 +258,14 @@ export class QuestionService {
     toggleCorrectOption = (option: MultipleChoiceOption, options: MultipleChoiceOption[]) => {
         option.correctOption = true;
         options.forEach(o => o.correctOption = o === option);
+    }
+
+    addOwnerForQuestions$ = (uid: number, qids: number[]): Observable<any> => {
+        const data = {
+            'uid': uid,
+            'questionIds': qids.join()
+        };
+        return this.http.put(this.questionOwnerApi(uid), data);
     }
 
 }

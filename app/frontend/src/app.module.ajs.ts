@@ -41,7 +41,7 @@ import DashboardModule from './dashboard';
 import CollaborativeExamModule from './exam/collaborative';
 import NavigationModuleAjs from './navigation/navigation.module.ajs';
 import SessionModuleAjs from './session/session.module.ajs';
-import UtilityModule from './utility';
+import UtilityModule from './utility/utility.module.ajs';
 
 angularJS.module('app', [
     'ngAnimate',

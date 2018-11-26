@@ -12,15 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
 import * as _ from 'lodash';
+import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { Exam } from '../../exam/exam.model';
 
+@Injectable()
 export class DateTimeService {
 
-    constructor(private $translate: angular.translate.ITranslateService) { 'ngInject'; }
+    constructor(private translate: TranslateService) { }
 
-    printExamDuration(exam: { duration: number }): string {
-        if (exam && exam.duration) {
+    printExamDuration(exam: Exam): string {
+        if (exam.duration) {
             const h = Math.floor(exam.duration / 60);
             const m = exam.duration % 60;
             if (h === 0) {
@@ -41,7 +44,7 @@ export class DateTimeService {
     }
 
     getWeekdayNames(): string[] {
-        const lang = this.$translate.use();
+        const lang = this.translate.currentLang;
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
         const options = { weekday: 'short' };
         return _.range(1, 7).concat(0).map(

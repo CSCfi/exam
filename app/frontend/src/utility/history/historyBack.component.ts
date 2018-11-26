@@ -13,18 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { Component } from '@angular/core';
+import { WindowRef } from '../window/window.service';
 
-import angular from 'angular';
+@Component({
+    selector: 'history-back',
+    template: `
+    <a (click)="goBack($event)">
+        <img class="arrow_icon" src="Images/icon_history.png" alt="go back">
+    </a>
+    `
+})
+export class HistoryBackComponent {
 
-angular.module('app.common')
-    .component('historyBack', {
-        template: require('./historyBack.template.html'),
-        controller: ['$window', function ($window) {
-            const vm = this;
+    constructor(private Window: WindowRef) { }
 
-            vm.goBack = function (event) {
-                event.preventDefault();
-                $window.history.back();
-            }
-        }]
-    });
+    goBack = (event: Event) => {
+        event.preventDefault();
+        this.Window.nativeWindow.history.back();
+    }
+}

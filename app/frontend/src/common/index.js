@@ -13,8 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./common.module.ts');
-require('./language.service.ts');
+require('./common.module.ajs.ts');
 require('./settingsResource');
 require('./userResource');
-require('./historyBack.component');
