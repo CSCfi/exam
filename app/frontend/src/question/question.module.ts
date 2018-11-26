@@ -13,18 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { TruncatingPipe } from '../utility/truncate/truncate.pipe';
 import { LibraryService } from './library/library.service';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
-import { TranslateModule } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
-import { TruncatingPipe } from '../utility/truncate/truncate.pipe';
+import { QuestionService } from './question.service';
 
 @NgModule({
     imports: [
-        CommonModule,
         TranslateModule,
-        FormsModule
     ],
     declarations: [
         LibrarySearchComponent,
@@ -34,7 +31,8 @@ import { TruncatingPipe } from '../utility/truncate/truncate.pipe';
         LibrarySearchComponent
     ],
     providers: [
-        LibraryService
+        LibraryService,
+        QuestionService
     ]
 })
 export class QuestionModule { }

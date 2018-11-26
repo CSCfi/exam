@@ -13,61 +13,54 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
-export const DatePickerComponent: angular.IComponentOptions = {
-    template: require('./datePicker.template.html'),
-    bindings: {
-        onUpdate: '&',
-        initialDate: '<?',
-        extra: '<?',
-        extraText: '@',
-        onExtraAction: '&',
-        modelOptions: '<?',
-        optional: '<?'
-    },
-    controller: class DatePickerController implements angular.IComponentController {
+@Component({
+    selector: 'date-picker',
+    template: require('./datePicker.component.html')
+})
+export class DatePickerComponent implements OnInit {
 
-        onUpdate: ({ date: Date }) => any;
-        onExtraAction: ({ date: Date }) => any;
-        date: Date | null;
-        initialDate: Date | string | null;
-        showWeeks = true;
-        modelOptions: any;
-        optional: boolean;
+    @Input() initialDate: Date | string | null;
+    @Input() extra: boolean;
+    @Input() extraText: string;
+    @Input() modelOptions: any = {};
+    @Input() optional: boolean;
 
-        opened: boolean;
-        options = {
-            startingDay: 1
-        };
-        format = 'dd.MM.yyyy';
+    @Output() onUpdate = new EventEmitter<{ date: Date | null }>();
+    @Output() onExtraAction = new EventEmitter<{ date: Date | null }>();
 
-        $onInit() {
-            if (angular.isUndefined(this.modelOptions)) {
-                this.modelOptions = {};
-            }
-            if (_.isString(this.initialDate)) {
-                this.date = moment(this.initialDate).toDate();
-            } else {
-                this.date = angular.isUndefined(this.initialDate) ? new Date() : this.initialDate;
-            }
+    date: Date | null;
+    showWeeks = true;
+    opened: boolean;
+    options = {
+        startingDay: 1
+    };
+    format = 'dd.MM.yyyy';
+
+    ngOnInit() {
+        if (_.isString(this.initialDate)) {
+            this.date = moment(this.initialDate).toDate();
+        } else {
+            this.date = _.isUndefined(this.initialDate) ? new Date() : this.initialDate;
         }
-
-        openPicker(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.opened = true;
-        }
-
-        dateChanged() {
-            this.onUpdate({ date: this.date });
-        }
-
-        extraClicked() {
-            this.onExtraAction({ date: this.date });
-        }
-
     }
-};
+
+    openPicker(event: Event) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.opened = true;
+    }
+
+    dateChanged() {
+        this.onUpdate.emit({ date: this.date });
+    }
+
+    extraClicked() {
+        this.onExtraAction.emit({ date: this.date });
+    }
+
+}
+

@@ -33,7 +33,7 @@ import { FileService } from './utility/file/file.service';
 import { WindowRef } from './utility/window/window.service';
 import { SortableDirective } from './utility/dragndrop/sortable.directive';
 import { LanguageSelectorComponent } from './exam/editor/common/languageSelector.component';
-import { LanguageService } from './common/language.service';
+import { LanguageService } from './utility/language/language.service';
 import { ConfirmationDialogComponent } from './utility/dialogs/confirmationDialog.component';
 import { ExamService } from './exam/exam.service';
 import { QuestionService } from './question/question.service';
@@ -45,6 +45,7 @@ import { AttachmentSelectorComponent } from './utility/attachment/dialogs/attach
 import { NavigationModule } from './navigation/navigation.module';
 import { SessionModule } from './session/session.module';
 import { QuestionModule } from './question/question.module';
+import { UtilityModule } from './utility/utility.module';
 
 @NgModule({
     imports: [
@@ -58,7 +59,12 @@ import { QuestionModule } from './question/question.module';
         UpgradeModule,
         SessionModule,
         NavigationModule,
-        QuestionModule
+        QuestionModule,
+        UtilityModule
+    ],
+    exports: [
+        CommonModule,
+        FormsModule
     ],
     declarations: [
         LanguageSelectorComponent,

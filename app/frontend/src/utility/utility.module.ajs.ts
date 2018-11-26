@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
-
 import * as angular from 'angular';
 import { AttachmentService } from './attachment/attachment.service';
 import { AttachmentSelectorComponent } from './attachment/dialogs/attachmentSelector.component';
@@ -21,21 +20,22 @@ import { DateTimeService } from './date/date.service';
 import { DatePickerComponent } from './date/datePicker.component';
 import { DateTimePickerComponent } from './date/dateTimePicker.component';
 import { DraggableModalDirective, DroppableDirective } from './dragndrop/dragndrop.directive';
-import { SortableDirective } from './dragndrop/sortable.directive';
 import { FileService } from './file/file.service';
+import { HistoryBackComponent } from './history/historyBack.component';
+import { LanguageService } from './language/language.service';
 import { PaginatorComponent } from './paginator/paginator.component';
 import { DropDownSelectComponent } from './select/dropDownSelect.component';
 import runBlock from './utility.run';
-
-
 
 export default angular.module('app.utility', [])
     .run(runBlock)
     .service('Attachment', downgradeInjectable(AttachmentService))
     .service('DateTime', DateTimeService)
     .service('Files', downgradeInjectable(FileService))
+    .service('Language', downgradeInjectable(LanguageService))
     .directive('attachmentSelector', downgradeComponent({ component: AttachmentSelectorComponent }))
-    .component('datePicker', DatePickerComponent)
+    .directive('historyBack', downgradeComponent({ component: HistoryBackComponent }))
+    .directive('datePicker', downgradeComponent({ component: DatePickerComponent }))
     .component('dateTimePicker', DateTimePickerComponent)
     .component('dropDownSelect', DropDownSelectComponent)
     .component('paginator', PaginatorComponent)

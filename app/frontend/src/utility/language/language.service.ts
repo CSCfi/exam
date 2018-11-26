@@ -15,7 +15,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ExamLanguage } from '../exam/exam.model';
+import { ExamLanguage } from '../../exam/exam.model';
 
 export interface ISOLang {
     name: string;
@@ -31,7 +31,7 @@ export class LanguageService {
 
     constructor(private http: HttpClient) { }
 
-    private isoLangs: ISOLangMap = require('./resource/languages');
+    private isoLangs: ISOLangMap = require('./languages');
 
     getLanguageName = (code: string) => {
         const key = code.slice(0, 2);
