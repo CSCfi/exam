@@ -6,7 +6,8 @@
 </div>
 <div class="waitingroom-info">
     <div class="text-info" ng-show="$ctrl.upcoming">
-        <img class="arrow_icon" src="Images/icon_info.png"> {{ 'sitnet_redirect_to_exam_notice' | translate }}
+        <img class="arrow_icon" alt="info icon" src="Images/icon_info.png"> {{ 'sitnet_redirect_to_exam_notice' |
+        translate }}
     </div>
 </div>
 
@@ -19,13 +20,14 @@
                     <!-- calendar box -->
                     <div class="student-enrolment-date-box">
                         {{ $ctrl.enrolment.reservation.startAt | date:'dd' }}
-                        <span class="month-name">{{ $ctrl.enrolment.reservation.startAt | date:'MMM' | limitTo:3 | uppercase }}</span>
+                        <span class="month-name">{{ $ctrl.enrolment.reservation.startAt | date:'MMM' | limitTo:3 |
+                            uppercase }}</span>
                     </div>
                     <!-- exam title n stuff -->
                     <div class="student-enrolment-exam">
                         {{$ctrl.enrolment.exam.name}}
                         <span ng-if="$ctrl.enrolment.exam.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
-                        <br/>
+                        <br />
                         <span class="exam-ready">{{'sitnet_state_ready' | translate}}</span>
                     </div>
                 </div>
@@ -60,7 +62,8 @@
                             {{ 'sitnet_exam_room' | translate }}:
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ $ctrl.enrolment.reservation.machine.name}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; {{$ctrl.enrolment.reservation.machine.room.name}}
+                            {{ $ctrl.enrolment.reservation.machine.name}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+                            {{$ctrl.enrolment.reservation.machine.room.name}}
                             ({{$ctrl.enrolment.reservation.machine.room.roomCode}})
                         </div>
                         <div class="clearfix visible-xs"></div>
@@ -69,7 +72,8 @@
                             {{ 'sitnet_reservation' | translate }}:
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                            {{$ctrl.enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}} {{$ctrl.enrolment.reservation.occasion.startAt}}
+                            {{$ctrl.enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}}
+                            {{$ctrl.enrolment.reservation.occasion.startAt}}
                             - {{$ctrl.enrolment.reservation.occasion.endAt}}
                         </div>
                     </div>
