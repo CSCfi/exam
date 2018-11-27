@@ -17,6 +17,7 @@
 package backend.controllers.iop.collaboration.api;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
@@ -30,17 +31,6 @@ import akka.stream.IOResult;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-
-import backend.controllers.BaseAttachmentInterface;
-import backend.models.Attachment;
-import backend.models.Comment;
-import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
-import backend.models.User;
-import backend.models.api.AttachmentContainer;
-import backend.models.questions.EssayAnswer;
-import backend.util.AppUtil;
-import backend.util.config.ConfigUtil;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -54,6 +44,17 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
+
+import backend.controllers.BaseAttachmentInterface;
+import backend.models.Attachment;
+import backend.models.Comment;
+import backend.models.Exam;
+import backend.models.ExamSectionQuestion;
+import backend.models.User;
+import backend.models.api.AttachmentContainer;
+import backend.models.questions.EssayAnswer;
+import backend.util.AppUtil;
+import backend.util.config.ConfigUtil;
 
 import static play.mvc.Controller.request;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -435,7 +436,11 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
             if (response.getStatus() != 200) {
                 return CompletableFuture.supplyAsync(() -> Results.status(response.getStatus()));
             }
-            return serveAsBase64Stream(mimeType, fileName, response.getBodyAsSource());
+            try {
+                return serveAsBase64Stream(mimeType, fileName, response.getBodyAsSource());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
