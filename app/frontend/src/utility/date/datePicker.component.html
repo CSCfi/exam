@@ -1,15 +1,19 @@
-<!--form class="form-inline">
+<form class="form-inline">
     <div class="form-group">
         <div class="input-group">
-            <input class="form-control" placeholder="yyyy-mm-dd" name="dp" [(ngModel)]="model" ngbDatepicker #d="ngbDatepicker">
+            <input class="form-control" [required]="!optional" placeholder="yyyy-mm-dd" name="dp" [(ngModel)]="date"
+                ngbDatepicker #d="ngbDatepicker" [startDate]="initialDate" [showWeekNumbers]="true" (dateSelect)="dateChanged($event)">
             <div class="input-group-append">
-                <button class="btn btn-outline-secondary calendar btn-green" (click)="d.toggle()" type="button"></button>
+                <button class="btn btn-primary green border-green" (click)="d.toggle()" type="button">
+                    <img src="/assests/assets/images/reservation_calendar.svg" alt="exam" onerror="this.onerror=null;this.src='/assets/assets/images/reservation_calendar.png';" />
+                </button>
+                <!-- extra btn -->
             </div>
         </div>
     </div>
-</form-->
+</form>
 
-<div class="input-group">
+<!--div class="input-group">
     <input type="text" class="form-control" uib-datepicker-popup="{{format}}" [ng-model-options]="modelOptions"
         (change)="dateChanged()" [is-open]="opened" [datepicker-options]="options" close-text="{{'sitnet_close' | translate}}"
         current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}"
@@ -19,11 +23,11 @@
             <img src="Images/reservation_calendar.svg" alt="exam" onerror="this.onerror=null;this.src='Images/reservation_calendar.png';" />
         </button>
     </span>
-    <!-- Optional extra button -->
-    <span ng-if="$ctrl.extra" class="input-group-btn">
-        <button ng-click="$ctrl.extraClicked()" class="btn btn-primary green border-green" style="margin-left: 1px">{{$ctrl.extraText
-            |
-            translate}}
-        </button>
-    </span>
-</div>
+    < Optional extra button -->
+<!--span ng-if="$ctrl.extra" class="input-group-btn">
+    <button ng-click="$ctrl.extraClicked()" class="btn btn-primary green border-green" style="margin-left: 1px">{{$ctrl.extraText
+        |
+        translate}}
+    </button>
+</span>
+</div-->

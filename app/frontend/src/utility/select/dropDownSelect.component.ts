@@ -15,8 +15,7 @@
  *
  */
 import * as angular from 'angular';
-
-declare function require(name: string): any;
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
 interface Selection {
     value: any;
@@ -29,52 +28,43 @@ export interface Option {
     isHeader?: boolean;
 }
 
-export const DropDownSelectComponent: angular.IComponentOptions = {
-    template: require('./dropDownSelect.template.html'),
-    bindings: {
-        options: '<',
-        placeholder: '@',
-        onSelect: '&'
-    },
-    controller: class DropDownSelectController implements angular.IComponentController {
-        options: Option[];
-        placeholder: string;
-        onSelect: (_?: Selection) => void;
-        searchFilter: string;
-        selected: Option;
-        labelFilter: (_: Option) => boolean;
+@Component({
+    selector: 'dropdown-select',
+    template: require('./dropDownSelect.component.html'),
+})
+export class DropdownSelectComponent {
+    @Input() options: Option[] = [];
+    @Input() placeholder = '-';
+    @Output() onSelect = new EventEmitter<Selection>();
+    searchFilter = '';
+    selected: Option;
+    labelFilter: (_: Option) => boolean;
 
-        constructor() {
-            this.labelFilter = (option: Option): boolean => {
-                return option.label != null &&
-                    option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
-            };
-        }
-
-        $onInit() {
-            this.placeholder = this.placeholder || '-';
-            this.searchFilter = '';
-        }
-
-        selectOption(option: Option) {
-            this.selected = option;
-            this.onSelect({ value: option.value || option.id });
-        }
-
-        getClasses(option: Option): string[] {
-            const classes: string[] = [];
-            if (this.selected && this.selected.id === option.id) {
-                classes.push('active');
-            }
-            if (option.isHeader) {
-                classes.push('dropdown-header');
-            }
-            return classes;
-        }
-
-        clearSelection = () => {
-            delete this.selected;
-            this.onSelect();
-        }
+    constructor() {
+        this.labelFilter = (option: Option): boolean => {
+            return option.label != null &&
+                option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
+        };
     }
-};
+
+    selectOption = (option: Option) => {
+        this.selected = option;
+        this.onSelect.emit({ value: option.value || option.id });
+    }
+
+    getClasses = (option: Option): string[] => {
+        const classes: string[] = [];
+        if (this.selected && this.selected.id === option.id) {
+            classes.push('active');
+        }
+        if (option.isHeader) {
+            classes.push('dropdown-header');
+        }
+        return classes;
+    }
+
+    clearSelection = () => {
+        delete this.selected;
+        this.onSelect.emit();
+    }
+}

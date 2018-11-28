@@ -20,21 +20,6 @@ import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
 import 'jquery-ui/ui/widgets/sortable';
 import * as toast from 'toastr';
-import { Directive, EventEmitter, Input, Output } from '@angular/core';
-
-export class DraggableModalDirective implements IDirective {
-    restrict = 'A';
-    link = (scope: IScope, element: IAugmentedJQuery, attrs: IAttributes) => {
-        element.draggable({
-            revert: false,
-            drag: () => element.css('height', 'auto')
-        });
-    }
-
-    static factory(): IDirectiveFactory {
-        return () => new DraggableModalDirective();
-    }
-}
 
 interface DroppableScope extends IScope {
     objects: any[];

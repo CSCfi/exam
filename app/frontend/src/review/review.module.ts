@@ -14,32 +14,25 @@
  */
 import { NgModule } from '@angular/core';
 import { UtilityModule } from '../utility/utility.module';
-import { DevLoginComponent } from './dev/devLogin.component';
-import { EulaDialogComponent } from './eula/eulaDialog.component';
-import { LogoutComponent } from './logout/logout.component';
-import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
-import { SessionService } from './session.service';
+import { AssessmentService } from './assessment/assessment.service';
+import { FeedbackComponent } from './assessment/feedback/feedback.component';
+import { CollaborativeAssesmentService } from './assessment/collaborativeAssessment.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
     imports: [
         NgbModule,
-        UtilityModule
+        UtilityModule,
     ],
     declarations: [
-        DevLoginComponent,
-        EulaDialogComponent,
-        SelectRoleDialogComponent,
-        LogoutComponent
+        FeedbackComponent
     ],
     entryComponents: [
-        DevLoginComponent,
-        SelectRoleDialogComponent,
-        EulaDialogComponent,
-        LogoutComponent
+        FeedbackComponent
     ],
     providers: [
-        SessionService
+        AssessmentService,
+        CollaborativeAssesmentService
     ]
 })
-export class SessionModule { }
+export class ReviewModule { }

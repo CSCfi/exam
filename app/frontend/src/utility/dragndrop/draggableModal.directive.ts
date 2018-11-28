@@ -12,9 +12,25 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import 'jquery-ui/ui/widgets/draggable';
+import { Directive, ElementRef, NgZone, OnInit } from '@angular/core';
 
-require('./exam.module.ajs.ts');
-require('./student/studentExamResource');
-require('./exam.service.ts');
-require('./listing/examList.component');
-require('./examResource');
+// add jquery reference
+declare var $: any;
+
+@Directive({
+    selector: '[appDraggableModal]'
+})
+export class DraggableModalDirective implements OnInit {
+
+    constructor(private el: ElementRef, private zone: NgZone) { }
+
+    ngOnInit() {
+        this.zone.runOutsideAngular(() => {
+            $(this.el.nativeElement).draggable({
+                revert: false,
+                drag: (_, ui: JQueryUI.SortableUIParams) => ui.helper.css('height', 'auto')
+            });
+        });
+    }
+}

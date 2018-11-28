@@ -15,13 +15,14 @@
 
 import * as angular from 'angular';
 import { IHttpResponse } from 'angular';
+import { ExamService } from '../../exam/exam.service';
 
 export class TeacherDashboardService {
 
     constructor(
         private $http: angular.IHttpService,
         private $q: angular.IQService,
-        private Exam: any, // TBD
+        private Exam: ExamService,
         private Reservation: any // TBD
     ) {
         'ngInject';

@@ -14,7 +14,7 @@
  */
 
 import * as toast from 'toastr';
-import { LanguageService } from '../../../common/language.service';
+import { LanguageService } from '../../../utility/language/language.service';
 import { Exam, ExamLanguage } from '../../exam.model';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';

@@ -62,6 +62,7 @@ export const AppComponent: angular.IComponentOptions = {
                     // lets just throw him out.
                     this.Session.logout();
                 }
+                this.Session.setEnv();
                 this.Session.setUser(user);
                 this.Session.translate(user.lang);
                 this.Session.restartSessionCheck();

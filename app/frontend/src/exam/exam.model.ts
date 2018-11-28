@@ -163,6 +163,12 @@ export interface Participation {
     _rev: string;
 }
 
+export interface Feedback {
+    comment: string;
+    id?: number;
+    attachment?: Attachment;
+}
+
 export interface ExamImpl {
     id: number;
     attachment: Attachment | null;
@@ -197,7 +203,7 @@ export interface ExamImpl {
     assessmentInfo: string;
     internalRef: string;
     objectVersion: number;
-    examFeedback: { comment: string };
+    examFeedback: Feedback;
     grade: Grade;
     gradeless: boolean;
     creditType: { type: string };

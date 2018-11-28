@@ -27,20 +27,20 @@ import { User } from '../session.service';
             <h1 class="sitnet-black"><i class="fa fa-user"></i>&nbsp;&nbsp;{{'sitnet_select_role' | translate}}</h1>
         </div>
         <div class="modal-body">
-             <span class="dropdown pointer" uib-dropdown>
-                <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
-                        data-toggle="dropdown" aria-expanded="true">
+            <div ngbDropdown>
+                <button ngbDropdownToggle class="btn btn-default" type="button" id="dropDownMenu1">
                     {{'sitnet_choose' | translate}}&nbsp;<span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu">
+                <ul ngbDropdownMenu aria-labelledby="dropDownMenu1">
                     <li *ngFor="let role of user.roles">
-                        <a role="menuitem" title="{{role.displayName | translate}}" (click)="activeModal.close(role)">
+                        <a class="dropdown-item pointer" title="{{role.displayName | translate}}"
+                            (click)="activeModal.close(role)">
                             <i class="fa pull-right" [ngClass]="role.icon"></i>
                             {{role.displayName | translate}}
                         </a>
                     </li>
                 </ul>
-             </span>
+            </div>
         </div>
         <div class="modal-footer">
             <div class="col-md-12">

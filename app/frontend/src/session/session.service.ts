@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Location } from '@angular/common';
+import { Location, registerLocaleData } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -98,6 +98,8 @@ export class SessionService {
         this.token = user.token;
     }
 
+    setEnv = () => this.init().subscribe(e => this.env = e);
+
     private init(): Observable<Env> {
         if (this.env) {
             return of(this.env);
@@ -161,31 +163,11 @@ export class SessionService {
             error => toastr.error(error.data));
     }
 
-    // FIXME: no idea how
-    /*
-    private setLocale = async (lang: string) => {
-        if (['fi', 'sv', 'en'].map(k => this.tmhDynamicLocaleCache.get(k)).every(_.isObject)) {
-            // Locale cache already loaded
-            this.tmhDynamicLocale.set(lang);
-        } else {
-            let inject = k => this.tmhDynamicLocaleCache.put(k, angular.injector(['ngLocale']).get('$locale'));
-
-            await import('angular-i18n/angular-locale_fi');
-            inject('fi');
-            await import('angular-i18n/angular-locale_sv');
-            inject('sv');
-            await import('angular-i18n/angular-locale_en');
-            inject('en');
-
-            this.tmhDynamicLocale.set(lang);
-        }
-    }
-    */
+    getLocale = () => this.user ? this.user.lang : 'en';
 
     translate(lang: string) {
         this.i18n.use(lang);
         this.$ajsTranslate.use(lang); // TODO: remove once AJS is gone
-        // this.setLocale(lang);
     }
 
     switchLanguage(lang: string) {
@@ -195,6 +177,7 @@ export class SessionService {
             this.http.put('/app/user/lang', { lang: lang })
                 .subscribe(() => {
                     this.user.lang = lang;
+                    this.webStorageService.set('EXAM_USER', this.user);
                     this.translate(lang);
                 },
                     () => toastr.error('failed to switch language'));

@@ -13,19 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./review.module');
+require('./review.module.ajs.ts');
 
-require('./assessment/assessment.service');
+require('./assessment/assessment.service.ts');
 require('./assessment/collaborativeAssessment.service.ts')
 require('./assessment/assessment.component');
 
-require('./assessment/feedback/feedback.component');
+require('./assessment/feedback/feedback.component.ts');
 require('./assessment/feedback/statement.component');
 
-require('./assessment/general/generalInfo.component');
+require('./assessment/general/generalInfo.component.ts');
 require('./assessment/general/participation.component');
 
-require('./assessment/grading/grading.component');
+require('./assessment/grading/grading.component.ts');
 require('./assessment/grading/inspection.component');
 require('./assessment/grading/toolbar.component');
 

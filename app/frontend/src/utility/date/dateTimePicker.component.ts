@@ -12,49 +12,53 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Component, Output, Input, EventEmitter } from '@angular/core';
 
-import * as angular from 'angular';
+interface Time {
+    hour: number;
+    minute: number;
+}
 
-export const DateTimePickerComponent: angular.IComponentOptions = {
+@Component({
+    selector: 'date-time-picker',
     template: `
+    <div>
         <div id="datetimepicker" class="datetimepicker-wrapper">
-            <date-picker on-update="$ctrl.onDateUpdate(date)"><date-picker/>
+            <date-picker (onUpdate)="onDateUpdate($event)"></date-picker>
         </div>
-        <div id="datetimepicker" class="datetimepicker-wrapper"
-            ng-model="$ctrl.time" ng-change="$ctrl.onTimeUpdate()" style="display:inline-block">
-            <div uib-timepicker show-meridian="false" hour-step="$ctrl.hourStep", minute-step="$ctrl.minuteStep">
+        <div id="datetimepicker" class="datetimepicker-wrapper" style="display:inline-block">
+            <ngb-timepicker [(ngModel)]="time" (ngModelChange)="onTimeUpdate($event)"
+                [minuteStep]="minuteStep" [hourStep]="hourStep"></ngb-timepicker>
         </div>
-        `,
-    bindings: {
-        onUpdate: '&',
-        hourStep: '<?',
-        minuteStep: '<?'
-    },
-    controller: class DateTimePickerController implements angular.IComponentController {
+    </div>
+    `
+})
+export class DateTimePickerComponent {
 
-        onUpdate: ({ date: Date }) => any;
-        date: Date = new Date();
-        hourStep: number;
-        minuteStep: number;
-        time: Date = new Date();
+    @Input() hourStep: number;
+    @Input() minuteStep: number;
+    @Output() onUpdate = new EventEmitter<{ date: Date }>();
 
-        onTimeUpdate() {
-            this.date.setHours(this.time.getHours());
-            this.date.setMinutes(this.time.getMinutes());
-            this.date.setSeconds(0);
-            this.date.setMilliseconds(0);
-            this.onUpdate({ date: this.date });
-        }
+    date: Date = new Date();
+    time: Time;
 
-        onDateUpdate(date: Date) {
-            this.date.setDate(date.getDate());
-            this.date.setMonth(date.getMonth());
-            this.date.setFullYear(date.getFullYear());
-            this.date.setHours(this.time.getHours());
-            this.date.setMinutes(this.time.getMinutes());
-            this.date.setSeconds(0);
-            this.date.setMilliseconds(0);
-            this.onUpdate({ date: this.date });
-        }
+    onTimeUpdate($event: Time) {
+        this.date.setHours(this.time.hour);
+        this.date.setMinutes(this.time.minute);
+        this.date.setSeconds(0);
+        this.date.setMilliseconds(0);
+        this.onUpdate.emit({ date: this.date });
     }
-};
+
+    onDateUpdate($event: { date: Date }) {
+        this.date.setDate($event.date.getDate());
+        this.date.setMonth($event.date.getMonth());
+        this.date.setFullYear($event.date.getFullYear());
+        this.date.setHours(this.time.hour);
+        this.date.setMinutes(this.time.minute);
+        this.date.setSeconds(0);
+        this.date.setMilliseconds(0);
+        this.onUpdate.emit({ date: this.date });
+    }
+}
+

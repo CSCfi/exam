@@ -13,8 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
-import moment from 'moment';
+import * as angular from 'angular';
+import * as moment from 'moment';
+import { AssessmentService } from '../assessment.service';
 
 angular.module('app.review')
     .component('rGeneralInfo', {
@@ -24,10 +25,23 @@ angular.module('app.review')
             participation: '<',
             collaborative: '<'
         },
-        controller: ['ExamRes', 'Attachment', 'Assessment', '$routeParams',
-            function (ExamRes, Attachment, Assessment, $routeParams) {
+        controller: ['Attachment', 'Assessment', '$routeParams', '$resource',
+            function (Attachment, Assessment: AssessmentService, $routeParams, $resource) {
 
                 const vm = this;
+
+                const noShowApi = $resource('/app/usernoshows/:eid', {
+                    eid: '@eid'
+                });
+
+                const participationsApi = $resource('/app/examparticipations/:eid', {
+                    eid: '@eid'
+                });
+
+                const collaborativeParticipationsApi = $resource('/integration/iop/reviews/:eid/participations/:aid', {
+                    eid: '@eid',
+                    aid: '@aid'
+                });
 
                 vm.$onInit = function () {
                     const duration = moment.utc(new Date(vm.participation.duration));
@@ -42,15 +56,16 @@ angular.module('app.review')
                     vm.enrolment = vm.exam.examEnrolments[0];
                     vm.reservation = vm.enrolment.reservation;
                     const params = {
-                        eid: vm.exam.id
+                        eid: vm.exam.id,
+                        aid: undefined
                     };
-                    let participationsApi = Assessment.participationsApi;
+                    let api = participationsApi;
                     if (vm.collaborative) {
-                        participationsApi = Assessment.collaborativeParticipationsApi;
+                        api = collaborativeParticipationsApi;
                         params.eid = $routeParams.id;
                         params.aid = $routeParams.ref;
                     }
-                    participationsApi.query(params, handleParticipations);
+                    api.query(params, handleParticipations);
                 };
 
                 vm.downloadExamAttachment = function () {
@@ -64,7 +79,7 @@ angular.module('app.review')
 
                 function handleParticipations(data) {
                     if (vm.collaborative) {
-                        //TODO: Add collaborative support for noshows.
+                        // TODO: Add collaborative support for noshows.
                         vm.previousParticipations = data;
                         return;
                     }
@@ -72,9 +87,9 @@ angular.module('app.review')
                     const previousParticipations = data.filter(function (p) {
                         return p.id !== vm.participation.id;
                     });
-                    Assessment.noShowApi.query({eid: vm.exam.id}, function (data) {
+                    noShowApi.query({ eid: vm.exam.id }, function (data) {
                         const noShows = data.map(function (d) {
-                            return {noShow: true, started: d.reservation.startAt, exam: {state: 'no_show'}};
+                            return { noShow: true, started: d.reservation.startAt, exam: { state: 'no_show' } };
                         });
                         vm.previousParticipations = previousParticipations.concat(noShows);
                     });
