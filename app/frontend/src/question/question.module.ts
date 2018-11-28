@@ -13,19 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { TruncatingPipe } from '../utility/truncate/truncate.pipe';
 import { LibraryService } from './library/library.service';
 import { LibrarySearchComponent } from './library/search/librarySearch.component';
 import { QuestionService } from './question.service';
+import { UtilityModule } from '../utility/utility.module';
 
 @NgModule({
     imports: [
-        TranslateModule,
+        UtilityModule,
     ],
     declarations: [
-        LibrarySearchComponent,
-        TruncatingPipe
+        LibrarySearchComponent
     ],
     entryComponents: [
         LibrarySearchComponent

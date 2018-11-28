@@ -19,27 +19,26 @@ import { AttachmentSelectorComponent } from './attachment/dialogs/attachmentSele
 import { DateTimeService } from './date/date.service';
 import { DatePickerComponent } from './date/datePicker.component';
 import { DateTimePickerComponent } from './date/dateTimePicker.component';
-import { DraggableModalDirective, DroppableDirective } from './dragndrop/dragndrop.directive';
+import { DroppableDirective } from './dragndrop/dragndrop.directive';
 import { FileService } from './file/file.service';
 import { HistoryBackComponent } from './history/historyBack.component';
 import { LanguageService } from './language/language.service';
 import { PaginatorComponent } from './paginator/paginator.component';
-import { DropDownSelectComponent } from './select/dropDownSelect.component';
+import { DropdownSelectComponent } from './select/dropDownSelect.component';
 import runBlock from './utility.run';
 
 export default angular.module('app.utility', [])
     .run(runBlock)
     .service('Attachment', downgradeInjectable(AttachmentService))
-    .service('DateTime', DateTimeService)
+    .service('DateTime', downgradeInjectable(DateTimeService))
     .service('Files', downgradeInjectable(FileService))
     .service('Language', downgradeInjectable(LanguageService))
     .directive('attachmentSelector', downgradeComponent({ component: AttachmentSelectorComponent }))
     .directive('historyBack', downgradeComponent({ component: HistoryBackComponent }))
     .directive('datePicker', downgradeComponent({ component: DatePickerComponent }))
-    .component('dateTimePicker', DateTimePickerComponent)
-    .component('dropDownSelect', DropDownSelectComponent)
-    .component('paginator', PaginatorComponent)
+    .directive('dateTimePicker', downgradeComponent({ component: DateTimePickerComponent }))
+    .directive('dropDownSelect', downgradeComponent({ component: DropdownSelectComponent }))
+    .directive('paginator', downgradeComponent({ component: PaginatorComponent }))
     .directive('droppable', DroppableDirective.factory())
-    .directive('draggableModal', DraggableModalDirective.factory())
     .name;
 

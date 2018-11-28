@@ -16,6 +16,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import * as _ from 'lodash';
 import * as moment from 'moment';
+import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'date-picker',
@@ -23,7 +24,7 @@ import * as moment from 'moment';
 })
 export class DatePickerComponent implements OnInit {
 
-    @Input() initialDate: Date | string | null;
+    @Input() initialDate: Date | string | null = null;
     @Input() extra: boolean;
     @Input() extraText: string;
     @Input() modelOptions: any = {};
@@ -32,34 +33,27 @@ export class DatePickerComponent implements OnInit {
     @Output() onUpdate = new EventEmitter<{ date: Date | null }>();
     @Output() onExtraAction = new EventEmitter<{ date: Date | null }>();
 
-    date: Date | null;
+    date: NgbDate;
     showWeeks = true;
-    opened: boolean;
-    options = {
-        startingDay: 1
-    };
     format = 'dd.MM.yyyy';
 
     ngOnInit() {
-        if (_.isString(this.initialDate)) {
-            this.date = moment(this.initialDate).toDate();
-        } else {
-            this.date = _.isUndefined(this.initialDate) ? new Date() : this.initialDate;
+        if (this.initialDate !== null) {
+            const d = moment(this.initialDate);
+            this.date = new NgbDate(d.get('year'), d.get('month'), d.get('date'));
         }
     }
 
-    openPicker(event: Event) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.opened = true;
+    transform(value: NgbDate): Date {
+        return new Date(value.year, value.month, value.day);
     }
 
     dateChanged() {
-        this.onUpdate.emit({ date: this.date });
+        this.onUpdate.emit({ date: this.transform(this.date) });
     }
 
     extraClicked() {
-        this.onExtraAction.emit({ date: this.date });
+        this.onExtraAction.emit({ date: this.transform(this.date) });
     }
 
 }

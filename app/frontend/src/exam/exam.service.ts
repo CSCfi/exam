@@ -278,7 +278,7 @@ export class ExamService {
     getTotalScore = (exam: Exam) =>
         exam.examSections.reduce((n, es) => n + this.getSectionTotalScore(es), 0).toFixed(2)
 
-    isOwner = (exam: Exam, collaborative: boolean) => {
+    isOwner = (exam: Exam, collaborative = false) => {
         const user = this.Session.getUser();
         const examToCheck: Exam = exam && exam.parent ? exam.parent : exam;
         return examToCheck && examToCheck.examOwners.filter(o =>
@@ -286,7 +286,7 @@ export class ExamService {
         ).length > 0;
     }
 
-    isOwnerOrAdmin = (exam: Exam, collaborative: boolean) => {
+    isOwnerOrAdmin = (exam: Exam, collaborative = false) => {
         const user = this.Session.getUser();
         return exam && user && (user.isAdmin || this.isOwner(exam, collaborative));
     }

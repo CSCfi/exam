@@ -22,6 +22,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from '../../../node_modules/rxjs';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { AttachmentSelectorComponent, FileResult } from './dialogs/attachmentSelector.component';
+import { Examination } from '../../examination/examination.service';
 
 interface ExamWithFeedback {
     id: number;
@@ -116,13 +117,13 @@ export class AttachmentService {
         });
     }
 
-    removeFeedbackAttachment(exam: ExamWithFeedback) {
+    removeFeedbackAttachment(exam: Examination) {
         const dialog = this.dialogs.open(this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_are_you_sure'));
         dialog.result.then(() => {
             this.http.delete(this.feedbackAttachmentApi(exam.id)).subscribe(() => {
                 toast.info(this.translate.instant('sitnet_attachment_removed'));
-                exam.examFeedback.attachment = null;
+                delete exam.examFeedback.attachment;
             }, err => toast.error(err));
         });
     }
@@ -176,8 +177,10 @@ export class AttachmentService {
             exam.attachment.fileName);
     }
 
-    downloadFeedbackAttachment(exam: ExamWithFeedback) {
-        this.Files.download('/app/attachment/exam/' + exam.id + '/feedback', exam.examFeedback.attachment.fileName);
+    downloadFeedbackAttachment(exam: Examination) {
+        if (exam.examFeedback.attachment) {
+            this.Files.download('/app/attachment/exam/' + exam.id + '/feedback', exam.examFeedback.attachment.fileName);
+        }
     }
 
     downloadStatementAttachment(exam: ExamWithStatement) {

@@ -13,8 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
-import toast from 'toastr';
+import * as angular from 'angular';
+import * as toast from 'toastr';
+import { AssessmentService } from '../assessment.service';
+import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
+import { ExamService } from '../../../exam/exam.service';
+import { AttachmentService } from '../../../utility/attachment/attachment.service';
+import { LanguageService } from '../../../utility/language/language.service';
 
 angular.module('app.review')
     .component('rGrading', {
@@ -24,8 +29,11 @@ angular.module('app.review')
         }, require: {
             parentCtrl: '^^assessment'
         },
-        controller: ['$translate', '$scope', 'Assessment', 'CollaborativeAssessment', 'Exam', 'ExamRes', 'Attachment', 'Language',
-            function ($translate, $scope, Assessment, CollaborativeAssessment, Exam, ExamRes, Attachment, Language) {
+        controller: ['$translate', '$scope', '$routeParams', 'Assessment', 'CollaborativeAssessment', 'Exam', 'ExamRes',
+            'Attachment', 'Language',
+            function ($translate, $scope, $routeParams, Assessment: AssessmentService,
+                CollaborativeAssessment: CollaborativeAssesmentService, Exam: ExamService, ExamRes,
+                Attachment: AttachmentService, Language: LanguageService) {
 
                 const vm = this;
 
@@ -153,12 +161,13 @@ angular.module('app.review')
                 };
 
                 const initCreditTypes = function () {
-                    Exam.refreshExamTypes().then(function (types) {
+                    Exam.refreshExamTypes().subscribe(function (types) {
                         const creditType = vm.exam.creditType || vm.exam.examType;
                         vm.creditTypes = types;
                         types.forEach(function (type) {
                             if (creditType.id === type.id) {
-                                // Reset also exam's credit type in case it was taken from its exam type. Confusing isn't it :)
+                                // Reset also exam's credit type in case it was taken from its exam type.
+                                // Confusing isn't it :)
                                 vm.exam.creditType = vm.selections.type = type;
                             }
                         });

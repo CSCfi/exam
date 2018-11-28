@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Exam Consortium
+ * Copyright (c) 2017 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -13,8 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-require('./exam.module.ajs.ts');
-require('./student/studentExamResource');
-require('./exam.service.ts');
-require('./listing/examList.component');
-require('./examResource');
+import * as angular from 'angular';
+import { ExamService } from './exam.service';
+import { downgradeInjectable } from '@angular/upgrade/static';
+
+require('./editor/editor.module.ts');
+require('../facility/facility.module');
+require('../review/review.module.ajs.ts');
+require('../examination/examination.module.ts');
+require('../question');
+
+angular.module('app.exam', ['app.exam.editor', 'app.facility', 'app.review', 'app.examination', 'app.question'])
+    .service('Exam', downgradeInjectable(ExamService));
+

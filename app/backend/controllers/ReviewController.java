@@ -406,26 +406,7 @@ public class ReviewController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result insertComment(Long eid, Long cid) {
-        Exam exam = Ebean.find(Exam.class, eid);
-        if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
-        }
-        if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
-            return forbidden();
-        }
-        Comment comment = bindForm(Comment.class);
-        AppUtil.setCreator(comment, getLoggedUser());
-        comment.save();
-
-        exam.setExamFeedback(comment);
-        exam.save();
-
-        return ok(comment);
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateComment(Long eid, Long cid) {
+    public Result updateComment(Long eid) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
@@ -434,16 +415,28 @@ public class ReviewController extends BaseController {
             return forbidden();
         }
         Comment form = bindForm(Comment.class);
-        Comment comment = Ebean.find(Comment.class).fetch("creator", "firstName, lastName").where().idEq(cid).findOne();
+        Comment comment = form.getId() == null ?
+                new Comment() :
+                Ebean.find(Comment.class).fetch("creator", "firstName, lastName")
+                        .where()
+                        .idEq(form.getId())
+                        .findOne();
         if (comment == null) {
             return notFound();
         }
+        User user = getLoggedUser();
         if (form.getComment() != null) {
-            AppUtil.setModifier(comment, getLoggedUser());
             comment.setComment(form.getComment());
-            comment.save();
-            exam.setExamFeedback(comment);
-            exam.save();
+            AppUtil.setModifier(comment, user);
+            if (comment.getId() == null) {
+                AppUtil.setCreator(comment, user);
+                comment.save();
+                exam.setExamFeedback(comment);
+                exam.save();
+            } else {
+                comment.update();
+            }
+
         }
         return ok(comment);
     }

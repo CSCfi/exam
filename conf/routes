@@ -128,8 +128,7 @@ GET           /app/reviews/:id                                         backend.c
 PUT           /app/review/:id                                          backend.controllers.ReviewController.reviewExam(id: Long)
 PUT           /app/review/:id/info                                     backend.controllers.ReviewController.updateAssessmentInfo(id: Long)
 PUT           /app/review/examquestion/:id/score                       backend.controllers.ReviewController.scoreExamQuestion(id: Long)
-POST          /app/review/:eid/comment/:cid                            backend.controllers.ReviewController.insertComment(eid: Long, cid: Long)
-PUT           /app/review/:eid/comment/:cid                            backend.controllers.ReviewController.updateComment(eid: Long, cid: Long)
+PUT           /app/review/:eid/comment                                 backend.controllers.ReviewController.updateComment(eid: Long)
 GET           /app/noshows/:eid                                        backend.controllers.ReviewController.listNoShows(eid: Long)
 PUT           /app/reviews/archive                                     backend.controllers.ReviewController.archiveExams
 GET           /app/review/:eid                                         backend.controllers.ReviewController.getExamReview(eid: Long)

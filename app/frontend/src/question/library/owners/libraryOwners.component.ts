@@ -13,16 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as toast from 'toastr';
-import { QuestionService } from '../../question.service';
-import { UserService } from '../../../utility/user/user.service';
-import { User } from '../../../session/session.service';
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import * as toast from 'toastr';
+import { User } from '../../../session/session.service';
+import { UserService } from '../../../utility/user/user.service';
+import { QuestionService } from '../../question.service';
 
 @Component({
     selector: 'library-owner-selection',
-    template: require('./libraryOwners.template.html')
+    template: require('./libraryOwners.component.html')
 })
 export class LibraryOwnerSelection implements OnInit {
     @Input() selections: number[];
@@ -43,45 +43,25 @@ export class LibraryOwnerSelection implements OnInit {
     }
 
     onTeacherSelect = (teacher) => this.newTeacher = teacher;
-    
+
     addOwnerForSelected = () => {
         // check that atleast one has been selected
-        if (vm.selections.length === 0) {
-            toast.warning($translate.instant('sitnet_choose_atleast_one'));
+        if (this.selections.length === 0) {
+            toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
             return;
         }
-        if (!vm.newTeacher) {
-            toast.warning($translate.instant('sitnet_add_question_owner'));
+        if (!this.newTeacher) {
+            toast.warning(this.translate.instant('sitnet_add_question_owner'));
             return;
         }
 
-        Question.addOwnerForQuestions$(vm.newTeacher.id, vm.selections).subscribe(
+        this.Question.addOwnerForQuestions$(this.newTeacher.id, this.selections).subscribe(
             () => {
-                toast.info($translate.instant('sitnet_question_owner_added'));
-                vm.ownerUpdated();
-            }, () => toast.info($translate.instant('sitnet_update_failed'))
+                toast.info(this.translate.instant('sitnet_question_owner_added'));
+                this.ownerUpdated.emit();
+            },
+            () => toast.info(this.translate.instant('sitnet_update_failed'))
         );
-    };
-
+    }
 
 }
-angular.module('app.question')
-    .component('libraryOwnerSelection', {
-        template: require('./libraryOwners.template.html'),
-        bindings: {
-            selections: '<',
-            ownerUpdated: '&'
-        },
-        controller: ['$translate', 'Question', 'UserRes',
-            function ($translate, Question: QuestionService, UserRes: UserService) {
-
-                const vm = this;
-
-                vm.$onInit = function () {
-                };
-
-           
-            }
-        ]
-    });
-

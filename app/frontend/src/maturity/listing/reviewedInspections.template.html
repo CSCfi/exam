@@ -6,10 +6,8 @@
                 <a href="/inspections/reports">{{'sitnet_language_inspection_report_link' | translate}}</a>
             </span>
             <a ng-if="$ctrl.inspections.length > 0" ng-click="$ctrl.hideItems = !$ctrl.hideItems" class="pointer">
-                <img ng-show="$ctrl.hideItems" src="Images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';"
-                />
-                <img ng-hide="$ctrl.hideItems" src="Images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';"
-                />
+                <img ng-show="$ctrl.hideItems" src="Images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png';" />
+                <img ng-hide="$ctrl.hideItems" src="Images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png';" />
             </a>
         </div>
     </div>
@@ -39,11 +37,11 @@
                 <form>
                     <div class="col-md-2">
                         <span class="exam-basic-selecttitle">{{'sitnet_begin' | translate}}</span>
-                        <date-picker initial-date="null" optional="true" on-update="$ctrl.startDateChanged(date)"></date-picker>
+                        <date-picker [optional]="true" (on-update)="$ctrl.startDateChanged($event)"></date-picker>
                     </div>
                     <div class="col-md-2">
                         <span class="exam-basic-selecttitle">{{'sitnet_end' | translate}}</span>
-                        <date-picker initial-date="null" optional="true" on-update="$ctrl.endDateChanged(date)"></date-picker>
+                        <date-picker [optional]="true" (on-update)="$ctrl.endDateChanged($event)"></date-picker>
                     </div>
                 </form>
             </div>
@@ -53,17 +51,26 @@
     <table class="table table-striped exams-table">
         <thead>
             <tr>
-                <th class="with-top" sort by="exam.course.code" text="sitnet_code" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
-                <th class="with-top" sort by="answerLanguage" text="sitnet_language" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
-                <th class="with-top" sort by="exam.name" text="sitnet_exam_name" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
-                <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
-                <th class="with-top" sort by="created" text="sitnet_arrived" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
-                <th class="with-top" sort by="studentNameAggregate" text="sitnet_student" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
-                <th class="with-top" sort by="exam.created" text="sitnet_finished" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="exam.course.code" text="sitnet_code" predicate="$ctrl.sorting.predicate"
+                    reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="answerLanguage" text="sitnet_language" predicate="$ctrl.sorting.predicate"
+                    reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="exam.name" text="sitnet_exam_name" predicate="$ctrl.sorting.predicate"
+                    reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="ownerAggregate" text="sitnet_teachers" predicate="$ctrl.sorting.predicate"
+                    reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="created" text="sitnet_arrived" predicate="$ctrl.sorting.predicate"
+                    reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="studentNameAggregate" text="sitnet_student" predicate="$ctrl.sorting.predicate"
+                    reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="exam.created" text="sitnet_finished" predicate="$ctrl.sorting.predicate"
+                    reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top" sort by="inspectorNameAggregate" text="sitnet_language_inspector" predicate="$ctrl.sorting.predicate"
                     reverse="$ctrl.sorting.reverse"></th>
-                <th class="with-top" sort by="finishedAt" text="sitnet_inspection_finished" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
-                <th class="with-top" sort by="approved" text="sitnet_language_inspections" predicate="$ctrl.sorting.predicate" reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="finishedAt" text="sitnet_inspection_finished" predicate="$ctrl.sorting.predicate"
+                    reverse="$ctrl.sorting.reverse"></th>
+                <th class="with-top" sort by="approved" text="sitnet_language_inspections" predicate="$ctrl.sorting.predicate"
+                    reverse="$ctrl.sorting.reverse"></th>
                 <th class="with-top">{{ 'sitnet_feedback' | translate }}</th>
             </tr>
         </thead>
@@ -96,10 +103,12 @@
                 <!-- 6 -->
                 <td>
                     <span>{{ inspection.studentName }}</span>
-                    <span ng-if="inspection.exam.creator.userIdentifier">&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
+                    <span ng-if="inspection.exam.creator.userIdentifier">&nbsp;({{
+                        inspection.exam.creator.userIdentifier }})</span>
                     <span>
-                        <br/>
-                        <a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{ inspection.exam.creator.email }}</a>
+                        <br />
+                        <a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{
+                            inspection.exam.creator.email }}</a>
                     </span>
                 </td>
                 <!-- 7 -->
@@ -108,8 +117,9 @@
                 <td ng-if="inspection.modifier">
                     <span>{{ inspection.inspectorName }} </span>
                     <span>
-                        <br/>
-                        <a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{ inspection.modifier.email }}</a>
+                        <br />
+                        <a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{
+                            inspection.modifier.email }}</a>
                     </span>
                 </td>
                 <!-- 9 -->
@@ -126,7 +136,8 @@
                 </td>
                 <!-- 11 -->
                 <td class="table-column-15">
-                    <a class="pointer smaller" ng-click="$ctrl.showStatement(inspection.statement)">{{ 'sitnet_view' | translate }}</a>
+                    <a class="pointer smaller" ng-click="$ctrl.showStatement(inspection.statement)">{{ 'sitnet_view' |
+                        translate }}</a>
                 </td>
             </tr>
             <tr ng-if="rs.length == 0">

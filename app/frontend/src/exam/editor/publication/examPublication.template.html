@@ -52,11 +52,11 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <date-picker initial-date="$ctrl.exam.examActiveStartDate" on-update="$ctrl.startDateChanged(date)">
+                    <date-picker [initial-date]="$ctrl.exam.examActiveStartDate" (on-update)="$ctrl.startDateChanged($event)">
                     </date-picker>
                 </div>
                 <div class="col-md-3">
-                    <date-picker initial-date="$ctrl.exam.examActiveEndDate" on-update="$ctrl.endDateChanged(date)">
+                    <date-picker [initial-date]="$ctrl.exam.examActiveEndDate" (on-update)="$ctrl.endDateChanged($event)">
                     </date-picker>
                 </div>
             </div>

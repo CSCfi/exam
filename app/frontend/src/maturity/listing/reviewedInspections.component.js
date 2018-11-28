@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from'angular';
+import angular from 'angular';
 import moment from 'moment';
 
 angular.module('app.maturity')
@@ -43,12 +43,12 @@ angular.module('app.maturity')
                     };
                 };
 
-                vm.startDateChanged = function (date) {
-                    vm.onStartDateChange({date: date});
+                vm.startDateChanged = function ($event) {
+                    vm.onStartDateChange($event);
                 };
 
-                vm.endDateChanged = function (date) {
-                    vm.onEndDateChange({date: date});
+                vm.endDateChanged = function ($event) {
+                    vm.onEndDateChange($event);
                 };
 
                 vm.showStatement = function (statement) {

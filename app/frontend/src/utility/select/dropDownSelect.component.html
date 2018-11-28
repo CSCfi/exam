@@ -1,0 +1,26 @@
+<div ngbDropdown>
+    <button ngbDropdownToggle class="btn btn-default btn-block" type="button" aria-haspopup="true" aria-expanded="true"
+        id="dd1">
+        <span style="float: left">{{ selected.label || placeholder | translate}}</span>
+        <div style="float: right">
+            <span class="caret"></span>
+        </div>
+    </button>
+    <ul ngbDropdownMenu class="scrollable-menu" style="padding-left: 0; min-width: 17em" role="menu" aria-labelledby="dd1">
+        <li class="input-group">
+            <input [(ngModel)]="searchFilter" class="form-control" (click)="$event.stopPropagation()" placeholder="{{'sitnet_search' | translate }}">
+            <div class="input-group-addon">
+                <i class="fa fa-search fa-fw"></i>
+            </div>
+        </li>
+        <li>
+            <a class="dropdown-item pointer" (click)="clearSelection()">{{placeholder | translate}}</a>
+        </li>
+        <li *ngFor="let opt of labelFilter(options)" [ngClass]="getClasses(opt)">
+            <a *ngIf="!opt.isHeader" class="dropdown-item pointer" (click)="selectOption(opt)">
+                {{opt.label | translate | truncate: 40}}
+            </a>
+            <span *ngIf="opt.isHeader">{{opt.label}}</span>
+        </li>
+    </ul>
+</div>

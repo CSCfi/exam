@@ -16,7 +16,7 @@
 import * as angular from 'angular';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import { LanguageService } from '../common/language.service';
+import { LanguageService } from '../utility/language/language.service';
 import { LanguageInspectionService, QueryParams } from './languageInspections.service';
 import { LanguageInspection } from './maturity.model';
 
