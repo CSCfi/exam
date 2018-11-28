@@ -21,7 +21,9 @@ angular.module('app.administrative.reports')
         template: `
         <div class="top-row">
             <h4 class="col-md-12">
-                {{'sitnet_get_all_info_from_exam' | translate }} {{'sitnet_excel_file' | translate}}
+                {{'sitnet_get_all_info_from_exam' | translate }} 
+                <span ng-if="$ctrl.fileType==='xlsx'">{{'sitnet_excel_file' | translate}}</span>
+                <span ng-if="$ctrl.fileType==='json'">{{'sitnet_json_file' | translate}}</span>
             </h4>
         </div>
         
@@ -40,7 +42,8 @@ angular.module('app.administrative.reports')
                        download popover-trigger="'mouseenter'"
                        uib-popover="{{'sitnet_download' | translate}}">
                         <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
-                        <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
+                        <i ng-if="$ctrl.fileType==='xlsx'" class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
+                        <i ng-if="$ctrl.fileType==='json'" class="fa fa-file-code-o sitnet-white fa-stack-1x"></i>
                     </a>
                 </div>
             </div>
