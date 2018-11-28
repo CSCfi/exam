@@ -63,8 +63,8 @@ angular.module('app.administrative.reports')
 
                 const vm = this;
 
-                vm.setRoom = function (room) {
-                    vm.room = room;
+                vm.roomSelected = function (value) {
+                    vm.room = value;
                 };
 
                 vm.getRoomReservationsByDate = function () {
