@@ -95,7 +95,6 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         }
 
         onCourseChange = (course: Course) => {
-            this.exam.course = course;
             this.initGradeScale(); //  Grade scale might need changing based on new course
             const code = this.exam.course ? this.exam.course.code : null;
             this.onUpdate({ props: { name: this.exam.name, code: code, scaleChange: false } });
