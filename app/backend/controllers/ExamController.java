@@ -500,26 +500,7 @@ public class ExamController extends BaseController {
             }
             exam.setCourse(course);
             exam.save();
-            return ok(course);
-        } else {
-            return forbidden("sitnet_error_access_forbidden");
-        }
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result removeCourse(Long eid) {
-        Exam exam = Ebean.find(Exam.class, eid);
-        if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
-        }
-        User user = getLoggedUser();
-        if (!examUpdater.isAllowedToUpdate(exam, user, getSession())) {
-            return forbidden("sitnet_error_future_reservations_exist");
-        }
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            exam.setCourse(null);
-            exam.save();
-            return ok(exam);
+            return ok();
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }
