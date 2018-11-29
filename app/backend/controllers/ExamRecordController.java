@@ -67,6 +67,8 @@ public class ExamRecordController extends BaseController {
 
     private ActorSystem actor;
 
+    private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
     @Inject
     public ExamRecordController(EmailComposer emailComposer, CsvBuilder csvBuilder, FileHandler fileHandler,
                                 ActorSystem actor) {
@@ -185,7 +187,7 @@ public class ExamRecordController extends BaseController {
             return internalServerError("sitnet_error_creating_csv_file");
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"");
-        return ok(Base64.getEncoder().encodeToString(bos.toByteArray()));
+        return ok(Base64.getEncoder().encodeToString(bos.toByteArray())).as(XLSX_MIME);
     }
 
     private boolean isApprovedInLanguageInspection(Exam exam, User user) {
