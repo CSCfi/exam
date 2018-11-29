@@ -9,7 +9,7 @@ export interface ExamEnrolment {
 
 export interface EnrolmentInfo extends Exam {
     languages: string[];
-    maturityInstructions?: string;
+    maturityInstructions: string | null;
     alreadyEnrolled: boolean;
     reservationMade: boolean;
     noTrialsLeft: boolean;

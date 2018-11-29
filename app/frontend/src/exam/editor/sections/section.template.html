@@ -36,56 +36,58 @@
         </div>
     </div>
 
-    <div class="row col-md-12 margin-20">
-        <div class="col-md-3 exam-basic-title">{{'sitnet_section_name' | translate}}
-            <sup>
-                <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_section_name_description' | translate}}"
-                    src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
-            </sup>
+    <form>
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">{{'sitnet_section_name' | translate}}
+                <sup>
+                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_section_name_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
+                </sup>
+            </div>
+            <div class="col-md-9">
+                <input type="text" required class="form-control ng-pristine ng-valid " ng-model="$ctrl.section.name"
+                    ui-change="$ctrl.renameSection()" />
+            </div>
         </div>
-        <div class="col-md-9">
-            <input type="text" class="form-control ng-pristine ng-valid " ng-model="$ctrl.section.name" ui-change="$ctrl.renameSection()" />
-        </div>
-    </div>
 
-    <div class="row col-md-12 margin-20">
-        <div class="col-md-3 exam-basic-title">{{'sitnet_section_description' | translate}}
-            <sup>
-                <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_section_description_description' | translate}}"
-                    src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
-            </sup>
-        </div>
-        <div class="col-md-9">
-            <textarea id="sectionDescription" class="form-control" rows="4" cols="150" ng-model="$ctrl.section.description"
-                ui-change="$ctrl.renameSection()">
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">{{'sitnet_section_description' | translate}}
+                <sup>
+                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_section_description_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
+                </sup>
+            </div>
+            <div class="col-md-9">
+                <textarea id="sectionDescription" class="form-control" rows="4" cols="150" ng-model="$ctrl.section.description"
+                    ui-change="$ctrl.renameSection()">
         </textarea>
+            </div>
         </div>
-    </div>
 
-    <div class="row col-md-12 margin-20">
-        <div class="col-md-3 exam-basic-title">{{'sitnet_randomize_questions' | translate}}
-            <sup>
-                <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_section_randomize_description' | translate}}"
-                    src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
-            </sup>
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">{{'sitnet_randomize_questions' | translate}}
+                <sup>
+                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_section_randomize_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
+                </sup>
+            </div>
+            <div class="col-md-9">
+                <!-- lottery on/off -->
+                <input type="checkbox" name="On" value="On" ng-disabled="$ctrl.toggleDisabled()" ng-change="$ctrl.toggleLottery()"
+                    ng-model="$ctrl.section.lotteryOn">
+                </input>
+                <!-- lottery item count -->
+                <span ng-show="$ctrl.section.lotteryOn && $ctrl.section.sectionQuestions.length > 1">
+                    <input type="number" name="" min="1" value="1" max="{{$ctrl.section.sectionQuestions.length}}"
+                        ng-model="$ctrl.section.lotteryItemCount" ui-change="$ctrl.updateLotteryCount()" autofocus />
+                </span>
+                <span ng-show="$ctrl.section.lotteryOn && $ctrl.section.sectionQuestions.length > 1">
+                    &nbsp;/&nbsp;{{$ctrl.section.sectionQuestions.length}}
+                </span>
+
+            </div>
         </div>
-        <div class="col-md-9">
-            <!-- lottery on/off -->
-            <input type="checkbox" name="On" value="On" ng-disabled="$ctrl.toggleDisabled()" ng-change="$ctrl.toggleLottery()"
-                ng-model="$ctrl.section.lotteryOn">
-            </input>
-            <!-- lottery item count -->
-            <span ng-show="$ctrl.section.lotteryOn && $ctrl.section.sectionQuestions.length > 1">
-                <input type="number" name="" min="1" value="1" max="{{$ctrl.section.sectionQuestions.length}}" ng-model="$ctrl.section.lotteryItemCount"
-                    ui-change="$ctrl.updateLotteryCount()" autofocus />
-            </span>
-            <span ng-show="$ctrl.section.lotteryOn && $ctrl.section.sectionQuestions.length > 1">
-                &nbsp;/&nbsp;{{$ctrl.section.sectionQuestions.length}}
-            </span>
-
-        </div>
-    </div>
-
+    </form>
 
     <div class="col-md-12 mart20">
         <div class="review-list-title">{{ 'sitnet_exam_questions' | translate }}
