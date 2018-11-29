@@ -113,13 +113,25 @@ export class FileService {
         if (!this._supportsBlobUrls) {
             this.windowRef.nativeWindow.open('data:' + contentType + ';base64,' + data);
         } else {
-            const byteString = atob(data);
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
+            let blob: Blob;
+            try {
+                const byteString = atob(data);
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                blob = new Blob([ia], { type: contentType });
+            } catch (e) {
+                // Maybe this isn't base64, try plaintext approaches
+                let text;
+                if (contentType === 'application/json') {
+                    text = JSON.stringify(data, null, 2);
+                } else {
+                    text = data;
+                }
+                blob = new Blob([text], { type: contentType });
             }
-            const blob = new Blob([ia], { type: contentType });
             FileSaver.saveAs(blob, fileName);
         }
     }

@@ -4,44 +4,48 @@
         <span style="font-size:0.70em;color:#bbb;text-transform: uppercase;cursor:pointer;">{{match.model.code}} {{match.model.name}}</span>
     </a>
 </script>
-
-<div class="col-md-3">
-    <div class="exam-basic-title">{{'sitnet_course' | translate}}
-        <sup>
-            <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_select_exam_course_description' | translate}}"
-                src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
-        </sup>
-    </div>
-</div>
-<div class="col-md-3">
-    <label for="courseCode" class="exam-basic-selecttitle">{{'sitnet_course_code' | translate}}</label>
-    <div class="input-group mb-3">
-        <input id="courseCode" type="text" class="form-control" ng-model="$ctrl.exam.course.code" placeholder="{{'sitnet_search_course_by_code' | translate}}"
-            uib-typeahead="c as c.code for c in $ctrl.getCourses('code', $viewValue)" typeahead-on-select="$ctrl.onCourseSelect($item, $model, $label, $ctrl.exam)"
-            typeahead-wait-ms="200" typeahead-focus-first="false" typeahead-min-length="2" typeahead-template-url="course_template.html"
-            typeahead-loading="$ctrl.loadingCoursesByCode">
-        <div class="input-group-append">
-            <span class="input-group-text">
-                <i ng-hide="$ctrl.loadingCoursesByCode" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'"
-                    uib-popover="{{'sitnet_course_unique_code' | translate}}"></i>
-                <i ng-show="$ctrl.loadingCoursesByCode" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
-            </span>
+<form class="inline-form col-md-12">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="exam-basic-title">{{'sitnet_course' | translate}}
+                <sup>
+                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_select_exam_course_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" />
+                </sup>
+            </div>
         </div>
-
-    </div>
-</div>
-<div class="col-md-5">
-    <label for="courseName" class="exam-basic-selecttitle">{{'sitnet_course_name' | translate}}</label>
-    <div class="input-group">
-        <input id="courseName" type="text" class="form-control" ng-model="$ctrl.exam.course.name" uib-typeahead="c as c.name for c in $ctrl.getCourses('name', $viewValue)"
-            typeahead-on-select="$ctrl.onCourseSelect($item, $model, $label, $ctrl.exam)" typeahead-wait-ms="200" typeahead-focus-first="false"
-            typeahead-min-length="2" typeahead-template-url="course_template.html" typeahead-loading="$ctrl.loadingCoursesByName">
-        <div class="input-group-append">
-            <span class="input-group-text">
-                <i ng-hide="$ctrl.loadingCoursesByName" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'"
-                    uib-popover="{{'sitnet_course_name' | translate}}"></i>
-                <i ng-show="$ctrl.loadingCoursesByName" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
-            </span>
+        <div class="col-md-3">
+            <label for="courseCode" class="exam-basic-selecttitle">{{'sitnet_course_code' | translate}}</label>
+            <div class="input-group">
+                <input id="courseCode" type="text" class="form-control" ng-model="$ctrl.filter.code" placeholder="{{'sitnet_search_course_by_code' | translate}}"
+                    uib-typeahead="c as c.code for c in $ctrl.getCourses('code', $viewValue)" typeahead-on-select="$ctrl.onCourseSelect($item)"
+                    typeahead-wait-ms="200" typeahead-focus-first="false" typeahead-min-length="2"
+                    typeahead-template-url="course_template.html" typeahead-loading="$ctrl.loadingCoursesByCode"
+                    required>
+                <div class="input-group-append">
+                    <span class="input-group-text">
+                        <i ng-hide="$ctrl.loadingCoursesByCode" class="fa fa-question-circle fa-fw" popover-placement="left"
+                            popover-trigger="'mouseenter'" uib-popover="{{'sitnet_course_unique_code' | translate}}"></i>
+                        <i ng-show="$ctrl.loadingCoursesByCode" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <label for="courseName" class="exam-basic-selecttitle">{{'sitnet_course_name' | translate}}</label>
+            <div class="input-group">
+                <input id="courseName" type="text" class="form-control" ng-model="$ctrl.filter.name" uib-typeahead="c as c.name for c in $ctrl.getCourses('name', $viewValue)"
+                    typeahead-on-select="$ctrl.onCourseSelect($item)" typeahead-wait-ms="200" typeahead-focus-first="false"
+                    typeahead-min-length="2" typeahead-template-url="course_template.html" typeahead-loading="$ctrl.loadingCoursesByName"
+                    required>
+                <div class="input-group-append">
+                    <span class="input-group-text">
+                        <i ng-hide="$ctrl.loadingCoursesByName" class="fa fa-question-circle fa-fw" popover-placement="left"
+                            popover-trigger="'mouseenter'" uib-popover="{{'sitnet_course_name' | translate}}"></i>
+                        <i ng-show="$ctrl.loadingCoursesByName" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</form>

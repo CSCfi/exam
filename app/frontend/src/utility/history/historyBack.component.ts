@@ -20,7 +20,7 @@ import { WindowRef } from '../window/window.service';
     selector: 'history-back',
     template: `
     <a (click)="goBack($event)">
-        <img class="arrow_icon" src="Images/icon_history.png" alt="go back">
+        <img class="arrow_icon" src="/assets/assets/images/icon_history.png" alt="go back">
     </a>
     `
 })

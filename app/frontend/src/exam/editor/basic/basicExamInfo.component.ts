@@ -14,7 +14,6 @@
  */
 
 import * as ng from 'angular';
-import { IModalService } from 'angular-ui-bootstrap';
 import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
@@ -45,7 +44,6 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         constructor(
             private $scope: ng.IScope,
             private $translate: ng.translate.ITranslateService,
-            private $uibModal: IModalService,
             private Exam: ExamService,
             private SettingsResource: any,
             private Attachment: AttachmentService,
@@ -96,7 +94,6 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         }
 
         onCourseChange = (course: Course) => {
-            this.exam.course = course;
             this.initGradeScale(); //  Grade scale might need changing based on new course
             const code = this.exam.course ? this.exam.course.code : null;
             this.onUpdate({ props: { name: this.exam.name, code: code, scaleChange: false } });
