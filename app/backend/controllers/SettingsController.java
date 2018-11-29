@@ -15,8 +15,6 @@
 
 package backend.controllers;
 
-import java.util.stream.Collectors;
-
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -26,24 +24,27 @@ import io.ebean.Ebean;
 import io.ebean.Update;
 import play.Environment;
 import play.data.DynamicForm;
-import play.i18n.Lang;
-import play.i18n.Langs;
 import play.libs.Json;
 import play.mvc.Result;
 
 import backend.controllers.base.ActionMethod;
 import backend.controllers.base.BaseController;
 import backend.models.GeneralSettings;
+import backend.models.Language;
 import backend.models.User;
 import backend.util.config.ConfigUtil;
 
 public class SettingsController  extends BaseController {
 
     @Inject
-    private Langs langs;
-
-    @Inject
     private Environment environment;
+
+    public static GeneralSettings get(String name) {
+        return Ebean.find(GeneralSettings.class).where()
+                .eq("name", name)
+                .findOneOrEmpty()
+                .orElse(new GeneralSettings());
+    }
 
     public static GeneralSettings getOrCreateSettings(String name, String value, String defaultValue) {
         GeneralSettings gs = Ebean.find(GeneralSettings.class).where().eq("name", name).findOne();
@@ -82,12 +83,12 @@ public class SettingsController  extends BaseController {
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
     public Result getMaturityInstructions(String lang) {
-        if (!langs.availables().stream().map(Lang::code).collect(Collectors.toList()).contains(lang)) {
+        Language language = Ebean.find(Language.class, lang);
+        if (language == null) {
             return badRequest("Language not supported");
         }
         String key = String.format("maturity_instructions_%s", lang);
-        GeneralSettings gs = getOrCreateSettings(key, null, null);
-        return ok(Json.toJson(gs));
+        return ok(Json.toJson(get(key)));
     }
 
     @Restrict({ @Group("ADMIN")})
