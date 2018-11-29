@@ -31,24 +31,28 @@ export class EnrolmentService {
         private $http: ng.IHttpService,
         private $location: ng.ILocationService,
         private $uibModal: uib.IModalService,
-        private dialogs: angular.dialogservice.IDialogService,
         private Language: any,
-        private EnrollRes: any
     ) {
         'ngInject';
     }
 
-    private getMaturityInstructions(exam: Exam): ng.IPromise<{ instructions: string }> {
-        const deferred: ng.IDeferred<{ instructions: string }> = this.$q.defer();
+    private getMaturityInstructions(exam: Exam): Promise<{ instructions: string | null }> {
         if (exam.examLanguages.length !== 1) {
             console.warn('Exam has no exam languages or it has several!');
         }
-        const lang = exam.examLanguages.length > 0 ? exam.examLanguages[0].code : 'fi';
-        this.$http.get(`/app/settings/maturityInstructions?lang=${lang}`)
-            .then(((resp: ng.IHttpResponse<{ value: string }>) => {
-                return deferred.resolve({ instructions: resp.data.value });
-            })).catch(resp => toast.err(resp.data));
-        return deferred.promise;
+        return new Promise<{ instructions: string | null }>((resolve, reject) => {
+            if (exam.executionType.type !== 'MATURITY') {
+                return resolve({ instructions: null });
+            }
+            const lang = exam.examLanguages.length > 0 ? exam.examLanguages[0].code : 'fi';
+            this.$http.get(`/app/settings/maturityInstructions?lang=${lang}`)
+                .then(((resp: ng.IHttpResponse<{ value: string }>) => {
+                    resolve({ instructions: resp.data.value || 'N/A' });
+                })).catch(resp => {
+                    toast.error(resp.data);
+                    reject();
+                });
+        });
     }
 
     private getResource = (path: string, collaborative: boolean) =>
@@ -175,7 +179,7 @@ export class EnrolmentService {
             const infos: EnrolmentInfo[] = exams.map(e => _.assign(e,
                 {
                     languages: e.examLanguages.map(el => this.Language.getLanguageNativeName(el.code)),
-                    maturityInstructions: undefined,
+                    maturityInstructions: null,
                     alreadyEnrolled: false,
                     reservationMade: false,
                     noTrialsLeft: false
