@@ -19,13 +19,13 @@ import toast from 'toastr';
 angular.module('app.exam.editor')
     .component('courseSelection', {
         template: require('./courseSelection.template.html'),
-        controller: ['$translate', '$q', '$location', '$routeParams', 'ExamRes', 'Exam',
-            function ($translate, $q, $location, $routeParams, ExamRes, Exam) {
+        controller: ['$translate', '$location', '$routeParams', 'ExamRes', 'Exam',
+            function ($translate, $location, $routeParams, ExamRes, Exam) {
 
                 const vm = this;
 
                 vm.$onInit = function () {
-                    ExamRes.exams.get({id: $routeParams.id}, function (exam) {
+                    ExamRes.exams.get({ id: $routeParams.id }, function (exam) {
                         vm.exam = exam;
                     });
                 };
@@ -45,8 +45,15 @@ angular.module('app.exam.editor')
                     });
                 };
 
+                vm.onCourseSelected = function (course) {
+                    ExamRes.course.update({ eid: vm.exam.id, cid: course.id }, function () {
+                        toast.success($translate.instant('sitnet_exam_associated_with_course'));
+                        vm.exam.course = course;
+                    });
+                }
+
                 vm.cancelNewExam = function () {
-                    ExamRes.exams.remove({id: vm.exam.id}, function () {
+                    ExamRes.exams.remove({ id: vm.exam.id }, function () {
                         toast.success($translate.instant('sitnet_exam_removed'));
                         $location.path('/');
                     });

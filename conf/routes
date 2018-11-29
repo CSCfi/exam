@@ -32,7 +32,6 @@ DELETE        /app/exams/:id                                           backend.c
 PUT           /app/exams/:id                                           backend.controllers.ExamController.updateExam(id: Long)
 POST          /app/exams/:id                                           backend.controllers.ExamController.copyExam(id: Long)
 PUT           /app/exams/:eid/course/:cid                              backend.controllers.ExamController.updateCourse(eid: Long, cid: Long)
-DELETE        /app/exams/:eid/course                                   backend.controllers.ExamController.removeCourse(eid: Long)
 
 GET           /app/exams/:id/preview                                   backend.controllers.ExamController.getExamPreview(id: Long)
 GET           /app/reviewerexams                                       backend.controllers.ExamController.getTeachersExams
