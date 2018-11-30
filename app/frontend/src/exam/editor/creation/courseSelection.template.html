@@ -45,8 +45,7 @@
 
             <div class="col-md-12">
                 <div class="row marl0">
-                    <course-picker exam-id="$ctrl.exam.id" course="$ctrl.exam.course" on-update="$ctrl.onCourseSelected(course)"
-                        class="marl0"></course-picker>
+                    <course-picker [course]="$ctrl.exam.course" (on-update)="$ctrl.onCourseSelected($event)" class="marl0"></course-picker>
                 </div>
                 <!-- Course scope and organization name elements -->
                 <div class="row margin-20 marl0" ng-if="$ctrl.exam.course.credits">

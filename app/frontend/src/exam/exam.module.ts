@@ -19,6 +19,8 @@ import { LanguageSelectorComponent } from './editor/common/languageSelector.comp
 import { SectionComponent } from './editor/sections/section.component.upgrade';
 import { SectionsListComponent } from './editor/sections/sectionsList.component';
 import { ExamService } from './exam.service';
+import { CoursePickerService } from './editor/common/coursePicker.service';
+import { CoursePickerComponent } from './editor/common/coursePicker.component';
 
 @NgModule({
     imports: [
@@ -28,14 +30,17 @@ import { ExamService } from './exam.service';
     declarations: [
         SectionsListComponent,
         SectionComponent,
+        CoursePickerComponent,
         LanguageSelectorComponent
     ],
     entryComponents: [
+        CoursePickerComponent,
         SectionsListComponent,
         LanguageSelectorComponent
     ],
     providers: [
         ExamService,
+        CoursePickerService
     ]
 })
 export class ExamModule { }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -13,68 +13,84 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import * as angular from 'angular';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
+import { from, Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, exhaustMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
+import { Course } from '../../exam.model';
+import { CoursePickerService } from './coursePicker.service';
 
-angular.module('app.exam.editor')
-    .component('coursePicker', {
-        template: require('./coursePicker.template.html'),
-        bindings: {
-            course: '<',
-            onUpdate: '&'
-        },
-        controller: ['$translate', 'Course',
-            function ($translate, Course) {
+interface CourseFilter {
+    name?: string;
+    code?: string;
+}
 
-                const vm = this;
+@Component({
+    selector: 'course-picker',
+    template: require('./coursePicker.component.html')
+})
+export class CoursePickerComponent implements OnInit {
 
-                vm.$onInit = function () {
-                    vm.filter = {
-                        name: vm.course ? vm.course.name : '',
-                        code: vm.course ? vm.course.code : ''
-                    };
-                };
+    @Input() course: Course;
+    @Output() onUpdate = new EventEmitter<Course>();
 
-                vm.getCourses = (filter: string, criteria: string) => {
-                    toggleLoadingIcon(filter, true);
-                    setInputValue(filter, criteria);
-                    return Course.courseApi.query({ filter: filter, q: criteria }).$promise.then(
-                        function (courses) {
-                            toggleLoadingIcon(filter, false);
-                            if (courses.length === 0) {
-                                toast.error($translate.instant('sitnet_course_not_found') + ' ( ' + criteria + ' )');
-                            }
-                            return courses;
-                        },
-                        function () {
-                            toggleLoadingIcon(filter, false);
-                            toast.error($translate.instant('sitnet_course_not_found') + ' ( ' + criteria + ' )');
-                            return [];
-                        }
-                    );
-                };
+    public filter: CourseFilter;
+    loader: { name: { isOn: boolean }, code: { isOn: boolean } };
 
-                vm.onCourseSelect = function (selection) {
-                    vm.filter = { name: selection.name, code: selection.code };
-                    vm.onUpdate({ course: selection });
-                };
+    constructor(private translate: TranslateService, private Course: CoursePickerService) { }
 
-                function toggleLoadingIcon(filter, isOn) {
-                    if (filter && filter === 'code') {
-                        vm.loadingCoursesByCode = isOn;
-                    } else if (filter && filter === 'name') {
-                        vm.loadingCoursesByName = isOn;
-                    }
+    ngOnInit() {
+        this.filter = {
+            name: this.course ? this.course.name : '',
+            code: this.course ? this.course.code : ''
+        };
+        this.loader = {
+            name: { isOn: false }, code: { isOn: false }
+        };
+    }
+
+    private showError = (term) =>
+        toast.error(`${this.translate.instant('sitnet_course_not_found')} ( ${term}  )`)
+
+
+    private getCourses$ = (category: string, text$: Observable<string>): Observable<Course[]> =>
+
+        text$.pipe(
+            tap(term => {
+                this.setInputValue(category, term);
+                this.toggleLoadingIcon(category, term.length >= 2);
+            }),
+            debounceTime(200),
+            distinctUntilChanged(),
+            exhaustMap(term => term.length < 2 ? from([]) : this.Course.getCourses$(category, term)),
+            tap(courses => {
+                this.toggleLoadingIcon(category, false);
+                if (courses.length === 0) {
+                    this.showError(this.filter.code);
                 }
+            })
+        )
 
-                function setInputValue(filter, value) {
-                    if (filter === 'code') {
-                        vm.filter = { code: value };
-                    } else if (filter === 'name') {
-                        vm.filter = { name: value };
-                    }
-                }
+    getCoursesByCode$ = (text$) => this.getCourses$('code', text$);
+    getCoursesByName$ = (text$) => this.getCourses$('name', text$);
+    codeFormat = (c: CourseFilter) => c.code;
+    nameFormat = (c: CourseFilter) => c.name;
+    courseFormat = (c: Course) => `${c.code} ${c.name}`;
 
-            }]
-    });
+    onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
+        this.filter = { name: event.item.name, code: event.item.code };
+        this.onUpdate.emit(event.item);
+    }
 
+    private toggleLoadingIcon = (filter: string, isOn: boolean) => this.loader[filter].isOn = isOn;
+    private setInputValue = (filter: string, value: string) => {
+        if (filter === 'code') {
+            this.filter = { code: value };
+        } else if (filter === 'name') {
+            this.filter = { name: value };
+        }
+    }
+
+}

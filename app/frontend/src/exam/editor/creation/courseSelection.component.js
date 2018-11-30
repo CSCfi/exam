@@ -45,7 +45,7 @@ angular.module('app.exam.editor')
                     });
                 };
 
-                vm.onCourseSelected = function (course) {
+                vm.onCourseSelected = function ($event) {
                     ExamRes.course.update({ eid: vm.exam.id, cid: course.id }, function () {
                         toast.success($translate.instant('sitnet_exam_associated_with_course'));
                         vm.exam.course = course;

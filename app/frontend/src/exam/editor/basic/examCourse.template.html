@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
 
-        <course-picker class="row margin-20" course="$ctrl.exam.course" on-update="$ctrl.setCourse(course)"></course-picker>
+        <course-picker class="row margin-20" [course]="$ctrl.exam.course" (on-update)="$ctrl.setCourse($event)"></course-picker>
 
         <!-- Course scope and organization name elements -> 3 rows -->
         <div class="row margin-20">

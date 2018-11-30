@@ -13,10 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import angular from 'angular';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Course } from '../../exam.model';
 
-angular.module('app.exam.editor')
-    .service('Course', ['$resource',
-        function ($resource) {
-            this.courseApi = $resource('/app/courses');
-        }]);
+@Injectable()
+export class CoursePickerService {
+
+    constructor(private http: HttpClient) { }
+
+    getCourses$ = (filter: string, criteria: string) =>
+        this.http.get<Course[]>('/app/courses', { params: { filter: filter, q: criteria } })
+
+}
+
