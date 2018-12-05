@@ -69,10 +69,10 @@ export default function configs(
     $routeProvider.when('/exams/collaborative/:id/:tab', { template: '<exam-tabs collaborative="true"></exam-tabs>' });
 
     /* calendar */
-    $routeProvider.when('/calendar/:id', { template: '<calendar is-external="false"></calendar>' });
-    $routeProvider.when('/iop/calendar/:id', { template: '<calendar is-external="true"></calendar>' });
+    $routeProvider.when('/calendar/:id', { template: '<calendar [isExternal]="false"></calendar>' });
+    $routeProvider.when('/iop/calendar/:id', { template: '<calendar [isExterna]l="true"></calendar>' });
     $routeProvider.when('/calendar/collaborative/:id',
-        { template: '<calendar is-external="false" is-collaborative="true"></calendar>' });
+        { template: '<calendar [isExternal]="false" [isCollaborative]="true"></calendar>' });
 
 
     /* logout */

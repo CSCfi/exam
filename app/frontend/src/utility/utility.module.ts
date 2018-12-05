@@ -34,6 +34,7 @@ import { LanguageService } from './language/language.service';
 import { PaginatorComponent } from './paginator/paginator.component';
 import { UserService } from './user/user.service';
 import { WindowRef } from './window/window.service';
+import { SessionService } from '../session/session.service';
 
 
 @NgModule({
@@ -41,7 +42,7 @@ import { WindowRef } from './window/window.service';
         CommonModule,
         TranslateModule,
         FormsModule,
-        NgbModule
+        NgbModule,
     ],
     exports: [
         CommonModule,
@@ -50,7 +51,8 @@ import { WindowRef } from './window/window.service';
         CKEditorComponent,
         TruncatingPipe,
         DraggableModalDirective,
-        SortableDirective
+        SortableDirective,
+        HistoryBackComponent
     ],
     declarations: [
         AttachmentSelectorComponent,

@@ -25,14 +25,15 @@ import { UpgradeModule } from '@angular/upgrade/static';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { StorageServiceModule } from 'angular-webstorage-service';
+import { CalendarModule } from './calendar/calendar.module';
 import { ExamModule } from './exam/exam.module';
 import { AuthInterceptor } from './httpInterceptor';
 import { NavigationModule } from './navigation/navigation.module';
 import { QuestionModule } from './question/question.module';
+import { ReviewModule } from './review/review.module';
 import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
 import { UtilityModule } from './utility/utility.module';
-import { ReviewModule } from './review/review.module';
 
 @NgModule({
     imports: [
@@ -49,23 +50,30 @@ import { ReviewModule } from './review/review.module';
         ExamModule,
         QuestionModule,
         UtilityModule,
-        ReviewModule
+        ReviewModule,
+        CalendarModule
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-        Location,
-        { provide: LocationStrategy, useClass: PathLocationStrategy },
-        {
-            // Provider for AJS translator so we can use it inside Angular
-            provide: '$translate',
-            useFactory: ($injector: any) => $injector.get('$translate'),
-            deps: ['$injector']
-        },
         {
             provide: LOCALE_ID,
             deps: [SessionService],
             useFactory: (srv) => srv.getLocale()
-        }
+        },
+        Location,
+        { provide: LocationStrategy, useClass: PathLocationStrategy },
+        // Provider for AJS translator, needed for switching language so that the change is visible also to AJS modules
+        {
+            provide: '$translate',
+            useFactory: ($injector: any) => $injector.get('$translate'),
+            deps: ['$injector']
+        },
+        // Provider for AJS RouteParams, needed until having switched to new router
+        {
+            provide: '$routeParams',
+            useFactory: ($injector: any) => $injector.get('$routeParams'),
+            deps: ['$injector']
+        },
     ]
 })
 export class AppModule {

@@ -14,15 +14,14 @@
  */
 
 import * as angular from 'angular';
-import 'angular-ui-calendar';
-import 'fullcalendar';
-import { BookingCalendarComponent } from './bookingCalendar.component';
 import { CalendarComponent } from './calendar.component';
 import { CalendarService } from './calendar.service';
+import { downgradeInjectable, downgradeComponent } from '@angular/upgrade/static';
+import { BookingCalendarComponent } from './bookingCalendar.component';
 
 
-export default angular.module('app.calendar', ['ui.calendar'])
-    .service('Calendar', CalendarService)
-    .component('bookingCalendar', BookingCalendarComponent)
-    .component('calendar', CalendarComponent)
+export default angular.module('app.calendar', [])
+    .service('Calendar', downgradeInjectable(CalendarService))
+    .directive('ngCalendar', downgradeComponent({ component: BookingCalendarComponent }))
+    .directive('calendar', downgradeComponent({ component: CalendarComponent }))
     .name;

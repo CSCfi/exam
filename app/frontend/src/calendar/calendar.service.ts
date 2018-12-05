@@ -12,14 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import * as angular from 'angular';
-import { IDeferred } from 'angular';
+import { HttpClient } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
 import * as moment from 'moment';
 import 'moment-timezone';
-import * as toastr from 'toastr';
+import { Observable } from 'rxjs';
 import { SessionService } from '../session/session.service';
 import { DateTimeService } from '../utility/date/date.service';
-
 
 
 export interface Room {
@@ -55,20 +54,15 @@ export interface OpeningHours {
     periodText?: string;
 }
 
+@Injectable()
 export class CalendarService {
 
     constructor(
-        private $q: angular.IQService,
-        private $http: angular.IHttpService,
-        private $routeParams: angular.route.IRouteParamsService,
-        private $translate: angular.translate.ITranslateService,
-        private $location: angular.ILocationService,
+        private http: HttpClient,
+        @Inject('$routeParams') private RouteParams: any,
         private DateTime: DateTimeService,
-        private Session: SessionService,
-        private uiCalendarConfig: any
-    ) {
-        'ngInject';
-    }
+        private Session: SessionService
+    ) { }
 
     private adjustBack(date: moment.Moment, tz: string): string {
         const adjusted = moment.tz(date, tz);
@@ -76,54 +70,32 @@ export class CalendarService {
         return moment.utc(adjusted.add(offset, 'hour')).format();
     }
 
-    private reserveInternal(slot: Slot, accs: { filtered: boolean; id: number }[], promise: IDeferred<any>,
-        collaborative: boolean) {
+    private reserveInternal$ = (slot: Slot, accs: { filtered: boolean; id: number }[],
+        collaborative: boolean): Observable<void> => {
 
-        slot.aids = accs.filter(
-            function (item) {
-                return item.filtered;
-            })
-            .map(function (item) {
-                return item.id;
-            });
+        slot.aids = accs.filter(item => item.filtered).map(item => item.id);
         const url = collaborative ? '/integration/iop/calendar/reservation' : '/app/calendar/reservation';
-        this.$http.post(url, slot).then(() => {
-            this.$location.path('/');
-            promise.resolve();
-        }).catch((resp) => {
-            toastr.error(resp.data);
-            promise.reject(resp);
-        });
+        return this.http.post<void>(url, slot);
     }
 
-    private reserveExternal(slot: Slot, promise: IDeferred<any>) {
-        this.$http.post('/integration/iop/reservations/external', slot).then(() => {
-            this.$location.path('/');
-            promise.resolve();
-        }).catch((resp) => {
-            toastr.error(resp.data);
-            promise.reject(resp);
-        });
-    }
+    private reserveExternal$ = (slot: Slot) =>
+        this.http.post<void>('/integration/iop/reservations/external', slot)
 
-    reserve(start: moment.Moment, end: moment.Moment, room: Room,
+    reserve$(start: moment.Moment, end: moment.Moment, room: Room,
         accs: { filtered: boolean; id: number }[], org: { _id: string | null }, collaborative = false) {
-
-        const deferred = this.$q.defer();
         const tz = room.localTimezone;
         const slot: Slot = {
             start: this.adjustBack(start, tz),
             end: this.adjustBack(end, tz),
-            examId: parseInt(this.$routeParams.id),
+            examId: parseInt(this.RouteParams.id),
             roomId: room._id != null ? room._id : room.id,
             orgId: org._id
         };
         if (org._id !== null) {
-            this.reserveExternal(slot, deferred);
+            return this.reserveExternal$(slot);
         } else {
-            this.reserveInternal(slot, accs, deferred, collaborative);
+            return this.reserveInternal$(slot, accs, collaborative);
         }
-        return deferred.promise;
     }
 
     renderCalendarTitle() {
@@ -205,13 +177,9 @@ export class CalendarService {
         return event;
     }
 
-    getExceptionHours(room: Room) {
-        const view = this.uiCalendarConfig.calendars.myCalendar.fullCalendar('getView');
-        if (view.start === undefined || view.end === undefined) {
-            return [];
-        }
-        const start = moment.max(moment(), view.start);
-        const end = view.end;
+    getExceptionHours(room: Room, start: moment.Moment, end: moment.Moment) {
+        const s = moment.max(moment(), start);
+        const e = end;
         const events = room.calendarExceptionEvents.filter(function (e) {
             return (moment(e.startDate) > start && moment(e.endDate) < end);
         });

@@ -64,9 +64,11 @@ export class SessionService {
     private sessionCheckSubscription: Unsubscribable;
     private userChangeSubscription = new Subject<User>();
     private devLogoutSubscription = new Subject<void>();
+    private languageChangeSubscription = new Subject<void>();
 
     public userChange$: Observable<User>;
     public devLogoutChange$: Observable<void>;
+    public languageChange$: Observable<void>;
 
     constructor(private http: HttpClient,
         private i18n: TranslateService,
@@ -85,6 +87,7 @@ export class SessionService {
 
         this.userChange$ = this.userChangeSubscription.asObservable();
         this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
+        this.languageChange$ = this.languageChangeSubscription.asObservable();
     }
 
     getUser = () => this.user;
@@ -168,6 +171,7 @@ export class SessionService {
     translate(lang: string) {
         this.i18n.use(lang);
         this.$ajsTranslate.use(lang); // TODO: remove once AJS is gone
+        this.languageChangeSubscription.next(undefined);
     }
 
     switchLanguage(lang: string) {

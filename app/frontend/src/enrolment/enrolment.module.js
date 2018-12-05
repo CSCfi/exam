@@ -16,7 +16,7 @@
 
 require('../common');
 require('../exam'); // TODO: refactor
-require('../calendar');
+require('../calendar/calendar.module.ajs.ts');
 
 angular.module('app.enrolment', ['app.common', 'app.exam', 'app.calendar']);
 
