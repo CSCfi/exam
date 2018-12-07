@@ -32,7 +32,7 @@ import backend.models.api.AttachmentContainer;
 import backend.models.base.OwnedModel;
 import backend.models.questions.Question;
 import backend.util.AppUtil;
-import backend.util.DateTimeAdapter;
+import backend.util.datetime.DateTimeAdapter;
 
 
 @Entity

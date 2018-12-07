@@ -37,7 +37,7 @@ import backend.models.ExamRoom;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.json.ExternalExam;
-import backend.util.JsonDeserializer;
+import backend.util.json.JsonDeserializer;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;

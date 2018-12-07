@@ -25,7 +25,7 @@ import backend.models.ExamStartingHour;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
-import backend.util.ConfigUtil;
+import backend.util.config.ConfigUtil;
 
 public class CalendarHandlerImpl implements CalendarHandler {
 

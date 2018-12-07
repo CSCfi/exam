@@ -41,7 +41,8 @@ import org.joda.time.LocalDate;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.calendar.DefaultWorkingHours;
 import backend.models.calendar.ExceptionWorkingHours;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
+
 
 @Entity
 public class ExamRoom extends GeneratedIdentityModel {

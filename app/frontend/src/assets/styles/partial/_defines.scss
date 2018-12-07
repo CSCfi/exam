@@ -26,7 +26,10 @@ $sitnet-grey: #c0c0c0;
 $sitnet-light-grey: #e6e6e6;
 $sitnet-light-grey_new: rgb(33, 33, 33);
 $sitnet-light-green_new: rgb(50, 149, 61);
-$sitnet-green-new: #3CA34F;
+$sitnet-medium-green-new: #238635;
+$sitnet-green-new: #2c7639;
+$sitnet-dark-green-new: #25622f;
+
 $sitnet-dark-grey: #4c4c4c;
 $sitnet-dark: #3e3e3e;
 $sitnet-beige: #f6f2e6;
@@ -35,7 +38,7 @@ $sitnet-white: #fff;
 $sitnet-black: #000;
 $sitnet-red: #f00;
 $sitnet-rejected: #ED4459;
-$sitnet-approved: #3CA34F;
+$sitnet-approved: $sitnet-green-new;
 $sitnet-border-color: #c3c3c3;
 
 $sitnet-teacher-turquoise-dark-active: #006674;
@@ -243,11 +246,6 @@ $sitnet-background: #ffffff;
   color: $sitnet-teacher-green-light;
 }
 
-.text-danger {
-  color: #F35D6D !important;
-}
-
-// #### muuta defined ##############################################
 .greenHover:hover {
   color: $sitnet-ready;
 }
@@ -259,11 +257,6 @@ $sitnet-background: #ffffff;
 
 .italic {
   font-style: italic;
-}
-
-.nospace {
-  //  padding:0;
-  //  margin:0;
 }
 
 .popover {
@@ -438,7 +431,6 @@ $sitnet-icon-size: 32px;
     margin-left: 0;
     font-weight: bold;
     float: left;
-    display: inline;
     color: $sitnet-text;
   }
   .light-text {
@@ -446,20 +438,14 @@ $sitnet-icon-size: 32px;
     margin-left: 0;
     font-weight: normal;
     float: left;
-    display: inline;
   }
   .link-text {
     padding-left: 0;
     margin-left: 0;
     font-weight: normal;
     float: left;
-    display: inline;
     color: $sitnet-theme;
   }
-}
-
-.info-column-large-icon {
-
 }
 
 .info-header-bolditalic {

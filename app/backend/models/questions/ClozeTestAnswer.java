@@ -91,6 +91,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             }
             b.tagName("input");
             b.text("");
+            b.attr("aria-label", "cloze test question");
             b.attr("type", isNumeric ? "number" : "text");
             b.attr("class", "cloze-input");
             if (isNumeric) {

@@ -17,8 +17,8 @@
 package helpers;
 
 import backend.models.Exam;
-import backend.util.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
+import backend.util.json.JsonDeserializer;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.jodah.concurrentunit.Waiter;
 import play.libs.Json;

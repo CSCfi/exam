@@ -37,7 +37,7 @@ import backend.models.User;
 import backend.models.json.ExternalExam;
 import backend.models.questions.Question;
 import backend.util.AppUtil;
-import backend.util.JsonDeserializer;
+import backend.util.json.JsonDeserializer;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

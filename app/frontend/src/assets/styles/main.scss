@@ -120,7 +120,7 @@ label {
   font-family: $sitnet-family-helvetica;
   font-size: 2em;
   color: #2c2c2c;
-  border-bottom: 2px solid #3CA34F;
+  border-bottom: 2px solid $sitnet-green-new;
   width: 100%;
   padding-bottom: 7px;
 
@@ -164,8 +164,8 @@ label {
   button {
     font-size: 16px;
     font-family: $sitnet-family-helvetica;
-    background-color: #3CA34F;
-    border: 1px solid #358F45;
+    background-color: $sitnet-green-new;
+    border: 1px solid #133b17;
     min-width: 150px;
     padding-top: 11px;
     padding-bottom: 11px;
@@ -178,15 +178,15 @@ label {
   }
 
   button:hover, button:active, button:focus, button:active:focus {
-    background-color: #358F45;
-    border: 1px solid #358F45;
+    background-color: #133b17;
+    border: 1px solid #133b17;
   }
 
   a {
     font-size: 16px;
     font-family: $sitnet-family-helvetica;
-    background-color: #3CA34F;
-    border: 1px solid #358F45;
+    background-color: $sitnet-green-new;
+    border: 1px solid #133b17;
     width: 150px;
     margin-left: 10px;
     line-height: 1.5;
@@ -203,8 +203,8 @@ label {
   }
 
   a:hover, button:active, button:focus, button:active:focus {
-    background-color: #358F45;
-    border: 1px solid #358F45;
+    background-color: #133b17;
+    border: 1px solid #133b17;
     text-decoration: none;
   }
 
@@ -245,9 +245,8 @@ label {
   margin-bottom: 30px;
 
   img {
-    display: inline-block;
     float: left;
-    padding-top: 10px;
+    padding-top: 12px;
 
     &.nopad {
       padding-top: 0px;
@@ -282,7 +281,7 @@ label {
   font-family: $sitnet-family-helvetica;
   font-size: 2em;
   color: #2c2c2c;
-  border-bottom: 2px solid #3CA34F;
+  border-bottom: 2px solid $sitnet-green-new;
   padding-bottom: 7px;
   margin-left: 50px;
 
@@ -296,7 +295,7 @@ label {
   font-family: $sitnet-family-helvetica;
   font-size: 2em;
   color: #2c2c2c;
-  border-bottom: 2px solid #3CA34F;
+  border-bottom: 2px solid $sitnet-green-new;
   padding-bottom: 7px;
 
   &.subtitle { margin-left: 30px; margin-bottom: 20px; }
@@ -310,7 +309,6 @@ label {
 }
 
 .calendar-phase-icon {
-  display: inline-block;
   float: right;
 }
 
@@ -358,7 +356,6 @@ label {
 }
 
 .calendar-button-save {
-  display: inline-block;
   vertical-align: top;
   width: 22%;
   float: right;
@@ -382,8 +379,8 @@ label {
 
     &.cancel {
       cursor: pointer;
-      background-color: #7F7F7F;
-      border: 1px solid #6B6B6B;
+      background-color: #606060;
+      border: 1px solid #565656;
 
     }
   }
@@ -407,8 +404,8 @@ label {
     a {
       font-size: 16px;
       font-family: $sitnet-family-helvetica;
-      background-color: #3CA34F;
-      border: 1px solid #358F45;
+      background-color: $sitnet-green-new;
+      border: 1px solid $sitnet-dark-green-new;
       width: 100%;
       margin-left: 10px;
       line-height: 1.5;
@@ -421,8 +418,8 @@ label {
     }
 
     a:hover, button:active, button:focus, button:active:focus {
-      background-color: #358F45;
-      border: 1px solid #358F45;
+      background-color: $sitnet-dark-green-new;
+      border: 1px solid $sitnet-dark-green-new;
       text-decoration: none;
     }
 
@@ -468,10 +465,6 @@ label {
   border-radius: 4px;
   padding-top: 27px;
   margin-bottom: 0px !important;
-}
-
-.fc-left {
-
 }
 
 .fc-right {
@@ -657,7 +650,7 @@ label {
     }
     a:hover {
       color: #fff;
-      background: #3CA34F;
+      background: $sitnet-green-new;
       -moz-border-radius: 50%;
       -webkit-border-radius: 50%;
       border-radius: 50%;
@@ -673,7 +666,7 @@ label {
 
     a, a:focus {
       color: #fff;
-      background: #3CA34F;
+      background: $sitnet-green-new;
       -moz-border-radius: 50%;
       -webkit-border-radius: 50%;
       border-radius: 50%;
@@ -684,7 +677,7 @@ label {
 
     a:hover {
       color: #fff;
-      background: #3CA34F;
+      background: $sitnet-green-new;
       width:30px;
       height:30px;
     }

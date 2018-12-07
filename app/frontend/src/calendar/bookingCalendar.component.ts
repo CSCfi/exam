@@ -114,7 +114,8 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
                         }
                         event.selected = !event.selected;
                         selectedEvent = $(this);
-                        $(this).css('background-color', '#266B99');
+                        $(this).css('border-color', '#92C3E4');
+                        $(this).css('background-color', '#92C3E4');
                     }
                 },
                 eventMouseover: function (event, jsEvent, view) {
@@ -137,7 +138,9 @@ export const BookingCalendarComponent: angular.IComponentOptions = {
                 eventAfterAllRender: (view) => {
                     // Disable next/prev buttons if date range is off limits
                     const prevButton = $('.fc-prev-button');
+                    prevButton.attr('aria-label', 'previous week');
                     const nextButton = $('.fc-next-button');
+                    nextButton.attr('aria-label', 'next week');
                     const todayButton = $('.fc-today-button');
                     const customButton = $('.fc-myCustomButton-button');
 

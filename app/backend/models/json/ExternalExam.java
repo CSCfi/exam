@@ -33,7 +33,7 @@ import org.joda.time.DateTime;
 import backend.models.Exam;
 import backend.models.User;
 import backend.models.base.GeneratedIdentityModel;
-import backend.util.JsonDeserializer;
+import backend.util.json.JsonDeserializer;
 
 @Entity
 public class ExternalExam extends GeneratedIdentityModel {

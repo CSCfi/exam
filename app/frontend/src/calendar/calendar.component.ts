@@ -194,11 +194,11 @@ export const CalendarComponent: angular.IComponentOptions = {
 
         private getColor(slot: AvailableSlot) {
             if (slot.availableMachines < 0) {
-                return '#266B99';
+                return '#92c3e4'; // blueish
             } else if (slot.availableMachines > 0) {
-                return '#A6E9B2';
+                return '#A6E9B2'; // light green
             } else {
-                return '#D8D8D8';
+                return '#D8D8D8'; // grey
             }
         }
 

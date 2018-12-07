@@ -16,7 +16,7 @@
 package backend.models.base;
 
 import backend.models.User;
-import backend.util.DateTimeAdapter;
+import backend.util.datetime.DateTimeAdapter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.joda.time.DateTime;
 

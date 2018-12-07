@@ -16,20 +16,23 @@
 
 package backend.controllers;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.Base64;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import backend.util.ChunkMaker;
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import play.mvc.Result;
 
-import java.util.Base64;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.ExamSectionQuestion;
+import backend.util.file.ChunkMaker;
 
 import static play.mvc.Results.ok;
 
@@ -68,16 +71,22 @@ public interface BaseAttachmentInterface<T> {
     CompletionStage<Result> deleteStatementAttachment(T id);
 
     default CompletionStage<Result> serveAsBase64Stream(Attachment attachment, Source<ByteString, ?> source) {
-        return serveAsBase64Stream(attachment.getMimeType(), attachment.getFileName(), source);
+        try {
+            return serveAsBase64Stream(attachment.getMimeType(), attachment.getFileName(), source);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    default CompletionStage<Result> serveAsBase64Stream(String mimeType, String fileName, Source<ByteString, ?> source) {
+    default CompletionStage<Result> serveAsBase64Stream(String mimeType, String fileName, Source<ByteString, ?> source) throws IOException  {
+        String escapedName = URLEncoder.encode(fileName, "UTF-8");
         return CompletableFuture.supplyAsync(() -> ok().chunked(source.via(new ChunkMaker(3 * 1024))
                 .map(byteString -> {
                     final byte[] encoded = Base64.getEncoder().encode(byteString.toArray());
                     return ByteString.fromArray(encoded);
                 })).as(mimeType)
-                .withHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\""));
+                .withHeader("Content-Disposition", "attachment; filename*=UTF-8''\"" + escapedName + "\""));
+
     }
 
     default ExamSectionQuestion getExamSectionQuestion(Long qid, Exam exam) {

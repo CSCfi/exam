@@ -16,15 +16,16 @@
 
 package controllers.iop;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Base64;
+import javax.servlet.MultipartConfigElement;
+
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
-import backend.models.Attachment;
-import backend.models.Exam;
-import backend.models.ExamExecutionType;
-import backend.models.ExamSectionQuestion;
-import backend.models.questions.EssayAnswer;
-import backend.models.questions.Question;
 import base.IntegrationTestCase;
 import helpers.AttachmentServlet;
 import helpers.ExamServlet;
@@ -43,12 +44,12 @@ import play.Logger;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import javax.servlet.MultipartConfigElement;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Base64;
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.ExamExecutionType;
+import backend.models.ExamSectionQuestion;
+import backend.models.questions.EssayAnswer;
+import backend.models.questions.Question;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -124,7 +125,7 @@ public abstract class BaseCollaborativeAttachmentControllerTest<T> extends Integ
 
     void assertDownloadResult(Result result) throws IOException {
         assertThat(result.header("Content-Disposition").orElse(null))
-                .isEqualTo("attachment; filename=\"test_image.png\"");
+                .isEqualTo("attachment; filename*=UTF-8''\"test_image.png\"");
         ActorSystem actorSystem = ActorSystem.create("TestSystem");
         Materializer mat = ActorMaterializer.create(actorSystem);
         final String content = Helpers.contentAsString(result, mat);

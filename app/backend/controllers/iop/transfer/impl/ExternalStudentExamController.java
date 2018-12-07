@@ -53,7 +53,7 @@ import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
 import backend.system.interceptors.SensitiveDataPolicy;
-import backend.util.DateTimeUtils;
+import backend.util.datetime.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
 @Restrict({@Group("STUDENT")})

@@ -16,14 +16,15 @@
 package backend.system;
 
 
-import backend.controllers.base.BaseController;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamMachine;
-import backend.models.ExamRoom;
-import backend.models.Session;
-import backend.models.User;
-import backend.util.DateTimeUtils;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
 import com.google.inject.Inject;
 import io.ebean.Ebean;
 import org.apache.commons.codec.binary.Base64;
@@ -38,14 +39,15 @@ import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamMachine;
+import backend.models.ExamRoom;
+import backend.models.Session;
+import backend.models.User;
+import backend.util.datetime.DateTimeUtils;
+
 
 public class SystemRequestHandler implements ActionCreator {
 

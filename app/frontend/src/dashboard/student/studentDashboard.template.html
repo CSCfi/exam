@@ -4,7 +4,7 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title">{{'sitnet_user_enrolled_exams_title' | translate}}</div>
+                <h1 class="student-enroll-title">{{'sitnet_user_enrolled_exams_title' | translate}}</h2>
             </div>
         </div>
     </div>
@@ -13,9 +13,9 @@
         <div class="col-md-12 list-item" ng-repeat="enrolment in $ctrl.userEnrolments | orderBy: 'reservation.startAt'">
             <active-enrolment enrolment="enrolment" on-removal="$ctrl.enrolmentRemoved(data)"></active-enrolment>
         </div>
-        <div ng-if="$ctrl.userEnrolments.length == 0" style="padding-left:30px;">
+        <div ng-if="$ctrl.userEnrolments.length === 0" style="padding-left:30px;">
             <span class="form-group">
-                <img class="nopad" src="Images/icon_info.png">&nbsp;
+                <img class="nopad" src="Images/icon_info.png" alt="">&nbsp;
                 <span>{{ 'sitnet_no_enrolments' | translate }}</span>
             </span>
         </div>

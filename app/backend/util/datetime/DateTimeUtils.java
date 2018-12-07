@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.util;
+package backend.util.datetime;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,6 +30,7 @@ import backend.models.ExamRoom;
 import backend.models.Reservation;
 import backend.models.calendar.ExceptionWorkingHours;
 import backend.models.iop.ExternalReservation;
+import backend.util.config.ConfigUtil;
 
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 

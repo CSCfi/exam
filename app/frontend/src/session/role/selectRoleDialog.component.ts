@@ -20,30 +20,34 @@ import { User, Role } from '../session.service';
 export const SelectRoleDialogComponent: angular.IComponentOptions = {
     template: `
     <div id="sitnet-dialog">
-        <div class="terms-dialog-header">
-            <h4 class="sitnet-black"><i class="fa fa-user"></i>&nbsp;&nbsp;{{'sitnet_select_role' | translate}}</i></h4>
-        </div>
-        <div class="modal-body">
-             <span class="dropdown pointer" uib-dropdown>
-                <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
-                        data-toggle="dropdown" aria-expanded="true">
-                    {{'sitnet_choose' | translate}}&nbsp;<span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li ng-repeat="role in $ctrl.user.roles">
-                        <a role="menuitem" title="{{role.displayName | translate}}" ng-click="$ctrl.ok(role)">
-                            <i class="fa pull-right" ng-class="role.icon"></i>
-                            {{role.displayName | translate}}
-                        </a>
-                    </li>
-                </ul>
-             </span>
-        </div>
-        <div class="modal-footer">
-            <div class="col-md-12">
-                <button class="btn btn-sm btn-danger pull-right" ng-click="$ctrl.cancel()">
-                    {{'sitnet_button_decline' | translate}}
-                </button>
+        <div class="student-message-dialog-wrapper-padding">
+            <div class="student-enroll-dialog-wrap">
+                <h1 class="student-enroll-title">
+                    <i class="fa fa-user"></i>&nbsp;&nbsp;{{'sitnet_select_role' | translate}}</i>
+                </h1>
+            </div>
+            <div class="modal-body">
+                <span class="dropdown pointer" uib-dropdown>
+                    <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                            data-toggle="dropdown" aria-expanded="true">
+                        {{'sitnet_choose' | translate}}&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="role in $ctrl.user.roles">
+                            <a role="menuitem" title="{{role.displayName | translate}}" ng-click="$ctrl.ok(role)">
+                                <i class="fa pull-right" ng-class="role.icon"></i>
+                                {{role.displayName | translate}}
+                            </a>
+                        </li>
+                    </ul>
+                </span>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12">
+                    <button class="btn btn-sm btn-danger pull-right" ng-click="$ctrl.cancel()">
+                        {{'sitnet_button_decline' | translate}}
+                    </button>
+                </div>
             </div>
         </div>
     </div>

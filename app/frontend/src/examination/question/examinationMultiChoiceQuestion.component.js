@@ -19,11 +19,14 @@ angular.module('app.examination')
     .component('examinationMultiChoiceQuestion', {
         template: '' +
             '<div class="bottom-padding-2">' +
-            '    <div ng-repeat="sqo in $ctrl.sq.options | orderBy: \'id\'" class="exam-answer-options">' +
-            '        <input type="radio" ng-model="$ctrl.sq.selectedOption" ng-value="sqo.id"' +
-            '            ng-change="$ctrl.saveOption()"/>' +
-            '        {{sqo.option.option}}' +
-            '    </div>' +
+            '    <fieldset>' +
+            '        <legend style="visibility: hidden;">answer options for multiple choice question</legend>' +
+            '        <div ng-repeat="sqo in $ctrl.sq.options | orderBy: \'id\'" class="exam-answer-options">' +
+            '            <input aria-label="option" type="radio" ng-model="$ctrl.sq.selectedOption" ng-value="sqo.id"' +
+            '                ng-change="$ctrl.saveOption()"/>' +
+            '           {{sqo.option.option}}' +
+            '        </div>' +
+            '    </fieldset>' +
             '</div>' +
             '<div class="padl0 question-type-text">' +
             '    {{$ctrl.sq.derivedMaxScore}} {{\'sitnet_unit_points\' | translate}}' +

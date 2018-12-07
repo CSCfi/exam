@@ -17,14 +17,14 @@ require('./editor.module');
 require('./examTabs.component.ts');
 
 require('./basic/basicExamInfo.component.ts');
-require('./basic/examCourse.component');
+require('./basic/examCourse.component.ts');
 require('./basic/examInspectorSelector.component');
 require('./basic/examOwnerSelector.component');
 
 require('./basic/softwareSelector.component');
 
 require('./common/coursePicker.service');
-require('./common/coursePicker.component');
+require('./common/coursePicker.component.ts');
 require('./common/languageSelector.component.ts');
 
 require('./creation/courseSelection.component');

@@ -50,8 +50,8 @@ import backend.models.User;
 import backend.models.api.CountsAsTrial;
 import backend.models.json.CollaborativeExam;
 import backend.system.interceptors.SensitiveDataPolicy;
-import backend.util.ConfigUtil;
-import backend.util.DateTimeUtils;
+import backend.util.config.ConfigUtil;
+import backend.util.datetime.DateTimeUtils;
 
 @SensitiveDataPolicy(sensitiveFieldNames = {"score", "defaultScore", "correctOption"})
 @Restrict({@Group("STUDENT")})

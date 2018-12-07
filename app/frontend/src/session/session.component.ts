@@ -56,13 +56,13 @@ export const SessionComponent: angular.IComponentOptions = {
         $onInit() {
             const user: User = this.$sessionStorage['EXAM_USER'];
             if (user) {
+                this.Session.setUser(user);
                 if (!user.loginRole) {
                     // This happens if user refreshes the tab before having selected a login role,
                     // lets just throw him out.
                     this.Session.logout();
                 }
                 _.merge(this.$http.defaults, { headers: { common: { 'x-exam-authentication': user.token } } });
-                this.Session.setUser(user);
                 this.Session.translate(user.lang);
                 this.Session.restartSessionCheck();
                 this.user = user;

@@ -15,26 +15,6 @@
 
 package backend.controllers;
 
-import backend.controllers.base.BaseController;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import backend.controllers.base.BaseController;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamParticipation;
-import backend.models.User;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
-import play.Logger;
-import play.mvc.Result;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,10 +26,31 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import io.ebean.Ebean;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+import play.Logger;
+import play.mvc.Result;
+
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamParticipation;
+import backend.models.User;
+
 
 public class StatisticsController extends BaseController {
 
     private static final DateTimeFormatter DTF = DateTimeFormat.forPattern("dd.MM.yyyy");
+    private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 
     @Restrict({@Group("ADMIN")})
@@ -110,13 +111,13 @@ public class StatisticsController extends BaseController {
             dataRow.createCell(i++).setCellValue(value);
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"exams.xlsx\"");
-        return ok(encode(wb));
+        return ok(encode(wb)).as(XLSX_MIME);
     }
 
     private static Result examToJson(Exam exam) {
         String content = Ebean.json().toJson(exam);
         response().setHeader("Content-Disposition", "attachment; filename=\"exams.json\"");
-        return ok(Base64.getEncoder().encodeToString(content.getBytes()));
+        return ok(content).as("application/json");
     }
 
     @Restrict({@Group("ADMIN")})
@@ -202,7 +203,7 @@ public class StatisticsController extends BaseController {
         }
         IntStream.range(0, 10).forEach(i -> sheet.autoSizeColumn(i, true));
         response().setHeader("Content-Disposition", "attachment; filename=\"teachers_exams.xlsx\"");
-        return ok(encode(wb));
+        return ok(encode(wb)).as(XLSX_MIME);
     }
 
     @Restrict({@Group("ADMIN")})
@@ -233,7 +234,7 @@ public class StatisticsController extends BaseController {
         IntStream.range(0, 5).forEach(i -> sheet.autoSizeColumn(i, true));
 
         response().setHeader("Content-Disposition", "attachment; filename=\"enrolments.xlsx\"");
-        return ok(encode(wb));
+        return ok(encode(wb)).as(XLSX_MIME);
     }
 
     private String parse(Supplier<String> supplier) {
@@ -290,7 +291,7 @@ public class StatisticsController extends BaseController {
         }
         IntStream.range(0, 10).forEach(i -> sheet.autoSizeColumn(i, true));
         response().setHeader("Content-Disposition", "attachment; filename=\"reviews.xlsx\"");
-        return ok(encode(wb));
+        return ok(encode(wb)).as(XLSX_MIME);
     }
 
     @Restrict({@Group("ADMIN")})
@@ -342,7 +343,7 @@ public class StatisticsController extends BaseController {
         }
         IntStream.range(0, 17).forEach(i -> sheet.autoSizeColumn(i, true));
         response().setHeader("Content-Disposition", "attachment; filename=\"reservations.xlsx\"");
-        return ok(encode(wb));
+        return ok(encode(wb)).as(XLSX_MIME);
     }
 
     @Restrict({@Group("ADMIN")})
@@ -366,7 +367,7 @@ public class StatisticsController extends BaseController {
         Workbook wb = new XSSFWorkbook();
         generateParticipationSheet(wb, participations, true);
         response().setHeader("Content-Disposition", "attachment; filename=\"all_exams.xlsx\"");
-        return ok(encode(wb));
+        return ok(encode(wb)).as(XLSX_MIME);
     }
 
     @Restrict({@Group("ADMIN")})
@@ -401,7 +402,7 @@ public class StatisticsController extends BaseController {
         dataRow.createCell(index).setCellValue(student.getLanguage().getCode());
         generateParticipationSheet(wb, participations, false);
         response().setHeader("Content-Disposition", "attachment; filename=\"student_activity.xlsx\"");
-        return ok(encode(wb));
+        return ok(encode(wb)).as(XLSX_MIME);
     }
 
     private static void generateParticipationSheet(Workbook workbook, List<ExamParticipation> participations,

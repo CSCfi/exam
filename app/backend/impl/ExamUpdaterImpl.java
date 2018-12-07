@@ -24,7 +24,7 @@ import backend.models.*;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.Question;
 import backend.sanitizers.Attrs;
-import backend.util.ConfigUtil;
+import backend.util.config.ConfigUtil;
 
 import static play.mvc.Results.badRequest;
 import static play.mvc.Results.forbidden;

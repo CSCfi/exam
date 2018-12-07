@@ -893,5 +893,6 @@
   "sitnet_exam_rooms_administration": "Underhåll av tentamensutrymmen",
   "sitnet_exam_all_rooms": "Alla tentamensutrymmen",
   "sitnet_exam_machine_softwares": "Behövlig programvara",
-  "sitnet_openinghours_exception_datetimes": "Öppettider och avvikande öppettider"
+  "sitnet_openinghours_exception_datetimes": "Öppettider och avvikande öppettider",
+  "sitnet_error_ip_address_exists_for_room": "IP-address redan i bruk"
 }
