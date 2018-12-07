@@ -871,5 +871,6 @@
   "sitnet_choose_institution": "Choose organization",
   "sitnet_question_differs": "The question that the student has answered has a different wording than the current one.",
   "sitnet_code": "Code",
-  "sitnet_language": "Language"
+  "sitnet_language": "Language",
+  "sitnet_error_ip_address_exists_for_room": "IP address already assigned"
 }

@@ -871,5 +871,6 @@
   "sitnet_choose_institution": "Välj organisation",
   "sitnet_question_differs": "Texten för frågan, som studenten har besvarat, avviker från den nuvarande frågan.",
   "sitnet_code": "Kod",
-  "sitnet_language": "Språk"
+  "sitnet_language": "Språk",
+  "sitnet_error_ip_address_exists_for_room": "IP-address redan i bruk"
 }

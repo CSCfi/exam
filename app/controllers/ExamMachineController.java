@@ -15,6 +15,9 @@
 
 package controllers;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -31,7 +34,6 @@ import org.joda.time.DateTime;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.util.List;
 
 public class ExamMachineController extends BaseController {
 
@@ -87,6 +89,19 @@ public class ExamMachineController extends BaseController {
         if (dest == null) {
             return notFound();
         }
+        ExamRoom room = dest.getRoom();
+
+        if (src.getIpAddress().length() > 0) {
+            List<ExamMachine> machines = Ebean.find(ExamMachine.class).findList();
+            List<String> ips = machines.stream()
+                    .filter(m -> !m.equals(dest))
+                    .map(ExamMachine::getIpAddress)
+                    .collect(Collectors.toList());
+            if (ips.contains(src.getIpAddress())) {
+                return forbidden("sitnet_error_ip_address_exists_for_room");
+            }
+        }
+
         dest.setName(src.getName());
         dest.setOtherIdentifier(src.getOtherIdentifier());
         dest.setAccessibilityInfo(src.getAccessibilityInfo());
