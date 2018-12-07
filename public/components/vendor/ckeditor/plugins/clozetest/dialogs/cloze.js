@@ -9,7 +9,7 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
         },
 
         // Basic properties of the dialog window: title, minimum size.
-        title: 'Embedded Answer Properties',
+        title: editor.lang.clozetest.dialog.title,
         minWidth: 400,
         minHeight: 200,
 
@@ -26,7 +26,7 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                         // Text input field for the correct answer text.
                         type: 'text',
                         id: 'answer',
-                        label: 'Correct Answer',
+                        label: editor.lang.clozetest.dialog.answer,
                         setup: function (element) {
                             this.setValue(element.getText());
                         },
@@ -37,32 +37,32 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                             element.setAttribute('style', 'border: 1px solid;');
                         },
                         // Validation checking whether the field is not empty.
-                        validate: CKEDITOR.dialog.validate.notEmpty("Answer field cannot be empty.")
+                        validate: CKEDITOR.dialog.validate.notEmpty(editor.lang.clozetest.dialog.errors.nonEmpty)
                     },
                     {
                         type: 'radio',
                         id: 'case-sensitive',
-                        items: [['Yes', 'true'], ['No', 'false']],
+                        items: [[editor.lang.clozetest.dialog.options.yes, 'true'], [editor.lang.clozetest.dialog.options.no, 'false']],
                         setup: function (element) {
                             this.setValue(element.getAttribute('case-sensitive'))
                         },
                         commit: function (element) {
                             element.setAttribute('case-sensitive', this.getValue());
                         },
-                        label: 'Case sensitive (textual answer only)',
+                        label: editor.lang.clozetest.dialog.caseSensitive,
                         'default': 'true'
                     },
                     {
                         type: 'radio',
                         id: 'numeric',
-                        items: [['Yes', 'true'], ['No', 'false']],
+                        items: [[editor.lang.clozetest.dialog.options.yes, 'true'], [editor.lang.clozetest.dialog.options.no, 'false']],
                         setup: function (element) {
                             this.setValue(element.getAttribute('numeric'))
                         },
                         commit: function (element) {
                             element.setAttribute('numeric', this.getValue());
                         },
-                        label: 'Numeric Answer',
+                        label: editor.lang.clozetest.dialog.numeric,
                         'default': 'false',
                         validate: CKEDITOR.dialog.validate.functions(function(val) {
                            if (val === 'true') {
@@ -70,14 +70,14 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                                return !isNaN(answer)
                            }
                            return true;
-                        }, "Answer must be a numeric value!")
+                        }, editor.lang.clozetest.dialog.errors.numeric)
                     },
                     {
                         // Number input field for answer accuracy value
                         type: 'number',
                         id: 'precision',
                         min: 0,
-                        label: 'Required answer precision (&plusmn; of correct numeric answer value)',
+                        label: editor.lang.clozetest.dialog.precision,
                         setup: function (element) {
                             this.setValue(element.getAttribute('precision') || 0);
                         },
@@ -86,17 +86,16 @@ CKEDITOR.dialog.add('clozeDialog', function (editor) {
                         },
                         validate: CKEDITOR.dialog.validate.functions(function(val) {
                             return !val || parseFloat(val) >= 0;
-                        }, "Value must be a non negative number.")
+                        }, editor.lang.clozetest.dialog.errors.nonNegative)
                     },
                     {
                         type: 'html',
                         id: 'usage',
-                        html: '<h4 style="margin-top: 0">Usage</h4>Use vertical bar ( | ) to separate ' +
-                        'correct answer options from each other. ' +
-                        'Use asterisk ( * ) as a wildcard to match any series of characters. ' +
-                        'For example <pre>*ship|boat|ferry</pre>' +
-                        'would match answers "ship", "flagship", "boat" and "ferry". ' +
-                        'If you really do want to match an asterisk or a vertical pipe then use a backslash like this: <pre>10\\*10=100</pre>'
+                        html: '<h4 style="margin-top: 0">' + editor.lang.clozetest.dialog.usage.title +
+                        '</h4>' + editor.lang.clozetest.dialog.usage.part1 + '<pre>' +
+                        editor.lang.clozetest.dialog.usage.example1 + '</pre>' +
+                        editor.lang.clozetest.dialog.usage.part2 +
+                        '<pre>10\\*10=100</pre>'
                     }
 
                 ]

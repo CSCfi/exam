@@ -1,0 +1,132 @@
+
+<!-- language inspection - verdict -->
+<div class="detail-row marb20 mart20" ng-show="$ctrl.hasGoneThroughLanguageInspection()">
+    <div class="col-md-2 general-info-title">{{'sitnet_language_inspections' | translate }}:</div>
+    <div class="col-md-10 general-info-content">
+         <span ng-class="$ctrl.exam.languageInspection.approved ? 'text-success' : 'text-danger'">
+        {{ $ctrl.exam.languageInspection.approved ? 'sitnet_approved' : 'sitnet_rejected' | translate | uppercase }}</span>
+    </div>
+</div>
+
+<!-- inspector comments -->
+<r-inspection-comments exam="$ctrl.exam" adding-disabled="(!$ctrl.isOwnerOrAdmin() || !examForm.valid)"
+                       adding-visible="!$ctrl.isMaturityRejection()">
+</r-inspection-comments>
+
+<!-- language inspection - inspector -->
+<div class="detail-row mart20" ng-show="$ctrl.hasGoneThroughLanguageInspection()">
+    <div class="col-md-2 general-info-title">{{'sitnet_language_inspector' | translate }}:</div>
+    <div class="col-md-10 general-info-content">
+        {{ $ctrl.exam.languageInspection.modifier.firstName }}
+        {{ $ctrl.exam.languageInspection.modifier.lastName }}
+    </div>
+</div>
+
+<!-- language inspection - statement -->
+<div class="detail-row mart20" ng-show="$ctrl.hasGoneThroughLanguageInspection()">
+    <div class="col-md-2 general-info-title">{{'sitnet_inspector_statement' | translate }}:</div>
+    <div class="col-md-10 general-info-content">
+        <div mathjax ng-bind-html="$ctrl.exam.languageInspection.statement.comment"></div>
+    </div>
+</div>
+<!-- language inspection - statement attachment -->
+<div class="detail-row mart20" ng-show="$ctrl.hasGoneThroughLanguageInspection() && $ctrl.exam.languageInspection.statement.attachment">
+    <div class="col-md-2 general-info-title">{{'sitnet_statement_attachment' | translate }}:</div>
+    <div class="col-md-10 general-info-content">
+        <a class="pointer" ng-click="$ctrl.downloadStatementAttachment()">
+            {{$ctrl.exam.languageInspection.statement.attachment.fileName}}
+        </a>
+    </div>
+</div>
+
+<!-- inspection creator -->
+<div class="detail-row mart20" ng-show="$ctrl.isReadOnly() || $ctrl.isUnderLanguageInspection()">
+    <div class="col-md-2 general-info-title">{{'sitnet_inspector_name' | translate }}:</div>
+    <div class="col-md-10 general-info-content">
+        {{ $ctrl.exam.languageInspection.creator.firstName }}
+        {{ $ctrl.exam.languageInspection.creator.lastName }}
+    </div>
+</div>
+
+<!-- exam feedback -->
+<div class="detail-row mart20" ng-show="$ctrl.isReadOnly() || $ctrl.isUnderLanguageInspection()">
+    <div class="col-md-2 general-info-title">{{'sitnet_teachers_comment' | translate }}:</div>
+    <div class="col-md-10 general-info-content">
+        <div mathjax ng-bind-html="$ctrl.exam.examFeedback.comment"></div>
+    </div>
+</div>
+
+<!-- grading stuff -->
+<form name="examForm" role="form" novalidate>
+
+    <!-- extra info for registry -->
+    <div class="detail-row mart20">
+        <div class="col-md-2 general-info-title">{{'sitnet_additional_info_for_registry' | translate }}:
+            <sup><img popover-placement="right" popover-trigger="'mouseenter'"
+                      uib-popover="{{'sitnet_additional_info_for_registry_description' | translate}}"
+                      src="Images/icon_tooltip.svg" alt="exam"
+                      onerror="this.onerror=null;this.src='Images/icon_tooltip.png'" /></sup>
+        </div>
+        <div class="col-md-10 general-info-content">
+            <textarea id="infoForRegistry" class="form-control" ng-model="$ctrl.exam.additionalInfo"
+                         rows="3"
+                         ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin()">
+            </textarea>
+        </div>
+    </div>
+
+    <div class="padr15 marl15 mart30"> <!-- This stuff could form a component of its own -->
+        <div class="col-md-3 grading-title padl0">{{ 'sitnet_exam_review_maturity_evaluation' | translate | uppercase }}</div>
+        <div class="col-md-3 grading-title">{{ 'sitnet_exam_choose_credit_type' | translate | uppercase }}</div>
+        <div class="col-md-3 grading-title">{{ 'sitnet_exam_record_language' | translate | uppercase }}</div>
+        <div class="col-md-3 grading-title">{{ 'sitnet_exam_credit' | translate | uppercase }} (op):</div>
+    </div>
+
+    <div class="review-grade-row marb20">
+
+        <div class="col-md-3 general-info-content padl0">
+            <select id="examGrade"
+                    name="examGrade"
+                    class="form-control"
+                    ng-model="$ctrl.selections.grade"
+                    ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin() || $ctrl.isAwaitingInspection()"
+                    ng-change="$ctrl.setGrade()"
+                    required
+                    ng-options="grade.name for grade in $ctrl.grades">
+                <option value=""
+                        ng-selected="!$ctrl.exam.grade">{{'sitnet_choose' | translate}}
+                </option>
+            </select>
+        </div>
+        <div class="col-md-3 general-info-title">
+            <select id="creditType" name="creditType" class="form-control"
+                    ng-model="$ctrl.selections.type"
+                    ng-change="$ctrl.setCreditType()"
+                    ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin() || $ctrl.isAwaitingInspection()" required
+                    ng-options="type.name for type in $ctrl.creditTypes">
+                <option value="">{{'sitnet_choose' | translate}}</option>
+            </select>
+        </div>
+        <div class="col-md-3 general-info-title">
+            <select id="answerLanguage" name="answerLanguage" class="form-control"
+                    ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin() || $ctrl.isAwaitingInspection()"
+                    ng-model="$ctrl.selections.language"
+                    ng-change="$ctrl.setLanguage()" required
+                    ng-options="lang.name for lang in $ctrl.languages">
+                <option value="">{{'sitnet_choose' | translate}}</option>
+            </select>
+        </div>
+        <div class="col-md-3 general-info-title">
+            <input id="customCredit" type="number" ng-disabled="$ctrl.isReadOnly() || !$ctrl.isOwnerOrAdmin() || $ctrl.isAwaitingInspection()"
+                   required min="0"
+                   class="form-control" maxlength="3" ng-model="$ctrl.exam.customCredit"/>
+        </div>
+    </div> <!-- end of possible new component -->
+
+    <!-- Bottom toolbar for maturity -->
+    <div class="detail-row">
+        <r-maturity-toolbar exam="$ctrl.exam" valid="examForm.$valid"></r-maturity-toolbar>
+    </div>
+
+
+</form>

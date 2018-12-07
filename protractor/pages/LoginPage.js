@@ -5,14 +5,14 @@ var LoginPage = function () {
     };
 
     this.login = function (username, password) {
-        element(by.model('credentials.username')).sendKeys(username);
-        element(by.model('credentials.password')).sendKeys(password);
+        element(by.model('$ctrl.credentials.username')).sendKeys(username);
+        element(by.model('$ctrl.credentials.password')).sendKeys(password);
         element(by.id('submit')).click();
     };
 
     this.logout = function () {
-        element(by.xpath('//a[@href=\'/logout\']')).click();
-        expect(browser.getCurrentUrl()).toContain('/login');
+        element(by.css('a[href="/logout"]')).click();
+        expect(browser.getCurrentUrl()).toEqual(browser.baseUrl + '/');
     };
 
     this.selectRole = function (role) {

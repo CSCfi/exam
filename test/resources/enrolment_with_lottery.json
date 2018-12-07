@@ -1,0 +1,608 @@
+{
+  "id": 13630,
+  "hash": "152e5b9cdfc2d666e79cdb33617032f1",
+  "name": "Pokemon-siirtotentti, joka suoritetaan exam.csc.fi",
+  "grade": null,
+  "state": "STUDENT_STARTED",
+  "cloned": null,
+  "course": {
+    "id": 11,
+    "code": "ayA110401",
+    "name": "Suomen kieli",
+    "level": null,
+    "campus": null,
+    "credits": null,
+    "endDate": null,
+    "lecturer": null,
+    "startDate": null,
+    "department": null,
+    "gradeScale": null,
+    "identifier": null,
+    "organisation": null,
+    "objectVersion": 0,
+    "courseMaterial": null,
+    "courseUnitType": null,
+    "creditsLanguage": null,
+    "degreeProgramme": null,
+    "institutionName": null,
+    "lecturerResponsible": null,
+    "courseImplementation": null
+  },
+  "parent": null,
+  "shared": false,
+  "created": null,
+  "creator": null,
+  "private": false,
+  "duration": 45,
+  "examType": {
+    "id": 2,
+    "type": "FINAL",
+    "deprecated": null,
+    "objectVersion": 0
+  },
+  "expanded": false,
+  "maxScore": 24.0,
+  "modified": null,
+  "modifier": null,
+  "printout": false,
+  "gradeless": false,
+  "attachment": {
+    "id": null,
+    "created": null,
+    "creator": null,
+    "fileName": "testiliite_1.txt",
+    "filePath": null,
+    "mimeType": null,
+    "modified": null,
+    "modifier": null,
+    "objectVersion": 0
+  },
+  "creditType": null,
+  "examOwners": [
+    {
+      "id": null,
+      "eppn": null,
+      "email": null,
+      "roles": [],
+      "language": null,
+      "lastName": "Teacher",
+      "firstName": "Marjut",
+      "lastLogin": null,
+      "logoutUrl": null,
+      "enrolments": [],
+      "identifier": null,
+      "inspections": [],
+      "permissions": [],
+      "organisation": null,
+      "objectVersion": 0,
+      "employeeNumber": null,
+      "participations": [],
+      "userIdentifier": null,
+      "userAgreementAccepted": false
+    }
+  ],
+  "examRecord": null,
+  "gradeScale": {
+    "id": 1,
+    "type": null,
+    "grades": [
+      {
+        "id": 4,
+        "name": "1",
+        "marksRejection": null
+      },
+      {
+        "id": 5,
+        "name": "2",
+        "marksRejection": null
+      },
+      {
+        "id": 6,
+        "name": "3",
+        "marksRejection": null
+      },
+      {
+        "id": 7,
+        "name": "4",
+        "marksRejection": null
+      },
+      {
+        "id": 8,
+        "name": "5",
+        "marksRejection": null
+      },
+      {
+        "id": 3,
+        "name": "0",
+        "marksRejection": null
+      }
+    ],
+    "description": null,
+    "displayName": null,
+    "externalRef": null
+  },
+  "gradedTime": null,
+  "totalScore": 0.0,
+  "trialCount": null,
+  "instruction": "Nämä ohjeet pitäisi näkyä opiskelijalle kuin teet tenttiä. Testataan kappalejakoa.\n\n\nTämä on eri kappaleessa.",
+  "internalRef": null,
+  "customCredit": null,
+  "examFeedback": null,
+  "examSections": [
+    {
+      "id": 15471,
+      "name": "Lyhyet esseet",
+      "created": null,
+      "creator": null,
+      "ordinal": 0,
+      "expanded": false,
+      "modified": null,
+      "modifier": null,
+      "lotteryOn": true,
+      "description": "Tässä kappaleessa on lyhyitä esseitä, ei arvontaa.",
+      "objectVersion": 0,
+      "sequenceNumber": 0,
+      "lotteryItemCount": 1,
+      "sectionQuestions": [
+        {
+          "id": 19455,
+          "created": null,
+          "creator": null,
+          "options": [],
+          "ordinal": 0,
+          "approved": false,
+          "maxScore": 6.0,
+          "minScore": 0.0,
+          "modified": null,
+          "modifier": null,
+          "question": {
+            "id": 25290,
+            "tags": [],
+            "type": "EssayQuestion",
+            "state": null,
+            "parent": null,
+            "shared": false,
+            "created": null,
+            "creator": null,
+            "options": [],
+            "modified": null,
+            "modifier": null,
+            "question": "<p>Kerro Pokemonin Gymeist&auml;. T&auml;ss&auml; kysymyksess&auml; my&ouml;s liite.&nbsp;</p>\n\n<p>Alla oleva taulukko.</p>\n\n<table border=\"1\" cellpadding=\"1\" cellspacing=\"1\" style=\"width:500px\">\n\t<tbody>\n\t\t<tr>\n\t\t\t<td>Punaisten gymi</td>\n\t\t\t<td>Keltaisten gymi</td>\n\t\t\t<td>Sinisten gymi</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>&nbsp;</td>\n\t\t\t<td>&nbsp;</td>\n\t\t\t<td>&nbsp;</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>&nbsp;</td>\n\t\t\t<td>&nbsp;</td>\n\t\t\t<td>&nbsp;</td>\n\t\t</tr>\n\t</tbody>\n</table>\n\n<p><em>T&auml;m&auml; on italicilla.&nbsp;</em></p>\n\n<p><strong>Ja t&auml;m&auml; boldilla.&nbsp;</strong></p>\n\n<p>Ja t&auml;ss&auml; on yl&auml;indeksi<sup>2</sup>.</p>\n\n<p>Ja t&auml;ss&auml; alaindeksi<sub>ala</sub>.</p>\n",
+            "attachment": {
+              "id": 8783,
+              "created": null,
+              "creator": null,
+              "fileName": "testiliite_2.txt",
+              "filePath": null,
+              "mimeType": null,
+              "modified": null,
+              "modifier": null,
+              "objectVersion": 0
+            },
+            "objectVersion": 0,
+            "questionOwners": [],
+            "defaultMaxScore": null,
+            "maxDefaultScore": 0.0,
+            "minDefaultScore": 0.0,
+            "defaultEvaluationType": null,
+            "defaultExpectedWordCount": null,
+            "defaultAnswerInstructions": null,
+            "defaultEvaluationCriteria": null
+          },
+          "rejected": false,
+          "essayAnswer": null,
+          "assessedScore": 0.0,
+          "objectVersion": 0,
+          "evaluationType": "Points",
+          "sequenceNumber": 0,
+          "clozeTestAnswer": null,
+          "derivedMaxScore": null,
+          "maxAssessedScore": 6.0,
+          "expectedWordCount": 500,
+          "answerInstructions": "Ja tämä on kysymykseen liittyvä ohjeistus eli muista lukea liite!.",
+          "evaluationCriteria": "Ja tässä arviointikriteereitä joita ei näytetä opiskelijalle."
+        },
+        {
+          "id": 19456,
+          "created": null,
+          "creator": null,
+          "options": [],
+          "ordinal": 1,
+          "approved": false,
+          "maxScore": 6.0,
+          "minScore": 0.0,
+          "modified": null,
+          "modifier": null,
+          "question": {
+            "id": 25291,
+            "tags": [],
+            "type": "EssayQuestion",
+            "state": null,
+            "parent": null,
+            "shared": false,
+            "created": null,
+            "creator": null,
+            "options": [],
+            "modified": null,
+            "modifier": null,
+            "question": "<p>Ja t&auml;ss&auml; toinen helpompi essee. Kirjoita t&auml;h&auml;n Raideista.&nbsp;</p>\n",
+            "attachment": null,
+            "objectVersion": 0,
+            "questionOwners": [],
+            "defaultMaxScore": null,
+            "maxDefaultScore": 0.0,
+            "minDefaultScore": 0.0,
+            "defaultEvaluationType": null,
+            "defaultExpectedWordCount": null,
+            "defaultAnswerInstructions": null,
+            "defaultEvaluationCriteria": null
+          },
+          "rejected": false,
+          "essayAnswer": null,
+          "assessedScore": 0.0,
+          "objectVersion": 0,
+          "evaluationType": "Points",
+          "sequenceNumber": 1,
+          "clozeTestAnswer": null,
+          "derivedMaxScore": null,
+          "maxAssessedScore": 6.0,
+          "expectedWordCount": 500,
+          "answerInstructions": null,
+          "evaluationCriteria": null
+        }
+      ]
+    },
+    {
+      "id": 15472,
+      "name": "Monivalinnat",
+      "created": null,
+      "creator": null,
+      "ordinal": 1,
+      "expanded": false,
+      "modified": null,
+      "modifier": null,
+      "lotteryOn": false,
+      "description": "Tässä kokonaisuudessa on monivalintakysymykset.",
+      "objectVersion": 0,
+      "sequenceNumber": 1,
+      "lotteryItemCount": 0,
+      "sectionQuestions": [
+        {
+          "id": 19457,
+          "created": null,
+          "creator": null,
+          "options": [
+            {
+              "id": 15952,
+              "score": null,
+              "option": {
+                "id": 19319,
+                "option": "Dragonite CP 3055",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 15951,
+              "score": null,
+              "option": {
+                "id": 19320,
+                "option": "Rhydon Cp 2821",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 15950,
+              "score": null,
+              "option": {
+                "id": 19321,
+                "option": "Golem CP 2581",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            }
+          ],
+          "ordinal": 0,
+          "approved": false,
+          "maxScore": 6.0,
+          "minScore": 0.0,
+          "modified": null,
+          "modifier": null,
+          "question": {
+            "id": 25292,
+            "tags": [],
+            "type": "MultipleChoiceQuestion",
+            "state": null,
+            "parent": null,
+            "shared": false,
+            "created": null,
+            "creator": null,
+            "options": [
+              {
+                "id": 19321,
+                "option": "Golem CP 2581",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              {
+                "id": 19320,
+                "option": "Rhydon Cp 2821",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              {
+                "id": 19319,
+                "option": "Dragonite CP 3055",
+                "defaultScore": null,
+                "correctOption": true,
+                "objectVersion": 0
+              }
+            ],
+            "modified": null,
+            "modifier": null,
+            "question": "<p>Mik&auml; n&auml;ist&auml; pokemoneista on vahvin taistelussa?</p>\n",
+            "attachment": null,
+            "objectVersion": 0,
+            "questionOwners": [],
+            "defaultMaxScore": null,
+            "maxDefaultScore": 0.0,
+            "minDefaultScore": 0.0,
+            "defaultEvaluationType": null,
+            "defaultExpectedWordCount": null,
+            "defaultAnswerInstructions": null,
+            "defaultEvaluationCriteria": null
+          },
+          "rejected": false,
+          "essayAnswer": null,
+          "assessedScore": 0.0,
+          "objectVersion": 0,
+          "evaluationType": null,
+          "sequenceNumber": 0,
+          "clozeTestAnswer": null,
+          "derivedMaxScore": null,
+          "maxAssessedScore": 6.0,
+          "expectedWordCount": null,
+          "answerInstructions": null,
+          "evaluationCriteria": null
+        },
+        {
+          "id": 19458,
+          "created": null,
+          "creator": null,
+          "options": [
+            {
+              "id": 15957,
+              "score": null,
+              "option": {
+                "id": 19322,
+                "option": "Krabby",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 15956,
+              "score": null,
+              "option": {
+                "id": 19323,
+                "option": "Paras",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 15955,
+              "score": null,
+              "option": {
+                "id": 19324,
+                "option": "Psyduck",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 15954,
+              "score": null,
+              "option": {
+                "id": 19325,
+                "option": "Meowth",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            },
+            {
+              "id": 15953,
+              "score": null,
+              "option": {
+                "id": 19326,
+                "option": "Venonat",
+                "defaultScore": null,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              "answered": false,
+              "objectVersion": 0
+            }
+          ],
+          "ordinal": 1,
+          "approved": false,
+          "maxScore": null,
+          "minScore": 0.0,
+          "modified": null,
+          "modifier": null,
+          "question": {
+            "id": 25293,
+            "tags": [],
+            "type": "WeightedMultipleChoiceQuestion",
+            "state": null,
+            "parent": null,
+            "shared": false,
+            "created": null,
+            "creator": null,
+            "options": [
+              {
+                "id": 19326,
+                "option": "Venonat",
+                "defaultScore": -2.0,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              {
+                "id": 19325,
+                "option": "Meowth",
+                "defaultScore": -2.0,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              {
+                "id": 19324,
+                "option": "Psyduck",
+                "defaultScore": 3.0,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              {
+                "id": 19323,
+                "option": "Paras",
+                "defaultScore": -2.0,
+                "correctOption": false,
+                "objectVersion": 0
+              },
+              {
+                "id": 19322,
+                "option": "Krabby",
+                "defaultScore": 3.0,
+                "correctOption": false,
+                "objectVersion": 0
+              }
+            ],
+            "modified": null,
+            "modifier": null,
+            "question": "<p>Mitk&auml; kaksi n&auml;ist&auml; ovat vesipokemeja?</p>\n",
+            "attachment": null,
+            "objectVersion": 0,
+            "questionOwners": [],
+            "defaultMaxScore": null,
+            "maxDefaultScore": 6.0,
+            "minDefaultScore": -6.0,
+            "defaultEvaluationType": null,
+            "defaultExpectedWordCount": null,
+            "defaultAnswerInstructions": null,
+            "defaultEvaluationCriteria": null
+          },
+          "rejected": false,
+          "essayAnswer": null,
+          "assessedScore": 0.0,
+          "objectVersion": 0,
+          "evaluationType": null,
+          "sequenceNumber": 1,
+          "clozeTestAnswer": null,
+          "derivedMaxScore": null,
+          "maxAssessedScore": 0.0,
+          "expectedWordCount": null,
+          "answerInstructions": null,
+          "evaluationCriteria": null
+        },
+        {
+          "id": 19459,
+          "created": null,
+          "creator": null,
+          "options": [],
+          "ordinal": 2,
+          "approved": false,
+          "maxScore": 6.0,
+          "minScore": 0.0,
+          "modified": null,
+          "modifier": null,
+          "question": {
+            "id": 25294,
+            "tags": [],
+            "type": "ClozeTestQuestion",
+            "state": null,
+            "parent": null,
+            "shared": false,
+            "created": null,
+            "creator": null,
+            "options": [],
+            "modified": null,
+            "modifier": null,
+            "question": "<p>Pok&eacute;mon on <span case-sensitive=\"false\" class=\"marker\" cloze=\"true\" id=\"$9obs\" numeric=\"false\" precision=\"0\" style=\"border:1px solid\">japanilainen</span> tuotesarja. Se sai alkunsa Satoshi Tajirin kehitt&auml;m&auml;st&auml;, vuonna 1996 Nintendon Game Boy:lle julkaistusta videoroolipelist&auml;. Sana &rdquo;Pok&eacute;mon&rdquo; on lyhenne sanoista &rdquo;pocket monsters&rdquo;, &rdquo;taskuhirvi&ouml;t&rdquo;. Peleiss&auml; on satoja erilaisia Pok&eacute;mon-hahmoja ja tavoitteena on ker&auml;t&auml; jokainen niist&auml; ja kouluttaa hahmoista hyv&auml; tiimi. Tuotesarjaan kuuluu videopelien lis&auml;ksi ker&auml;ilykorttipeli, anime, manga ja lukuisia muita tuotteita. Tunnetuin Pok&eacute;mon-hahmo on sarjan maskotti, keltainen s&auml;hk&ouml;hiiriolento &nbsp;<span case-sensitive=\"false\" class=\"marker\" cloze=\"true\" id=\"$vr28\" numeric=\"false\" precision=\"0\" style=\"border:1px solid\">Pikachu|pikachu</span>.[1] Br&auml;ndi&auml; hallitsee ja lisensoi The Pokemon Company, josta Nintendo omistaa 32 %.[2] Nimi &quot;Pok&eacute;mon&quot; ja hahmojen nimet yms. ovat Nintendon tavaramerkkej&auml;.[3]</p>\n",
+            "attachment": null,
+            "objectVersion": 0,
+            "questionOwners": [],
+            "defaultMaxScore": null,
+            "maxDefaultScore": 0.0,
+            "minDefaultScore": 0.0,
+            "defaultEvaluationType": null,
+            "defaultExpectedWordCount": null,
+            "defaultAnswerInstructions": null,
+            "defaultEvaluationCriteria": null
+          },
+          "rejected": false,
+          "essayAnswer": null,
+          "assessedScore": 0.0,
+          "objectVersion": 0,
+          "evaluationType": null,
+          "sequenceNumber": 2,
+          "clozeTestAnswer": null,
+          "derivedMaxScore": null,
+          "maxAssessedScore": 6.0,
+          "expectedWordCount": null,
+          "answerInstructions": null,
+          "evaluationCriteria": null
+        }
+      ]
+    }
+  ],
+  "softwareInfo": [],
+  "examLanguages": [
+    {
+      "code": "fi",
+      "name": null,
+      "objectVersion": 0
+    }
+  ],
+  "executionType": {
+    "id": 1,
+    "type": "PUBLIC"
+  },
+  "objectVersion": 0,
+  "additionalInfo": null,
+  "answerLanguage": null,
+  "examEnrolments": [],
+  "examInspections": [{"user":{"id": 4, "lastName":"Penaali","firstName":"Arvon"}}],
+  "examinationDates": [],
+  "enrollInstruction": null,
+  "examActiveEndDate": null,
+  "examParticipations": [],
+  "inspectionComments": [],
+  "languageInspection": null,
+  "examActiveStartDate": null,
+  "autoEvaluationConfig": null,
+  "autoEvaluationNotified": null,
+  "subjectToLanguageInspection": null
+}

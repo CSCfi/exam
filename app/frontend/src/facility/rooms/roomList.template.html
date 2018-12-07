@@ -1,0 +1,97 @@
+<div id="dashboard">
+
+    <div class="rooms-basic-info row" id="room" ng-repeat="room in $ctrl.rooms"
+         ng-class="{'text-muted': room.state === 'INACTIVE'}">
+        <div class="col-md-12">
+            <h2 class="room-name-title">{{room.name || 'sitnet_no_name' | translate }}</h2>
+            <a ng-show="room.state !== 'INACTIVE'" ng-click="$ctrl.disableRoom(room)" popover-placement="top"
+               popover-popup-delay="500"
+               popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_inactivate_room' | translate }}"
+               class="fa-stack fa-lg">
+                <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+                <i class="fa fa-trash-o text-warning pointer fa-stack-1x"></i>
+            </a>
+            <a ng-show="room.state === 'INACTIVE'" ng-click="$ctrl.enableRoom(room)" popover-placement="top"
+               popover-popup-delay="500"
+               popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_activate_room' | translate }}"
+               class="fa-stack fa-lg">
+                <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+                <i class="fa fa-plus text-success pointer fa-stack-1x"></i>
+            </a>
+
+            <div class="toggleMessage" class="col-md-12">
+                {{'sitnet_exam_basic_information_tab' | translate}}
+                <div class="pull-right">
+                    <span>{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
+                    <i ng-class="{'fa fa-chevron-up': toggle, 'fa fa-chevron-down': !toggle}"
+                       ng-click="toggle=!toggle"></i>
+                </div>
+                <a href="/rooms/{{room.id}}" popover-placement="basic-info2" popover-popup-delay="500"
+                   popover-trigger="'mouseenter'" uib-popover="{{ 'sitnet_edit' | translate }}">
+                    <i class="fa fa-pencil"></i>
+                </a>
+                <div ng-show="toggle">
+
+                    <!-- Room Code & Accessibility Info -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="sitnet-info-text">{{'sitnet_room_code' | translate}}:
+                                <span class="room-info-span-text">{{ room.roomCode }}</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="sitnet-info-text">{{'sitnet_room_accessibility_info' | translate}}:
+                                <span class="room-info-span-text" ng-repeat="info in room.accessibility">
+                             {{ info.name }}{{$last ? "" : ", ";}}
+                         </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Building name & Tilaohjeet -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="sitnet-info-text">{{'sitnet_room_building_name' | translate}}:
+                                <span class="room-info-span-text">{{ room.buildingName }}</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="sitnet-info-text">{{'sitnet_room_guidance' | translate}}:
+                                <span class="room-info-span-text">{{ room.roomInstruction }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campus & Contact Person -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="sitnet-info-text">{{'sitnet_room_campus' | translate}}:
+                                <span class="room-info-span-text">{{ room.campus }}</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="sitnet-info-text">{{'sitnet_room_contact_person' | translate}}:
+                                <span class="room-info-span-text">{{ room.contactPerson }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="sitnet-info-text">{{'sitnet_exam_room_address' | translate}}:
+                                <span class="room-info-span-text">{{ room.mailAddress.street }}, {{ room.mailAddress.zip }}, {{ room.mailAddress.city }}
+                         </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <machine-list room="room"></machine-list>
+        </div>
+    </div>
+</div>

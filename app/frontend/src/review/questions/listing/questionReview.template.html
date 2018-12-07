@@ -1,0 +1,42 @@
+<div class="student-enrolment-wrapper essay-review">
+
+    <div class="review-points-exam">
+        <img ng-if="$ctrl.getAssessedAnswerCount() === $ctrl.review.answers.length" src="Images/icon_question_type_ready.png" />
+        <img ng-if="$ctrl.getAssessedAnswerCount() !== $ctrl.review.answers.length" src="Images/icon_question_type_ready_grey.png"
+        />
+
+        <span class="vcenter marl10">
+            {{$ctrl.getAssessedAnswerCount()}} / {{$ctrl.review.answers.length}} {{'sitnet_graded' | translate | lowercase}}
+        </span>
+        <span class="pull-right dropdown pointer-hand single-question-icon" uib-dropdown>
+            <input type="checkbox" ng-change="$ctrl.reviewSelected()" class="questionToUpdate" ng-model="$ctrl.review.selected" />
+        </span>
+
+    </div>
+    <div class="review-points-exam"><strong>#{{$ctrl.review.question.id}}</strong></div>
+    <!-- question points -->
+    <div class="review-points-exam" ng-if="$ctrl.review.question.defaultEvaluationType === 'Points'">
+        {{ $ctrl.review.question.defaultMaxScore }} {{ 'sitnet_unit_points' | translate }}
+    </div>
+    <div class="review-points-exam" ng-if="$ctrl.review.question.defaultEvaluationType === 'Selection'">
+        {{ 'sitnet_evaluation_select' | translate }}
+    </div>
+
+    <!-- Question -->
+    <div class="marl10 make-inline">
+        <div class="review-question-title make-inline" ng-bind-html="$ctrl.sanitizeQuestion()" mathjax></div>
+        <a ng-click="$ctrl.review.expanded = !$ctrl.review.expanded" class="pointer-hand" ng-show="$ctrl.review.question.answerInstructions">
+            <img ng-show="!$ctrl.review.expanded" src="Images/icon_list_show_right.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_right.png'"
+            />
+            <img ng-show="$ctrl.review.expanded" src="Images/icon_list_show_down.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_list_show_down.png'"
+            />
+        </a>
+    </div>
+
+    <div class="col-md-12" ng-show="$ctrl.review.expanded">
+        <img ng-if="$ctrl.review.question.answerInstructions.length > 0" src="Images/icon_info.png" alt="exam" onerror="this.onerror=null;this.src='Images/icon_info.png'"
+        />
+        <span ng-if="$ctrl.review.question.answerInstructions.length > 0" class="padl10">
+            {{$ctrl.review.question.answerInstructions}}</span>
+    </div>
+</div>

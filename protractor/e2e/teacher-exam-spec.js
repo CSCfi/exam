@@ -1,15 +1,14 @@
-var LoginPage = require('../pages/LoginPage');
-var TeacherDashboard = require('../pages/TeacherDashboard');
-var NavBar = require("../pages/NavBar");
-var ExamEditor = require('../pages/ExamEditor');
-var Common = require('../pages/Common');
+let TeacherDashboard = require('../pages/TeacherDashboard');
+let NavBar = require("../pages/NavBar");
+let ExamEditor = require('../pages/ExamEditor');
+let Common = require('../pages/Common');
 
 describe('Exam teacher', function () {
 
-    var teacherDashboard = new TeacherDashboard();
-    var navBar = new NavBar();
-    var examEditor = new ExamEditor();
-    var common = new Common();
+    let teacherDashboard = new TeacherDashboard();
+    let navBar = new NavBar();
+    let examEditor = new ExamEditor();
+    let common = new Common();
 
     beforeAll(function () {
         common.beforeAll('maikaope', 'maikaope');
@@ -35,11 +34,15 @@ describe('Exam teacher', function () {
         navBar.selectLanguage('fi');
         teacherDashboard.checkTitle('Työpöytä');
 
-        expect(teacherDashboard.getActiveExams().count()).toBe(0);
+        expect(teacherDashboard.getExams().count()).toBe(0);
 
         teacherDashboard.selectTab(1);
 
-        expect(teacherDashboard.getFinishedExams().count()).toBe(0);
+        expect(teacherDashboard.getExams().count()).toBe(0);
+
+        teacherDashboard.selectTab(3);
+
+        expect(teacherDashboard.getExams().count()).toBe(2);
     });
 
     it('should create new exam', function () {
@@ -51,14 +54,17 @@ describe('Exam teacher', function () {
         examEditor.setExamName('Test Exam');
         examEditor.changeTab(1); // Questions tab
 
-        var section = examEditor.findSection(0);
+        let section = examEditor.findSection(0);
         examEditor.setSectionName(section, 'Section A');
         section.click(); // Blur from input
 
         examEditor.openQuestionLibraryForSection(section);
-        var questions = examEditor.selectQuestionsFromLibrary([0, 1]);
-        examEditor.addQuestionsToExam();
-        examEditor.validateSectionQuestions(section, questions);
+        let questions = examEditor.selectQuestionsFromLibrary([0, 1]);
+        questions.then(function (list) {
+            expect(list.length).toBe(2);
+            examEditor.addQuestionsToExam();
+            examEditor.validateSectionQuestions(section, list);
+        });
 
         common.waitToasters();
 
@@ -66,6 +72,7 @@ describe('Exam teacher', function () {
 
         examEditor.publishExam();
 
-        expect(teacherDashboard.getActiveExams().count()).toBe(1);
+        teacherDashboard.selectTab(0);
+        expect(teacherDashboard.getExams().count()).toBe(1);
     });
 });

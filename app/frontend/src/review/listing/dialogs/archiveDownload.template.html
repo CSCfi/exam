@@ -1,0 +1,40 @@
+<div id="sitnet-dialog">
+    <div class="student-details-title-wrap mart20">
+        <div class="student-enroll-title">{{'sitnet_exam_validity' | translate}}</div>
+    </div>
+    <div class="modal-body marl20">
+
+
+        <div class="row" id="dashboard">
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <p>{{'sitnet_begin' | translate}}:</p>
+                </div>
+                <div class="col-md-6">
+                    <p>{{'sitnet_end' | translate}}:</p>
+                </div>
+            </div>
+            <div class="col-md-12">
+
+                <div class="col-md-6">
+                    <date-picker on-update="$ctrl.startDateChanged(date)"></date-picker>
+                </div>
+                <div class="col-md-6">
+                    <date-picker on-update="$ctrl.endDateChanged(date)"></date-picker>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-6">
+            <button class="btn btn btn-success pull-left" ng-click="$ctrl.ok()">
+                {{'sitnet_search' | translate}}
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-primary pull-right" ng-click="$ctrl.cancel()">
+                {{'sitnet_button_cancel' | translate}}
+            </button>
+        </div>
+    </div>
+</div>

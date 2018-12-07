@@ -1,11 +1,11 @@
 package controllers;
 
 import base.IntegrationTestCase;
-import com.avaje.ebean.Ebean;
+import io.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import models.ExamRoom;
-import models.calendar.ExceptionWorkingHours;
+import backend.models.ExamRoom;
+import backend.models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import play.libs.Json;

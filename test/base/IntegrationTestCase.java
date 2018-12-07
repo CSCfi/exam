@@ -1,40 +1,39 @@
 package base;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.TxType;
-import com.avaje.ebean.annotation.Transactional;
-import com.avaje.ebean.config.ServerConfig;
-import com.avaje.ebeaninternal.api.SpiEbeanServer;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.net.URLEncoder;
+import java.util.*;
+import javax.persistence.PersistenceException;
+import javax.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import models.*;
+import com.typesafe.config.ConfigFactory;
+import io.ebean.Ebean;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.yaml.snakeyaml.Yaml;
 import play.Application;
-import play.db.Database;
-import play.db.Databases;
-import play.db.evolutions.Evolutions;
 import play.libs.Json;
-import play.libs.Yaml;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import javax.persistence.PersistenceException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
-import java.net.URLEncoder;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.*;
-import java.util.stream.Collectors;
+import backend.models.*;
+import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.Question;
+import backend.util.json.JsonDeserializer;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -49,7 +48,10 @@ public class IntegrationTestCase {
 
     private static final Map<String, String> HAKA_HEADERS = new HashMap<>();
 
-    static {
+    @Rule
+    public TestName currentTest = new TestName();
+
+    public IntegrationTestCase() {
         HAKA_HEADERS.put("displayName", "George%20Lazenby");
         HAKA_HEADERS.put("eppn", "george.lazenby@funet.fi");
         HAKA_HEADERS.put("sn", "Lazenby");
@@ -60,6 +62,7 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("employeeNumber", "12345");
         HAKA_HEADERS.put("schacPersonalUniqueCode", "12345");
         HAKA_HEADERS.put("homeOrganisation", "oulu.fi");
+        HAKA_HEADERS.put("Csrf-Token", "nocheck");
         try {
             HAKA_HEADERS.put("logouturl", URLEncoder.encode("https://logout.foo.bar.com?returnUrl=" +
                     URLEncoder.encode("http://foo.bar.com", "UTF-8"), "UTF-8"));
@@ -69,21 +72,9 @@ public class IntegrationTestCase {
         System.setProperty("config.resource", "integrationtest.conf");
     }
 
-    @Rule
-    public TestName currentTest = new TestName();
-
-    private Database getDB() {
-        return Databases.createFrom("org.postgresql.Driver", "jdbc:postgresql://localhost/sitnet_test",
-                ImmutableMap.of("username", "sitnet", "password", "sitnetsitnet"));
-    }
-
-    private void cleanEvolvedTables(Database db) throws SQLException {
-        String[] tables = {"language", "grade", "grade_scale"};
-        for (String table : tables) {
-            Statement stmt = db.getConnection().createStatement();
-            stmt.execute("delete from " + table);
-            stmt.close();
-        }
+    // Hook for having stuff done just before logging in a user.
+    protected void onBeforeLogin() throws Exception {
+        // Default does nothing
     }
 
     @Before
@@ -93,13 +84,9 @@ public class IntegrationTestCase {
         // Ebean (batching) or an issue with our question entity JPA mappings.
         app = Helpers.fakeApplication();
         Helpers.start(app);
-        cleanDB();
-        Database db = getDB();
-        Evolutions.applyEvolutions(db);
-        cleanEvolvedTables(db);
-        db.shutdown();
 
         addTestData();
+        onBeforeLogin();
 
         Method testMethod = getClass().getDeclaredMethod(currentTest.getMethodName());
         if (testMethod.isAnnotationPresent(RunAsStudent.class)) {
@@ -111,32 +98,21 @@ public class IntegrationTestCase {
         }
     }
 
-    private void cleanDB() throws SQLException {
-        EbeanServer server = Ebean.getServer("default");
-        DropAllDdlGenerator generator = new DropAllDdlGenerator((SpiEbeanServer)server, new ServerConfig());
-        // Drop
-        Database db = getDB();
-
-        Statement statement = db.getConnection().createStatement();
-        try {
-            statement.executeUpdate("delete from play_evolutions");
-            statement.close();
-        } catch (SQLException e) {
-            // OK
-        }
-        db.shutdown();
-        generator.runScript(false, generator.generateDropDdl(), "drop all");
-    }
-
     @After
-    public void tearDown() throws SQLException {
+    public void tearDown() {
         if (sessionToken != null) {
             logout();
             sessionToken = null;
             userId = null;
         }
-        //cleanDB();
         Helpers.stop(app);
+        // Clear exam upload directory
+        String uploadPath = ConfigFactory.load().getString(("sitnet.attachments.path"));
+        try {
+            FileUtils.deleteDirectory(new File(uploadPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Common helper methods -->
@@ -145,19 +121,41 @@ public class IntegrationTestCase {
         return request(Helpers.GET, path, null);
     }
 
-    protected Result request(String method, String path, JsonNode body) {
-        return request(method, path, body, HAKA_HEADERS);
+    protected Result get(String path, boolean followRedirects) {
+        return request(Helpers.GET, path, null, HAKA_HEADERS, followRedirects);
     }
 
-    protected Result request(String method, String path, JsonNode body, Map<String, String> headers) {
-        Http.RequestBuilder request = fakeRequest(method, path);
-        for (Map.Entry<String, String> header : headers.entrySet()) {
-            request.headers().put(header.getKey(), new String[]{header.getValue()});
-        }
+    protected Result request(String method, String path, JsonNode body) {
+        return request(method, path, body, HAKA_HEADERS, false);
+    }
+
+    protected Result request(String method, String path, JsonNode body, boolean followRedirects) {
+        return request(method, path, body, HAKA_HEADERS, followRedirects);
+    }
+
+    protected Result request(String method, String path, JsonNode body, Map<String, String> headers, boolean followRedirects) {
+        Http.RequestBuilder request = getRequestBuilder(method, path, headers);
         if (body != null && !method.equals(Helpers.GET)) {
             request = request.bodyJson(body);
         }
-        return Helpers.route(request);
+        Result result = Helpers.route(app, request);
+        if (followRedirects && result.redirectLocation().isPresent()) {
+            return request(method, result.redirectLocation().get(), body, headers, false);
+        } else {
+            return result;
+        }
+    }
+
+    protected Http.RequestBuilder getRequestBuilder(String method, String path) {
+        return getRequestBuilder(method, path, HAKA_HEADERS);
+    }
+
+    protected Http.RequestBuilder getRequestBuilder(String method, String path, Map<String, String> headers) {
+        Http.RequestBuilder request = fakeRequest(method, path);
+        for (Map.Entry<String, String> header : headers.entrySet()) {
+            request = request.header(header.getKey(), header.getValue());
+        }
+        return request;
     }
 
     protected void loginAsStudent() {
@@ -173,8 +171,13 @@ public class IntegrationTestCase {
     }
 
     protected void login(String eppn) {
+        login(eppn, Collections.emptyMap());
+    }
+
+    protected void login(String eppn, Map<String, String> headers) {
         HAKA_HEADERS.put("eppn", eppn);
-        Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS);
+        headers.forEach(HAKA_HEADERS::put);
+        Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS, false);
         assertThat(result.status()).isEqualTo(200);
         JsonNode user = Json.parse(contentAsString(result));
         sessionToken = user.get("token").asText();
@@ -222,6 +225,27 @@ public class IntegrationTestCase {
         return results.toArray(new String[results.size()]);
     }
 
+    protected void initExamSectionQuestions(Exam exam) {
+        exam.setExamSections(new TreeSet<>(exam.getExamSections()));
+        exam.getExamInspections().stream().map(ExamInspection::getUser).forEach(u -> {
+            u.setLanguage(Ebean.find(Language.class, "en"));
+            u.update();
+        });
+        exam.getExamSections().stream()
+                .flatMap(es -> es.getSectionQuestions().stream())
+                .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
+                .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
+                .forEach(esq -> {
+                    for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
+                        ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+                        esqo.setOption(o);
+                        esqo.setScore(o.getDefaultScore());
+                        esq.getOptions().add(esqo);
+                    }
+                    esq.save();
+                });
+    }
+
     private void assertPaths(JsonNode node, boolean shouldExist, String... paths) {
         Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
         for (String path : paths) {
@@ -245,51 +269,36 @@ public class IntegrationTestCase {
         return path.contains("..") || path.contains("?(") || path.matches(".*(\\d+ *,)+.*");
     }
 
-    private static void addTestUsers(Map<String, List<Object>> sources) {
-        sources.get("users").stream().map(User.class::cast).collect(Collectors.toList()).forEach(u -> {
-            String uname = u.getEppn().split("@")[0];
-            Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findUnique();
-            Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findUnique();
-            Role admin = Ebean.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findUnique();
-            switch (uname) {
-                case "student":
-                    u.getRoles().add(student);
-                    break;
-                case "teacher":
-                    u.getRoles().add(teacher);
-                    break;
-                case "admin":
-                    u.getRoles().add(admin);
-                    break;
-            }
-            u.save();
-        });
-    }
-
-    @Transactional(type = TxType.REQUIRES_NEW)
     @SuppressWarnings("unchecked")
-    private static void addTestData() {
+    private void addTestData() throws Exception {
         int userCount;
         try {
-            userCount = Ebean.find(User.class).findRowCount();
+            userCount = Ebean.find(User.class).findCount();
         } catch (PersistenceException e) {
             // Tables are likely not there yet, skip this.
             return;
         }
         if (userCount == 0) {
-            Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
-            if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
+
+            Yaml yaml = new Yaml(new JodaPropertyConstructor());
+            InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
+            Map<String, List<Object>> all = (Map<String, List<Object>>) yaml.load(is);
+            is.close();
+            Ebean.saveAll(all.get("role"));
+            Ebean.saveAll(all.get("exam-type"));
+            Ebean.saveAll(all.get("exam-execution-type"));
+            if (Ebean.find(Language.class).findCount() == 0) { // Might already be inserted by evolution
                 Ebean.saveAll(all.get("languages"));
             }
             Ebean.saveAll(all.get("organisations"));
             Ebean.saveAll(all.get("attachments"));
 
-            addTestUsers(all);
+            Ebean.saveAll(all.get("users"));
 
-            if (Ebean.find(GradeScale.class).findRowCount() == 0) { // Might already be inserted by evolution
+            if (Ebean.find(GradeScale.class).findCount() == 0) { // Might already be inserted by evolution
                 Ebean.saveAll(all.get("grade-scales"));
             }
-            if (Ebean.find(Grade.class).findRowCount() == 0) { // Might already be inserted by evolution
+            if (Ebean.find(Grade.class).findCount() == 0) { // Might already be inserted by evolution
                 Ebean.saveAll(all.get("grades"));
             }
             Ebean.saveAll(all.get("question-essay"));
@@ -301,7 +310,6 @@ public class IntegrationTestCase {
             Ebean.saveAll(all.get("comments"));
             for (Object o : all.get("exams")) {
                 Exam e = (Exam) o;
-                e.setExecutionType(Ebean.find(ExamExecutionType.class, 1));
                 e.generateHash();
                 e.save();
             }
@@ -318,4 +326,36 @@ public class IntegrationTestCase {
         }
     }
 
+    @NotNull
+    protected static File getTestFile(String s) {
+        final ClassLoader classLoader = IntegrationTestCase.class.getClassLoader();
+        return new File(Objects.requireNonNull(classLoader.getResource(s)).getFile());
+    }
+
+    @NotNull
+    protected Attachment createAttachment(String fileName, String filePath, String mimeType) {
+        final Attachment attachment = new Attachment();
+        attachment.setFileName(fileName);
+        attachment.setFilePath(filePath);
+        attachment.setMimeType(mimeType);
+        attachment.save();
+        return attachment;
+    }
+
+    protected User getLoggerUser() {
+        return Ebean.find(User.class, userId);
+    }
+
+    @NotNull
+    protected ExamSectionQuestion getExamSectionQuestion(Exam exam) throws Exception {
+        return getExamSectionQuestion(exam, null);
+    }
+
+    @NotNull
+    protected ExamSectionQuestion getExamSectionQuestion(Exam exam, Long id) throws Exception {
+        return exam.getExamSections().stream()
+                .flatMap(examSection -> examSection.getSectionQuestions().stream())
+                .filter(sq -> id == null || sq.getId().equals(id))
+                .findFirst().orElseThrow(() -> new Exception("Null section question"));
+    }
 }

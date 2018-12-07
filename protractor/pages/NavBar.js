@@ -1,7 +1,7 @@
 var NavBar = function () {
 
     this.selectLanguage = function (language) {
-        var selector = 'a[ng-click="switchLanguage(\'' + language + '\')"]';
+        var selector = 'a[ng-click="$ctrl.switchLanguage(\'' + language + '\')"]';
         console.log(selector);
         element(by.css(selector)).click();
     };
@@ -14,7 +14,7 @@ var NavBar = function () {
 
     this.checkNavbarLinks = function (linkItems) {
         var navBody = element(by.css(".nav-body"));
-        var links = navBody.all(by.repeater('link in links'));
+        var links = navBody.all(by.repeater('link in $ctrl.links'));
         expect(links.count()).toEqual(linkItems.length);
         linkItems.forEach(function (item, index) {
             expect(links.get(index).isDisplayed()).toBe(item, "Link item number " + index);

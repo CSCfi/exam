@@ -1,8 +1,8 @@
 package base;
 
-import com.avaje.ebean.config.ServerConfig;
-import com.avaje.ebean.dbmigration.DdlGenerator;
-import com.avaje.ebeaninternal.api.SpiEbeanServer;
+import io.ebean.config.ServerConfig;
+import io.ebeaninternal.api.SpiEbeanServer;
+import io.ebeaninternal.dbmigration.DdlGenerator;
 
 public class DropAllDdlGenerator extends DdlGenerator {
 

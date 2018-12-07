@@ -1,4 +1,4 @@
-var baseConf = require('./baseConf');
+let baseConf = require('./baseConf');
 baseConf.capabilities = {
         browserName: 'chrome',
         chromeOptions: {

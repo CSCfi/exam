@@ -1,0 +1,410 @@
+{
+  "141:Malmi": [
+    {
+      "id": 3842,
+      "user": {
+        "id": 341
+      },
+      "exam": {
+        "id": 6084,
+        "created": 1450355400170,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3903,
+        "startAt": 1450355400000,
+        "endAt": 1450358100000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 227,
+          "name": "Kone 6",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 141,
+            "name": "Malmi",
+            "roomCode": "A123",
+            "buildingName": null,
+            "campus": "Malmi",
+            "organization": null,
+            "mailAddress": {
+              "id": 141
+            },
+            "transitionTime": "5",
+            "accessible": false,
+            "roomInstruction": null,
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 5
+        },
+        "user": {
+          "id": 341
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450354817529,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    }
+  ],
+  "2:Hankens e-tentakvarium i Helsingfors": [
+    {
+      "id": 3721,
+      "user": {
+        "id": 161
+      },
+      "exam": {
+        "id": 5966,
+        "created": 1449495597885,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3781,
+        "startAt": 1449493800000,
+        "endAt": 1449496500000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 4,
+          "name": "Kaien kannettava HP",
+          "otherIdentifier": null,
+          "accessibilityInfo": "koneen voi siirtää haluamasi paikkaan",
+          "accessible": true,
+          "ipAddress": "128.214.105.16",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 2,
+            "name": "Hankens e-tentakvarium i Helsingfors",
+            "roomCode": "A410",
+            "buildingName": "Huvudbyggnad",
+            "campus": "Helsingfors",
+            "organization": null,
+            "mailAddress": {
+              "id": 2
+            },
+            "transitionTime": "5",
+            "accessible": false,
+            "roomInstruction": "(FI) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "roomInstructionEN": "(SV) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "roomInstructionSV": "(EN) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "contactPerson": "eTentvärdinna",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 24
+        },
+        "user": {
+          "id": 161
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1449486601598,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 3
+    },
+    {
+      "id": 3806,
+      "user": {
+        "id": 161
+      },
+      "exam": {
+        "id": 6051,
+        "created": 1450282922772,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3868,
+        "startAt": 1450281600000,
+        "endAt": 1450284300000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 4,
+          "name": "Kaien kannettava HP",
+          "otherIdentifier": null,
+          "accessibilityInfo": "koneen voi siirtää haluamasi paikkaan",
+          "accessible": true,
+          "ipAddress": "128.214.105.16",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 2,
+            "name": "Hankens e-tentakvarium i Helsingfors",
+            "roomCode": "A410",
+            "buildingName": "Huvudbyggnad",
+            "campus": "Helsingfors",
+            "organization": null,
+            "mailAddress": {
+              "id": 2
+            },
+            "transitionTime": "5",
+            "accessible": false,
+            "roomInstruction": "(FI) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "roomInstructionEN": "(SV) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "roomInstructionSV": "(EN) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "contactPerson": "eTentvärdinna",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 24
+        },
+        "user": {
+          "id": 161
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450278202669,
+      "information": "Kiva, että lisätietokenttä taas toimii! :-) Ei mulla muuta ollutkaan...",
+      "reservationCanceled": false,
+      "objectVersion": 4
+    },
+    {
+      "id": 3773,
+      "user": {
+        "id": 161
+      },
+      "exam": {
+        "id": 6121,
+        "created": 1450448580757,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 3926,
+        "startAt": 1450447200000,
+        "endAt": 1450449900000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 4,
+          "name": "Kaien kannettava HP",
+          "otherIdentifier": null,
+          "accessibilityInfo": "koneen voi siirtää haluamasi paikkaan",
+          "accessible": true,
+          "ipAddress": "128.214.105.16",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 2,
+            "name": "Hankens e-tentakvarium i Helsingfors",
+            "roomCode": "A410",
+            "buildingName": "Huvudbyggnad",
+            "campus": "Helsingfors",
+            "organization": null,
+            "mailAddress": {
+              "id": 2
+            },
+            "transitionTime": "5",
+            "accessible": false,
+            "roomInstruction": "(FI) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "roomInstructionEN": "(SV) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "roomInstructionSV": "(EN) Du kan inte ha något framme på bordet, inte klottpapper, inte räknare, inte näsdukar, inte vattenflaska osv.\nDu kan inte avlägsna dig emellanåt, dvs inga WC besök, inte släppa in andra tentander. Tenten räknas då som avbruten och underkänns.\nKameraövervakningen är igång hela tiden du är i rummet, och bandar också ljud.",
+            "contactPerson": "eTentvärdinna",
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 24
+        },
+        "user": {
+          "id": 161
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1450171559851,
+      "information": "Kiitos, että sain uuden mahdollisuuden!",
+      "reservationCanceled": false,
+      "objectVersion": 4
+    }
+  ],
+  "201:ANNINLUOKKA": [
+    {
+      "id": 4162,
+      "user": {
+        "id": 342
+      },
+      "exam": {
+        "id": 6483,
+        "created": 1456122537273,
+        "creator": {
+          "id": 342
+        },
+        "modified": 1456122537273,
+        "modifier": {
+          "id": 342
+        },
+        "name": "Automaattisen arvioinnin testi",
+        "course": {
+          "id": 13
+        },
+        "examType": {
+          "id": 2
+        },
+        "instruction": "nullentin aikana näkyvä ohjeistus opiskelijalle:\nentin aikana näkyvä ohjeistus opiskelijalle:\nentin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:",
+        "enrollInstruction": "entin aikana näkyvä ohjeistus opiskelijalle:\nentin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:ventin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:entin aikana näkyvä ohjeistus opiskelijalle:",
+        "shared": false,
+        "parent": {
+          "id": 6482
+        },
+        "examRecord": {
+          "id": 1842
+        },
+        "autoEvaluationConfig": {
+          "id": 22
+        },
+        "languageInspection": null,
+        "hash": "a853b33c95b690fe109b1b6745285465",
+        "examActiveStartDate": 1456012800000,
+        "examActiveEndDate": 1457301599999,
+        "duration": 45,
+        "gradeScale": {
+          "id": 1
+        },
+        "customCredit": null,
+        "answerLanguage": "fi",
+        "state": "GRADED_LOGGED",
+        "grade": {
+          "id": 3
+        },
+        "gradedByUser": {
+          "id": 22
+        },
+        "gradedTime": 1456122611040,
+        "examFeedback": null,
+        "additionalInfo": null,
+        "trialCount": 1,
+        "creditType": {
+          "id": 2
+        },
+        "executionType": {
+          "id": 1
+        },
+        "expanded": true,
+        "attachment": null,
+        "autoEvaluationNotified": 1456139646396,
+        "objectVersion": 6,
+        "totalScore": null,
+        "maxScore": null,
+        "rejectedAnswerCount": 0,
+        "approvedAnswerCount": 0,
+        "cloned": null
+      },
+      "reservation": {
+        "id": 4243,
+        "startAt": 1456120800000,
+        "endAt": 1456123500000,
+        "noShow": false,
+        "retrialPermitted": false,
+        "machine": {
+          "id": 342,
+          "name": "ANNINKONE",
+          "otherIdentifier": null,
+          "accessibilityInfo": null,
+          "accessible": false,
+          "ipAddress": "",
+          "surveillanceCamera": null,
+          "videoRecordings": null,
+          "room": {
+            "id": 201,
+            "name": "ANNINLUOKKA",
+            "roomCode": "1",
+            "buildingName": "1",
+            "campus": "1",
+            "organization": null,
+            "mailAddress": {
+              "id": 201
+            },
+            "transitionTime": "0",
+            "accessible": false,
+            "roomInstruction": null,
+            "roomInstructionEN": null,
+            "roomInstructionSV": null,
+            "contactPerson": null,
+            "videoRecordingsURL": null,
+            "statusComment": null,
+            "outOfService": false,
+            "state": "SAVED",
+            "expanded": false,
+            "localTimezone": "Europe/Helsinki",
+            "objectVersion": 1
+          },
+          "expanded": false,
+          "statusComment": null,
+          "archived": false,
+          "outOfService": false,
+          "objectVersion": 7
+        },
+        "user": {
+          "id": 342
+        },
+        "objectVersion": 1
+      },
+      "enrolledOn": 1456088569599,
+      "information": null,
+      "reservationCanceled": false,
+      "objectVersion": 5
+    }
+  ]
+}

@@ -1,8 +1,5 @@
-logLevel := Level.Warn
+resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.20")
 
-addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.6")
-
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.10")
-
-addSbtPlugin("com.typesafe.sbt" % "sbt-play-ebean" % "3.0.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-play-ebean" % "4.1.3")

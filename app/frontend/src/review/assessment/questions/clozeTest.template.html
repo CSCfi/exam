@@ -1,0 +1,63 @@
+<div id="exam" ng-init="$ctrl.sectionQuestion.reviewExpanded = true">
+    <div class="student-enrolment-wrapper review-view">
+        <div class="col-md-12">
+            <!-- question text -->
+            <div>
+                <div class="pull-right">
+                    <a class="pull-right" ng-click="$ctrl.sectionQuestion.reviewExpanded = !$ctrl.sectionQuestion.reviewExpanded">
+                        <img ng-show="!$ctrl.sectionQuestion.reviewExpanded" src="Images/icon_list_show_right.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='Images/icon_list_show_right.png'" />
+                        <img ng-show="$ctrl.sectionQuestion.reviewExpanded" src="Images/icon_list_show_down.svg" alt="exam"
+                             onerror="this.onerror=null;this.src='Images/icon_list_show_down.png'" />
+                    </a>
+                    <!-- grade -->
+                    <div class="review-points">
+                        <!-- grade -->
+                        <div>
+                            <strong>{{ 'sitnet_multiplechoice_question_correct' | translate }}:</strong>
+                            {{$ctrl.sectionQuestion.clozeTestAnswer.score.correctAnswers}} /
+                            {{ $ctrl.sectionQuestion.clozeTestAnswer.score.correctAnswers +
+                            $ctrl.sectionQuestion.clozeTestAnswer.score.incorrectAnswers }}
+                            &nbsp;<strong>{{ 'sitnet_word_points' | translate }}:</strong>
+                            {{ $ctrl.displayClozeTestScore() }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-question-title marr110" mathjax ng-bind-html="$ctrl.displayQuestionText()"></div>
+
+            </div>
+
+            <!-- question attachment -->
+            <div class="padl0 mart20 marb20 notice-text"
+                 ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.sectionQuestion.question.attachment">
+                {{ 'sitnet_question_attachment' | translate}}:
+                <a class="pointer" ng-click="$ctrl.downloadQuestionAttachment()">
+                    {{$ctrl.sectionQuestion.question.attachment.fileName}}</a>
+            </div>
+
+            <!-- question instructions -->
+            <div ng-show="$ctrl.sectionQuestion.reviewExpanded && $ctrl.sectionQuestion.answerInstructions"
+                 class="padl0 mart20 marb20 notice-text">
+                <img src="Images/icon_info.svg" alt="exam"
+                     onerror="this.onerror=null;this.src='Images/icon_info.png'" />
+                <span class="padl10">{{ 'sitnet_instructions' | translate}}:</span>
+                <span ng-bind-html="$ctrl.sectionQuestion.answerInstructions"/>
+            </div>
+
+            <!-- answer -->
+            <div class="mart20" ng-show="$ctrl.sectionQuestion.reviewExpanded">
+                <hr>
+            </div>
+
+            <div ng-show="$ctrl.sectionQuestion.reviewExpanded" class="marb10">
+                <div class="points-title">
+                    <span>{{'sitnet_exam_answer' | translate | uppercase }}</span>
+                </div>
+                <cloze-test content="$ctrl.sectionQuestion.clozeTestAnswer.question"
+                            results="$ctrl.sectionQuestion.clozeTestAnswer.answer" editable="false">
+                </cloze-test>
+            </div>
+        </div>
+    </div>
+</div>

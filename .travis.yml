@@ -22,8 +22,7 @@ before_script:
   - nvm use 8.9.1
 
 script:
-  - npm install
-  - sbt package
+  - npm install --prefix app/frontend
   - sbt test
 
 
@@ -36,5 +35,4 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
-    - $TRAVIS_BUILD_DIR/node_modules
-
+    - $TRAVIS_BUILD_DIR/app/frontend/node_modules

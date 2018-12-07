@@ -1,0 +1,191 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{'sitnet_examination_location' | translate}}</span>
+    </div>
+</div>
+<div id="dashboard">
+    <div class="main-row">
+        <div class="col-md-12">
+            <form role="form" name="roomForm" novalidate id="room">
+                <div class="row">
+                    <span class="col-md-6">
+                        <span ng-show="$ctrl.showName" onclick="document.getElementById('name_field').select();">
+                            <span class="room-name" ng-click="$ctrl.showName = !$ctrl.showName">
+                                {{$ctrl.room.name || 'sitnet_no_name' | translate}}
+                                <i class="fa fa-pencil"></i>
+                            </span>
+                            <a class="room-name" ng-click="$ctrl.disableRoom()" popover-placement="left" popover-trigger="'mouseenter'"
+                               uib-popover="{{'sitnet_inactivate_room' | translate}}">
+                                <i class="sitnet-red fa fa-times"></i>
+                            </a>
+                        </span>
+                        <span ng-show="!$ctrl.showName">
+                            <span class="form-group">
+                                <input id="name_field" type="text" name="name" class="form-control input-lg" ng-model="$ctrl.room.name" required ng-pattern="/^(?!\s*$).+/"
+                                    ng-blur="$ctrl.showName = !$ctrl.showName; roomForm.name.$valid ? $ctrl.updateRoom() : false">
+                            </span>
+                            <button class="btn-primary" ng-click="$ctrl.showName = !$ctrl.showName; roomForm.name.$valid ? $ctrl.updateRoom() : false">
+                                <i class="fa fa-check"></i>
+                            </button>
+                        </span>
+                    </span>
+                </div>
+                <!-- Room Code & Building name -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="sitnet-info-text">{{'sitnet_room_code' | translate}}</div>
+                        <div class="input-group">
+                            <input type="text" name="roomCode" class="form-control ng-pristine ng-valid" ng-model="$ctrl.room.roomCode" required ng-pattern="/^(?!\s*$).+/"
+                                ui-change="roomForm.roomCode.$valid ? $ctrl.updateRoom() : false">
+                            <span class="input-group-addon">
+                                <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_room_unique_code' | translate}}"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="sitnet-info-text">{{'sitnet_room_building_name' | translate}}</div>
+                        <div class="input-group">
+                            <input type="text" name="buildingName" class="form-control ng-pristine ng-valid" ng-model="$ctrl.room.buildingName" ui-change="$ctrl.updateRoom()">
+                            <span class="input-group-addon">
+                                <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_building_where_the_machine_is' | translate}}"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Campus & Organization name -->
+                    <div class="bottom-padding-2">
+                        <div class="col-md-6">
+                            <div class="sitnet-info-text">{{'sitnet_room_campus' | translate}}</div>
+                            <div class="input-group">
+                                <input type="text" class="form-control ng-pristine ng-valid" ng-model="$ctrl.room.campus" ui-change="$ctrl.updateRoom()">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_campus_where_room_is' | translate}}"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- IOP -->
+    <div class="top-row" ng-hide="$ctrl.editingMultipleRooms || !$ctrl.isInteroperable">
+        <div class="col-md-12">
+            <input type="checkbox" ng-model="$ctrl.room.availableForExternals" ng-change="$ctrl.updateInteroperability()">
+            <strong>{{'sitnet_interoperable' | translate}}</strong>
+        </div>
+    </div>
+
+    <!-- AVAILABILITY TODO: MOVE TO A TAB -->
+    <div class="top-row">
+        <div class="col-md-12">
+            <a href="/rooms/{{$ctrl.room.id}}/availability/">{{'sitnet_reservations_new' | translate}}</a>
+        </div>
+    </div>
+
+
+    <div class="top-row">
+        <h3 class="col-md-12 header-text">{{'sitnet_room_default_working_hours' | translate}}</h3>
+    </div>
+    <div class="bottom-row">
+        <open-hours ng-if="$ctrl.room" class="col-md-12" week="$ctrl.week" on-select="$ctrl.updateWorkingHours()"></open-hours>
+    </div>
+
+    <starting-time ng-if="$ctrl.room" starting-hours="$ctrl.room.examStartingHours" room-ids="[$ctrl.room.id]"></starting-time>
+
+    <exception-list ng-if="$ctrl.room" room="$ctrl.room" on-create="$ctrl.addException(exception)" on-delete="$ctrl.deleteException(exception)"></exception-list>
+    <!-- Accessibility information -->
+    <div class="detail-row">
+        <accessibility-selector ng-if="$ctrl.room" room="$ctrl.room"></accessibility-selector>
+    </div>
+
+    <!-- Guidance & Contact person information -->
+    <div class="detail-row">
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_room_guidance' | translate}}</div>
+            <div class="input-group">
+                <textarea class="form-control ng-pristine ng-valid" ng-model="$ctrl.room.roomInstruction" ui-change="$ctrl.updateRoom()"
+                    placeholder="fin">
+                </textarea>
+                <textarea class="form-control ng-pristine ng-valid" ng-model="$ctrl.room.roomInstructionEN" ui-change="$ctrl.updateRoom()"
+                    placeholder="eng">
+                </textarea>
+                <textarea class="form-control ng-pristine ng-valid" ng-model="$ctrl.room.roomInstructionSV" ui-change="$ctrl.updateRoom()"
+                    placeholder="swe">
+                </textarea>
+                <span class="input-group-addon">
+                    <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_instructions_for_use_of_room' | translate}}"></i>
+                </span>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_room_contact_person' | translate}}</div>
+            <div class="input-group">
+                <input type="text" class="form-control ng-pristine ng-valid" ng-model="$ctrl.room.contactPerson" ui-change="$ctrl.updateRoom()"
+                />
+                <span class="input-group-addon">
+                    <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_person_to_contact_if_need_info' | translate}}"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video recordings URL -->
+    <div class="detail-row">
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_room_videorecordings_url' | translate}}</div>
+            <div class="input-group">
+                <input type="text" class="form-control ng-pristine ng-valid" ng-model="$ctrl.room.videoRecordingsURL" ui-change="$ctrl.updateRoom()">
+                <span class="input-group-addon">
+                    <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_address_for_camera_footage_from_this_room' | translate}}"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Postal address-->
+    <div class="main-row">
+        <div class="col-md-12">
+            <!-- Address -->
+            <h3>{{'sitnet_exam_room_address' | translate }}</h3>
+
+            <exam-address address="$ctrl.room.mailAddress"></exam-address>
+        </div>
+    </div>
+
+    <!-- Service status -->
+    <div class="top-row">
+        <div class="col-md-12">
+            <input type="checkbox" ng-model="$ctrl.room.outOfService" ng-change="$ctrl.updateRoom()">
+            <strong>{{'sitnet_out_of_service' | translate}}</strong>
+        </div>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-12 sitnet-info-text">{{'sitnet_reason' | translate}}</div>
+    </div>
+    <div class="bottom-row">
+        <div class="col-md-6">
+            <div class="input-group">
+                <textarea ng-disabled="!$ctrl.room.outOfService" class="form-control ng-pristine ng-valid" ng-model="$ctrl.room.statusComment"
+                    ui-change="$ctrl.updateRoom()">
+                </textarea>
+                <span class="input-group-addon">
+                    <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_room_accessibility_features' | translate}}"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Button row -->
+    <div class="main-row">
+        <div class="col-md-12">
+            <button ng-disabled="!roomForm.$valid" ng-click="$ctrl.saveRoom()" class="btn btn-primary">
+                {{'sitnet_save' | translate}}
+            </button>
+        </div>
+    </div>
+</div>

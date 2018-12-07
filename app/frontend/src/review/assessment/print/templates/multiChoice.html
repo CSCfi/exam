@@ -1,0 +1,66 @@
+<div class="top-padding-2 lightBorderBox">
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow ">{{ 'sitnet_question' | translate }}:</div>
+        <div class="sub-content-row col-md-9 ">
+            <span mathjax ng-bind-html="$ctrl.sectionQuestion.question.question"></span>
+        </div>
+    </div>
+    <!-- question attachment -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:
+        </div>
+        <div class="sub-content-row col-md-9">
+            <span ng-hide="$ctrl.sectionQuestion.question.attachment">N/A</span>
+            <span ng-show="$ctrl.sectionQuestion.question.attachment">{{$ctrl.sectionQuestion.question.attachment.fileName}}</span>
+        </div>
+    </div>
+    <!-- answer -->
+    <div class="row">
+
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
+
+        <div class="sub-content-row col-md-9">
+            <div class="row" ng-show="$ctrl.sectionQuestion.question.type==='MultipleChoiceQuestion'"
+                 ng-repeat="o in $ctrl.sectionQuestion.options">
+                <div class="col-md-12">
+                        <span class="fa fa-stack">
+                            <i class="fa fa-stop-o fa-stack-2x"></i>
+                            <i class="fa fa-stack-1x"
+                               ng-class="o.answered ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                        </span>
+                    <span ng-class="o.option.correctOption ? 'bold' : ''"
+                          class="review-question-option-name">
+                            {{o.option.option}}
+                        </span>
+                </div>
+            </div>
+            <div class="row" ng-show="$ctrl.sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'"
+                 ng-repeat="o in $ctrl.sectionQuestion.options">
+                <div class="col-md-3">
+                        <span class="fa-stack">
+                            <i class="fa fa-stop-o fa-stack-2x"></i>
+                            <i class="fa fa-stack-1x"
+                               ng-class="o.answered ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                        </span>
+                    <span ng-class="o.score > 0 ? 'font-bold' : ''">&nbsp;&nbsp;{{o.score}} {{'sitnet_unit_points' | translate }}</span>
+                </div>
+                <div class="col-md-9 review-question-option-name">
+                    <div class="text">{{o.option.option}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- grade -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_word_points' | translate }}:</div>
+        <div ng-show="$ctrl.sectionQuestion.question.type==='MultipleChoiceQuestion'"
+             class="sub-content-row col-md-9 ">
+            {{$ctrl.scoreMultipleChoiceAnswer()}} / {{$ctrl.sectionQuestion.maxScore}}
+        </div>
+        <div ng-show="$ctrl.sectionQuestion.question.type==='WeightedMultipleChoiceQuestion'"
+             class="sub-content-row col-md-9 ">
+            {{ $ctrl.scoreWeightedMultipleChoiceAnswer() }} /
+            {{ $ctrl.calculateMaxPoints() }}
+        </div>
+    </div>
+</div>
