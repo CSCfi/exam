@@ -16,13 +16,21 @@
 package controllers;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.Base64;
+import java.util.Map;
+import java.util.UUID;
+import javax.inject.Inject;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
 import com.typesafe.config.ConfigFactory;
 import controllers.base.BaseController;
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import models.Attachment;
 import models.Comment;
 import models.Exam;
@@ -39,13 +47,6 @@ import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 import util.AppUtil;
-
-import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.Map;
-import java.util.UUID;
 
 
 public class AttachmentController extends BaseController {
@@ -345,11 +346,17 @@ public class AttachmentController extends BaseController {
     }
 
     private Result serveAttachment(Attachment attachment) {
+        String escapedName;
+                try {
+                    escapedName = URLEncoder.encode(attachment.getFileName(), "UTF-8");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
         File file = new File(attachment.getFilePath());
         if (!file.exists()) {
             return internalServerError("Requested file does not exist on disk even though referenced from database!");
         }
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFileName() + "\"");
+        response().setHeader("Content-Disposition", "attachment; filename*=UTF-8''\"" + escapedName + "\"");
         String body = Base64.getEncoder().encodeToString(setData(file).toByteArray());
         return ok(body).as(attachment.getMimeType());
     }
