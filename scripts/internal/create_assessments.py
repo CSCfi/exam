@@ -32,8 +32,8 @@ def insert_stmt(obj, table, with_version=True):
         prepared.update({'object_version': 1})
     return 'INSERT INTO %s (%s) VALUES (%s)' % (
         table,
-        ",".join(prepared.keys()),
-        ",".join([str(x) for x in prepared.values()])
+        ','.join(prepared.keys()),
+        ','.join([str(x) for x in prepared.values()])
     )
 
 
@@ -170,9 +170,7 @@ def create_section_question_option(section_question_id, option_id, parent):
     return data
 
 
-def create_section_question(user_id, exam_id, parent):
-    parent_section = get_parent_section(parent['exam_section_id'])
-    student_section = create_section(user_id, exam_id, parent_section)
+def create_section_question(user_id, parent, section_id):
     parent_question = get_parent_question(parent['question_id'])
     parent_options = get_parent_options(parent['question_id'])
     parent_section_question_options = get_parent_section_question_options(parent['id'])
@@ -183,7 +181,7 @@ def create_section_question(user_id, exam_id, parent):
     data = {k: parent[k] for k in parent if k not in skipped}
     data.update({
         'id': next_id('exam_section_question'),
-        'exam_section_id': student_section['id'],
+        'exam_section_id': section_id,
         'question_id': student_question['id'],
         'created': datetime.now(),
         'creator_id': user_id,
@@ -197,7 +195,9 @@ def create_section_question(user_id, exam_id, parent):
     def find_parent_option(option_id):
         return next(psq for psq in parent_section_question_options if psq['option_id'] == option_id)
 
-    options = [create_section_question_option(data['id'], k, find_parent_option(k)) for k in option_map]
+    options = [
+        create_section_question_option(data['id'], option_map[k]['id'], find_parent_option(k)) for k in option_map
+    ]
 
     student_question.update({'options': option_map.values()})
     data.update({
@@ -320,8 +320,12 @@ def main():
 
     for _ in xrange(n):
         student_exam = create_student_exam(user_id, parent_exam)
-        student_section_questions = \
-            [create_section_question(user_id, student_exam['id'], psq) for psq in parent_section_questions]
+        student_section_questions = []
+        for ps in parent_sections:
+            ss = create_section(user_id, student_exam['id'], ps)
+            for psq in get_parent_section_questions(ps['id']):
+                student_section_questions.append(create_section_question(user_id, psq, ss['id']))
+
         enrolment = create_enrolment(user_id, student_exam['id'], room_id)
         participation = create_participation(enrolment)
         [answer_question(sq) for sq in student_section_questions]
