@@ -341,6 +341,7 @@ export const CalendarComponent: angular.IComponentOptions = {
                 room.filtered = true;
                 this.selectedRoom = room;
                 this.openingHours = this.Calendar.processOpeningHours(room);
+                delete this.reservation;
                 this.render();
             }
         }

@@ -1,6 +1,15 @@
 package backend.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -56,7 +65,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
                     .findList();
             // Resolve eligible machines based on software and accessibility requirements
             List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
-            LocalDate endOfSearch = getEndSearchDate(exam, searchDate);
+            LocalDate endOfSearch = getEndSearchDate(searchDate, new LocalDate(exam.getExamActiveEndDate()));
             while (!searchDate.isAfter(endOfSearch)) {
                 Set<TimeSlot> timeSlots = getExamSlots(user, room, exam, searchDate, reservations, machines);
                 if (!timeSlots.isEmpty()) {
@@ -68,23 +77,43 @@ public class CalendarHandlerImpl implements CalendarHandler {
         return Results.ok(Json.toJson(slots));
     }
 
+    @Override
+    public boolean isDoable(Reservation reservation, Collection<Integer> aids) {
+        LocalDate searchDate = reservation.getStartAt().toLocalDate();
+        // users reservations starting from now
+        List<Reservation> reservations = Ebean.find(Reservation.class)
+                .fetch("enrolment.exam")
+                .where()
+                .eq("user", reservation.getUser())
+                .gt("startAt", searchDate.toDate())
+                .findList();
+        // Resolve eligible machines based on software and accessibility requirements
+        List<ExamMachine> machines = getEligibleMachines(
+                reservation.getMachine().getRoom(), aids, reservation.getEnrolment().getExam());
+        Set<TimeSlot> slots = getExamSlots(
+                reservation.getUser(),
+                reservation.getMachine().getRoom(),
+                reservation.getEnrolment().getExam(),
+                searchDate,
+                reservations,
+                machines);
+        return slots.stream().anyMatch(s -> s.getInterval().contains(reservation.toInterval()));
+    }
+
     /**
      * Search date is the current date if searching for current week or earlier,
      * If searching for upcoming weeks, day of week is one.
      */
     @Override
     public LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException {
-        String reservationWindow = SettingsController.getOrCreateSettings(
-                "reservation_window_size", null, null).getValue();
-        int windowSize = 0;
-        if (reservationWindow != null) {
-            windowSize = Integer.parseInt(reservationWindow);
-        }
+        int windowSize = getReservationWindowSize();
+
         int offset = room != null ?
                 DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()) :
                 ConfigUtil.getDefaultTimeZone().getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
+
         LocalDate examEndDate = new DateTime(exam.getExamActiveEndDate()).plusMillis(offset).toLocalDate();
         LocalDate searchEndDate = reservationWindowDate.isBefore(examEndDate) ? reservationWindowDate : examEndDate;
         LocalDate examStartDate = new DateTime(exam.getExamActiveStartDate()).plusMillis(offset).toLocalDate();
@@ -107,6 +136,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     @Override
     public List<ExamMachine> getEligibleMachines(ExamRoom room, Collection<Integer> access, Exam exam) {
         List<ExamMachine> candidates = Ebean.find(ExamMachine.class)
+                .fetch("room")
                 .where()
                 .eq("room.id", room.getId())
                 .ne("outOfService", true)
@@ -136,6 +166,21 @@ public class CalendarHandlerImpl implements CalendarHandler {
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Reservation createReservation(DateTime start, DateTime end, ExamMachine machine, User user) {
+        Reservation reservation = new Reservation();
+        reservation.setEndAt(end);
+        reservation.setStartAt(start);
+        reservation.setMachine(machine);
+        reservation.setUser(user);
+
+        // If this is due in less than a day, make sure we won't send a reminder
+        if (start.minusDays(1).isBeforeNow()) {
+            reservation.setReminderSent(true);
+        }
+        return reservation;
     }
 
 
@@ -278,21 +323,21 @@ public class CalendarHandlerImpl implements CalendarHandler {
         return intervals;
     }
 
+    @Override
+    public int getReservationWindowSize() {
+        String reservationWindow = SettingsController.getOrCreateSettings(
+                "reservation_window_size", null, null).getValue();
+        return reservationWindow != null ? Integer.parseInt(reservationWindow) : 0;
+    }
+
     /**
      * @return which one is sooner, exam period's end or week's end
      */
-    private static LocalDate getEndSearchDate(Exam exam, LocalDate searchDate) {
+    @Override
+    public LocalDate getEndSearchDate(LocalDate searchDate, LocalDate examEnd) {
         LocalDate endOfWeek = searchDate.dayOfWeek().withMaximumValue();
-        LocalDate examEnd = new LocalDate(exam.getExamActiveEndDate());
-        String reservationWindow = SettingsController.getOrCreateSettings(
-                "reservation_window_size", null, null).getValue();
-        int windowSize = 0;
-        if (reservationWindow != null) {
-            windowSize = Integer.parseInt(reservationWindow);
-        }
-        LocalDate reservationWindowDate = LocalDate.now().plusDays(windowSize);
+        LocalDate reservationWindowDate = LocalDate.now().plusDays(getReservationWindowSize());
         LocalDate endOfSearchDate = examEnd.isBefore(reservationWindowDate) ? examEnd : reservationWindowDate;
-
         return endOfWeek.isBefore(endOfSearchDate) ? endOfWeek : endOfSearchDate;
     }
 
