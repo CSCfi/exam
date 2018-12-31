@@ -29,6 +29,7 @@ import backend.models.ExamRoom;
 import backend.models.Language;
 import backend.models.Reservation;
 import backend.models.User;
+import backend.models.calendar.DefaultWorkingHours;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -45,6 +46,17 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @Rule
     public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
 
+    private void setWorkingHours() {
+        String[] dates = {"SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"};
+        String weekday = dates[ DateTime.now().getDayOfWeek()];
+        DefaultWorkingHours dwh = new DefaultWorkingHours();
+        dwh.setWeekday(weekday);
+        dwh.setRoom(room);
+        dwh.setStartTime(DateTime.now().withTimeAtStartOfDay());
+        dwh.setEndTime(DateTime.now().withTime(23, 59, 59, 999));
+        dwh.save();
+    }
+
     @Override
     @Before
     public void setUp() throws Exception {
@@ -57,6 +69,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         room = Ebean.find(ExamRoom.class, 1L);
         room.setRoomInstructionEN("information in English here");
         room.update();
+        setWorkingHours();
         enrolment = new ExamEnrolment();
         enrolment.setExam(exam);
         enrolment.setUser(user);
@@ -102,7 +115,6 @@ public class CalendarControllerTest extends IntegrationTestCase {
         // Setup
         // Private exam
         exam.setExecutionType(Ebean.find(ExamExecutionType.class, 2));
-        // Add Arvo teacher to owner
         exam.getExamOwners().add(Ebean.find(User.class, 4));
         exam.save();
         DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
