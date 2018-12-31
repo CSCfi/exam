@@ -17,7 +17,15 @@ package backend.controllers.iop.transfer.impl;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -50,7 +58,6 @@ import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
 import backend.controllers.CalendarController;
-import backend.controllers.SettingsController;
 import backend.exceptions.NotFoundException;
 import backend.impl.CalendarHandler;
 import backend.models.Exam;
@@ -69,6 +76,9 @@ public class ExternalCalendarController extends CalendarController {
 
     @Inject
     private WSClient wsClient;
+
+    @Inject
+    private CalendarHandler calendarHandler;
 
     private static URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration)
             throws MalformedURLException {
@@ -405,13 +415,8 @@ public class ExternalCalendarController extends CalendarController {
      * Search date is the current date if searching for current week or earlier,
      * If searching for upcoming weeks, day of week is one.
      */
-    private static LocalDate parseSearchDate(String day, String startDate, String endDate, ExamRoom room) throws NotFoundException {
-        String reservationWindow = SettingsController.getOrCreateSettings(
-                "reservation_window_size", null, null).getValue();
-        int windowSize = 0;
-        if (reservationWindow != null) {
-            windowSize = Integer.parseInt(reservationWindow);
-        }
+    private LocalDate parseSearchDate(String day, String startDate, String endDate, ExamRoom room) throws NotFoundException {
+        int windowSize = calendarHandler.getReservationWindowSize();
         int offset = room != null ?
                 DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()) :
                 ConfigUtil.getDefaultTimeZone().getOffset(DateTime.now());
@@ -440,19 +445,9 @@ public class ExternalCalendarController extends CalendarController {
     /**
      * @return which one is sooner, exam period's end or week's end
      */
-    private static LocalDate getEndSearchDate(String endDate, LocalDate searchDate) {
-        LocalDate endOfWeek = searchDate.dayOfWeek().withMaximumValue();
+    private LocalDate getEndSearchDate(String endDate, LocalDate searchDate) {
         LocalDate examEnd = LocalDate.parse(endDate, ISODateTimeFormat.dateTimeParser());
-        String reservationWindow = SettingsController.getOrCreateSettings(
-                "reservation_window_size", null, null).getValue();
-        int windowSize = 0;
-        if (reservationWindow != null) {
-            windowSize = Integer.parseInt(reservationWindow);
-        }
-        LocalDate reservationWindowDate = LocalDate.now().plusDays(windowSize);
-        LocalDate endOfSearchDate = examEnd.isBefore(reservationWindowDate) ? examEnd : reservationWindowDate;
-
-        return endOfWeek.isBefore(endOfSearchDate) ? endOfWeek : endOfSearchDate;
+        return calendarHandler.getEndSearchDate(searchDate, examEnd);
     }
 
     private boolean isReservedDuring(ExamMachine machine, Interval interval) {
