@@ -7,7 +7,14 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeSet;
 import javax.persistence.PersistenceException;
 import javax.validation.constraints.NotNull;
 
@@ -30,7 +37,15 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-import backend.models.*;
+import backend.models.Attachment;
+import backend.models.Exam;
+import backend.models.ExamInspection;
+import backend.models.ExamSectionQuestion;
+import backend.models.ExamSectionQuestionOption;
+import backend.models.Grade;
+import backend.models.GradeScale;
+import backend.models.Language;
+import backend.models.User;
 import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
 import backend.util.json.JsonDeserializer;
@@ -60,7 +75,10 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("mail", "glazenby%40funet.fi");
         HAKA_HEADERS.put("unscoped-affiliation", "member;employee;faculty");
         HAKA_HEADERS.put("employeeNumber", "12345");
-        HAKA_HEADERS.put("schacPersonalUniqueCode", "12345");
+        HAKA_HEADERS.put("schacPersonalUniqueCode",
+                "urn:schac:personalUniqueCode:int:studentID:org3.org:33333;" +
+                        "urn:schac:personalUniqueCode:int:studentID:org2.org:22222;" +
+                        "urn:schac:personalUniqueCode:int:studentID:org1.org:11111");
         HAKA_HEADERS.put("homeOrganisation", "oulu.fi");
         HAKA_HEADERS.put("Csrf-Token", "nocheck");
         try {
