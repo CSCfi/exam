@@ -1,5 +1,23 @@
 package base;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.net.URLEncoder;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import javax.persistence.PersistenceException;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.Configuration;
@@ -9,7 +27,15 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.config.ServerConfig;
 import io.ebeaninternal.api.SpiEbeanServer;
-import models.*;
+import models.Exam;
+import models.ExamExecutionType;
+import models.ExamInspection;
+import models.ExamSectionQuestionOption;
+import models.Grade;
+import models.GradeScale;
+import models.Language;
+import models.Role;
+import models.User;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.junit.After;
@@ -28,24 +54,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import util.JsonDeserializer;
-
-import javax.persistence.PersistenceException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
-import java.net.URLEncoder;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
@@ -72,7 +80,10 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("mail", "glazenby%40funet.fi");
         HAKA_HEADERS.put("unscoped-affiliation", "member;employee;faculty");
         HAKA_HEADERS.put("employeeNumber", "12345");
-        HAKA_HEADERS.put("schacPersonalUniqueCode", "12345");
+        HAKA_HEADERS.put("schacPersonalUniqueCode",
+                "urn:schac:personalUniqueCode:int:studentID:org3.org:33333;" +
+                        "urn:schac:personalUniqueCode:int:studentID:org2.org:22222;" +
+                        "urn:schac:personalUniqueCode:int:studentID:org1.org:11111");
         HAKA_HEADERS.put("homeOrganisation", "oulu.fi");
         HAKA_HEADERS.put("Csrf-Token", "nocheck");
         try {
@@ -133,7 +144,7 @@ public class IntegrationTestCase {
 
     private void cleanDB() throws SQLException {
         EbeanServer server = Ebean.getServer("default");
-        DropAllDdlGenerator generator = new DropAllDdlGenerator((SpiEbeanServer)server, new ServerConfig());
+        DropAllDdlGenerator generator = new DropAllDdlGenerator((SpiEbeanServer) server, new ServerConfig());
         // Drop
         Database db = getDB();
 
@@ -324,7 +335,6 @@ public class IntegrationTestCase {
             u.save();
         });
     }
-
 
 
     @SuppressWarnings("unchecked")

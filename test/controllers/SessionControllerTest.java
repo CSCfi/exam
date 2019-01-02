@@ -25,6 +25,7 @@ public class SessionControllerTest extends IntegrationTestCase {
         assertThat(user.getRoles().get(0).getName()).isEqualTo(Role.Name.TEACHER.toString());
         assertThat(user.getFirstName()).isEqualTo("George");
         assertThat(user.getLastName()).isEqualTo("Lazenby");
+        assertThat(user.getUserIdentifier()).isEqualTo("org1.org:11111 org2.org:22222 org3.org:33333");
 
     }
 

@@ -15,6 +15,25 @@
 
 package controllers;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectPresent;
@@ -43,20 +62,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import util.AppUtil;
 
-import javax.inject.Inject;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URLDecoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletionStage;
 
 public class SessionController extends BaseController {
 
@@ -67,6 +72,10 @@ public class SessionController extends BaseController {
     private final HttpExecutionContext ec;
 
     private static final String CSRF_COOKIE = ConfigFactory.load().getString("play.filters.csrf.cookie.name");
+    private static final Boolean MULTI_STUDENT_ID_ON =
+            ConfigFactory.load().getBoolean("sitnet.user.studentIds.multiple.enabled");
+    private static final String MULTI_STUDENT_ID_ORGS =
+            ConfigFactory.load().getString("sitnet.user.studentIds.multiple.organisations");
 
     @Inject
     public SessionController(Environment environment, ExternalExamAPI externalExamAPI, HttpExecutionContext ec) {
@@ -221,8 +230,33 @@ public class SessionController extends BaseController {
         return Optional.of(email);
     }
 
+    private String parseStudentIdDomain(String src) {
+        String parts = src.split("studentID:")[1];
+        return parts.split(":")[0];
+    }
+
+    private String parseStudentIdValue(String src) {
+        String parts = src.split("studentID:")[1];
+        return parts.split(":")[1];
+    }
+
     private String parseUserIdentifier(String src) {
-        return src.substring(src.lastIndexOf(":") + 1);
+        if (!MULTI_STUDENT_ID_ON) {
+            return src.substring(src.lastIndexOf(":") + 1);
+        } else {
+            return Arrays.stream(src.split(";")).collect(Collectors.toMap(
+                    this::parseStudentIdDomain,
+                    this::parseStudentIdValue,
+                    (v1, v2) -> {
+                        throw new RuntimeException(String.format("Duplicate key for values %s and %s", v1, v2));
+                    },
+                    () -> new TreeMap<>(Comparator.comparingInt(o -> !MULTI_STUDENT_ID_ORGS.contains(o)
+                            ? 1000 : MULTI_STUDENT_ID_ORGS.indexOf(o)))
+                    )
+            ).entrySet().stream()
+                    .map(e -> String.format("%s:%s", e.getKey(), e.getValue()))
+                    .collect(Collectors.joining(" "));
+        }
     }
 
     private Optional<String> parseDisplayName(Http.Request request) {
