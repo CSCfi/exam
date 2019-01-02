@@ -48,7 +48,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
     private void setWorkingHours() {
         String[] dates = {"SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"};
-        String weekday = dates[ DateTime.now().getDayOfWeek()];
+        String weekday = dates[DateTime.now().getDayOfWeek()];
         DefaultWorkingHours dwh = new DefaultWorkingHours();
         dwh.setWeekday(weekday);
         dwh.setRoom(room);
