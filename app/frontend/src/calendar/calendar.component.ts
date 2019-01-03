@@ -365,6 +365,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
             this.rooms.forEach(r => r.filtered = false);
             room.filtered = true;
             this.selectedRoom = room;
+            delete this.reservation;
             this.openingHours = this.Calendar.processOpeningHours(room);
             this.render();
         }
