@@ -20,6 +20,7 @@ before_script:
   - sed -i 's/\/var\/log\/exam/logs/g' $TRAVIS_BUILD_DIR/conf/logback.xml
   - nvm install 8.9.1
   - nvm use 8.9.1
+  - npm i -g npm
 
 script:
   - npm install
