@@ -29,8 +29,6 @@ import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
 import akka.actor.ActorSystem;
-
-import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -49,13 +47,21 @@ import scala.concurrent.duration.Duration;
 import backend.controllers.base.ActionMethod;
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
+import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.impl.AutoEvaluationHandler;
 import backend.impl.EmailComposer;
-import backend.models.*;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamInspection;
+import backend.models.ExamParticipation;
+import backend.models.ExamRoom;
+import backend.models.GeneralSettings;
+import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
 import backend.system.interceptors.ExamActionRouter;
 import backend.system.interceptors.SensitiveDataPolicy;
@@ -304,7 +310,9 @@ public class StudentExamController extends BaseController {
 
     private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
         boolean isCollaborative = enrolment.getCollaborativeExam() != null;
-        Exam studentExam = prototype.copyForStudent(user, isCollaborative);
+        Set<Long> ids = enrolment.getReservation().getOptionalSections().stream()
+                .map(ExamSection::getId).collect(Collectors.toSet());
+        Exam studentExam = prototype.copyForStudent(user, isCollaborative, ids);
         studentExam.setState(Exam.State.STUDENT_STARTED);
         studentExam.setCreator(user);
         if (!isCollaborative) {
