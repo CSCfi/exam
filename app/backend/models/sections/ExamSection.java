@@ -184,7 +184,9 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         }
         if (produceStudentExamSection) {
             for (ExamMaterial em: examMaterials) {
-                section.getExamMaterials().add(em.copy());
+                ExamMaterial emCopy = em.copy();
+                emCopy.save();
+                section.getExamMaterials().add(emCopy);
             }
         } else {
             section.setExamMaterials(examMaterials);
