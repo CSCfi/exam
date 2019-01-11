@@ -21,7 +21,9 @@ import { IModalService } from 'angular-ui-bootstrap';
 export const ExamMaterialSelectorComponent: angular.IComponentOptions = {
     template: require('./examMaterialSelector.template.html'),
     bindings: {
-        section: '<'
+        section: '<',
+        allMaterials: '<',
+        onChanges: '&'
     },
     controller: class ExamMaterialSelectorController implements angular.IComponentController {
         section: ExamSection;
@@ -29,6 +31,7 @@ export const ExamMaterialSelectorComponent: angular.IComponentOptions = {
         allMaterials: ExamMaterial[];
         selectedMaterial: ExamMaterial;
         filter: string;
+        onChanges: () => any;
 
         constructor(private $http: angular.IHttpService, private $uibModal: IModalService) {
             'ngInject';
@@ -39,15 +42,14 @@ export const ExamMaterialSelectorComponent: angular.IComponentOptions = {
                 m => this.section.examMaterials.map(em => em.id).indexOf(m.id) == -1);
         }
 
-        private init = () => {
-            this.$http.get('/app/materials').then((resp: angular.IHttpResponse<ExamMaterial[]>) => {
-                this.allMaterials = resp.data;
-                this.filterOutExisting();
-            });
+        $onInit() {
+            this.filterOutExisting();
         }
 
-        $onInit() {
-            this.init();
+        $onChanges = (changes: angular.IOnChangesObject) => {
+            if (changes.allMaterials) {
+                this.filterOutExisting();
+            }
         }
 
         selectMaterial(material: ExamMaterial) {
@@ -84,10 +86,9 @@ export const ExamMaterialSelectorComponent: angular.IComponentOptions = {
                 backdrop: 'static',
                 keyboard: true,
                 windowClass: 'question-editor-modal'
-            }).result.then((data: { changed: boolean }) => {
-                if (data.changed) {
-                    this.init();
-                }
+            }).result.then(() => {
+                // this.filterOutExisting();
+                this.onChanges();
             });
         }
 

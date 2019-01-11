@@ -135,7 +135,8 @@ public class ExamSectionController extends QuestionController implements Section
                 "expanded",
                 "lotteryOn",
                 "lotteryItemCount",
-                "description"
+                "description",
+                "optional"
         ).get();
 
         section.setName(form.getName());
@@ -143,6 +144,7 @@ public class ExamSectionController extends QuestionController implements Section
         section.setLotteryOn(form.isLotteryOn());
         section.setLotteryItemCount(Math.max(1, form.getLotteryItemCount()));
         section.setDescription(form.getDescription());
+        section.setOptional(form.isOptional());
 
         section.update();
 
