@@ -23,6 +23,7 @@ import scala.concurrent.duration.Duration;
 import backend.models.*;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.util.config.ConfigUtil;
 
@@ -252,7 +253,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
                     questionsToHide.add(esq.getQuestion());
                 });
         questionsToHide.forEach(q -> q.setQuestion(null));
-        exam.getExamSections().stream().filter(ExamSection::getLotteryOn).forEach(ExamSection::shuffleQuestions);
+        exam.getExamSections().stream().filter(ExamSection::isLotteryOn).forEach(ExamSection::shuffleQuestions);
         exam.setDerivedMaxScores();
     }
 

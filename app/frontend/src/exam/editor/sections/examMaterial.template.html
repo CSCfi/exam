@@ -1,0 +1,83 @@
+<div id="sitnet-dialog">
+    <div class="student-message-dialog-wrapper-padding">
+        <div class="student-enroll-dialog-wrap">
+            <h1 class="student-enroll-title">{{'sitnet_exam_materials' | translate}}</h1>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group input-group">
+                        <input ng-model="$ctrl.filter" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}"
+                            popover-placement="top" popover-popup-delay="500" popover-trigger="'mouseenter'"
+                            uib-popover="{{ 'sitnet_user_search_description' | translate }}">
+                        <div class="input-group-addon">
+                            <i class="fa fa-search fa-fw"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>{{'sitnet_name' | translate}}</th>
+                                <th>{{'sitnet_author' | translate}}</th>
+                                <th>{{'sitnet_isbn' | translate}}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="material in $ctrl.materials | filter:$ctrl.filter">
+                                <td>{{material.name}}</td>
+                                <td>{{material.author}}</td>
+                                <td>{{material.isbn}}</td>
+                                <td>
+                                    <i ng-click="$ctrl.removeMaterial(material)" class="pointer fa fa-trash-o fa-fw"
+                                        popover-placement="left" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_exam_remove' | translate}}">
+                                    </i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row">
+                <h1 class="col-md-12">
+                    {{'sitnet_create_new_material' | translate}}
+                </h1>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+
+                    <form>
+                        <div class="form-group">
+                            <label for="name">{{'sitnet_name' | translate}}</label>
+                            <input id="name" class="form-control" aria-describedby="name" ng-model="$ctrl.newMaterial.name"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="author">{{'sitnet_author' | translate}}</label>
+                            <input id="author" class="form-control" aria-describedby="author" ng-model="$ctrl.newMaterial.author">
+                        </div>
+                        <div class="form-group">
+                            <label for="isbn">{{'sitnet_isbn' | translate}}</label>
+                            <input id="isbn" class="form-control" aria-describedby="isbn" ng-model="$ctrl.newMaterial.isbn">
+                        </div>
+                        <button type="submit" class="btn btn-primary" ng-click="$ctrl.createMaterial()">{{'sitnet_create'
+                            |
+                            translate}}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="student-message-dialog-footer">
+            <div class="student-message-dialog-button-save">
+                <button class="btn btn-sm btn-primary" ng-click="$ctrl.ok()">
+                    {{'sitnet_close' | translate}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

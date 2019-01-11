@@ -40,9 +40,9 @@ import play.mvc.Result;
 
 import backend.controllers.base.SectionQuestionHandler;
 import backend.models.Exam;
-import backend.models.ExamSection;
-import backend.models.ExamSectionQuestion;
-import backend.models.ExamSectionQuestionOption;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
 import backend.models.User;
 import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
@@ -139,8 +139,8 @@ public class ExamSectionController extends QuestionController implements Section
         ).get();
 
         section.setName(form.getName());
-        section.setExpanded(form.getExpanded());
-        section.setLotteryOn(form.getLotteryOn());
+        section.setExpanded(form.isExpanded());
+        section.setLotteryOn(form.isLotteryOn());
         section.setLotteryItemCount(Math.max(1, form.getLotteryItemCount()));
         section.setDescription(form.getDescription());
 

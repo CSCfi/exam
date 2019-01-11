@@ -16,7 +16,7 @@
 
 import * as ng from 'angular';
 import * as toast from 'toastr';
-import { ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
+import { ExamSection, ExamSectionQuestion, Question, ExamMaterial } from '../../exam.model';
 import { IModalService } from 'angular-ui-bootstrap';
 import { IHttpResponse } from 'angular';
 import { FileService } from '../../../utility/file/file.service';
@@ -247,7 +247,7 @@ export const SectionComponent: ng.IComponentOptions = {
                     sectionId: this.section.id,
                     questionCount: this.section.sectionQuestions.length
                 }
-            }).result.then((data) => {
+            }).result.then(() => {
                 // TODO: see if we could live without reloading the whole exam from back?
                 this.onReloadRequired();
             });

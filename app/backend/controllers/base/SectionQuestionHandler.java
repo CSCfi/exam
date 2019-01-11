@@ -6,8 +6,8 @@ import java.util.Optional;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import backend.models.ExamSectionQuestion;
-import backend.models.ExamSectionQuestionOption;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
 import backend.models.api.Sortable;
 import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
