@@ -123,6 +123,7 @@ public class CalendarController extends BaseController {
         DateTime start = request().attrs().get(Attrs.START_DATE);
         DateTime end = request().attrs().get(Attrs.END_DATE);
         Collection<Integer> aids = request().attrs().get(Attrs.ACCESSABILITES);
+        Collection<Long> sectionIds = request().attrs().get(Attrs.SECTION_IDS);
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
         DateTime now = DateTimeUtils.adjustDST(DateTime.now(), room);
@@ -172,7 +173,7 @@ public class CalendarController extends BaseController {
 
             // We are good to go :)
             Reservation oldReservation = enrolment.getReservation();
-            Reservation reservation = calendarHandler.createReservation(start, end, machine.get(), user);
+            Reservation reservation = calendarHandler.createReservation(start, end, machine.get(), user, sectionIds);
 
             // Nuke the old reservation if any
             if (oldReservation != null) {

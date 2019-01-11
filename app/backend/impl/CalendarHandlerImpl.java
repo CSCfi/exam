@@ -34,6 +34,7 @@ import backend.models.ExamStartingHour;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
+import backend.models.sections.ExamSection;
 import backend.util.config.ConfigUtil;
 
 public class CalendarHandlerImpl implements CalendarHandler {
@@ -169,7 +170,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     @Override
-    public Reservation createReservation(DateTime start, DateTime end, ExamMachine machine, User user) {
+    public Reservation createReservation(DateTime start, DateTime end, ExamMachine machine, User user, Collection<Long> sectionIds) {
         Reservation reservation = new Reservation();
         reservation.setEndAt(end);
         reservation.setStartAt(start);
@@ -179,6 +180,10 @@ public class CalendarHandlerImpl implements CalendarHandler {
         // If this is due in less than a day, make sure we won't send a reminder
         if (start.minusDays(1).isBeforeNow()) {
             reservation.setReminderSent(true);
+        }
+        if (!sectionIds.isEmpty()) {
+            Set<ExamSection> sections = Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
+            reservation.setOptionalSections(sections);
         }
         return reservation;
     }

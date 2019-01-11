@@ -26,8 +26,10 @@ export const SectionComponent: ng.IComponentOptions = {
     bindings: {
         section: '<',
         examId: '<',
+        materials: '<',
         onDelete: '&',
-        onReloadRequired: '&' // TODO: try to live without this callback?
+        onReloadRequired: '&', // TODO: try to live without this callback?
+        onMaterialsChanged: '&'
     },
     require: {
         parentCtrl: '^^sections'
@@ -38,8 +40,10 @@ export const SectionComponent: ng.IComponentOptions = {
         examId: number;
         onDelete: (_: { section: ExamSection }) => any;
         onReloadRequired: () => any;
+        onMaterialsChanged: () => any;
         parentCtrl: { collaborative: boolean };
         collaborative: boolean;
+        materials: ExamMaterial[];
 
         constructor(
             private $http: ng.IHttpService,
@@ -63,7 +67,8 @@ export const SectionComponent: ng.IComponentOptions = {
             lotteryOn: this.section.lotteryOn,
             lotteryItemCount: this.section.lotteryItemCount,
             description: this.section.description,
-            expanded: this.section.expanded
+            expanded: this.section.expanded,
+            optional: this.section.optional
         })
 
         private getQuestionScore = (question: ExamSectionQuestion) => {
@@ -167,6 +172,8 @@ export const SectionComponent: ng.IComponentOptions = {
         expandSection = () => this.updateSection(true);
 
         toggleDisabled = () => !this.section.sectionQuestions || this.section.sectionQuestions.length < 2;
+
+        materialsChanged = () => this.onMaterialsChanged();
 
         toggleLottery = () => {
             if (this.toggleDisabled()) {

@@ -894,5 +894,13 @@
   "sitnet_exam_all_rooms": "Alla tentamensutrymmen",
   "sitnet_exam_machine_softwares": "Behövlig programvara",
   "sitnet_openinghours_exception_datetimes": "Öppettider och avvikande öppettider",
-  "sitnet_error_ip_address_exists_for_room": "IP-address redan i bruk"
+  "sitnet_error_ip_address_exists_for_room": "IP-address redan i bruk",
+  "sitnet_exam_materials": "Tenttimateriaali SV",
+  "sitnet_exam_material_description": "Tenttimateriaali, johon aihealueen kysymykset perustuvat. SV",
+  "sitnet_modify_materials": "Hallinnoi tenttimateriaaleja SV",
+  "sitnet_optional_section": "Vapaavalintainen aihealue SV",
+  "sitnet_optional_section_description": "Opiskelija voi valita tenttiikö hän vapaavalintaisen aihealueen SV",
+  "sitnet_search_by_name": "Hae nimen perusteella SV",
+  "sitnet_author": "Tekijä SV",
+  "sitnet_optional_materials_selected": "Valitut vapaaehtoiset sisällöt SV"
 }

@@ -45,8 +45,8 @@ public class CalendarReservationSanitizer extends BaseSanitizer {
 
         // Optional section IDs
         Collection<Long> optionalSectionIds = new HashSet<>();
-        if (body.has("sections")) {
-            Iterator<JsonNode> it = body.get("sections").elements();
+        if (body.has("sectionIds")) {
+            Iterator<JsonNode> it = body.get("sectionIds").elements();
             while (it.hasNext()) {
                 optionalSectionIds.add(it.next().asLong());
             }

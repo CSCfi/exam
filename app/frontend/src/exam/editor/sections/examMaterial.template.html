@@ -1,15 +1,13 @@
 <div id="sitnet-dialog">
     <div class="student-message-dialog-wrapper-padding">
         <div class="student-enroll-dialog-wrap">
-            <h1 class="student-enroll-title">{{'sitnet_exam_materials' | translate}}</h1>
+            <h1 class="student-enroll-title">{{'sitnet_modify_materials' | translate}}</h1>
         </div>
         <div class="modal-body">
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group input-group">
-                        <input ng-model="$ctrl.filter" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}"
-                            popover-placement="top" popover-popup-delay="500" popover-trigger="'mouseenter'"
-                            uib-popover="{{ 'sitnet_user_search_description' | translate }}">
+                        <input ng-model="$ctrl.filter" type="text" class="form-control" placeholder="{{'sitnet_search_by_name' | translate }}">
                         <div class="input-group-addon">
                             <i class="fa fa-search fa-fw"></i>
                         </div>
@@ -23,7 +21,7 @@
                             <tr>
                                 <th>{{'sitnet_name' | translate}}</th>
                                 <th>{{'sitnet_author' | translate}}</th>
-                                <th>{{'sitnet_isbn' | translate}}</th>
+                                <th>ISBN</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -45,13 +43,13 @@
 
             <div class="row">
                 <h1 class="col-md-12">
-                    {{'sitnet_create_new_material' | translate}}
+                    {{'sitnet_create_new' | translate}}
                 </h1>
             </div>
             <div class="row">
                 <div class="col-md-12">
 
-                    <form>
+                    <form novalidate>
                         <div class="form-group">
                             <label for="name">{{'sitnet_name' | translate}}</label>
                             <input id="name" class="form-control" aria-describedby="name" ng-model="$ctrl.newMaterial.name"
@@ -62,12 +60,11 @@
                             <input id="author" class="form-control" aria-describedby="author" ng-model="$ctrl.newMaterial.author">
                         </div>
                         <div class="form-group">
-                            <label for="isbn">{{'sitnet_isbn' | translate}}</label>
+                            <label for="isbn">ISBN</label>
                             <input id="isbn" class="form-control" aria-describedby="isbn" ng-model="$ctrl.newMaterial.isbn">
                         </div>
-                        <button type="submit" class="btn btn-primary" ng-click="$ctrl.createMaterial()">{{'sitnet_create'
-                            |
-                            translate}}</button>
+                        <button type="submit" class="btn btn-primary" ng-click="$ctrl.createMaterial()">{{'sitnet_create_new'
+                            | translate}}</button>
                     </form>
                 </div>
             </div>
