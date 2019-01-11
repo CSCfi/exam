@@ -46,7 +46,7 @@ import backend.impl.AutoEvaluationHandler;
 import backend.impl.EmailComposer;
 import backend.models.Exam;
 import backend.models.ExamEnrolment;
-import backend.models.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestion;
 import backend.models.User;
 import backend.models.json.ExternalExam;
 import backend.models.questions.ClozeTestAnswer;

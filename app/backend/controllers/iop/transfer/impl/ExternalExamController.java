@@ -28,9 +28,9 @@ import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
-import backend.models.ExamSection;
-import backend.models.ExamSectionQuestion;
-import backend.models.ExamSectionQuestionOption;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
 import backend.models.GeneralSettings;
 import backend.models.Reservation;
 import backend.models.User;
@@ -255,7 +255,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
             // Shuffle section questions if lottery on
             document.getExamSections().stream()
-                    .filter(ExamSection::getLotteryOn)
+                    .filter(ExamSection::isLotteryOn)
                     .forEach(ExamSection::shuffleQuestions);
 
             Map<String, Object> content;

@@ -40,7 +40,7 @@ import play.mvc.With;
 
 import backend.models.Exam;
 import backend.models.ExamExecutionType;
-import backend.models.ExamSection;
+import backend.models.sections.ExamSection;
 import backend.models.ExamType;
 import backend.models.GradeScale;
 import backend.models.Language;
