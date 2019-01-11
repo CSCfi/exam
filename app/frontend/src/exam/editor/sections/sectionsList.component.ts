@@ -12,12 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-/// <reference types="angular-dialog-service" />
-
 import * as ng from 'angular';
 import * as toast from 'toastr';
 
-import { Exam, ExamSection } from '../../exam.model';
+import { Exam, ExamSection, ExamMaterial } from '../../exam.model';
 import { SessionService } from '../../../session/session.service';
 
 
@@ -36,13 +34,12 @@ export const SectionsListComponent: ng.IComponentOptions = {
         onPreviousTabSelected: () => any;
         onNextTabSelected: () => any;
         onNewLibraryQuestion: () => any;
+        materials: ExamMaterial[];
 
         constructor(
             private $http: ng.IHttpService,
             private $q: ng.IQService,
             private $translate: ng.translate.ITranslateService,
-            private $location: ng.ILocationService,
-            private dialogs: angular.dialogservice.IDialogService,
             private Exam: any,
             private Session: SessionService
         ) {
@@ -52,6 +49,12 @@ export const SectionsListComponent: ng.IComponentOptions = {
         private init = () => {
             this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
             this.updateSectionIndices();
+            this.loadMaterials();
+        }
+
+        loadMaterials = () => {
+            this.$http.get('/app/materials').then(
+                (resp: ng.IHttpResponse<ExamMaterial[]>) => this.materials = resp.data);
         }
 
         private updateSectionIndices = () => {

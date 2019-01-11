@@ -46,6 +46,7 @@ export interface Slot {
     examId: number;
     orgId: string | null;
     aids?: number[];
+    sectionIds: number[];
 }
 
 export interface OpeningHours {
@@ -108,7 +109,8 @@ export class CalendarService {
     }
 
     reserve(start: moment.Moment, end: moment.Moment, room: Room,
-        accs: { filtered: boolean; id: number }[], org: { _id: string | null }, collaborative = false) {
+        accs: { filtered: boolean; id: number }[], org: { _id: string | null }, collaborative = false,
+        sectionIds: number[] = []) {
 
         const deferred = this.$q.defer();
         const tz = room.localTimezone;
@@ -117,7 +119,8 @@ export class CalendarService {
             end: this.adjustBack(end, tz),
             examId: parseInt(this.$routeParams.id),
             roomId: room._id != null ? room._id : room.id,
-            orgId: org._id
+            orgId: org._id,
+            sectionIds: sectionIds
         };
         if (org._id !== null) {
             this.reserveExternal(slot, deferred);

@@ -26,7 +26,7 @@ export const ExamMaterialComponent: ng.IComponentOptions = {
         close: '&'
     },
     controller: class ExamMaterialController implements ng.IComponentController {
-        close: (_: { $value: { changed: boolean } }) => any;
+        close: () => any;
         materials: ExamMaterial[] = [];
         newMaterial: ExamMaterial;
         filter: string;
@@ -61,9 +61,7 @@ export const ExamMaterialComponent: ng.IComponentOptions = {
             ).catch(err => toast.error(err));
         }
 
-        ok = () => this.close({
-            $value: { 'changed': this.materialsChanged }
-        })
+        ok = () => this.close();
     }
 };
 

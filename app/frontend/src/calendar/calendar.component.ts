@@ -19,10 +19,16 @@ import * as moment from 'moment';
 import { Room, Slot, CalendarService } from './calendar.service';
 import { DateTimeService } from '../utility/date/date.service';
 import { IHttpResponse } from 'angular';
+import { ExamSection } from '../exam/exam.model';
+
+interface SelectableSection extends ExamSection {
+    selected: boolean;
+}
 
 interface ExamInfo {
     examActiveStartDate: number;
     examActiveEndDate: number;
+    examSections: SelectableSection[];
 }
 
 interface AvailableSlot extends Slot {
@@ -53,7 +59,7 @@ export const CalendarComponent: angular.IComponentOptions = {
         accessibilities: Accessibility[] = [];
         isInteroperable: boolean;
         confirming = false;
-        examInfo: ExamInfo = { examActiveStartDate: 0, examActiveEndDate: 0 };
+        examInfo: ExamInfo = { examActiveStartDate: 0, examActiveEndDate: 0, examSections: [] };
         limitations = {};
         openingHours: any[];
         organisations: any[];
@@ -124,6 +130,32 @@ export const CalendarComponent: angular.IComponentOptions = {
 
                 });
             });
+        }
+
+        hasExamMaterials(): boolean {
+            return this.examInfo.examSections.some(es => es.examMaterials.length > 0);
+        }
+
+        getSequenceNumber(area: string): number {
+            switch (area) {
+                case 'info':
+                    return 1;
+                case 'organization':
+                    return 2;
+                case 'room':
+                    return this.isExternal ? 3 : 2;
+                case 'material':
+                    return this.isExternal ? 4 : 3;
+                case 'confirmation':
+                    if (this.isExternal && this.hasExamMaterials()) {
+                        return 5;
+                    } else if (this.isExternal || this.hasExamMaterials()) {
+                        return 4;
+                    } else {
+                        return 3;
+                    }
+            }
+            return 0;
         }
 
         showReservationWindowInfo(): boolean {
@@ -297,6 +329,7 @@ export const CalendarComponent: angular.IComponentOptions = {
             if (!room || !this.reservation || this.confirming) {
                 return;
             }
+            const selectedSectionIds = this.examInfo.examSections.filter(es => es.selected).map(es => es.id);
             this.confirming = true;
             this.Calendar.reserve(
                 this.reservation.start,
@@ -304,7 +337,8 @@ export const CalendarComponent: angular.IComponentOptions = {
                 room,
                 this.accessibilities,
                 { _id: this.selectedOrganisation ? this.selectedOrganisation._id : null },
-                this.isCollaborative
+                this.isCollaborative,
+                selectedSectionIds
             ).then(() => this.confirming = false);
         }
 
