@@ -56,6 +56,7 @@ import backend.models.json.CollaborativeExam;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
 import backend.system.interceptors.ExamActionRouter;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.AppUtil;

@@ -72,6 +72,13 @@ export interface ExamSectionQuestion {
     maxScore: number;
 }
 
+export interface ExamMaterial {
+    id: number;
+    name: string;
+    isbn?: string;
+    author?: string;
+}
+
 export interface ExamSection {
     id: number;
     name: string;
@@ -82,6 +89,8 @@ export interface ExamSection {
     sequenceNumber: number;
     expanded: boolean;
     sectionQuestions: ExamSectionQuestion[];
+    examMaterials: ExamMaterial[];
+    optional: boolean;
 }
 
 export interface CollaborativeExam {

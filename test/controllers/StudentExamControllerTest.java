@@ -14,6 +14,9 @@ import com.typesafe.config.ConfigFactory;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
+
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;

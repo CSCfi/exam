@@ -47,7 +47,7 @@ import play.test.Helpers;
 import backend.models.Attachment;
 import backend.models.Exam;
 import backend.models.ExamExecutionType;
-import backend.models.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestion;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
 

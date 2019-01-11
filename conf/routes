@@ -117,6 +117,14 @@ PUT           /app/exams/:eid/sections/:sid/reorder                    backend.c
 PUT           /app/exams/:eid/reorder                                  backend.controllers.ExamSectionController.reorderSections(eid: Long)
 GET           /app/exams/question/:id/distribution                     backend.controllers.ExamSectionController.getQuestionDistribution(id: Long)
 
+############### Section material interface ###############
+GET           /app/materials                                           backend.controllers.ExamMaterialController.listMaterials
+POST          /app/materials                                           backend.controllers.ExamMaterialController.createMaterial
+PUT           /app/materials/:id                                       backend.controllers.ExamMaterialController.updateMaterial(id: Long)
+DELETE        /app/materials/:id                                       backend.controllers.ExamMaterialController.removeMaterial(id: Long)
+POST          /app/materials/:id/:sid                                  backend.controllers.ExamMaterialController.addMaterialForSection(sid: Long, id: Long)
+DELETE        /app/materials/:id/:sid                                  backend.controllers.ExamMaterialController.removeMaterialFromSection(sid: Long, id: Long)
+
 ############### Section question interface ##########
 
 PUT           /app/exams/:eid/sections/:sid/questions/:qid             backend.controllers.ExamSectionController.updateUndistributedExamQuestion(eid: Long, sid: Long, qid: Long)

@@ -31,6 +31,9 @@ import org.springframework.beans.BeanUtils;
 import backend.models.api.AttachmentContainer;
 import backend.models.base.OwnedModel;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
 import backend.util.AppUtil;
 import backend.util.datetime.DateTimeAdapter;
 
