@@ -15,9 +15,19 @@
 
 package backend.models;
 
-import backend.models.base.GeneratedIdentityModel;
-import backend.models.iop.ExternalReservation;
-import backend.util.datetime.DateTimeAdapter;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -25,15 +35,10 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.iop.ExternalReservation;
+import backend.models.sections.ExamSection;
+import backend.util.datetime.DateTimeAdapter;
 
 @Entity
 public class Reservation extends GeneratedIdentityModel implements Comparable<Reservation> {
@@ -65,6 +70,14 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
+
+    @ManyToMany
+    @JoinTable(
+            name = "reservation_optional_exam_section",
+            joinColumns = @JoinColumn(name = "reservation_id"),
+            inverseJoinColumns = @JoinColumn(name = "exam_section_id")
+    )
+    private Set<ExamSection> optionalSections;
 
     private String externalRef;
 
@@ -127,6 +140,14 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Set<ExamSection> getOptionalSections() {
+        return optionalSections;
+    }
+
+    public void setOptionalSections(Set<ExamSection> optionalSections) {
+        this.optionalSections = optionalSections;
     }
 
     public ExamEnrolment getEnrolment() {
