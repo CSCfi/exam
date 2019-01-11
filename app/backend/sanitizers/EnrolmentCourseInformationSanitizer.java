@@ -15,20 +15,12 @@
 
 package backend.sanitizers;
 
-import java.util.concurrent.CompletionStage;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import play.mvc.Http;
-import play.mvc.Result;
 
-public class EnrolmentCourseInformationSanitizer extends play.mvc.Action.Simple {
+public class EnrolmentCourseInformationSanitizer extends BaseSanitizer {
 
-    public CompletionStage<Result> call(Http.Context ctx) {
-        JsonNode body = ctx.request().body().asJson();
-        return delegate.call(ctx.withRequest(sanitize(ctx, body)));
-    }
-
-    private Http.Request sanitize(Http.Context ctx, JsonNode body) {
+    protected Http.Request sanitize(Http.Context ctx, JsonNode body) {
         return ctx.request().addAttr(Attrs.COURSE_CODE, body.get("code").asText());
     }
 }
