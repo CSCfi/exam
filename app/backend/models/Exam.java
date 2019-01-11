@@ -16,6 +16,7 @@
 package backend.models;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 
@@ -756,6 +757,16 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Transient
     public boolean hasState(State... states) {
         return Arrays.asList(states).contains(state);
+    }
+
+    @Transient
+    public boolean hasOptionalSections() {
+        return examSections.stream().anyMatch(ExamSection::isOptional);
+    }
+
+    @Transient
+    public Set<ExamSection> getOptionalSections() {
+        return examSections.stream().filter(ExamSection::isOptional).collect(Collectors.toSet());
     }
 
     @Transient
