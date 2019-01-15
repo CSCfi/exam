@@ -287,6 +287,7 @@ angular.module('app.calendar')
                             delete room.filtered;
                         });
                         room.filtered = true;
+                        delete vm.reservation;
                         vm.openingHours = Calendar.processOpeningHours(room);
                     }
                 };
