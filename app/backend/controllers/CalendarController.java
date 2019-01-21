@@ -135,6 +135,8 @@ public class CalendarController extends BaseController {
             Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
             Optional<ExamEnrolment> optionalEnrolment = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")
+                    .fetch("exam.examSections")
+                    .fetch("exam.examSections.examMaterials")
                     .where()
                     .eq("user.id", user.getId())
                     .eq("exam.id", examId)

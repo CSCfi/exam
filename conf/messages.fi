@@ -79,3 +79,6 @@ email.template.reservation.change.message=Hei, tenttikoneesi on vaihdettu ylläp
 email.template.reservation.change.previous=Edellinen kone
 email.template.reservation.change.current=Uusi kone
 email.template.reservation.exam.info=Tentin tiedot
+email.template.material.title=Tenttimateriaalit
+email.template.material.name=Nimi
+email.template.material.author=Tekijä
