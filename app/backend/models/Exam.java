@@ -767,16 +767,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     @Transient
-    public boolean hasOptionalSections() {
-        return examSections.stream().anyMatch(ExamSection::isOptional);
-    }
-
-    @Transient
-    public Set<ExamSection> getOptionalSections() {
-        return examSections.stream().filter(ExamSection::isOptional).collect(Collectors.toSet());
-    }
-
-    @Transient
     public void setDerivedMaxScores() {
         examSections.stream()
                 .flatMap(es -> es.getSectionQuestions().stream())

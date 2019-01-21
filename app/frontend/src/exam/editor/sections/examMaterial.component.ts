@@ -1,5 +1,3 @@
-import angular = require('angular');
-
 /*
  * Copyright (c) 2018 Exam Consortium
  *
@@ -14,7 +12,6 @@ import angular = require('angular');
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-/// <reference types="angular-dialog-service" />
 
 import * as ng from 'angular';
 import * as toast from 'toastr';
