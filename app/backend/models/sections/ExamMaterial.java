@@ -19,6 +19,8 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 
 import backend.models.base.OwnedModel;
@@ -63,6 +65,26 @@ public final class ExamMaterial extends OwnedModel {
 
     public void setExamSections(Set<ExamSection> examSections) {
         this.examSections = examSections;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof ExamMaterial)) return false;
+
+        ExamMaterial that = (ExamMaterial) o;
+
+        return new EqualsBuilder()
+                .append(id, that.id)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .toHashCode();
     }
 
     public ExamMaterial copy() {
