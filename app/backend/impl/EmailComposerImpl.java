@@ -20,8 +20,17 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -44,8 +53,20 @@ import play.Logger;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
 
-import backend.models.*;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamExecutionType;
+import backend.models.ExamInspection;
+import backend.models.ExamMachine;
+import backend.models.ExamParticipation;
+import backend.models.ExamRoom;
+import backend.models.Language;
+import backend.models.LanguageInspection;
+import backend.models.MailAddress;
+import backend.models.Reservation;
+import backend.models.User;
 import backend.models.iop.ExternalReservation;
+import backend.models.sections.ExamMaterial;
 import backend.util.config.ConfigUtil;
 
 class EmailComposerImpl implements EmailComposer {
@@ -214,6 +235,16 @@ class EmailComposerImpl implements EmailComposer {
         emailSender.send(teacher.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
+    private String formatMaterial(ExamMaterial material, Lang lang) {
+        // String title = messaging.get(lang, "email.template.material.title");
+        String name = String.format("%s: %s",
+                messaging.get(lang, "email.template.material.name"), material.getName());
+        String author = material.getAuthor() == null ? "" : String.format(" - %s: %s",
+                messaging.get(lang, "email.template.material.author"), material.getAuthor());
+        String isbn = material.getIsbn() == null ? "" : String.format(" - ISBN: %s", material.getIsbn());
+        return String.format("%s%s%s", name, author, isbn);
+    }
+
     @Override
     public void composeReservationNotification(User recipient, Reservation reservation, Exam exam, Boolean isReminder) {
         String templatePath = getTemplatesRoot() + "reservationConfirmed.html";
@@ -231,6 +262,17 @@ class EmailComposerImpl implements EmailComposer {
         } else {
             teacherName = String.format("%s %s", exam.getCreator().getFirstName(), exam.getCreator().getLastName());
         }
+        Stream<ExamMaterial> requiredMaterials = exam.getExamSections().stream()
+                .filter(es -> !es.isOptional())
+                .flatMap(es -> es.getExamMaterials().stream());
+        Stream<ExamMaterial> optionalMaterials = reservation.getOptionalSections().stream()
+                .flatMap(es -> es.getExamMaterials().stream());
+        Set<String> allMaterials = Stream.concat(requiredMaterials, optionalMaterials)
+                .map(em -> formatMaterial(em, lang)).collect(Collectors.toSet());
+
+        String materials = String.format("%s<br/>%s",
+                messaging.get(lang, "email.template.material.title"),
+                String.join("<br/>", allMaterials));
 
         DateTime startDate = adjustDST(reservation.getStartAt(), TZ);
         DateTime endDate = adjustDST(reservation.getEndAt(), TZ);
@@ -257,6 +299,7 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("room_name", messaging.get(lang, "email.template.reservation.room", roomName));
         stringValues.put("machine_name", messaging.get(lang, "email.template.reservation.machine", machineName));
         stringValues.put("room_instructions", roomInstructions);
+        stringValues.put("exam_materials", materials);
         stringValues.put("cancellation_info", messaging.get(lang, "email.template.reservation.cancel.info"));
         stringValues.put("cancellation_link", HOSTNAME);
         stringValues.put("cancellation_link_text", messaging.get(lang, "email.template.reservation.cancel.link.text"));
