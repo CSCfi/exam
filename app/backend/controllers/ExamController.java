@@ -257,6 +257,7 @@ public class ExamController extends BaseController {
                 .fetch("examinationDates")
                 .fetch("examLanguages")
                 .fetch("examSections")
+                .fetch("examSections.examMaterials")
                 .fetch("examSections.sectionQuestions", new FetchConfig().query())
                 .fetch("examSections.sectionQuestions.question")
                 .fetch("examSections.sectionQuestions.question.attachment")
