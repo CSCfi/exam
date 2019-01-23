@@ -70,7 +70,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
 
     private String description;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "exam_section_material",
             joinColumns = @JoinColumn(name = "exam_section_id"),

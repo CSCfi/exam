@@ -71,7 +71,7 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
     @JsonBackReference
     private User user;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "reservation_optional_exam_section",
             joinColumns = @JoinColumn(name = "reservation_id"),
