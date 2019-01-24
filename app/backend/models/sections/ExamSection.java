@@ -38,6 +38,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.beans.BeanUtils;
 
 import backend.models.Exam;
+import backend.models.User;
 import backend.models.api.Sortable;
 import backend.models.base.OwnedModel;
 import backend.models.questions.Question;
@@ -174,7 +175,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         return section;
     }
 
-    public ExamSection copy(Exam exam, boolean produceStudentExamSection, boolean setParents)
+    public ExamSection copy(Exam exam, boolean produceStudentExamSection, boolean setParents, User user)
     {
         ExamSection section = new ExamSection();
         BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions", "examMaterials");
@@ -184,7 +185,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         }
         if (produceStudentExamSection) {
             for (ExamMaterial em: examMaterials) {
-                ExamMaterial emCopy = em.copy();
+                ExamMaterial emCopy = em.copy(user);
                 emCopy.save();
                 section.getExamMaterials().add(emCopy);
             }

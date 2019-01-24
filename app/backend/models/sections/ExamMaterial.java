@@ -23,7 +23,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 
+import backend.models.User;
 import backend.models.base.OwnedModel;
+import backend.util.AppUtil;
 
 @Entity
 public final class ExamMaterial extends OwnedModel {
@@ -87,9 +89,11 @@ public final class ExamMaterial extends OwnedModel {
                 .toHashCode();
     }
 
-    public ExamMaterial copy() {
+    public ExamMaterial copy(User user) {
         ExamMaterial material = new ExamMaterial();
-        BeanUtils.copyProperties(this, material, "id", "examSections");
+        BeanUtils.copyProperties(this, material, "id", "examSections", "creator", "modifier");
+        AppUtil.setCreator(material, user);
+        AppUtil.setModifier(material, user);
         return material;
     }
 }
