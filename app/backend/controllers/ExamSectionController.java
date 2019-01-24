@@ -66,9 +66,10 @@ public class ExamSectionController extends QuestionController implements Section
             section.setSectionQuestions(Collections.emptySet());
             section.setSequenceNumber(exam.getExamSections().size());
             section.setExpanded(true);
+            section.setOptional(false);
             AppUtil.setCreator(section, user);
             section.save();
-            return ok(section, PathProperties.parse("(*, sectionQuestions(*))"));
+            return ok(section, PathProperties.parse("(*, examMaterials(*), sectionQuestions(*))"));
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }

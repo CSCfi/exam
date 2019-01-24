@@ -587,7 +587,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             sections.addAll(examSections);
         }
         for (ExamSection es : sections) {
-            ExamSection esCopy = es.copy(clone, produceStudentExam, setParent);
+            ExamSection esCopy = es.copy(clone, produceStudentExam, setParent, user);
             AppUtil.setCreator(esCopy, user);
             AppUtil.setModifier(esCopy, user);
             // Shuffle question options before saving
