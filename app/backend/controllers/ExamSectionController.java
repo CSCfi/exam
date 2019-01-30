@@ -283,8 +283,7 @@ public class ExamSectionController extends QuestionController implements Section
         }
         // TODO: response payload should be trimmed down (use path properties)
         Integer seq = request().body().asJson().get("sequenceNumber").asInt();
-        return insertQuestion(exam, section, question, user, seq)
-                .orElse(ok(Json.toJson(section)));
+        return insertQuestion(exam, section, question, user, seq).orElse(ok(section));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
