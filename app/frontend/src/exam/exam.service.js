@@ -15,6 +15,7 @@
 
 import angular from 'angular';
 import toast from 'toastr';
+import _ from 'lodash';
 
 angular.module('app.exam')
     .service('Exam', ['$translate', '$q', '$location', '$http', 'ExamRes', 'Question', 'Session', 'dialogs',
@@ -394,7 +395,7 @@ angular.module('app.exam')
             }
 
             self.hasCustomCredit = (exam) => {
-                return !isNaN(exam.customCredit) && exam.customCredit >= 0;
+                return _.isNumber(exam.customCredit) && exam.customCredit >= 0;
             }
 
             self.getExamDisplayCredit = (exam) => {
