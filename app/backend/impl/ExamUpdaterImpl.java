@@ -321,7 +321,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
 
     private boolean isNonRestrictingValidityChange(DateTime newDate, Exam exam, boolean isStartDate) {
         DateTime oldDate = isStartDate ? exam.getExamActiveStartDate() : exam.getExamActiveEndDate();
-        return isStartDate ? oldDate.isAfter(newDate) : newDate.isAfter(oldDate);
+        return isStartDate ? !oldDate.isBefore(newDate) : !newDate.isBefore(oldDate);
     }
 
     private void updateGrading(Exam exam, int grading) {
