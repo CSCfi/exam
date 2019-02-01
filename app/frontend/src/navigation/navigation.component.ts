@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2019 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -15,11 +15,8 @@
 
 import * as angular from 'angular';
 import * as toastr from 'toastr';
-import * as $ from 'jquery';
 import { SessionService, User } from '../session/session.service';
 import { Link, NavigationService } from './navigation.service';
-
-declare function require(name: string): any;
 
 export const NavigationComponent: angular.IComponentOptions = {
     template: require('./navigation.template.html'),
@@ -61,17 +58,11 @@ export const NavigationComponent: angular.IComponentOptions = {
             }
         }
 
-        isActive(link: Link): boolean {
-            return link.href === this.$location.path();
-        }
+        isActive = (link: Link): boolean => link.href === this.$location.path();
 
-        openMenu(): void {
-            this.mobileMenuOpen = !this.mobileMenuOpen;
-        }
+        openMenu = () => this.mobileMenuOpen = !this.mobileMenuOpen;
 
-        switchLanguage(key): void {
-            this.Session.switchLanguage(key);
-        }
+        switchLanguage = (key: string) => this.Session.switchLanguage(key);
 
         private getLinks = (checkInteroperability: boolean) => {
             if (checkInteroperability) {
