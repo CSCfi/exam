@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -40,13 +41,13 @@ import play.mvc.With;
 
 import backend.models.Exam;
 import backend.models.ExamExecutionType;
-import backend.models.sections.ExamSection;
 import backend.models.ExamType;
 import backend.models.GradeScale;
 import backend.models.Language;
 import backend.models.Role;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
+import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.EmailSanitizer;
 import backend.sanitizers.ExamUpdateSanitizer;
@@ -147,6 +148,12 @@ public class CollaborativeExamController extends CollaborationController {
                     return ok(serialize(exam));
                 }
         );
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public Result listGradeScales() {
+        Set<GradeScale> grades = Ebean.find(GradeScale.class).fetch("grades").where().isNull("externalRef").findSet();
+        return ok(grades);
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})

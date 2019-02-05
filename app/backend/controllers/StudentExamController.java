@@ -94,14 +94,30 @@ public class StudentExamController extends BaseController {
         this.externalAttachmentLoader = externalAttachmentLoader;
     }
 
+    private Optional<CollaborativeExam> getCollaborativeExam(String hash) {
+        Optional<CollaborativeExam> ce = Ebean.find(CollaborativeExam.class).where().eq("hash", hash)
+                .findOneOrEmpty();
+        if (ce.isPresent()) {
+            return ce;
+        }
+        Optional<Exam> exam = Ebean.find(Exam.class).where().eq("hash", hash).findOneOrEmpty();
+        if (exam.isPresent()) {
+            if (!exam.get().getExamEnrolments().isEmpty()) {
+                CollaborativeExam ce2 = exam.get().getExamEnrolments().get(0).getCollaborativeExam();
+                return ce2 == null ? Optional.empty() : Optional.of(ce2);
+            }
+        }
+        return ce;
+    }
+
     @ActionMethod
     @Transactional
     @ExamActionRouter
     public CompletionStage<Result> startExam(String hash) throws IOException {
         User user = getLoggedUser();
         String clientIp = request().remoteAddress();
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class).where().eq("hash", hash).findOne();
-
+        Optional<CollaborativeExam> oce = getCollaborativeExam(hash);
+        CollaborativeExam ce = oce.orElse(null);
         return getPrototype(hash, ce).thenApplyAsync(optionalPrototype -> {
             Optional<Exam> possibleClone = getPossibleClone(hash, user, ce);
             // no exam found for hash
@@ -304,7 +320,7 @@ public class StudentExamController extends BaseController {
     private static Optional<Exam> getPossibleClone(String hash, User user, CollaborativeExam ce) {
         ExpressionList<Exam> query = createQuery().where()
                 .eq("hash", hash)
-                .eq("creator", user); // broblems
+                .eq("creator", user);
         if (ce == null) {
             query = query.isNotNull("parent");
         }

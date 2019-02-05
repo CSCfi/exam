@@ -55,7 +55,7 @@ public class CollaborativeCalendarController extends CollaborationController {
                         return notFound("sitnet_error_exam_not_found");
                     }
                     Exam exam = result.get();
-                    return ok(exam, PathProperties.parse("(*, examLanguages(*))"));
+                    return ok(exam, PathProperties.parse("(*, examSections(*, examMaterials(*)), examLanguages(*))"));
                 });
 
     }
