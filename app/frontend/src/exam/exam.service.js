@@ -179,10 +179,11 @@ angular.module('app.exam')
                 return name;
             };
 
-            self.refreshGradeScales = function () {
+            self.refreshGradeScales = function (isCollaborative) {
                 const deferred = $q.defer();
-                ExamRes.gradeScales.query(function (scales) {
-                    return deferred.resolve(scales.map(function (scale) {
+                const url = isCollaborative ? '/integration/iop/gradescales' : '/app/gradescales';
+                $http.get(url).then(resp => {
+                    return deferred.resolve(resp.data.map(function (scale) {
                         scale.name = self.getScaleDisplayName(scale);
                         return scale;
                     }));

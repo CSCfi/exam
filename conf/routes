@@ -310,6 +310,7 @@ DELETE        /integration/iop/exams/:id                               backend.c
 PUT           /integration/iop/exams/:id/language/:code                backend.controllers.iop.collaboration.impl.CollaborativeExamController.updateLanguage(id: Long, code: String)
 POST          /integration/iop/exams/:id/owners                        backend.controllers.iop.collaboration.impl.CollaborativeExamController.addOwner(id: Long)
 DELETE        /integration/iop/exams/:id/owners/:oid                   backend.controllers.iop.collaboration.impl.CollaborativeExamController.removeOwner(id: Long, oid: Long)
+GET           /integration/iop/gradescales                             backend.controllers.iop.collaboration.impl.CollaborativeExamController.listGradeScales
 
 POST          /integration/iop/exams/:eid/sections                     backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.addSection(eid: Long)
 DELETE        /integration/iop/exams/:eid/sections/:sid                backend.controllers.iop.collaboration.impl.CollaborativeExamSectionController.removeSection(eid: Long, sid: Long)
