@@ -25,7 +25,6 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -73,8 +72,6 @@ import backend.models.ExamEnrolment;
 import backend.models.ExamExecutionType;
 import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
-import backend.models.sections.ExamSection;
-import backend.models.sections.ExamSectionQuestion;
 import backend.models.ExamType;
 import backend.models.Grade;
 import backend.models.GradeScale;
@@ -87,8 +84,11 @@ import backend.models.base.GeneratedIdentityModel;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CommaJoinedListSanitizer;
+import backend.sanitizers.CommentSanitizer;
 import backend.system.interceptors.Anonymous;
 import backend.util.AppUtil;
 import backend.util.csv.CsvBuilder;
@@ -424,6 +424,7 @@ public class ReviewController extends BaseController {
         return ok(comment);
     }
 
+    @With(CommentSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateComment(Long eid, Long cid) {
         Exam exam = Ebean.find(Exam.class, eid);
@@ -438,9 +439,10 @@ public class ReviewController extends BaseController {
         if (comment == null) {
             return notFound();
         }
-        if (form.getComment() != null) {
+        Optional<String> commentText = request().attrs().getOptional(Attrs.COMMENT);
+        if (commentText.isPresent()) {
             AppUtil.setModifier(comment, getLoggedUser());
-            comment.setComment(form.getComment());
+            comment.setComment(commentText.get());
             comment.save();
             exam.setExamFeedback(comment);
             exam.save();
@@ -448,35 +450,22 @@ public class ReviewController extends BaseController {
         return ok(comment);
     }
 
+    @With(CommentSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result addInspectionComment(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
             return notFound("Inspection not found");
         }
-        DynamicForm df = formFactory.form().bindFromRequest();
         InspectionComment ic = new InspectionComment();
         User user = getLoggedUser();
         AppUtil.setCreator(ic, user);
         AppUtil.setModifier(ic, user);
-        ic.setComment(df.get("comment"));
+        ic.setComment(request().attrs().getOptional(Attrs.COMMENT).orElse(null));
         ic.setExam(exam);
         ic.save();
         return ok(ic, PathProperties.parse("(creator(firstName, lastName, email), created, comment)"));
     }
-
-    private List<String> parseArrayFieldFromBody(String field) {
-        DynamicForm df = formFactory.form().bindFromRequest();
-        String args = df.get(field);
-        String[] array;
-        if (args == null || args.isEmpty()) {
-            array = new String[]{};
-        } else {
-            array = args.split(",");
-        }
-        return Arrays.asList(array);
-    }
-
 
     @With(CommaJoinedListSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})

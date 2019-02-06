@@ -13,28 +13,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.models.base;
+package backend.sanitizers;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import com.fasterxml.jackson.databind.JsonNode;
+import play.mvc.Http;
 
-import org.jsoup.safety.Whitelist;
+public class SectionQuestionSanitizer extends BaseSanitizer {
 
-@MappedSuperclass
-public abstract class GeneratedIdentityModel extends VersionedModel {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    protected Long id;
-
-    public Long getId() {
-        return id;
+    protected Http.Request sanitize(Http.Context ctx, JsonNode body) throws SanitizingException {
+        Http.Request request = ctx.request();
+        if (body.has("question")) {
+            request = SanitizingHelper.sanitizeOptionalHtml("question", body.get("question"), Attrs.QUESTION_TEXT, request);
+        }
+        request = SanitizingHelper.sanitizeOptionalHtml("answerInstructions", body, Attrs.ANSWER_INSTRUCTIONS, request);
+        request = SanitizingHelper.sanitizeOptionalHtml("evaluationCriteria", body, Attrs.EVALUATION_CRITERIA, request);
+        return request;
     }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
 }

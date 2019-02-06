@@ -32,6 +32,7 @@ import org.joda.time.DateTime;
 import play.Logger;
 import play.data.DynamicForm;
 import play.mvc.Result;
+import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.BaseController;
@@ -40,6 +41,8 @@ import backend.models.Comment;
 import backend.models.Exam;
 import backend.models.LanguageInspection;
 import backend.models.User;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.CommentSanitizer;
 import backend.util.AppUtil;
 
 
@@ -166,11 +169,11 @@ public class LanguageInspectionController extends BaseController {
         return ok();
     }
 
+    @With(CommentSanitizer.class)
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
     public Result setStatement(Long id) {
-        DynamicForm df = formFactory.form().bindFromRequest();
-        String text = df.get("comment");
-        if (text == null) {
+        Optional<String> text = request().attrs().getOptional(Attrs.COMMENT);
+        if (!text.isPresent()) {
             return badRequest();
         }
         LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
@@ -192,7 +195,7 @@ public class LanguageInspectionController extends BaseController {
             inspection.setStatement(statement);
             inspection.update();
         }
-        statement.setComment(text);
+        statement.setComment(text.get());
         AppUtil.setModifier(statement, user);
         statement.update();
         AppUtil.setModifier(inspection, user);

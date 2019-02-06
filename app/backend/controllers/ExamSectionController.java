@@ -36,17 +36,21 @@ import org.joda.time.DateTime;
 import play.data.DynamicForm;
 import play.db.ebean.Transactional;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 
 import backend.controllers.base.SectionQuestionHandler;
 import backend.models.Exam;
-import backend.models.sections.ExamSection;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
 import backend.models.User;
 import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
+import backend.sanitizers.Attrs;
 import backend.sanitizers.SanitizingHelper;
+import backend.sanitizers.SectionQuestionSanitizer;
 import backend.util.AppUtil;
 
 
@@ -219,12 +223,10 @@ public class ExamSectionController extends QuestionController implements Section
     }
 
 
-    private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body) {
+    private void updateExamQuestion(ExamSectionQuestion sectionQuestion, JsonNode body, Http.Request request) {
         sectionQuestion.setMaxScore(round(SanitizingHelper.parse("maxScore", body, Double.class).orElse(null)));
-        sectionQuestion.setAnswerInstructions(
-                SanitizingHelper.parse("answerInstructions", body, String.class).orElse(null));
-        sectionQuestion.setEvaluationCriteria(
-                SanitizingHelper.parse("evaluationCriteria", body, String.class).orElse(null));
+        sectionQuestion.setAnswerInstructions(request.attrs().getOptional(Attrs.ANSWER_INSTRUCTIONS).orElse(null));
+        sectionQuestion.setEvaluationCriteria(request.attrs().getOptional(Attrs.EVALUATION_CRITERIA).orElse(null));
         sectionQuestion.setEvaluationType(
                 SanitizingHelper.parseEnum("evaluationType", body, Question.EvaluationType.class).orElse(null));
         sectionQuestion.setExpectedWordCount(
@@ -423,6 +425,7 @@ public class ExamSectionController extends QuestionController implements Section
         return StreamSupport.stream(an.spliterator(), false).anyMatch(n -> n.get("score").asDouble() > 0);
     }
 
+    @With(SectionQuestionSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateDistributedExamQuestion(Long eid, Long sid, Long qid) {
         User user = getLoggedUser();
@@ -451,10 +454,9 @@ public class ExamSectionController extends QuestionController implements Section
             return badRequest("sitnet_correct_option_required");
         }
         // Update question: text
-        JsonNode questionNode = body.get("question");
-        question.setQuestion(SanitizingHelper.parse("question", questionNode, String.class).orElse(null));
+        question.setQuestion(request().attrs().getOptional(Attrs.QUESTION_TEXT).orElse(null));
         question.update();
-        updateExamQuestion(examSectionQuestion, body);
+        updateExamQuestion(examSectionQuestion, body, request());
         examSectionQuestion.update();
         if (question.getType() != Question.Type.EssayQuestion && question.getType() != Question.Type.ClozeTestQuestion) {
             // Process the options, this has an impact on the base question options as well as all the section questions

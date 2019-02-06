@@ -40,9 +40,9 @@ import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
 import play.Environment;
 import play.Logger;
-import play.data.DynamicForm;
 import play.db.ebean.Transactional;
 import play.mvc.Result;
+import play.mvc.With;
 import scala.concurrent.duration.Duration;
 
 import backend.controllers.base.ActionMethod;
@@ -64,6 +64,8 @@ import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
+import backend.sanitizers.Attrs;
+import backend.sanitizers.EssayAnswerSanitizer;
 import backend.system.interceptors.ExamActionRouter;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.AppUtil;
@@ -236,11 +238,13 @@ public class StudentExamController extends BaseController {
         }
     }
 
+    @With(EssayAnswerSanitizer.class)
     @ActionMethod
     public Result answerEssay(String hash, Long questionId) {
         return getEnrolmentError(hash, request().remoteAddress()).orElseGet(() -> {
-            DynamicForm df = formFactory.form().bindFromRequest();
-            String essayAnswer = df.get("answer");
+
+            String essayAnswer = request().attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
+            Optional<Long> objectVersion = request().attrs().getOptional(Attrs.OBJECT_VERSION);
             ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, questionId);
             if (question == null) {
                 return forbidden();
@@ -248,9 +252,8 @@ public class StudentExamController extends BaseController {
             EssayAnswer answer = question.getEssayAnswer();
             if (answer == null) {
                 answer = new EssayAnswer();
-            } else if (df.get("objectVersion") != null) {
-                long objectVersion = Long.parseLong(df.get("objectVersion"));
-                answer.setObjectVersion(objectVersion);
+            } else if (objectVersion.isPresent()) {
+                answer.setObjectVersion(objectVersion.get());
             }
             answer.setAnswer(essayAnswer);
             answer.save();
@@ -280,6 +283,7 @@ public class StudentExamController extends BaseController {
         });
     }
 
+    @With(EssayAnswerSanitizer.class)
     @ActionMethod
     public Result answerClozeTest(String hash, Long questionId) {
         return getEnrolmentError(hash, request().remoteAddress()).orElseGet(() -> {
@@ -287,15 +291,14 @@ public class StudentExamController extends BaseController {
             if (esq == null) {
                 return forbidden();
             }
-            JsonNode node = request().body().asJson();
             ClozeTestAnswer answer = esq.getClozeTestAnswer();
             if (answer == null) {
                 answer = new ClozeTestAnswer();
             } else {
-                long objectVersion = node.get("objectVersion").asLong();
+                long objectVersion = request().attrs().get(Attrs.OBJECT_VERSION);
                 answer.setObjectVersion(objectVersion);
             }
-            answer.setAnswer(node.get("answer").toString());
+            answer.setAnswer(request().attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
             answer.save();
             return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
         });

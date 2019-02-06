@@ -3,14 +3,16 @@ package backend.controllers.base;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
 import backend.models.api.Sortable;
 import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
 
 public interface SectionQuestionHandler {
 
@@ -47,8 +49,14 @@ public interface SectionQuestionHandler {
     default void updateExamQuestion(ExamSectionQuestion sectionQuestion, Question question) {
         sectionQuestion.setQuestion(question);
         sectionQuestion.setMaxScore(question.getDefaultMaxScore());
-        sectionQuestion.setAnswerInstructions(question.getDefaultAnswerInstructions());
-        sectionQuestion.setEvaluationCriteria(question.getDefaultEvaluationCriteria());
+        String answerInstructions = question.getDefaultAnswerInstructions();
+        sectionQuestion.setAnswerInstructions(
+                answerInstructions == null ? null : Jsoup.clean(answerInstructions, Whitelist.relaxed())
+        );
+        String evaluationCriteria = question.getDefaultEvaluationCriteria();
+        sectionQuestion.setEvaluationCriteria(
+                evaluationCriteria == null ? null : Jsoup.clean(evaluationCriteria, Whitelist.relaxed())
+        );
         sectionQuestion.setEvaluationType(question.getDefaultEvaluationType());
         sectionQuestion.setExpectedWordCount(question.getDefaultExpectedWordCount());
         updateOptions(sectionQuestion, question);
