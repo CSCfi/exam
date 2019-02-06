@@ -15,6 +15,7 @@
 
 import angular from 'angular';
 import toast from 'toastr';
+import _ from 'lodash';
 
 angular.module('app.exam')
     .service('Exam', ['$translate', '$q', '$location', '$http', 'ExamRes', 'Question', 'Session', 'dialogs',
@@ -178,10 +179,11 @@ angular.module('app.exam')
                 return name;
             };
 
-            self.refreshGradeScales = function () {
+            self.refreshGradeScales = function (isCollaborative) {
                 const deferred = $q.defer();
-                ExamRes.gradeScales.query(function (scales) {
-                    return deferred.resolve(scales.map(function (scale) {
+                const url = isCollaborative ? '/integration/iop/gradescales' : '/app/gradescales';
+                $http.get(url).then(resp => {
+                    return deferred.resolve(resp.data.map(function (scale) {
                         scale.name = self.getScaleDisplayName(scale);
                         return scale;
                     }));
@@ -394,7 +396,7 @@ angular.module('app.exam')
             }
 
             self.hasCustomCredit = (exam) => {
-                return !isNaN(exam.customCredit) && exam.customCredit >= 0;
+                return _.isNumber(exam.customCredit) && exam.customCredit >= 0;
             }
 
             self.getExamDisplayCredit = (exam) => {

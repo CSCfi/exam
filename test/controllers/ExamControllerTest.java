@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Ebean;
 import backend.models.Exam;
-import backend.models.ExamSection;
+import backend.models.sections.ExamSection;
 import backend.models.ExamType;
 import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
@@ -100,7 +100,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(draft.getExamSections().size()).isEqualTo(1);
         ExamSection section = draft.getExamSections().iterator().next();
         assertThat(section.getName()).isNull();
-        assertThat(section.getExpanded()).isTrue();
+        assertThat(section.isExpanded()).isTrue();
         assertThat(draft.getExamLanguages().size()).isEqualTo(1);
         assertThat(draft.getExamLanguages().get(0).getCode()).isEqualTo("fi");
         assertThat(draft.getExamType().getId()).isEqualTo(2);

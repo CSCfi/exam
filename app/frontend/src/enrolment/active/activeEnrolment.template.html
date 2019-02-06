@@ -196,9 +196,56 @@
                 </div>
 
             </div>
+
             <div class="student-exam-row-infobox" ng-show="$ctrl.showInstructions">
                 {{ $ctrl.enrolment.exam.enrollInstruction || $ctrl.enrolment.collaborativeExam.enrollInstruction }}
             </div>
         </div>
+        <div class="student-exam-row" ng-if="$ctrl.enrolment.reservation.optionalSections.length > 0">
+            <div class="student-exam-row-infolink">
+                <a class="infolink pointer" ng-click="$ctrl.showMaterials = !$ctrl.showMaterials">
+                    {{ 'sitnet_optional_materials_selected' | translate}}
+                    <img class="arrow_icon" ng-hide="$ctrl.showMaterials" alt="show materials" src="Images/arrow_right.png">
+                    <img class="arrow_icon" ng-show="$ctrl.showMaterials" alt="hide materials" src="Images/arrow_down.png">
+                </a>
+                <div class="student-exam-row-infobox" ng-if="$ctrl.enrolment.reservation.optionalSections.length > 0"
+                    ng-show="$ctrl.showMaterials">
+                    <div ng-repeat="section in $ctrl.enrolment.reservation.optionalSections" class="marb20">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <strong>{{ 'sitnet_exam_section' | translate}}:</strong> {{ section.name }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {{ section.description }}
+                            </div>
+                        </div>
+                        <div ng-if="section.examMaterials.length > 0">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <strong>{{'sitnet_exam_materials' | translate}}</strong>
+                                </div>
+                            </div>
+                            <div ng-repeat="material in section.examMaterials">
+                                <div class="row">
+                                    <span class="col-md-12">
+                                        {{'sitnet_name' | translate | uppercase}}: {{ material.name }}
+                                        <span ng-if="material.author">
+                                            {{'sitnet_author' | translate | uppercase}}: {{ material.author }}
+                                        </span>
+                                        <span ng-if="material.isbn">
+                                            ISBN: {{ material.isbn }}
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 </div>

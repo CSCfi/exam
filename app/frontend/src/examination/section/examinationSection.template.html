@@ -17,6 +17,16 @@
                         <img src="Images/icon_info.svg" alt="info-icon" onerror="this.onerror=null;this.src='Images/icon_info.png';" />
                         <span class="padl10">{{$ctrl.section.description}}</span>
                     </div>
+                    <div ng-repeat="material in $ctrl.section.examMaterials" class="col-md-12 info-row mart10">
+                        <i class="text-muted fa fa-book" alt="exam materials"></i>
+                        <span style="padding-left: 15px">{{ material.name }}</span>
+                        <span ng-if="material.author">
+                            ({{ material.author }})
+                        </span>
+                        <span ng-if="material.isbn">
+                            <small>[ISBN: {{ material.isbn }}]</small>
+                        </span>
+                    </div>
 
                     <div ng-repeat="sq in $ctrl.section.sectionQuestions | orderBy: 'sequenceNumber'">
                         <examination-question sq="sq" exam="$ctrl.exam" section="$ctrl.section" is-preview="$ctrl.isPreview"

@@ -15,16 +15,15 @@
 
 package backend.controllers;
 
-import backend.controllers.base.BaseController;
-import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
-import backend.models.ExamSectionQuestionOption;
-import backend.models.Tag;
-import backend.models.User;
-import backend.models.questions.MultipleChoiceOption;
-import backend.models.questions.Question;
-import backend.sanitizers.SanitizingHelper;
-import backend.util.AppUtil;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import javax.persistence.PersistenceException;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -41,14 +40,16 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
 
-import javax.persistence.PersistenceException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import backend.controllers.base.BaseController;
+import backend.models.Exam;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
+import backend.models.Tag;
+import backend.models.User;
+import backend.models.questions.MultipleChoiceOption;
+import backend.models.questions.Question;
+import backend.sanitizers.SanitizingHelper;
+import backend.util.AppUtil;
 
 public class QuestionController extends BaseController {
 
@@ -94,6 +95,18 @@ public class QuestionController extends BaseController {
         return ok(questions, pp);
     }
 
+    private Optional<Question> getQuestionOfUser(ExpressionList<Question> expr, User user) {
+        if (user.hasRole("TEACHER", getSession())) {
+            return expr.disjunction()
+                    .eq("shared", true)
+                    .eq("questionOwners", user)
+                    .eq("examSectionQuestions.examSection.exam.examOwners", user)
+                    .endJunction()
+                    .findOneOrEmpty();
+        }
+        return expr.findOneOrEmpty();
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getQuestion(Long id) {
         User user = getLoggedUser();
@@ -103,19 +116,14 @@ public class QuestionController extends BaseController {
                 "examSectionQuestions(id, examSection(name, exam(name, state))))");
         pp.apply(query);
         ExpressionList<Question> expr = query.where().idEq(id);
-        if (user.hasRole("TEACHER", getSession())) {
-            expr = expr.disjunction()
-                    .eq("shared", true)
-                    .eq("questionOwners", user)
-                    .eq("examSectionQuestions.examSection.exam.examOwners", user)
-                    .endJunction();
-        }
-        Question question = expr.findOne();
-        if (question == null) {
+        Optional<Question> optionalQuestion = getQuestionOfUser(expr, user);
+        if (optionalQuestion.isPresent()) {
+            Question q = optionalQuestion.get();
+            Collections.sort(q.getOptions());
+            return ok(q, pp);
+        } else {
             return forbidden("sitnet_error_access_forbidden");
         }
-        Collections.sort(question.getOptions());
-        return ok(question, pp);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -315,17 +323,21 @@ public class QuestionController extends BaseController {
                 .forEach(o -> createOption(question, o));
     }
 
+    private void saveOption(MultipleChoiceOption option, Question question, boolean correctOption) {
+        option.setCorrectOption(correctOption);
+        question.getOptions().add(option);
+        AppUtil.setModifier(question, getLoggedUser());
+        question.save();
+        option.save();
+    }
+
     private void createOption(Question question, JsonNode node) {
         MultipleChoiceOption option = new MultipleChoiceOption();
         option.setOption(SanitizingHelper.parse("option", node, String.class).orElse(null));
         String scoreFieldName = node.has("defaultScore") ? "defaultScore" : "score";
         option.setDefaultScore(round(SanitizingHelper.parse(scoreFieldName, node, Double.class).orElse(null)));
         Boolean correctOption = SanitizingHelper.parse("correctOption", node, Boolean.class, false);
-        option.setCorrectOption(correctOption);
-        question.getOptions().add(option);
-        AppUtil.setModifier(question, getLoggedUser());
-        question.save();
-        option.save();
+        saveOption(option, question, correctOption);
         propagateOptionCreationToExamQuestions(question, null, option);
     }
 
@@ -335,11 +347,7 @@ public class QuestionController extends BaseController {
         option.setOption(SanitizingHelper.parse("option", baseOptionNode, String.class).orElse(null));
         option.setDefaultScore(round(SanitizingHelper.parse("score", node, Double.class).orElse(null)));
         Boolean correctOption = SanitizingHelper.parse("correctOption", baseOptionNode, Boolean.class, false);
-        option.setCorrectOption(correctOption);
-        question.getOptions().add(option);
-        AppUtil.setModifier(question, getLoggedUser());
-        question.save();
-        option.save();
+        saveOption(option, question, correctOption);
         propagateOptionCreationToExamQuestions(question, esq, option);
     }
 

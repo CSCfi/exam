@@ -39,7 +39,7 @@ import backend.controllers.base.BaseController;
 import backend.models.Attachment;
 import backend.models.Comment;
 import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestion;
 import backend.models.LanguageInspection;
 import backend.models.Role;
 import backend.models.User;

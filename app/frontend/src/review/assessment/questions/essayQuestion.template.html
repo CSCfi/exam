@@ -88,10 +88,10 @@
                     <span ng-if="$ctrl.sectionQuestion.evaluationType === 'Selection'">
                         <select class="form-control" ng-model="$ctrl.sectionQuestion.essayAnswer.evaluatedScore"
                             ng-change="$ctrl.insertEssayScore()" ng-disabled="!$ctrl.isScorable">
-                            <option value="1" ng-selected="$ctrl.sectionQuestion.essayAnswer.evaluatedScore == 1">
+                            <option ng-value="1" ng-selected="$ctrl.sectionQuestion.essayAnswer.evaluatedScore === 1">
                                 {{ 'sitnet_approved' | translate }}
                             </option>
-                            <option value="0" ng-selected="$ctrl.sectionQuestion.essayAnswer.evaluatedScore == 0">
+                            <option ng-value="0" ng-selected="$ctrl.sectionQuestion.essayAnswer.evaluatedScore === 0">
                                 {{ 'sitnet_rejected' | translate }}
                             </option>
                         </select>

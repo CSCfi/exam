@@ -29,13 +29,12 @@ import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
 import akka.actor.ActorSystem;
-
-import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import org.joda.time.DateTime;
@@ -49,13 +48,22 @@ import scala.concurrent.duration.Duration;
 import backend.controllers.base.ActionMethod;
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
+import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.impl.AutoEvaluationHandler;
 import backend.impl.EmailComposer;
-import backend.models.*;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamInspection;
+import backend.models.ExamParticipation;
+import backend.models.ExamRoom;
+import backend.models.GeneralSettings;
+import backend.models.User;
 import backend.models.json.CollaborativeExam;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
 import backend.system.interceptors.ExamActionRouter;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.AppUtil;
@@ -86,22 +94,38 @@ public class StudentExamController extends BaseController {
         this.externalAttachmentLoader = externalAttachmentLoader;
     }
 
+    private Optional<CollaborativeExam> getCollaborativeExam(String hash) {
+        Optional<CollaborativeExam> ce = Ebean.find(CollaborativeExam.class).where().eq("hash", hash)
+                .findOneOrEmpty();
+        if (ce.isPresent()) {
+            return ce;
+        }
+        Optional<Exam> exam = Ebean.find(Exam.class).where().eq("hash", hash).findOneOrEmpty();
+        if (exam.isPresent()) {
+            if (!exam.get().getExamEnrolments().isEmpty()) {
+                CollaborativeExam ce2 = exam.get().getExamEnrolments().get(0).getCollaborativeExam();
+                return ce2 == null ? Optional.empty() : Optional.of(ce2);
+            }
+        }
+        return ce;
+    }
+
     @ActionMethod
     @Transactional
     @ExamActionRouter
     public CompletionStage<Result> startExam(String hash) throws IOException {
         User user = getLoggedUser();
         String clientIp = request().remoteAddress();
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class).where().eq("hash", hash).findOne();
-
+        Optional<CollaborativeExam> oce = getCollaborativeExam(hash);
+        CollaborativeExam ce = oce.orElse(null);
         return getPrototype(hash, ce).thenApplyAsync(optionalPrototype -> {
-            Exam possibleClone = getPossibleClone(hash, user);
+            Optional<Exam> possibleClone = getPossibleClone(hash, user, ce);
             // no exam found for hash
-            if (!optionalPrototype.isPresent() && possibleClone == null) {
+            if (!optionalPrototype.isPresent() && !possibleClone.isPresent()) {
                 return notFound();
             }
-            // Exam not started yet, create new exam for student
-            if (possibleClone == null) {
+            if (!possibleClone.isPresent()) {
+                // Exam not started yet, create new exam for student
                 Exam prototype = optionalPrototype.get();
                 ExamEnrolment enrolment = getEnrolment(user, prototype, ce);
                 Optional<Result> error = getEnrolmentError(enrolment, clientIp);
@@ -122,14 +146,15 @@ public class StudentExamController extends BaseController {
                 return ok(newExam, getPath(false));
             } else {
                 // Exam started already
+                Exam clone = possibleClone.get();
                 // sanity check
-                if (possibleClone.getState() != Exam.State.STUDENT_STARTED) {
+                if (clone.getState() != Exam.State.STUDENT_STARTED) {
                     return forbidden();
                 }
-                possibleClone.setCloned(false);
-                possibleClone.setDerivedMaxScores();
-                processClozeTestQuestions(possibleClone);
-                return ok(possibleClone, getPath(false));
+                clone.setCloned(false);
+                clone.setDerivedMaxScores();
+                processClozeTestQuestions(clone);
+                return ok(clone, getPath(false));
             }
         });
     }
@@ -292,18 +317,22 @@ public class StudentExamController extends BaseController {
         return CompletableFuture.supplyAsync(() -> Optional.of(exam));
     }
 
-    private static Exam getPossibleClone(String hash, User user) {
-        // TODO: more checks needed for collaborative exam
-        return createQuery().where()
+    private static Optional<Exam> getPossibleClone(String hash, User user, CollaborativeExam ce) {
+        ExpressionList<Exam> query = createQuery().where()
                 .eq("hash", hash)
-                .eq("creator", user)
-                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
-                .findOne();
+                .eq("creator", user);
+        if (ce == null) {
+            query = query.isNotNull("parent");
+        }
+        return query.orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber").findOneOrEmpty();
+
     }
 
     private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
         boolean isCollaborative = enrolment.getCollaborativeExam() != null;
-        Exam studentExam = prototype.copyForStudent(user, isCollaborative);
+        Set<Long> ids = enrolment.getReservation().getOptionalSections().stream()
+                .map(ExamSection::getId).collect(Collectors.toSet());
+        Exam studentExam = prototype.copyForStudent(user, isCollaborative, ids);
         studentExam.setState(Exam.State.STUDENT_STARTED);
         studentExam.setCreator(user);
         if (!isCollaborative) {
@@ -377,6 +406,7 @@ public class StudentExamController extends BaseController {
                 "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
                 "examInspections(*, user(id, firstName, lastName))" +
                 "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // ((
+                "examMaterials(name, author, isbn), " +
                 "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // (((
                 "question(id, type, question, attachment(id, fileName))" +
                 "options(id, answered, option(id, option))" +

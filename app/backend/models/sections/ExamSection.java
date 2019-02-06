@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.models;
+package backend.models.sections;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +26,9 @@ import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
@@ -34,6 +37,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.beans.BeanUtils;
 
+import backend.models.Exam;
+import backend.models.User;
 import backend.models.api.Sortable;
 import backend.models.base.OwnedModel;
 import backend.models.questions.Question;
@@ -53,17 +58,26 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
 
     private Integer sequenceNumber;
 
-    // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
-    // Are questions in this section lotteried
     @Column(columnDefinition = "boolean default false")
     private boolean lotteryOn;
+
+    @Column(columnDefinition = "boolean default false")
+    private boolean optional;
 
     private int lotteryItemCount;
 
     private String description;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "exam_section_material",
+            joinColumns = @JoinColumn(name = "exam_section_id"),
+            inverseJoinColumns = @JoinColumn(name = "exam_material_id")
+    )
+    private Set<ExamMaterial> examMaterials;
 
     public Set<ExamSectionQuestion> getSectionQuestions() {
         return sectionQuestions;
@@ -97,7 +111,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         this.sequenceNumber = sequenceNumber;
     }
 
-    public boolean getExpanded() {
+    public boolean isExpanded() {
         return expanded;
     }
 
@@ -105,12 +119,20 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         this.expanded = expanded;
     }
 
-    public boolean getLotteryOn() {
+    public boolean isLotteryOn() {
         return lotteryOn;
     }
 
     public void setLotteryOn(boolean lotteryOn) {
         this.lotteryOn = lotteryOn;
+    }
+
+    public boolean isOptional() {
+        return optional;
+    }
+
+    public void setOptional(boolean optional) {
+        this.optional = optional;
     }
 
     public int getLotteryItemCount() {
@@ -129,6 +151,14 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         this.description = description;
     }
 
+    public Set<ExamMaterial> getExamMaterials() {
+        return examMaterials;
+    }
+
+    public void setExamMaterials(Set<ExamMaterial> examMaterials) {
+        this.examMaterials = examMaterials;
+    }
+
     public void shuffleQuestions() {
         List<ExamSectionQuestion> questions = new ArrayList<>(sectionQuestions);
         Collections.shuffle(questions);
@@ -145,13 +175,22 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         return section;
     }
 
-    public ExamSection copy(Exam exam, boolean produceStudentExamSection, boolean setParents)
+    public ExamSection copy(Exam exam, boolean produceStudentExamSection, boolean setParents, User user)
     {
         ExamSection section = new ExamSection();
-        BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions");
+        BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions", "examMaterials");
         section.setExam(exam);
         for (ExamSectionQuestion esq : sectionQuestions) {
             section.getSectionQuestions().add(esq.copy(!produceStudentExamSection, setParents));
+        }
+        if (produceStudentExamSection) {
+            for (ExamMaterial em: examMaterials) {
+                ExamMaterial emCopy = em.copy(user);
+                emCopy.save();
+                section.getExamMaterials().add(emCopy);
+            }
+        } else {
+            section.setExamMaterials(examMaterials);
         }
         if (produceStudentExamSection && lotteryOn) {
             section.shuffleQuestions();
@@ -160,7 +199,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     }
 
     @Transient
-    double getTotalScore() {
+    public double getTotalScore() {
         return sectionQuestions.stream()
                 .map(ExamSectionQuestion::getAssessedScore)
                 .filter(Objects::nonNull)
@@ -168,7 +207,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     }
 
     @Transient
-    double getMaxScore() {
+    public double getMaxScore() {
         return sectionQuestions.stream()
                 .map(ExamSectionQuestion::getMaxAssessedScore)
                 .filter(Objects::nonNull)
@@ -176,14 +215,14 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     }
 
     @Transient
-    int getRejectedCount() {
+    public int getRejectedCount() {
         return sectionQuestions.stream()
                 .filter(ExamSectionQuestion::isRejected)
                 .collect(Collectors.toList()).size();
     }
 
     @Transient
-    int getApprovedCount() {
+    public int getApprovedCount() {
         return sectionQuestions.stream()
                 .filter(ExamSectionQuestion::isApproved)
                 .collect(Collectors.toList()).size();

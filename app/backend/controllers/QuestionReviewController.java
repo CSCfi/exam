@@ -17,7 +17,7 @@ package backend.controllers;
 
 import backend.controllers.base.BaseController;
 import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestion;
 import backend.models.User;
 import backend.models.base.GeneratedIdentityModel;
 import backend.models.questions.Question;

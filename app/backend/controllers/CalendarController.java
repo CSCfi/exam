@@ -123,6 +123,7 @@ public class CalendarController extends BaseController {
         DateTime start = request().attrs().get(Attrs.START_DATE);
         DateTime end = request().attrs().get(Attrs.END_DATE);
         Collection<Integer> aids = request().attrs().get(Attrs.ACCESSABILITES);
+        Collection<Long> sectionIds = request().attrs().get(Attrs.SECTION_IDS);
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
         DateTime now = DateTimeUtils.adjustDST(DateTime.now(), room);
@@ -134,6 +135,8 @@ public class CalendarController extends BaseController {
             Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
             Optional<ExamEnrolment> optionalEnrolment = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")
+                    .fetch("exam.examSections")
+                    .fetch("exam.examSections.examMaterials")
                     .where()
                     .eq("user.id", user.getId())
                     .eq("exam.id", examId)
@@ -151,24 +154,28 @@ public class CalendarController extends BaseController {
             if (badEnrolment.isPresent()) {
                 return wrapAsPromise(badEnrolment.get());
             }
+
+
             Optional<ExamMachine> machine =
                     calendarHandler.getRandomMachine(room, enrolment.getExam(), start, end, aids);
             if (!machine.isPresent()) {
                 return wrapAsPromise(forbidden("sitnet_no_machines_available"));
             }
 
+            // Check that the proposed reservation is (still) doable
+            Reservation proposedReservation = new Reservation();
+            proposedReservation.setStartAt(start);
+            proposedReservation.setEndAt(end);
+            proposedReservation.setMachine(machine.get());
+            proposedReservation.setUser(user);
+            proposedReservation.setEnrolment(enrolment);
+            if (!calendarHandler.isDoable(proposedReservation, aids)) {
+                return wrapAsPromise(forbidden("sitnet_no_machines_available"));
+            }
+
             // We are good to go :)
             Reservation oldReservation = enrolment.getReservation();
-            Reservation reservation = new Reservation();
-            reservation.setEndAt(end);
-            reservation.setStartAt(start);
-            reservation.setMachine(machine.get());
-            reservation.setUser(user);
-
-            // If this is due in less than a day, make sure we won't send a reminder
-            if (start.minusDays(1).isBeforeNow()) {
-                reservation.setReminderSent(true);
-            }
+            Reservation reservation = calendarHandler.createReservation(start, end, machine.get(), user, sectionIds);
 
             // Nuke the old reservation if any
             if (oldReservation != null) {

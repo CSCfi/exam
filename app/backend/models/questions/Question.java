@@ -39,7 +39,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 import backend.models.Attachment;
-import backend.models.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestion;
 import backend.models.Tag;
 import backend.models.User;
 import backend.models.api.AttachmentContainer;

@@ -894,5 +894,14 @@
   "sitnet_anonymous_review": "Anonyymi arviointi",
   "sitnet_collaborative_exam_responses": "Yhteistenttien suoritukset",
   "sitnet_collaborative_exam_response_search_description": "Voit hakea yhteistenttien suorituksia tentin nimen mukaan.",
-  "sitnet_error_ip_address_exists_for_room": "IP-osoite on jo käytössä"
+  "sitnet_error_ip_address_exists_for_room": "IP-osoite on jo käytössä",
+  "sitnet_exam_materials": "Tenttimateriaali",
+  "sitnet_exam_material_description": "Tenttimateriaali, johon aihealueen kysymykset perustuvat.",
+  "sitnet_modify_materials": "Hallinnoi tenttimateriaaleja",
+  "sitnet_optional_section": "Vapaavalintainen aihealue",
+  "sitnet_optional_section_description": "Opiskelija voi valita tenttiikö hän vapaavalintaisen aihealueen",
+  "sitnet_search_by_name": "Hae nimen perusteella",
+  "sitnet_author": "Tekijä",
+  "sitnet_select_optional_section": "Haluan suorittaa aihealueen",
+  "sitnet_optional_materials_selected": "Valitut vapaaehtoiset sisällöt"
 }

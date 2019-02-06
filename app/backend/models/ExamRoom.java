@@ -342,7 +342,7 @@ public class ExamRoom extends GeneratedIdentityModel {
     private List<OpeningHours> getDefaultWorkingHours(LocalDate date) {
         String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
         List<OpeningHours> hours = new ArrayList<>();
-        defaultWorkingHours.stream().filter(dwh -> dwh.getWeekday().equalsIgnoreCase(day)).collect(Collectors.toList()).forEach(dwh -> {
+        defaultWorkingHours.stream().filter(dwh -> dwh.getWeekday().equalsIgnoreCase(day)).forEach(dwh -> {
             DateTime midnight = date.toDateTimeAtStartOfDay();
             DateTime start = midnight.withMillisOfDay(DateTimeUtils
                     .resolveStartWorkingHourMillis(new DateTime(dwh.getStartTime()), dwh.getTimezoneOffset()));

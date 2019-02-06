@@ -199,7 +199,7 @@ export const BasicExamInfoComponent: ng.IComponentOptions = {
         }
 
         private refreshGradeScales = () => {
-            this.Exam.refreshGradeScales().then((scales: GradeScale[]) => {
+            this.Exam.refreshGradeScales(this.collaborative).then((scales: GradeScale[]) => {
                 this.gradeScales = scales;
             });
         }

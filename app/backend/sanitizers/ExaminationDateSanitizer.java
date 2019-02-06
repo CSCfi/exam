@@ -15,30 +15,15 @@
 
 package backend.sanitizers;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
-import play.Logger;
 import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.Results;
 
-public class ExaminationDateSanitizer extends play.mvc.Action.Simple {
+public class ExaminationDateSanitizer extends BaseSanitizer {
 
-    public CompletionStage<Result> call(Http.Context ctx) {
-        JsonNode body = ctx.request().body().asJson();
-        try {
-            return delegate.call(ctx.withRequest(sanitize(ctx, body)));
-        } catch (SanitizingException e) {
-            Logger.error("Sanitizing error: " + e.getMessage(), e);
-            return CompletableFuture.supplyAsync(Results::badRequest);
-        }
-    }
-
-    private Http.Request sanitize(Http.Context ctx, JsonNode body) throws SanitizingException {
+    @Override
+    protected Http.Request sanitize(Http.Context ctx, JsonNode body) throws SanitizingException {
         if (body.has("date")) {
             LocalDate date = LocalDate.parse(body.get("date").asText(), DateTimeFormat.forPattern("dd/MM/yy"));
             return ctx.request().addAttr(Attrs.DATE, date);

@@ -33,8 +33,14 @@ public interface CalendarHandler {
     LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException;
     Optional<ExamMachine> getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end,
                                            Collection<Integer> aids);
+    Reservation createReservation(DateTime start, DateTime end, ExamMachine machine, User user,
+                                  Collection<Long> sectionIds);
+    LocalDate getEndSearchDate(LocalDate searchDate, LocalDate examEnd);
+    int getReservationWindowSize();
+    boolean isDoable(Reservation reservation, Collection<Integer> aids);
 
     class TimeSlot {
+        private final Interval interval;
         private final String start;
         private final String end;
         private final int availableMachines;
@@ -42,11 +48,16 @@ public interface CalendarHandler {
         private final String conflictingExam;
 
         public TimeSlot(Interval interval, int machineCount, String exam) {
+            this.interval = interval;
             start = ISODateTimeFormat.dateTime().print(interval.getStart());
             end = ISODateTimeFormat.dateTime().print(interval.getEnd());
             availableMachines = machineCount;
             ownReservation = machineCount < 0;
             conflictingExam = exam;
+        }
+
+        Interval getInterval() {
+            return interval;
         }
 
         public String getStart() {

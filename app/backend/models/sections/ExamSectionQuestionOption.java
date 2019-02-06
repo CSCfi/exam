@@ -13,17 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.models;
-
-import backend.models.base.GeneratedIdentityModel;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import backend.models.questions.MultipleChoiceOption;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+package backend.models.sections;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import backend.models.base.GeneratedIdentityModel;
+import backend.models.questions.MultipleChoiceOption;
 
 
 @Entity

@@ -254,6 +254,8 @@ public class StudentActionsController extends CollaborationController {
                 .fetch("exam.examInspections.user", "firstName, lastName")
                 .fetch("reservation", "startAt, endAt, externalRef")
                 .fetch("reservation.externalReservation")
+                .fetch("reservation.optionalSections")
+                .fetch("reservation.optionalSections.examMaterials")
                 .fetch("reservation.machine", "name")
                 .fetch("reservation.machine.room", "name, roomCode, localTimezone, " +
                         "roomInstruction, roomInstructionEN, roomInstructionSV")
@@ -304,7 +306,10 @@ public class StudentActionsController extends CollaborationController {
 
     @ActionMethod
     public Result getExamInfo(Long eid) {
-        Exam exam = Ebean.find(Exam.class).fetch("course", "code, name")
+        Exam exam = Ebean.find(Exam.class)
+                .fetch("course", "code, name")
+                .fetch("examSections")
+                .fetch("examSections.examMaterials")
                 .where()
                 .idEq(eid)
                 .eq("state", Exam.State.PUBLISHED)

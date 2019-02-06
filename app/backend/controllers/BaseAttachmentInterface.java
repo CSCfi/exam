@@ -31,7 +31,7 @@ import play.mvc.Result;
 
 import backend.models.Attachment;
 import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestion;
 import backend.util.file.ChunkMaker;
 
 import static play.mvc.Results.ok;

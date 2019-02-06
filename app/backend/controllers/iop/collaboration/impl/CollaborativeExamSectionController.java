@@ -34,8 +34,8 @@ import play.mvc.Result;
 
 import backend.controllers.base.SectionQuestionHandler;
 import backend.models.Exam;
-import backend.models.ExamSection;
-import backend.models.ExamSectionQuestion;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
 import backend.models.Role;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
@@ -142,8 +142,8 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 ).get();
 
                 es.setName(form.getName());
-                es.setExpanded(form.getExpanded());
-                es.setLotteryOn(form.getLotteryOn());
+                es.setExpanded(form.isExpanded());
+                es.setLotteryOn(form.isLotteryOn());
                 es.setLotteryItemCount(Math.max(1, form.getLotteryItemCount()));
                 es.setDescription(form.getDescription());
                 return Optional.empty();

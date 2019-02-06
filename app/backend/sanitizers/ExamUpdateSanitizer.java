@@ -15,36 +15,23 @@
 
 package backend.sanitizers;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Optional;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import org.joda.time.DateTime;
+import play.mvc.Http;
+
 import backend.models.AutoEvaluationConfig;
 import backend.models.Exam;
 import backend.models.Grade;
 import backend.models.GradeEvaluation;
-import org.joda.time.DateTime;
-import play.Logger;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.Results;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+public class ExamUpdateSanitizer extends BaseSanitizer {
 
-public class ExamUpdateSanitizer extends play.mvc.Action.Simple {
-
-    public CompletionStage<Result> call(Http.Context ctx) {
-        JsonNode body = ctx.request().body().asJson();
-        try {
-            return delegate.call(ctx.withRequest(sanitize(ctx, body)));
-        } catch (SanitizingException e) {
-            Logger.error("Sanitizing error: " + e.getMessage(), e);
-            return CompletableFuture.supplyAsync(Results::badRequest);
-        }
-    }
-
-    private Http.Request sanitize(Http.Context ctx, JsonNode body) throws SanitizingException {
+    @Override
+    protected Http.Request sanitize(Http.Context ctx, JsonNode body) throws SanitizingException {
         Http.Request request = ctx.request();
         Optional<Long> start = SanitizingHelper.parse("examActiveStartDate", body, Long.class);
         Optional<Long> end = SanitizingHelper.parse("examActiveEndDate", body, Long.class);

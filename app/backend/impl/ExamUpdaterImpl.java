@@ -23,6 +23,7 @@ import scala.concurrent.duration.Duration;
 import backend.models.*;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.util.config.ConfigUtil;
 
@@ -252,7 +253,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
                     questionsToHide.add(esq.getQuestion());
                 });
         questionsToHide.forEach(q -> q.setQuestion(null));
-        exam.getExamSections().stream().filter(ExamSection::getLotteryOn).forEach(ExamSection::shuffleQuestions);
+        exam.getExamSections().stream().filter(ExamSection::isLotteryOn).forEach(ExamSection::shuffleQuestions);
         exam.setDerivedMaxScores();
     }
 
@@ -320,7 +321,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
 
     private boolean isNonRestrictingValidityChange(DateTime newDate, Exam exam, boolean isStartDate) {
         DateTime oldDate = isStartDate ? exam.getExamActiveStartDate() : exam.getExamActiveEndDate();
-        return isStartDate ? oldDate.isAfter(newDate) : newDate.isAfter(oldDate);
+        return isStartDate ? !oldDate.isBefore(newDate) : !newDate.isBefore(oldDate);
     }
 
     private void updateGrading(Exam exam, int grading) {
