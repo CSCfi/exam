@@ -49,6 +49,11 @@ public class ReservationReminderActor extends AbstractActor {
             DateTime now = DateTimeUtils.adjustDST(DateTime.now());
             DateTime tomorrow = now.plusDays(1);
             Ebean.find(Reservation.class)
+                    .fetch("optionalSections")
+                    .fetch("optionalSections.examMaterials")
+                    .fetch("enrolment")
+                    .fetch("enrolment.exam.examSections")
+                    .fetch("enrolment.exam.examSections.examMaterials")
                     .where()
                     .between("startAt", now, tomorrow)
                     .ne("reminderSent", true)

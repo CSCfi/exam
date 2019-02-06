@@ -22,6 +22,9 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
 import backend.util.json.JsonDeserializer;
 
 import java.io.File;

@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.models;
+package backend.models.sections;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;

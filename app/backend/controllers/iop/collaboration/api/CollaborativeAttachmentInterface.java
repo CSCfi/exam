@@ -49,7 +49,7 @@ import backend.controllers.BaseAttachmentInterface;
 import backend.models.Attachment;
 import backend.models.Comment;
 import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestion;
 import backend.models.User;
 import backend.models.api.AttachmentContainer;
 import backend.models.questions.EssayAnswer;

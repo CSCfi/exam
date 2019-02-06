@@ -38,7 +38,7 @@ import play.test.Helpers;
 
 import backend.models.Attachment;
 import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestion;
 import backend.models.json.CollaborativeExam;
 import backend.models.questions.EssayAnswer;
 
