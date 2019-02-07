@@ -16,10 +16,10 @@
 package backend.models;
 
 
-import io.ebean.Model;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
+
+import io.ebean.Model;
 
 @Entity
 public class ExamExecutionType extends Model {
@@ -29,6 +29,7 @@ public class ExamExecutionType extends Model {
     @Id
     private Integer id;
     private String type;
+    private boolean active;
 
     public Integer getId() {
         return id;
@@ -46,4 +47,11 @@ public class ExamExecutionType extends Model {
         this.type = type;
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }
