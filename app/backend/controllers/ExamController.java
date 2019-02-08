@@ -244,7 +244,10 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result getExamExecutionTypes() {
-        List<ExamExecutionType> types = Ebean.find(ExamExecutionType.class).findList();
+        List<ExamExecutionType> types = Ebean.find(ExamExecutionType.class)
+                .where()
+                .ne("active", false)
+                .findList();
         return ok(types);
     }
 

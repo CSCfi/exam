@@ -42,6 +42,7 @@ import backend.models.User;
 import backend.models.api.Sortable;
 import backend.models.base.OwnedModel;
 import backend.models.questions.Question;
+import backend.util.AppUtil;
 
 @Entity
 public final class ExamSection extends OwnedModel implements Comparable<ExamSection>, Sortable {
@@ -181,7 +182,10 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions", "examMaterials");
         section.setExam(exam);
         for (ExamSectionQuestion esq : sectionQuestions) {
-            section.getSectionQuestions().add(esq.copy(!produceStudentExamSection, setParents));
+            ExamSectionQuestion esqCopy = esq.copy(!produceStudentExamSection, setParents);
+            AppUtil.setCreator(esqCopy, user);
+            AppUtil.setModifier(esqCopy, user);
+            section.getSectionQuestions().add(esqCopy);
         }
         if (produceStudentExamSection) {
             for (ExamMaterial em: examMaterials) {
