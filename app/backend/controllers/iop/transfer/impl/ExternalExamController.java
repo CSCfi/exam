@@ -15,29 +15,23 @@
 
 package backend.controllers.iop.transfer.impl;
 
-import backend.controllers.SettingsController;
-import backend.controllers.StudentExamController;
-import backend.controllers.base.BaseController;
-import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
-import backend.controllers.iop.transfer.api.ExternalExamAPI;
-import backend.impl.AutoEvaluationHandler;
-import backend.impl.NoShowHandler;
-import backend.models.Attachment;
-import backend.models.AutoEvaluationConfig;
-import backend.models.Exam;
-import backend.models.ExamEnrolment;
-import backend.models.ExamInspection;
-import backend.models.ExamParticipation;
-import backend.models.sections.ExamSection;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
-import backend.models.GeneralSettings;
-import backend.models.Reservation;
-import backend.models.User;
-import backend.models.json.ExternalExam;
-import backend.models.questions.Question;
-import backend.util.AppUtil;
-import backend.util.json.JsonDeserializer;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import javax.inject.Inject;
+
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,21 +49,29 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 
-import javax.inject.Inject;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
+import backend.controllers.SettingsController;
+import backend.controllers.StudentExamController;
+import backend.controllers.base.BaseController;
+import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
+import backend.controllers.iop.transfer.api.ExternalExamAPI;
+import backend.impl.AutoEvaluationHandler;
+import backend.impl.NoShowHandler;
+import backend.models.Attachment;
+import backend.models.AutoEvaluationConfig;
+import backend.models.Exam;
+import backend.models.ExamEnrolment;
+import backend.models.ExamInspection;
+import backend.models.ExamParticipation;
+import backend.models.GeneralSettings;
+import backend.models.Reservation;
+import backend.models.User;
+import backend.models.json.ExternalExam;
+import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
+import backend.util.AppUtil;
+import backend.util.json.JsonDeserializer;
 
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {
@@ -113,8 +115,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             inspection.setExam(clone);
             inspection.save();
         }
-        Set<ExamSection> sections = new TreeSet<>();
-        sections.addAll(src.getExamSections());
+        Set<ExamSection> sections = new TreeSet<>(src.getExamSections());
         for (ExamSection es : sections) {
             ExamSection esCopy = es.copyWithAnswers(clone);
             AppUtil.setCreator(esCopy, user);
@@ -137,10 +138,11 @@ public class ExternalExamController extends BaseController implements ExternalEx
     @SubjectNotPresent
     @Transactional
     public CompletionStage<Result> addExamForAssessment(String ref) throws IOException {
-        ExamEnrolment enrolment = getPrototype(ref);
-        if (enrolment == null) {
-            return wrapAsPromise(notFound());
+        Optional<ExamEnrolment> option = getPrototype(ref);
+        if (!option.isPresent()) {
+            return CompletableFuture.completedFuture(notFound());
         }
+        ExamEnrolment enrolment = option.get();
         JsonNode body = request().body().asJson();
         ExternalExam ee = JsonDeserializer.deserialize(ExternalExam.class, body);
         if (ee == null) {
@@ -194,10 +196,11 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @SubjectNotPresent
     public CompletionStage<Result> provideEnrolment(String ref) {
-        ExamEnrolment enrolment = getPrototype(ref);
-        if (enrolment == null) {
+        Optional<ExamEnrolment> option = getPrototype(ref);
+        if (!option.isPresent()) {
             return CompletableFuture.completedFuture(notFound());
         }
+        ExamEnrolment enrolment = option.get();
         final Exam exam = enrolment.getExam();
         final List<CompletableFuture<Void>> futures = new ArrayList<>();
         if (exam.getAttachment() != null) {
@@ -221,13 +224,13 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @SubjectNotPresent
     public Result addNoShow(String ref) {
-        ExamEnrolment enrolment = getPrototype(ref);
-        if (enrolment == null) {
+        return getPrototype(ref).map(e -> {
+            noShowHandler.handleNoShowAndNotify(e.getReservation());
+            return ok();
+        }).orElseGet(() -> {
             Logger.error("No reservation found with ref {}", ref);
             return notFound();
-        }
-        noShowHandler.handleNoShowAndNotify(enrolment.getReservation());
-        return ok();
+        });
     }
 
     @Override
@@ -296,13 +299,13 @@ public class ExternalExamController extends BaseController implements ExternalEx
         return query;
     }
 
-    private static ExamEnrolment getPrototype(String ref) {
+    private static Optional<ExamEnrolment> getPrototype(String ref) {
         return createQuery()
                 .where()
                 .eq("reservation.externalRef", ref)
                 .isNull("exam.parent")
                 .orderBy("exam.examSections.id, exam.examSections.sectionQuestions.sequenceNumber")
-                .findOne();
+                .findOneOrEmpty();
     }
 
     private static URL parseUrl(String format, Object... args) throws MalformedURLException {
