@@ -16,23 +16,30 @@
 
 package backend.controllers;
 
+import java.util.concurrent.CompletionStage;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import play.mvc.Http;
 import play.mvc.Result;
 
-import java.util.concurrent.CompletionStage;
+import backend.system.interceptors.Authenticated;
 
 public interface LocalAttachmentInterface extends BaseAttachmentInterface<Long> {
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     Result deleteQuestionAttachment(Long id);
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    CompletionStage<Result> downloadQuestionAttachment(Long id);
+    CompletionStage<Result> downloadQuestionAttachment(Long id, Http.Request request);
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid);
+    CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid, Http.Request request);
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid);
+    CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid, Http.Request request);
 }

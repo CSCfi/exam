@@ -24,20 +24,19 @@ import play.mvc.Result;
 import backend.models.AutoEvaluationConfig;
 import backend.models.Exam;
 import backend.models.Role;
-import backend.models.Session;
 import backend.models.User;
 
 @ImplementedBy(ExamUpdaterImpl.class)
 public interface ExamUpdater {
 
-    Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Http.Request request, Session session);
+    Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Http.Request request);
     Optional<Result> updateStateAndValidate(Exam exam, User user, Http.Request request);
-    boolean isPermittedToUpdate(Exam exam, User user, Session session);
-    boolean isAllowedToUpdate(Exam exam, User user, Session session);
+    boolean isPermittedToUpdate(Exam exam, User user);
+    boolean isAllowedToUpdate(Exam exam, User user);
     boolean isAllowedToRemove(Exam exam);
     void update(Exam exam, Http.Request request, Role.Name loginRole);
     void updateAutoEvaluationConfig(Exam exam, AutoEvaluationConfig newConfig);
-    Optional<Result> updateLanguage(Exam exam, String code, User user, Session session);
+    Optional<Result> updateLanguage(Exam exam, String code, User user);
     void preparePreview(Exam exam);
 
 }

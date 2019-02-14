@@ -16,15 +16,15 @@
 
 package backend.system.interceptors;
 
-import akka.stream.Materializer;
-import org.springframework.util.StringUtils;
-import play.mvc.Http;
-import play.mvc.Result;
-
-import javax.inject.Inject;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+
+import akka.stream.Materializer;
+import play.libs.typedmap.TypedKey;
+import play.mvc.Http;
+import play.mvc.Result;
 
 public class AnonymousJsonAction extends JsonFilterAction<Anonymous> {
 
@@ -37,15 +37,11 @@ public class AnonymousJsonAction extends JsonFilterAction<Anonymous> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public CompletionStage<Result> call(Http.Context ctx) {
-        return delegate.call(ctx).thenCompose(result -> {
+    public CompletionStage<Result> call(Http.Request request) {
+        return delegate.call(request).thenCompose(result -> {
             if (result.header(ANONYMOUS_HEADER).isPresent()) {
                 final String key = configuration.contextParamKey();
-                Set<Long> ids = null;
-                if (!StringUtils.isEmpty(key)) {
-                    ids = (Set<Long>) ctx.args.get(key);
-                }
+                Set<Long> ids = request.attrs().get(TypedKey.create(key));
                 return filterJsonResponse(result, ids, configuration.filteredProperties());
             }
             return CompletableFuture.supplyAsync(() -> result);

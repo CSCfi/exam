@@ -29,8 +29,8 @@ public class FileHandlerImpl implements FileHandler {
     }
 
     @Override
-    public void setContentType(File file, Http.Response response) {
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+    public String getContentDisposition(File file) {
+        return "attachment; filename=\"" + file.getName() + "\"";
     }
 
     @Override

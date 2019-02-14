@@ -16,9 +16,8 @@
 package backend.controllers
 
 import javax.inject.Inject
-
 import backend.impl.ExternalCourseHandler
-import backend.models.{Course, Session, User}
+import backend.models.{Course, Role, Session, User}
 import backend.system.Authenticator
 import backend.util.scala.JsonResponder
 import io.ebean.Ebean
@@ -62,7 +61,7 @@ class CourseController @Inject()(externalApi: ExternalCourseHandler, cache: Sync
   def getUserCourses(session: Session, user: User, examIds: Option[List[Long]], sectionIds: Option[List[Long]],
                      tagIds: Option[List[Long]]): Result = {
     var query = Ebean.find(classOf[Course]).where.isNotNull("name")
-    if (!user.hasRole("ADMIN", session)) {
+    if (!user.hasRole(Role.Name.ADMIN)) {
       query = query
         .eq("exams.examOwners", user)
     }

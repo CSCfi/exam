@@ -16,9 +16,11 @@
 
 package backend.controllers;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Base64;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -27,46 +29,59 @@ import akka.util.ByteString;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.models.Attachment;
 import backend.models.Exam;
 import backend.models.sections.ExamSectionQuestion;
+import backend.system.interceptors.Authenticated;
 import backend.util.file.ChunkMaker;
 
 import static play.mvc.Results.ok;
 
 public interface BaseAttachmentInterface<T> {
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     CompletionStage<Result> downloadExamAttachment(T id);
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    CompletionStage<Result> addAttachmentToQuestion();
+    CompletionStage<Result> addAttachmentToQuestion(Http.Request request);
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    CompletionStage<Result> addAttachmentToExam();
+    CompletionStage<Result> addAttachmentToExam(Http.Request request);
 
+    @Authenticated
     @Restrict({@Group("STUDENT")})
-    CompletionStage<Result> addAttachmentToQuestionAnswer();
+    CompletionStage<Result> addAttachmentToQuestionAnswer(Http.Request request);
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    CompletionStage<Result> deleteExamAttachment(T id);
+    CompletionStage<Result> deleteExamAttachment(T id, Http.Request request);
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    CompletionStage<Result> addFeedbackAttachment(T id);
+    CompletionStage<Result> addFeedbackAttachment(T id, Http.Request request);
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    CompletionStage<Result> downloadFeedbackAttachment(T id);
+    CompletionStage<Result> downloadFeedbackAttachment(T id, Http.Request request);
 
+    @Authenticated
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
-    CompletionStage<Result> addStatementAttachment(T id);
+    CompletionStage<Result> addStatementAttachment(T id, Http.Request request);
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    CompletionStage<Result> downloadStatementAttachment(T id);
+    CompletionStage<Result> downloadStatementAttachment(T id, Http.Request request);
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     CompletionStage<Result> deleteFeedbackAttachment(T id);
 
+    @Authenticated
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
     CompletionStage<Result> deleteStatementAttachment(T id);
 
@@ -94,5 +109,23 @@ public interface BaseAttachmentInterface<T> {
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .filter(q -> q.getId().equals(qid))
                 .findFirst().orElse(null);
+    }
+
+    class MultipartForm {
+        private Http.MultipartFormData.FilePart<File> filePart;
+        private Map<String, String[]> form;
+
+        MultipartForm(Http.MultipartFormData.FilePart<File> filePart, Map<String, String[]> form) {
+            this.filePart = filePart;
+            this.form = form;
+        }
+
+        Http.MultipartFormData.FilePart<File> getFilePart() {
+            return this.filePart;
+        }
+
+        Map<String, String[]> getForm() {
+            return this.form;
+        }
     }
 }

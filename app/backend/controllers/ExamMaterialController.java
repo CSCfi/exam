@@ -24,12 +24,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
 import org.springframework.beans.BeanUtils;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.controllers.base.SectionQuestionHandler;
 import backend.models.User;
 import backend.models.sections.ExamMaterial;
 import backend.models.sections.ExamSection;
+import backend.sanitizers.Attrs;
+import backend.system.interceptors.Authenticated;
 import backend.util.AppUtil;
 
 
@@ -43,65 +46,72 @@ public class ExamMaterialController extends QuestionController implements Sectio
         return em;
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result createMaterial() {
-        ExamMaterial em = parseFromBody(request().body().asJson());
-        User user = getLoggedUser();
+    public Result createMaterial(Http.Request request) {
+        ExamMaterial em = parseFromBody(request.body().asJson());
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         AppUtil.setCreator(em, user);
         AppUtil.setModifier(em, user);
         em.save();
         return ok(em);
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result listMaterials() {
+    public Result listMaterials(Http.Request request) {
         Set<ExamMaterial> materials = Ebean.find(ExamMaterial.class)
                 .where()
-                .eq("creator", getLoggedUser())
+                .eq("creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
                 .findSet();
         return ok(materials, PathProperties.parse("(*)"));
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result removeMaterial(Long materialId) {
+    public Result removeMaterial(Long materialId, Http.Request request) {
         ExamMaterial em = Ebean.find(ExamMaterial.class, materialId);
-        if (em == null || !em.getCreator().equals(getLoggedUser())) {
+        if (em == null || !em.getCreator().equals(request.attrs().get(Attrs.AUTHENTICATED_USER))) {
             return notFound();
         }
         Ebean.delete(ExamMaterial.class, materialId);
         return ok();
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateMaterial(Long materialId) {
+    public Result updateMaterial(Long materialId, Http.Request request) {
         ExamMaterial dst = Ebean.find(ExamMaterial.class, materialId);
-        if (dst == null || !dst.getCreator().equals(getLoggedUser())) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (dst == null || !dst.getCreator().equals(user)) {
             return notFound();
         }
-        ExamMaterial src = parseFromBody(request().body().asJson());
+        ExamMaterial src = parseFromBody(request.body().asJson());
         BeanUtils.copyProperties(src, dst, "id", "examSections", "objectVersion");
         dst.update();
         return ok();
     }
 
-    private Optional<ExamSection> getSection(Long sectionId) {
+    private Optional<ExamSection> getSection(Long sectionId, User user) {
         return Ebean.find(ExamSection.class)
                 .where()
                 .idEq(sectionId)
-                .eq("exam.examOwners", getLoggedUser())
+                .eq("exam.examOwners", user)
                 .findOneOrEmpty();
 
     }
 
-    private Optional<Result> getOwnershipError(ExamMaterial em) {
-        return em == null || !em.getCreator().equals(getLoggedUser()) ? Optional.of(notFound()) : Optional.empty();
+    private Optional<Result> getOwnershipError(ExamMaterial em, User user) {
+        return em == null || !em.getCreator().equals(user) ? Optional.of(notFound()) : Optional.empty();
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addMaterialForSection(Long sectionId, Long materialId) {
+    public Result addMaterialForSection(Long sectionId, Long materialId, Http.Request request) {
         ExamMaterial em = Ebean.find(ExamMaterial.class, materialId);
-        return getOwnershipError(em).orElseGet(() -> {
-            Optional<ExamSection> oes = getSection(sectionId);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        return getOwnershipError(em, user).orElseGet(() -> {
+            Optional<ExamSection> oes = getSection(sectionId, user);
             if (oes.isPresent()) {
                 ExamSection es = oes.get();
                 es.getExamMaterials().add(em);
@@ -112,11 +122,13 @@ public class ExamMaterialController extends QuestionController implements Sectio
         });
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result removeMaterialFromSection(Long sectionId, Long materialId) {
+    public Result removeMaterialFromSection(Long sectionId, Long materialId, Http.Request request) {
         ExamMaterial em = Ebean.find(ExamMaterial.class, materialId);
-        return getOwnershipError(em).orElseGet(() -> {
-            Optional<ExamSection> oes = getSection(sectionId);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        return getOwnershipError(em, user).orElseGet(() -> {
+            Optional<ExamSection> oes = getSection(sectionId, user);
             if (oes.isPresent()) {
                 ExamSection es = oes.get();
                 es.getExamMaterials().remove(em);

@@ -1,10 +1,10 @@
 GET           /                                                        backend.controllers.base.Index.index
 
 ############### Session interface ############
-GET           /app/checkSession                                        backend.controllers.SessionController.checkSession
-PUT           /app/extendSession                                       backend.controllers.SessionController.extendSession
-POST          /app/login                                               backend.controllers.SessionController.login
-POST          /app/logout                                              backend.controllers.SessionController.logout
+GET           /app/checkSession                                        backend.controllers.SessionController.checkSession(request: Request)
+PUT           /app/extendSession                                       backend.controllers.SessionController.extendSession(request: Request)
+POST          /app/login                                               backend.controllers.SessionController.login(request: Request)
+POST          /app/logout                                              backend.controllers.SessionController.logout(request: Request)
 
 ############### User interface ###############
 GET           /app/users/:id                                           backend.controllers.UserController.getUser(id: Long)
@@ -18,29 +18,29 @@ PUT           /app/user/lang                                           backend.c
 GET           /app/users                                               backend.controllers.UserController.findUsers(filter: java.util.Optional[String])
 POST          /app/users/:id/roles/:rname                              backend.controllers.UserController.addRole(id: Long, rname: String)
 DELETE        /app/users/:id/roles/:rname                              backend.controllers.UserController.removeRole(id: Long, rname: String)
-PUT           /app/users/:id/roles/:rname                              backend.controllers.SessionController.setLoginRole(id: Long, rname: String)
+PUT           /app/users/:id/roles/:rname                              backend.controllers.SessionController.setLoginRole(id: Long, rname: String, request: Request)
 GET           /app/students/:eid                                       backend.controllers.UserController.getUnenrolledStudents(eid: Long, q: String)
 GET           /app/permissions                                         backend.controllers.UserController.listPermissions
 POST          /app/permissions                                         backend.controllers.UserController.grantUserPermission
 DELETE        /app/permissions                                         backend.controllers.UserController.revokeUserPermission
 
 ############### Exam interface ###############
-GET           /app/exams                                               backend.controllers.ExamController.getExams(filter: java.util.Optional[String])
-POST          /app/exams                                               backend.controllers.ExamController.createExamDraft()
-GET           /app/exams/:id                                           backend.controllers.ExamController.getExam(id: Long)
-DELETE        /app/exams/:id                                           backend.controllers.ExamController.deleteExam(id: Long)
-PUT           /app/exams/:id                                           backend.controllers.ExamController.updateExam(id: Long)
-POST          /app/exams/:id                                           backend.controllers.ExamController.copyExam(id: Long)
-PUT           /app/exams/:eid/course/:cid                              backend.controllers.ExamController.updateCourse(eid: Long, cid: Long)
+GET           /app/exams                                               backend.controllers.ExamController.getExams(filter: java.util.Optional[String], request: Request)
+POST          /app/exams                                               backend.controllers.ExamController.createExamDraft(request: Request)
+GET           /app/exams/:id                                           backend.controllers.ExamController.getExam(id: Long, request: Request)
+DELETE        /app/exams/:id                                           backend.controllers.ExamController.deleteExam(id: Long, request: Request)
+PUT           /app/exams/:id                                           backend.controllers.ExamController.updateExam(id: Long, request: Request)
+POST          /app/exams/:id                                           backend.controllers.ExamController.copyExam(id: Long, request: Request)
+PUT           /app/exams/:eid/course/:cid                              backend.controllers.ExamController.updateCourse(eid: Long, cid: Long, request: Request)
 
-GET           /app/exams/:id/preview                                   backend.controllers.ExamController.getExamPreview(id: Long)
-GET           /app/reviewerexams                                       backend.controllers.ExamController.getTeachersExams
+GET           /app/exams/:id/preview                                   backend.controllers.ExamController.getExamPreview(id: Long, request: Request)
+GET           /app/reviewerexams                                       backend.controllers.ExamController.getTeachersExams(request: Request)
 
-GET           /app/examsearch                                          backend.controllers.ExamController.listExams(courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList])
+GET           /app/examsearch                                          backend.controllers.ExamController.listExams(courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList], request: Request)
 
-PUT           /app/exam/:eid/software/:sid                             backend.controllers.ExamController.updateExamSoftware(eid: Long, sid: Long)
+PUT           /app/exam/:eid/software/:sid                             backend.controllers.ExamController.updateExamSoftware(eid: Long, sid: Long, request: Request)
 
-PUT           /app/exams/:eid/language/:code                           backend.controllers.ExamController.updateExamLanguage(eid: Long, code: String)
+PUT           /app/exams/:eid/language/:code                           backend.controllers.ExamController.updateExamLanguage(eid: Long, code: String, request: Request)
 
 GET           /app/examtypes                                           backend.controllers.ExamController.getExamTypes
 GET           /app/executiontypes                                      backend.controllers.ExamController.getExamExecutionTypes
@@ -54,9 +54,9 @@ DELETE        /app/exam/:eid/owner/:uid                                backend.c
 
 ############### Exam inspection interface ###############
 GET           /app/exam/:id/inspections                                backend.controllers.ExamInspectionController.getExamInspections(id: Long)
-POST          /app/exams/:eid/inspector/:uid                           backend.controllers.ExamInspectionController.addInspection(eid: Long, uid: Long)
+POST          /app/exams/:eid/inspector/:uid                           backend.controllers.ExamInspectionController.addInspection(eid: Long, uid: Long, request: Request)
 DELETE        /app/exams/inspector/:id                                 backend.controllers.ExamInspectionController.deleteInspection(id: Long)
-PUT           /app/exams/inspection/:id                                backend.controllers.ExamInspectionController.setInspectionOutcome(id: Long)
+PUT           /app/exams/inspection/:id                                backend.controllers.ExamInspectionController.setInspectionOutcome(id: Long, request: Request)
 
 ############### Printout exam interface ###############
 POST          /app/exam/:id/examinationdate                            backend.controllers.ExaminationDateController.insertExaminationDate(id: Long)
@@ -106,29 +106,29 @@ GET           /app/student/enrolments/:eid                             backend.c
 
 ############### Section interface ###############
 
-POST          /app/exams/:eid/sections                                 backend.controllers.ExamSectionController.insertSection(eid: Long)
-DELETE        /app/exams/:eid/sections/:sid                            backend.controllers.ExamSectionController.removeSection(eid: Long, sid: Long)
-PUT           /app/exams/:eid/sections/:sid                            backend.controllers.ExamSectionController.updateSection(eid: Long, sid: Long)
-DELETE        /app/exams/:eid/sections/:sid/questions                  backend.controllers.ExamSectionController.clearQuestions(eid: Long, sid: Long)
-POST          /app/exams/:eid/sections/:sid/questions/:qid             backend.controllers.ExamSectionController.insertQuestion(eid: Long, sid: Long, qid: Long)
-POST          /app/exams/:eid/sections/:sid/questions                  backend.controllers.ExamSectionController.insertMultipleQuestions(eid: Long, sid: Long, questions: String)
-DELETE        /app/exams/:eid/sections/:sid/questions/:qid             backend.controllers.ExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long)
-PUT           /app/exams/:eid/sections/:sid/reorder                    backend.controllers.ExamSectionController.reorderSectionQuestions(eid: Long, sid: Long)
-PUT           /app/exams/:eid/reorder                                  backend.controllers.ExamSectionController.reorderSections(eid: Long)
+POST          /app/exams/:eid/sections                                 backend.controllers.ExamSectionController.insertSection(eid: Long, request: Request)
+DELETE        /app/exams/:eid/sections/:sid                            backend.controllers.ExamSectionController.removeSection(eid: Long, sid: Long, request: Request)
+PUT           /app/exams/:eid/sections/:sid                            backend.controllers.ExamSectionController.updateSection(eid: Long, sid: Long, request: Request)
+DELETE        /app/exams/:eid/sections/:sid/questions                  backend.controllers.ExamSectionController.clearQuestions(eid: Long, sid: Long, request: Request)
+POST          /app/exams/:eid/sections/:sid/questions/:qid             backend.controllers.ExamSectionController.insertQuestion(eid: Long, sid: Long, qid: Long, request: Request)
+POST          /app/exams/:eid/sections/:sid/questions                  backend.controllers.ExamSectionController.insertMultipleQuestions(eid: Long, sid: Long, questions: String, request: Request)
+DELETE        /app/exams/:eid/sections/:sid/questions/:qid             backend.controllers.ExamSectionController.removeQuestion(eid: Long, sid: Long, qid: Long, request: Request)
+PUT           /app/exams/:eid/sections/:sid/reorder                    backend.controllers.ExamSectionController.reorderSectionQuestions(eid: Long, sid: Long, request: Request)
+PUT           /app/exams/:eid/reorder                                  backend.controllers.ExamSectionController.reorderSections(eid: Long, request: Request)
 GET           /app/exams/question/:id/distribution                     backend.controllers.ExamSectionController.getQuestionDistribution(id: Long)
 
 ############### Section material interface ###############
-GET           /app/materials                                           backend.controllers.ExamMaterialController.listMaterials
-POST          /app/materials                                           backend.controllers.ExamMaterialController.createMaterial
-PUT           /app/materials/:id                                       backend.controllers.ExamMaterialController.updateMaterial(id: Long)
-DELETE        /app/materials/:id                                       backend.controllers.ExamMaterialController.removeMaterial(id: Long)
-POST          /app/materials/:id/:sid                                  backend.controllers.ExamMaterialController.addMaterialForSection(sid: Long, id: Long)
-DELETE        /app/materials/:id/:sid                                  backend.controllers.ExamMaterialController.removeMaterialFromSection(sid: Long, id: Long)
+GET           /app/materials                                           backend.controllers.ExamMaterialController.listMaterials(request: Request)
+POST          /app/materials                                           backend.controllers.ExamMaterialController.createMaterial(request: Request)
+PUT           /app/materials/:id                                       backend.controllers.ExamMaterialController.updateMaterial(id: Long, request: Request)
+DELETE        /app/materials/:id                                       backend.controllers.ExamMaterialController.removeMaterial(id: Long, request: Request)
+POST          /app/materials/:id/:sid                                  backend.controllers.ExamMaterialController.addMaterialForSection(sid: Long, id: Long, request: Request)
+DELETE        /app/materials/:id/:sid                                  backend.controllers.ExamMaterialController.removeMaterialFromSection(sid: Long, id: Long, request: Request)
 
 ############### Section question interface ##########
 
-PUT           /app/exams/:eid/sections/:sid/questions/:qid             backend.controllers.ExamSectionController.updateUndistributedExamQuestion(eid: Long, sid: Long, qid: Long)
-PUT           /app/exams/:eid/sections/:sid/questions/:qid/distributed backend.controllers.ExamSectionController.updateDistributedExamQuestion(eid: Long, sid: Long, qid: Long)
+PUT           /app/exams/:eid/sections/:sid/questions/:qid             backend.controllers.ExamSectionController.updateUndistributedExamQuestion(eid: Long, sid: Long, qid: Long, request: Request)
+PUT           /app/exams/:eid/sections/:sid/questions/:qid/distributed backend.controllers.ExamSectionController.updateDistributedExamQuestion(eid: Long, sid: Long, qid: Long, request: Request)
 
 ############### Review interface ###############
 GET           /app/reviews/:id                                         backend.controllers.ReviewController.getExamReviews(id: Long)
@@ -159,13 +159,13 @@ PUT           /app/inspection/:id/statement                            backend.c
 GET           /app/enrolments                                          backend.controllers.EnrolmentController.enrollExamList(code: String)
 GET           /app/enrolments/reservation/:id                          backend.controllers.EnrolmentController.enrolmentsByReservation(id: Long)
 GET           /app/enrolments/:id                                      backend.controllers.EnrolmentController.enrollExamInfo(code: String, id: Long)
-POST          /app/enrolments/:id                                      backend.controllers.EnrolmentController.createEnrolment(id: Long)
-GET           /app/enrolments/exam/:id                                 backend.controllers.EnrolmentController.checkIfEnrolled(id: Long)
-POST          /app/enrolments/student/:eid                             backend.controllers.EnrolmentController.createStudentEnrolment(eid: Long)
-DELETE        /app/enrolments/:id                                      backend.controllers.EnrolmentController.removeEnrolment(id: Long)
-DELETE        /app/enrolments/student/:id                              backend.controllers.EnrolmentController.removeStudentEnrolment(id: Long)
-PUT           /app/enrolments/:eid                                     backend.controllers.EnrolmentController.updateEnrolment(eid: Long)
-GET           /app/enrolments/room/:hash                               backend.controllers.EnrolmentController.getRoomInfoFromEnrolment(hash: String)
+POST          /app/enrolments/:id                                      backend.controllers.EnrolmentController.createEnrolment(id: Long, request: Request)
+GET           /app/enrolments/exam/:id                                 backend.controllers.EnrolmentController.checkIfEnrolled(id: Long, request: Request)
+POST          /app/enrolments/student/:eid                             backend.controllers.EnrolmentController.createStudentEnrolment(eid: Long, request: Request)
+DELETE        /app/enrolments/:id                                      backend.controllers.EnrolmentController.removeEnrolment(id: Long, request: Request)
+DELETE        /app/enrolments/student/:id                              backend.controllers.EnrolmentController.removeStudentEnrolment(id: Long, request: Request)
+PUT           /app/enrolments/:eid                                     backend.controllers.EnrolmentController.updateEnrolment(eid: Long, request: Request)
+GET           /app/enrolments/room/:hash                               backend.controllers.EnrolmentController.getRoomInfoFromEnrolment(hash: String, request: Request)
 
 
 ############### Courses interface ###############
@@ -175,14 +175,14 @@ GET           /app/courses/:id                                         backend.c
 
 ############### Question interface ###############
 
-GET           /app/questions                                           backend.controllers.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long], tag: java.util.List[java.lang.Long], section: java.util.List[java.lang.Long])
-GET           /app/questions/:id                                       backend.controllers.QuestionController.getQuestion(id: Long)
-PUT           /app/questions/:id                                       backend.controllers.QuestionController.updateQuestion(id: Long)
+GET           /app/questions                                           backend.controllers.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long], tag: java.util.List[java.lang.Long], section: java.util.List[java.lang.Long], request: Request)
+GET           /app/questions/:id                                       backend.controllers.QuestionController.getQuestion(id: Long, request: Request)
+PUT           /app/questions/:id                                       backend.controllers.QuestionController.updateQuestion(id: Long, request: Request)
 
-POST          /app/questions                                           backend.controllers.QuestionController.createQuestion()
-POST          /app/question/:id                                        backend.controllers.QuestionController.copyQuestion(id: Long)
-DELETE        /app/questions/:id                                       backend.controllers.QuestionController.deleteQuestion(id: Long)
-POST          /app/questions/owner/:uid                                backend.controllers.QuestionController.addOwner(uid: Long)
+POST          /app/questions                                           backend.controllers.QuestionController.createQuestion(request: Request)
+POST          /app/question/:id                                        backend.controllers.QuestionController.copyQuestion(id: Long, request: Request)
+DELETE        /app/questions/:id                                       backend.controllers.QuestionController.deleteQuestion(id: Long, request: Request)
+POST          /app/questions/owner/:uid                                backend.controllers.QuestionController.addOwner(uid: Long, request: Request)
 
 ############### Reservation interface ###############
 
@@ -202,8 +202,8 @@ DELETE        /app/rooms/:roomId/exception/:exceptionId                backend.c
 POST          /app/room/:id/accessibility                              backend.controllers.RoomController.updateExamRoomAccessibility(id: Long)
 
 DELETE        /app/accessibility/:id                                   backend.controllers.AccessibilityController.removeAccessibility(id: Long)
-POST          /app/accessibility                                       backend.controllers.AccessibilityController.addAccessibility()
-PUT           /app/accessibility                                       backend.controllers.AccessibilityController.updateAccessibility()
+POST          /app/accessibility                                       backend.controllers.AccessibilityController.addAccessibility(request: Request)
+PUT           /app/accessibility                                       backend.controllers.AccessibilityController.updateAccessibility(request: Request)
 GET           /app/accessibility                                       backend.controllers.AccessibilityController.getAccessibilities
 
 GET           /app/draft/rooms                                         backend.controllers.RoomController.createExamRoomDraft
@@ -224,8 +224,8 @@ PUT           /app/reservations/:id/machine                            backend.c
 GET           /app/machines                                            backend.controllers.ExamMachineController.getExamMachines
 GET           /app/machines/:id                                        backend.controllers.ExamMachineController.getExamMachine(id: Long)
 GET           /app/machines/:id/reservations                           backend.controllers.ExamMachineController.getExamMachineReservationsFromNow(id: Long)
-PUT           /app/machines/:id                                        backend.controllers.ExamMachineController.updateExamMachine(id: Long)
-POST          /app/machines/:id                                        backend.controllers.ExamMachineController.insertExamMachine(id: Long)
+PUT           /app/machines/:id                                        backend.controllers.ExamMachineController.updateExamMachine(id: Long, request: Request)
+POST          /app/machines/:id                                        backend.controllers.ExamMachineController.insertExamMachine(id: Long, request: Request)
 DELETE        /app/machines/:id                                        backend.controllers.ExamMachineController.removeExamMachine(id: Long)
 
 PUT           /app/machine/:mid/software/:sid                          backend.controllers.ExamMachineController.updateExamMachineSoftwareInfo(mid: Long, sid: Long)
@@ -235,27 +235,27 @@ PUT           /app/software_machine/:mid                               backend.c
 GET           /app/softwares                                           backend.controllers.ExamMachineController.getSoftwares
 GET           /app/softwares/:id                                       backend.controllers.ExamMachineController.getSoftware(id: Long)
 DELETE        /app/softwares/:id                                       backend.controllers.ExamMachineController.removeSoftware(id: Long)
-POST          /app/softwares/add/:name                                 backend.controllers.ExamMachineController.addSoftware(name: String)
+POST          /app/softwares/add/:name                                 backend.controllers.ExamMachineController.addSoftware(name: String, request: Request)
 PUT           /app/softwares/update/:id/:name                          backend.controllers.ExamMachineController.updateSoftware(id: Long, name: String)
 
 ############## Attachment ############################
-POST          /app/attachment/question                                 backend.controllers.AttachmentController.addAttachmentToQuestion()
+POST          /app/attachment/question                                 backend.controllers.AttachmentController.addAttachmentToQuestion(request: Request)
 DELETE        /app/attachment/question/:id                             backend.controllers.AttachmentController.deleteQuestionAttachment(id: Long)
-GET           /app/attachment/question/:id                             backend.controllers.AttachmentController.downloadQuestionAttachment(id: Long)
-POST          /app/attachment/question/answer                          backend.controllers.AttachmentController.addAttachmentToQuestionAnswer()
-DELETE        /app/attachment/question/:qid/answer                     backend.controllers.AttachmentController.deleteQuestionAnswerAttachment(qid: Long)
-GET           /app/attachment/question/:qid/answer                     backend.controllers.AttachmentController.downloadQuestionAnswerAttachment(qid: Long)
-POST          /app/attachment/exam                                     backend.controllers.AttachmentController.addAttachmentToExam()
-DELETE        /app/attachment/exam/:id                                 backend.controllers.AttachmentController.deleteExamAttachment(id: Long)
+GET           /app/attachment/question/:id                             backend.controllers.AttachmentController.downloadQuestionAttachment(id: Long, request: Request)
+POST          /app/attachment/question/answer                          backend.controllers.AttachmentController.addAttachmentToQuestionAnswer(request: Request)
+DELETE        /app/attachment/question/:qid/answer                     backend.controllers.AttachmentController.deleteQuestionAnswerAttachment(qid: Long, request: Request)
+GET           /app/attachment/question/:qid/answer                     backend.controllers.AttachmentController.downloadQuestionAnswerAttachment(qid: Long, request: Request)
+POST          /app/attachment/exam                                     backend.controllers.AttachmentController.addAttachmentToExam(request: Request)
+DELETE        /app/attachment/exam/:id                                 backend.controllers.AttachmentController.deleteExamAttachment(id: Long, request: Request)
 GET           /app/attachment/exam/:id                                 backend.controllers.AttachmentController.downloadExamAttachment(id: Long)
 
-POST          /app/attachment/exam/:id/feedback                        backend.controllers.AttachmentController.addFeedbackAttachment(id: Long)
+POST          /app/attachment/exam/:id/feedback                        backend.controllers.AttachmentController.addFeedbackAttachment(id: Long, request: Request)
 DELETE        /app/attachment/exam/:id/feedback                        backend.controllers.AttachmentController.deleteFeedbackAttachment(id: Long)
-GET           /app/attachment/exam/:id/feedback                        backend.controllers.AttachmentController.downloadFeedbackAttachment(id: Long)
+GET           /app/attachment/exam/:id/feedback                        backend.controllers.AttachmentController.downloadFeedbackAttachment(id: Long, request: Request)
 
-POST          /app/attachment/exam/:id/statement                       backend.controllers.AttachmentController.addStatementAttachment(id: Long)
+POST          /app/attachment/exam/:id/statement                       backend.controllers.AttachmentController.addStatementAttachment(id: Long, request: Request)
 DELETE        /app/attachment/exam/:id/statement                       backend.controllers.AttachmentController.deleteStatementAttachment(id: Long)
-GET           /app/attachment/exam/:id/statement                       backend.controllers.AttachmentController.downloadStatementAttachment(id: Long)
+GET           /app/attachment/exam/:id/statement                       backend.controllers.AttachmentController.downloadStatementAttachment(id: Long, request: Request)
 
 ############### External Attachment ##################
 GET           /app/iop/attachment/exam/:hash                           backend.controllers.iop.transfer.impl.ExternalAttachmentController.downloadExamAttachment(hash: String)
@@ -365,9 +365,9 @@ GET           /integration/iop/attachment/exam/:id/statement           backend.c
 GET           /app/time/:hash                                          backend.controllers.TimeController.getExamRemainingTime(hash: String)
 
 ################# Calendar interface ##################
-GET           /app/calendar/:examId/:roomId                            backend.controllers.CalendarController.getSlots(examId: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer])
-POST          /app/calendar/reservation                                backend.controllers.CalendarController.createReservation
-DELETE        /app/calendar/reservation/:id                            backend.controllers.CalendarController.removeReservation(id: Long)
+GET           /app/calendar/:examId/:roomId                            backend.controllers.CalendarController.getSlots(examId: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer], request: Request)
+POST          /app/calendar/reservation                                backend.controllers.CalendarController.createReservation(request: Request)
+DELETE        /app/calendar/reservation/:id                            backend.controllers.CalendarController.removeReservation(id: Long, request: Request)
 GET           /app/availability/:roomId/:date                          backend.controllers.AvailabilityController.getAvailability(roomId: Long, date: String)
 
 ################# Language interface ##################

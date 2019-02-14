@@ -21,12 +21,15 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Ebean;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.controllers.base.BaseController;
 import backend.models.Exam;
 import backend.models.Role;
 import backend.models.User;
+import backend.sanitizers.Attrs;
+import backend.system.interceptors.Authenticated;
 
 
 public class ExamOwnerController extends BaseController {
@@ -48,16 +51,17 @@ public class ExamOwnerController extends BaseController {
         return ok(Json.toJson(node));
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result insertExamOwner(Long eid, Long uid) {
+    public Result insertExamOwner(Long eid, Long uid, Http.Request request) {
 
         final User owner = Ebean.find(User.class, uid);
         final Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null || owner == null) {
             return notFound();
         }
-        User user = getLoggedUser();
-        if (!user.hasRole(Role.Name.ADMIN.toString(), getSession()) && !exam.isOwnedOrCreatedBy(user)) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
         exam.getExamOwners().add(owner);
@@ -65,16 +69,17 @@ public class ExamOwnerController extends BaseController {
         return ok();
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result removeExamOwner(Long eid, Long uid) {
+    public Result removeExamOwner(Long eid, Long uid, Http.Request request) {
 
         final User owner = Ebean.find(User.class, uid);
         final Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound();
         }
-        User user = getLoggedUser();
-        if (!user.hasRole(Role.Name.ADMIN.toString(), getSession()) && !exam.isOwnedOrCreatedBy(user)) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
         if (owner != null) {

@@ -17,6 +17,7 @@ package backend.controllers.base;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,7 @@ import play.Logger;
 import play.cache.SyncCacheApi;
 import play.data.Form;
 import play.data.FormFactory;
+import play.libs.typedmap.TypedKey;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -61,7 +63,9 @@ public class BaseController extends Controller {
     protected static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
 
     private static final double HUNDRED = 100d;
-    private static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
+    public static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
+
+    private static final Logger.ALogger logger = Logger.of(BaseController.class);
 
     @Inject
     protected SyncCacheApi cache;
@@ -70,12 +74,12 @@ public class BaseController extends Controller {
     @Inject
     private NoShowHandler noShowHandler;
 
-    protected <T> T bindForm(final Class<T> clazz) {
+    protected <T> T bindForm(final Class<T> clazz, Http.Request request) {
         final Form<T> form = formFactory.form(clazz);
         if (form.hasErrors()) {
             throw new MalformedDataException(form.errorsAsJson().asText());
         }
-        return form.bindFromRequest().get();
+        return form.bindFromRequest(request).get();
     }
 
     protected Result ok(Object object) {
@@ -98,39 +102,47 @@ public class BaseController extends Controller {
         return created(body).as("application/json");
     }
 
-    private Optional<String> createToken() {
+    private Optional<String> createToken(Http.Request request) {
         return LOGIN_TYPE.equals("HAKA") ?
-                request().header("Shib-Session-ID") :
+                request.header("Shib-Session-ID") :
                 Optional.of(UUID.randomUUID().toString());
     }
 
-    private Optional<String> getToken() {
-        return request().header(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
-    }
-
-    public static Optional<String> getToken(Http.RequestHeader request) {
+    @Deprecated
+    public static Optional<String> getToken(Http.Request request) {
         return request.header(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
     }
 
-    public static Optional<String> getToken(Http.Context context) {
-        return getToken(context.request());
+    @Deprecated
+    public static Optional<String> getToken(Http.Context ctx) {
+        return ctx.request().header(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
     }
 
-    protected User getLoggedUser() {
-        Session session = cache.get(SITNET_CACHE_KEY + getToken().orElse(""));
-        return Ebean.find(User.class, session.getUserId());
+    @Deprecated
+    protected User getLoggedUser(Http.Request request) {
+        Optional<Session> session = cache.getOptional(SITNET_CACHE_KEY + getToken(request).orElse(""));
+        if (session.isPresent()) {
+            Optional<User> ou = session.map(session1 -> Ebean.find(User.class, session1.getUserId()));
+            if (ou.isPresent()) {
+                User user = ou.get();
+                user.setLoginRole(Role.Name.valueOf(session.get().getLoginRole()));
+                return user;
+            }
+        }
+        return null;
     }
 
-    protected Session getSession() {
-        return cache.get(SITNET_CACHE_KEY + getToken().orElse(""));
+    @Deprecated
+    protected Optional<Session> getSession(Http.Request request) {
+        return cache.getOptional(SITNET_CACHE_KEY + getToken(request).orElse(""));
     }
 
-    protected void updateSession(Session session) {
-        cache.set(SITNET_CACHE_KEY + getToken().orElse(""), session);
+    protected void updateSession(Session session, Http.Request request) {
+        cache.set(SITNET_CACHE_KEY + getToken(request).orElse(""), session);
     }
 
-    protected String createSession(Session session) {
-        String token = createToken().orElse("INVALID");
+    protected String createSession(Session session, Http.Request request) {
+        String token = createToken(request).orElse("INVALID");
         cache.set(SITNET_CACHE_KEY + token, session);
         return token;
     }
@@ -223,34 +235,35 @@ public class BaseController extends Controller {
         return CompletableFuture.supplyAsync(() -> result);
     }
 
-    protected boolean isUserAdmin() {
-        return getLoggedUser().hasRole(Role.Name.ADMIN.toString(), getSession());
+    protected boolean isUserAdmin(Http.Request request) {
+        return getLoggedUser(request).hasRole(Role.Name.ADMIN);
     }
 
     protected Double round(Double src) {
         return src == null ? null : Math.round(src * HUNDRED) / HUNDRED;
     }
 
-    protected Result writeAnonymousResult(Result result, boolean anonymous, boolean admin) {
+    protected Result writeAnonymousResult(Http.Request request, Result result, boolean anonymous, boolean admin) {
         if (anonymous && !admin) {
-            return withAnonymousHeader(result);
+            return withAnonymousHeader(result, request, Collections.emptySet());
         }
         return result;
     }
 
-    protected Result writeAnonymousResult(Result result, boolean anonymous) {
-        return writeAnonymousResult(result, anonymous, isUserAdmin());
+    protected Result writeAnonymousResult(Http.Request request, Result result, boolean anonymous) {
+        return writeAnonymousResult(request, result, anonymous, isUserAdmin(request));
     }
 
-    protected Result writeAnonymousResult(Result result, Set<Long> anonIds) {
-        if (!anonIds.isEmpty() && !getLoggedUser().hasRole(Role.Name.ADMIN.toString(), getSession())) {
-            ctx().args.put(AnonymousJsonAction.CONTEXT_KEY, anonIds);
-            return withAnonymousHeader(result);
+    protected Result writeAnonymousResult(Http.Request request, Result result, Set<Long> anonIds) {
+        if (!anonIds.isEmpty() && !getLoggedUser(request).hasRole(Role.Name.ADMIN)) {
+            return withAnonymousHeader(result, request, anonIds);
         }
         return result;
     }
 
-    private Result withAnonymousHeader(Result result) {
+    private Result withAnonymousHeader(Result result, Http.Request request, Set<Long> anonIds) {
+        TypedKey<Set<Long>> tk = TypedKey.create(AnonymousJsonAction.CONTEXT_KEY);
+        request.addAttr(tk, anonIds);
         return result.withHeader(AnonymousJsonAction.ANONYMOUS_HEADER, Boolean.TRUE.toString());
     }
 
@@ -260,7 +273,7 @@ public class BaseController extends Controller {
             String json = mapper.writeValueAsString(o);
             return mapper.readTree(json);
         } catch (IOException e) {
-            Logger.error("unable to serialize");
+            logger.error("unable to serialize");
             throw new RuntimeException(e);
         }
     }

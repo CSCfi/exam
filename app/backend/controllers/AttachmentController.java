@@ -26,11 +26,10 @@ import akka.stream.IOResult;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import play.Environment;
+import play.mvc.Http;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
@@ -39,13 +38,14 @@ import backend.controllers.base.BaseController;
 import backend.models.Attachment;
 import backend.models.Comment;
 import backend.models.Exam;
-import backend.models.sections.ExamSectionQuestion;
 import backend.models.LanguageInspection;
 import backend.models.Role;
 import backend.models.User;
 import backend.models.api.AttachmentContainer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
+import backend.sanitizers.Attrs;
 import backend.util.AppUtil;
 import backend.util.config.ConfigUtil;
 
@@ -83,16 +83,16 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Override
-    public CompletionStage<Result> addAttachmentToQuestionAnswer() {
-        MultipartFormData<File> body = request().body().asMultipartFormData();
+    public CompletionStage<Result> addAttachmentToQuestionAnswer(Http.Request request) {
+        MultipartFormData<File> body = request.body().asMultipartFormData();
         FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return wrapAsPromise(notFound());
         }
-        if (filePart.getFile().length() > ConfigUtil.getMaxFileSize()) {
+        if (filePart.getRef().length() > ConfigUtil.getMaxFileSize()) {
             return wrapAsPromise(forbidden("sitnet_file_too_large"));
         }
-        File file = filePart.getFile();
+        File file = filePart.getRef();
         Map<String, String[]> m = body.asFormUrlEncoded();
         long qid = Long.parseLong(m.get("questionId")[0]);
 
@@ -100,7 +100,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).fetch("essayAnswer")
                 .where()
                 .idEq(qid)
-                .eq("examSection.exam.creator", getLoggedUser())
+                .eq("examSection.exam.creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
                 .findOne();
         if (question == null) {
             return wrapAsPromise(forbidden());
@@ -128,20 +128,35 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return wrapAsPromise(ok(answer));
     }
 
-    @Override
-    public CompletionStage<Result> addAttachmentToQuestion() {
-
-        MultipartFormData<File> body = request().body().asMultipartFormData();
+    private MultipartForm getForm(Http.Request request) throws IllegalArgumentException {
+        MultipartFormData<File> body = request.body().asMultipartFormData();
         FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
-            return wrapAsPromise(notFound());
+            throw new IllegalArgumentException("file not found");
         }
-        File file = filePart.getFile();
+        File file = filePart.getRef();
         if (file.length() > ConfigUtil.getMaxFileSize()) {
-            return wrapAsPromise(forbidden("sitnet_file_too_large"));
+            throw new IllegalArgumentException("sitnet_file_too_large");
         }
-        Map<String, String[]> m = body.asFormUrlEncoded();
-        long qid = Long.parseLong(m.get("questionId")[0]);
+        return new MultipartForm(filePart, body.asFormUrlEncoded());
+    }
+
+    private CompletionStage<Result> replaceAndFinish(AttachmentContainer ac, FilePart<File> fp, String path) {
+        // Remove existing one if found
+        removePrevious(ac);
+
+        Attachment attachment = createNew(fp, path);
+
+        ac.setAttachment(attachment);
+        ac.save();
+
+        return wrapAsPromise(ok(attachment));
+    }
+
+    @Override
+    public CompletionStage<Result> addAttachmentToQuestion(Http.Request request) {
+        MultipartForm mf = getForm(request);
+        long qid = Long.parseLong(mf.getForm().get("questionId")[0]);
         Question question = Ebean.find(Question.class)
                 .fetch("examSectionQuestions.examSection.exam.parent")
                 .where()
@@ -150,21 +165,14 @@ public class AttachmentController extends BaseController implements LocalAttachm
         if (question == null) {
             return wrapAsPromise(notFound());
         }
+        FilePart<File> filePart = mf.getFilePart();
         String newFilePath;
         try {
-            newFilePath = copyFile(file, "question", Long.toString(qid));
+            newFilePath = copyFile(filePart.getRef(), "question", Long.toString(qid));
         } catch (IOException e) {
             return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
-        // Remove existing one if found
-        removePrevious(question);
-
-        Attachment attachment = createNew(filePart, newFilePath);
-
-        question.setAttachment(attachment);
-        question.save();
-
-        return wrapAsPromise(ok(attachment));
+        return replaceAndFinish(question, filePart, newFilePath);
     }
 
     @Override
@@ -179,13 +187,13 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Override
-    public CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid) {
-        User user = getLoggedUser();
+    public CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamSectionQuestion question;
-        if (user.hasRole("STUDENT", getSession())) {
+        if (user.hasRole(Role.Name.STUDENT)) {
             question = Ebean.find(ExamSectionQuestion.class).where()
                     .idEq(qid)
-                    .eq("examSection.exam.creator", getLoggedUser())
+                    .eq("examSection.exam.creator", user)
                     .findOne();
         } else {
             question = Ebean.find(ExamSectionQuestion.class, qid);
@@ -203,13 +211,13 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Override
-    public CompletionStage<Result> deleteExamAttachment(Long id) {
+    public CompletionStage<Result> deleteExamAttachment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
-        User user = getLoggedUser();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (exam == null) {
             return wrapAsPromise(notFound());
         }
-        if (!user.hasRole(Role.Name.ADMIN.toString(), getSession()) && !exam.isOwnedOrCreatedBy(user)) {
+        if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
             return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
         }
 
@@ -240,123 +248,83 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Override
-    public CompletionStage<Result> addAttachmentToExam() {
-        MultipartFormData<File> body = request().body().asMultipartFormData();
-        FilePart<File> filePart = body.getFile("file");
-        if (filePart == null) {
-            return wrapAsPromise(notFound());
-        }
-        File file = filePart.getFile();
-        if (file.length() > ConfigUtil.getMaxFileSize()) {
-            return wrapAsPromise(forbidden("sitnet_file_too_large"));
-        }
-        Map<String, String[]> m = body.asFormUrlEncoded();
-        long eid = Long.parseLong(m.get("examId")[0]);
+    public CompletionStage<Result> addAttachmentToExam(Http.Request request) {
+        MultipartForm mf  = getForm(request);
+        long eid = Long.parseLong(mf.getForm().get("examId")[0]);
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return wrapAsPromise(notFound());
         }
-        User user = getLoggedUser();
-        if (!user.hasRole(Role.Name.ADMIN.toString(), getSession()) && !exam.isOwnedOrCreatedBy(user)) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
             return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
         }
         String newFilePath;
+        FilePart<File> filePart = mf.getFilePart();
         try {
-            newFilePath = copyFile(file, "exam", Long.toString(eid));
+            newFilePath = copyFile(filePart.getRef(), "exam", Long.toString(eid));
         } catch (IOException e) {
             return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
-        // Delete existing if exists
-        removePrevious(exam);
-
-        Attachment attachment = createNew(filePart, newFilePath);
-        exam.setAttachment(attachment);
-        exam.save();
-        return wrapAsPromise(ok(attachment));
+        return replaceAndFinish(exam, filePart, newFilePath);
     }
 
     @Override
-    public CompletionStage<Result> addFeedbackAttachment(Long id) {
-        MultipartFormData<File> body = request().body().asMultipartFormData();
-        FilePart<File> filePart = body.getFile("file");
-        if (filePart == null) {
-            return wrapAsPromise(notFound());
-        }
-        File file = filePart.getFile();
-        if (file.length() > ConfigUtil.getMaxFileSize()) {
-            return wrapAsPromise(forbidden("sitnet_file_too_large"));
-        }
+    public CompletionStage<Result> addFeedbackAttachment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
             return wrapAsPromise(notFound());
         }
         if (exam.getExamFeedback() == null) {
             Comment comment = new Comment();
-            AppUtil.setCreator(comment, getLoggedUser());
+            AppUtil.setCreator(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
             comment.save();
             exam.setExamFeedback(comment);
             exam.update();
         }
         String newFilePath;
+        FilePart<File> filePart = getForm(request).getFilePart();
         try {
-            newFilePath = copyFile(file, "exam", id.toString(), "feedback");
+            newFilePath = copyFile(filePart.getRef(), "exam", id.toString(), "feedback");
         } catch (IOException e) {
             return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
         Comment comment = exam.getExamFeedback();
-        removePrevious(comment);
-
-        Attachment attachment = createNew(filePart, newFilePath);
-        comment.setAttachment(attachment);
-        comment.save();
-        return wrapAsPromise(ok(attachment));
+        return replaceAndFinish(comment, filePart, newFilePath);
     }
 
     @Override
-    public CompletionStage<Result> addStatementAttachment(Long id) {
-        MultipartFormData<File> body = request().body().asMultipartFormData();
-        FilePart<File> filePart = body.getFile("file");
-        if (filePart == null) {
-            return wrapAsPromise(notFound());
-        }
-        File file = filePart.getFile();
-        if (file.length() > ConfigUtil.getMaxFileSize()) {
-            return wrapAsPromise(forbidden("sitnet_file_too_large"));
-        }
+    public CompletionStage<Result> addStatementAttachment(Long id, Http.Request request) {
         LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findOne();
         if (inspection == null) {
             return wrapAsPromise(notFound());
         }
         if (inspection.getStatement() == null) {
             Comment comment = new Comment();
-            AppUtil.setCreator(comment, getLoggedUser());
+            AppUtil.setCreator(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
             comment.save();
             inspection.setStatement(comment);
             inspection.update();
         }
+        FilePart<File> filePart = getForm(request).getFilePart();
         String newFilePath;
         try {
-            newFilePath = copyFile(file, "exam", id.toString(), "inspectionstatement");
+            newFilePath = copyFile(filePart.getRef(), "exam", id.toString(), "inspectionstatement");
         } catch (IOException e) {
             return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
         }
         Comment comment = inspection.getStatement();
-        removePrevious(comment);
-
-        Attachment attachment = createNew(filePart, newFilePath);
-        comment.setAttachment(attachment);
-        comment.save();
-        return wrapAsPromise(ok(attachment));
+        return replaceAndFinish(comment, filePart, newFilePath);
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public CompletionStage<Result> downloadQuestionAttachment(Long id) {
-        User user = getLoggedUser();
+    @Override
+    public CompletionStage<Result> downloadQuestionAttachment(Long id, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Question question;
-        if (user.hasRole("STUDENT", getSession())) {
+        if (user.hasRole(Role.Name.STUDENT)) {
             question = Ebean.find(Question.class).where()
                     .idEq(id)
-                    .eq("examSectionQuestions.examSection.exam.creator", getLoggedUser())
+                    .eq("examSectionQuestions.examSection.exam.creator", user)
                     .findOne();
         } else {
             question = Ebean.find(Question.class, id);
@@ -368,17 +336,8 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Override
-    public CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid) {
-        User user = getLoggedUser();
-        ExamSectionQuestion question;
-        if (user.hasRole("STUDENT", getSession())) {
-            question = Ebean.find(ExamSectionQuestion.class).where()
-                    .idEq(qid)
-                    .eq("examSection.exam.creator", getLoggedUser())
-                    .findOne();
-        } else {
-            question = Ebean.find(ExamSectionQuestion.class, qid);
-        }
+    public CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid, Http.Request request) {
+        ExamSectionQuestion question = getExamSectionQuestion(request, qid);
         if (question == null || question.getEssayAnswer() == null || question.getEssayAnswer().getAttachment() == null) {
             return wrapAsPromise(notFound());
         }
@@ -395,10 +354,10 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Override
-    public CompletionStage<Result> downloadFeedbackAttachment(Long id) {
-        User user = getLoggedUser();
+    public CompletionStage<Result> downloadFeedbackAttachment(Long id, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Exam exam;
-        if (user.hasRole("STUDENT", getSession())) {
+        if (user.hasRole(Role.Name.STUDENT)) {
             exam = Ebean.find(Exam.class).where().idEq(id).eq("creator", user).findOne();
         } else {
             exam = Ebean.find(Exam.class, id);
@@ -410,12 +369,12 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Override
-    public CompletionStage<Result> downloadStatementAttachment(Long id) {
+    public CompletionStage<Result> downloadStatementAttachment(Long id, Http.Request request) {
 
-        User user = getLoggedUser();
+        User user =request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Exam> query = Ebean.find(Exam.class).where().idEq(id)
                 .isNotNull("languageInspection.statement.attachment");
-        if (user.hasRole("STUDENT", getSession())) {
+        if (user.hasRole(Role.Name.STUDENT)) {
             query = query.eq("creator", user);
         }
         Exam exam = query.findOne();
@@ -432,6 +391,17 @@ public class AttachmentController extends BaseController implements LocalAttachm
         }
         final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.toPath());
         return serveAsBase64Stream(attachment, source);
+    }
+
+    private ExamSectionQuestion getExamSectionQuestion(Http.Request request, Long id) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (user.hasRole(Role.Name.STUDENT)) {
+            return Ebean.find(ExamSectionQuestion.class).where()
+                    .idEq(id)
+                    .eq("examSection.exam.creator", user)
+                    .findOne();
+        }
+        return Ebean.find(ExamSectionQuestion.class, id);
     }
 
     private String copyFile(File srcFile, String... pathParams) throws IOException {

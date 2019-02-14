@@ -15,7 +15,19 @@
 
 package backend.models;
 
-import backend.models.base.GeneratedIdentityModel;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import be.objectify.deadbolt.java.models.Subject;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,10 +35,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+import backend.models.base.GeneratedIdentityModel;
 
 @Entity
 @Table(name = "app_user")
@@ -74,6 +83,9 @@ public class User extends GeneratedIdentityModel implements Subject {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonBackReference
     private List<ExamInspection> inspections;
+
+    @Transient
+    private Role.Name loginRole;
 
     public boolean isUserAgreementAccepted() {
         return userAgreementAccepted;
@@ -219,12 +231,20 @@ public class User extends GeneratedIdentityModel implements Subject {
         this.lastLogin = lastLogin;
     }
 
-    public boolean hasRole(String name, Session session) {
-        return session != null && session.getLoginRole() != null && name.equals(session.getLoginRole());
+    public boolean hasRole(Role.Name name) {
+        return loginRole == name;
     }
 
     public boolean hasPermission(Permission.Type type) {
         return permissions.stream().map(Permission::getType).collect(Collectors.toList()).contains(type);
+    }
+
+    public Role.Name getLoginRole() {
+        return loginRole;
+    }
+
+    public void setLoginRole(Role.Name loginRole) {
+        this.loginRole = loginRole;
     }
 
     @Override

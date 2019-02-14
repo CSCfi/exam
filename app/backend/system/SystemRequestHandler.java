@@ -44,6 +44,7 @@ import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
 import backend.models.ExamRoom;
+import backend.models.Role;
 import backend.models.Session;
 import backend.models.User;
 import backend.util.datetime.DateTimeUtils;
@@ -63,19 +64,20 @@ public class SystemRequestHandler implements ActionCreator {
     @Override
     public Action createAction(Http.Request request, Method actionMethod) {
         String token = BaseController.getToken(request).orElse("");
-        Session session = cache.get(BaseController.SITNET_CACHE_KEY + token);
-        boolean temporalStudent = session != null && session.isTemporalStudent();
-        User user = session == null ? null : Ebean.find(User.class, session.getUserId());
+        Optional<Session> os = cache.getOptional(BaseController.SITNET_CACHE_KEY + token);
+        boolean temporalStudent = os.isPresent() && os.get().isTemporalStudent();
+        User user = os.map(session -> Ebean.find(User.class, session.getUserId())).orElse(null);
         AuditLogger.log(request, user);
 
         // logout, no further processing
         if (request.path().equals("/app/logout")) {
             return propagateAction();
         }
+        Session session = os.orElse(null);
 
         return validateSession(session, token).orElseGet(() -> {
             updateSession(request, session, token);
-            if ((user == null || !user.hasRole("STUDENT", session)) && !temporalStudent) {
+            if ((user == null || !user.hasRole(Role.Name.STUDENT)) && !temporalStudent) {
                 // propagate further right away
                 return propagateAction();
             } else {

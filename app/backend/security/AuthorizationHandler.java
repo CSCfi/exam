@@ -15,26 +15,27 @@
 
 package backend.security;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import be.objectify.deadbolt.java.ConfigKeys;
 import be.objectify.deadbolt.java.DeadboltHandler;
 import be.objectify.deadbolt.java.DynamicResourceHandler;
 import be.objectify.deadbolt.java.models.Subject;
-import backend.controllers.base.BaseController;
 import io.ebean.Ebean;
-import backend.models.Role;
-import backend.models.Session;
-import backend.models.User;
 import play.cache.SyncCacheApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
+import backend.controllers.base.BaseController;
+import backend.models.Role;
+import backend.models.Session;
+import backend.models.User;
 
 
 @Singleton
@@ -55,16 +56,16 @@ class AuthorizationHandler implements DeadboltHandler {
     @Override
     public CompletionStage<Optional<? extends Subject>> getSubject(final Http.Context context) {
         String token = BaseController.getToken(context).orElse("");
-        Session session = cache.get(BaseController.SITNET_CACHE_KEY + token);
-        User user = session == null ? null : Ebean.find(User.class, session.getUserId());
+        Optional<Session> os = cache.getOptional(BaseController.SITNET_CACHE_KEY + token);
+        User user = os.map(session -> Ebean.find(User.class, session.getUserId())).orElse(null);
         // filter out roles not found in session
         if (user != null) {
-            if (session.isTemporalStudent()) {
+            if (os.get().isTemporalStudent()) {
                 user.getRoles().clear();
                 user.getRoles().add(Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne());
             } else {
                 user.setRoles(user.getRoles().stream()
-                        .filter((r) -> r.getName().equals(session.getLoginRole()))
+                        .filter((r) -> r.getName().equals(os.get().getLoginRole()))
                         .collect(Collectors.toList()));
             }
         }
