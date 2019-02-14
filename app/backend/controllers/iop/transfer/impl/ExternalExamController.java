@@ -29,6 +29,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import javax.inject.Inject;
 
@@ -261,6 +262,12 @@ public class ExternalExamController extends BaseController implements ExternalEx
             document.getExamSections().stream()
                     .filter(ExamSection::isLotteryOn)
                     .forEach(ExamSection::shuffleQuestions);
+
+            try {
+                externalAttachmentLoader.fetchExternalAttachmentsAsLocal(document).get();
+            } catch (InterruptedException | ExecutionException e) {
+                Logger.error("Could not fetch external attachments!", e);
+            }
 
             Map<String, Object> content;
             try {

@@ -34,16 +34,19 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 
+import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.models.ExamEnrolment;
 import backend.models.json.ExternalExam;
 
 public class AssessmentTransferActor extends AbstractActor {
 
     private WSClient wsClient;
+    private ExternalAttachmentLoader externalAttachmentLoader;
 
     @Inject
-    public AssessmentTransferActor(WSClient wsClient) {
+    public AssessmentTransferActor(WSClient wsClient, ExternalAttachmentLoader loader) {
         this.wsClient = wsClient;
+        this.externalAttachmentLoader = loader;
     }
 
     @Override
@@ -87,7 +90,10 @@ public class AssessmentTransferActor extends AbstractActor {
         String json = Ebean.json().toJson(ee, PathProperties.parse("(*, creator(id))"));
         ObjectMapper om = new ObjectMapper();
         JsonNode node = om.readTree(json);
-        request.post(node).thenApplyAsync(onSuccess);
+
+        externalAttachmentLoader.uploadAssessmentAttachments(enrolment.getExternalExam().deserialize())
+                .thenComposeAsync(aVoid -> request.post(node))
+                .thenApplyAsync(onSuccess);
     }
 
     private static URL parseUrl(String reservationRef) throws MalformedURLException {

@@ -22,6 +22,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -57,6 +58,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
     @Inject
     private Environment environment;
 
+    @Override
     public CompletableFuture<Void> fetchExternalAttachmentsAsLocal(Exam exam) {
         final ArrayList<CompletableFuture<Void>> futures = new ArrayList<>();
         if (exam.getAttachment() != null) {
@@ -129,6 +131,28 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                                 Logger.info("Uploaded file {} for external exam.", file.getAbsoluteFile());
                             });
                 }).toCompletableFuture();
+    }
+
+    @Override
+    public CompletableFuture<Void> uploadAssessmentAttachments(Exam exam) {
+        List<CompletableFuture> futures = new ArrayList<>();
+        // Create external attachments.
+        if (exam.getAttachment() != null) {
+            futures.add(createExternalAttachment(exam.getAttachment()));
+        }
+        exam.getExamSections().stream()
+                .flatMap(s -> s.getSectionQuestions().stream())
+                .flatMap(sq -> {
+                    List<Attachment> attachments = new ArrayList<>();
+                    if (sq.getEssayAnswer() != null && sq.getEssayAnswer().getAttachment() != null) {
+                        attachments.add(sq.getEssayAnswer().getAttachment());
+                    }
+                    if (sq.getQuestion().getAttachment() != null) {
+                        attachments.add(sq.getQuestion().getAttachment());
+                    }
+                    return attachments.stream();
+                }).forEach(a -> futures.add(createExternalAttachment(a)));
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
     private CompletableFuture<Void> createFromExternalAttachment(Attachment attachment, String... pathParams) {
