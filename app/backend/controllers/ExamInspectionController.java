@@ -26,6 +26,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
 import io.ebean.Model;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import scala.concurrent.duration.Duration;
@@ -39,6 +40,7 @@ import backend.models.Role;
 import backend.models.User;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CommentSanitizer;
+import backend.system.interceptors.Authenticated;
 import backend.util.AppUtil;
 
 
@@ -50,22 +52,23 @@ public class ExamInspectionController extends BaseController {
     @Inject
     protected ActorSystem actor;
 
+    @Authenticated
     @With(CommentSanitizer.class)
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addInspection(Long eid, Long uid) {
+    public Result addInspection(Long eid, Long uid, Http.Request request) {
         User recipient = Ebean.find(User.class, uid);
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null || recipient == null) {
             return notFound();
         }
-        User user = getLoggedUser();
-        if (!user.hasRole(Role.Name.ADMIN.toString(), getSession()) && !exam.isOwnedOrCreatedBy(user)) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
         if (isInspectorOf(recipient, exam)) {
             return forbidden("already an inspector");
         }
-        Optional<String> comment = request().attrs().getOptional(Attrs.COMMENT);
+        Optional<String> comment = request.attrs().getOptional(Attrs.COMMENT);
         // Exam name required before adding inspectors that are to receive an email notification
         if ((exam.getName() == null || exam.getName().isEmpty()) && comment.isPresent()) {
             return badRequest("sitnet_exam_name_missing_or_too_short");
@@ -116,9 +119,9 @@ public class ExamInspectionController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result setInspectionOutcome(Long id) {
+    public Result setInspectionOutcome(Long id, Http.Request request) {
 
-        boolean ready = Boolean.parseBoolean(formFactory.form().bindFromRequest().get("ready"));
+        boolean ready = Boolean.parseBoolean(formFactory.form().bindFromRequest(request).get("ready"));
         ExamInspection inspection = Ebean.find(ExamInspection.class, id);
 
         if (inspection == null) {

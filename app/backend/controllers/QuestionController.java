@@ -33,35 +33,41 @@ import io.ebean.ExpressionList;
 import io.ebean.Model;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
-import org.apache.commons.collections.CollectionUtils;
 import play.Logger;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.BodyParser;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.controllers.base.BaseController;
 import backend.models.Exam;
-import backend.models.sections.ExamSectionQuestion;
-import backend.models.sections.ExamSectionQuestionOption;
+import backend.models.Role;
 import backend.models.Tag;
 import backend.models.User;
 import backend.models.questions.MultipleChoiceOption;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestionOption;
+import backend.sanitizers.Attrs;
 import backend.sanitizers.SanitizingHelper;
+import backend.system.interceptors.Authenticated;
 import backend.util.AppUtil;
 
 public class QuestionController extends BaseController {
+
+    private static final Logger.ALogger logger = Logger.of(QuestionController.class);
 
     private enum QuestionState {
         NEW, SAVED, DELETED
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds) {
-        User user = getLoggedUser();
-        if (user.hasRole("ADMIN", getSession())
-                && Stream.of(examIds, courseIds, tagIds, sectionIds).allMatch(CollectionUtils::isEmpty)) {
+    public Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (user.hasRole(Role.Name.ADMIN)
+                && Stream.of(examIds, courseIds, tagIds, sectionIds).allMatch(List::isEmpty)) {
             return ok(Collections.emptySet());
         }
         PathProperties pp = PathProperties.parse("*, modifier(firstName, lastName) questionOwners(id, firstName, lastName, userIdentifier, email), " +
@@ -73,7 +79,7 @@ public class QuestionController extends BaseController {
                 .isNull("parent")
                 .endJunction()
                 .ne("state", QuestionState.DELETED.toString());
-        if (user.hasRole("TEACHER", getSession())) {
+        if (user.hasRole(Role.Name.TEACHER)) {
             el = el.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", user)
@@ -96,7 +102,7 @@ public class QuestionController extends BaseController {
     }
 
     private Optional<Question> getQuestionOfUser(ExpressionList<Question> expr, User user) {
-        if (user.hasRole("TEACHER", getSession())) {
+        if (user.hasRole(Role.Name.TEACHER)) {
             return expr.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", user)
@@ -107,9 +113,10 @@ public class QuestionController extends BaseController {
         return expr.findOneOrEmpty();
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getQuestion(Long id) {
-        User user = getLoggedUser();
+    public Result getQuestion(Long id, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Query<Question> query = Ebean.find(Question.class);
         PathProperties pp = PathProperties.parse("(*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
                 "attachment(id, fileName), options(id, correctOption, defaultScore, option), tags(id, name), " +
@@ -126,11 +133,12 @@ public class QuestionController extends BaseController {
         }
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result copyQuestion(Long id) {
-        User user = getLoggedUser();
+    public Result copyQuestion(Long id, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Question> query = Ebean.find(Question.class).fetch("questionOwners").where().idEq(id);
-        if (user.hasRole("TEACHER", getSession())) {
+        if (user.hasRole(Role.Name.TEACHER)) {
             query = query.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", user)
@@ -217,15 +225,16 @@ public class QuestionController extends BaseController {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result createQuestion() {
-        User user = getLoggedUser();
-        JsonNode body = request().body().asJson();
+    public Result createQuestion(Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        JsonNode body = request.body().asJson();
         Question question = parseFromBody(body, user, null);
         question.getQuestionOwners().add(user);
         return question.getValidationResult(body).orElseGet(() -> {
             if (question.getType() != Question.Type.EssayQuestion) {
-                processOptions(question, (ArrayNode) body.get("options"));
+                processOptions(question, (ArrayNode) body.get("options"), user);
             }
             question.save();
             return ok(Json.toJson(question));
@@ -233,11 +242,12 @@ public class QuestionController extends BaseController {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateQuestion(Long id) {
-        User user = getLoggedUser();
+    public Result updateQuestion(Long id, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Question> query = Ebean.find(Question.class).where().idEq(id);
-        if (user.hasRole("TEACHER", getSession())) {
+        if (user.hasRole(Role.Name.TEACHER)) {
             query = query.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", user)
@@ -248,22 +258,23 @@ public class QuestionController extends BaseController {
         if (question == null) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        JsonNode body = request().body().asJson();
+        JsonNode body = request.body().asJson();
         Question updatedQuestion = parseFromBody(body, user, question);
         return question.getValidationResult(body).orElseGet(() -> {
             if (updatedQuestion.getType() != Question.Type.EssayQuestion) {
-                processOptions(updatedQuestion, (ArrayNode) body.get("options"));
+                processOptions(updatedQuestion, (ArrayNode) body.get("options"), user);
             }
             updatedQuestion.update();
             return ok(Json.toJson(updatedQuestion));
         });
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result deleteQuestion(Long id) {
-        User user = getLoggedUser();
+    public Result deleteQuestion(Long id, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Question> expr = Ebean.find(Question.class).where().idEq(id);
-        if (user.hasRole("TEACHER", getSession())) {
+        if (user.hasRole(Role.Name.TEACHER)) {
             expr = expr.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", user)
@@ -292,14 +303,14 @@ public class QuestionController extends BaseController {
         try {
             question.delete();
         } catch (PersistenceException e) {
-            Logger.info("Shared question attachment reference found, can not delete the reference yet");
+            logger.info("Shared question attachment reference found, can not delete the reference yet");
             question.setAttachment(null);
             question.delete();
         }
         return ok();
     }
 
-    private void processOptions(Question question, ArrayNode node) {
+    private void processOptions(Question question, ArrayNode node, User user) {
         Set<Long> persistedIds = question.getOptions().stream()
                 .map(MultipleChoiceOption::getId)
                 .collect(Collectors.toSet());
@@ -320,34 +331,34 @@ public class QuestionController extends BaseController {
         // Additions
         StreamSupport.stream(node.spliterator(), false)
                 .filter(o -> !SanitizingHelper.parse("id", o, Long.class).isPresent())
-                .forEach(o -> createOption(question, o));
+                .forEach(o -> createOption(question, o, user));
     }
 
-    private void saveOption(MultipleChoiceOption option, Question question, boolean correctOption) {
+    private void saveOption(MultipleChoiceOption option, Question question, boolean correctOption, User user) {
         option.setCorrectOption(correctOption);
         question.getOptions().add(option);
-        AppUtil.setModifier(question, getLoggedUser());
+        AppUtil.setModifier(question, user);
         question.save();
         option.save();
     }
 
-    private void createOption(Question question, JsonNode node) {
+    private void createOption(Question question, JsonNode node, User user) {
         MultipleChoiceOption option = new MultipleChoiceOption();
         option.setOption(SanitizingHelper.parse("option", node, String.class).orElse(null));
         String scoreFieldName = node.has("defaultScore") ? "defaultScore" : "score";
         option.setDefaultScore(round(SanitizingHelper.parse(scoreFieldName, node, Double.class).orElse(null)));
         Boolean correctOption = SanitizingHelper.parse("correctOption", node, Boolean.class, false);
-        saveOption(option, question, correctOption);
+        saveOption(option, question, correctOption, user);
         propagateOptionCreationToExamQuestions(question, null, option);
     }
 
-    void createOptionBasedOnExamQuestion(Question question, ExamSectionQuestion esq, JsonNode node) {
+    void createOptionBasedOnExamQuestion(Question question, ExamSectionQuestion esq, JsonNode node, User user) {
         MultipleChoiceOption option = new MultipleChoiceOption();
         JsonNode baseOptionNode = node.get("option");
         option.setOption(SanitizingHelper.parse("option", baseOptionNode, String.class).orElse(null));
         option.setDefaultScore(round(SanitizingHelper.parse("score", node, Double.class).orElse(null)));
         Boolean correctOption = SanitizingHelper.parse("correctOption", baseOptionNode, Boolean.class, false);
-        saveOption(option, question, correctOption);
+        saveOption(option, question, correctOption, user);
         propagateOptionCreationToExamQuestions(question, esq, option);
     }
 
@@ -418,13 +429,14 @@ public class QuestionController extends BaseController {
         return result;
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addOwner(Long uid) {
+    public Result addOwner(Long uid, Http.Request request) {
         User newOwner = Ebean.find(User.class).select("id, firstName, lastName, userIdentifier").where().idEq(uid).findOne();
         if (newOwner == null) {
             return notFound();
         }
-        final DynamicForm df = formFactory.form().bindFromRequest();
+        final DynamicForm df = formFactory.form().bindFromRequest(request);
         final String questionIds = df.rawData().get("questionIds");
 
         if (questionIds == null || questionIds.isEmpty()) {
@@ -433,9 +445,9 @@ public class QuestionController extends BaseController {
         List<Long> ids = Stream.of(questionIds.split(","))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
-        User modifier = getLoggedUser();
+        User modifier = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Question> expr = Ebean.find(Question.class).where().idIn(ids);
-        if (modifier.hasRole("TEACHER", getSession())) {
+        if (modifier.hasRole(Role.Name.TEACHER)) {
             expr = expr.disjunction()
                     .eq("shared", true)
                     .eq("questionOwners", modifier)

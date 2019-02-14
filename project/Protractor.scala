@@ -12,7 +12,7 @@ object Protractor {
 
       var protractor: Option[Process] = None
 
-      override def afterStarted(address: InetSocketAddress): Unit = {
+      override def afterStarted(): Unit = {
         println("Starting protractor tests...")
         val process = Seq("app/frontend/node_modules/protractor/bin/protractor", "protractor/" + conf, args.replaceAll(",", " ")).mkString(" ")
         println(process)

@@ -23,6 +23,7 @@ import play.libs.typedmap.TypedKey;
 
 import backend.models.AutoEvaluationConfig;
 import backend.models.Exam;
+import backend.models.User;
 
 public enum Attrs {
     ;
@@ -54,4 +55,5 @@ public enum Attrs {
     public static final TypedKey<String> COMMENT = TypedKey.create("comment");
     public static final TypedKey<String> COURSE_CODE = TypedKey.create("code");
     public static final TypedKey<Boolean> ANONYMOUS = TypedKey.create("anonymous");
+    public static final TypedKey<User> AUTHENTICATED_USER = TypedKey.create("authenticatedUser");
 }

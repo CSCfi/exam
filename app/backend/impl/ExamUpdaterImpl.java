@@ -39,7 +39,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
     private ActorSystem actorSystem;
 
     @Override
-    public Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Http.Request request, Session session) {
+    public Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Http.Request request) {
         Optional<Integer> newDuration = request.attrs().getOptional(Attrs.DURATION);
         Optional<DateTime> newStart = request.attrs().getOptional(Attrs.START_DATE);
         Optional<DateTime> newEnd = request.attrs().getOptional(Attrs.END_DATE);
@@ -50,7 +50,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
             return Optional.empty();
         }
         boolean hasFutureReservations = hasFutureReservations(exam);
-        boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), session);
+        boolean isAdmin = user.hasRole(Role.Name.ADMIN);
         if (newStart.isPresent()) {
             if (isAdmin || !hasFutureReservations || isNonRestrictingValidityChange(newStart.get(), exam, true)) {
                 exam.setExamActiveStartDate(newStart.get());
@@ -171,13 +171,13 @@ public class ExamUpdaterImpl implements ExamUpdater {
     }
 
     @Override
-    public boolean isPermittedToUpdate(Exam exam, User user, Session session) {
-        return user.hasRole(Role.Name.ADMIN.toString(), session) || exam.isOwnedOrCreatedBy(user);
+    public boolean isPermittedToUpdate(Exam exam, User user) {
+        return user.hasRole(Role.Name.ADMIN) || exam.isOwnedOrCreatedBy(user);
     }
 
     @Override
-    public boolean isAllowedToUpdate(Exam exam, User user, Session session) {
-        return user.hasRole(Role.Name.ADMIN.toString(), session) || !hasFutureReservations(exam);
+    public boolean isAllowedToUpdate(Exam exam, User user) {
+        return user.hasRole(Role.Name.ADMIN) || !hasFutureReservations(exam);
     }
 
     @Override
@@ -227,8 +227,8 @@ public class ExamUpdaterImpl implements ExamUpdater {
     }
 
     @Override
-    public Optional<Result> updateLanguage(Exam exam, String code, User user, Session session) {
-        if (!isPermittedToUpdate(exam, user, session)) {
+    public Optional<Result> updateLanguage(Exam exam, String code, User user) {
+        if (!isPermittedToUpdate(exam, user)) {
             return Optional.of(forbidden("sitnet_error_access_forbidden"));
         }
         Language language = Ebean.find(Language.class, code);
