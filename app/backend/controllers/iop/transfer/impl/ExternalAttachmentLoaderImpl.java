@@ -158,6 +158,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
     private CompletableFuture<Void> createFromExternalAttachment(Attachment attachment, String... pathParams) {
         return CompletableFuture.runAsync(() -> {
             if (StringUtils.isEmpty(attachment.getExternalId())) {
+                Logger.error("Could not find external ID for an attachment");
                 return;
             }
             final URL attachmentUrl;
@@ -179,6 +180,8 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                                     }
                                     attachment.setFilePath(filePath);
                                     attachment.save();
+                                    Logger.info("Saved attachment {} locally as # {}",
+                                            attachment.getExternalId(), attachment.getId());
                                 });
                     });
         });

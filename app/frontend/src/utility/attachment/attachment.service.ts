@@ -209,7 +209,7 @@ export class AttachmentService {
 
     downloadExternalQuestionAttachment(exam: Exam, sq: ExamSectionQuestion) {
         if (sq.question.attachment.id) {
-            this.Files.download(`/app/iop/attachment/exam/${exam.id}/question/${sq.id}`,
+            this.Files.download(`/app/iop/attachment/exam/${exam.hash}/question/${sq.id}`,
                 sq.question.attachment.fileName);
         }
     }
