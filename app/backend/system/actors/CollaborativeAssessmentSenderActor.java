@@ -18,9 +18,7 @@ package backend.system.actors;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import javax.inject.Inject;
 
@@ -36,7 +34,6 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
-import backend.models.Attachment;
 import backend.models.Exam;
 import backend.models.ExamParticipation;
 
@@ -100,23 +97,6 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
         String ref = participation.getCollaborativeExam().getExternalRef();
         Logger.debug("Sending back collaborative assessment for exam " + ref);
         URL url = parseUrl(ref);
-        List<CompletableFuture> futures = new ArrayList<>();
-        // Create external attachments.
-        if (participation.getExam().getAttachment() != null) {
-            futures.add(externalAttachmentLoader.createExternalAttachment(participation.getExam().getAttachment()));
-        }
-        participation.getExam().getExamSections().stream()
-                .flatMap(s -> s.getSectionQuestions().stream())
-                .flatMap(sq -> {
-                    List<Attachment> attachments = new ArrayList<>();
-                    if (sq.getEssayAnswer() != null && sq.getEssayAnswer().getAttachment() != null) {
-                        attachments.add(sq.getEssayAnswer().getAttachment());
-                    }
-                    if (sq.getQuestion().getAttachment() != null) {
-                        attachments.add(sq.getQuestion().getAttachment());
-                    }
-                    return attachments.stream();
-                }).forEach(a -> futures.add(externalAttachmentLoader.createExternalAttachment(a)));
 
         WSRequest request = wsClient.url(url.toString());
         request.setContentType("application/json");
@@ -131,7 +111,7 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
             return null;
         };
 
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+        externalAttachmentLoader.uploadAssessmentAttachments(participation.getExam())
                 .thenComposeAsync(aVoid -> request.post(Ebean.json().toJson(participation, pp)))
                 .thenApplyAsync(onSuccess)
                 .exceptionally(t -> {
