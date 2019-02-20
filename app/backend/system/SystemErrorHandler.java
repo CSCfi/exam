@@ -16,7 +16,10 @@
 package backend.system;
 
 
-import backend.exceptions.MalformedDataException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import javax.persistence.OptimisticLockException;
+
 import play.Logger;
 import play.http.HttpErrorHandler;
 import play.libs.Json;
@@ -24,16 +27,16 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import javax.persistence.OptimisticLockException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import backend.exceptions.MalformedDataException;
 
 public class SystemErrorHandler implements HttpErrorHandler {
+
+    private static final Logger.ALogger logger = Logger.of(SystemErrorHandler.class);
 
     @Override
     public CompletionStage<Result> onClientError(Http.RequestHeader request, int statusCode, String message) {
         return CompletableFuture.supplyAsync(() -> {
-            Logger.warn("onClientError: URL: {}, status: {}, msg: {}", request.uri(), statusCode, message);
+            logger.warn("onClientError: URL: {}, status: {}, msg: {}", request.uri(), statusCode, message);
             if (statusCode == play.mvc.Http.Status.BAD_REQUEST) {
                 return Results.badRequest(Json.toJson(new ApiError(message)));
             }
@@ -50,7 +53,7 @@ public class SystemErrorHandler implements HttpErrorHandler {
     @Override
     public CompletionStage<Result> onServerError(Http.RequestHeader request, Throwable exception) {
         return CompletableFuture.supplyAsync(() -> {
-            Logger.error("onServerError: URL: {}", request.uri(), exception);
+            logger.error("onServerError: URL: {}", request.uri(), exception);
             Throwable cause = exception.getCause();
             String errorMessage = cause == null ? exception.getMessage() : cause.getMessage();
             if (cause != null) {

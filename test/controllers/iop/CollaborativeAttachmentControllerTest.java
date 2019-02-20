@@ -154,7 +154,7 @@ public class CollaborativeAttachmentControllerTest extends BaseCollaborativeAtta
         Http.MultipartFormData.FilePart<Source<ByteString, ?>> fp =
                 new Http.MultipartFormData.FilePart<>("file", "test_image.png", "image/png", src);
         dataParts.add(fp);
-        requestBuilder.bodyMultipart(dataParts,
+        requestBuilder.bodyRaw(dataParts,
                 new play.libs.Files.SingletonTemporaryFileCreator(), mat);
         Result result = Helpers.route(app, requestBuilder);
         assertThat(result.status()).isEqualTo(Helpers.CREATED);

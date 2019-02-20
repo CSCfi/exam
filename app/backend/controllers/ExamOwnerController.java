@@ -29,7 +29,7 @@ import backend.models.Exam;
 import backend.models.Role;
 import backend.models.User;
 import backend.sanitizers.Attrs;
-import backend.system.interceptors.Authenticated;
+import backend.security.Authenticated;
 
 
 public class ExamOwnerController extends BaseController {

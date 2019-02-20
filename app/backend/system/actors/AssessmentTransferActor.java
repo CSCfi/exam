@@ -39,6 +39,8 @@ import backend.models.json.ExternalExam;
 
 public class AssessmentTransferActor extends AbstractActor {
 
+    private static final Logger.ALogger logger = Logger.of(AssessmentTransferActor.class);
+
     private WSClient wsClient;
 
     @Inject
@@ -49,7 +51,7 @@ public class AssessmentTransferActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
-            Logger.debug("{}: Running assessment transfer ...", getClass().getCanonicalName());
+            logger.debug("{}: Running assessment transfer ...", getClass().getCanonicalName());
             List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                     .where()
                     .isNotNull("externalExam")
@@ -62,7 +64,7 @@ public class AssessmentTransferActor extends AbstractActor {
                 try {
                     send(e);
                 } catch (IOException ex) {
-                    Logger.error("I/O failure while sending exam to XM");
+                    logger.error("I/O failure while sending exam to XM");
                 }
             });
         }).build();
@@ -70,17 +72,17 @@ public class AssessmentTransferActor extends AbstractActor {
 
     private void send(ExamEnrolment enrolment) throws IOException {
         String ref = enrolment.getReservation().getExternalRef();
-        Logger.debug("Transferring back assessment for reservation " + ref);
+        logger.debug("Transferring back assessment for reservation " + ref);
         URL url = parseUrl(ref);
         WSRequest request = wsClient.url(url.toString());
         ExternalExam ee = enrolment.getExternalExam();
         Function<WSResponse, Void> onSuccess = response -> {
             if (response.getStatus() != 201) {
-                Logger.error("Failed in transferring assessment for reservation " + ref);
+                logger.error("Failed in transferring assessment for reservation " + ref);
             } else {
                 ee.setSent(DateTime.now());
                 ee.update();
-                Logger.info("Assessment transfer for reservation " + ref + " processed successfully");
+                logger.info("Assessment transfer for reservation " + ref + " processed successfully");
             }
             return null;
         };

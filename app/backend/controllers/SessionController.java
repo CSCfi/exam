@@ -59,6 +59,7 @@ import backend.models.Role;
 import backend.models.Session;
 import backend.models.User;
 import backend.models.dto.Credentials;
+import backend.security.SessionHandler;
 import backend.util.AppUtil;
 import backend.util.config.ConfigUtil;
 import backend.util.datetime.DateTimeUtils;
@@ -67,17 +68,24 @@ public class SessionController extends BaseController {
 
     private final Environment environment;
 
+    private final SessionHandler sessionHandler;
+
     private final ExternalExamAPI externalExamAPI;
 
+    private static final Logger.ALogger logger = Logger.of(SessionController.class);
+
+    private static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
     private static final String CSRF_COOKIE = ConfigFactory.load().getString("play.filters.csrf.cookie.name");
     private static final Boolean MULTI_STUDENT_ID_ON =
             ConfigFactory.load().getBoolean("sitnet.user.studentIds.multiple.enabled");
     private static final String MULTI_STUDENT_ID_ORGS =
             ConfigFactory.load().getString("sitnet.user.studentIds.multiple.organisations");
+    private static final int SESSION_TIMEOUT_MINUTES = 30;
 
     @Inject
-    public SessionController(Environment environment, ExternalExamAPI externalExamAPI) {
+    public SessionController(Environment environment, SessionHandler sessionHandler, ExternalExamAPI externalExamAPI) {
         this.environment = environment;
+        this.sessionHandler = sessionHandler;
         this.externalExamAPI = externalExamAPI;
     }
 
@@ -112,9 +120,9 @@ public class SessionController extends BaseController {
         boolean newUser = user == null;
         try {
             if (newUser) {
-                user = createNewUser(eppn, isTemporaryVisitor);
+                user = createNewUser(eppn, request, isTemporaryVisitor);
             } else {
-                updateUser(user);
+                updateUser(user, request);
             }
         } catch (NotFoundException | AddressException e) {
             return wrapAsPromise(badRequest(e.getMessage()));
@@ -132,7 +140,7 @@ public class SessionController extends BaseController {
             return wrapAsPromise(unauthorized("Developer login mode not allowed while in production!"));
         }
         Credentials credentials = bindForm(Credentials.class, request);
-        Logger.debug("User login with username: {}", credentials.getUsername() + "@funet.fi");
+        logger.debug("User login with username: {}", credentials.getUsername() + "@funet.fi");
         if (credentials.getPassword() == null || credentials.getUsername() == null) {
             return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
         }
@@ -221,7 +229,7 @@ public class SessionController extends BaseController {
         try {
             new InternetAddress(email).validate();
         } catch (AddressException e) {
-            Logger.warn("User has invalid email: {}", email);
+            logger.warn("User has invalid email: {}", email);
             return Optional.empty();
         }
         return Optional.of(email);
@@ -271,29 +279,29 @@ public class SessionController extends BaseController {
         return Ebean.find(Organisation.class).where().eq("code", attribute).findOne();
     }
 
-    private void updateUser(User user) throws AddressException {
-        user.setOrganisation(parse(request().header("homeOrganisation").orElse(""))
+    private void updateUser(User user, Http.Request request) throws AddressException {
+        user.setOrganisation(parse(request.header("homeOrganisation").orElse(""))
                 .map(this::findOrganisation).orElse(null));
-        user.setUserIdentifier(parse(request().header("schacPersonalUniqueCode").orElse(""))
+        user.setUserIdentifier(parse(request.header("schacPersonalUniqueCode").orElse(""))
                 .map(this::parseUserIdentifier).orElse(null));
-        user.setEmail(parse(request().header("mail").orElse(""))
+        user.setEmail(parse(request.header("mail").orElse(""))
                 .flatMap(this::validateEmail).orElseThrow(() -> new AddressException("invalid mail address")));
 
-        user.setLastName(parse(request().header("sn").orElse(""))
+        user.setLastName(parse(request.header("sn").orElse(""))
                 .orElseThrow(IllegalArgumentException::new));
-        user.setFirstName(parseGivenName(request()));
-        user.setEmployeeNumber(parse(request().header("employeeNumber").orElse("")).orElse(null));
-        user.setLogoutUrl(parse(request().header("logouturl").orElse("")).orElse(null));
+        user.setFirstName(parseGivenName(request));
+        user.setEmployeeNumber(parse(request.header("employeeNumber").orElse("")).orElse(null));
+        user.setLogoutUrl(parse(request.header("logouturl").orElse("")).orElse(null));
     }
 
-    private User createNewUser(String eppn, boolean ignoreRoleNotFound) throws NotFoundException, AddressException {
+    private User createNewUser(String eppn, Http.Request request, boolean ignoreRoleNotFound) throws NotFoundException, AddressException {
         User user = new User();
-        user.getRoles().addAll(parseRoles(parse(request().header("unscoped-affiliation").orElse(""))
+        user.getRoles().addAll(parseRoles(parse(request.header("unscoped-affiliation").orElse(""))
                 .orElseThrow(() -> new NotFoundException("role not found")), ignoreRoleNotFound));
-        user.setLanguage(getLanguage(parse(request().header("preferredLanguage").orElse(""))
+        user.setLanguage(getLanguage(parse(request.header("preferredLanguage").orElse(""))
                 .orElse(null)));
         user.setEppn(eppn);
-        updateUser(user);
+        updateUser(user, request);
         return user;
     }
 
@@ -326,8 +334,9 @@ public class SessionController extends BaseController {
     }
 
     // prints HAKA attributes, used for debugging
-    public Result getAttributes() {
-        Http.Headers attributes = request().getHeaders();
+    @ActionMethod
+    public Result getAttributes(Http.Request request) {
+        Http.Headers attributes = request.getHeaders();
         ObjectNode node = Json.newObject();
 
         for (Map.Entry<String, List<String>> entry : attributes.toMap().entrySet()) {
@@ -363,7 +372,7 @@ public class SessionController extends BaseController {
             User user = Ebean.find(User.class, session.getUserId());
             session.setValid(false);
             updateSession(session, request);
-            Logger.info("Set session for user #{} as invalid", session.getUserId());
+            logger.info("Set session for user #{} as invalid", session.getUserId());
             if (user != null && user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());
@@ -413,19 +422,31 @@ public class SessionController extends BaseController {
     public Result checkSession(Http.Request request) {
         Optional<Session> os = getSession(request);
         if (!os.isPresent() || os.get().getSince() == null) {
-            Logger.info("Session not found");
+            logger.info("Session not found");
             return ok("no_session");
         }
-        DateTime expirationTime = os.get().getSince().plusMinutes(SITNET_TIMEOUT_MINUTES);
+        DateTime expirationTime = os.get().getSince().plusMinutes(SESSION_TIMEOUT_MINUTES);
         DateTime alarmTime = expirationTime.minusMinutes(2);
-        Logger.debug("Session expiration due at {}", expirationTime);
+        logger.debug("Session expiration due at {}", expirationTime);
         if (expirationTime.isBeforeNow()) {
-            Logger.info("Session has expired");
+            logger.info("Session has expired");
             return ok("no_session");
         } else if (alarmTime.isBeforeNow()) {
             return ok("alarm");
         }
         return ok();
+    }
+
+    private Optional<Session> getSession(Http.Request request) {
+        return sessionHandler.getSession(request);
+    }
+
+    private void updateSession(Session session, Http.Request request) {
+        sessionHandler.updateSession(request, session);
+    }
+
+    protected String createSession(Session session, Http.Request request) {
+        return sessionHandler.createSession(request, session);
     }
 
     private static Optional<String> parse(String src) {

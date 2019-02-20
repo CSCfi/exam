@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
@@ -37,6 +36,8 @@ import backend.models.User;
 import backend.models.base.OwnedModel;
 
 public final class AppUtil {
+
+    private static final Logger.ALogger logger = Logger.of(AppUtil.class);
 
     private AppUtil() {}
 
@@ -61,22 +62,17 @@ public final class AppUtil {
         Path path = FileSystems.getDefault().getPath(filePath);
         try {
             if (!Files.deleteIfExists(path)) {
-                Logger.error("Could not delete " + path + " because it does not exist.");
+                logger.error("Could not delete " + path + " because it does not exist.");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void copyFile(File sourceFile, File destFile) throws IOException {
-        Files.copy(sourceFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING,
-                StandardCopyOption.COPY_ATTRIBUTES);
-    }
-
     public static void notifyPrivateExamEnded(Collection<User> recipients, Exam exam, EmailComposer composer) {
         for (User r : recipients) {
             composer.composePrivateExamEnded(r, exam);
-            Logger.info("Email sent to {}", r.getEmail());
+            logger.info("Email sent to {}", r.getEmail());
         }
     }
 
@@ -89,7 +85,7 @@ public final class AppUtil {
 
         File dir = new File(path.toString());
         if (dir.mkdirs()) {
-            Logger.info("Created attachment directory");
+            logger.info("Created attachment directory");
         }
         String rndFileName = UUID.randomUUID().toString();
         return path.append(File.separator).append(rndFileName).toString();

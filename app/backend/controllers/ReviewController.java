@@ -25,7 +25,6 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -73,8 +72,6 @@ import backend.models.ExamEnrolment;
 import backend.models.ExamExecutionType;
 import backend.models.ExamInspection;
 import backend.models.ExamParticipation;
-import backend.models.sections.ExamSection;
-import backend.models.sections.ExamSectionQuestion;
 import backend.models.ExamType;
 import backend.models.Grade;
 import backend.models.GradeScale;
@@ -87,9 +84,12 @@ import backend.models.base.GeneratedIdentityModel;
 import backend.models.questions.ClozeTestAnswer;
 import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CommaJoinedListSanitizer;
 import backend.system.interceptors.Anonymous;
+import backend.security.Authenticated;
 import backend.util.AppUtil;
 import backend.util.csv.CsvBuilder;
 import backend.util.file.FileHandler;
@@ -108,9 +108,11 @@ public class ReviewController extends BaseController {
     @Inject
     protected ActorSystem actor;
 
+    private static final Logger.ALogger logger = Logger.of(ReviewController.class);
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail", "grade"})
-    public Result getParticipationsForExamAndUser(Long eid) {
+    public Result getParticipationsForExamAndUser(Long eid, Http.Request request) {
         final Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound();
@@ -128,12 +130,12 @@ public class ReviewController extends BaseController {
                 .eq("exam.state", Exam.State.ARCHIVED)
                 .endJunction()
                 .findList();
-        return writeAnonymousResult(ok(participations), exam.isAnonymous());
+        return writeAnonymousResult(request, ok(participations), exam.isAnonymous());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail"})
-    public Result listNoShowsForExamAndUser(Long eid) {
+    public Result listNoShowsForExamAndUser(Long eid, Http.Request request) {
         final Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound();
@@ -146,12 +148,13 @@ public class ReviewController extends BaseController {
                 .eq("reservation.noShow", true)
                 .orderBy("reservation.endAt")
                 .findList();
-        return writeAnonymousResult(ok(enrolments), exam.isAnonymous());
+        return writeAnonymousResult(request, ok(enrolments), exam.isAnonymous());
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user", "preEnrolledUserEmail", "creator", "modifier"})
-    public Result getExamReview(Long eid) {
+    public Result getExamReview(Long eid, Http.Request request) {
         ExpressionList<Exam> query = createQuery()
                 .where()
                 .eq("id", eid)
@@ -162,8 +165,8 @@ public class ReviewController extends BaseController {
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .eq("state", Exam.State.REJECTED)
                 .eq("state", Exam.State.ARCHIVED);
-        User user = getLoggedUser();
-        boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        boolean isAdmin = user.hasRole(Role.Name.ADMIN);
         if (isAdmin) {
             query = query.eq("state", Exam.State.ABORTED);
         }
@@ -187,13 +190,14 @@ public class ReviewController extends BaseController {
                     }
                     esq.getClozeTestAnswer().setQuestionWithResults(esq);
                 });
-        return writeAnonymousResult(ok(exam), exam.isAnonymous());
+        return writeAnonymousResult(request, ok(exam), exam.isAnonymous());
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user", "creator", "modifier"})
-    public Result getExamReviews(Long eid) {
-        User user = getLoggedUser();
+    public Result getExamReviews(Long eid, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         PathProperties pp = PathProperties.parse("(" +
                 "id, name, anonymous, state, gradedTime, customCredit, creditType, gradeless, answerLanguage, trialCount, " +
                 "gradeScale(grades(*)), creditType(*), examType(*), executionType(*), examFeedback(*), grade(*)" +
@@ -211,7 +215,7 @@ public class ReviewController extends BaseController {
                 .eq("parent.id", eid)
                 .in("state", Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED,
                         Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED, Exam.State.ARCHIVED);
-        if (!user.hasRole(Role.Name.ADMIN.toString(), getSession())) {
+        if (!user.hasRole(Role.Name.ADMIN)) {
             query.where().disjunction()
                     .eq("parent.examOwners", user)
                     .eq("examInspections.user", user)
@@ -234,12 +238,12 @@ public class ReviewController extends BaseController {
         }).collect(Collectors.toSet());
 
         final Result result = ok(participations);
-        return writeAnonymousResult(result, anonIds);
+        return writeAnonymousResult(request, result, anonIds);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result scoreExamQuestion(Long id) {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result scoreExamQuestion(Long id, Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         ExamSectionQuestion essayQuestion = Ebean.find(ExamSectionQuestion.class, id);
         if (essayQuestion == null) {
             return notFound("question not found");
@@ -259,9 +263,10 @@ public class ReviewController extends BaseController {
         return ok();
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER")})
-    public Result updateAssessmentInfo(Long id) {
-        String info = request().body().asJson().get("assessmentInfo").asText();
+    public Result updateAssessmentInfo(Long id, Http.Request request) {
+        String info = request.body().asJson().get("assessmentInfo").asText();
         Optional<Exam> option = Ebean.find(Exam.class).fetch("parent.creator")
                 .where()
                 .idEq(id)
@@ -271,7 +276,8 @@ public class ReviewController extends BaseController {
             return notFound("sitnet_exam_not_found");
         }
         Exam exam = option.get();
-        if (exam.getState() != Exam.State.GRADED_LOGGED || !isAllowedToModify(exam, getLoggedUser(), exam.getState())) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (exam.getState() != Exam.State.GRADED_LOGGED || isDisallowedToModify(exam, user, exam.getState())) {
             return forbidden("You are not allowed to modify this object");
         }
         exam.setAssessmentInfo(info);
@@ -279,16 +285,17 @@ public class ReviewController extends BaseController {
         return ok();
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result reviewExam(Long id) {
-        DynamicForm df = formFactory.form().bindFromRequest();
+    public Result reviewExam(Long id, Http.Request request) {
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator").where().idEq(id).findOne();
         if (exam == null) {
             return notFound("sitnet_exam_not_found");
         }
-        User user = getLoggedUser();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Exam.State newState = Exam.State.valueOf(df.get("state"));
-        if (!isAllowedToModify(exam, user, newState)) {
+        if (isDisallowedToModify(exam, user, newState)) {
             return forbidden("You are not allowed to modify this object");
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
@@ -297,7 +304,7 @@ public class ReviewController extends BaseController {
 
         if (isRejectedInLanguageInspection(exam, user, newState)) {
             // Just update state, do not allow other modifications here
-            return updateReviewState(exam, newState, true);
+            return updateReviewState(user, exam, newState, true);
         }
         Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
         String additionalInfo = df.get("additionalInfo");
@@ -339,21 +346,22 @@ public class ReviewController extends BaseController {
         } else {
             exam.setCustomCredit(null);
         }
-        return updateReviewState(exam, newState, false);
+        return updateReviewState(user, exam, newState, false);
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result sendInspectionMessage(Long eid) {
+    public Result sendInspectionMessage(Long eid, Http.Request request) {
 
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        JsonNode body = request().body().asJson();
+        JsonNode body = request.body().asJson();
         if (!body.has("msg")) {
             return badRequest("no message received");
         }
-        User loggedUser = getLoggedUser();
+        User loggedUser = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
                 .fetch("user")
                 .fetch("exam")
@@ -385,7 +393,7 @@ public class ReviewController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Anonymous(filteredProperties = {"user"})
-    public Result listNoShows(Long eid) {
+    public Result listNoShows(Long eid, Http.Request request) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
                 .fetch("exam.executionType")
@@ -402,11 +410,12 @@ public class ReviewController extends BaseController {
         Set<Long> anonIds = enrolments.stream().filter(e -> e.getExam().isAnonymous())
                 .map(GeneratedIdentityModel::getId)
                 .collect(Collectors.toSet());
-        return writeAnonymousResult(result, anonIds);
+        return writeAnonymousResult(request, result, anonIds);
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result insertComment(Long eid, Long cid) {
+    public Result insertComment(Long eid, Long cid, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
@@ -414,8 +423,8 @@ public class ReviewController extends BaseController {
         if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden();
         }
-        Comment comment = bindForm(Comment.class);
-        AppUtil.setCreator(comment, getLoggedUser());
+        Comment comment = bindForm(Comment.class, request);
+        AppUtil.setCreator(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
         comment.save();
 
         exam.setExamFeedback(comment);
@@ -424,8 +433,9 @@ public class ReviewController extends BaseController {
         return ok(comment);
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateComment(Long eid, Long cid) {
+    public Result updateComment(Long eid, Long cid, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
@@ -433,13 +443,13 @@ public class ReviewController extends BaseController {
         if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden();
         }
-        Comment form = bindForm(Comment.class);
+        Comment form = bindForm(Comment.class, request);
         Comment comment = Ebean.find(Comment.class).fetch("creator", "firstName, lastName").where().idEq(cid).findOne();
         if (comment == null) {
             return notFound();
         }
         if (form.getComment() != null) {
-            AppUtil.setModifier(comment, getLoggedUser());
+            AppUtil.setModifier(comment, request.attrs().get(Attrs.AUTHENTICATED_USER));
             comment.setComment(form.getComment());
             comment.save();
             exam.setExamFeedback(comment);
@@ -448,15 +458,16 @@ public class ReviewController extends BaseController {
         return ok(comment);
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result addInspectionComment(Long id) {
+    public Result addInspectionComment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
             return notFound("Inspection not found");
         }
-        DynamicForm df = formFactory.form().bindFromRequest();
+        DynamicForm df = formFactory.form().bindFromRequest(request);
         InspectionComment ic = new InspectionComment();
-        User user = getLoggedUser();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         AppUtil.setCreator(ic, user);
         AppUtil.setModifier(ic, user);
         ic.setComment(df.get("comment"));
@@ -465,23 +476,10 @@ public class ReviewController extends BaseController {
         return ok(ic, PathProperties.parse("(creator(firstName, lastName, email), created, comment)"));
     }
 
-    private List<String> parseArrayFieldFromBody(String field) {
-        DynamicForm df = formFactory.form().bindFromRequest();
-        String args = df.get(field);
-        String[] array;
-        if (args == null || args.isEmpty()) {
-            array = new String[]{};
-        } else {
-            array = args.split(",");
-        }
-        return Arrays.asList(array);
-    }
-
-
     @With(CommaJoinedListSanitizer.class)
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result archiveExams() {
-        Collection<Long> ids = request().attrs().get(Attrs.ID_COLLECTION);
+    public Result archiveExams(Http.Request request) {
+        Collection<Long> ids = request.attrs().get(Attrs.ID_COLLECTION);
         List<Exam> exams = Ebean.find(Exam.class).where()
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .idIn(ids)
@@ -547,7 +545,7 @@ public class ReviewController extends BaseController {
                             esq.getQuestion().getId() : esq.getQuestion().getParent().getId();
                     questions.put(questionId, esq.getQuestion().getQuestion());
                     String questionIdText = esq.getQuestion().getParent() == null ?
-                            Long.toString(questionId) + "#original_question_removed" :
+                            questionId + "#original_question_removed" :
                             Long.toString(esq.getQuestion().getParent().getId());
                     EssayAnswer answer = esq.getEssayAnswer();
                     Attachment attachment;
@@ -563,7 +561,7 @@ public class ReviewController extends BaseController {
                             aos.putArchiveEntry(entry);
                             IOUtils.copy(new FileInputStream(file), aos);
                         } else {
-                            Logger.warn("Attachment {} is not connected to a file on disk!", attachment.getId());
+                            logger.warn("Attachment {} is not connected to a file on disk!", attachment.getId());
                         }
                     }
                     if (file == null || !file.exists()) {
@@ -579,20 +577,21 @@ public class ReviewController extends BaseController {
         createSummaryFile(aos, start, end, prototype, questions);
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result importGrades() {
-        Http.MultipartFormData<File> body = request().body().asMultipartFormData();
+    public Result importGrades(Http.Request request) {
+        Http.MultipartFormData<File> body = request.body().asMultipartFormData();
         Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
         if (filePart == null) {
             return notFound();
         }
-        File file = filePart.getFile();
-        User user = getLoggedUser();
-        boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
+        File file = filePart.getRef();
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        boolean isAdmin = user.hasRole(Role.Name.ADMIN);
         try {
             csvBuilder.parseGrades(file, user, isAdmin ? Role.Name.ADMIN : Role.Name.TEACHER);
         } catch (IOException e) {
-            Logger.error("Failed to parse CSV file. Stack trace follows");
+            logger.error("Failed to parse CSV file. Stack trace follows");
             e.printStackTrace();
             return internalServerError("sitnet_internal_error");
         }
@@ -628,12 +627,12 @@ public class ReviewController extends BaseController {
                 return notFound("sitnet_no_attachments_to_archive");
             }
         } catch (IOException e) {
-            Logger.error("Failed in creating a tarball", e);
+            logger.error("Failed in creating a tarball", e);
         }
-        fileHandler.setContentType(tarball, response());
+        String contentDisposition = fileHandler.getContentDisposition(tarball);
         byte[] data = fileHandler.read(tarball);
         String body = Base64.getEncoder().encodeToString(data);
-        return ok(body);
+        return ok(body).withHeader("Content-Disposition", contentDisposition);
     }
 
 
@@ -643,36 +642,35 @@ public class ReviewController extends BaseController {
                 li.getFinishedAt() != null && user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE);
     }
 
-    private boolean isAllowedToModify(Exam exam, User user, Exam.State newState) {
-        return exam.getParent().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession()) ||
-                isRejectedInLanguageInspection(exam, user, newState);
+    private boolean isDisallowedToModify(Exam exam, User user, Exam.State newState) {
+        return !exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN) &&
+                !isRejectedInLanguageInspection(exam, user, newState);
     }
 
-    private Result updateReviewState(Exam exam, Exam.State newState, boolean stateOnly) {
+    private Result updateReviewState(User user, Exam exam, Exam.State newState, boolean stateOnly) {
         exam.setState(newState);
         // set grading info only if exam is really graded, not just modified
         if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)) {
             if (!stateOnly) {
                 exam.setGradedTime(DateTime.now());
-                exam.setGradedByUser(getLoggedUser());
+                exam.setGradedByUser(user);
             }
             if (exam.hasState(Exam.State.REJECTED)) {
                 // inform student
-                notifyPartiesAboutPrivateExamRejection(exam);
+                notifyPartiesAboutPrivateExamRejection(user, exam);
             }
         }
         exam.update();
         return ok();
     }
 
-    private void notifyPartiesAboutPrivateExamRejection(Exam exam) {
-        User user = getLoggedUser();
+    private void notifyPartiesAboutPrivateExamRejection(User user, Exam exam) {
         final Set<User> examinators = exam.getExecutionType().getType().equals(
                 ExamExecutionType.Type.MATURITY.toString())
                 ? exam.getParent().getExamOwners() : Collections.emptySet();
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             emailComposer.composeInspectionReady(exam.getCreator(), user, exam, examinators);
-            Logger.info("Inspection rejection notification email sent");
+            logger.info("Inspection rejection notification email sent");
         }, actor.dispatcher());
     }
 

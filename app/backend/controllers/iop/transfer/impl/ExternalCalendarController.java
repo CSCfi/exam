@@ -54,6 +54,7 @@ import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
@@ -68,6 +69,8 @@ import backend.models.MailAddress;
 import backend.models.Reservation;
 import backend.models.User;
 import backend.models.iop.ExternalReservation;
+import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
 import backend.util.config.ConfigUtil;
 import backend.util.datetime.DateTimeUtils;
 
@@ -79,6 +82,8 @@ public class ExternalCalendarController extends CalendarController {
 
     @Inject
     private CalendarHandler calendarHandler;
+
+    private static Logger.ALogger logger = Logger.of(ExternalCalendarController.class);
 
     private static URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration)
             throws MalformedURLException {
@@ -125,9 +130,9 @@ public class ExternalCalendarController extends CalendarController {
     // Actions invoked by central IOP server
 
     @SubjectNotPresent
-    public Result provideReservation() {
+    public Result provideReservation(Http.Request request) {
         // Parse request body
-        JsonNode node = request().body().asJson();
+        JsonNode node = request.body().asJson();
         String reservationRef = node.get("id").asText();
         String roomRef = node.get("roomId").asText();
         DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(node.get("start").asText());
@@ -216,11 +221,12 @@ public class ExternalCalendarController extends CalendarController {
     }
 
     // Actions invoked directly by logged in users
+    @Authenticated
     @Restrict(@Group("STUDENT"))
-    public CompletionStage<Result> requestReservation() throws MalformedURLException {
-        User user = getLoggedUser();
+    public CompletionStage<Result> requestReservation(Http.Request request) throws MalformedURLException {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         // Parse request body
-        JsonNode node = request().body().asJson();
+        JsonNode node = request.body().asJson();
         String homeOrgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
         String orgRef = node.get("orgId").asText();
         String roomRef = node.get("roomId").asText();
@@ -256,31 +262,34 @@ public class ExternalCalendarController extends CalendarController {
         body.put("start", ISODateTimeFormat.dateTime().print(start));
         body.put("end", ISODateTimeFormat.dateTime().print(end));
         body.put("user", user.getEppn());
-        WSRequest request = wsClient.url(url.toString());
+        WSRequest wsRequest = wsClient.url(url.toString());
         Function<WSResponse, Result> onSuccess = response -> {
             JsonNode root = response.asJson();
-            if (response.getStatus() != 201) {
+            if (response.getStatus() != Http.Status.CREATED) {
                 return internalServerError(root.get("message").asText("Connection refused"));
             }
             handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef);
             return created(root.get("id"));
         };
-        return request.post(body).thenApplyAsync(onSuccess);
+        return wsRequest.post(body).thenApplyAsync(onSuccess);
     }
 
+    @Authenticated
     @Restrict(@Group("STUDENT"))
-    public CompletionStage<Result> requestReservationRemoval(String ref) throws MalformedURLException {
-        User user = getLoggedUser();
+    public CompletionStage<Result> requestReservationRemoval(String ref, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", ref).findOne();
         return externalReservationHandler.removeReservation(reservation, user);
     }
 
+    @Authenticated
     @Restrict(@Group("STUDENT"))
-    public CompletionStage<Result> requestSlots(Long examId, String roomRef, Optional<String> org, Optional<String> date)
+    public CompletionStage<Result> requestSlots(Long examId, String roomRef, Optional<String> org,
+                                                Optional<String> date, Http.Request request)
             throws MalformedURLException {
         if (org.isPresent() && date.isPresent()) {
             // First check that exam exists
-            User user = getLoggedUser();
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
             ExamEnrolment ee = getEnrolment(examId, user);
             // For now do not allow making an external reservation for collaborative exam
             if (ee == null || ee.getCollaborativeExam() != null) {
@@ -299,16 +308,16 @@ public class ExternalCalendarController extends CalendarController {
             String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveEndDate()));
             Integer duration = exam.getDuration();
             URL url = parseUrl(org.get(), roomRef, date.get(), start, end, duration);
-            WSRequest request = wsClient.url(url.toString().split("\\?")[0]).setQueryString(url.getQuery());
+            WSRequest wsRequest = wsClient.url(url.toString().split("\\?")[0]).setQueryString(url.getQuery());
             Function<WSResponse, Result> onSuccess = response -> {
                 JsonNode root = response.asJson();
-                if (response.getStatus() != 200) {
+                if (response.getStatus() != Http.Status.OK) {
                     return internalServerError(root.get("message").asText("Connection refused"));
                 }
                 Set<CalendarHandler.TimeSlot> slots = postProcessSlots(root, date.get(), exam, user);
                 return ok(Json.toJson(slots));
             };
-            return request.get().thenApplyAsync(onSuccess);
+            return wsRequest.get().thenApplyAsync(onSuccess);
         } else {
             return wrapAsPromise(badRequest());
         }
@@ -361,7 +370,7 @@ public class ExternalCalendarController extends CalendarController {
         // Send some emails asynchronously
         system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             emailComposer.composeReservationNotification(user, reservation, exam, false);
-            Logger.info("Reservation confirmation email sent to {}", user.getEmail());
+            logger.info("Reservation confirmation email sent to {}", user.getEmail());
         }, system.dispatcher());
     }
 

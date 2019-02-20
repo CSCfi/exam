@@ -14,17 +14,15 @@
  *
  */
 
-package backend.system.interceptors;
+package backend.security;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 
-import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import play.Logger;
-import play.cache.SyncCacheApi;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -37,23 +35,17 @@ import backend.sanitizers.Attrs;
 
 public class AuthenticatedAction extends Action<Authenticated> {
 
-    private SyncCacheApi cache;
+    private SessionHandler sessionHandler;
 
-    private static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
     private static final Logger.ALogger logger = Logger.of(AuthenticatedAction.class);
 
     @Inject
-    public AuthenticatedAction(SyncCacheApi cache) {
-        this.cache = cache;
-    }
-
-    private Optional<String> getToken(Http.Request request) {
-        return request.header(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : configuration.tokenHeader());
+    public AuthenticatedAction(SessionHandler sessionHandler) {
+        this.sessionHandler = sessionHandler;
     }
 
     private Optional<User> getLoggedInUser(Http.Request request) {
-        Optional<Session> session =
-                cache.getOptional(configuration.cacheKey() + getToken(request).orElse(""));
+        Optional<Session> session = sessionHandler.getSession(request);
         if (session.isPresent()) {
             Optional<User> ou = session.map(s -> Ebean.find(User.class, s.getUserId()));
             if (ou.isPresent()) {

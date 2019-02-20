@@ -52,7 +52,7 @@ import backend.sanitizers.Attrs;
 import backend.sanitizers.EnrolmentCourseInformationSanitizer;
 import backend.sanitizers.EnrolmentInformationSanitizer;
 import backend.sanitizers.StudentEnrolmentSanitizer;
-import backend.system.interceptors.Authenticated;
+import backend.security.Authenticated;
 import backend.util.config.ConfigUtil;
 import backend.util.datetime.DateTimeUtils;
 import backend.validators.JsonValidator;

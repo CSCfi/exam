@@ -20,21 +20,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
-import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import play.Logger;
-import play.cache.SyncCacheApi;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.typedmap.TypedKey;
@@ -50,25 +46,17 @@ import backend.models.ExamEnrolment;
 import backend.models.ExamParticipation;
 import backend.models.Reservation;
 import backend.models.Role;
-import backend.models.Session;
 import backend.models.User;
 import backend.models.api.CountsAsTrial;
+import backend.sanitizers.Attrs;
 import backend.system.interceptors.AnonymousJsonAction;
 
 public class BaseController extends Controller {
 
-    public static final String SITNET_CACHE_KEY = "user.session.";
-
-    protected static final int SITNET_TIMEOUT_MINUTES = 30;
-    protected static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
-
     private static final double HUNDRED = 100d;
-    public static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
 
     private static final Logger.ALogger logger = Logger.of(BaseController.class);
 
-    @Inject
-    protected SyncCacheApi cache;
     @Inject
     protected FormFactory formFactory;
     @Inject
@@ -100,51 +88,6 @@ public class BaseController extends Controller {
     protected Result created(Object object, PathProperties props) {
         String body = Ebean.json().toJson(object, props);
         return created(body).as("application/json");
-    }
-
-    private Optional<String> createToken(Http.Request request) {
-        return LOGIN_TYPE.equals("HAKA") ?
-                request.header("Shib-Session-ID") :
-                Optional.of(UUID.randomUUID().toString());
-    }
-
-    @Deprecated
-    public static Optional<String> getToken(Http.Request request) {
-        return request.header(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
-    }
-
-    @Deprecated
-    public static Optional<String> getToken(Http.Context ctx) {
-        return ctx.request().header(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
-    }
-
-    @Deprecated
-    protected User getLoggedUser(Http.Request request) {
-        Optional<Session> session = cache.getOptional(SITNET_CACHE_KEY + getToken(request).orElse(""));
-        if (session.isPresent()) {
-            Optional<User> ou = session.map(session1 -> Ebean.find(User.class, session1.getUserId()));
-            if (ou.isPresent()) {
-                User user = ou.get();
-                user.setLoginRole(Role.Name.valueOf(session.get().getLoginRole()));
-                return user;
-            }
-        }
-        return null;
-    }
-
-    @Deprecated
-    protected Optional<Session> getSession(Http.Request request) {
-        return cache.getOptional(SITNET_CACHE_KEY + getToken(request).orElse(""));
-    }
-
-    protected void updateSession(Session session, Http.Request request) {
-        cache.set(SITNET_CACHE_KEY + getToken(request).orElse(""), session);
-    }
-
-    protected String createSession(Session session, Http.Request request) {
-        String token = createToken(request).orElse("INVALID");
-        cache.set(SITNET_CACHE_KEY + token, session);
-        return token;
     }
 
     protected <T> ExpressionList<T> applyUserFilter(String prefix, ExpressionList<T> query, String filter) {
@@ -235,10 +178,6 @@ public class BaseController extends Controller {
         return CompletableFuture.supplyAsync(() -> result);
     }
 
-    protected boolean isUserAdmin(Http.Request request) {
-        return getLoggedUser(request).hasRole(Role.Name.ADMIN);
-    }
-
     protected Double round(Double src) {
         return src == null ? null : Math.round(src * HUNDRED) / HUNDRED;
     }
@@ -251,11 +190,13 @@ public class BaseController extends Controller {
     }
 
     protected Result writeAnonymousResult(Http.Request request, Result result, boolean anonymous) {
-        return writeAnonymousResult(request, result, anonymous, isUserAdmin(request));
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        return writeAnonymousResult(request, result, anonymous, user.hasRole(Role.Name.ADMIN));
     }
 
     protected Result writeAnonymousResult(Http.Request request, Result result, Set<Long> anonIds) {
-        if (!anonIds.isEmpty() && !getLoggedUser(request).hasRole(Role.Name.ADMIN)) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (!anonIds.isEmpty() && !user.hasRole(Role.Name.ADMIN)) {
             return withAnonymousHeader(result, request, anonIds);
         }
         return result;

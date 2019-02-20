@@ -58,6 +58,8 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
     @Inject
     private Environment environment;
 
+    private static final Logger.ALogger logger = Logger.of(ExternalAttachmentLoaderImpl.class);
+
     @Override
     public CompletableFuture<Void> fetchExternalAttachmentsAsLocal(Exam exam) {
         final ArrayList<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -104,7 +106,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                     attachment.setExternalId(externalId);
                     File file = new File(attachment.getFilePath());
                     if (!file.exists()) {
-                        Logger.warn("Could not find file {} for attachment id {}.",
+                        logger.warn("Could not find file {} for attachment id {}.",
                                 file.getAbsoluteFile(), attachment.getId());
                         return;
                     }
@@ -113,7 +115,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                         updateRequest = wsClient.url(parseUrl("/api/attachments/%s",
                                 attachment.getExternalId()).toString());
                     } catch (MalformedURLException e) {
-                        Logger.error("Invalid URL!", e);
+                        logger.error("Invalid URL!", e);
                         return;
                     }
                     final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.toPath());
@@ -124,11 +126,11 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
 
                     updateRequest.put(Source.from(Arrays.asList(filePart, dp)))
                             .thenAccept(wsResponse -> {
-                                if (wsResponse.getStatus() != 200) {
-                                    Logger.warn("File upload {} failed!", file.getAbsoluteFile());
+                                if (wsResponse.getStatus() != Http.Status.OK) {
+                                    logger.warn("File upload {} failed!", file.getAbsoluteFile());
                                     return;
                                 }
-                                Logger.info("Uploaded file {} for external exam.", file.getAbsoluteFile());
+                                logger.info("Uploaded file {} for external exam.", file.getAbsoluteFile());
                             });
                 }).toCompletableFuture();
     }
@@ -158,7 +160,7 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
     private CompletableFuture<Void> createFromExternalAttachment(Attachment attachment, String... pathParams) {
         return CompletableFuture.runAsync(() -> {
             if (StringUtils.isEmpty(attachment.getExternalId())) {
-                Logger.error("Could not find external ID for an attachment");
+                logger.error("Could not find external ID for an attachment");
                 return;
             }
             final URL attachmentUrl;
@@ -175,12 +177,12 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                                 .runWith(FileIO.toPath(Paths.get(filePath)), ActorMaterializer.create(actor))
                                 .thenAccept(ioResult -> {
                                     if (!ioResult.wasSuccessful()) {
-                                        Logger.error("Could not write file " + filePath + " to disk!");
+                                        logger.error("Could not write file " + filePath + " to disk!");
                                         return;
                                     }
                                     attachment.setFilePath(filePath);
                                     attachment.save();
-                                    Logger.info("Saved attachment {} locally as # {}",
+                                    logger.info("Saved attachment {} locally as # {}",
                                             attachment.getExternalId(), attachment.getId());
                                 });
                     });

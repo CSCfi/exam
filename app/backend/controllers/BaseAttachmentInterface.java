@@ -16,11 +16,11 @@
 
 package backend.controllers;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -29,13 +29,18 @@ import akka.util.ByteString;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
+import play.Logger;
+import play.libs.Files.TemporaryFile;
 import play.mvc.Http;
 import play.mvc.Result;
 
 import backend.models.Attachment;
 import backend.models.Exam;
+import backend.models.User;
 import backend.models.sections.ExamSectionQuestion;
-import backend.system.interceptors.Authenticated;
+import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
+import backend.util.config.ConfigUtil;
 import backend.util.file.ChunkMaker;
 
 import static play.mvc.Results.ok;
@@ -43,7 +48,7 @@ import static play.mvc.Results.ok;
 public interface BaseAttachmentInterface<T> {
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    CompletionStage<Result> downloadExamAttachment(T id);
+    CompletionStage<Result> downloadExamAttachment(T id, Http.Request request);
 
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -79,11 +84,19 @@ public interface BaseAttachmentInterface<T> {
 
     @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    CompletionStage<Result> deleteFeedbackAttachment(T id);
+    CompletionStage<Result> deleteFeedbackAttachment(T id, Http.Request request);
 
     @Authenticated
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
-    CompletionStage<Result> deleteStatementAttachment(T id);
+    CompletionStage<Result> deleteStatementAttachment(T id, Http.Request request);
+
+    default User getUser(Http.Request request) {
+        return request.attrs().get(Attrs.AUTHENTICATED_USER);
+    }
+
+    default Logger.ALogger logger() {
+        return Logger.of(getClass());
+    }
 
     default CompletionStage<Result> serveAsBase64Stream(Attachment attachment, Source<ByteString, ?> source) {
         try {
@@ -104,27 +117,41 @@ public interface BaseAttachmentInterface<T> {
 
     }
 
-    default ExamSectionQuestion getExamSectionQuestion(Long qid, Exam exam) {
+    default Optional<ExamSectionQuestion> getExamSectionQuestion(Long qid, Exam exam) {
         return exam.getExamSections().stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .filter(q -> q.getId().equals(qid))
-                .findFirst().orElse(null);
+                .findFirst();
+    }
+
+    default MultipartForm getForm(Http.Request request) throws IllegalArgumentException {
+        Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
+        Http.MultipartFormData.FilePart<TemporaryFile> filePart = body.getFile("file");
+        if (filePart == null) {
+            throw new IllegalArgumentException("file not found");
+        }
+        TemporaryFile file = filePart.getRef();
+        Optional<String> contentLength = request.header("Content-Length");
+        if (!contentLength.isPresent() ||  Long.parseLong(contentLength.get()) > ConfigUtil.getMaxFileSize()) {
+            throw new IllegalArgumentException("sitnet_file_too_large");
+        }
+        return new MultipartForm(filePart, body.asFormUrlEncoded());
     }
 
     class MultipartForm {
-        private Http.MultipartFormData.FilePart<File> filePart;
+        private Http.MultipartFormData.FilePart<TemporaryFile> filePart;
         private Map<String, String[]> form;
 
-        MultipartForm(Http.MultipartFormData.FilePart<File> filePart, Map<String, String[]> form) {
+        MultipartForm(Http.MultipartFormData.FilePart<TemporaryFile> filePart, Map<String, String[]> form) {
             this.filePart = filePart;
             this.form = form;
         }
 
-        Http.MultipartFormData.FilePart<File> getFilePart() {
+        public Http.MultipartFormData.FilePart<TemporaryFile> getFilePart() {
             return this.filePart;
         }
 
-        Map<String, String[]> getForm() {
+        public Map<String, String[]> getForm() {
             return this.form;
         }
     }

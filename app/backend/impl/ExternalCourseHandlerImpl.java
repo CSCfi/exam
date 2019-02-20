@@ -37,6 +37,7 @@ import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 
 import backend.models.Course;
 import backend.models.Grade;
@@ -52,9 +53,9 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
 
-    private static final Integer STATUS_OK = 200;
-
     private static final DateFormat DF = new SimpleDateFormat("yyyyMMdd");
+
+    private static final Logger.ALogger logger = Logger.of(ExternalCourseHandlerImpl.class);
 
     private static class RemoteException extends Exception {
         RemoteException(String message) {
@@ -131,12 +132,12 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                     if (course.has("course_code")) {
                         results.add(course.get("course_code").asText());
                     } else {
-                        Logger.warn("Unexpected content {}", course.asText());
+                        logger.warn("Unexpected content {}", course.asText());
                     }
                 }
                 return results;
             } else {
-                Logger.warn("Unexpected content {}", root.asText());
+                logger.warn("Unexpected content {}", root.asText());
                 throw new RemoteException("sitnet_request_timed_out");
             }
         };
@@ -165,14 +166,14 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         }
         RemoteFunction<WSResponse, List<Course>> onSuccess = response -> {
             int status = response.getStatus();
-            if (status == STATUS_OK) {
+            if (status == Http.Status.OK) {
                 return parseCourses(response.asJson());
             }
-            Logger.info("Non-OK response received for URL: {}. Status: {}", url, status);
+            logger.info("Non-OK response received for URL: {}. Status: {}", url, status);
             throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, response.getStatusText()));
         };
         return request.get().thenApplyAsync(onSuccess).exceptionally(t -> {
-            Logger.error("Connection error occurred", t);
+            logger.error("Connection error occurred", t);
             return Collections.emptyList();
         });
     }
@@ -229,11 +230,11 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                 Optional<GradeScale.Type> scaleType = GradeScale.Type.get(type);
                 if (!scaleType.isPresent()) {
                     // not understood
-                    Logger.warn("Skipping over unknown grade scale type {}", type);
+                    logger.warn("Skipping over unknown grade scale type {}", type);
                 } else if (scaleType.get().equals(GradeScale.Type.OTHER)) {
                     // This needs custom handling
                     if (!scale.has("code") || !scale.has("name")) {
-                        Logger.warn("Skipping over grade scale of type OTHER, required nodes are missing: {}",
+                        logger.warn("Skipping over grade scale of type OTHER, required nodes are missing: {}",
                                 scale.asText());
                         continue;
                     }
@@ -247,11 +248,11 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                     gs.setDescription(GradeScale.Type.OTHER.toString());
                     gs.setExternalRef(externalRef);
                     gs.setDisplayName(scale.get("name").asText());
-                    Logger.info("saving scale " + externalRef);
+                    logger.info("saving scale " + externalRef);
                     gs.save();
                     for (JsonNode grade : scale.get("grades")) {
                         if (!grade.has("description")) {
-                            Logger.warn("Skipping over grade, required nodes are missing: {}", grade.asText());
+                            logger.warn("Skipping over grade, required nodes are missing: {}", grade.asText());
                             continue;
                         }
                         Grade g = new Grade();

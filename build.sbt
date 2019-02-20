@@ -20,10 +20,11 @@ libraryDependencies += evolutions
 libraryDependencies += filters
 libraryDependencies += guice
 
-libraryDependencies += "be.objectify" %% "deadbolt-java" % "2.6.3"
+libraryDependencies += "be.objectify" %% "deadbolt-java" % "2.7.0"
 libraryDependencies += "com.github.fge" % "json-schema-validator" % "2.2.6" exclude("javax.mail", "mailapi")
 libraryDependencies += "com.google.code.gson" % "gson" % "2.8.2"
 libraryDependencies += "com.opencsv" % "opencsv" % "4.0"
+libraryDependencies += "io.vavr" % "vavr" % "0.9.3"
 libraryDependencies += "net.sf.biweekly" % "biweekly" % "0.6.1"
 libraryDependencies += "org.apache.commons" % "commons-compress" % "1.14"
 libraryDependencies += "org.apache.commons" % "commons-email" % "1.5"

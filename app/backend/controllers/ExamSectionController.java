@@ -48,19 +48,22 @@ import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
 import backend.models.sections.ExamSectionQuestionOption;
+import backend.sanitizers.Attrs;
 import backend.sanitizers.SanitizingHelper;
+import backend.security.Authenticated;
 import backend.util.AppUtil;
 
 
 public class ExamSectionController extends QuestionController implements SectionQuestionHandler {
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertSection(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
             return notFound();
         }
-        User user = getLoggedUser(request);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             ExamSection section = new ExamSection();
             section.setLotteryItemCount(1);
@@ -77,6 +80,7 @@ public class ExamSectionController extends QuestionController implements Section
         }
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result removeSection(Long eid, Long sid, Http.Request request) {
         ExamSection section = Ebean.find(ExamSection.class)
@@ -90,7 +94,7 @@ public class ExamSectionController extends QuestionController implements Section
         }
         Exam exam = section.getExam();
 
-        User user = getLoggedUser(request);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             exam.getExamSections().remove(section);
             exam.update();
@@ -116,6 +120,7 @@ public class ExamSectionController extends QuestionController implements Section
         }
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateSection(Long eid, Long sid, Http.Request request) {
         ExamSection section = Ebean.find(ExamSection.class)
@@ -127,12 +132,12 @@ public class ExamSectionController extends QuestionController implements Section
         if (section == null) {
             return notFound("sitnet_error_not_found");
         }
-        User user = getLoggedUser(request);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!section.getExam().isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN)) {
             return forbidden("sitnet_error_access_forbidden");
         }
 
-        ExamSection form = formFactory.form(ExamSection.class).bindFromRequest(
+        ExamSection form = formFactory.form(ExamSection.class).bindFromRequest(request,
                 "id",
                 "name",
                 "expanded",
@@ -154,7 +159,7 @@ public class ExamSectionController extends QuestionController implements Section
         return ok(section);
     }
 
-
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result reorderSections(Long eid, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
@@ -165,7 +170,7 @@ public class ExamSectionController extends QuestionController implements Section
             if (exam == null) {
                 return notFound("sitnet_error_exam_not_found");
             }
-            User user = getLoggedUser(request);
+            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
             if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
                 // Reorder by sequenceNumber (TreeSet orders the collection based on it)
                 List<ExamSection> sections = new ArrayList<>(new TreeSet<>(exam.getExamSections()));
@@ -185,6 +190,7 @@ public class ExamSectionController extends QuestionController implements Section
         });
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result reorderSectionQuestions(Long eid, Long sid, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
@@ -195,7 +201,7 @@ public class ExamSectionController extends QuestionController implements Section
             if (exam == null) {
                 return notFound("sitnet_error_exam_not_found");
             }
-            User user = getLoggedUser(request);
+            User user =request.attrs().get(Attrs.AUTHENTICATED_USER);
             if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
                 ExamSection section = Ebean.find(ExamSection.class, sid);
                 if (section == null) {
@@ -268,6 +274,7 @@ public class ExamSectionController extends QuestionController implements Section
         return Optional.empty();
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertQuestion(Long eid, Long sid, Long qid, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, eid);
@@ -279,15 +286,16 @@ public class ExamSectionController extends QuestionController implements Section
         if (exam.getAutoEvaluationConfig() != null && question.getType() == Question.Type.EssayQuestion) {
             return forbidden("sitnet_error_autoevaluation_essay_question");
         }
-        User user = getLoggedUser(request);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN)) {
             return forbidden("sitnet_error_access_forbidden");
         }
         // TODO: response payload should be trimmed down (use path properties)
-        Integer seq = request().body().asJson().get("sequenceNumber").asInt();
+        Integer seq = request.body().asJson().get("sequenceNumber").asInt();
         return insertQuestion(exam, section, question, user, seq).orElse(ok(section));
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     @Transactional
     public Result insertMultipleQuestions(Long eid, Long sid, String questions, Http.Request request) {
@@ -297,11 +305,11 @@ public class ExamSectionController extends QuestionController implements Section
         if (exam == null || section == null) {
             return notFound();
         }
-        User user = getLoggedUser(request);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole(Role.Name.ADMIN)) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        int sequence = request().body().asJson().get("sequenceNumber").asInt();
+        int sequence = request.body().asJson().get("sequenceNumber").asInt();
         for (String s : questions.split(",")) {
             Question question = Ebean.find(Question.class, Long.parseLong(s));
             if (question == null) {
@@ -319,9 +327,10 @@ public class ExamSectionController extends QuestionController implements Section
         return ok(section);
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result removeQuestion(Long eid, Long sid, Long qid, Http.Request request) {
-        User user = getLoggedUser(request);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamSectionQuestion sectionQuestion = Ebean.find(ExamSectionQuestion.class)
                 .fetch("examSection.exam.examOwners")
                 .fetch("question")
@@ -353,6 +362,7 @@ public class ExamSectionController extends QuestionController implements Section
         return ok(section);
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result clearQuestions(Long eid, Long sid, Http.Request request) {
         ExamSection section = Ebean.find(ExamSection.class)
@@ -366,7 +376,7 @@ public class ExamSectionController extends QuestionController implements Section
         if (section == null) {
             return notFound("sitnet_error_not_found");
         }
-        User user = getLoggedUser(request);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (section.getExam().isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             section.getSectionQuestions().forEach(sq -> {
                 sq.getQuestion().getChildren().forEach(c -> {
@@ -425,9 +435,10 @@ public class ExamSectionController extends QuestionController implements Section
         return StreamSupport.stream(an.spliterator(), false).anyMatch(n -> n.get("score").asDouble() > 0);
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateDistributedExamQuestion(Long eid, Long sid, Long qid, Http.Request request) {
-        User user = getLoggedUser(request);
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(qid);
         if (user.hasRole(Role.Name.TEACHER)) {
             query = query.eq("examSection.exam.examOwners", user);
@@ -447,7 +458,7 @@ public class ExamSectionController extends QuestionController implements Section
         if (question == null) {
             return notFound();
         }
-        JsonNode body = request().body().asJson();
+        JsonNode body = request.body().asJson();
         if (question.getType() == Question.Type.WeightedMultipleChoiceQuestion &&
                 !hasPositiveOptionScore((ArrayNode) body.get("options"))) {
             return badRequest("sitnet_correct_option_required");
@@ -467,9 +478,10 @@ public class ExamSectionController extends QuestionController implements Section
         return ok(query.findOne(), pp);
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateUndistributedExamQuestion(Long eid, Long sid, Long qid, Http.Request request) {
-        User user = getLoggedUser(request);
+        User user =request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<ExamSectionQuestion> query = Ebean.find(ExamSectionQuestion.class).where().idEq(qid);
         if (user.hasRole(Role.Name.TEACHER)) {
             query = query.eq("examSection.exam.examOwners", user);

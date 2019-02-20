@@ -23,7 +23,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import backend.system.interceptors.Authenticated;
+import backend.security.Authenticated;
 
 public interface LocalAttachmentInterface extends BaseAttachmentInterface<Long> {
 

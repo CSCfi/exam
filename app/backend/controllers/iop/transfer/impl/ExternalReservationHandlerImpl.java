@@ -33,6 +33,7 @@ import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
@@ -55,6 +56,8 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
 
     @Inject
     EmailComposer emailComposer;
+
+    private static final Logger.ALogger logger = Logger.of(ExternalReservationHandlerImpl.class);
 
 
     private static URL parseUrl(String orgRef, String facilityRef, String reservationRef)
@@ -90,7 +93,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         URL url = parseUrl(external.getOrgRef(), external.getRoomRef(), ref);
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, Result> onSuccess = response -> {
-            if (response.getStatus() != 200) {
+            if (response.getStatus() != Http.Status.OK) {
                 JsonNode root = response.asJson();
                 return Results.internalServerError(root.get("message").asText("Connection refused"));
             }
@@ -102,8 +105,9 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
             // send email asynchronously
             boolean isStudentUser = user.equals(enrolment.getUser());
             system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
-                Logger.info("Reservation cancellation confirmation email sent");
+                emailComposer.composeReservationCancellationNotification(enrolment.getUser(),
+                        reservation, "", isStudentUser, enrolment);
+                logger.info("Reservation cancellation confirmation email sent");
             }, system.dispatcher());
 
             return Results.ok();
