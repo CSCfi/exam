@@ -40,7 +40,7 @@ import backend.models.Role;
 import backend.models.User;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CommentSanitizer;
-import backend.system.interceptors.Authenticated;
+import backend.security.Authenticated;
 import backend.util.AppUtil;
 
 

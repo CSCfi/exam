@@ -52,6 +52,8 @@ public class StatisticsController extends BaseController {
     private static final DateTimeFormatter DTF = DateTimeFormat.forPattern("dd.MM.yyyy");
     private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
+    private static final Logger.ALogger logger = Logger.of(StatisticsController.class);
+
 
     @Restrict({@Group("ADMIN")})
     public Result getStudents() {
@@ -110,14 +112,23 @@ public class StatisticsController extends BaseController {
         for (String value : values.values()) {
             dataRow.createCell(i++).setCellValue(value);
         }
-        response().setHeader("Content-Disposition", "attachment; filename=\"exams.xlsx\"");
-        return ok(encode(wb)).as(XLSX_MIME);
+        return ok(encode(wb))
+                .as(XLSX_MIME)
+                .withHeader("Content-Disposition", "attachment; filename=\"exams.xlsx\"");
     }
 
     private static Result examToJson(Exam exam) {
         String content = Ebean.json().toJson(exam);
-        response().setHeader("Content-Disposition", "attachment; filename=\"exams.json\"");
-        return ok(content).as("application/json");
+        return ok(content)
+                .as("application/json")
+                .withHeader("Content-Disposition", "attachment; filename=\"exams.json\"");
+    }
+
+    private <T> void createRow (Sheet sheet, String[] data, List<T> items, T parent) {
+        Row dataRow = sheet.createRow(items.indexOf(parent) + 1);
+        for (int i = 0; i < data.length; ++i) {
+            dataRow.createCell(i).setCellValue(data[i]);
+        }
     }
 
     @Restrict({@Group("ADMIN")})
@@ -196,14 +207,13 @@ public class StatisticsController extends BaseController {
             data[7] = Integer.toString(inReview);
             data[8] = Integer.toString(graded);
             data[9] = Integer.toString(logged);
-            Row dataRow = sheet.createRow(exams.indexOf(parent) + 1);
-            for (int i = 0; i < data.length; ++i) {
-                dataRow.createCell(i).setCellValue(data[i]);
-            }
+
+            createRow(sheet, data, exams, parent);
         }
         IntStream.range(0, 10).forEach(i -> sheet.autoSizeColumn(i, true));
-        response().setHeader("Content-Disposition", "attachment; filename=\"teachers_exams.xlsx\"");
-        return ok(encode(wb)).as(XLSX_MIME);
+        return ok(encode(wb))
+                .as(XLSX_MIME)
+                .withHeader("Content-Disposition", "attachment; filename=\"teachers_exams.xlsx\"");
     }
 
     @Restrict({@Group("ADMIN")})
@@ -232,16 +242,16 @@ public class StatisticsController extends BaseController {
             }
         }
         IntStream.range(0, 5).forEach(i -> sheet.autoSizeColumn(i, true));
-
-        response().setHeader("Content-Disposition", "attachment; filename=\"enrolments.xlsx\"");
-        return ok(encode(wb)).as(XLSX_MIME);
+        return ok(encode(wb))
+                .as(XLSX_MIME)
+                .withHeader("Content-Disposition", "attachment; filename=\"enrolments.xlsx\"");
     }
 
     private String parse(Supplier<String> supplier) {
         try {
             return supplier.get();
         } catch (RuntimeException e) {
-            Logger.warn("Invalid review data. Not able to provide it for report");
+            logger.warn("Invalid review data. Not able to provide it for report");
             return "N/A";
         }
     }
@@ -274,7 +284,6 @@ public class StatisticsController extends BaseController {
             data[2] = e.getCourse().getCode();
             data[3] = ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getCreated()));
             data[4] = ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getGradedTime()));
-
             data[5] = parse(() -> String.format("%s %s", e.getGradedByUser().getFirstName(),
                     e.getGradedByUser().getLastName()));
 
@@ -284,14 +293,12 @@ public class StatisticsController extends BaseController {
             data[8] = parse(() -> e.getCreditType().getType());
 
             data[9] = e.getAnswerLanguage();
-            Row dataRow = sheet.createRow(exams.indexOf(e) + 1);
-            for (int i = 0; i < data.length; ++i) {
-                dataRow.createCell(i).setCellValue(data[i]);
-            }
+            createRow(sheet, data, exams, e);
         }
         IntStream.range(0, 10).forEach(i -> sheet.autoSizeColumn(i, true));
-        response().setHeader("Content-Disposition", "attachment; filename=\"reviews.xlsx\"");
-        return ok(encode(wb)).as(XLSX_MIME);
+        return ok(encode(wb))
+                .as(XLSX_MIME)
+                .withHeader("Content-Disposition", "attachment; filename=\"reviews.xlsx\"");
     }
 
     @Restrict({@Group("ADMIN")})
@@ -318,7 +325,7 @@ public class StatisticsController extends BaseController {
         addHeader(sheet, headers);
 
         for (ExamEnrolment e : enrolments) {
-            List<String> data = Arrays.asList(
+            String[] data = Arrays.asList(
                     Long.toString(e.getId()),
                     ISODateTimeFormat.date().print(new DateTime(e.getEnrolledOn())),
                     Long.toString(e.getUser().getId()),
@@ -335,15 +342,13 @@ public class StatisticsController extends BaseController {
                     Long.toString(e.getReservation().getMachine().getRoom().getId()),
                     e.getReservation().getMachine().getRoom().getName(),
                     e.getReservation().getMachine().getRoom().getRoomCode()
-            );
-            Row dataRow = sheet.createRow(enrolments.indexOf(e) + 1);
-            for (int i = 0; i < data.size(); ++i) {
-                dataRow.createCell(i).setCellValue(data.get(i));
-            }
+            ).toArray(new String[0]);
+            createRow(sheet, data, enrolments, e);
         }
         IntStream.range(0, 17).forEach(i -> sheet.autoSizeColumn(i, true));
-        response().setHeader("Content-Disposition", "attachment; filename=\"reservations.xlsx\"");
-        return ok(encode(wb)).as(XLSX_MIME);
+        return ok(encode(wb))
+                .as(XLSX_MIME)
+                .withHeader("Content-Disposition", "attachment; filename=\"reservations.xlsx\"");
     }
 
     @Restrict({@Group("ADMIN")})
@@ -366,8 +371,9 @@ public class StatisticsController extends BaseController {
 
         Workbook wb = new XSSFWorkbook();
         generateParticipationSheet(wb, participations, true);
-        response().setHeader("Content-Disposition", "attachment; filename=\"all_exams.xlsx\"");
-        return ok(encode(wb)).as(XLSX_MIME);
+        return ok(encode(wb))
+                .as(XLSX_MIME)
+                .withHeader("Content-Disposition", "attachment; filename=\"all_exams.xlsx\"");
     }
 
     @Restrict({@Group("ADMIN")})
@@ -401,8 +407,9 @@ public class StatisticsController extends BaseController {
         dataRow.createCell(index++).setCellValue(student.getEmail());
         dataRow.createCell(index).setCellValue(student.getLanguage().getCode());
         generateParticipationSheet(wb, participations, false);
-        response().setHeader("Content-Disposition", "attachment; filename=\"student_activity.xlsx\"");
-        return ok(encode(wb)).as(XLSX_MIME);
+        return ok(encode(wb))
+                .as(XLSX_MIME)
+                .withHeader("Content-Disposition", "attachment; filename=\"student_activity.xlsx\"");
     }
 
     private static void generateParticipationSheet(Workbook workbook, List<ExamParticipation> participations,
@@ -419,7 +426,7 @@ public class StatisticsController extends BaseController {
                 "exam id", "exam name", "exam duration", "exam state", "exam score", "exam grade scale", "exam grade",
                 "graded on", "credit type"));
 
-        addHeader(sheet, headers.toArray(new String[headers.size()]));
+        addHeader(sheet, headers.toArray(new String[0]));
 
         for (ExamParticipation p : participations) {
             ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)

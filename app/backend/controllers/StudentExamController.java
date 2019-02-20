@@ -42,10 +42,10 @@ import play.Environment;
 import play.Logger;
 import play.data.DynamicForm;
 import play.db.ebean.Transactional;
+import play.mvc.Http;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 
-import backend.controllers.base.ActionMethod;
 import backend.controllers.base.BaseController;
 import backend.controllers.iop.collaboration.api.CollaborativeExamLoader;
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
@@ -64,6 +64,8 @@ import backend.models.questions.EssayAnswer;
 import backend.models.questions.Question;
 import backend.models.sections.ExamSection;
 import backend.models.sections.ExamSectionQuestion;
+import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
 import backend.system.interceptors.ExamActionRouter;
 import backend.system.interceptors.SensitiveDataPolicy;
 import backend.util.AppUtil;
@@ -79,6 +81,8 @@ public class StudentExamController extends BaseController {
     private final CollaborativeExamLoader collaborativeExamLoader;
     protected final Environment environment;
     private final ExternalAttachmentLoader externalAttachmentLoader;
+
+    private static final Logger.ALogger logger = Logger.of(StudentExamController.class);
 
     @Inject
     public StudentExamController(EmailComposer emailComposer, ActorSystem actor,
@@ -110,12 +114,12 @@ public class StudentExamController extends BaseController {
         return ce;
     }
 
-    @ActionMethod
+    @Authenticated
     @Transactional
     @ExamActionRouter
-    public CompletionStage<Result> startExam(String hash) throws IOException {
-        User user = getLoggedUser();
-        String clientIp = request().remoteAddress();
+    public CompletionStage<Result> startExam(String hash, Http.Request request) throws IOException {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        String clientIp = request.remoteAddress();
         Optional<CollaborativeExam> oce = getCollaborativeExam(hash);
         CollaborativeExam ce = oce.orElse(null);
         return getPrototype(hash, ce).thenApplyAsync(optionalPrototype -> {
@@ -137,7 +141,7 @@ public class StudentExamController extends BaseController {
                     try {
                         externalAttachmentLoader.fetchExternalAttachmentsAsLocal(newExam).get();
                     } catch (InterruptedException | ExecutionException e) {
-                        Logger.error("Could not fetch external attachments!", e);
+                        logger.error("Could not fetch external attachments!", e);
                     }
                 }
                 newExam.setCloned(true);
@@ -159,10 +163,10 @@ public class StudentExamController extends BaseController {
         });
     }
 
-    @ActionMethod
+    @Authenticated
     @Transactional
-    public Result turnExam(String hash) {
-        User user = getLoggedUser();
+    public Result turnExam(String hash, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("examSections.sectionQuestions.question")
@@ -173,23 +177,17 @@ public class StudentExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        ExamParticipation p = Ebean.find(ExamParticipation.class)
-                .where()
-                .eq("exam.id", exam.getId())
-                .eq("user", user)
-                .isNull("ended")
-                .findOne();
+        Optional<ExamParticipation> oep = findParticipation(exam, user);
 
-        if (p != null) {
-            DateTime now = DateTimeUtils.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
-            p.setEnded(now);
-            p.setDuration(new DateTime(p.getEnded().getMillis() - p.getStarted().getMillis()));
+        if (oep.isPresent()) {
+            ExamParticipation ep = oep.get();
+            setDurations(ep);
 
             GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
             int deadlineDays = Integer.parseInt(settings.getValue());
-            DateTime deadline = p.getEnded().plusDays(deadlineDays);
-            p.setDeadline(deadline);
-            p.save();
+            DateTime deadline = ep.getEnded().plusDays(deadlineDays);
+            ep.setDeadline(deadline);
+            ep.save();
             exam.setState(Exam.State.REVIEW);
             exam.update();
             if (exam.isPrivate()) {
@@ -202,10 +200,10 @@ public class StudentExamController extends BaseController {
         }
     }
 
-    @ActionMethod
+    @Authenticated
     @Transactional
-    public Result abortExam(String hash) {
-        User user = getLoggedUser();
+    public Result abortExam(String hash, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Exam exam = Ebean.find(Exam.class).where()
                 .eq("creator", user)
                 .eq("hash", hash)
@@ -213,18 +211,11 @@ public class StudentExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        ExamParticipation p = Ebean.find(ExamParticipation.class)
-                .where()
-                .eq("exam.id", exam.getId())
-                .eq("user", user)
-                .isNull("ended")
-                .findOne();
+        Optional<ExamParticipation> oep = findParticipation(exam, user);
 
-        if (p != null) {
-            DateTime now = DateTimeUtils.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
-            p.setEnded(now);
-            p.setDuration(new DateTime(p.getEnded().getMillis() - p.getStarted().getMillis()));
-            p.save();
+        if (oep.isPresent()) {
+            setDurations(oep.get());
+            oep.get().save();
             exam.setState(Exam.State.ABORTED);
             exam.update();
             if (exam.isPrivate()) {
@@ -236,10 +227,11 @@ public class StudentExamController extends BaseController {
         }
     }
 
-    @ActionMethod
-    public Result answerEssay(String hash, Long questionId) {
-        return getEnrolmentError(hash, request().remoteAddress()).orElseGet(() -> {
-            DynamicForm df = formFactory.form().bindFromRequest();
+    @Authenticated
+    public Result answerEssay(String hash, Long questionId, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        return getEnrolmentError(hash, request.remoteAddress(), user).orElseGet(() -> {
+            DynamicForm df = formFactory.form().bindFromRequest(request);
             String essayAnswer = df.get("answer");
             ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, questionId);
             if (question == null) {
@@ -260,10 +252,11 @@ public class StudentExamController extends BaseController {
         });
     }
 
-    @ActionMethod
-    public Result answerMultiChoice(String hash, Long qid) {
-        return getEnrolmentError(hash, request().remoteAddress()).orElseGet(() -> {
-            ArrayNode node = (ArrayNode) request().body().asJson().get("oids");
+    @Authenticated
+    public Result answerMultiChoice(String hash, Long qid, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        return getEnrolmentError(hash, request.remoteAddress(), user).orElseGet(() -> {
+            ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
             List<Long> optionIds = StreamSupport.stream(node.spliterator(), false)
                     .map(JsonNode::asLong)
                     .collect(Collectors.toList());
@@ -280,14 +273,15 @@ public class StudentExamController extends BaseController {
         });
     }
 
-    @ActionMethod
-    public Result answerClozeTest(String hash, Long questionId) {
-        return getEnrolmentError(hash, request().remoteAddress()).orElseGet(() -> {
+    @Authenticated
+    public Result answerClozeTest(String hash, Long questionId, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        return getEnrolmentError(hash, request.remoteAddress(), user).orElseGet(() -> {
             ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
             if (esq == null) {
                 return forbidden();
             }
-            JsonNode node = request().body().asJson();
+            JsonNode node = request.body().asJson();
             ClozeTestAnswer answer = esq.getClozeTestAnswer();
             if (answer == null) {
                 answer = new ClozeTestAnswer();
@@ -325,7 +319,21 @@ public class StudentExamController extends BaseController {
             query = query.isNotNull("parent");
         }
         return query.orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber").findOneOrEmpty();
+    }
 
+    private Optional<ExamParticipation> findParticipation(Exam exam, User user) {
+        return Ebean.find(ExamParticipation.class)
+                .where()
+                .eq("exam.id", exam.getId())
+                .eq("user", user)
+                .isNull("ended")
+                .findOneOrEmpty();
+    }
+
+    private void setDurations(ExamParticipation ep) {
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
+        ep.setEnded(now);
+        ep.setDuration(new DateTime(ep.getEnded().getMillis() - ep.getStarted().getMillis()));
     }
 
     private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
@@ -442,10 +450,10 @@ public class StudentExamController extends BaseController {
     }
 
 
-    private Optional<Result> getEnrolmentError(String hash, String clientIp) {
+    private Optional<Result> getEnrolmentError(String hash, String clientIp, User user) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .eq("exam.hash", hash)
-                .eq("exam.creator", getLoggedUser())
+                .eq("exam.creator", user)
                 .eq("exam.state", Exam.State.STUDENT_STARTED)
                 .findOne();
         return getEnrolmentError(enrolment, clientIp);

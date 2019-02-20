@@ -55,7 +55,7 @@ import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExamUpdateSanitizer;
 import backend.system.interceptors.Anonymous;
-import backend.system.interceptors.Authenticated;
+import backend.security.Authenticated;
 import backend.util.AppUtil;
 import backend.util.config.ConfigUtil;
 

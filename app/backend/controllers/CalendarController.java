@@ -45,7 +45,7 @@ import backend.models.Reservation;
 import backend.models.User;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.CalendarReservationSanitizer;
-import backend.system.interceptors.Authenticated;
+import backend.security.Authenticated;
 import backend.util.datetime.DateTimeUtils;
 
 

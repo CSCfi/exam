@@ -54,7 +54,7 @@ import backend.models.User;
 import backend.models.dto.ExamScore;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.ExamRecordSanitizer;
-import backend.system.interceptors.Authenticated;
+import backend.security.Authenticated;
 import backend.util.csv.CsvBuilder;
 import backend.util.excel.ExcelBuilder;
 import backend.util.file.FileHandler;

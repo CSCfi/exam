@@ -16,18 +16,19 @@
 
 package backend.controllers.iop.collaboration.impl;
 
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import javax.inject.Inject;
+
+import io.ebean.Ebean;
+import io.ebean.ExpressionList;
+import play.libs.ws.WSClient;
+import play.mvc.Http;
+
 import backend.controllers.iop.collaboration.api.CollaborativeAttachmentInterface;
 import backend.models.Exam;
 import backend.models.User;
 import backend.models.json.CollaborativeExam;
-import io.ebean.Ebean;
-import io.ebean.ExpressionList;
-import play.Logger;
-import play.libs.ws.WSClient;
-
-import javax.inject.Inject;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public class CollaborativeAttachmentController extends CollaborationController
         implements CollaborativeAttachmentInterface<Long, CollaborativeExam> {
@@ -36,7 +37,7 @@ public class CollaborativeAttachmentController extends CollaborationController
     private WSClient wsClient;
 
     @Override
-    public Optional<CollaborativeExam> getExternalExam(Long eid) {
+    public Optional<CollaborativeExam> getExternalExam(Long eid, Http.Request request) {
         final ExpressionList<CollaborativeExam> query = Ebean.find(CollaborativeExam.class).where()
                 .eq("id", eid);
         return query.findOneOrEmpty();
@@ -52,7 +53,7 @@ public class CollaborativeAttachmentController extends CollaborationController
         try {
             return downloadExam(collaborativeExam).toCompletableFuture().get();
         } catch (InterruptedException | ExecutionException e) {
-            Logger.error("Could not download collaborative exam from XM!", e);
+            logger().error("Could not download collaborative exam from XM!", e);
         }
         return Optional.empty();
     }
@@ -64,7 +65,7 @@ public class CollaborativeAttachmentController extends CollaborationController
                     .thenApply(result -> result.status() == 200)
                     .toCompletableFuture().get();
         } catch (InterruptedException | ExecutionException e) {
-            Logger.error("Could not update exam to XM!", e);
+            logger().error("Could not update exam to XM!", e);
         }
         return false;
     }
@@ -74,8 +75,4 @@ public class CollaborativeAttachmentController extends CollaborationController
         return Long.parseLong(id);
     }
 
-    @Override
-    public User getLoggedUser() {
-        return super.getLoggedUser();
-    }
 }

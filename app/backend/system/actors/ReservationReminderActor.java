@@ -28,6 +28,8 @@ import backend.util.datetime.DateTimeUtils;
 
 public class ReservationReminderActor extends AbstractActor {
 
+    private static final Logger.ALogger logger = Logger.of(ReservationReminderActor.class);
+
     private EmailComposer emailComposer;
 
     @Inject
@@ -45,7 +47,7 @@ public class ReservationReminderActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
-            Logger.debug("{}: Running reservation reminder task ...", getClass().getCanonicalName());
+            logger.debug("{}: Running reservation reminder task ...", getClass().getCanonicalName());
             DateTime now = DateTimeUtils.adjustDST(DateTime.now());
             DateTime tomorrow = now.plusDays(1);
             Ebean.find(Reservation.class)
@@ -59,7 +61,7 @@ public class ReservationReminderActor extends AbstractActor {
                     .ne("reminderSent", true)
                     .findList()
                     .forEach(this::remind);
-            Logger.debug("{}: Reservation reminder task done", getClass().getCanonicalName());
+            logger.debug("{}: Reservation reminder task done", getClass().getCanonicalName());
 
         }).build();
     }

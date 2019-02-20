@@ -18,7 +18,7 @@ package backend.controllers
 import javax.inject.Inject
 import backend.impl.ExternalCourseHandler
 import backend.models.{Course, Role, Session, User}
-import backend.system.Authenticator
+import backend.security.Authenticator
 import backend.util.scala.JsonResponder
 import io.ebean.Ebean
 import play.api.cache.SyncCacheApi

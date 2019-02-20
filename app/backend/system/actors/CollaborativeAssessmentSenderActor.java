@@ -32,6 +32,7 @@ import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 
 import backend.controllers.iop.transfer.api.ExternalAttachmentLoader;
 import backend.models.Exam;
@@ -40,7 +41,7 @@ import backend.models.ExamParticipation;
 
 public class CollaborativeAssessmentSenderActor extends AbstractActor {
 
-    private static final int STATUS_CREATED = 201;
+    private static final Logger.ALogger logger = Logger.of(CollaborativeAssessmentSenderActor.class);
 
     private WSClient wsClient;
     private ExternalAttachmentLoader externalAttachmentLoader;
@@ -54,7 +55,7 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
-            Logger.debug("{}: Running collaborative assessment sender ...", getClass().getCanonicalName());
+            logger.debug("{}: Running collaborative assessment sender ...", getClass().getCanonicalName());
             Query<ExamParticipation> query = Ebean.find(ExamParticipation.class);
             PathProperties pp = getPath();
             pp.apply(query);
@@ -69,7 +70,7 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
                 try {
                     send(e, pp);
                 } catch (IOException ex) {
-                    Logger.error("I/O failure while sending exam to XM");
+                    logger.error("I/O failure while sending exam to XM");
                 }
             });
         }).build();
@@ -95,18 +96,18 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
 
     private void send(ExamParticipation participation, PathProperties pp) throws IOException {
         String ref = participation.getCollaborativeExam().getExternalRef();
-        Logger.debug("Sending back collaborative assessment for exam " + ref);
+        logger.debug("Sending back collaborative assessment for exam " + ref);
         URL url = parseUrl(ref);
 
         WSRequest request = wsClient.url(url.toString());
         request.setContentType("application/json");
         Function<WSResponse, Void> onSuccess = response -> {
-            if (response.getStatus() != STATUS_CREATED) {
-                Logger.error("Failed in sending assessment for exam " + ref);
+            if (response.getStatus() != Http.Status.CREATED) {
+                logger.error("Failed in sending assessment for exam " + ref);
             } else {
                 participation.setSentForReview(DateTime.now());
                 participation.update();
-                Logger.info("Assessment for exam " + ref + " processed successfully");
+                logger.info("Assessment for exam " + ref + " processed successfully");
             }
             return null;
         };
@@ -115,7 +116,7 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
                 .thenComposeAsync(aVoid -> request.post(Ebean.json().toJson(participation, pp)))
                 .thenApplyAsync(onSuccess)
                 .exceptionally(t -> {
-                    Logger.error("Could not send assessment to xm! [id=" + participation.getId() + "]", t);
+                    logger.error("Could not send assessment to xm! [id=" + participation.getId() + "]", t);
                     return null;
                 });
     }

@@ -51,7 +51,7 @@ import backend.models.sections.ExamSectionQuestion;
 import backend.models.sections.ExamSectionQuestionOption;
 import backend.sanitizers.Attrs;
 import backend.sanitizers.SanitizingHelper;
-import backend.system.interceptors.Authenticated;
+import backend.security.Authenticated;
 import backend.util.AppUtil;
 
 public class QuestionController extends BaseController {

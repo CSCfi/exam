@@ -32,7 +32,7 @@ import backend.models.User;
 import backend.models.sections.ExamMaterial;
 import backend.models.sections.ExamSection;
 import backend.sanitizers.Attrs;
-import backend.system.interceptors.Authenticated;
+import backend.security.Authenticated;
 import backend.util.AppUtil;
 
 

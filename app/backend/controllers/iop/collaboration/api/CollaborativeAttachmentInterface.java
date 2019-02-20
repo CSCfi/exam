@@ -16,15 +16,14 @@
 
 package backend.controllers.iop.collaboration.api;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 import akka.NotUsed;
 import akka.stream.IOResult;
@@ -36,8 +35,9 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
+import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
-import play.Logger;
+import play.libs.Files;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
@@ -49,361 +49,264 @@ import backend.controllers.BaseAttachmentInterface;
 import backend.models.Attachment;
 import backend.models.Comment;
 import backend.models.Exam;
-import backend.models.sections.ExamSectionQuestion;
+import backend.models.LanguageInspection;
 import backend.models.User;
 import backend.models.api.AttachmentContainer;
 import backend.models.questions.EssayAnswer;
+import backend.models.sections.ExamSectionQuestion;
+import backend.security.Authenticated;
 import backend.util.AppUtil;
-import backend.util.config.ConfigUtil;
 
-import static play.mvc.Controller.request;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 
 public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentInterface<T> {
 
-    @Override
-    default CompletionStage<Result> deleteExamAttachment(T id) {
-        final Optional<U> externalExam = getExternalExam(id);
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        return deleteExternalAttachment(exam.get(), externalExam.get(),
-                exam.get(), getLoggedUser());
+    default Either<CompletionStage<Result>, U> findExternalExam(T id, Http.Request request) {
+        return getExternalExam(id, request)
+                .<Either<CompletionStage<Result>, U>>map(Either::right)
+                .orElse(Either.left(CompletableFuture.supplyAsync(Results::notFound)));
     }
 
-    @Override
-    default CompletionStage<Result> addAttachmentToExam() {
-        Http.MultipartFormData<File> body = request().body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
-
-        if (filePart == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        if (filePart.getFile().length() > ConfigUtil.getMaxFileSize()) {
-            return CompletableFuture.supplyAsync(() -> Results.forbidden("sitnet_file_too_large"));
-        }
-
-        Map<String, String[]> m = body.asFormUrlEncoded();
-        final String id = m.get("examId")[0];
-        final Optional<U> externalExam = getExternalExam(parseId(id));
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-
-        Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
-        }
-        return uploadAttachment(filePart, externalExam.get(), exam.get(), exam.get());
+    default Either<CompletionStage<Result>, Exam> findExam(U ee) {
+        return getExam(ee)
+                .<Either<CompletionStage<Result>, Exam>>map(Either::right)
+                .orElse(Either.left(CompletableFuture.supplyAsync(Results::notFound)));
     }
 
-    @Override
-    default CompletionStage<Result> downloadExamAttachment(T id) {
-        Optional<U> externalExam = getExternalExam(id);
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
-        }
-        final Attachment attachment = exam.get().getAttachment();
-        return downloadExternalAttachment(attachment);
+    default Either<CompletionStage<Result>, ExamSectionQuestion> findSectionQuestion(Long id, Exam exam) {
+        return getExamSectionQuestion(id, exam)
+                .<Either<CompletionStage<Result>, ExamSectionQuestion>>map(Either::right)
+                .orElse(Either.left(CompletableFuture.supplyAsync(Results::notFound)));
     }
 
-    @Override
-    default CompletionStage<Result> addAttachmentToQuestion() {
-        Http.MultipartFormData<File> body = request().body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
-
-        if (filePart == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        if (filePart.getFile().length() > ConfigUtil.getMaxFileSize()) {
-            return CompletableFuture.supplyAsync(() -> Results.forbidden("sitnet_file_too_large"));
-        }
-
-        Map<String, String[]> m = body.asFormUrlEncoded();
-        final String id = m.get("examId")[0];
-        final Optional<U> externalExam = getExternalExam(parseId(id));
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-
-        Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
-        }
-
-        final Long qid = Long.parseLong(m.get("questionId")[0]);
-        final ExamSectionQuestion sq = getExamSectionQuestion(qid, exam.get());
-        if (sq == null || sq.getQuestion() == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-
-        return uploadAttachment(filePart, externalExam.get(), exam.get(), sq.getQuestion());
+    default Either<CompletionStage<Result>, EssayAnswer> findEssayAnswerWithAttachment(ExamSectionQuestion esq) {
+        return esq.getEssayAnswer() == null || esq.getEssayAnswer().getAttachment() == null ||
+                StringUtils.isEmpty(esq.getEssayAnswer().getAttachment().getExternalId())
+                ? Either.left(CompletableFuture.supplyAsync(Results::notFound))
+                : Either.right(esq.getEssayAnswer());
     }
 
+    default Either<CompletionStage<Result>, Comment> findFeedback(Exam exam) {
+        return exam.getExamFeedback() == null
+                ? Either.left(CompletableFuture.supplyAsync(Results::notFound))
+                : Either.right(exam.getExamFeedback());
+    }
+
+    default Either<CompletionStage<Result>, LanguageInspection> findLanguageInspection(Exam exam) {
+        return exam.getLanguageInspection() == null
+                ? Either.left(CompletableFuture.supplyAsync(Results::notFound))
+                : Either.right(exam.getLanguageInspection());
+    }
+
+    default Either<CompletionStage<Result>, LanguageInspection> findLanguageInspectionWithAttachment(Exam e) {
+        return e.getLanguageInspection() == null || e.getLanguageInspection().getStatement() == null
+                ? Either.left(CompletableFuture.supplyAsync(Results::notFound))
+                : Either.right(e.getLanguageInspection());
+    }
+
+    @Authenticated
+    @Override
+    default CompletionStage<Result> deleteExamAttachment(T id, Http.Request request) {
+        return findExternalExam(id, request)
+                .map(ee -> findExam(ee)
+                        .map(e -> deleteExternalAttachment(e, ee, e, getUser(request)))
+                        .getOrElseGet(Function.identity())
+                ).getOrElseGet(Function.identity());
+    }
+
+    @Authenticated
+    @Override
+    default CompletionStage<Result> addAttachmentToExam(Http.Request request) {
+        MultipartForm mf = getForm(request);
+        Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
+        final String id = mf.getForm().get("examId")[0];
+        return findExternalExam(parseId(id), request)
+                .map(ee -> findExam(ee)
+                        .map(e -> uploadAttachment(filePart, ee, e, e, getUser(request)))
+                        .getOrElseGet(Function.identity())
+                ).getOrElseGet(Function.identity());
+    }
+
+    @Authenticated
+    @Override
+    default CompletionStage<Result> downloadExamAttachment(T id, Http.Request request) {
+        return findExternalExam(id, request)
+                .flatMap(this::findExam)
+                .map(e -> downloadExternalAttachment(e.getAttachment()))
+                .getOrElseGet(Function.identity());
+    }
+
+    @Authenticated
+    @Override
+    default CompletionStage<Result> addAttachmentToQuestion(Http.Request request) {
+        MultipartForm mf = getForm(request);
+        Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
+        final String id = mf.getForm().get("examId")[0];
+        final Long qid = Long.parseLong(mf.getForm().get("questionId")[0]);
+        return findExternalExam(parseId(id), request)
+                .map(ee -> findExam(ee)
+                        .map(e -> findSectionQuestion(qid, e)
+                                .map(sq -> uploadAttachment(filePart, ee, e, sq.getQuestion(), getUser(request)))
+                                .getOrElseGet(Function.identity())
+                        ).getOrElseGet(Function.identity())
+                ).getOrElseGet(Function.identity());
+    }
+
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    default CompletionStage<Result> downloadQuestionAttachment(T eid, Long qid) {
-        Optional<U> externalExam = getExternalExam(eid);
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
-        }
-        final ExamSectionQuestion sectionQuestion = getExamSectionQuestion(qid, exam.get());
-        if (sectionQuestion == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final Attachment attachment = sectionQuestion.getQuestion().getAttachment();
-        return downloadExternalAttachment(attachment);
+    default CompletionStage<Result> downloadQuestionAttachment(T eid, Long qid, Http.Request request) {
+        return findExternalExam(eid, request)
+                .flatMap(this::findExam)
+                .flatMap(e -> findSectionQuestion(qid, e))
+                .map(sq -> downloadExternalAttachment(sq.getQuestion().getAttachment()))
+                .getOrElseGet(Function.identity());
     }
 
+    @Authenticated
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    default CompletionStage<Result> deleteQuestionAttachment(T eid, Long qid) {
-        Optional<U> externalExam = getExternalExam(eid);
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
-        }
-        final ExamSectionQuestion sectionQuestion = getExamSectionQuestion(qid, exam.get());
-        if (sectionQuestion == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        return deleteExternalAttachment(sectionQuestion.getQuestion(), externalExam.get(),
-                exam.get(), getLoggedUser());
+    default CompletionStage<Result> deleteQuestionAttachment(T eid, Long qid, Http.Request request) {
+        return findExternalExam(eid, request)
+                .map(ee -> findExam(ee)
+                        .map(e -> findSectionQuestion(qid, e)
+                                .map(sq -> deleteExternalAttachment(sq.getQuestion(), ee, e, getUser(request)))
+                                .getOrElseGet(Function.identity())
+                        ).getOrElseGet(Function.identity())
+                ).getOrElseGet(Function.identity());
     }
 
+    @Authenticated
     @Override
-    default CompletionStage<Result> addAttachmentToQuestionAnswer() {
-        Http.MultipartFormData<File> body = request().body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
-
-        if (filePart == null) {
-            Logger.warn("answer attachment file not found");
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        if (filePart.getFile().length() > ConfigUtil.getMaxFileSize()) {
-            return CompletableFuture.supplyAsync(() -> Results.forbidden("sitnet_file_too_large"));
-        }
-
-        Map<String, String[]> m = body.asFormUrlEncoded();
-        final String id = m.get("examId")[0];
-        final Optional<U> externalExam = getExternalExam(parseId(id));
-        if (!externalExam.isPresent()) {
-            Logger.warn("external exam not found with hash {}", id);
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-
-        Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
-        }
-
-        final Long qid = Long.parseLong(m.get("questionId")[0]);
-        final ExamSectionQuestion sq = getExamSectionQuestion(qid, exam.get());
-        if (sq != null && sq.getEssayAnswer() == null) {
-            sq.setEssayAnswer(new EssayAnswer());
-        }
-        if (questionAnswerNotFound(sq)) {
-            Logger.warn("answer not found with id {}", qid);
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-
-        return uploadAttachment(filePart, externalExam.get(), exam.get(), sq.getEssayAnswer());
+    default CompletionStage<Result> addAttachmentToQuestionAnswer(Http.Request request) {
+        MultipartForm mf = getForm(request);
+        Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
+        final String id = mf.getForm().get("examId")[0];
+        final Long qid = Long.parseLong(mf.getForm().get("questionId")[0]);
+        return findExternalExam(parseId(id), request)
+                .map(ee -> findExam(ee)
+                        .map(e -> findSectionQuestion(qid, e)
+                                .map(sq -> {
+                                    if (sq.getEssayAnswer() == null) {
+                                        sq.setEssayAnswer(new EssayAnswer());
+                                    }
+                                    return uploadAttachment(filePart, ee, e, sq.getEssayAnswer(), getUser(request));
+                                })
+                                .getOrElseGet(Function.identity())
+                        ).getOrElseGet(Function.identity())
+                ).getOrElseGet(Function.identity());
     }
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    default CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid, T eid) {
-        final Optional<U> externalExam = getExternalExam(eid);
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
-        }
-        final ExamSectionQuestion sectionQuestion = getExamSectionQuestion(qid, exam.get());
-        if (questionAnswerNotFound(sectionQuestion)) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final EssayAnswer essayAnswer = sectionQuestion.getEssayAnswer();
-        if (sectionQuestion.getEssayAnswer().getAttachment() == null ||
-                StringUtils.isEmpty(essayAnswer.getAttachment().getExternalId())) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-
-        final Optional<URL> url = parseUrl("/api/attachments/", essayAnswer.getAttachment().getExternalId());
-        if (!url.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
-        }
-        return deleteExternalAttachment(essayAnswer, externalExam.get(), exam.get(), getLoggedUser());
+    default CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid, T eid, Http.Request request) {
+        return findExternalExam(eid, request)
+                .map(ee -> findExam(ee)
+                        .map(e -> findSectionQuestion(qid, e)
+                                .map(sq -> findEssayAnswerWithAttachment(sq)
+                                        .map(ea -> deleteExternalAttachment(ea, ee, e, getUser(request)))
+                                        .getOrElseGet(Function.identity())
+                                ).getOrElseGet(Function.identity())
+                        ).getOrElseGet(Function.identity())
+                ).getOrElseGet(Function.identity());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    default CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid, T eid) {
-        final Optional<U> externalExam = getExternalExam(eid);
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
-        }
-        final ExamSectionQuestion sectionQuestion = getExamSectionQuestion(qid, exam.get());
-        if (questionAnswerNotFound(sectionQuestion)) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final EssayAnswer essayAnswer = sectionQuestion.getEssayAnswer();
-        if (essayAnswer == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        return downloadExternalAttachment(essayAnswer.getAttachment());
+    default CompletionStage<Result> downloadQuestionAnswerAttachment(Long qid, T eid, Http.Request request) {
+        return findExternalExam(eid, request)
+                .flatMap(this::findExam)
+                .flatMap(e -> findSectionQuestion(qid, e))
+                .flatMap(this::findEssayAnswerWithAttachment)
+                .map(ea -> downloadExternalAttachment(ea.getAttachment()))
+                .getOrElseGet(Function.identity());
+    }
+
+    @Authenticated
+    @Override
+    default CompletionStage<Result> addFeedbackAttachment(T id, Http.Request request) {
+        MultipartForm mf = getForm(request);
+        Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
+        User user = getUser(request);
+        return findExternalExam(id, request)
+                .map(ee -> findExam(ee)
+                        .map(e -> {
+                                    if (e.getExamFeedback() == null) {
+                                        Comment comment = new Comment();
+                                        AppUtil.setCreator(comment, user);
+                                        e.setExamFeedback(comment);
+                                    }
+                                    return uploadAttachment(filePart, ee, e, e.getExamFeedback(), user);
+                                }
+                        ).getOrElseGet(Function.identity())
+                ).getOrElseGet(Function.identity());
     }
 
     @Override
-    default CompletionStage<Result> addFeedbackAttachment(T id) {
-        Http.MultipartFormData<File> body = request().body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
+    default CompletionStage<Result> downloadFeedbackAttachment(T id, Http.Request request) {
+        return findExternalExam(id, request)
+                .flatMap(this::findExam)
+                .flatMap(this::findFeedback)
+                .map(ef -> downloadExternalAttachment(ef.getAttachment()))
+                .getOrElseGet(Function.identity());
 
-        if (filePart == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        if (filePart.getFile().length() > ConfigUtil.getMaxFileSize()) {
-            return CompletableFuture.supplyAsync(() -> Results.forbidden("sitnet_file_too_large"));
-        }
+    }
 
-        final Optional<U> externalExam = getExternalExam(id);
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
+    @Authenticated
+    @Override
+    default CompletionStage<Result> deleteFeedbackAttachment(T id, Http.Request request) {
+        return findExternalExam(id, request)
+                .map(ee -> findExam(ee)
+                        .map(e -> findFeedback(e)
+                                .map(ef -> deleteExternalAttachment(ef, ee, e, getUser(request)))
+                                .getOrElseGet(Function.identity())
+                        ).getOrElseGet(Function.identity())
+                ).getOrElseGet(Function.identity());
+    }
 
-        Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
-        }
-        Exam e = exam.get();
-        if (e.getExamFeedback() == null) {
-            final Comment comment = new Comment();
-            AppUtil.setCreator(comment, getLoggedUser());
-            e.setExamFeedback(comment);
-        }
-        return uploadAttachment(filePart, externalExam.get(), e, e.getExamFeedback());
+    @Authenticated
+    @Override
+    default CompletionStage<Result> addStatementAttachment(T id, Http.Request request) {
+        MultipartForm mf = getForm(request);
+        Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
+        User user = getUser(request);
+
+        return findExternalExam(id, request)
+                .map(ee -> findExam(ee)
+                        .map(e -> findLanguageInspection(e)
+                                .map(li -> {
+                                    if (li.getStatement() == null) {
+                                        final Comment comment = new Comment();
+                                        AppUtil.setCreator(comment, user);
+                                        li.setStatement(comment);
+                                    }
+                                    return uploadAttachment(filePart, ee, e, li.getStatement(), user);
+                                })
+                                .getOrElseGet(Function.identity())
+                        ).getOrElseGet(Function.identity())
+                ).getOrElseGet(Function.identity());
+
     }
 
     @Override
-    default CompletionStage<Result> downloadFeedbackAttachment(T id) {
-        final Optional<U> externalExam = getExternalExam(id);
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        Exam e = exam.get();
-        if (e.getExamFeedback() == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        return downloadExternalAttachment(e.getExamFeedback().getAttachment());
+    default CompletionStage<Result> downloadStatementAttachment(T id, Http.Request request) {
+        return findExternalExam(id, request)
+                .map(ee -> findExam(ee)
+                        .map(e -> findLanguageInspectionWithAttachment(e)
+                                .map(li -> downloadExternalAttachment(li.getStatement().getAttachment()))
+                                .getOrElseGet(Function.identity())
+                        ).getOrElseGet(Function.identity())
+                ).getOrElseGet(Function.identity());
     }
 
+    @Authenticated
     @Override
-    default CompletionStage<Result> deleteFeedbackAttachment(T id) {
-        final Optional<U> externalExam = getExternalExam(id);
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        Exam e = exam.get();
-        if (e.getExamFeedback() == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        return deleteExternalAttachment(e.getExamFeedback(), externalExam.get(),
-                exam.get(), getLoggedUser());
-    }
-
-    @Override
-    default CompletionStage<Result> addStatementAttachment(T id) {
-        Http.MultipartFormData<File> body = request().body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
-
-        if (filePart == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        if (filePart.getFile().length() > ConfigUtil.getMaxFileSize()) {
-            return CompletableFuture.supplyAsync(() -> Results.forbidden("sitnet_file_too_large"));
-        }
-
-        final Optional<U> externalExam = getExternalExam(id);
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-
-        Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::internalServerError);
-        }
-        Exam e = exam.get();
-
-        if (e.getLanguageInspection() == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        if (e.getLanguageInspection().getStatement() == null) {
-            final Comment comment = new Comment();
-            AppUtil.setCreator(comment, getLoggedUser());
-            e.getLanguageInspection().setStatement(comment);
-        }
-        return uploadAttachment(filePart, externalExam.get(), e, e.getLanguageInspection().getStatement());
-    }
-
-    @Override
-    default CompletionStage<Result> downloadStatementAttachment(T id) {
-        final Optional<U> externalExam = getExternalExam(id);
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        Exam e = exam.get();
-        if (e.getLanguageInspection() == null || e.getLanguageInspection().getStatement() == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        return downloadExternalAttachment(e.getLanguageInspection().getStatement().getAttachment());
-    }
-
-    @Override
-    default CompletionStage<Result> deleteStatementAttachment(T id) {
-        final Optional<U> externalExam = getExternalExam(id);
-        if (!externalExam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        final Optional<Exam> exam = getExam(externalExam.get());
-        if (!exam.isPresent()) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        Exam e = exam.get();
-        if (e.getLanguageInspection() == null || e.getLanguageInspection().getStatement() == null) {
-            return CompletableFuture.supplyAsync(Results::notFound);
-        }
-        return deleteExternalAttachment(e.getLanguageInspection().getStatement(),
-                externalExam.get(), exam.get(), getLoggedUser());
+    default CompletionStage<Result> deleteStatementAttachment(T id, Http.Request request) {
+        return findExternalExam(id, request)
+                .map(ee -> findExam(ee)
+                        .map(e -> findLanguageInspectionWithAttachment(e)
+                                .map(li -> deleteExternalAttachment(li.getStatement(), ee, e, getUser(request)))
+                                .getOrElseGet(Function.identity())
+                        ).getOrElseGet(Function.identity())
+                ).getOrElseGet(Function.identity());
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
@@ -413,7 +316,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
             return CompletableFuture.supplyAsync(Results::internalServerError);
         }
         return getWsClient().url(url.get().toString()).get().thenCompose(response -> {
-            if (response.getStatus() != 200) {
+            if (response.getStatus() != Http.Status.OK) {
                 return CompletableFuture.supplyAsync(() -> Results.status(response.getStatus()));
             }
             final JsonNode node = response.asJson();
@@ -427,7 +330,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         }
         final String externalId = attachment.getExternalId();
         if (StringUtils.isEmpty(externalId)) {
-            Logger.warn("External id can not be found for attachment [id={}]", attachment.getId());
+            logger().warn("External id can not be found for attachment [id={}]", attachment.getId());
             return CompletableFuture.supplyAsync(Results::notFound);
         }
         return download(externalId, attachment.getMimeType(), attachment.getFileName());
@@ -439,7 +342,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
             return CompletableFuture.supplyAsync(Results::internalServerError);
         }
         return getWsClient().url(url.get().toString()).stream().thenCompose(response -> {
-            if (response.getStatus() != 200) {
+            if (response.getStatus() != Http.Status.OK) {
                 return CompletableFuture.supplyAsync(() -> Results.status(response.getStatus()));
             }
             try {
@@ -458,7 +361,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         }
         final String externalId = attachment.getExternalId();
         if (StringUtils.isEmpty(externalId)) {
-            Logger.warn("External id can not be found for attachment [id={}]", attachment.getExternalId());
+            logger().warn("External id can not be found for attachment [id={}]", attachment.getExternalId());
             return CompletableFuture.supplyAsync(Results::notFound);
         }
 
@@ -483,18 +386,18 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
 
     default Optional<URL> parseUrl(String url, String id) {
         String urlString = ConfigFactory.load().getString("sitnet.integration.iop.host") + url;
-        id = id == null ? "" : id;
-        urlString = String.format(urlString, id);
+        String id2 = id == null ? "" : id;
+        urlString = String.format(urlString, id2);
         try {
             return Optional.of(new URL(urlString));
         } catch (MalformedURLException e) {
-            Logger.error("Malformed URL {}", e);
+            logger().error("Malformed URL {}", e);
             return Optional.empty();
         }
     }
 
-    default CompletionStage<Result> uploadAttachment(Http.MultipartFormData.FilePart<File> file, U externalExam,
-                                                     Exam exam, AttachmentContainer container) {
+    default CompletionStage<Result> uploadAttachment(Http.MultipartFormData.FilePart<Files.TemporaryFile> file, U externalExam,
+                                                     Exam exam, AttachmentContainer container, User user) {
         String externalId = null;
         if (container.getAttachment() != null) {
             externalId = container.getAttachment().getExternalId();
@@ -505,27 +408,27 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
             return CompletableFuture.supplyAsync(Results::internalServerError);
         }
         final WSRequest request = getWsClient().url(url.get().toString());
-        final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.getFile().toPath());
+        final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.getRef().path());
         final Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart =
                 new Http.MultipartFormData.FilePart<>("file",
                         file.getFilename(),
                         file.getContentType(), source);
         final Source<Http.MultipartFormData.Part<? extends Source<ByteString, ?>>, NotUsed> body =
                 Source.from(Collections.singletonList(filePart));
-        final User loggedUser = getLoggedUser();
         if (StringUtils.isEmpty(externalId)) {
             return request.post(body).thenComposeAsync(wsResponse ->
-                    createExternalAttachment(externalExam, exam, container, wsResponse, loggedUser));
+                    createExternalAttachment(externalExam, exam, container, wsResponse, user));
         }
         return request.put(body).thenComposeAsync(wsResponse ->
-                createExternalAttachment(externalExam, exam, container, wsResponse, loggedUser));
+                createExternalAttachment(externalExam, exam, container, wsResponse, user));
     }
 
     default CompletionStage<Result> createExternalAttachment(U externalExam, Exam exam,
                                                              AttachmentContainer container, WSResponse wsResponse,
                                                              User user) {
-        if (wsResponse.getStatus() != 200 && wsResponse.getStatus() != 201) {
-            Logger.error("Could not create external attachment to XM server!");
+        if (wsResponse.getStatus() != Http.Status.OK &&
+                wsResponse.getStatus() != Http.Status.CREATED) {
+            logger().error("Could not create external attachment to XM server!");
             return CompletableFuture.supplyAsync(() -> new Result(wsResponse.getStatus()));
         }
         final JsonNode json = wsResponse.asJson();
@@ -544,14 +447,9 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         return CompletableFuture.supplyAsync(Results::internalServerError);
     }
 
-    default boolean questionAnswerNotFound(ExamSectionQuestion sectionQuestion) {
-        return sectionQuestion == null
-                || sectionQuestion.getEssayAnswer() == null;
-    }
-
     Optional<Exam> getExam(U externalExam);
 
-    Optional<U> getExternalExam(T eid);
+    Optional<U> getExternalExam(T eid, Http.Request request);
 
     WSClient getWsClient();
 
@@ -559,5 +457,4 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
 
     T parseId(String id);
 
-    User getLoggedUser();
 }

@@ -18,7 +18,7 @@ package backend.controllers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 
@@ -29,8 +29,8 @@ import akka.util.ByteString;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import play.Environment;
+import play.libs.Files;
 import play.mvc.Http;
-import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 
@@ -47,7 +47,6 @@ import backend.models.questions.Question;
 import backend.models.sections.ExamSectionQuestion;
 import backend.sanitizers.Attrs;
 import backend.util.AppUtil;
-import backend.util.config.ConfigUtil;
 
 
 public class AttachmentController extends BaseController implements LocalAttachmentInterface {
@@ -84,17 +83,9 @@ public class AttachmentController extends BaseController implements LocalAttachm
 
     @Override
     public CompletionStage<Result> addAttachmentToQuestionAnswer(Http.Request request) {
-        MultipartFormData<File> body = request.body().asMultipartFormData();
-        FilePart<File> filePart = body.getFile("file");
-        if (filePart == null) {
-            return wrapAsPromise(notFound());
-        }
-        if (filePart.getRef().length() > ConfigUtil.getMaxFileSize()) {
-            return wrapAsPromise(forbidden("sitnet_file_too_large"));
-        }
-        File file = filePart.getRef();
-        Map<String, String[]> m = body.asFormUrlEncoded();
-        long qid = Long.parseLong(m.get("questionId")[0]);
+        MultipartForm mf = getForm(request);
+        FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
+        long qid = Long.parseLong(mf.getForm().get("questionId")[0]);
 
         // first check if answer already exist
         ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class).fetch("essayAnswer")
@@ -113,7 +104,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
 
         String newFilePath;
         try {
-            newFilePath = copyFile(file, "question", Long.toString(qid), "answer",
+            newFilePath = copyFile(filePart.getRef(), "question", Long.toString(qid), "answer",
                     question.getEssayAnswer().getId().toString());
         } catch (IOException e) {
             return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
@@ -128,20 +119,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return wrapAsPromise(ok(answer));
     }
 
-    private MultipartForm getForm(Http.Request request) throws IllegalArgumentException {
-        MultipartFormData<File> body = request.body().asMultipartFormData();
-        FilePart<File> filePart = body.getFile("file");
-        if (filePart == null) {
-            throw new IllegalArgumentException("file not found");
-        }
-        File file = filePart.getRef();
-        if (file.length() > ConfigUtil.getMaxFileSize()) {
-            throw new IllegalArgumentException("sitnet_file_too_large");
-        }
-        return new MultipartForm(filePart, body.asFormUrlEncoded());
-    }
-
-    private CompletionStage<Result> replaceAndFinish(AttachmentContainer ac, FilePart<File> fp, String path) {
+    private CompletionStage<Result> replaceAndFinish(AttachmentContainer ac, FilePart<Files.TemporaryFile> fp, String path) {
         // Remove existing one if found
         removePrevious(ac);
 
@@ -165,7 +143,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         if (question == null) {
             return wrapAsPromise(notFound());
         }
-        FilePart<File> filePart = mf.getFilePart();
+        FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
         String newFilePath;
         try {
             newFilePath = copyFile(filePart.getRef(), "question", Long.toString(qid));
@@ -226,7 +204,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Override
-    public CompletionStage<Result> deleteFeedbackAttachment(Long id) {
+    public CompletionStage<Result> deleteFeedbackAttachment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
             return wrapAsPromise(notFound("sitnet_exam_not_found"));
@@ -237,7 +215,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Override
-    public CompletionStage<Result> deleteStatementAttachment(Long id) {
+    public CompletionStage<Result> deleteStatementAttachment(Long id, Http.Request request) {
         LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findOne();
         if (inspection == null || inspection.getStatement() == null) {
             return wrapAsPromise(notFound("sitnet_exam_not_found"));
@@ -260,7 +238,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
         }
         String newFilePath;
-        FilePart<File> filePart = mf.getFilePart();
+        FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
         try {
             newFilePath = copyFile(filePart.getRef(), "exam", Long.toString(eid));
         } catch (IOException e) {
@@ -283,7 +261,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             exam.update();
         }
         String newFilePath;
-        FilePart<File> filePart = getForm(request).getFilePart();
+        FilePart<Files.TemporaryFile> filePart = getForm(request).getFilePart();
         try {
             newFilePath = copyFile(filePart.getRef(), "exam", id.toString(), "feedback");
         } catch (IOException e) {
@@ -306,7 +284,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             inspection.setStatement(comment);
             inspection.update();
         }
-        FilePart<File> filePart = getForm(request).getFilePart();
+        FilePart<Files.TemporaryFile> filePart = getForm(request).getFilePart();
         String newFilePath;
         try {
             newFilePath = copyFile(filePart.getRef(), "exam", id.toString(), "inspectionstatement");
@@ -345,7 +323,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     }
 
     @Override
-    public CompletionStage<Result> downloadExamAttachment(Long id) {
+    public CompletionStage<Result> downloadExamAttachment(Long id, Http.Request request) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null || exam.getAttachment() == null) {
             return wrapAsPromise(notFound());
@@ -404,10 +382,15 @@ public class AttachmentController extends BaseController implements LocalAttachm
         return Ebean.find(ExamSectionQuestion.class, id);
     }
 
-    private String copyFile(File srcFile, String... pathParams) throws IOException {
+    private String copyFile(Files.TemporaryFile srcFile, String... pathParams) throws IOException {
         String newFilePath = AppUtil.createFilePath(environment, pathParams);
-        AppUtil.copyFile(srcFile, new File(newFilePath));
+        copyFile(srcFile, new File(newFilePath));
         return newFilePath;
+    }
+
+    private void copyFile(Files.TemporaryFile sourceFile, File destFile) throws IOException {
+        java.nio.file.Files.copy(sourceFile.path(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING,
+                StandardCopyOption.COPY_ATTRIBUTES);
     }
 
 }

@@ -32,6 +32,8 @@ import backend.util.datetime.DateTimeUtils;
 
 public class AutoEvaluationNotifierActor extends AbstractActor {
 
+    private static final Logger.ALogger logger = Logger.of(AutoEvaluationNotifierActor.class);
+
     private EmailComposer composer;
 
     @Inject
@@ -42,7 +44,7 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, s -> {
-            Logger.debug("{}: Running auto evaluation notification check ...", getClass().getCanonicalName());
+            logger.debug("{}: Running auto evaluation notification check ...", getClass().getCanonicalName());
             Ebean.find(Exam.class)
                     .fetch("autoEvaluationConfig")
                     .where()
@@ -57,7 +59,7 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
                     .stream()
                     .filter(this::isPastReleaseDate)
                     .forEach(this::notifyStudent);
-            Logger.debug("{}: ... Done", getClass().getCanonicalName());
+            logger.debug("{}: ... Done", getClass().getCanonicalName());
         }).build();
     }
 
@@ -93,11 +95,11 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
         User student = exam.getCreator();
         try {
             composer.composeInspectionReady(student, null, exam, Collections.emptySet());
-            Logger.debug("{}: ... Mail sent to {}", getClass().getCanonicalName(), student.getEmail());
+            logger.debug("{}: ... Mail sent to {}", getClass().getCanonicalName(), student.getEmail());
             exam.setAutoEvaluationNotified(DateTime.now());
             exam.update();
         } catch (RuntimeException e) {
-            Logger.error("{}: ... Sending email to {} failed", getClass().getCanonicalName(), student.getEmail());
+            logger.error("{}: ... Sending email to {} failed", getClass().getCanonicalName(), student.getEmail());
         }
     }
 

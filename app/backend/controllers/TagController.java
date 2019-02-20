@@ -15,27 +15,34 @@
 
 package backend.controllers;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
-import backend.controllers.base.BaseController;
-import backend.models.Tag;
-import backend.models.User;
+import play.mvc.Http;
 import play.mvc.Result;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import backend.controllers.base.BaseController;
+import backend.models.Role;
+import backend.models.Tag;
+import backend.models.User;
+import backend.sanitizers.Attrs;
+import backend.security.Authenticated;
 
 public class TagController extends BaseController {
 
+    @Authenticated
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result listTags(Optional<String> filter, Optional<List<Long>> examIds, Optional<List<Long>> courseIds, Optional<List<Long>> sectionIds) {
-        User user = getLoggedUser();
+    public Result listTags(Optional<String> filter, Optional<List<Long>> examIds, Optional<List<Long>> courseIds,
+                           Optional<List<Long>> sectionIds, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Tag> query = Ebean.find(Tag.class).where();
-        if (!user.hasRole("ADMIN", getSession())) {
+        if (!user.hasRole(Role.Name.ADMIN)) {
             query = query.where().eq("creator.id", user.getId());
         }
         if (filter.isPresent()) {

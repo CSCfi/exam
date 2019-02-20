@@ -8,11 +8,11 @@ import java.io.InputStream;
 import java.util.Base64;
 
 import play.Logger;
-import play.mvc.Http;
 
 public class FileHandlerImpl implements FileHandler {
 
     private static final int KB = 1024;
+    private static final Logger.ALogger logger = Logger.of(FileHandlerImpl.class);
 
     @Override
     public byte[] read(File file) {
@@ -37,7 +37,7 @@ public class FileHandlerImpl implements FileHandler {
     public String encode(File file) {
         String content = Base64.getEncoder().encodeToString(read(file));
         if (!file.delete()) {
-            Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
+            logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
         }
         return content;
     }

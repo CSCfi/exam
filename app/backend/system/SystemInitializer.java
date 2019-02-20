@@ -61,6 +61,8 @@ class SystemInitializer {
     private static final int RESERVATION_REMINDER_START_AFTER_SECONDS = 90;
     private static final int RESERVATION_REMINDER_INTERVAL_MINUTES = 10;
 
+    private static final Logger.ALogger logger = Logger.of(SystemInitializer.class);
+
     private EmailComposer composer;
     private ActorSystem system;
 
@@ -83,7 +85,7 @@ class SystemInitializer {
 
         String encoding = System.getProperty("file.encoding");
         if (!encoding.equals("UTF-8")) {
-            Logger.warn("Default encoding is other than UTF-8 ({}). " +
+            logger.warn("Default encoding is other than UTF-8 ({}). " +
                     "This might cause problems with non-ASCII character handling!", encoding);
         }
 
@@ -166,7 +168,7 @@ class SystemInitializer {
             nextRun = nextRun.plusHours(1);
         }
 
-        Logger.info("Scheduled next weekly report to be run at {}", nextRun.toString());
+        logger.info("Scheduled next weekly report to be run at {}", nextRun.toString());
         // Increase delay with one second so that this won't fire off before intended time. This may happen because of
         // millisecond-level rounding issues and possibly cause resending of messages.
         return Seconds.secondsBetween(now, nextRun).getSeconds() + 1;
@@ -179,7 +181,7 @@ class SystemInitializer {
             reportTask.cancel();
         }
         tasks.put("REPORT_SENDER", system.scheduler().scheduleOnce(delay, () -> {
-            Logger.info("Running weekly email report");
+            logger.info("Running weekly email report");
             List<User> teachers = Ebean.find(User.class)
                     .fetch("language")
                     .where()
@@ -189,7 +191,7 @@ class SystemInitializer {
                 try {
                     composer.composeWeeklySummary(t);
                 } catch (RuntimeException e) {
-                    Logger.error("Failed to send email for {}", t.getEmail());
+                    logger.error("Failed to send email for {}", t.getEmail());
                 }
             });
             // Reschedule
