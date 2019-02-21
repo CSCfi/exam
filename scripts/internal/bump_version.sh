@@ -1,5 +1,5 @@
 #! /bin/bash
-if [ "$#" -ne 1 ]; then
+if [[ "$#" -ne 1 ]]; then
   echo "Usage: sh $0 <version_string>"
   exit 0;
 fi
@@ -15,6 +15,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ${SED} -i "s/version := .*/version := \"$1\"/g" "${DIR}/../../build.sbt"
 ${SED} -i "s/exam.release.version = .*/exam.release.version = \"$1\"/g" "${DIR}/../../conf/application.conf"
 ${SED} -i "s/\"version\": .*/\"version\": \"$1\",/g" "${DIR}/../../app/frontend/package.json"
+
+npm i --prefix app/frontend
 
 echo "Version bumped to $1"
 exit 0;

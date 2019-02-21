@@ -1,6 +1,6 @@
 {
   "name": "exam",
-  "version": "5.0.3",
+  "version": "5.0.5",
   "description": "EXAM – electronic exam software for higher education",
   "repository": {
     "type": "git",
@@ -74,7 +74,7 @@
     "jasmine-jquery": "^2.1.1",
     "jshint": "^2.9.6",
     "json-loader": "^0.5.7",
-    "karma": "^2.0.5",
+    "karma": "^3.1.1",
     "karma-chrome-launcher": "^2.2.0",
     "karma-jasmine": "^1.1.2",
     "karma-junit-reporter": "^1.2.0",

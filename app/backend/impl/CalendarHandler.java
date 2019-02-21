@@ -33,16 +33,11 @@ public interface CalendarHandler {
     LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException;
     Optional<ExamMachine> getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end,
                                            Collection<Integer> aids);
-
     Reservation createReservation(DateTime start, DateTime end, ExamMachine machine, User user,
                                   Collection<Long> sectionIds);
     LocalDate getEndSearchDate(LocalDate searchDate, LocalDate examEnd);
     int getReservationWindowSize();
     boolean isDoable(Reservation reservation, Collection<Integer> aids);
-
-    class ReservationArgs {
-
-    }
 
     class TimeSlot {
         private final Interval interval;
