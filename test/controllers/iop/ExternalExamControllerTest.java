@@ -49,8 +49,8 @@ import backend.models.Exam;
 import backend.models.ExamEnrolment;
 import backend.models.ExamMachine;
 import backend.models.ExamRoom;
-import backend.models.ExamSection;
-import backend.models.ExamSectionQuestion;
+import backend.models.sections.ExamSection;
+import backend.models.sections.ExamSectionQuestion;
 import backend.models.Language;
 import backend.models.Reservation;
 import backend.models.User;
@@ -197,7 +197,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         assertThat(external.getEnrolment().getExternalExam()).isNotNull();
         // Check that lottery was taken in effect
         Exam exam = external.getEnrolment().getExternalExam().deserialize();
-        Optional<ExamSection> s1 = exam.getExamSections().stream().filter(ExamSection::getLotteryOn).findFirst();
+        Optional<ExamSection> s1 = exam.getExamSections().stream().filter(ExamSection::isLotteryOn).findFirst();
         assertThat(s1.isPresent());
         assertThat(s1.get().getSectionQuestions()).hasSize(s1.get().getLotteryItemCount());
     }

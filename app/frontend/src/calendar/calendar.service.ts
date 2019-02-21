@@ -44,6 +44,7 @@ export interface Slot {
     examId: number;
     orgId: string | null;
     aids?: number[];
+    sectionIds: number[];
 }
 
 export interface OpeningHours {
@@ -82,14 +83,16 @@ export class CalendarService {
         this.http.post<void>('/integration/iop/reservations/external', slot)
 
     reserve$(start: moment.Moment, end: moment.Moment, room: Room,
-        accs: { filtered: boolean; id: number }[], org: { _id: string | null }, collaborative = false) {
+        accs: { filtered: boolean; id: number }[], org: { _id: string | null }, collaborative = false,
+        sectionIds: number[] = []) {
         const tz = room.localTimezone;
         const slot: Slot = {
             start: this.adjustBack(start, tz),
             end: this.adjustBack(end, tz),
             examId: parseInt(this.RouteParams.id),
             roomId: room._id != null ? room._id : room.id,
-            orgId: org._id
+            orgId: org._id,
+            sectionIds: sectionIds
         };
         if (org._id !== null) {
             return this.reserveExternal$(slot);

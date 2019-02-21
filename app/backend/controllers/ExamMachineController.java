@@ -44,7 +44,7 @@ public class ExamMachineController extends BaseController {
                 .eq("archived", false)
                 .findList();
 
-        return ok(Json.toJson(machines));
+        return ok(machines);
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
@@ -143,7 +143,7 @@ public class ExamMachineController extends BaseController {
         machine.getSoftwareInfo().add(software);
         machine.update();
 
-        return ok(Json.toJson(machine.getSoftwareInfo()));
+        return ok(machine.getSoftwareInfo());
     }
 
     @Restrict({@Group("ADMIN")})
@@ -186,7 +186,7 @@ public class ExamMachineController extends BaseController {
 
         machine.save();
 
-        return ok(Json.toJson(machine));
+        return ok(machine);
     }
 
     @Restrict(@Group({"ADMIN"}))
@@ -204,14 +204,14 @@ public class ExamMachineController extends BaseController {
                 .orderBy("name")
                 .findList();
 
-        return ok(Json.toJson(softwares));
+        return ok(softwares);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result getSoftware(Long id) {
         Software software = Ebean.find(Software.class, id);
 
-        return ok(Json.toJson(software));
+        return ok(software);
     }
 
     @Restrict(@Group({"ADMIN"}))
@@ -221,7 +221,7 @@ public class ExamMachineController extends BaseController {
         software.setName(name);
         Ebean.save(software);
 
-        return ok(Json.toJson(software));
+        return ok(software);
     }
 
     @Restrict(@Group({"ADMIN"}))
@@ -234,7 +234,7 @@ public class ExamMachineController extends BaseController {
         software.setStatus("ACTIVE");
         software.update();
 
-        return ok(Json.toJson(software));
+        return ok(software);
     }
 
     @Restrict(@Group({"ADMIN"}))

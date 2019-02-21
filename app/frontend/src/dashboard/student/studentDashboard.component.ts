@@ -17,6 +17,8 @@ import { ReservationService } from '../../reservation/reservationService';
 import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../utility/date/date.service';
 import { StudentDashboardService } from './studentDashboard.service';
+import { EnrolmentService } from '../../enrolment/enrolment.service';
+import { ExamEnrolment } from '../../enrolment/enrolment.model';
 
 export const StudentDashboardComponent: angular.IComponentOptions = {
     template: require('./studentDashboard.template.html'),
@@ -28,7 +30,7 @@ export const StudentDashboardComponent: angular.IComponentOptions = {
             private StudentDashboard: StudentDashboardService,
             private Reservation: ReservationService,
             private DateTime: DateTimeService,
-            private Enrolment: any, // TBD
+            private Enrolment: EnrolmentService,
             private Session: SessionService) {
             'ngInject';
         }
@@ -57,12 +59,12 @@ export const StudentDashboardComponent: angular.IComponentOptions = {
             return this.Session.getUserName();
         }
 
-        enrolmentRemoved(data) {
+        enrolmentRemoved(data: ExamEnrolment) {
             this.userEnrolments.splice(this.userEnrolments.indexOf(data), 1);
         }
 
-        removeEnrolment(enrolment, enrolments) {
-            this.Enrolment.removeEnrolment(enrolment, enrolments);
+        removeEnrolment(enrolment: ExamEnrolment) {
+            this.Enrolment.removeEnrolment(enrolment);
         }
     }
 };

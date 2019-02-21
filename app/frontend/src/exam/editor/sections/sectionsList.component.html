@@ -1,10 +1,11 @@
 <!-- Sections -->
 <div class="col-md-12 exam-border">
 
-    <div class="student-enrolment-wrapper review-view exam-questions-warning padt40" *ngIf="exam.hasEnrolmentsInEffect">
+    <div class="student-enrolment-wrapper review-view exam-questions-warning mart40" *ngIf="exam.hasEnrolmentsInEffect">
         <div class="col-md-12">
             <div class="col-md-1">
-                <img src="Images/icon_warning.png" alt="exam" onerror="this.onerror=null;this.src='Images/icon_warning.svg';" />
+                <img src="Images/icon_warning.png" alt="exam"
+                    onerror="this.onerror=null;this.src='Images/icon_warning.svg';" />
             </div>
             <div class="col-md-11 warning-text">
                 {{'sitnet_upcoming_reservations_exist' | translate}}
@@ -16,9 +17,11 @@
 
         <div [appSortable]="exam.examSections" [selection]="'.section-handle'" (onMove)="moveSection($event)">
 
-            <div [ngClass]="exam.examSections.length > 1 ? 'section-handle' : ''" *ngFor="let section of exam.examSections">
-                <section [section]="section" [collaborative]="collaborative" [examId]="exam.id" (on-delete)="removeSection(section)"
-                    (on-reload-required)="onReloadRequired()">
+            <div [ngClass]="exam.examSections.length > 1 ? 'section-handle' : ''"
+                *ngFor="let section of exam.examSections">
+                <section [section]="section" [collaborative]="collaborative" [examId]="exam.id"
+                    (on-delete)="removeSection(section)" (on-reload-required)="onReloadRequired()"
+                    (on-materials-changed)="loadMaterials()">
                 </section>
 
             </div>

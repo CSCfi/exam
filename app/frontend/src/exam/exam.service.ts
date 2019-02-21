@@ -169,12 +169,12 @@ export class ExamService {
         return name;
     }
 
-    refreshGradeScales = (): Observable<GradeScale[]> =>
-        this.http.get<GradeScale[]>('/app/gradescales').pipe(
+    refreshGradeScales = (isCollaborative: boolean): Observable<GradeScale[]> => {
+        const url = isCollaborative ? '/integration/iop/gradescales' : '/app/gradescales';
+        this.http.get<GradeScale[]>(url).pipe(
             map(resp => resp.map(gs => Object.assign(gs, { name: this.getScaleDisplayName(gs) })))
-        )
-
-
+        );
+    }
 
     getCredit = (exam: Exam) => {
         if (this.hasCustomCredit(exam)) {

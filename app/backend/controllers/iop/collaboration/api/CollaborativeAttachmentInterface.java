@@ -49,7 +49,7 @@ import backend.controllers.BaseAttachmentInterface;
 import backend.models.Attachment;
 import backend.models.Comment;
 import backend.models.Exam;
-import backend.models.ExamSectionQuestion;
+import backend.models.sections.ExamSectionQuestion;
 import backend.models.User;
 import backend.models.api.AttachmentContainer;
 import backend.models.questions.EssayAnswer;
@@ -191,6 +191,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
 
         if (filePart == null) {
+            Logger.warn("answer attachment file not found");
             return CompletableFuture.supplyAsync(Results::notFound);
         }
         if (filePart.getFile().length() > ConfigUtil.getMaxFileSize()) {
@@ -201,6 +202,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         final String id = m.get("examId")[0];
         final Optional<U> externalExam = getExternalExam(parseId(id));
         if (!externalExam.isPresent()) {
+            Logger.warn("external exam not found with hash {}", id);
             return CompletableFuture.supplyAsync(Results::notFound);
         }
 
@@ -211,7 +213,11 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
 
         final Long qid = Long.parseLong(m.get("questionId")[0]);
         final ExamSectionQuestion sq = getExamSectionQuestion(qid, exam.get());
+        if (sq != null && sq.getEssayAnswer() == null) {
+            sq.setEssayAnswer(new EssayAnswer());
+        }
         if (questionAnswerNotFound(sq)) {
+            Logger.warn("answer not found with id {}", qid);
             return CompletableFuture.supplyAsync(Results::notFound);
         }
 

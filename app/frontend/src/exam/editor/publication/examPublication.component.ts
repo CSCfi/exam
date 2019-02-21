@@ -119,12 +119,9 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                     toast.info(this.$translate.instant('sitnet_exam_saved'));
                 }
                 deferred.resolve();
-            }, (resp) => {
-                if (resp.data) {
-                    const msg = resp.data.message || resp.data;
-                    toast.error(this.$translate.instant(msg));
-                }
-                deferred.reject();
+            }, (err: string) => {
+                toast.error(err);
+                deferred.reject(err);
             });
             return deferred.promise;
         }
@@ -192,8 +189,8 @@ export const ExamPublicationComponent: angular.IComponentOptions = {
                     this.updateExam(true, state).then(() => {
                         toast.success(this.$translate.instant('sitnet_exam_saved_and_published'));
                         this.$location.path('/');
-                    });
-                }).catch(angular.noop);
+                    }).catch(angular.noop);
+                });
             }
         }
 

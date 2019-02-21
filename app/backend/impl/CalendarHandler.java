@@ -34,7 +34,8 @@ public interface CalendarHandler {
     Optional<ExamMachine> getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end,
                                            Collection<Integer> aids);
 
-    Reservation createReservation(DateTime start, DateTime end, ExamMachine machine, User user);
+    Reservation createReservation(DateTime start, DateTime end, ExamMachine machine, User user,
+                                  Collection<Long> sectionIds);
     LocalDate getEndSearchDate(LocalDate searchDate, LocalDate examEnd);
     int getReservationWindowSize();
     boolean isDoable(Reservation reservation, Collection<Integer> aids);

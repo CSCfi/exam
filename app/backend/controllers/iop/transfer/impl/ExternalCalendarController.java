@@ -234,6 +234,8 @@ public class ExternalCalendarController extends CalendarController {
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
+                .fetch("exam.examSections")
+                .fetch("exam.examSections.examMaterials")
                 .where()
                 .eq("user.id", user.getId())
                 .eq("exam.id", examId)

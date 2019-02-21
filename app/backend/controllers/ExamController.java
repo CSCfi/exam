@@ -44,7 +44,7 @@ import backend.models.Course;
 import backend.models.Exam;
 import backend.models.ExamExecutionType;
 import backend.models.ExamMachine;
-import backend.models.ExamSection;
+import backend.models.sections.ExamSection;
 import backend.models.ExamType;
 import backend.models.GradeScale;
 import backend.models.Language;
@@ -244,7 +244,10 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result getExamExecutionTypes() {
-        List<ExamExecutionType> types = Ebean.find(ExamExecutionType.class).findList();
+        List<ExamExecutionType> types = Ebean.find(ExamExecutionType.class)
+                .where()
+                .ne("active", false)
+                .findList();
         return ok(types);
     }
 
@@ -257,6 +260,7 @@ public class ExamController extends BaseController {
                 .fetch("examinationDates")
                 .fetch("examLanguages")
                 .fetch("examSections")
+                .fetch("examSections.examMaterials")
                 .fetch("examSections.sectionQuestions", new FetchConfig().query())
                 .fetch("examSections.sectionQuestions.question")
                 .fetch("examSections.sectionQuestions.question.attachment")
@@ -523,6 +527,7 @@ public class ExamController extends BaseController {
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.options", new FetchConfig().query())
                 .fetch("examSections.sectionQuestions.options.option", "id, option, correctOption, defaultScore")
+                .fetch("examSections.examMaterials")
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")

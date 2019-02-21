@@ -101,7 +101,7 @@ export class FileService {
     uploadAnswerAttachment(url: string, file: File, params: any, parent: any): void {
         this._doUpload(url, file, params)
             .then(resp => {
-                parent.objectVersion = resp.objectVersion;
+                parent.objectVersion = resp.objectVersion; // FIXME: CSCEXAM-266 fixed in master, won't work here (ts)
                 parent.attachment = resp;
             })
             .catch(resp =>

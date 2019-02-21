@@ -14,11 +14,12 @@
  */
 import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
-import { Exam, ExamSection } from '../../exam.model';
+import { Exam, ExamSection, ExamMaterial } from '../../exam.model';
 import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ExamService } from '../../exam.service';
 import { tap, catchError } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
     selector: 'sections',
@@ -30,15 +31,22 @@ export class SectionsListComponent implements OnInit, OnChanges {
     @Output() onNextTabSelected = new EventEmitter<void>();
     @Output() onPreviousTabSelected = new EventEmitter<void>();
     @Output() onNewLibraryQuestion = new EventEmitter<void>();
+    materials: ExamMaterial[];
 
     constructor(
+        private http: HttpClient,
         private translate: TranslateService,
         private Exam: ExamService,
         private Session: SessionService
     ) { }
 
+    loadMaterials = () => {
+        this.http.get<ExamMaterial[]>('/app/materials').subscribe(resp => this.materials = resp);
+    }
+
     private init = () => {
         this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
+        this.loadMaterials();
         this.updateSectionIndices();
     }
 

@@ -15,11 +15,11 @@
 /// <reference types="angular-dialog-service" />
 
 import * as ng from 'angular';
-import { IHttpResponse } from 'angular';
-import { IModalService } from 'angular-ui-bootstrap';
 import * as toast from 'toastr';
+import { IModalService } from 'angular-ui-bootstrap';
+import { IHttpResponse } from 'angular';
+import { ExamSection, ExamSectionQuestion, Question, ExamMaterial } from '../../exam.model';
 import { FileService } from '../../../utility/file/file.service';
-import { ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
 
 export const SectionComponent: ng.IComponentOptions = {
     template: require('./section.template.html'),
@@ -27,8 +27,10 @@ export const SectionComponent: ng.IComponentOptions = {
         section: '<',
         examId: '<',
         collaborative: '<',
+        materials: '<',
         onDelete: '&',
-        onReloadRequired: '&' // TODO: try to live without this callback?
+        onReloadRequired: '&', // TODO: try to live without this callback?
+        onMaterialsChanged: '&'
     },
     controller: class SectionComponentController implements ng.IComponentController {
 
@@ -36,7 +38,10 @@ export const SectionComponent: ng.IComponentOptions = {
         examId: number;
         onDelete: (_: { section: ExamSection }) => any;
         onReloadRequired: () => any;
+        onMaterialsChanged: () => any;
+        parentCtrl: { collaborative: boolean };
         collaborative: boolean;
+        materials: ExamMaterial[];
 
         constructor(
             private $http: ng.IHttpService,
@@ -58,7 +63,8 @@ export const SectionComponent: ng.IComponentOptions = {
             lotteryOn: this.section.lotteryOn,
             lotteryItemCount: this.section.lotteryItemCount,
             description: this.section.description,
-            expanded: this.section.expanded
+            expanded: this.section.expanded,
+            optional: this.section.optional
         })
 
         private getQuestionScore = (question: ExamSectionQuestion) => {
@@ -163,6 +169,8 @@ export const SectionComponent: ng.IComponentOptions = {
 
         toggleDisabled = () => !this.section.sectionQuestions || this.section.sectionQuestions.length < 2;
 
+        materialsChanged = () => this.onMaterialsChanged();
+
         toggleLottery = () => {
             if (this.toggleDisabled()) {
                 this.section.lotteryOn = false;
@@ -242,7 +250,7 @@ export const SectionComponent: ng.IComponentOptions = {
                     sectionId: this.section.id,
                     questionCount: this.section.sectionQuestions.length
                 }
-            }).result.then((data) => {
+            }).result.then(() => {
                 // TODO: see if we could live without reloading the whole exam from back?
                 this.onReloadRequired();
             });

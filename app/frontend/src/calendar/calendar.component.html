@@ -57,7 +57,8 @@
         </div>
 
         <div class="student-exam-row">
-            <div class="student-exam-row-infolink infotitle-calendar" ng-show="examInfo.executionType.type !== 'MATURITY'">
+            <div class="student-exam-row-infolink infotitle-calendar"
+                ng-show="examInfo.executionType.type !== 'MATURITY'">
                 {{ 'sitnet_calendar_instructions' | translate}}:
             </div>
             <div class="student-exam-row-infobox">{{ examInfo.enrollInstruction }}</div>
@@ -71,7 +72,8 @@
     </div>
 
     <!-- Organisation picker -->
-    <div *ngIf="isExternal" class="student-enrolment-wrapper details-view" [ngClass]="selectedOrganisation ? '' : 'notactive'">
+    <div *ngIf="isExternal" class="student-enrolment-wrapper details-view"
+        [ngClass]="selectedOrganisation ? '' : 'notactive'">
         <div class="student-exam-header-row">
             <span class="calendar-phase-title">2. {{ 'sitnet_choose_institution' | translate }}
                 <small>
@@ -89,12 +91,13 @@
         <div class="student-exam-row">
             <div class="col-1 student-exam-row-title">
                 <span ngbDropdown>
-                    <button style="width:13em;" ngbDropdownToggle class="btn btn-default" type="button" id="dropDownMenu21"
-                        aria-haspopup="true" aria-expanded="true">
+                    <button style="width:13em;" ngbDropdownToggle class="btn btn-default" type="button"
+                        id="dropDownMenu21" aria-haspopup="true" aria-expanded="true">
                         {{ 'sitnet_faculty_name' | translate }}&nbsp;
                         <span class="caret"></span>
                     </button>
-                    <ul ngbDropdownMenu style="padding-left: 0; min-width: 17em" role="menu" aria-labelledby="dropDownMenu21">
+                    <ul ngbDropdownMenu style="padding-left: 0; min-width: 17em" role="menu"
+                        aria-labelledby="dropDownMenu21">
                         <!-- li class="input-group">
                             <input aria-label="search for faculty" [(ngModel)]="limitations.organisations" class="form-control"
                                 (click)="$event.stopPropagation()" placeholder="{{'sitnet_search' | translate }}"
@@ -102,7 +105,8 @@
                                 <i class="fa fa-search fa-fw"></i>
                             </div>
                         </li-->
-                        <li *ngFor="let org of organisations" (hidden)="org.filtered" role="presentation" (click)="setOrganisation(org)">
+                        <li *ngFor="let org of organisations" (hidden)="org.filtered" role="presentation"
+                            (click)="setOrganisation(org)">
                             <a role="menuitem">{{org.code}}&nbsp;({{org.name}})</a>
                         </li>
                     </ul>
@@ -128,7 +132,8 @@
                 <span *ngIf="!isExternal">2.</span>
                 {{ 'sitnet_calendar_phase_2' | translate }}
                 <small>
-                    <button class="btn btn-sm btn-success btn-link" (click)="makeExternalReservation()" *ngIf="isInteroperable && !isCollaborative && !isExternal">
+                    <button class="btn btn-sm btn-success btn-link" (click)="makeExternalReservation()"
+                        *ngIf="isInteroperable && !isCollaborative && !isExternal">
                         {{'sitnet_external_reservation' | translate }}&nbsp;
                         <i class="fa fa-angle-double-right"></i>
                     </button>
@@ -142,14 +147,17 @@
             <div class="calendar-accessibility-link">
                 <a (click)="showAccs = !showAccs">
                     {{'sitnet_calendar_room_accessibility_info' | translate}}</a>
-                <img class="arrow_icon" *ngIf="!showAccs" alt="show accessibility selection" src="Images/arrow_right.png">
+                <img class="arrow_icon" *ngIf="!showAccs" alt="show accessibility selection"
+                    src="Images/arrow_right.png">
                 <img class="arrow_icon" *ngIf="showAccs" alt="hide accessibility selection" src="Images/arrow_down.png">
             </div>
             <div class="student-exam-row-infobox" ng-show="showAccs">
                 <div class="calendar-accs-title">Tenttitilan esteettömyysvaatimukset</div>
-                <div class="calendar-accs-checkboxes" style="display:inline-block; padding-right:10px;" *ngFor="let accessibility of accessibilities">
-                    <input aria-label="search for accessibility criteria" type="checkbox" role="presentation" (click)="selectAccessibility(accessibility)"
-                        value="{{accessibility.name | truncate:30}}"> {{accessibility.name | truncate:30}}
+                <div class="calendar-accs-checkboxes" style="display:inline-block; padding-right:10px;"
+                    *ngFor="let accessibility of accessibilities">
+                    <input aria-label="search for accessibility criteria" type="checkbox" role="presentation"
+                        (click)="selectAccessibility(accessibility)" value="{{accessibility.name | truncate:30}}">
+                    {{accessibility.name | truncate:30}}
                 </div>
                 <!-- TBD div class="calendar-accs-title subi">Tenttikoneen esteettömyysvaatimukset</div>
                 <div class="calendar-accs-checkboxes">....</div-->
@@ -159,8 +167,8 @@
         <div class="student-exam-row">
             <div class="col-1 student-exam-row-title">
                 <span ngbDropdown>
-                    <button style="width:13em;" ngbDropdownToggle class="btn btn-default" type="button" id="dropDownMenu1"
-                        [disabled]="isExternal && !selectedOrganisation">
+                    <button style="width:13em;" ngbDropdownToggle class="btn btn-default" type="button"
+                        id="dropDownMenu1" [disabled]="isExternal && !selectedOrganisation">
                         {{'sitnet_room' | translate}}&nbsp;
                         <span class="caret"></span>
                     </button>
@@ -173,8 +181,8 @@
                             </div>
                         </li-->
 
-                        <li *ngFor="let room of rooms" (hidden)="room.filtered" role="presentation" [ngClass]="room.outOfService ? 'disabled' : ''"
-                            (click)="selectRoom(room)">
+                        <li *ngFor="let room of rooms" (hidden)="room.filtered" role="presentation"
+                            [ngClass]="room.outOfService ? 'disabled' : ''" (click)="selectRoom(room)">
                             <a role="menuitem" ngbPopover="{{getDescription(room)}}" trigger="mouseenter">
                                 {{room.name | truncate:30}}</a>
                         </li>
@@ -249,102 +257,157 @@
 
     </div>
 
+    <!-- Exam material selection (if any) -->
+    <div class="student-enrolment-wrapper details-view phase-three" [ngClass]="reservation ? '' : 'notactive'"
+        *ngIf="examInfo && hasExamMaterials()">
+        <div class="student-exam-header-row">
+            <span class="calendar-phase-title">{{ getSequenceNumber('material')}}. {{
+                'sitnet_exam_materials' | translate }}</span>
+            <div class="calendar-phase-icon" (hidden)="!reservation">
+                <img class="arrow_icon" alt="exam materials" src="Images/icon-phase.png">
+            </div>
+        </div>
+        <div *ngFor="let section of examInfo.examSections" class="marb20">
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>{{ 'sitnet_exam_section' | translate}}:</strong> {{ section.name }}
+                </div>
+                <div class="col-md-6">
+                    <div *ngIf="section.optional" class="text text-success">
+                        {{ 'sitnet_optional_section' | translate | uppercase }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ section.description }}
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check" *ngIf="section.optional">
+                        <input class="form-check-input" type="checkbox" value="" [(ngModel)]="section.selected"
+                            id="check1">
+                        <label class="form-check-label" for="check1">
+                            {{ 'sitnet_select_optional_section' | translate}}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="section.examMaterials.length > 0">
+                <div class="row">
+                    <div class="col-md-12">
+                        <strong>{{'sitnet_exam_materials' | translate}}</strong>
+                    </div>
+                </div>
+                <div *ngFor="let material of section.examMaterials">
+                    <div class="row">
+                        <span class="col-md-12">
+                            {{'sitnet_name' | translate | uppercase}}: {{ material.name }}
+                            <span *ngIf="material.author">
+                                {{'sitnet_author' | translate | uppercase}}: {{ material.author }}
+                            </span>
+                            <span *ngIf="material.isbn">
+                                ISBN: {{ material.isbn }}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Reservation confirmation -->
 
-    <div>
-        <div class="student-enrolment-wrapper details-view phase-three" [ngClass]="reservation ? '' : 'notactive'">
-            <div class="student-exam-header-row">
-                <span *ngIf="!isExternal" class="calendar-phase-title">3. {{ 'sitnet_calendar_phase_3' |
-                    translate }}</span>
-                <span *ngIf="isExternal" class="calendar-phase-title">4. {{ 'sitnet_calendar_phase_3' | translate
-                    }}</span>
-                <div class="calendar-phase-icon" *ngIf="reservation">
-                    <img class="arrow_icon" alt="phase {{ isExternal ? 4 : 3 }}" src="Images/icon-phase.png">
-                </div>
+    <div class="student-enrolment-wrapper details-view phase-three" [ngClass]="$ctrl.reservation ? '' : 'notactive'">
+        <div class="student-exam-header-row">
+            <span class="calendar-phase-title">{{ $ctrl.getSequenceNumber('confirmation')}}. {{
+                'sitnet_calendar_phase_3' | translate }}</span>
+            <div class="calendar-phase-icon" ng-show="$ctrl.reservation">
+                <img class="arrow_icon" alt="reservation confirmation" src="Images/icon-phase.png">
             </div>
-            <div class="student-exam-header-row">
-                <div class="calendar-titles">
-                    <span class="calendar-course-title">{{ examInfo.name }}</span>
-                </div>
+        </div>
+        <div class="student-exam-header-row">
+            <div class="calendar-titles">
+                <span class="calendar-course-title">{{ $ctrl.examInfo.name }}</span>
             </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ 'sitnet_course_name' | translate }}:
-                        </div>
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ examInfo.course.code }} {{ examInfo.course.name }}
-                        </div>
-                        <div class="clearfix visible-xs"></div>
-                        <div class="clearfix visible-sm"></div>
-                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                            {{'sitnet_exam_validity' | translate}}:
-                        </div>
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                            {{ examInfo.examActiveStartDate | date:'dd.MM.yyyy' }} -
-                            {{ examInfo.examActiveEndDate | date:'dd.MM.yyyy' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row" *ngIf="reservation">
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{'sitnet_examination_location' | translate}}:
-                        </div>
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ reservation.room}}
-                        </div>
-                        <div class="clearfix visible-xs"></div>
-                        <div class="clearfix visible-sm"></div>
-                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                            {{'sitnet_reservation' | translate}}:
-                        </div>
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                            {{ reservation.time}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{'sitnet_exam_duration' | translate}}:
-                        </div>
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                            {{ printExamDuration(examInfo) }}
-                        </div>
-                        <div class="clearfix visible-xs"></div>
-                        <div class="clearfix visible-sm"></div>
-                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
-                            &nbsp;
-                        </div>
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                            &nbsp;
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
-        <div class="calendar-button-save">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{ 'sitnet_course_name' | translate }}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{ $ctrl.examInfo.course.code }} {{ $ctrl.examInfo.course.name }}
+                    </div>
+                    <div class="clearfix visible-xs"></div>
+                    <div class="clearfix visible-sm"></div>
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                        {{'sitnet_exam_validity' | translate}}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                        {{ $ctrl.examInfo.examActiveStartDate | date:'dd.MM.yyyy' }} -
+                        {{$ctrl.examInfo.examActiveEndDate | date:'dd.MM.yyyy' }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <div [ngClass]="reservation ? 'calendar-button-save-activated' : 'link-button'">
-                <button [disabled]="!reservation || confirming" class="btn btn-link" (click)="confirmReservation()">
-                    {{'sitnet_student_confirm_reservation' | translate}}
-                </button>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{'sitnet_examination_location' | translate}}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{$ctrl.reservation.room}}
+                    </div>
+                    <div class="clearfix visible-xs"></div>
+                    <div class="clearfix visible-sm"></div>
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                        {{'sitnet_reservation' | translate}}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                        {{$ctrl.reservation.time}}
+                    </div>
+                </div>
             </div>
-            <div>
-                <br />
-                <a class="link-button cancel" href="/">{{'sitnet_button_cancel' | translate}}</a>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{'sitnet_exam_duration' | translate}}:
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{ $ctrl.printExamDuration($ctrl.examInfo) }}
+                    </div>
+                    <div class="clearfix visible-xs"></div>
+                    <div class="clearfix visible-sm"></div>
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
+                        &nbsp;
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                        &nbsp;
+                    </div>
+                </div>
             </div>
+        </div>
+
+    </div>
+
+    <div class="calendar-button-save">
+
+        <div [ngClass]="reservation ? 'calendar-button-save-activated' : 'link-button'">
+            <button [disabled]="!reservation || confirming" class="btn btn-link" (click)="confirmReservation()">
+                {{'sitnet_student_confirm_reservation' | translate}}
+            </button>
+        </div>
+        <div>
+            <br />
+            <a class="link-button cancel" href="/">{{'sitnet_button_cancel' | translate}}</a>
         </div>
     </div>
 </div>

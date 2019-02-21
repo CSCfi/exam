@@ -60,9 +60,28 @@
             <div class="col-md-9">
                 <textarea id="sectionDescription" class="form-control" rows="4" cols="150" ng-model="$ctrl.section.description"
                     ui-change="$ctrl.renameSection()">
-        </textarea>
+                </textarea>
             </div>
         </div>
+
+        <!-- Section material resources-->
+        <!-- DISABLE FOR NOW
+        <exam-material-selector section="$ctrl.section" all-materials="$ctrl.materials" on-changes="$ctrl.materialsChanged()"></exam-material-selector>
+        <div class="row col-md-12 margin-20">
+            <div class="col-md-3 exam-basic-title">{{'sitnet_optional_section' | translate}}
+                <sup>
+                    <img popover-placement="right" popover-trigger="'mouseenter'" uib-popover="{{'sitnet_optional_section_description' | translate}}"
+                        src="Images/icon_tooltip.svg" alt="exam" onerror="this.onerror=null;this.src='Images/icon_tooltip.png';" />
+                </sup>
+            </div>
+            <div class="col-md-9">
+                <!!-- section optional on/off --!!>
+                <input type="checkbox" name="On" value="On" ng-disabled="$ctrl.section.examMaterials.length === 0"
+                    ng-model="$ctrl.section.optional" ui-change="$ctrl.renameSection()">
+                </input>
+            </div>
+        </div>
+        -->
 
         <div class="row col-md-12 margin-20">
             <div class="col-md-3 exam-basic-title">{{'sitnet_randomize_questions' | translate}}

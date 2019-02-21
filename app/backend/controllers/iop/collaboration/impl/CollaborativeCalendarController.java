@@ -55,7 +55,7 @@ public class CollaborativeCalendarController extends CollaborationController {
                         return notFound("sitnet_error_exam_not_found");
                     }
                     Exam exam = result.get();
-                    return ok(exam, PathProperties.parse("(*, examLanguages(*))"));
+                    return ok(exam, PathProperties.parse("(*, examSections(*, examMaterials(*)), examLanguages(*))"));
                 });
 
     }
@@ -85,6 +85,8 @@ public class CollaborativeCalendarController extends CollaborationController {
         DateTime start = request().attrs().get(Attrs.START_DATE);
         DateTime end = request().attrs().get(Attrs.END_DATE);
         Collection<Integer> aids = request().attrs().get(Attrs.ACCESSABILITES);
+        Collection<Long> sectionIds = request().attrs().get(Attrs.SECTION_IDS);
+
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
         DateTime now = DateTimeUtils.adjustDST(DateTime.now(), room);
@@ -130,7 +132,8 @@ public class CollaborativeCalendarController extends CollaborationController {
                         // Take pessimistic lock for user to prevent multiple reservations creating.
                         Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
                         Reservation oldReservation = enrolment.getReservation();
-                        Reservation reservation =  calendarHandler.createReservation(start, end, machine.get(), user);
+                        Reservation reservation = calendarHandler.createReservation(start, end, machine.get(), user,
+                                sectionIds);
                         // Nuke the old reservation if any
                         if (oldReservation != null) {
                             enrolment.setReservation(null);

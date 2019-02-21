@@ -760,67 +760,67 @@ exams:
 
 exam-sections:
 
-  - &alkeet_mv_osio1 !!backend.models.ExamSection
+  - &alkeet_mv_osio1 !!backend.models.sections.ExamSection
     name: Monivalinnat 1
     sequenceNumber: 0
     exam: *alkeidenperusteetGraded
 
-  - &alkeet_mv_osio2 !!backend.models.ExamSection
+  - &alkeet_mv_osio2 !!backend.models.sections.ExamSection
     name: Monivalinnat 2
     sequenceNumber: 1
     exam: *alkeidenperusteetGraded
 
-  - &alkeet_essay !!backend.models.ExamSection
+  - &alkeet_essay !!backend.models.sections.ExamSection
     name: Essee kysymykset
     sequenceNumber: 2
     exam: *alkeidenperusteetGraded
 
-  - &alkeet_mv_osio1b !!backend.models.ExamSection
+  - &alkeet_mv_osio1b !!backend.models.sections.ExamSection
     name: Monivalinnat 1
     sequenceNumber: 0
     exam: *alkeidenperusteetReview
 
-  - &alkeet_mv_osio2b !!backend.models.ExamSection
+  - &alkeet_mv_osio2b !!backend.models.sections.ExamSection
     name: Monivalinnat 2
     sequenceNumber: 1
     exam: *alkeidenperusteetReview
 
-  - &alkeet_essayb !!backend.models.ExamSection
+  - &alkeet_essayb !!backend.models.sections.ExamSection
     name: Essee kysymykset
     sequenceNumber: 2
     exam: *alkeidenperusteetReview
 
-  - &osio2 !!backend.models.ExamSection
+  - &osio2 !!backend.models.sections.ExamSection
     name: Monivalinnat 2
     sequenceNumber: 0
     exam: *tietokannat2013
 
-  - &osio1_algo !!backend.models.ExamSection
+  - &osio1_algo !!backend.models.sections.ExamSection
     name: Monivalinnat 1
     sequenceNumber: 0
     exam: *algoritmit
 
-  - &osio2_algo !!backend.models.ExamSection
+  - &osio2_algo !!backend.models.sections.ExamSection
     name: Essee 1
     sequenceNumber: 1
     exam: *algoritmit
 
-  - &osio4 !!backend.models.ExamSection
+  - &osio4 !!backend.models.sections.ExamSection
     name: Monivalinnat 4
     sequenceNumber: 0
     exam: *ooad
 
-  - &osio5 !!backend.models.ExamSection
+  - &osio5 !!backend.models.sections.ExamSection
     name: Monivalinnat 5
     sequenceNumber: 1
     exam: *ooad
 
-  - &astro1 !!backend.models.ExamSection
+  - &astro1 !!backend.models.sections.ExamSection
     name: Astronomian Monivalinnat
     sequenceNumber: 0
     exam: *astronomianPerusteet
 
-  - &ooadessay !!backend.models.ExamSection
+  - &ooadessay !!backend.models.sections.ExamSection
     name: Essee kysymykset
     sequenceNumber: 2
     exam: *ooad
@@ -829,353 +829,353 @@ exam-sections:
 
 section-questions:
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio1
     question: *multi1
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio1
     question: *multi2
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio1
     question: *cloze1
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2
     question: *avaruus4
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2
     question: *multi4
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2
     question: *avaruus5
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
       examSection: *alkeet_mv_osio2
       question: *cloze2
       sequenceNumber: 3
       maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_essay
     question: *essay1
     sequenceNumber: 0
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_essay
     question: *essay2
     sequenceNumber: 1
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_essay
     question: *essay3
     sequenceNumber: 2
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_essay
     question: *cloze3
     sequenceNumber: 3
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio1b
     question: *multi1
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio1b
     question: *multi2
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio1b
     question: *cloze4
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2b
     question: *avaruus4
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2b
     question: *multi4
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2b
     question: *avaruus5
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_mv_osio2b
     question: *cloze1
     sequenceNumber: 3
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_essayb
     question: *essay1
     sequenceNumber: 0
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_essayb
     question: *essay2
     sequenceNumber: 1
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_essayb
     question: *essay3
     sequenceNumber: 2
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *alkeet_essayb
     question: *cloze2
     sequenceNumber: 3
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio2
     question: *multi3
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio2
     question: *multi4
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio2
     question: *multi5
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio2
     question: *cloze3
     sequenceNumber: 3
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio1_algo
     question: *avaruus4
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio1_algo
     question: *multi4
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio1_algo
     question: *avaruus5
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio2_algo
     question: *essay1
     sequenceNumber: 0
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio2_algo
     question: *multi4
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio2_algo
     question: *avaruus5
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio4
     question: *avaruus9
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio4
     question: *avaruus8
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio4
     question: *avaruus7
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio4
     question: *multi1
     sequenceNumber: 3
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio4
     question: *multi2
     sequenceNumber: 4
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio4
     question: *multi3
     sequenceNumber: 5
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio5
     question: *avaruus9
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio5
     question: *avaruus8
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio5
     question: *avaruus7
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus1
     sequenceNumber: 0
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus2
     sequenceNumber: 1
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus3
     sequenceNumber: 2
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus4
     sequenceNumber: 3
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus5
     sequenceNumber: 4
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus6
     sequenceNumber: 5
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus7
     sequenceNumber: 6
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus8
     sequenceNumber: 7
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus9
     sequenceNumber: 8
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus10
     sequenceNumber: 9
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *astro1
     question: *avaruus11
     sequenceNumber: 10
     maxScore: 7
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *ooadessay
     question: *essay1
     sequenceNumber: 0
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *ooadessay
     question: *essay2
     sequenceNumber: 1
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *ooadessay
     question: *essay3
     sequenceNumber: 2
     maxScore: 7
     evaluationType: Points
 
-  - !!backend.models.ExamSectionQuestion
+  - !!backend.models.sections.ExamSectionQuestion
     examSection: *osio2
     question: *weighted1
     sequenceNumber: 2
     options:
-      - !!backend.models.ExamSectionQuestionOption {option: *kumpi, score: 2}
-      - !!backend.models.ExamSectionQuestionOption {option: *kampi, score: 2}
-      - !!backend.models.ExamSectionQuestionOption {option: *molemmat, score: -2}
+      - !!backend.models.sections.ExamSectionQuestionOption {option: *kumpi, score: 2}
+      - !!backend.models.sections.ExamSectionQuestionOption {option: *kampi, score: 2}
+      - !!backend.models.sections.ExamSectionQuestionOption {option: *molemmat, score: -2}
 
 ################################################################
 

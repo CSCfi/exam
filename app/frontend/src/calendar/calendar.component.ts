@@ -25,11 +25,17 @@ import { SessionService } from '../session/session.service';
 import { takeUntil, tap, switchMap } from 'rxjs/operators';
 import { Location } from '@angular/common';
 import { BookingCalendarComponent } from './bookingCalendar.component';
+import { IHttpResponse } from 'angular';
+import { ExamSection } from '../exam/exam.model';
+
+interface SelectableSection extends ExamSection {
+    selected: boolean;
+}
 
 interface ExamInfo {
     examActiveStartDate: number;
     examActiveEndDate: number;
-    course: { name: string, code: string };
+    examSections: SelectableSection[];
 }
 
 interface AvailableSlot extends Slot {
@@ -59,7 +65,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     accessibilities: Accessibility[] = [];
     isInteroperable: boolean;
     confirming = false;
-    examInfo: ExamInfo = { examActiveStartDate: 0, examActiveEndDate: 0, course: { code: '', name: '' } };
+    examInfo: ExamInfo = { examActiveStartDate: 0, examActiveEndDate: 0, examSections: [] };
     limitations = {};
     openingHours: any[];
     organisations: any[];
@@ -133,6 +139,32 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 );
             })
         ).subscribe();
+    }
+
+    hasExamMaterials(): boolean {
+        return this.examInfo.examSections.some(es => es.examMaterials.length > 0);
+    }
+
+    getSequenceNumber(area: string): number {
+        switch (area) {
+            case 'info':
+                return 1;
+            case 'organization':
+                return 2;
+            case 'room':
+                return this.isExternal ? 3 : 2;
+            case 'material':
+                return this.isExternal ? 4 : 3;
+            case 'confirmation':
+                if (this.isExternal && this.hasExamMaterials()) {
+                    return 5;
+                } else if (this.isExternal || this.hasExamMaterials()) {
+                    return 4;
+                } else {
+                    return 3;
+                }
+        }
+        return 0;
     }
 
     ngOnDestroy() {
@@ -315,6 +347,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
         if (!room || !this.reservation || this.confirming) {
             return;
         }
+        const selectedSectionIds = this.examInfo.examSections.filter(es => es.selected).map(es => es.id);
         this.confirming = true;
         this.Calendar.reserve$(
             this.reservation.start,
@@ -322,7 +355,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
             room,
             this.accessibilities,
             { _id: this.selectedOrganisation ? this.selectedOrganisation._id : null },
-            this.isCollaborative
+            this.isCollaborative,
+            selectedSectionIds
         ).subscribe(
             () => {
                 this.confirming = false;

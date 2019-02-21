@@ -59,16 +59,11 @@
                     <date-picker [initial-date]="$ctrl.exam.examActiveEndDate" (on-update)="$ctrl.endDateChanged($event)">
                     </date-picker>
                 </div>
-            </div>
-
-            <div ng-show="$ctrl.exam.hasEnrolmentsInEffect" class="row">
-                <div class="col-md-12">
-                    <div class="mart10">
-                        <span class="text-info">
-                            <img class="arrow_icon" src="Images/icon_info.png"> {{
-                            'sitnet_restricting_validity_change_disallowed' | translate }}
-                        </span>
-                    </div>
+                <div class="col-md-3" ng-show="$ctrl.exam.hasEnrolmentsInEffect">
+                    <span class="text-info">
+                        <img class="arrow_icon" src="Images/icon_info.png"> {{
+                        'sitnet_restricting_validity_change_disallowed' | translate }}
+                    </span>
                 </div>
             </div>
         </form>

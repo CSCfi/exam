@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package backend.models;
+package backend.models.sections;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -226,7 +226,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     ExamSectionQuestion copy(boolean preserveOriginalQuestion, boolean setParent) {
         ExamSectionQuestion esqCopy = new ExamSectionQuestion();
-        BeanUtils.copyProperties(this, esqCopy, "id", "options");
+        BeanUtils.copyProperties(this, esqCopy, "id", "options", "creator", "modifier");
         Question blueprint;
         if (preserveOriginalQuestion) {
             // Use the existing question references, no copying
