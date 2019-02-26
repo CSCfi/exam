@@ -108,8 +108,11 @@ export const SectionComponent: ng.IComponentOptions = {
             const resource = this.parentCtrl.collaborative ?
                 `/integration/iop/exams/${this.examId}/sections/${this.section.id}/questions` :
                 `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
-
-            this.$http.post(resource, { sequenceNumber: seq, question: question })
+            const data: any = { sequenceNumber: seq };
+            if (this.parentCtrl.collaborative) {
+                data.question = question;
+            }
+            this.$http.post(resource, data)
                 .then((resp: IHttpResponse<ExamSectionQuestion>) => {
                     // Collaborative exam question handling.
                     this.addAttachment(resp.data, question, this.onReloadRequired);

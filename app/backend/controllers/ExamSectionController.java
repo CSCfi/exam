@@ -281,7 +281,6 @@ public class ExamSectionController extends QuestionController implements Section
         if (!exam.isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("sitnet_error_access_forbidden");
         }
-        // TODO: response payload should be trimmed down (use path properties)
         Integer seq = request().body().asJson().get("sequenceNumber").asInt();
         return insertQuestion(exam, section, question, user, seq).orElse(ok(section));
     }
