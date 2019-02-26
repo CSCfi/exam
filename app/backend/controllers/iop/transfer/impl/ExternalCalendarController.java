@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -262,16 +263,20 @@ public class ExternalCalendarController extends CalendarController {
         body.put("start", ISODateTimeFormat.dateTime().print(start));
         body.put("end", ISODateTimeFormat.dateTime().print(end));
         body.put("user", user.getEppn());
+
         WSRequest wsRequest = wsClient.url(url.toString());
-        Function<WSResponse, Result> onSuccess = response -> {
+        return wsRequest.post(body).thenComposeAsync(response -> {
             JsonNode root = response.asJson();
             if (response.getStatus() != Http.Status.CREATED) {
-                return internalServerError(root.get("message").asText("Connection refused"));
+                return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
             }
-            handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef);
-            return created(root.get("id"));
-        };
-        return wsRequest.post(body).thenApplyAsync(onSuccess);
+            return handleExternalReservation(enrolment, root, start, end, user, orgRef, roomRef).thenApplyAsync(err -> {
+                if (!err.isPresent()) {
+                    return created(root.get("id"));
+                }
+                return internalServerError();
+            });
+        });
     }
 
     @Authenticated
@@ -279,7 +284,7 @@ public class ExternalCalendarController extends CalendarController {
     public CompletionStage<Result> requestReservationRemoval(String ref, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Reservation reservation = Ebean.find(Reservation.class).where().eq("externalRef", ref).findOne();
-        return externalReservationHandler.removeReservation(reservation, user);
+        return externalReservationHandler.removeReservations(reservation, user);
     }
 
     @Authenticated
@@ -325,8 +330,8 @@ public class ExternalCalendarController extends CalendarController {
 
     // helpers ->
 
-    private void handleExternalReservation(ExamEnrolment enrolment, JsonNode node, DateTime start, DateTime end,
-                                           User user, String orgRef, String roomRef) {
+    private CompletionStage<Optional<Integer>> handleExternalReservation(ExamEnrolment enrolment, JsonNode node, DateTime start, DateTime end,
+                                                                         User user, String orgRef, String roomRef) {
         Reservation oldReservation = enrolment.getReservation();
         final Reservation reservation = new Reservation();
         reservation.setEndAt(end);
@@ -362,11 +367,29 @@ public class ExternalCalendarController extends CalendarController {
 
         // Finally nuke the old reservation if any
         if (oldReservation != null) {
-            Ebean.delete(oldReservation);
+            if (oldReservation.getExternalReservation() != null) {
+                return externalReservationHandler.removeExternalReservation(oldReservation).thenApply(err -> {
+                    if (!err.isPresent()) {
+                        Ebean.delete(oldReservation);
+                        postProcessRemoval(reservation, enrolment, user, machineNode);
+                    }
+                    return err;
+                });
+            } else {
+                Ebean.delete(oldReservation);
+                postProcessRemoval(reservation, enrolment, user, machineNode);
+                return CompletableFuture.supplyAsync(Optional::empty);
+            }
+        } else {
+            postProcessRemoval(reservation, enrolment, user, machineNode);
+            return CompletableFuture.supplyAsync(Optional::empty);
         }
+    }
+
+    private void postProcessRemoval(Reservation reservation, ExamEnrolment enrolment, User user, JsonNode node) {
         Exam exam = enrolment.getExam();
         // Attach the external machine data just so that email can be generated
-        reservation.setMachine(parseExternalMachineData(machineNode));
+        reservation.setMachine(parseExternalMachineData(node));
         // Send some emails asynchronously
         system.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             emailComposer.composeReservationNotification(user, reservation, exam, false);

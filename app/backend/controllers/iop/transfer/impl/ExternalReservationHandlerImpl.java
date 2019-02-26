@@ -18,6 +18,7 @@ package backend.controllers.iop.transfer.impl;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
@@ -70,6 +71,25 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         return new URL(sb.toString());
     }
 
+    @Override
+    public CompletionStage<Optional<Integer>> removeExternalReservation(Reservation reservation) {
+        ExternalReservation external = reservation.getExternalReservation();
+        URL url;
+        try {
+            url = parseUrl(external.getOrgRef(), external.getRoomRef(), reservation.getExternalRef());
+        } catch (MalformedURLException e) {
+            return CompletableFuture.supplyAsync(() -> Optional.of(Http.Status.INTERNAL_SERVER_ERROR));
+        }
+        WSRequest request = wsClient.url(url.toString());
+        Function<WSResponse, Optional<Integer>> onSuccess = response -> {
+            if (response.getStatus() != Http.Status.OK) {
+                return Optional.of(Http.Status.INTERNAL_SERVER_ERROR);
+            }
+            return Optional.empty();
+        };
+        return request.delete().thenApplyAsync(onSuccess);
+    }
+
     private CompletionStage<Result> requestRemoval(String ref, User user) throws IOException {
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
@@ -116,7 +136,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     }
 
     @Override
-    public CompletionStage<Result> removeReservation(Reservation reservation, User user) {
+    public CompletionStage<Result> removeReservations(Reservation reservation, User user) {
         if (reservation.getExternalReservation() == null) {
             return CompletableFuture.supplyAsync(Results::ok);
         }
@@ -126,4 +146,5 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
             return CompletableFuture.supplyAsync(() -> Results.internalServerError(e.getMessage()));
         }
     }
+
 }

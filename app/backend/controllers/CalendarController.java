@@ -187,7 +187,7 @@ public class CalendarController extends BaseController {
             if (oldReservation != null) {
                 String externalReference = oldReservation.getExternalRef();
                 if (externalReference != null) {
-                    return externalReservationHandler.removeReservation(oldReservation, user)
+                    return externalReservationHandler.removeReservations(oldReservation, user)
                             .thenCompose(result -> {
                                 // Refetch enrolment
                                 ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());

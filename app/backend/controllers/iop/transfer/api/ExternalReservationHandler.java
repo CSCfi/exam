@@ -15,17 +15,18 @@
 
 package backend.controllers.iop.transfer.api;
 
-import backend.controllers.iop.transfer.impl.ExternalReservationHandlerImpl;
-import com.google.inject.ImplementedBy;
-
-import backend.models.Reservation;
-import backend.models.User;
-import play.mvc.Result;
-
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
-@FunctionalInterface
+import com.google.inject.ImplementedBy;
+import play.mvc.Result;
+
+import backend.controllers.iop.transfer.impl.ExternalReservationHandlerImpl;
+import backend.models.Reservation;
+import backend.models.User;
+
 @ImplementedBy(ExternalReservationHandlerImpl.class)
 public interface ExternalReservationHandler {
-    CompletionStage<Result> removeReservation(Reservation reservation, User user);
+    CompletionStage<Result> removeReservations(Reservation reservation, User user);
+    CompletionStage<Optional<Integer>> removeExternalReservation(Reservation reservation);
 }
